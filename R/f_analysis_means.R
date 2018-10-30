@@ -1,0 +1,1503 @@
+######################################################################################
+#                                                                                    #
+# -- Analysis of means with group sequential and combination test --                 #
+#                                                                                    #
+# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
+#                                                                                    # 
+# File version: 1.0.0                                                                #
+# Date: 25-09-2018                                                                   #
+# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
+# Licensed under "GNU Lesser General Public License" version 3                       #
+# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
+#                                                                                    #
+# RPACT company website: https://www.rpact.com                                       #
+# RPACT package website: https://www.rpact.org                                       #
+#                                                                                    #
+# Contact us for information about our services: info@rpact.com                      #
+#                                                                                    #
+######################################################################################
+
+# @title
+# Get Analysis Results Means
+# 
+# @description
+# Returns an analysis result object.  
+#
+# @param design The trial design.
+# 
+# @return Returns a \code{AnalysisResultsMeans} object.
+# 
+# @keywords internal
+# 
+getAnalysisResultsMeans <- function(design, dataInput, ...) { 
+	if (.isTrialDesignGroupSequential(design)) {
+		return(.getAnalysisResultsMeansGroupSequential(design = design, 
+				dataInput = dataInput, ...))
+	}
+	
+	if (.isTrialDesignInverseNormal(design)) {
+		return(.getAnalysisResultsMeansInverseNormal(design = design, 
+				dataInput = dataInput, ...))
+	}
+	
+	if (.isTrialDesignFisher(design)) {
+		return(.getAnalysisResultsMeansFisher(design = design, 
+				dataInput = dataInput, ...))
+	}
+	
+	.stopWithWrongDesignMessage(design)
+}
+
+.getAnalysisResultsMeansInverseNormal <- function( 
+		design, dataInput, directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		thetaH0 = C_THETA_H0_MEANS_DEFAULT, thetaH1 = NA_real_, nPlanned = NA_real_, assumedStDev = NA_real_, 
+		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, 
+		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT,
+		parallelComputingEnabled = FALSE, ...) {
+	
+	.assertIsTrialDesignInverseNormal(design)
+	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
+	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsMeansInverseNormal", 
+		ignore = c("stage"), ...)
+	
+	results <- AnalysisResultsInverseNormal(design = design, dataInput = dataInput)
+	
+	.getAnalysisResultsMeans(results = results, design = design, dataInput = dataInput, 
+		stage = stage, directionUpper = directionUpper, normalApproximation = normalApproximation, 
+		equalVariances = equalVariances, thetaH0 = thetaH0, thetaH1 = thetaH1, nPlanned = nPlanned,  
+		assumedStDev = assumedStDev, allocationRatioPlanned = allocationRatioPlanned, 
+		tolerance = tolerance,
+		parallelComputingEnabled = parallelComputingEnabled)
+
+	return(results)
+}
+
+.getAnalysisResultsMeansGroupSequential <- function(
+		design, dataInput, directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		thetaH0 = C_THETA_H0_MEANS_DEFAULT, thetaH1 = NA_real_, nPlanned = NA_real_, assumedStDev = NA_real_, 
+		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, 
+		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT,
+		parallelComputingEnabled = FALSE, ...) {
+	
+	.assertIsTrialDesignGroupSequential(design)
+	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
+	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsMeansGroupSequential", 
+		ignore = c("stage"), ...)
+		
+	results <- AnalysisResultsGroupSequential(design = design, dataInput = dataInput)
+	
+	.getAnalysisResultsMeans(results = results, design = design, dataInput = dataInput, 
+			stage = stage, directionUpper = directionUpper, normalApproximation = normalApproximation, 
+			equalVariances = equalVariances, thetaH0 = thetaH0, thetaH1 = thetaH1, nPlanned = nPlanned, 
+			assumedStDev = assumedStDev, allocationRatioPlanned = allocationRatioPlanned, 
+			tolerance = tolerance,
+			parallelComputingEnabled = parallelComputingEnabled)
+	
+	return(results)
+}
+
+.getAnalysisResultsMeansFisher <- function( 
+		design, dataInput, directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		thetaH0 = C_THETA_H0_MEANS_DEFAULT, thetaH1 = NA_real_, nPlanned = NA_real_, assumedStDev = NA_real_,  
+		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
+		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT, 
+		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_,
+		parallelComputingEnabled = FALSE, ...) {
+	
+	.assertIsTrialDesignFisher(design)
+	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
+	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
+	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsMeansFisher", 
+		ignore = c("stage"), ...)
+	
+	results <- AnalysisResultsFisher(design = design, dataInput = dataInput)
+	
+	.getAnalysisResultsMeans(results = results, design = design, dataInput = dataInput, 
+			stage = stage, directionUpper = directionUpper, normalApproximation = normalApproximation, 
+			equalVariances = equalVariances, thetaH0 = thetaH0, thetaH1 = thetaH1, nPlanned = nPlanned, 
+			assumedStDev = assumedStDev, allocationRatioPlanned = allocationRatioPlanned, 
+			tolerance = tolerance, iterations = iterations, 
+			seed = seed, parallelComputingEnabled = parallelComputingEnabled)
+	
+	return(results)
+}
+
+#
+# The following parameters will be taken from 'design':
+# stages, informationRates, criticalValues, futilityBounds, alphaSpent, stageLevels	
+#
+.getAnalysisResultsMeans <- function(results, design, dataInput, stage, 
+		directionUpper, normalApproximation, equalVariances, thetaH0, thetaH1, assumedStDev,
+		nPlanned, allocationRatioPlanned, tolerance,
+		iterations, seed, parallelComputingEnabled = FALSE) {
+
+	startTime <- Sys.time()
+	stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, stage = stage, 
+		thetaH0 = thetaH0, directionUpper = directionUpper, 
+		normalApproximation = normalApproximation, equalVariances = equalVariances)
+	results$.stageResults <- stageResults
+	.logProgress("Stage results calculated", startTime = startTime)
+	
+	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, dataInput$getNumberOfGroups())
+	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+
+	results$directionUpper <- directionUpper
+	results$normalApproximation <- normalApproximation
+	results$equalVariances <- equalVariances
+	results$allocationRatioPlanned <- allocationRatioPlanned
+	results$thetaH0 <- thetaH0
+	results$thetaH1 <- thetaH1
+	results$nPlanned <- nPlanned
+	results$assumedStDev <- assumedStDev
+	while (length(results$nPlanned) < design$kMax) {
+		results$nPlanned <- c(NA_real_, results$nPlanned)
+	}
+	
+	# effect size
+	results$effectSizes <- stageResults$effectSizes
+	
+	# test statistic
+	results$testStatistics <- stageResults$testStatistics
+	
+	# p-value
+	results$pValues <- stageResults$pValues
+	
+	# combined test statistic and test action
+	if (.isTrialDesignInverseNormal(design)) {
+		results$combinationTestStatistics <- stageResults$combInverseNormal
+	} else if (.isTrialDesignGroupSequential(design)) {
+		results$overallTestStatistics <- stageResults$overallTestStatistics
+		results$overallPValues <- stageResults$overallPValues
+	}		
+	else if (.isTrialDesignFisher(design)) {
+		results$combinationTestStatistics <- stageResults$combFisher
+	}
+	
+	# test actions 
+	results$testActions <- getTestActions(design = design, stageResults = stageResults, stage = stage)
+	
+	# conditional power
+	startTime <- Sys.time()
+	if (.isTrialDesignFisher(design)) {
+		conditionalPowerList <- .getConditionalPowerMeans(design = design, stageResults = stageResults, 
+				stage = stage, nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, 
+				assumedStDev = assumedStDev, thetaH1 = thetaH1, 
+				iterations = iterations, seed = seed)		
+		if (conditionalPowerList$simulated) {
+			results$conditionalPowerSimulated <- conditionalPowerList$conditionalPower
+		} else {
+			results$conditionalPower <- conditionalPowerList$conditionalPower
+			results$conditionalPowerSimulated <- numeric(0)
+		}
+	} else {
+		results$conditionalPower <- .getConditionalPowerMeans(design = design, stageResults = stageResults, 
+				stage = stage, nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, 
+				assumedStDev = assumedStDev, thetaH1 = thetaH1)$conditionalPower
+	}
+	.logProgress("Conditional power calculated", startTime = startTime)	
+
+	# CRP - conditional rejection probabilities	
+	startTime <- Sys.time()
+	results$conditionalRejectionProbabilities <- getConditionalRejectionProbabilities(
+			design = design, stageResults = stageResults, stage = stage)
+	.logProgress("Conditional rejection probabilities (CRP) calculated", startTime = startTime)
+		
+	if (parallelComputingEnabled && .createParallelComputingCluster()) {
+		
+		startTime <- Sys.time()
+		
+		.parallelComputingCaseNumbers <<- c(1, 2)
+		
+		.parallelComputingArguments <<- list(
+			results             = results,
+			design              = design,
+			dataInput           = dataInput,
+			stage               = stage,
+			normalApproximation = normalApproximation,
+			equalVariances      = equalVariances,
+			tolerance           = tolerance,
+			stageResults        = stageResults
+		)
+		
+		parallel::clusterExport(.parallelComputingCluster, c('.getAnalysisResultsMeansParallelComputing', 
+			'.parallelComputingCaseNumbers', '.parallelComputingArguments'))
+		
+		parallelComputingResults <- .runAnalysisResultsMeansParallelComputing()
+		results$repeatedConfidenceIntervalLowerBounds <- 
+			parallelComputingResults[[1]]$repeatedConfidenceIntervalLowerBounds
+		results$repeatedConfidenceIntervalUpperBounds <- 
+			parallelComputingResults[[1]]$repeatedConfidenceIntervalUpperBounds
+		results$repeatedPValues <- parallelComputingResults[[2]]$repeatedPValues
+		.logProgress("Repeated confidence interval and repeated p-values calculated", startTime = startTime)	
+		
+	} else {
+		
+		# RCI - repeated confidence interval
+		startTime <- Sys.time()
+		repeatedConfidenceIntervals <- getRepeatedConfidenceIntervalsMeans(
+			design = design, dataInput = dataInput, stage = stage, 
+			normalApproximation = normalApproximation, equalVariances = equalVariances, 
+			tolerance = tolerance)
+		results$repeatedConfidenceIntervalLowerBounds <- repeatedConfidenceIntervals[1, ]
+		results$repeatedConfidenceIntervalUpperBounds <- repeatedConfidenceIntervals[2, ]
+		.logProgress("Repeated confidence interval calculated", startTime = startTime)
+		
+		# repeated p-value
+		startTime <- Sys.time()
+		results$repeatedPValues <- getRepeatedPValues(design = design, 
+			stageResults = stageResults, stage = stage, tolerance = tolerance)
+		.logProgress("Repeated p-values calculated", startTime = startTime)	
+	}
+	
+	# final p-value	
+	startTime <- Sys.time()
+	finalPValue <- getFinalPValue(design = design, stageResults = stageResults, stage = stage) 
+	results$finalPValues <- .getVectorWithFinalValueAtFinalStage(kMax = design$kMax, 
+			finalValue = finalPValue$pFinal, finalStage = finalPValue$finalStage)
+	results$finalStage <- finalPValue$finalStage
+	.logProgress("Final p-value calculated", startTime = startTime)
+	
+	# final confidence interval & median unbiased estimate
+	startTime <- Sys.time()
+	finalConfidenceIntervals <- getFinalConfidenceIntervalMeans(design = design, dataInput = dataInput, 
+			thetaH0 = thetaH0, stage = stage, directionUpper = directionUpper, 
+			normalApproximation = normalApproximation, 
+			equalVariances = equalVariances, tolerance = tolerance)
+	.logProgress("Final confidence interval calculated", startTime = startTime)
+		
+	if (!is.null(finalConfidenceIntervals)) {
+		finalStage <- finalConfidenceIntervals$finalStage
+		results$finalConfidenceIntervalLowerBounds <- .getVectorWithFinalValueAtFinalStage(kMax = design$kMax, 
+				finalValue = finalConfidenceIntervals$finalConfidenceInterval[1], finalStage = finalStage)
+		results$finalConfidenceIntervalUpperBounds <- .getVectorWithFinalValueAtFinalStage(kMax = design$kMax, 
+				finalValue = finalConfidenceIntervals$finalConfidenceInterval[2], finalStage = finalStage)
+		results$medianUnbiasedEstimates <- .getVectorWithFinalValueAtFinalStage(kMax = design$kMax, 
+				finalValue = finalConfidenceIntervals$medianUnbiased, finalStage = finalStage)
+	}
+	
+	return(results)
+}
+
+.runAnalysisResultsMeansParallelComputing <- function() {
+	results <- parallel::parLapply(.parallelComputingCluster, .parallelComputingCaseNumbers, 
+		function(i) { 
+			.getAnalysisResultsMeansParallelComputing(i, .parallelComputingArguments) 
+		}
+	)
+	return(results)
+}
+
+# @title
+# Get Analysis Results Means Parallel Computing
+# 
+# @description
+# Internal usage for parallel computing only.
+# 
+# @details 
+# Cluster based parallel computing requires exported functions. 
+# 
+# @keywords internal
+# 
+#' @export
+.getAnalysisResultsMeansParallelComputing <- function(caseNumber, arguments) {
+		
+	results <- arguments$results 
+	design <- arguments$design
+	dataInput <- arguments$dataInput
+	stage <- arguments$stage
+	normalApproximation <- arguments$normalApproximation 
+	equalVariances <- arguments$equalVariances
+	tolerance <- arguments$tolerance
+	stageResults <- arguments$stageResults
+	
+	# RCI - repeated confidence interval
+	if (caseNumber == 1) {
+		repeatedConfidenceIntervals <- getRepeatedConfidenceIntervalsMeans(
+			design = design, dataInput = dataInput, stage = stage, 
+			normalApproximation = normalApproximation, equalVariances = equalVariances, tolerance = tolerance)
+		return(list(repeatedConfidenceIntervalLowerBounds = repeatedConfidenceIntervals[1, ],
+			repeatedConfidenceIntervalUpperBounds = repeatedConfidenceIntervals[2, ]))
+	}
+	
+	# repeated p-value
+	else if (caseNumber == 2) {
+		return(list(repeatedPValues = getRepeatedPValues(design = design, 
+			stageResults = stageResults, stage = stage, tolerance = tolerance)))
+	}
+	
+	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'caseNumber' (", caseNumber, ") must be 1 or 2")
+}
+
+# @title
+# Get Stage Results Means
+# 
+# @description  
+# Returns a stage results object.
+#
+# @param design the trial design.
+# 
+# @return Returns a \code{StageResultsMeans} object.
+# 
+# @keywords internal
+# 
+getStageResultsMeans <- function(..., design, dataInput,  
+		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
+		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
+		equalVariances = C_EQUAL_VARIANCES_DEFAULT) {
+
+	.assertIsDatasetMeans(dataInput = dataInput)
+	.assertIsValidThetaH0(thetaH0, dataInput)
+	.warnInCaseOfUnknownArguments(functionName = "getStageResultsMeans", ignore = c("stage"), ...)
+	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
+	
+	effectSizes <- rep(NA_real_, design$kMax)
+		
+	if (dataInput$getNumberOfGroups() == 1) {		
+		overallTestStatistics <- c((dataInput$getOverallMeansUpTo(stage) - thetaH0) / 
+			dataInput$getOverallStDevsUpTo(stage) * 
+			sqrt(dataInput$getOverallSampleSizesUpTo(stage)), rep(NA_real_, design$kMax - stage))  
+		
+		if (normalApproximation) {
+			overallPValues <- 1 - stats::pnorm(overallTestStatistics)
+		} else {
+			overallPValues <- 1 - stats::pt(overallTestStatistics, dataInput$getOverallSampleSizesUpTo(stage) - 1) 
+		}
+		effectSizes[1:stage] <- dataInput$getOverallMeansUpTo(stage) 
+	}
+	
+	if (dataInput$getNumberOfGroups() == 2) {
+		
+		# common variance
+		overallStDevs <- rep(NA_real_, design$kMax)
+		for (k in 1:stage) {
+			overallStDevs[k] <- sqrt(((sum(dataInput$getSampleSizesUpTo(k, 1)) - 1) * 
+				dataInput$getOverallStDev(k)^2 + 
+				(sum(dataInput$getSampleSizesUpTo(k, 2)) - 1) * dataInput$getOverallStDev(k, 2)^2) /
+				(sum(dataInput$getSampleSizesUpTo(k, 1)) + sum(dataInput$getSampleSizesUpTo(k, 2)) - 2))
+		}
+		
+		overallSampleSizes1 <- dataInput$getOverallSampleSizesUpTo(stage)
+		overallSampleSizes2 <- dataInput$getOverallSampleSizesUpTo(stage, 2)
+		
+		if (equalVariances) {	
+			overallTestStatistics <- c((dataInput$getOverallMeansUpTo(stage) - 
+				dataInput$getOverallMeansUpTo(stage, 2) - thetaH0) /
+				overallStDevs[1:stage] / 
+				sqrt(1 / overallSampleSizes1 + 1 / overallSampleSizes2), 
+				rep(NA_real_, design$kMax - stage))
+		} else {
+			overallTestStatistics <- c((dataInput$getOverallMeansUpTo(stage) - 
+				dataInput$getOverallMeansUpTo(stage, 2) - thetaH0) / 
+				(sqrt(dataInput$getOverallStDevsUpTo(stage)^2 / overallSampleSizes1 + 
+				dataInput$getOverallStDevsUpTo(stage, 2)^2 / overallSampleSizes2)), 
+				rep(NA_real_, design$kMax - stage))		
+		}	
+		
+		if (normalApproximation) {
+			overallPValues <- 1 - stats::pnorm(overallTestStatistics)
+		} else {
+			if (equalVariances) {
+				overallPValues <- 1 - stats::pt(overallTestStatistics, 
+					overallSampleSizes1 + overallSampleSizes2 - 2)	
+			} else {
+				u <- dataInput$getOverallStDevsUpTo(stage)^2 / overallSampleSizes1 /
+					(dataInput$getOverallStDevsUpTo(stage)^2 / overallSampleSizes1 + 
+					dataInput$getOverallStDevsUpTo(stage, 2)^2 / overallSampleSizes2)
+				overallPValues <- 1 - stats::pt(overallTestStatistics, 
+					1 / (u^2 / (overallSampleSizes1 - 1) + 
+					(1 - u)^2 / (overallSampleSizes2 - 1)))
+			}
+		}
+		effectSizes <- dataInput$getOverallMeansUpTo(stage) - dataInput$getOverallMeansUpTo(stage, 2)
+	}
+	if (!directionUpper) {
+		overallPValues <- 1 - overallPValues 
+	}
+	
+	# calculation of stagewise test statistics and combination tests
+	testStatistics <- rep(NA_real_, design$kMax)
+	pValues <- rep(NA_real_, design$kMax)
+	combInverseNormal <- rep(NA_real_, design$kMax)
+	combFisher <- rep(NA_real_, design$kMax)
+	weightsInverseNormal <- .getWeighsInverseNormal(design) 
+	weightsFisher <- .getWeighsFisher(design) 
+	
+	for (k in 1:stage) {
+		
+		if (dataInput$getNumberOfGroups() == 1) {
+			# stage-wise test statistics
+			testStatistics[k] <- (dataInput$getMean(k) - thetaH0) / 
+				dataInput$getStDev(k) * sqrt(dataInput$getSampleSize(k)) 
+			
+			if (normalApproximation) {
+				# stage-wise p-values	
+				pValues[k] <- 1 - stats::pnorm(testStatistics[k])
+			} else {
+				pValues[k] <- 1 - stats::pt(testStatistics[k], dataInput$getSampleSize(k) - 1)
+			}
+		}
+		
+		if (dataInput$getNumberOfGroups() == 2) {	
+			# stage-wise test statistics
+			if (equalVariances) {	
+				testStatistics[k] <- (dataInput$getMean(k, 1) - dataInput$getMean(k, 2) - thetaH0) / 
+					sqrt(((dataInput$getSampleSize(k, 1) - 1) * dataInput$getStDev(k, 1)^2 + 
+					(dataInput$getSampleSize(k, 2) - 1) * dataInput$getStDev(k, 2)^2) /
+					(dataInput$getSampleSize(k, 1) + dataInput$getSampleSize(k, 2) - 2)) / 
+					sqrt(1 / dataInput$getSampleSize(k, 1) + 1 / dataInput$getSampleSize(k, 2))
+			} else {
+				testStatistics[k] <- (dataInput$getMean(k, 1) - dataInput$getMean(k, 2) - thetaH0) /
+					sqrt(dataInput$getStDev(k, 1)^2 / dataInput$getSampleSize(k, 1) + 
+					dataInput$getStDev(k, 2)^2 / dataInput$getSampleSize(k, 2))
+			}
+			
+			if (normalApproximation) {
+				# stage-wise p-values	
+				pValues[k] <- 1 - stats::pnorm(testStatistics[k])
+			} else {
+				if (equalVariances) {
+					pValues[k] <- 1 - stats::pt(testStatistics[k], dataInput$getSampleSize(k, 1) + 
+						dataInput$getSampleSize(k, 2) - 2)
+				} else {
+					u <- dataInput$getStDev(k, 1)^2 / dataInput$getSampleSize(k, 1) / (dataInput$getStDev(k, 1)^2 / 
+						dataInput$getSampleSize(k, 1) + dataInput$getStDev(k, 2)^2 / dataInput$getSampleSize(k, 2))
+					pValues[k] <- 1 - stats::pt(testStatistics[k], 
+						1 / (u^2 / (dataInput$getSampleSize(k, 1) - 1) + (1 - u)^2 / (dataInput$getSampleSize(k, 2) - 1)))
+				}
+			}
+		}
+		if (!directionUpper) {
+			pValues[k] <- 1 - pValues[k] 
+		}
+		
+		# inverse normal test
+		combInverseNormal[k] <- (weightsInverseNormal[1:k] %*% stats::qnorm(1 - pValues[1:k])) / 
+				sqrt(sum(weightsInverseNormal[1:k]^2)) 
+		
+		# Fisher combination test
+		combFisher[k] <- prod(pValues[1:k]^weightsFisher[1:k]) 
+	}
+	
+	if (dataInput$getNumberOfGroups() == 1) {
+		return(StageResultsMeans(
+			design = design,
+			dataInput = dataInput,
+			overallTestStatistics = overallTestStatistics, 
+			overallPValues = overallPValues, 
+			overallMeans = dataInput$getOverallMeans(),
+			overallStDevs = dataInput$getOverallStDevs(),
+			overallSampleSizes = dataInput$getOverallSampleSizesUpTo(stage),
+			testStatistics = testStatistics,
+			effectSizes = effectSizes,
+			pValues = pValues, 
+			combInverseNormal = combInverseNormal, 
+			combFisher = combFisher, 
+			weightsFisher = weightsFisher, 
+			weightsInverseNormal = weightsInverseNormal, 
+			thetaH0 = thetaH0, 
+			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
+			normalApproximation = normalApproximation, 
+			equalVariances = equalVariances
+		))
+	}
+	
+	if (dataInput$getNumberOfGroups() == 2) {
+		return(StageResultsMeans(
+			design = design,
+			dataInput = dataInput,
+			overallTestStatistics = overallTestStatistics, 
+			overallPValues = overallPValues, 
+			overallMeans1 = dataInput$getOverallMeans(1), 
+			overallMeans2 = dataInput$getOverallMeans(2), 
+			overallStDevs1 = dataInput$getOverallStDevs(1), 
+			overallStDevs2 = dataInput$getOverallStDevs(2), 
+			overallStDevs = overallStDevs, # common variance
+			overallSampleSizes1 = dataInput$getOverallSampleSizesUpTo(stage),
+			overallSampleSizes2 = dataInput$getOverallSampleSizesUpTo(stage, 2),
+			effectSizes = effectSizes,
+			testStatistics = testStatistics, 
+			pValues = pValues, 
+			combInverseNormal = combInverseNormal, 
+			combFisher = combFisher, 
+			weightsFisher = weightsFisher, 
+			weightsInverseNormal = weightsInverseNormal, 
+			thetaH0 = thetaH0, 
+			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
+			normalApproximation = normalApproximation, 
+			equalVariances = equalVariances
+		))
+	}	
+}
+
+# 
+#  Calculation of lower and upper limits of repeated confidence intervals (RCIs) for Means
+#
+getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
+	
+	if (.isTrialDesignGroupSequential(design)) {
+		return(.getRepeatedConfidenceIntervalsMeansGroupSequential(design = design, ...))
+	}
+	
+	if (.isTrialDesignInverseNormal(design)) {
+		return(.getRepeatedConfidenceIntervalsMeansInverseNormal(design = design, ...))
+	}
+	
+	if (.isTrialDesignFisher(design)) {
+		return(.getRepeatedConfidenceIntervalsMeansFisher(design = design, ...))
+	}
+	
+	.stopWithWrongDesignMessage(design)
+}
+
+.getRootThetaMeans <- function(design, dataInput, stage, 
+		directionUpper, normalApproximation, equalVariances,
+		thetaLow, thetaUp, firstParameterName, secondValue, tolerance) {
+
+	result <- .getOneDimensionalRoot( 
+		function(theta) {
+			stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, 
+				stage = stage, thetaH0 = theta, directionUpper = directionUpper, 
+				normalApproximation = normalApproximation, equalVariances = equalVariances)
+			firstValue <- stageResults[[firstParameterName]][stage]
+			if (.isTrialDesignGroupSequential(design)) {
+				firstValue <- stats::qnorm(1 - firstValue)
+			}
+			return(firstValue - secondValue)
+		}, lower = thetaLow, upper = thetaUp, tolerance = tolerance
+	)
+	return(result)
+}
+
+.getUpperLowerThetaMeans <- function(design, dataInput, theta, stage, 
+		directionUpper,	normalApproximation, equalVariances, conditionFunction,
+		firstParameterName, secondValue) {
+	
+	stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, 
+			stage = stage, thetaH0 = theta, directionUpper = directionUpper, 
+			normalApproximation = normalApproximation, equalVariances = equalVariances)
+	
+	firstValue <- stageResults[[firstParameterName]][stage]
+	if (.isTrialDesignGroupSequential(design)) {
+		firstValue <- stats::qnorm(1 - firstValue)
+	}
+	
+	maxSearchIterations <- 50
+	while (conditionFunction(secondValue, firstValue)) {
+	
+		theta <- 2 * theta
+		
+		stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, 
+				stage = stage, thetaH0 = theta, directionUpper = directionUpper, 
+				normalApproximation = normalApproximation, equalVariances = equalVariances)
+		
+		firstValue <- stageResults[[firstParameterName]][stage]
+		if (.isTrialDesignGroupSequential(design)) {
+			firstValue <- stats::qnorm(1 - firstValue)
+		}
+		
+		maxSearchIterations <- maxSearchIterations - 1
+		if (maxSearchIterations < 0) {
+			stop(sprintf(paste0("Failed to find theta (k = %s, firstValue = %s, ", 
+				"secondValue = %s, levels(firstValue) = %s, theta = %s)"), 
+				stage, stageResults[[firstParameterName]][stage], secondValue, 
+				firstValue, theta))
+		}
+	}
+	
+	return(theta)
+}
+
+.getRepeatedConfidenceIntervalsMeans <- function(..., design, dataInput, 
+		normalApproximation = FALSE, equalVariances = TRUE, 
+		directionUpper = TRUE , tolerance = C_ANALYSIS_TOLERANCE_DEFAULT,
+		firstParameterName) {
+	
+	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
+	.assertIsValidStage(stage, design$kMax)
+	
+	futilityCorr <- rep(NA_real_, design$kMax) # necessary for adjustment for binding futility boundaries
+	
+	criticalValues <- design$criticalValues
+	
+	if (.isTrialDesignFisher(design)) {
+		bounds <- design$alpha0Vec
+		border <- C_ALPHA_0_VEC_DEFAULT
+		conditionFunction <- .isFirstValueSmallerThanSecondValue		
+	} else {
+		bounds <- design$futilityBounds
+		border <- C_FUTILITY_BOUNDS_DEFAULT
+		conditionFunction <- .isFirstValueGreaterThanSecondValue		
+	}
+	
+	repeatedConfidenceIntervals <- matrix(NA_real_, 2, design$kMax)
+	for (k in 1:stage) {
+		startTime <- Sys.time()
+
+		# finding maximum upper and minimum lower bounds for RCIs 	
+		thetaLow <- .getUpperLowerThetaMeans(design, dataInput, theta = -1, stage = k, directionUpper = TRUE, 
+				normalApproximation, equalVariances, conditionFunction = conditionFunction, 
+				firstParameterName = firstParameterName, secondValue = criticalValues[k]) 
+		
+		thetaUp <- .getUpperLowerThetaMeans(design, dataInput, theta = 1, stage = k, directionUpper = FALSE, 
+				normalApproximation, equalVariances, conditionFunction = conditionFunction,
+				firstParameterName = firstParameterName, secondValue = criticalValues[k]) 
+		
+		# finding upper and lower RCI limits through root function
+		repeatedConfidenceIntervals[1, k] <- .getRootThetaMeans(design = design, dataInput = dataInput, stage = k, 
+				directionUpper = TRUE, normalApproximation, equalVariances, thetaLow, thetaUp, 
+				firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance) 
+		
+		repeatedConfidenceIntervals[2, k] <- .getRootThetaMeans(design = design, dataInput = dataInput, stage = k, 
+				directionUpper = FALSE, normalApproximation, equalVariances, thetaLow, thetaUp,
+				firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance) 
+		
+		# adjustment for binding futility bounds	
+		if (k > 1 && conditionFunction(bounds[k - 1], border) & design$bindingFutility) {
+
+			parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
+			
+			#  Calculate new lower and upper bounds
+			if (directionUpper) {
+					thetaLow <- .getUpperLowerThetaMeans(design = design, dataInput = dataInput, theta = -1, stage = k - 1, 
+					directionUpper = TRUE, normalApproximation, equalVariances, conditionFunction = conditionFunction,
+					firstParameterName = parameterName, secondValue = bounds[k - 1])
+				} else {
+					thetaUp <- .getUpperLowerThetaMeans(design = design, dataInput = dataInput, theta = 1, stage = k - 1, 
+					directionUpper = FALSE, normalApproximation, equalVariances, conditionFunction = conditionFunction,
+					firstParameterName = parameterName, secondValue = bounds[k - 1])
+				}
+			
+			futilityCorr[k] <- .getRootThetaMeans(design = design, dataInput = dataInput, stage = k - 1, 
+					directionUpper = directionUpper, normalApproximation, equalVariances, thetaLow, thetaUp, 
+					firstParameterName = parameterName, secondValue = bounds[k - 1],
+					tolerance = tolerance)
+			
+			if (directionUpper) {
+				repeatedConfidenceIntervals[1, k] <- min(min(futilityCorr[2:k]), repeatedConfidenceIntervals[1, k])
+			} else {
+				repeatedConfidenceIntervals[2, k] <- max(max(futilityCorr[2:k]), repeatedConfidenceIntervals[2, k])
+			}	
+		}
+		
+		if (!is.na(repeatedConfidenceIntervals[1, k]) && !is.na(repeatedConfidenceIntervals[2, k]) &&
+				repeatedConfidenceIntervals[1, k] > repeatedConfidenceIntervals[2, k]){
+			repeatedConfidenceIntervals[, k] <- rep(NA_real_, 2)
+		}
+				
+		.logProgress("Repeated confidence interval of stage %s calculated", startTime = startTime, k)
+	}
+	
+	return(repeatedConfidenceIntervals)
+}
+
+# 
+# RCIs based on group sequential combination test	
+#
+.getRepeatedConfidenceIntervalsMeansGroupSequential <- function(..., design, dataInput,
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		directionUpper = TRUE, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+		
+	.warnInCaseOfUnknownArguments(functionName = 
+		".getRepeatedConfidenceIntervalsMeansGroupSequential", ignore = c("stage"), ...)
+	
+	return(.getRepeatedConfidenceIntervalsMeans(design = design, dataInput = dataInput, 
+		normalApproximation = normalApproximation, equalVariances = equalVariances, 
+		directionUpper = directionUpper, tolerance = tolerance, firstParameterName = "overallPValues", ...))
+	
+}
+
+# 
+# RCIs based on inverse normal combination test	
+#
+.getRepeatedConfidenceIntervalsMeansInverseNormal <- function(..., design, dataInput,  
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		directionUpper = TRUE, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+		
+	.warnInCaseOfUnknownArguments(functionName = 
+		".getRepeatedConfidenceIntervalsMeansInverseNormal", ignore = c("stage"), ...)
+
+	return(.getRepeatedConfidenceIntervalsMeans(design = design, dataInput = dataInput,  
+		normalApproximation = normalApproximation, equalVariances = equalVariances, 
+		directionUpper = directionUpper, tolerance = tolerance, firstParameterName = "combInverseNormal", ...))
+}
+
+# 
+# RCIs based on Fisher's combination test	
+#
+.getRepeatedConfidenceIntervalsMeansFisher <- function(..., design, dataInput,    
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		directionUpper = TRUE, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+		
+	.warnInCaseOfUnknownArguments(functionName = 
+		".getRepeatedConfidenceIntervalsMeansFisher", ignore = c("stage"), ...)
+		
+	return(.getRepeatedConfidenceIntervalsMeans(design = design, dataInput = dataInput, 
+		normalApproximation = normalApproximation, equalVariances = equalVariances, 
+		directionUpper = directionUpper, tolerance = tolerance, firstParameterName = "combFisher", ...))
+}
+
+#
+# Calculation of conditional power based on group sequential method
+#
+.getConditionalPowerMeansGroupSequential <- function(..., design, stageResults, 
+		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, nPlanned = NA_real_, 
+		thetaH1 = NA_real_, assumedStDev = NA_real_) {
+	
+	.assertIsTrialDesignGroupSequential(design)
+	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
+	.assertIsValidStage(stage, design$kMax)
+	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansGroupSequential", 
+		ignore = c("stage"), ...)
+	
+	kMax <- design$kMax	
+	conditionalPower <- rep(NA_real_, kMax)
+	weights <- stageResults$weightsInverseNormal
+	informationRates <- design$informationRates
+	
+	nPlanned <- c(rep(NA, stage), nPlanned)
+	
+	if (stage == kMax) {
+		.logDebug("Conditional power will be calculated only for subsequent stages ", 
+				"(stage = ", stage, ", kMax = ", design$kMax, ")")
+		return(list(
+			nPlanned = nPlanned,
+			conditionalPower = conditionalPower 
+		))
+	}
+	
+	criticalValuesInverseNormal <- design$criticalValues
+	
+	if (stageResults$isTwoSampleDataset()) {
+		.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
+		nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
+	}	
+	
+	if (stageResults$direction == "upper") {
+		thetaH1 <- (thetaH1 - stageResults$thetaH0) / assumedStDev
+	} else {
+		thetaH1 <- -(thetaH1 - stageResults$thetaH0) / assumedStDev
+	}
+	
+	# shifted decision region for use in getGroupSeqProbs 
+	# Group Sequential Method
+	shiftedDecisionRegion <- criticalValuesInverseNormal[(stage + 1):kMax] * 
+			sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
+			stats::qnorm(1 - stageResults$overallPValues[stage]) * sqrt(sum(weights[1:stage]^2)) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2)) - 
+			thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):kMax]) *	weights[(stage + 1):kMax]) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2))
+	
+	if (stage == kMax - 1) {
+		shiftedFutilityBounds <- c()
+	} else {
+		shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] * 
+				sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):(kMax - 1)]^2)) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
+				stats::qnorm(1 - stageResults$overallPValues[stage]) * sqrt(sum(weights[1:stage]^2)) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
+				thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):(kMax - 1)]) * weights[(stage + 1):(kMax - 1)]) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2))
+	}
+	
+	# scaled information for use in getGroupSeqProbs
+	scaledInformation <- (informationRates[(stage + 1):kMax] - informationRates[stage]) / 
+			(1 - informationRates[stage])
+	
+	if (design$sided == 2) {
+		decisionMatrix <- matrix(c(-shiftedDecisionRegion, shiftedDecisionRegion), nrow = 2, byrow = TRUE)
+		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+				informationRates = scaledInformation)
+		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
+	} else {
+		decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
+									shiftedDecisionRegion), nrow = 2, byrow = TRUE)
+		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+				informationRates = scaledInformation)
+		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
+	}
+	
+	if (stageResults$isTwoSampleDataset()) {
+		nPlanned <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned * nPlanned
+	}	
+		
+	return(list(nPlanned = nPlanned,
+		conditionalPower = conditionalPower
+	))	
+}
+
+#
+# Calculation of conditional power based on inverse normal method
+#
+.getConditionalPowerMeansInverseNormal <- function(..., design, stageResults,  
+		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, nPlanned = NA_real_, 
+		thetaH1 = NA_real_, assumedStDev = NA_real_) {
+	
+	.assertIsTrialDesignInverseNormal(design)
+	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
+	.assertIsValidStage(stage, design$kMax)
+	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansInverseNormal", 
+		ignore = c("stage"), ...)
+	
+	kMax <- design$kMax	
+	conditionalPower <- rep(NA_real_, kMax)
+	weights <- stageResults$weightsInverseNormal
+	informationRates <- design$informationRates
+	
+	nPlanned <- c(rep(NA_real_, stage), nPlanned)	
+	
+	if (stage == kMax) {
+		.logDebug("Conditional power will be calculated only for subsequent stages ", 
+				"(stage = ", stage, ", kMax = ", design$kMax, ")")
+		return(list(
+			nPlanned = nPlanned,
+			conditionalPower = conditionalPower 
+		))
+	}
+	
+	criticalValuesInverseNormal <- design$criticalValues
+	
+	if (stageResults$isTwoSampleDataset()) {
+		.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
+		nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
+	}	
+
+	if (stageResults$direction == "upper") {
+		thetaH1 <- (thetaH1 - stageResults$thetaH0) / assumedStDev
+	} else {
+		thetaH1 <- -(thetaH1 - stageResults$thetaH0) / assumedStDev
+	}
+		
+	# shifted decision region for use in getGroupSeqProbs 
+	# Inverse Normal Method
+	shiftedDecisionRegion <- criticalValuesInverseNormal[(stage + 1):kMax] * 
+			sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
+			c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2)) - 
+			thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):kMax]) *	weights[(stage + 1):kMax]) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2))
+	
+	if (stage == kMax - 1) {
+		shiftedFutilityBounds <- c()
+	} else {
+		shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] * 
+				sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):(kMax - 1)]^2)) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
+				c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
+				thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):(kMax - 1)]) * weights[(stage + 1):(kMax - 1)]) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2))
+	}
+	
+	# scaled information for use in getGroupSeqProbs
+	scaledInformation <- (informationRates[(stage + 1):kMax] - informationRates[stage]) / 
+			(1 - informationRates[stage])
+	
+	if (design$sided == 2) {
+		decisionMatrix <- matrix(c(-shiftedDecisionRegion, shiftedDecisionRegion), nrow = 2, byrow = TRUE)
+		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+				informationRates = scaledInformation)
+		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
+	} else {
+		decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, shiftedDecisionRegion), 
+							nrow = 2, byrow = TRUE)
+		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+				informationRates = scaledInformation)
+		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
+	}
+
+	if (stageResults$isTwoSampleDataset()) {
+		nPlanned <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned * nPlanned
+	}	
+		
+	return(list(
+		nPlanned = nPlanned,
+		conditionalPower = conditionalPower
+	))	
+}
+
+#
+# Calculation of conditional power based on Fisher combination test
+#
+.getConditionalPowerMeansFisher <- function(..., design, stageResults,  
+		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, nPlanned = NA_real_, 
+		thetaH1 = NA_real_, assumedStDev = NA_real_,
+		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_) {
+	
+	.assertIsTrialDesignFisher(design)
+	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
+	.assertIsValidStage(stage, design$kMax)
+	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
+	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansFisher", 
+		ignore = c("stage"), ...)
+	
+	kMax <- design$kMax
+	conditionalPower <- rep(NA_real_, kMax)
+	seed <- .setSeed(seed)
+	simulated <- FALSE
+	
+	.assertIsValidNPlanned(nPlanned, kMax, stage)
+	
+	nPlanned <- c(rep(NA_real_, stage), nPlanned)
+	
+	if (stageResults$isTwoSampleDataset()) {
+		.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
+		nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
+	}	
+	
+	if (stageResults$direction == "upper") {
+		thetaH1 <- (thetaH1 - stageResults$thetaH0) / assumedStDev
+	} else {
+		thetaH1 <- -(thetaH1 - stageResults$thetaH0) / assumedStDev
+	}
+
+	criticalValues <- design$criticalValues
+	weightsFisher <- stageResults$weightsFisher
+	pValues <- stageResults$pValues
+	
+	if (stage < kMax - 1) {		
+		for (k in (stage + 1):kMax) {
+			reject <- 0
+			for (i in 1:iterations) {
+				reject <- reject + .getRejectValueConditionalPowerFisher(
+						kMax = kMax, alpha0Vec = design$alpha0Vec, 
+						criticalValues = criticalValues, weightsFisher = weightsFisher, 
+						pValues = pValues, k = k, thetaH1 = thetaH1, stage = stage, nPlanned = nPlanned)
+			}
+			conditionalPower[k] <- reject / iterations
+		}
+		simulated <- TRUE
+	}
+	
+	else if (stage == kMax - 1) {
+		divisor <- prod(pValues[1:(kMax - 1)]^weightsFisher[1:(kMax - 1)])
+		result <- 1 - (criticalValues[kMax] / divisor)^(1/weightsFisher[kMax])
+		if (result <= 0 || result >= 1) {
+			warning("Could not calculate conditional power for stage ", kMax, call. = FALSE)
+			conditionalPower[kMax] <- NA_real_
+		} else {
+			conditionalPower[kMax] <- 1 - stats::pnorm(stats::qnorm(result) - thetaH1 * sqrt(nPlanned[kMax]))				
+		}
+	}
+
+	if (stageResults$isTwoSampleDataset()) {
+		nPlanned <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned * nPlanned
+	}	
+	
+	return(list(
+		nPlanned = nPlanned, 
+		conditionalPower = conditionalPower, 
+		iterations = iterations, 
+		seed = seed,
+		simulated = simulated
+	))	
+}
+
+.getConditionalPowerMeans <- function(..., design, stageResults, 
+		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, thetaH1, assumedStDev = NA_real_) {
+		
+	if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, thetaH1 = thetaH1)) {
+		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
+	}
+	
+	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
+	.assertIsValidStage(stage, design$kMax)
+	
+	if (!.isValidNPlanned(nPlanned = nPlanned, kMax = design$kMax, stage = stage)) {
+		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
+	}
+	
+	if (.isTrialDesignGroupSequential(design)) {
+		return(.getConditionalPowerMeansGroupSequential(design = design, stageResults = stageResults, 
+			nPlanned = nPlanned,	allocationRatioPlanned = allocationRatioPlanned, 
+			thetaH1 = thetaH1, assumedStDev = assumedStDev, ...))
+	}
+	
+	if (.isTrialDesignInverseNormal(design)) {
+		return(.getConditionalPowerMeansInverseNormal(design = design, stageResults = stageResults, 
+			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, 
+			thetaH1 = thetaH1, assumedStDev = assumedStDev, ...))
+	}
+	
+	if (.isTrialDesignFisher(design)) {
+		return(.getConditionalPowerMeansFisher(design = design, stageResults = stageResults, 
+			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, 
+			thetaH1 = thetaH1, assumedStDev = assumedStDev, ...))
+	}
+	
+	.stopWithWrongDesignMessage(design)
+}
+
+.getConditionalPowerPlotMeans <- function(..., design, stageResults, stage, 
+		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, thetaRange, assumedStDev = NA_real_) {
+		
+	if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, thetaRange = thetaRange)) {
+		warning("You must specify a planned sample size (nPlanned) and ", 
+			"a range of effect sizes (thetaRange)", call. = FALSE)
+	}
+	
+	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, 
+		stageResults$getDataInput()$getNumberOfGroups())
+	
+	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+	
+	thetaRange <- .assertIsValidThetaRange(thetaRange = thetaRange)
+	
+	condPowerValues <- rep(NA, length(thetaRange)) 
+	likelihoodValues <- rep(NA, length(thetaRange))	
+	
+	if (stageResults$isOneSampleDataset()) {
+		stdErr <- stageResults$overallStDevs[stage] / sqrt(stageResults$overallSampleSizes[stage])
+	}
+	if (stageResults$isTwoSampleDataset()) {
+		stdErr <- stageResults$overallStDevs[stage] * sqrt(1 / stageResults$overallSampleSizes1[stage] + 1 / 
+				stageResults$overallSampleSizes2[stage])
+	}
+		
+	for (i in seq(along = thetaRange)) {
+		if (.isTrialDesignGroupSequential(design)) {
+			condPowerValues[i] <- .getConditionalPowerMeansGroupSequential(
+					design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
+					allocationRatioPlanned = allocationRatioPlanned, thetaH1 = thetaRange[i], 
+					assumedStDev = assumedStDev, ...)$conditionalPower[design$kMax]
+		}
+		
+		if (.isTrialDesignInverseNormal(design)) {
+			condPowerValues[i] <- .getConditionalPowerMeansInverseNormal(
+					design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
+					allocationRatioPlanned = allocationRatioPlanned, thetaH1 = thetaRange[i], 
+					assumedStDev = assumedStDev, ...)$conditionalPower[design$kMax]
+		}
+		
+		if (.isTrialDesignFisher(design)) {
+			condPowerValues[i] <- .getConditionalPowerMeansFisher(
+					design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
+					allocationRatioPlanned = allocationRatioPlanned, thetaH1 = thetaRange[i], 
+					assumedStDev = assumedStDev, ...)$conditionalPower[design$kMax]
+		}
+		
+		likelihoodValues[i] <- stats::dnorm(thetaRange[i], stageResults$effectSizes[stage], stdErr) / 
+			stats::dnorm(0, 0, stdErr)
+		
+	}
+	
+	if (assumedStDev != round(assumedStDev, 0)) {
+		assumedStDev <- sprintf("%.2f", assumedStDev)
+	}	
+	
+	if (stageResults$isOneSampleDataset()) {
+		subTitle <- paste0("Stage = ", stage, ", # of remaining patients = ", 
+			sum(nPlanned), ", std = ", assumedStDev)
+	} else {
+		subTitle <- paste0("Stage = ", stage, ", # of remaining patients = ", 
+			sum(nPlanned), ", std = ", assumedStDev, ", allocation ratio = ", allocationRatioPlanned)
+	}
+	
+	return(list(
+		xValues = thetaRange,
+		condPowerValues = condPowerValues,
+		likelihoodValues = likelihoodValues,
+		main = "Conditional Power Plot with Likelihood",
+		xlab = "Effect size",
+		ylab = "Conditional power / Likelihood",
+		sub = subTitle
+	))
+}	
+
+#
+# Calculation of final confidence interval 
+# based on group sequential test without SSR (general case).
+# 
+.getFinalConfidenceIntervalMeansGroupSequential <- function(design, dataInput, stage, 
+		thetaH0 = C_THETA_H0_MEANS_DEFAULT, directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
+		equalVariances = C_EQUAL_VARIANCES_DEFAULT, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+	
+	stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, stage = stage, 
+		thetaH0 = thetaH0, directionUpper = directionUpper, normalApproximation = normalApproximation, 
+		equalVariances = equalVariances)	
+	
+	finalConfidenceIntervalGeneral <- rep(NA_real_, 2)
+	medianUnbiasedGeneral <- NA_real_
+
+	stageGroupSeq <- .getStageGroupSeq(design, stageResults, stage)
+	finalStage <- min(stageGroupSeq, design$kMax)
+	
+	# early stopping or at end of study
+	if (stageGroupSeq < design$kMax || stage == design$kMax) { 
+		if (stageGroupSeq == 1) {
+
+			finalConfidenceIntervalGeneral[1] <- stats::qnorm(1 - stageResults$overallPValues[1]) - 
+					stats::qnorm(1 - design$alpha / design$sided)
+			finalConfidenceIntervalGeneral[2] <- stats::qnorm(1 - stageResults$overallPValues[1]) + 
+					stats::qnorm(1 - design$alpha / design$sided)
+			medianUnbiasedGeneral <- stats::qnorm(1 - stageResults$overallPValues[1])
+			
+			if (dataInput$getNumberOfGroups() == 1) {
+				finalConfidenceIntervalGeneral <- finalConfidenceIntervalGeneral / 
+						sqrt(stageResults$overallSampleSizes[1])
+				medianUnbiasedGeneral <- medianUnbiasedGeneral / 
+						sqrt(stageResults$overallSampleSizes[1])	
+			} else {
+				finalConfidenceIntervalGeneral <- finalConfidenceIntervalGeneral * 
+						sqrt(1/stageResults$overallSampleSizes1[finalStage] + 1/stageResults$overallSampleSizes2[finalStage])
+				medianUnbiasedGeneral <- medianUnbiasedGeneral * 
+						sqrt(1/stageResults$overallSampleSizes1[finalStage] + 1/stageResults$overallSampleSizes2[finalStage])
+			}			
+			
+		} else {	
+			finalConfidenceIntervalGeneral[1] <- .getDecisionMatrixRoot(design = design, 
+					stage = finalStage, stageResults = stageResults, tolerance = tolerance, 
+					firstParameterName = "overallPValues",
+					case = "finalConfidenceIntervalGeneralLower")
+			
+			finalConfidenceIntervalGeneral[2] <- .getDecisionMatrixRoot(design = design, 
+					stage = finalStage, stageResults = stageResults, tolerance = tolerance, 
+					firstParameterName = "overallPValues",
+					case = "finalConfidenceIntervalGeneralUpper")
+			
+			medianUnbiasedGeneral <- .getDecisionMatrixRoot(design = design, 
+					stage = finalStage, stageResults = stageResults, tolerance = tolerance,  
+					firstParameterName = "overallPValues",
+					case = "medianUnbiasedGeneral")
+		}
+	}	
+	
+	if (is.na(finalConfidenceIntervalGeneral[1]) && (stageGroupSeq > 1)) {		
+		finalStage <- NA_integer_
+	}	
+	
+	finalConfidenceInterval <- rep(NA_real_, 2)
+	medianUnbiased <- NA_real_
+	
+	if (!is.na(finalStage)) {
+		#  Retransformation  
+		if (dataInput$getNumberOfGroups() == 1) {
+			stderr <- stageResults$overallStDevs[finalStage] / 
+					sqrt(stageResults$overallSampleSizes[finalStage])
+		} else {
+			stderr <- stageResults$overallStDevs[finalStage] * 
+					sqrt(1/stageResults$overallSampleSizes1[finalStage] + 1/stageResults$overallSampleSizes2[finalStage])
+		}			
+		
+		directionUpperSign <- ifelse(directionUpper, 1, -1)
+		
+		if (stageGroupSeq == 1) {
+			finalConfidenceInterval[1] <- stageResults$effectSizes[1] - stats::qnorm(1 - design$alpha / design$sided)*stderr
+			finalConfidenceInterval[2] <- stageResults$effectSizes[1] + stats::qnorm(1 - design$alpha / design$sided)*stderr
+			medianUnbiased  <- stageResults$effectSizes[1]
+		} else {	
+			finalConfidenceInterval[1] <- finalConfidenceIntervalGeneral[1] * stageResults$overallStDevs[finalStage] +  directionUpperSign * thetaH0  
+			finalConfidenceInterval[2] <- finalConfidenceIntervalGeneral[2] * stageResults$overallStDevs[finalStage] + directionUpperSign * thetaH0 
+			medianUnbiased <- medianUnbiasedGeneral * stageResults$overallStDevs[finalStage] + directionUpperSign * thetaH0
+		}
+	}	
+
+	if (!directionUpper){
+		medianUnbiasedGeneral = -medianUnbiasedGeneral
+		finalConfidenceIntervalGeneral = -finalConfidenceIntervalGeneral
+		if (stageGroupSeq > 1){
+			medianUnbiased = -medianUnbiased
+			finalConfidenceInterval = -finalConfidenceInterval
+		}	
+	}
+	
+	return(list(
+					finalStage = finalStage,
+					medianUnbiasedGeneral = medianUnbiasedGeneral,
+					finalConfidenceIntervalGeneral = sort(finalConfidenceIntervalGeneral), 
+					medianUnbiased = medianUnbiased,
+					finalConfidenceInterval = sort(finalConfidenceInterval)
+			))
+}
+
+#
+# Calculation of final confidence interval 
+# based on inverse normal method, only theoretically shown to be valid for kMax <= 2 or no SSR.
+# 
+.getFinalConfidenceIntervalMeansInverseNormal <- function(design, dataInput, stage, 
+		thetaH0 = C_THETA_H0_MEANS_DEFAULT, directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+	
+	stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, stage = stage, 
+		thetaH0 = thetaH0, directionUpper = directionUpper, normalApproximation = normalApproximation, 
+		equalVariances = equalVariances)	
+	
+	finalConfidenceIntervalGeneral <- rep(NA_real_, 2)
+	medianUnbiasedGeneral <- NA_real_
+	
+	stageInvNormal <- .getStageInverseNormal(design, stageResults, stage)
+	finalStage <- min(stageInvNormal, design$kMax)
+	
+	# early stopping or at end of study
+	if (stageInvNormal < design$kMax || stage == design$kMax) { 
+		if (stageInvNormal == 1) {
+
+			finalConfidenceIntervalGeneral[1] <- stageResults$combInverseNormal[1] - 
+				stats::qnorm(1 - design$alpha / design$sided)
+			finalConfidenceIntervalGeneral[2] <- stageResults$combInverseNormal[1] + 
+				stats::qnorm(1 - design$alpha / design$sided)
+			medianUnbiasedGeneral <- stageResults$combInverseNormal[1]
+			
+			if (dataInput$getNumberOfGroups() == 1) {
+					finalConfidenceIntervalGeneral <- finalConfidenceIntervalGeneral / 
+								sqrt(stageResults$overallSampleSizes[1])
+						medianUnbiasedGeneral <- medianUnbiasedGeneral / 
+								sqrt(stageResults$overallSampleSizes[1])	
+				} else {
+					finalConfidenceIntervalGeneral <- finalConfidenceIntervalGeneral * 
+							sqrt(1/stageResults$overallSampleSizes1[finalStage] + 1/stageResults$overallSampleSizes2[finalStage])
+					medianUnbiasedGeneral <- medianUnbiasedGeneral * 
+							sqrt(1/stageResults$overallSampleSizes1[finalStage] + 1/stageResults$overallSampleSizes2[finalStage])
+				}			
+
+		} else {
+			
+			if (design$kMax > 2) {
+				warning("Calculation of final confidence interval performed for kMax = ", design$kMax, 
+						" (for kMax > 2, it is theoretically shown that it is valid only if no sample size change was performed)", call. = FALSE)
+			}
+			
+			finalConfidenceIntervalGeneral[1] <- .getDecisionMatrixRoot(design = design, 
+					stage = finalStage, stageResults = stageResults, tolerance = tolerance, 
+					firstParameterName = "combInverseNormal",
+					case = "finalConfidenceIntervalGeneralLower")
+			
+			finalConfidenceIntervalGeneral[2] <- .getDecisionMatrixRoot(design = design, 
+					stage = finalStage, stageResults = stageResults, tolerance = tolerance, 
+					firstParameterName = "combInverseNormal",
+					case = "finalConfidenceIntervalGeneralUpper")
+			
+			medianUnbiasedGeneral <- .getDecisionMatrixRoot(design = design, 
+					stage = finalStage, stageResults = stageResults, tolerance = tolerance,  
+					firstParameterName = "combInverseNormal",
+					case = "medianUnbiasedGeneral")
+		}
+	}	
+	
+	if (is.na(finalConfidenceIntervalGeneral[1]) && (stageInvNormal > 1)) {
+		finalStage <- NA_integer_
+	}	
+		
+	finalConfidenceInterval <- rep(NA_real_, 2)
+	medianUnbiased <- NA_real_
+	
+	if (!is.na(finalStage)) {
+		#  Retransformation  
+		if (dataInput$getNumberOfGroups() == 1) {
+			stderr <- stageResults$overallStDevs[finalStage] / 
+						sqrt(stageResults$overallSampleSizes[finalStage])
+		} else {
+			stderr <- stageResults$overallStDevs[finalStage] * 
+						sqrt(1/stageResults$overallSampleSizes1[finalStage] + 1/stageResults$overallSampleSizes2[finalStage])
+		}			
+		
+		directionUpperSign <- ifelse(directionUpper, 1, -1)
+		
+		if (stageInvNormal == 1) {
+			finalConfidenceInterval[1] <- stageResults$effectSizes[1] - stats::qnorm(1 - design$alpha / design$sided)*stderr
+			finalConfidenceInterval[2] <- stageResults$effectSizes[1] + stats::qnorm(1 - design$alpha / design$sided)*stderr
+			medianUnbiased  <- stageResults$effectSizes[1]
+		} else {	
+			finalConfidenceInterval[1] <- finalConfidenceIntervalGeneral[1] * stageResults$overallStDevs[finalStage] + directionUpperSign * thetaH0
+			finalConfidenceInterval[2] <- finalConfidenceIntervalGeneral[2] * stageResults$overallStDevs[finalStage] + directionUpperSign * thetaH0
+			medianUnbiased <- medianUnbiasedGeneral * stageResults$overallStDevs[finalStage] + directionUpperSign * thetaH0
+		}
+	}	
+	
+	if (!directionUpper){
+		medianUnbiasedGeneral = -medianUnbiasedGeneral
+		finalConfidenceIntervalGeneral = -finalConfidenceIntervalGeneral 
+		if (stageInvNormal > 1){
+			medianUnbiased = -medianUnbiased
+			finalConfidenceInterval = -finalConfidenceInterval
+		}
+	}
+	
+	return(list(
+				finalStage = finalStage,
+				medianUnbiasedGeneral = medianUnbiasedGeneral,
+				finalConfidenceIntervalGeneral = sort(finalConfidenceIntervalGeneral), 
+				medianUnbiased = medianUnbiased,
+				finalConfidenceInterval = sort(finalConfidenceInterval)
+			))
+}	
+
+.getQFunctionResultBasedOnDataInput <- function(..., design, dataInput, theta, stage, infRate, 
+		directionUpper, normalApproximation, equalVariances) {
+	
+	if (dataInput$getNumberOfGroups() == 1) {
+		stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, stage = stage, 
+			thetaH0 = theta, directionUpper = directionUpper, normalApproximation = normalApproximation)
+	}
+	
+	if (dataInput$getNumberOfGroups() == 2) {
+		stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, stage = stage, 
+			thetaH0 = theta, directionUpper = directionUpper, normalApproximation = normalApproximation, 
+			equalVariances = equalVariances)
+	}
+
+	return(.getQFunctionResult(design = design, stageResults = stageResults, 
+		theta = theta, infRate = infRate))
+}
+
+#
+# Calculation of final confidence interval 	
+# based on Fisher combination test, only valid for kMax <= 2.
+#
+.getFinalConfidenceIntervalMeansFisher <- function(..., design, dataInput, stage, 
+		thetaH0 = C_THETA_H0_MEANS_DEFAULT, directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+	
+	stageResults <- getStageResultsMeans(design = design, dataInput = dataInput, stage = stage, 
+		thetaH0 = thetaH0, directionUpper = directionUpper, normalApproximation = normalApproximation, 
+		equalVariances = equalVariances)	
+	
+	stageFisher <- .getStageFisher(design, stageResults, stage)
+	
+	finalStage <- min(stageFisher, design$kMax)
+	
+	finalConfidenceInterval <- rep(NA_real_, 2)
+	medianUnbiased <- NA_real_
+	
+	# early stopping or at end of study
+	if (stageFisher < design$kMax || stage == design$kMax) { 
+		
+		if (dataInput$getNumberOfGroups() == 1) {
+			infRate <- sqrt(stageResults$overallSampleSizes[1])
+			stderr <- stageResults$overallStDevs[finalStage] / 
+					sqrt(stageResults$overallSampleSizes[finalStage])
+		} else {
+			infRate <- 1 / sqrt(1 / stageResults$overallSampleSizes1[1] + 1 / stageResults$overallSampleSizes2[1])
+			stderr <- stageResults$overallStDevs[finalStage] * 
+					sqrt(1/stageResults$overallSampleSizes1[finalStage] + 1/stageResults$overallSampleSizes2[finalStage])
+		}			
+		
+		if (stageFisher == 1) {
+		
+			finalConfidenceInterval[1] <- stageResults$effectSizes[1] - stats::qnorm(1 - design$alpha / design$sided)*stderr
+			finalConfidenceInterval[2] <- stageResults$effectSizes[1] + stats::qnorm(1 - design$alpha / design$sided)*stderr
+			medianUnbiased  <- stageResults$effectSizes[1]
+
+		} else {
+			maxSearchIterations <- 50			
+
+			if (design$kMax >= 1) {
+				warning("Calculation of final confidence interval for Fisher's design not implemented yet.", call. = FALSE)
+				return(list(finalStage = NA_integer_ , medianUnbiased = NA_real_, 
+								finalConfidenceInterval = rep(NA_real_, design$kMax)))
+			}
+			
+			thetaLow <- -1
+			.getQFunctionResult(design = design, stageResults = stageResults, 
+					theta = thetaLow, infRate = infRate)
+			iteration <- 0
+			while(iteration <= maxSearchIterations && 
+				.getQFunctionResultBasedOnDataInput(design = design, dataInput = dataInput, 
+					theta = thetaLow, stage = finalStage, 
+					infRate = infRate, directionUpper = directionUpper, 
+					normalApproximation = normalApproximation, equalVariances = equalVariances) > design$alpha / design$sided) {
+				thetaLow <- 2 * thetaLow
+				iteration <- iteration + 1
+				if (iteration == maxSearchIterations) {
+					thetaLow <- -1
+				}
+			}
+			
+			thetaUp <- 1
+			iteration <- 0
+			while(iteration <= maxSearchIterations &&
+				.getQFunctionResultBasedOnDataInput(design = design, dataInput = dataInput, 
+					theta = thetaUp, stage = finalStage, 
+					infRate = infRate, directionUpper = directionUpper, 
+					normalApproximation = normalApproximation, equalVariances = equalVariances) < 1 - design$alpha / design$sided) {
+				thetaUp <- 2 * thetaUp
+				iteration <- iteration + 1
+				if (iteration == maxSearchIterations) {
+					thetaUp <- 1
+				}
+			}
+			
+			finalConfidenceInterval[1] <- .getOneDimensionalRoot(function(theta) {
+				return(.getQFunctionResultBasedOnDataInput(design = design, dataInput = dataInput, 
+						theta = theta, stage = finalStage, 
+						infRate = infRate, directionUpper = directionUpper, 
+						normalApproximation = normalApproximation, equalVariances = equalVariances) - design$alpha / design$sided)
+			}, lower = thetaLow, upper = thetaUp, tolerance = tolerance)
+			
+			finalConfidenceInterval[2] <- .getOneDimensionalRoot(function(theta) {
+				return(.getQFunctionResultBasedOnDataInput(design = design, dataInput = dataInput, 
+						theta = theta, stage = finalStage, 
+						infRate = infRate, directionUpper = directionUpper, 
+						normalApproximation = normalApproximation, equalVariances = equalVariances) - 1 + design$alpha / design$sided)
+			}, lower = thetaLow, upper = thetaUp, tolerance = tolerance)
+			
+			medianUnbiased <- .getOneDimensionalRoot(function(theta) {
+				return(.getQFunctionResultBasedOnDataInput(design = design, dataInput = dataInput, 
+						theta = theta, stage = finalStage, 
+						infRate = infRate, directionUpper = directionUpper, 
+						normalApproximation = normalApproximation, equalVariances = equalVariances) - 0.5)
+			}, lower = thetaLow, upper = thetaUp, tolerance = tolerance)
+		}
+		
+		if (is.na(finalConfidenceInterval[1])) {
+			finalStage <- NA_integer_
+		}
+		
+	}
+	
+	return(list(
+		finalStage = finalStage,
+		medianUnbiased = medianUnbiased, 
+		finalConfidenceInterval = finalConfidenceInterval
+	))
+}
+
+getFinalConfidenceIntervalMeans <- function(..., design, dataInput,  
+		thetaH0 = NA_real_, directionUpper = C_DIRECTION_UPPER_DEFAULT, 
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) { 
+	
+	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
+	.assertIsValidStage(stage, design$kMax)
+	.assertIsValidThetaH0(thetaH0, dataInput)
+	.warnInCaseOfUnknownArguments(functionName = "getFinalConfidenceIntervalMeans", ignore = c("stage"), ...)
+	
+	if (is.na(thetaH0)) {
+		thetaH0 <- C_THETA_H0_MEANS_DEFAULT
+	}
+	
+	if (.isTrialDesignGroupSequential(design)) {
+		return(.getFinalConfidenceIntervalMeansGroupSequential(
+						design = design, dataInput = dataInput, stage = stage, thetaH0 = thetaH0, 
+						directionUpper = directionUpper, normalApproximation = normalApproximation, 
+						equalVariances = equalVariances, tolerance = tolerance))
+	}
+	
+	if (.isTrialDesignInverseNormal(design)) {
+		return(.getFinalConfidenceIntervalMeansInverseNormal(
+						design = design, dataInput = dataInput, stage = stage, thetaH0 = thetaH0, 
+						directionUpper = directionUpper, normalApproximation = normalApproximation, 
+						equalVariances = equalVariances, tolerance = tolerance))
+	}
+	
+	if (.isTrialDesignFisher(design)) {
+		return(.getFinalConfidenceIntervalMeansFisher(
+						design = design, dataInput = dataInput, stage = stage, thetaH0 = thetaH0, 
+						directionUpper = directionUpper, normalApproximation = normalApproximation, 
+						equalVariances = equalVariances, tolerance = tolerance))
+	}
+	
+	.stopWithWrongDesignMessage(design)
+}
+

@@ -1,0 +1,35 @@
+Package: rpact
+Title: Confirmatory Adaptive Clinical Trial Design and Analysis
+Version: 1.0.0
+Date: 2018-10-22
+Authors@R: c(
+	person("Gernot", "Wassmer", email = "gernot.wassmer@rpact.com", role = c("aut")),
+    person("Friedrich", "Pahlke", email = "friedrich.pahlke@rpact.com", role = c("aut", "cre")))
+Description: Design and analysis of confirmatory adaptive clinical trials with continuous, binary, and survival endpoints according to the methods described in the monograph by Wassmer and Brannath (2016) <doi:10.1007/978-3-319-32562-0>. This includes classical group sequential as well as multi-stage adaptive hypotheses tests that are based on the combination testing principle.
+Depends: R (>= 3.3.0)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+URL: https://www.rpact.org
+BugReports: https://bugreport.rpact.org
+Imports: methods, stats, utils, graphics
+Suggests: parallel, ggplot2 (>= 2.2.0), testthat (>= 2.0.0)
+RoxygenNote: 6.0.1
+Collate: 'f_core_constants.R' 'class_core_parameter_set.R'
+        'class_core_plot_settings.R' 'class_analysis_dataset.R'
+        'class_design.R' 'class_analysis_stage_results.R'
+        'class_analysis_results.R' 'class_design_plan.R'
+        'class_design_power_and_asn.R' 'class_design_set.R'
+        'f_analysis.R' 'f_analysis_means.R' 'f_analysis_rates.R'
+        'f_analysis_survival.R' 'f_core_assertions.R'
+        'f_core_output_formats.R' 'f_core_utilities.R'
+        'f_design_fisher_combination_test.R'
+        'f_design_group_sequential.R'
+        'f_design_sample_size_calculator.R' 'pkgname.R'
+NeedsCompilation: yes
+Packaged: 2018-10-22 14:33:56 UTC; Pahlke
+Author: Gernot Wassmer [aut],
+  Friedrich Pahlke [aut, cre]
+Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
+Repository: CRAN
+Date/Publication: 2018-10-30 16:10:03 UTC
