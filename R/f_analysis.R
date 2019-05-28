@@ -4,8 +4,8 @@
 #                                                                                    #
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 28-09-2018                                                                   #
+# File version: 1.0.1                                                                #
+# Date: 03-12-2018                                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -33,7 +33,7 @@
 #'        it is 1 for the survival case.      
 #'        For testing a rate in one sample, a value thetaH0 in (0, 1) has to be specified for 
 #'        defining the null hypothesis H0: pi = thetaH0.\cr
-#' 		  For noninferiority designs, this is the noninferiority bound. 	
+#' 		  For non-inferiority designs, this is the non-inferiority bound. 	
 #' @param nPlanned The sample size planned for the subsequent stages. 
 #'        It should be a vector with length equal to the remaining stages and is the 
 #'        overall sample size in the two treatment groups if two groups are considered.   
@@ -100,45 +100,17 @@
 #' }
 #'  
 #' @examples
+#' 
+#' \donttest{
+#' 
 #' design <- getDesignGroupSequential()
 #' dataMeans <- getDataset(
 #'     n = c(10,10),
 #'     means = c(1.96,1.76),
 #'     stDevs = c(1.92,2.01))
-#'
 #' getAnalysisResults(design, dataMeans)
-#'
-#' # produces:
-#' #
-#' # Analysis results (group sequential design):
-#' #  Stages                        : 1, 2, 3 
-#' #  Information rates             : 0.333, 0.667, 1.000 
-#' #  Critical values               : 3.471, 2.454, 2.004 
-#' #  Futility bounds (non-binding) : -Inf, -Inf 
-#' #  Cumulative alpha spending     : 0.0002592, 0.0071601, 0.0250000 
-#' #  Stage levels                  : 0.0002592, 0.0070554, 0.0225331 
-#' #  Effect sizes                  : 1.96, 1.86, NA 
-#' #  Test statistics               : 3.228, 2.769, NA 
-#' #  p-values                      : 0.005177, 0.010895, NA 
-#' #  Overall test statistics       : 3.228, 4.342, NA 
-#' #  Overall p-values              : 0.0051766, 0.0001757, NA 
-#' #  Futility bounds for power     : NA 
-#' #  Actions                       : continue, reject and stop, NA 
-#' #  Theta H0                      : 0 
-#' #  CRP                           : 0.3177, 0.9434, NA 
-#' #  Planned sample size           : NA, NA, NA 
-#' #  Planned allocation ratio      : 1 
-#' #  Assumed effect                : NA 
-#' #  Assumed standard deviation    : 1 
-#' #  Conditional power             : NA, NA, NA 
-#' #  RCIs (lower)                  : -1.236, 0.702, NA 
-#' #  RCIs (upper)                  : 5.16, 3.02, NA 
-#' #  Repeated p-values             : 0.081766, 0.001825, NA 
-#' #  Final stage                   : 2 
-#' #  Final p-value                 : NA, 0.0004094, NA 
-#' #  Final CIs (lower)             : NA, 0.654, NA 
-#' #  Final CIs (upper)             : NA, 2.36, NA 
-#' #  Median unbiased estimate      : NA, 1.51, NA 
+#' 
+#' }
 #' 
 getAnalysisResults <- function(
 		design, dataInput, ..., 
@@ -150,7 +122,9 @@ getAnalysisResults <- function(
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
 	.assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
 	.assertIsValidStage(stage, design$kMax)
-	.assertIsValidThetaH0(thetaH0, dataInput)
+	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
+
+	if (design$kMax < 2) stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "getAnalysisResults only available for design with interim stage(s)")	
 	
 	if (dataInput$isDatasetMeans()) {
 		if (is.na(thetaH0)) {
@@ -175,7 +149,7 @@ getAnalysisResults <- function(
 		return(getAnalysisResultsSurvival(design = design, dataInput = dataInput, 
 			directionUpper = directionUpper, thetaH0 = thetaH0, nPlanned = nPlanned, ...))
 	}
-		
+	
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
 }
 
@@ -196,7 +170,7 @@ getAnalysisResults <- function(
 #'       it is 1 for the survival case.      
 #'       For testing a rate in one sample, a value thetaH0 in (0, 1) has to be specified for 
 #'       defining the null hypothesis H0: pi = thetaH0. \cr
-#' 		 For noninferiority designs, this is the noninferiority bound. } 
+#' 		 For non-inferiority designs, this is the non-inferiority bound. } 
 #'   \item{thetaH1 and assumedStDev or pi1, pi2}{The assumed effect size or assumed rates to calculate the 
 #'       conditional power. Depending on the type of dataset, either thetaH1 (means and survival) 
 #'       or pi1, pi2 (rates) can be specified. Additionally, if testing means is specified, 
@@ -219,38 +193,19 @@ getAnalysisResults <- function(
 #' @details
 #' Calculates and returns the stage results of the specified design and data input at the specified stage.
 #' 
-#' @return Returns a \code{StageResults} object.
+#' @return Returns a \code{\link{StageResults}} object.
 #'
 #' @export
 #' 
 #' @examples
+#' 
 #' design <- getDesignInverseNormal()
 #' dataRates <- getDataset(
 #'     n1 = c(10,10),
 #'     n2 = c(20,20),
 #'     events1 = c(8,10),
 #'     events2 = c(10,16))
-#'
 #' getStageResults(design, dataRates)
-#' 
-#' # produces:
-#' #
-#' # Stage results of rates:
-#' #   Stages                     : 1, 2, 3 
-#' #   Overall test statistics    : 1.581, 2.064, NA 
-#' #   Overall p-values           : 0.05692, 0.01949, NA 
-#' #   Overall events (1)         : 8, 18 
-#' #   Overall events (2)         : 10, 26 
-#' #   Overall sample sizes (1)   : 10, 20 
-#' #   Overall sample sizes (2)   : 20, 40 
-#' #   Test statistics            : 1.581, 1.519, NA 
-#' #   p-values                   : 0.05692, 0.06437, NA 
-#' #   Effect sizes               : 0.30, 0.25, NA 
-#' #   Inverse Normal Combination : 1.581, 2.192, NA 
-#' #   Weights Inverse Normal     : 0.577, 0.577, 0.577 
-#' #   Theta H0                   : 0 
-#' #   Direction                  : upper 
-#' #   Normal approximation       : TRUE 
 #' 
 getStageResults <- function(design, dataInput, ...) {
 	
@@ -388,22 +343,39 @@ getTestActions <- function(design, stageResults, ...) {
 	} 
 	else if (.isTrialDesignFisher(design)) {
 		for (k in 1 : stage) {		
-			if (k < design$kMax) { 
-				if (stageResults$combFisher[k] < design$criticalValues[k]) {
-					testActions[k] <- "reject and stop"
-				}
-				else if (stageResults$pValues[k] > design$alpha0Vec[k]) {
-					testActions[k] <- "accept and stop"
+			if (design$sided == 1) {
+				if (k < design$kMax) { 
+					if (stageResults$combFisher[k] < design$criticalValues[k]) {
+						testActions[k] <- "reject and stop"
+					}
+					else if (stageResults$pValues[k] > design$alpha0Vec[k]) {
+						testActions[k] <- "accept and stop"
+					} else {
+						testActions[k] <- "continue"
+					}
 				} else {
-					testActions[k] <- "continue"
+					if (stageResults$combFisher[k] < design$criticalValues[k]) {
+						testActions[k] <- "reject"
+					} else {
+						testActions[k] <- "accept"
+					}
 				}
-			} else {
-				if (stageResults$combFisher[k] < design$criticalValues[k]) {
-					testActions[k] <- "reject"
+			}	
+			if (design$sided == 2) {
+				if (k < design$kMax) { 
+					if (min(stageResults$combFisher[k], 1 - stageResults$combFisher[k]) < design$criticalValues[k]) {
+						testActions[k] <- "reject and stop"
+					} else {
+						testActions[k] <- "continue"
+					}
 				} else {
-					testActions[k] <- "accept"
+					if (min(stageResults$combFisher[k], 1 - stageResults$combFisher[k]) < design$criticalValues[k]) {
+						testActions[k] <- "reject"
+					} else {
+						testActions[k] <- "accept"
+					}
 				}
-			}
+			}	
 		}
 	}
 	return(testActions)
@@ -474,7 +446,7 @@ getRepeatedConfidenceIntervals <- function(design, dataInput, ...) {
 #'        the subsequent stages, the default value is 1. 
 #' @param thetaH1 or pi1, pi2 Assumed effect sizes or assumed rates pi1 to calculate the 
 #'        conditional power. Depending on the type of dataset, either thetaH1 (means and survival) 
-#'        or pi1, pi2 (rates) needs to be specified. Also a range for thetaH1 or pi1 can be specified.
+#'        or pi1, pi2 (rates) needs to be specified. 
 #' 		  Additionally, if testing means is specified, an assumed standard (\code{assumedStDev}) 
 #' 		  deviation can be specified, default is 1.
 #' @param iterations Iterations for simulating the power for Fisher's combination test. 
@@ -491,7 +463,7 @@ getRepeatedConfidenceIntervals <- function(design, dataInput, ...) {
 #' @export
 #' 
 #' @seealso 
-#' \code{\link{StageResults_plot}} or \code{\link{AnalysisResults_plot}} for plotting the conditional power.
+#' \code{\link{plot.StageResults}} or \code{\link{plot.AnalysisResults}} for plotting the conditional power.
 #' 
 #' @keywords internal
 #' 
@@ -637,35 +609,64 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 	if (stageInverseNormalOrGroupSequential < design$kMax || stage == design$kMax) { 
 	
 		if (stageInverseNormalOrGroupSequential == 1) {
-			return(list(finalStage = finalStage, pFinal = stageResults$pValues[1]))
-		}
-		
-		if (design$bindingFutility){
-			if (.isTrialDesignInverseNormal(design)) {
-				decisionMatrix <- matrix(c(design$futilityBounds[1:(finalStage - 1)], C_FUTILITY_BOUNDS_DEFAULT, 
-					c(design$criticalValues[1:(finalStage - 1)], stageResults$combInverseNormal[finalStage])), 
-					nrow = 2, byrow = TRUE)
-			} else {
-				decisionMatrix <- matrix(c(design$futilityBounds[1:(finalStage - 1)], C_FUTILITY_BOUNDS_DEFAULT, 
-					c(design$criticalValues[1:(finalStage - 1)], stats::qnorm(1 - stageResults$overallPValues[finalStage]))), 
-					nrow = 2, byrow = TRUE)
-			}
+			
+			pFinal <- stageResults$pValues[1]
+			
 		} else {
-			if (.isTrialDesignInverseNormal(design)) {
-				decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT,finalStage), 
+		
+			if (design$bindingFutility){
+				if (.isTrialDesignInverseNormal(design)) {
+					decisionMatrix <- matrix(c(design$futilityBounds[1:(finalStage - 1)], C_FUTILITY_BOUNDS_DEFAULT, 
 						c(design$criticalValues[1:(finalStage - 1)], stageResults$combInverseNormal[finalStage])), 
 						nrow = 2, byrow = TRUE)
-			} else {
-				decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT,finalStage), 
+				} else {
+					decisionMatrix <- matrix(c(design$futilityBounds[1:(finalStage - 1)], C_FUTILITY_BOUNDS_DEFAULT, 
 						c(design$criticalValues[1:(finalStage - 1)], stats::qnorm(1 - stageResults$overallPValues[finalStage]))), 
 						nrow = 2, byrow = TRUE)
+				}
+			} else {
+				if (.isTrialDesignInverseNormal(design)) {
+					decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT,finalStage), 
+							c(design$criticalValues[1:(finalStage - 1)], stageResults$combInverseNormal[finalStage])), 
+							nrow = 2, byrow = TRUE)
+				} else {
+					decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT,finalStage), 
+							c(design$criticalValues[1:(finalStage - 1)], stats::qnorm(1 - stageResults$overallPValues[finalStage]))), 
+							nrow = 2, byrow = TRUE)
+				}
+			}
+		
+			probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+				informationRates = design$informationRates[1:finalStage])
+			pFinal <- sum(probs[3, ] - probs[2, ])
+				
+			if (design$sided == 2){
+				if (stageInverseNormalOrGroupSequential == 1) {
+					
+					pFinalOtherDirection <- 1 - stageResults$pValues[1] 
+					
+				} else {
+					if (.isTrialDesignInverseNormal(design)) {
+						decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT,finalStage), 
+										c(design$criticalValues[1:(finalStage - 1)], -stageResults$combInverseNormal[finalStage])), 
+								nrow = 2, byrow = TRUE)
+					} else {
+						decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT,finalStage), 
+										c(design$criticalValues[1:(finalStage - 1)], -stats::qnorm(1 - stageResults$overallPValues[finalStage]))), 
+								nrow = 2, byrow = TRUE)
+					}
+					probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+							informationRates = design$informationRates[1:finalStage])
+					
+					pFinalOtherDirection <- sum(probs[3, ] - probs[2, ])
+				}
+				
+				pFinal <- 2*min(pFinal, pFinalOtherDirection)
 			}
 		}
-	
-		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
-			informationRates = design$informationRates[1:finalStage])
-		pFinal <- sum(probs[3, ] - probs[2, ])
+
 		return(list(finalStage = finalStage, pFinal = pFinal))
+		
 	}
 	
 	return(list(finalStage = NA_integer_, pFinal = NA_real_))
@@ -711,6 +712,11 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 		if (stageResults$combInverseNormal[k] >= design$criticalValues[k]) {
 			return(k)
 		}
+		if (design$sided == 2){
+			if (stageResults$combInverseNormal[k] <= -design$criticalValues[k]) {
+				return(k)
+			}
+		}
 		
 		if (design$bindingFutility && k < design$kMax && stageResults$combInverseNormal[k] <= 
 				design$futilityBounds[k]) {
@@ -728,9 +734,14 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 .getStageGroupSeq <- function(design, stageResults, stage) {
 	
 	for (k in 1:stage) {
-		
+
 		if (stats::qnorm(1 - stageResults$overallPValues[k]) >= design$criticalValues[k]) {
 			return(k)
+		}
+		if (design$sided == 2){
+			if (stats::qnorm(1 - stageResults$overallPValues[k]) <= -design$criticalValues[k]) {
+				return(k)
+			}
 		}
 		
 		if (design$bindingFutility && k < design$kMax && 
@@ -751,6 +762,11 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 	for (k in 1:stage) {
 		if (stageResults$combFisher[k] <= design$criticalValues[k]) {
 			return(k)
+		}
+		if (design$sided == 2){
+			if (1 - stageResults$combFisher[k] <= design$criticalValues[k]) {
+				return(k)
+			}
 		}
 		
 		if (design$bindingFutility && k < design$kMax && stageResults$pValues[k] >= design$alpha0Vec[k]) {
@@ -775,6 +791,7 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 
 	alpha1 <- design$criticalValues[1]
 	alpha0 <- design$alpha0Vec[1]
+	if (!design$bindingFutility || (design$sided == 2)) alpha0 <- 1
 	weightForFisher <- stageResults$weightsFisher[2]
 	
 	if (theta != 0) {
@@ -837,7 +854,6 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 			pFinal <- stageResults$pValues[1] 
 		
 		} else {
-			
 			if (design$kMax > 2) {
 				warning("Final p-value cannot be calculated for kMax = ", design$kMax, " ",
 						"because the function for Fisher's design is implemented only for kMax <= 2", call. = FALSE)
@@ -848,7 +864,26 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 			pFinal <- .getQFunctionResult(design = design, stageResults = stageResults, 
 				theta = 0, infRate = 0)
 		}
+		
+		if (design$sided == 2){
+			if (stageFisher == 1) {
+				
+				pFinalOtherDirection <- 1 - stageResults$pValues[1] 
+				
+			} else {
+				
+				stageResults$pValues <- 1 - stageResults$pValues 
+				pFinalOtherDirection <- .getQFunctionResult(design = design, stageResults = stageResults, 
+						theta = 0, infRate = 0)
+				stageResults$pValues <- 1 - stageResults$pValues				
+			}
+			
+			# Final p-value for kMax = 2
+			pFinal <- 2*min(pFinal, pFinalOtherDirection)
+		}
+		
 		return(list(finalStage = finalStage, pFinal = pFinal))
+		
 	}
 
 	return(list(finalStage = NA_integer_, pFinal = NA_real_))
@@ -875,7 +910,7 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 #' @keywords internal
 #' 
 getFinalPValue <- function(design, stageResults, ...) {
-		
+	
 	.assertIsTrialDesign(design)
 	.assertIsStageResults(stageResults)
 
@@ -918,7 +953,7 @@ getFinalPValue <- function(design, stageResults, ...) {
 #'        it is 1 for the survival case.      
 #'        For testing a rate in one sample, a value \code{thetaH0} in (0,1) has to be specified for 
 #'        defining the null hypothesis H0: pi= thetaH0. \cr
-#' 		  For noninferiority designs, this is the noninferiority bound. 	
+#' 		  For non-inferiority designs, this is the non-inferiority bound. 	
 #' @param directionUpper The direction of one-sided testing. 
 #'        Default is \code{directionUpper = TRUE} which means that larger values of the 
 #'        test statistics yield smaller p-values.
@@ -986,7 +1021,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...) {
 	
 	if (design$bindingFutility){
 		warning("Two-sided final confidence bounds are not appropriate, ", 
-			"use one-sided version (i.e., one bound) only.")
+			"use one-sided version (i.e., one bound) only.", call. = FALSE)
 	}
 		
 	if (dataInput$isDatasetMeans()) {
@@ -1407,8 +1442,12 @@ getFinalConfidenceInterval <- function(design, dataInput, ...) {
 	.assertIsValidStage(stage, design$kMax)
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getConditionalRejectionProbabilitiesFisher", ignore = c("stage"), ...)
-	
+
 	kMax <- design$kMax
+	if (kMax == 1) {
+		return(NA_real_)
+	}
+	
 	criticalValues <- design$criticalValues
 	weights <- stageResults$weightsFisher	
 	if (design$bindingFutility){
@@ -1418,16 +1457,20 @@ getFinalConfidenceInterval <- function(design, dataInput, ...) {
 	}
 	
 	conditionalRejectionProbabilities <- rep(NA_real_, kMax)
-	for (k in (1:min(kMax - 2, stage))) {		
-		conditionalRejectionProbabilities[k] <- .getFisherCombinationSize(kMax - k, 
-			alpha0Vec[(k + 1):(kMax - 1)], (criticalValues[(k + 1):kMax] / 
-			prod(stageResults$pValues[1:k]^weights[1:k]))^(1 / weights[k + 1]), 
-			weights[(k + 2):kMax] / weights[k + 1])
-	}
-	
-	if (stage == (kMax - 1)) {
-		conditionalRejectionProbabilities[kMax - 1] <- (criticalValues[kMax]/ 
-			prod(stageResults$pValues[1:(kMax - 1)]^weights[1:(kMax - 1)]))^(1 / weights[kMax])
+	for (k in (1:min(kMax - 1, stage))) {		
+		if (prod(stageResults$pValues[1:k]^weights[1:k]) <= criticalValues[k]){
+			conditionalRejectionProbabilities[k] <- 1
+		} else {
+			if (k < kMax - 1){
+ 				conditionalRejectionProbabilities[k] <- .getFisherCombinationSize(kMax - k, 
+					alpha0Vec[(k + 1):(kMax - 1)], (criticalValues[(k + 1):kMax] / 
+					prod(stageResults$pValues[1:k]^weights[1:k]))^(1 / weights[k + 1]), 
+					weights[(k + 2):kMax] / weights[k + 1])
+			} else {
+				conditionalRejectionProbabilities[k] <- (criticalValues[kMax]/ 
+							prod(stageResults$pValues[1:k]^weights[1:k]))^(1 / weights[kMax])
+			}
+		}
 	}
 	
 	if (design$bindingFutility){

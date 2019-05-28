@@ -49,6 +49,13 @@
 	return(formattedValue)
 }
 
+.getZeroCorrectedValue <- function(value) {
+	if (is.numeric(value)) {
+		value[abs(value) < 1e-08] <- 0
+	}
+	return(value)
+}
+
 .getDecimalPlaces <- function(value) {
 	value <- stats::na.omit(value)
 	if (length(value) == 0) {
@@ -274,6 +281,41 @@ formatRates <- function(value) {
 
 # 
 # @title 
+# Format Rates Dynamic
+# 
+# @description 
+# Formats the output of rates.
+# 
+# @details
+# Digits = 3, nsmall = 3 if value < 1; digits = 1, nsmall = 1 otherwise
+# 
+# @keywords internal
+# 
+formatRatesDynamic <- function(value) {
+	if (!any(is.na(value)) && all(value >= 1)) {
+		return(.getFormattedValue(value, digits = 1, nsmall = 1))
+	}
+	return(.getFormattedValue(value, digits = 3, nsmall = 3))
+}
+
+# 
+# @title 
+# Format Accrual Intensities
+# 
+# @description 
+# Formats the output of accrual intensities.
+# 
+# @details
+# Digits = 1, nsmall = 1
+# 
+# @keywords internal
+# 
+formatAccrualIntensities <- function(value) {
+	return(.getFormattedValue(value, digits = 2, nsmall = 1)) 
+}
+
+# 
+# @title 
 # Format Means
 # 
 # @description 
@@ -325,7 +367,7 @@ formatStDevs <- function(value) {
 # Format Double
 # 
 # @description 
-# Formats the output of standard deviations.
+# Formats the output of double values.
 # 
 # @details
 # Digits = 3
@@ -333,8 +375,59 @@ formatStDevs <- function(value) {
 # @keywords internal
 # 
 formatDouble <- function(value) {
-	return(.getFormattedValue(value, digits = 3))
+	return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 3))
 }
+
+# 
+# @title 
+# Format Durations
+# 
+# @description 
+# Formats the output of study durations.
+# 
+# @details
+# Digits = 3
+# 
+# @keywords internal
+# 
+formatDurations <- function(value) {
+	#return(sprintf("%.2f", value))
+	return(.getFormattedValue(value, digits = 2, nsmall = 2))
+}
+
+# 
+# @title 
+# Format Time
+# 
+# @description 
+# Formats the output of time values, e.g. months.
+# 
+# @details
+# Digits = 3
+# 
+# @keywords internal
+# 
+formatTime <- function(value) {
+	#return(sprintf("%.2f", value))
+	return(.getFormattedValue(value, digits = 2, nsmall = 2))
+}
+
+# 
+# @title 
+# Format Simulation Output
+# 
+# @description 
+# Formats the output of simulations.
+# 
+# @details
+# Digits = 3
+# 
+# @keywords internal
+# 
+formatSimulationOutput <- function(value) {
+	return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 3))
+}
+
 
 # 
 # @title 

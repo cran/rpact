@@ -17,13 +17,119 @@
 #                                                                                    #
 ######################################################################################
 
-globalVariables(".parallelComputingCluster") 
-globalVariables(".parallelComputingCaseNumbers") 
-globalVariables(".parallelComputingArguments") 
+#' @include f_core_constants.R
+NULL
+
+utils::globalVariables(".parallelComputingCluster") 
+utils::globalVariables(".parallelComputingCaseNumbers") 
+utils::globalVariables(".parallelComputingArguments") 
 
 .parallelComputingCluster <- NULL
 .parallelComputingCaseNumbers <- NULL
 .parallelComputingArguments <- NULL
+
+#'
+#' @title
+#' Set Log Level
+#'
+#' @description
+#' Sets the \code{rpact} log level. 
+#' 
+#' @param logLevel The new log level to set. Can be one of
+#'        "PROGRESS", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "DISABLED". 
+#' 
+#' @details
+#' This function is intended for debugging purposes only.
+#'
+#' @export
+#' 
+#' @keywords internal
+#' 
+#' @examples 
+#' 
+#' \dontrun{
+#' setLogLevel("DEBUG")
+#' }
+#'
+setLogLevel <- function(logLevel = c("PROGRESS", "ERROR", "WARN", 
+		"INFO", "DEBUG", "TRACE", "DISABLED")) {
+	
+	logLevel <- match.arg(logLevel)
+	
+	if (!is.character(logLevel) || !(logLevel %in% c(
+			C_LOG_LEVEL_TRACE,
+			C_LOG_LEVEL_DEBUG,
+			C_LOG_LEVEL_INFO,
+			C_LOG_LEVEL_WARN,
+			C_LOG_LEVEL_ERROR,
+			C_LOG_LEVEL_PROGRESS,
+			C_LOG_LEVEL_DISABLED))) {
+		
+		stop("Illegal argument: 'logLevel' must be one of ",
+			"c(", paste(paste0("'", c(C_LOG_LEVEL_TRACE, 
+						C_LOG_LEVEL_DEBUG, 
+						C_LOG_LEVEL_INFO, 
+						C_LOG_LEVEL_WARN, 
+						C_LOG_LEVEL_ERROR, 
+						C_LOG_LEVEL_PROGRESS, 
+						C_LOG_LEVEL_DISABLED), "'"), collapse = ", "), ")")
+	}
+	
+	Sys.setenv("RPACT_LOG_LEVEL" = logLevel)
+}
+
+#'
+#' @title
+#' Get Log Level
+#'
+#' @description
+#' Returns the current \code{rpact} log level. 
+#' 
+#' @details
+#' This function is intended for debugging purposes only.
+#'
+#' @export
+#' 
+#' @keywords internal
+#' 
+#' @examples 
+#' 
+#' \dontrun{
+#' getLogLevel()
+#' }
+#'
+getLogLevel <- function() {
+	logLevel <- Sys.getenv("RPACT_LOG_LEVEL")
+	if (logLevel == "") {
+		logLevel <- C_LOG_LEVEL_PROGRESS
+		Sys.setenv("RPACT_LOG_LEVEL" = logLevel)
+	}
+	return(logLevel)
+}
+
+#'
+#' @title
+#' Reset Log Level
+#'
+#' @description
+#' Resets the \code{rpact} log level. 
+#' 
+#' @details
+#' This function is intended for debugging purposes only.
+#'
+#' @export
+#' 
+#' @keywords internal
+#' 
+#' @examples 
+#' 
+#' \dontrun{
+#' resetLogLevel()
+#' }
+#'
+resetLogLevel <- function() {
+	setLogLevel(C_LOG_LEVEL_PROGRESS)
+}
 
 .createParallelComputingCluster <- function() {
 	if (!is.null(.parallelComputingCluster)) {
@@ -87,11 +193,16 @@ globalVariables(".parallelComputingArguments")
 	}
 	
 	s <- strsplit(x, " ")[[1]]
-	s <- paste0(toupper(substring(s, 1,1)), substring(s, 2))
+	s <- paste0(toupper(substring(s, 1, 1)), substring(s, 2))
 	wordsToExclude <- c("And", "The", "Of", "Or")
 	s[s %in% wordsToExclude] <- tolower(s[s %in% wordsToExclude])
-	s <- paste(s, collapse=" ")
+	s <- paste(s, collapse = " ")
 	return(s)
+}
+
+.firstCharacterToUpperCase <- function(x) {
+	substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+	return(x)
 }
 
 .equalsRegexpIgnoreCase <- function(x, pattern) {
@@ -197,24 +308,37 @@ globalVariables(".parallelComputingArguments")
 	
 }
 
-.arrayToString <- function(a, separator = ", ", vectorLookAndFeelEnabled = FALSE, encapsulate = FALSE) {	
-	if (missing(a) || is.null(a) || length(a) == 0) {
+.arrayToString <- function(x, separator = ", ", 
+		vectorLookAndFeelEnabled = FALSE, 
+		encapsulate = FALSE,
+		digits = 3) {	
+		
+	if (missing(x) || is.null(x) || length(x) == 0) {
 		return("NULL")
 	}
 	
-	if (length(a) == 1 && is.na(a)) {
+	if (length(x) == 1 && is.na(x)) {
 		return("NA")
 	}
 	
+	if (!is.numeric(x) && !is.character(x) && !is.logical(x) && !is.integer(x)) {
+		return(class(x))
+	}
+	
+	if (is.numeric(x)) {
+		indices <- which(!is.na(x))
+		x[indices] <- round(x[indices], digits)
+	}
+	
 	if (encapsulate) {
-		a <- paste0("'", a, "'")
+		x <- paste0("'", x, "'")
 	}
 		
 	if (!vectorLookAndFeelEnabled) {
-		return(paste(a, collapse = separator))
+		return(paste(x, collapse = separator))
 	}
 	
-	return(paste0("c(", paste(a, collapse = separator), ")"))
+	return(paste0("c(", paste(x, collapse = separator), ")"))
 }
 
 .listToString <- function(a, separator = ", ", listLookAndFeelEnabled = FALSE, encapsulate = FALSE) {	
@@ -270,8 +394,12 @@ globalVariables(".parallelComputingArguments")
 # @keywords internal
 #
 .setSeed <- function(seed = NA_real_) {
-	if (!is.null(seed) && !is.na(seed)) {
-		set.seed(seed)
+	if (!is.null(seed) && !is.na(seed)) {		
+		if (is.na(as.integer(seed))) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'seed' must be a valid integer")
+		}
+		
+		set.seed(seed = seed, kind = "Mersenne-Twister", normal.kind = "Inversion")
 		return(seed)
 	}
 		
@@ -284,7 +412,7 @@ globalVariables(".parallelComputingArguments")
 	.logDebug("Set seed to %s", seed)
 	
 	tryCatch({	
-		set.seed(seed)
+		set.seed(seed, kind = "Mersenne-Twister", normal.kind = "Inversion")
 	}, error = function(e) {
 		.logError("Failed to set seed to '%s' (%s): %s", seed, class(seed), e)
 		seed <- NA_real_
@@ -359,13 +487,13 @@ globalVariables(".parallelComputingArguments")
 # @keywords internal
 #
 .getOneDimensionalRoot <- function(
-	f,
-	...,
-	lower,
-	upper,
-	tolerance = .Machine$double.eps^0.25,
-	acceptResultsOutOfTolerance = FALSE,
-	suppressWarnings = FALSE) {
+		f,
+		...,
+		lower,
+		upper,
+		tolerance = .Machine$double.eps^0.25,
+		acceptResultsOutOfTolerance = FALSE,
+		suppressWarnings = FALSE) {
 	
 	.assertIsSingleNumber(lower, "lower")
 	.assertIsSingleNumber(upper, "upper")
@@ -387,7 +515,7 @@ globalVariables(".parallelComputingArguments")
 			lower, upper, tolerance, w)
 	}, error = function(e) {
 		msg <- "Failed to run uniroot(f, lower = %s, upper = %s, tol = %s): %s"
-		if (C_LOG_LEVEL == C_LOG_LEVEL_DEBUG) {
+		if (getLogLevel() == C_LOG_LEVEL_DEBUG) {
 			.logError(msg, lower, upper, tolerance, e)
 		} else {
 			.logWarn(msg, lower, upper, tolerance, e)
@@ -411,14 +539,16 @@ globalVariables(".parallelComputingArguments")
 			if (!suppressWarnings) {
 				warning("NA returned because root search by 'uniroot' produced a function result (", 
 					unirootResult$f.root, ") that differs from target 0 ", 
-					"(tolerance is ", tolerance, ", last function argument was ", unirootResult$root, ")", 
+					"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
+					", last function argument was ", unirootResult$root, ")", 
 					call. = FALSE)
 			}
 			return(NA_real_)
 		} else if (!suppressWarnings) {
 			warning("Root search by 'uniroot' produced a function result (", unirootResult$f.root, ") ", 
 				"that differs from target 0 ", 
-				"(tolerance is ", tolerance, ", last function argument was ", unirootResult$root, ")", 
+				"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
+				", last function argument was ", unirootResult$root, ")", 
 				call. = FALSE)
 		}
 	}
@@ -506,8 +636,8 @@ globalVariables(".parallelComputingArguments")
 }
 
 .plotMonotoneFunctionRootSearch <- function(f, lowerStart, upperStart) {
-	if (C_LOG_LEVEL != C_LOG_LEVEL_TRACE) {
-		return()
+	if (getLogLevel() != C_LOG_LEVEL_TRACE) {
+		return(invisible())
 	}
 	
 	values <- c()
@@ -560,7 +690,7 @@ globalVariables(".parallelComputingArguments")
 	for (s in subDirs) {
 		figPath <- file.path(figPath, s)
 		if (!file.exists(figPath)) {
-			dir.create(figPath, showWarnings = FALSE)
+			dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
 		}  
 	}
 	 
@@ -596,21 +726,25 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 }
 
 .isFirstValueGreaterThanSecondValue <- function(firstValue, secondValue) {
-	if (is.null(firstValue) || is.na(firstValue) || length(firstValue) == 0) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'firstValue' (", firstValue, ") must be a valid numeric value")
+	if (is.null(firstValue) || length(firstValue) != 1 || is.na(firstValue)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'firstValue' (", firstValue, ") must be a valid numeric value")
 	}
-	if (is.null(secondValue) || is.na(secondValue) || length(secondValue) == 0) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'secondValue' (", secondValue, ") must be a valid numeric value")
+	if (is.null(secondValue) || length(secondValue) != 1 || is.na(secondValue)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'secondValue' (", secondValue, ") must be a valid numeric value")
 	}
 	return(firstValue > secondValue)
 }
 
 .isFirstValueSmallerThanSecondValue <- function(firstValue, secondValue) {
-	if (is.null(firstValue) || is.na(firstValue) || length(firstValue) == 0) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'firstValue' (", firstValue, ") must be a valid numeric value")
+	if (is.null(firstValue) || length(firstValue) != 1 || is.na(firstValue)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'firstValue' (", firstValue, ") must be a valid numeric value")
 	}
-	if (is.null(secondValue) || is.na(secondValue) || length(secondValue) == 0) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'secondValue' (", secondValue, ") must be a valid numeric value")
+	if (is.null(secondValue) || length(secondValue) != 1 || is.na(secondValue)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'secondValue' (", secondValue, ") must be a valid numeric value")
 	}
 	return(firstValue < secondValue)
 }
@@ -624,39 +758,43 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 }
 
 .logTrace <- function(s, ...) {
-	if (C_LOG_LEVEL == C_LOG_LEVEL_TRACE) {
+	if (getLogLevel() == C_LOG_LEVEL_TRACE) {
 		.logBase(s, ..., logLevel = C_LOG_LEVEL_TRACE)
 	}
 }
 
 .logDebug <- function(s, ...) {
-	if (C_LOG_LEVEL %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG)) {
+	if (getLogLevel() %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG)) {
 		.logBase(s, ..., logLevel = C_LOG_LEVEL_DEBUG)
 	}
 }
 
 .logInfo <- function(s, ...) {
-	if (C_LOG_LEVEL %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, C_LOG_LEVEL_INFO)) {
+	if (getLogLevel() %in% c(C_LOG_LEVEL_TRACE, 
+			C_LOG_LEVEL_DEBUG, C_LOG_LEVEL_INFO)) {
 		.logBase(s, ..., logLevel = C_LOG_LEVEL_INFO)
 	}
 }
 
 .logWarn <- function(s, ...) {
-	if (C_LOG_LEVEL %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, C_LOG_LEVEL_INFO, C_LOG_LEVEL_WARN)) {
+	if (getLogLevel() %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, 
+			C_LOG_LEVEL_INFO, C_LOG_LEVEL_WARN)) {
 		.logBase(s, ..., logLevel = C_LOG_LEVEL_WARN)
 	}
 }
 
 .logError <- function(s, ...) {
-	if (C_LOG_LEVEL %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, C_LOG_LEVEL_INFO, C_LOG_LEVEL_WARN, C_LOG_LEVEL_ERROR)) {
+	if (getLogLevel() %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, 
+			C_LOG_LEVEL_INFO, C_LOG_LEVEL_WARN, C_LOG_LEVEL_ERROR)) {
 		.logBase(s, ..., logLevel = C_LOG_LEVEL_ERROR)
 	}
 }
 
 .logProgress <- function(s, ..., startTime) {
-	if (!(C_LOG_LEVEL %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, C_LOG_LEVEL_INFO, C_LOG_LEVEL_WARN, 
+	if (!(getLogLevel() %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, 
+			C_LOG_LEVEL_INFO, C_LOG_LEVEL_WARN, 
 			C_LOG_LEVEL_ERROR, C_LOG_LEVEL_PROGRESS))) {
-		return()
+		return(invisible())
 	}
 	
 	time <- Sys.time() - startTime	
@@ -687,24 +825,31 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 }
 
 .getValidatedFutilityBoundsOrAlpha0Vec <- function(design, parameterName, defaultValue, 
-	kMaxLowerBound, writeToDesign) {
+		kMaxLowerBound, writeToDesign) {
 	
+	parameterValues <- design[[parameterName]]
+		
 	kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
-	if (.isDefinedArgument(design[[parameterName]]) && .isDefinedArgument(design$kMax)) {
+	if (.isDefinedArgument(parameterValues) && .isDefinedArgument(design$kMax)) {
 		if (.isTrialDesignFisher(design)) {
-			.assertIsValidAlpha0Vec(design[[parameterName]], kMax = design$kMax, 
+			.assertIsValidAlpha0Vec(parameterValues, kMax = design$kMax, 
 				kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
 		} else {
-			.assertAreValidFutilityBounds(design[[parameterName]], kMax = design$kMax, 
+			.assertAreValidFutilityBounds(parameterValues, kMax = design$kMax, 
 				kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
 		}
+	}
+	
+	if (design$sided == 2 && .isDefinedArgument(parameterValues) && any(na.omit(parameterValues) != defaultValue)) {
+		warning("'", parameterName, "' (", .arrayToString(parameterValues), 
+			") will be ignored because the design is two-sided", call. = FALSE)
 	}
 	
 	if (writeToDesign) {
 		.setParameterType(design, parameterName, C_PARAM_USER_DEFINED)
 	}
 	
-	if (.isUndefinedArgument(design$informationRates) && .isUndefinedArgument(design[[parameterName]])) { 
+	if (.isUndefinedArgument(design$informationRates) && .isUndefinedArgument(parameterValues)) { 
 		if (writeToDesign) {
 			if (.setKMaxToDefaultIfUndefined(design, writeToDesign) || design$kMax == C_KMAX_DEFAULT) {
 				.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
@@ -716,7 +861,7 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 		return(rep(defaultValue, design$kMax - 1))
 	}
 	
-	if (.isDefinedArgument(design$informationRates) && .isUndefinedArgument(design[[parameterName]])) {
+	if (.isDefinedArgument(design$informationRates) && .isUndefinedArgument(parameterValues)) {
 		if (writeToDesign) {
 			if (.isUndefinedArgument(design$kMax)) {
 				.setKMax(design, kMax = length(design$informationRates))
@@ -728,10 +873,10 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	}
 	
 	if (.isUndefinedArgument(design$informationRates) && 
-			.isDefinedArgument(design[[parameterName]], argumentExistsValidationEnabled = FALSE)) {	
+			.isDefinedArgument(parameterValues, argumentExistsValidationEnabled = FALSE)) {	
 		if (writeToDesign) {
-			.setKMax(design, kMax = length(design[[parameterName]]) + 1)
-			if (.isDefaultVector(design[[parameterName]], rep(defaultValue, design$kMax - 1))) {
+			.setKMax(design, kMax = length(parameterValues) + 1)
+			if (.isDefaultVector(parameterValues, rep(defaultValue, design$kMax - 1))) {
 				.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
 			}
 		}
@@ -740,21 +885,21 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 			return(rep(defaultValue, design$kMax - 1))
 		}
 		
-		return(design[[parameterName]])
+		return(parameterValues)
 	}
 	
 	if (writeToDesign) {
-		.setKMax(design, kMax = length(design[[parameterName]]) + 1)
-		if (.isDefaultVector(design[[parameterName]], rep(defaultValue, design$kMax - 1))) {
+		.setKMax(design, kMax = length(parameterValues) + 1)
+		if (.isDefaultVector(parameterValues, rep(defaultValue, design$kMax - 1))) {
 			.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
 		}
 	}
 	
 	if (.isTrialDesignFisher(design)) {
-		.assertIsValidAlpha0Vec(design[[parameterName]], kMax = design$kMax, 
+		.assertIsValidAlpha0Vec(parameterValues, kMax = design$kMax, 
 			kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
 	} else {
-		.assertAreValidFutilityBounds(design[[parameterName]], kMax = design$kMax, 
+		.assertAreValidFutilityBounds(parameterValues, kMax = design$kMax, 
 			kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
 	}
 	
@@ -762,11 +907,11 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 		return(rep(defaultValue, design$kMax - 1))
 	}
 	
-	return(design[[parameterName]])
+	return(parameterValues)
 }
 
 .isBetaSpendingDesignWithDefinedFutilityBounds <- function(design, parameterName, writeToDesign) {
-	if (.isTrialDesignFisher(design) || !isBetaSpendingDesignType(design$typeBetaSpending)) {
+	if (.isTrialDesignFisher(design) || !.isBetaSpendingDesignType(design$typeBetaSpending)) {
 		return(FALSE)
 	}
 	
@@ -785,12 +930,40 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	return(TRUE)
 }
 
-.setParameterType <- function(design, parameterName, parameterType) {
-	if (is.null(design)) {
-		return()
+.setParameterType <- function(parameterSet, parameterName, parameterType) {
+	if (is.null(parameterSet)) {
+		return(invisible())
 	}
 	
-	design$.setParameterType(parameterName, parameterType)
+	parameterSet$.setParameterType(parameterName, parameterType)
+}
+
+.setValueAndParameterType <- function(parameterSet, parameterName, value, defaultValue,
+		notApplicableIfNA = FALSE) {
+		
+	.assertIsParameterSetClass(parameterSet, "parameterSet")
+	
+	if (is.null(parameterSet)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'parameterSet' must be not null")
+	}
+	
+	if (!(parameterName %in% names(parameterSet$getRefClass()$fields()))) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'", class(parameterSet), "' does not contain a field with name '", parameterName, "'")
+	}
+	
+	parameterSet[[parameterName]] <- value
+	
+	if (notApplicableIfNA && all(is.na(value))) {
+		parameterSet$.setParameterType(parameterName, C_PARAM_NOT_APPLICABLE)
+	} else if (!is.null(value) && length(value) == length(defaultValue) && (
+				(all(is.na(value)) && all(is.na(value) == is.na(defaultValue))) ||
+				(!is.na(all(value == defaultValue)) && all(value == defaultValue))
+			)) {
+		parameterSet$.setParameterType(parameterName, C_PARAM_DEFAULT_VALUE)
+	} else {
+		parameterSet$.setParameterType(parameterName, C_PARAM_USER_DEFINED)
+	}
 }
 
 .setKMax <- function(design, kMax) {
@@ -984,33 +1157,33 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	
 	if (.isTrialDesignFisher(design)) {
 		if (design$method != C_FISHER_METHOD_USER_DEFINED_ALPHA) {
-			return()
+			return(invisible())
 		}
 	} else {
 		if (design$typeOfDesign != C_TYPE_OF_DESIGN_AS_USER) {
-			return()
+			return(invisible())
 		}
 	}
 	
 	if (.isDefinedArgument(design$kMax)) {
-		return()
+		return(invisible())
 	}
 	
 	if (.isUndefinedArgument(design$userAlphaSpending)) {
-		return()
+		return(invisible())
 	}
 	
 	if (.isDefinedArgument(design$informationRates)) {
-		return()
+		return(invisible())
 	}
 	
 	if (.isTrialDesignFisher(design)) {
 		if (.isDefinedArgument(design$alpha0Vec)) {
-			return()
+			return(invisible())
 		}
 	} else {
 		if (.isDefinedArgument(design$futilityBounds)) {
-			return()
+			return(invisible())
 		}
 	}
 	
@@ -1018,4 +1191,162 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	
 	.setKMax(design, kMax = length(design$userAlphaSpending))
 }
+
+.skipTestifDisabled <- function() {
+	if (!isTRUE(.isCompleteUnitTestSetEnabled()) && 
+			base::requireNamespace("testthat", quietly = TRUE)) {
+		testthat::skip("Test is disabled")
+	}
+}
+
+.getNumberOfZeroesDirectlyAfterDecimalSeparator <- function(x) {
+	zeroCounter <- 0
+	startEnabled <- FALSE
+	x <- round(x, 15)
+	x <- sprintf("%.15f", x)
+	for (i in 1:nchar(x)) {
+		num <- substring(x, i, i)
+		if (num == ".") {
+			startEnabled <- TRUE
+		}
+		else if (startEnabled) {
+			if (num == "0") {
+				zeroCounter <- zeroCounter + 1
+			} else {
+				return(zeroCounter)
+			}
+		}
+	}
+	return(zeroCounter)
+}
+
+.getNextHigherValue <- function(x) {
+	.assertIsNumericVector(x, "x")
+	values <- c()
+	for (value in x) {
+		value <- round(value, 15)
+		values <- c(values, 1 / 10^.getNumberOfZeroesDirectlyAfterDecimalSeparator(value))
+	}
+	return(values)
+}
+
+#' @title 
+#' Test Package
+# 
+#' @description
+#' These function allows the installed package \code{rpact} to be tested.
+#' 
+#' @param outDir The output directory where all test results shall be saved.
+#'     By default the current working directory is used.
+#' @param completeUnitTestSetEnabled If \code{TRUE} (default) all existing unit tests will
+#'     be executed; a subset of all unit tests will be used otherwise.
+#' @param types The type(s) of tests to be done. Can be one or more of
+#'     \code{c("tests", "examples", "vignettes")}. Default is "tests" only.
+#' @param sourceDirectory An optional directory to look for \code{.save} files.
+#' 
+#' @details 
+#' This function creates the subdirectory \code{rpact-tests} in the specified output directory
+#' and copies all unit test files of the package to this newly created directory.
+#' Then the function runs all tests (or a subset of all tests if 
+#' \code{completeUnitTestSetEnabled} is \code{FALSE}) using 
+#' \code{\link[tools]{testInstalledPackage}}.
+#' The test results will be saved to the text file \code{testthat.Rout} that can be found
+#' in the subdirectory \code{rpact-tests}.
+#' 
+#' @keywords internal
+#'
+#' @export 
+#' 
+#' @examples 
+#' 
+#' \dontrun{
+#' testPackage()
+#' }
+#' 
+testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE, 
+		types = "tests", sourceDirectory = NULL) {
+		
+	if (!dir.exists(outDir)) {
+		stop("Test output directory '", outDir, "' does not exist")
+	}
+	
+	startTime <- Sys.time()
+
+	Sys.setenv("LANGUAGE" = "EN")
+	on.exit(Sys.unsetenv("LANGUAGE"))
+
+	temp <- .isCompleteUnitTestSetEnabled()
+	on.exit(Sys.setenv("RPACT_COMPLETE_UNIT_TEST_SET_ENABLED" = temp), add = TRUE)
+	Sys.setenv("RPACT_COMPLETE_UNIT_TEST_SET_ENABLED" = completeUnitTestSetEnabled)
+	
+	setLogLevel(C_LOG_LEVEL_DISABLED)
+	on.exit(resetLogLevel(), add = TRUE)
+
+	if (.isCompleteUnitTestSetEnabled()) {
+		cat("Run all tests. Please wait...\n")
+		cat("Have a big coffee - it will take 5 minutes or more.\n")
+	} else {
+		cat("Run a subset of all tests. Please wait...\n")
+		cat("Have a little coffee - it will take a minute or more.\n")
+	}
+	
+	tools::testInstalledPackage(pkg = "rpact", outDir = outDir, types = types, srcdir = sourceDirectory)
+	
+	if (outDir == ".") {
+		outDir <- getwd()
+	}
+	outDir <- file.path(outDir, "rpact-tests")
+	
+	endTime <- Sys.time()
+	timeTotal <- as.numeric(endTime - startTime) * 60
+	cat("Total runtime for testing:", floor(timeTotal / 60), "minutes and", 
+		((round(timeTotal / 60, 2) - floor(timeTotal / 60)) * 60), "seconds\n")
+	cat("Test results were written to directory '", outDir, "' (see file 'testthat.Rout')\n", sep = "")
+	
+	invisible(.isCompleteUnitTestSetEnabled())
+}
+
+.isCompleteUnitTestSetEnabled <- function() {
+	completeUnitTestSetEnabled <- as.logical(Sys.getenv("RPACT_COMPLETE_UNIT_TEST_SET_ENABLED"))
+	if (is.na(completeUnitTestSetEnabled)) {
+		completeUnitTestSetEnabled <- FALSE
+		Sys.setenv("RPACT_COMPLETE_UNIT_TEST_SET_ENABLED" = completeUnitTestSetEnabled)
+	}
+	return(isTRUE(completeUnitTestSetEnabled))
+}
+
+.getVariedParameterVectorByValue <- function(variedParameter) {
+	return((variedParameter[2] -  variedParameter[1]) / C_VARIED_PARAMETER_SEQUENCE_LENGTH_DEFAULT)
+}
+
+.getVariedParameterVector <- function(variedParameter, variedParameterName) {
+	if (is.null(variedParameter) || length(variedParameter) != 2 || any(is.na(variedParameter))) {
+		return(variedParameter)
+	}
+	
+	minValue <- variedParameter[1]
+	maxValue <- variedParameter[2]
+	if (minValue == maxValue) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'", variedParameterName, "' with length 2 must contain minimum != maximum (", 
+			minValue, " == ", maxValue , ")")
+	}
+	by <- .getVariedParameterVectorByValue(variedParameter)
+	variedParameter <- seq(minValue, maxValue, by)
+	return(variedParameter)
+}
+
+.getVariedParameterVectorSeqCommand <- function(variedParameter) {
+	return(paste0("seq(", round(variedParameter[1], 4), ", ", round(variedParameter[2], 4), ", ",
+			round(.getVariedParameterVectorByValue(variedParameter), 6),")"))
+}
+
+.getNumberOfSubjects1 <- function(numberOfSubjects, allocationRatioPlanned) {
+	return((numberOfSubjects * allocationRatioPlanned) / (allocationRatioPlanned + 1))
+}
+
+.getNumberOfSubjects2 <- function(numberOfSubjects, allocationRatioPlanned) {
+	return(numberOfSubjects / (allocationRatioPlanned + 1))
+}
+
 

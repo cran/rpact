@@ -45,9 +45,6 @@
 #' @field weightsFisher The weights for Fisher's combination test.
 #' @field weightsInverseNormal The weights for inverse normal statistic.
 #' 
-#' @name StageResults_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_design.R
 #' @include class_analysis_dataset.R
@@ -102,12 +99,25 @@ StageResults <- setRefClass("StageResults",
 			return(.plotSettings)
 		},
 		
-		show = function() {
+		show = function(showType = 1) {
+			.show(showType = showType, consoleOutputEnabled = TRUE)
+		},
+		
+		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing stage results'
-			output <- .showParametersOfOneGroup(parameters = .getParametersToShow(), 
-				title = .toString(startWithUpperCase = TRUE), orderByParameterName = FALSE)
-			.showUnknownParameters()
-			invisible(output)
+			.resetCat()
+			if (showType == 2) {
+				.cat("Technical summary of the stage results object of class ",
+					methods::classLabel(class(.self)), ":\n\n", heading = 1,
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
+				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+			} else {
+				.showParametersOfOneGroup(parameters = .getParametersToShow(), 
+					title = .toString(startWithUpperCase = TRUE), orderByParameterName = FALSE,
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
+			}
 		},
 		
 		isDirectionUpper = function() {
@@ -191,9 +201,6 @@ StageResults <- setRefClass("StageResults",
 #' @field testActions The action drawn from test result.
 #' @field weightsFisher The weights for Fisher's combination test.
 #' @field weightsInverseNormal The weights for inverse normal statistic.
-#' 
-#' @name StageResultsMeans_initialize
-#' Initializes the object.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_design.R
@@ -305,9 +312,6 @@ StageResultsMeans <- setRefClass("StageResultsMeans",
 #' @field weightsFisher The weights for Fisher's combination test.
 #' @field weightsInverseNormal The weights for inverse normal statistic.
 #' 
-#' @name StageResultsRates_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_design.R
 #' @include class_analysis_dataset.R
@@ -405,9 +409,6 @@ StageResultsRates <- setRefClass("StageResultsRates",
 #' @field testActions The action drawn from test result.
 #' @field weightsFisher The weights for Fisher's combination test.
 #' @field weightsInverseNormal The weights for inverse normal statistic.
-#' 
-#' @name StageResultsSurvival_initialize
-#' Initializes the object.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_design.R
@@ -541,62 +542,8 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 }
 
 #'
-#' @name StageResults_summary
-#' 
 #' @title
-#' Stage Results Summary
-#'
-#' @description
-#' Displays a summary of \code{StageResults} object.
-#' 
-#' @details
-#' Summarizes the parameters and results of stage results.
-#' 
-#' @export
-#' 
-#' @keywords internal
-#' 
-summary.StageResults <- function(object, ...) {
-	cat("This output summarizes the ", object$.toString(), ".\n\n", sep = "")
-	object$show()
-	cat("\n")
-	print.StageResults(object, ...) 
-}
-
-#'
-#' @name StageResults_print
-#' 
-#' @title
-#' Print Stage Results
-#'
-#' @description
-#' \code{print} prints its \code{StageResults} argument and returns it invisibly (via \code{invisible(x)}). 
-#' 
-#' @details
-#' Prints the parameters and values of stage results.
-#'
-#' @export
-#' 
-#' @keywords internal
-#' 
-print.StageResults <- function(x, ...) {
-	cat(x$.toString(startWithUpperCase = TRUE), "table:\n")
-	parametersToShow <- x$.getParametersToShow()
-	parametersToShow <- parametersToShow[parametersToShow != "stages"]
-	for (parameter in parametersToShow) {
-		if (length(x[[parameter]]) == 1) {
-			parametersToShow <- parametersToShow[parametersToShow != parameter]
-		}
-	}
-	x$.printAsDataFrame(parameterNames = parametersToShow)
-	invisible(x)
-}
-
-#'
-#' @name StageResults_plot
-#' 
-#' @title
-#' Stage Results Plotting - Conditional Power Plot
+#' Stage Results Plotting
 #' 
 #' @description
 #' Plots the conditional power together with the likelihood function. 
@@ -615,6 +562,9 @@ print.StageResults <- function(x, ...) {
 #' @param ylab The y-axis label.
 #' @param legendTitle The legend title.
 #' @param palette The palette, default is \code{"Set1"}.
+#' @param showSource If \code{TRUE}, the parameter names of the object will 
+#'        be printed which were used to create the plot; that may be, e.g., 
+#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
 #' @param legendPosition The position of the legend. 
 #' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
 #' Choose one of the following values to specify the position manually:
@@ -667,12 +617,12 @@ print.StageResults <- function(x, ...) {
 #' 
 #' if (require(ggplot2)) plot(stageResults, nPlanned = c(30), thetaRange = c(0, 100))
 #'
-plot.StageResults <- function(x, y, ...,
+plot.StageResults <- function(x, y, ..., type = 1L,
 		nPlanned, stage = x$getNumberOfStages(),
 		allocationRatioPlanned = NA_real_,
 		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
 		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
-		type = 1) {
+		showSource = FALSE) {
 	
 	.assertGgplotIsInstalled()
 	.assertIsStageResults(x)
@@ -687,7 +637,7 @@ plot.StageResults <- function(x, y, ...,
 			ylim = c(0,1), xlab = plotData$xlab, ylab = plotData$ylab,
 			main = plotData$main, sub = plotData$sub)
 		graphics::lines(plotData$xValues, plotData$likelihoodValues,  type = 'l', lty = 3, lwd = 2, col = "darkgreen") 
-		return()
+		return(invisible())
 	}
 
 	yParameterName1 <- "Conditional power"

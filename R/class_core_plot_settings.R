@@ -36,9 +36,6 @@
 #' @details
 #' Collects typical plot settings in an object.
 #' 
-#' @name PlotSettings_initialize
-#' Initializes the object.
-#' 
 #' @keywords internal
 #' 
 #' @include class_core_parameter_set.R
@@ -88,44 +85,52 @@ PlotSettings <- setRefClass("PlotSettings",
 		},
 		
 		show = function(showType = 1) {
+			.show(showType = showType, consoleOutputEnabled = TRUE)
+		},
+		
+		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing plot setting objects'	
-
+			.resetCat()
 			.showParametersOfOneGroup(parameters = .getVisibleFieldNames(), 
-				title = "Plot settings", orderByParameterName = FALSE)
+				title = "Plot settings", orderByParameterName = FALSE,
+				consoleOutputEnabled = consoleOutputEnabled)
 		},
 	
 		setColorPalette = function(p, palette, mode = c("colour", "fill", "all")) {
 			"Sets the color palette"
+			
+			mode <- match.arg(mode)
+			
 			# l = 45: make colors slightly darker
 			if (is.null(palette) || is.na(palette)) {
-				if (mode[1] %in% c("colour", "all")) {
+				if (mode %in% c("colour", "all")) {
 					p <- p + ggplot2::scale_colour_hue(l = 45) 
 				}
-				if (mode[1] %in% c("fill", "all")) {
+				if (mode %in% c("fill", "all")) {
 					p <- p + ggplot2::scale_fill_hue(l = 45) 
 				}
 			}
 			else if (is.character(palette)) {
-				if (mode[1] %in% c("colour", "all")) {
+				if (mode %in% c("colour", "all")) {
 					p <- p + ggplot2::scale_colour_brewer(palette = palette)
 				}
-				if (mode[1] %in% c("fill", "all")) {
+				if (mode %in% c("fill", "all")) {
 					p <- p + ggplot2::scale_fill_brewer(palette = palette)
 				}
 			} 
 			else if (palette == 0) {
-				if (mode[1] %in% c("colour", "all")) {
+				if (mode %in% c("colour", "all")) {
 					p <- p + ggplot2::scale_colour_grey()
 				}
-				if (mode[1] %in% c("fill", "all")) {
+				if (mode %in% c("fill", "all")) {
 					p <- p + ggplot2::scale_fill_grey()
 				}
 			}	
 			else {
-				if (mode[1] %in% c("colour", "all")) {
+				if (mode %in% c("colour", "all")) {
 					p <- p + ggplot2::scale_colour_hue(l = 45)
 				}
-				if (mode[1] %in% c("fill", "all")) {
+				if (mode %in% c("fill", "all")) {
 					p <- p + ggplot2::scale_fill_hue(l = 45)
 				}
 			}
@@ -151,14 +156,22 @@ PlotSettings <- setRefClass("PlotSettings",
 		setAxesLabels = function(p, xAxisLabel = NULL, yAxisLabel1 = NULL, yAxisLabel2 = NULL, 
 				xlab = NA_character_, ylab = NA_character_, 
 				scalingFactor1 = 1, scalingFactor2 = 1) {
-			if (!is.na(xlab)) {
-				xAxisLabel = xlab
+				
+			if (is.call(xlab) || !is.na(xlab)) {
+				xAxisLabel <- xlab
+			} else if (xAxisLabel == "Theta") {
+				xAxisLabel <- bquote(bold("Theta"~Theta))
 			}
-			if (xAxisLabel == "Theta") {
-				p <- p + ggplot2::xlab(bquote("Theta"~Theta))
-			} else {
-				p <- p + ggplot2::xlab(xAxisLabel)
+			
+			if (xAxisLabel == "pi1") {
+				xAxisLabel <- bquote(bold('pi'['1']))
+			} else if (xAxisLabel == "pi2") {
+				xAxisLabel <- bbquote(bold('pi'['2']))
+			} else if (xAxisLabel == "Theta") {
+				xAxisLabel <- bquote(bold("Theta"~Theta))
 			}
+
+			p <- p + ggplot2::xlab(xAxisLabel)
 			if (sum(is.na(ylab)) == 0) {
 				yAxisLabel1 = ylab[1]
 				if (length(ylab) == 2) {
@@ -181,8 +194,11 @@ PlotSettings <- setRefClass("PlotSettings",
 		},
 		
 		setLegendTitle = function(p, legendTitle, mode = c("colour", "fill")) {
+			
+			mode <- match.arg(mode)
+			
 			if (!is.null(legendTitle) && !is.na(legendTitle) && trimws(legendTitle) != "") {
-				if (mode[1] == "colour") {
+				if (mode == "colour") {
 					p <- p + ggplot2::labs(colour = .getTextLineWithLineBreak(legendTitle, 
 							lineBreakIndex = .legendLineBreakIndex)) 
 				} else {

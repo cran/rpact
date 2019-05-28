@@ -5,12 +5,13 @@
 \title{Read Multiple Datasets}
 \usage{
 readDatasets(file, ..., header = TRUE, sep = ",", quote = "\\"",
-  dec = ".", fill = TRUE, comment.char = "", fileEncoding = "UTF-8")
+  dec = ".", fill = TRUE, comment.char = "",
+  fileEncoding = "UTF-8")
 }
 \arguments{
 \item{file}{A CSV file (see \code{\link[utils]{read.table}}).}
 
-\item{...}{Further arguments to be passed to code{\link[utils]{read.table}}.}
+\item{...}{Further arguments to be passed to \code{\link[utils]{read.table}}.}
 
 \item{header}{A logical value indicating whether the file contains the names of 
 the variables as its first line.}
@@ -19,7 +20,7 @@ the variables as its first line.}
 by this character. If sep = "," (the default for \code{readDatasets}) the separator is a comma.}
 
 \item{quote}{The set of quoting characters. To disable quoting altogether, use 
-quote = "". See scan for the behaviour on quotes embedded in quotes. Quoting is only 
+quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
 considered for columns read as character, which is all of them unless \code{colClasses} is specified.}
 
 \item{dec}{The character used in the file for decimal points.}

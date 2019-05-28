@@ -34,9 +34,6 @@
 #'   \item \code{\link{AnalysisResultsInverseNormal}}.
 #' }
 #' 
-#' @name AnalysisResults_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
 #' @include class_analysis_dataset.R
@@ -51,6 +48,7 @@
 AnalysisResults <- setRefClass("AnalysisResults",
 	contains = "ParameterSet",
 	fields = list(
+		.plotSettings = "PlotSettings",
 		.design = "TrialDesign",
 		.dataInput = "Dataset",
 		.stageResults = "StageResults",
@@ -90,6 +88,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 		initialize = function(design, dataInput, ...) {
 			callSuper(.design = design, .dataInput = dataInput, ...)
 			
+			.plotSettings <<- PlotSettings()
 			.parameterNames <<- .getParameterNames(design)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 			
@@ -112,18 +111,28 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			stageLevels <<- design$stageLevels
 		},
 		
+		getPlotSettings = function() {
+			return(.plotSettings)
+		},
+		
 		show = function(showType = 1) {
+			.show(showType = showType, consoleOutputEnabled = TRUE)
+		},
+		
+		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing analysis result objects'	
-
+			.resetCat()
 			if (showType == 2) {
-				cat("Technical summary of the analysis results object of class",
-					methods::classLabel(class(.self)), ":\n", sep = "")
-				.showAllParameters()
-				.showParameterTypeDescription()
+				.cat("Technical summary of the analysis results object of class ",
+					methods::classLabel(class(.self)), ":\n", heading = 1,
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
+				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
 			} else {				
 				.showParametersOfOneGroup(parameters = .getParametersToShow(), 
-					title = .toString(startWithUpperCase = TRUE), orderByParameterName = FALSE)
-				.showUnknownParameters()
+					title = .toString(startWithUpperCase = TRUE), orderByParameterName = FALSE,
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 			}
 		},
 		
@@ -279,9 +288,6 @@ names.AnalysisResults <- function(x) {
 #' This object can not be created directly; use \code{\link{getAnalysisResults}} 
 #' with suitable arguments to create the analysis results of a group sequential design.
 #' 
-#' @name AnalysisResultsGroupSequential_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
 #' @include class_analysis_dataset.R
@@ -313,9 +319,6 @@ AnalysisResultsGroupSequential <- setRefClass("AnalysisResultsGroupSequential",
 #' This object can not be created directly; use \code{\link{getAnalysisResults}} 
 #' with suitable arguments to create the analysis results of a inverse normal design.
 #' 
-#' @name AnalysisResultsInverseNormal_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
 #' @include class_analysis_dataset.R
@@ -345,9 +348,6 @@ AnalysisResultsInverseNormal <- setRefClass("AnalysisResultsInverseNormal",
 #' @details 
 #' This object can not be created directly; use \code{\link{getAnalysisResults}} 
 #' with suitable arguments to create the analysis results of a Fisher design.
-#' 
-#' @name AnalysisResultsFisher_initialize
-#' Initializes the object.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
@@ -397,10 +397,8 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 }
 
 #'
-#' @name AnalysisResults_plot
-#' 
 #' @title
-#' Analysis Results Plotting - Conditional Power Plot
+#' Analysis Results Plotting
 #' 
 #' @description
 #' Plots the conditional power together with the likelihood function. 
@@ -419,6 +417,9 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 #' @param ylab The y-axis label.
 #' @param legendTitle The legend title, default is \code{""}.
 #' @param palette The palette, default is \code{"Set1"}.
+#' @param showSource If \code{TRUE}, the parameter names of the object will 
+#'        be printed which were used to create the plot; that may be, e.g., 
+#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
 #' @param legendPosition The position of the legend. 
 #' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
 #' Choose one of the following values to specify the position manually:
@@ -432,7 +433,21 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 #'   \item \code{6}: legend position right bottom
 #' }
 #' @param type The plot type (default = 1). Note that at the moment only one type (the conditional power plot) is available.
-#' @param ... Optional \code{ggplot2} arguments. 
+#' @param ... Optional \code{ggplot2} arguments. Furthermore the following arguments can be defined:
+#' \itemize{
+#' \item \code{thetaRange}: A range of assumed effect sizes if testing means or a survival design was specified. 
+#' 			Additionally, if testing means was selected, an assumed standard deviation can be specified (default is 1).
+#' \item \code{piRange}: A range of assumed rates pi1 to calculate the conditional power. 
+#' 		  Additionally, if a two-sample comparison was selected, pi2 can be specified (default is the value from 
+#'        \code{getAnalysisResults}). 
+#' \item \code{directionUpper}: The direction of one-sided testing. 
+#'        Default is \code{directionUpper = TRUE} which means that larger values of the 
+#'        test statistics yield smaller p-values.
+#' \item \code{thetaH0}: The null hypothesis value, default is 0 for the normal and the binary case, 
+#'        it is 1 for the survival case.      
+#'        For testing a rate in one sample, a value thetaH0 in (0,1) has to be specified for 
+#'        defining the null hypothesis H0: pi = thetaH0.
+#' }
 #' 
 #' @details
 #' The conditional power is calculated only if effect size and sample size is specified. 
@@ -455,12 +470,16 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 #' 
 #' if (require(ggplot2)) plot(result, thetaRange = c(0, 100))
 #'
-plot.AnalysisResults <- function(x, y, ...,
+plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		nPlanned = NA_real_, stage = x$getNumberOfStages(),
 		allocationRatioPlanned = NA_real_,
 		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
 		legendTitle = "", palette = "Set1", legendPosition = NA_integer_, 
-		type = 1L) {
+		showSource = FALSE) {
+		
+	if (showSource) {
+		warning("'showSource' = TRUE is not implemented yet for class ", class(x))
+	}
 	
 	.assertIsValidLegendPosition(legendPosition = legendPosition)
 	plotArgs <- .getAnalysisResultsPlotArguments(x = x, nPlanned = nPlanned, 
@@ -474,10 +493,10 @@ plot.AnalysisResults <- function(x, y, ...,
 		if (is.null(assumedStDev)) {
 			assumedStDev <- x$assumedStDev
 			return(plot.StageResults(x = x$.stageResults, y = y, 
-					nPlanned = nPlanned, stage = stage, main = main, xlab = xlab, ylab = ylab,
-					legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, 
-					type = type, assumedStDev = assumedStDev, 
-					allocationRatioPlanned = allocationRatioPlanned, ...))
+				nPlanned = nPlanned, stage = stage, main = main, xlab = xlab, ylab = ylab,
+				legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, 
+				type = type, assumedStDev = assumedStDev, 
+				allocationRatioPlanned = allocationRatioPlanned, ...))
 		}
 	}
 	else if (x$getDataInput()$isDatasetRates()) {

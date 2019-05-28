@@ -5,8 +5,8 @@
 \alias{as.data.frame.PowerAndAverageSampleNumberResult}
 \title{Coerce Power And Average Sample Number Result to a Data Frame}
 \usage{
-\method{as.data.frame}{PowerAndAverageSampleNumberResult}(x, row.names = NULL,
-  optional = FALSE, niceColumnNamesEnabled = TRUE,
+\method{as.data.frame}{PowerAndAverageSampleNumberResult}(x,
+  row.names = NULL, optional = FALSE, niceColumnNamesEnabled = TRUE,
   includeAllParameters = FALSE, ...)
 }
 \description{

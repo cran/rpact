@@ -4,90 +4,251 @@
 \alias{getSampleSizeSurvival}
 \title{Get Sample Size Survival}
 \usage{
-getSampleSizeSurvival(design, ..., typeOfComputation = "Schoenfeld",
-  thetaH0 = 1, pi2 = 0.2, pi1 = seq(0.4, 0.6, 0.1),
-  allocationRatioPlanned = 1, accountForObservationTimes = NA,
-  eventTime = NA_real_, accrualTime = NA_real_, followUpTime = NA_real_,
-  maxNumberOfPatients = 0, dropOutRate1 = 0, dropOutRate2 = 0,
-  dropOutTime = NA_real_)
+getSampleSizeSurvival(design = NULL, ...,
+  typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
+  thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT, pi1 = NA_real_,
+  pi2 = NA_real_, lambda1 = NA_real_, lambda2 = NA_real_,
+  kappa = 1, hazardRatio = NA_real_,
+  piecewiseSurvivalTime = NA_real_, allocationRatioPlanned = NA_real_,
+  accountForObservationTimes = TRUE, eventTime = C_EVENT_TIME_DEFAULT,
+  accrualTime = C_ACCRUAL_TIME_DEFAULT,
+  accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,
+  followUpTime = NA_real_, maxNumberOfSubjects = NA_real_,
+  dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT,
+  dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT,
+  dropoutTime = C_DROP_OUT_TIME_DEFAULT)
 }
 \arguments{
-\item{design}{The trial design.}
+\item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 
+   In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and 
+\code{sided} can be directly entered as argument.}
 
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
 \item{typeOfComputation}{Three options are available: "Schoenfeld", "Freedman", "HsiehFreedman", 
-the default is "Schoenfeld". For details, see Hsieh (Statistics in Medicine, 1992).}
+the default is "Schoenfeld". For details, see Hsieh (Statistics in Medicine, 1992). 
+For non-inferiority testing (i.e., thetaH0 != 1), only Schoenfelds formula can be used}
 
-\item{thetaH0}{The null hypothesis value. The default value is 1. For one-sided testing, 
-a bound for testing H0: log(1 - pi1)/log(1 - pi2) = thetaH0 != 1 can be specified.}
+\item{thetaH0}{The null hypothesis value. The default value is \code{1}. For one-sided testing, 
+a bound for testing H0: hazard ratio = thetaH0 != 1 can be specified.}
 
-\item{pi2}{The assumed event rate in the control group, default is 0.2.}
+\item{pi1}{The assumed event rate in the active treatment group, default is \code{seq(0.4,0.6,0.1)}.}
 
-\item{pi1}{The assumed event rate in the treatment group, default is seq(0.4, 0.6, 0.1).}
+\item{pi2}{The assumed event rate in the control group, default is \code{0.2}.}
 
-\item{allocationRatioPlanned}{The planned allocation ratio, default is 1. 
+\item{lambda1}{The assumed hazard rate in the treatment group, there is no default.
+lambda1 can also be used to define piecewise exponentially distributed survival times 
+(see details).}
+
+\item{lambda2}{The assumed hazard rate in the reference group, there is no default.
+lambda2 can also be used to define piecewise exponentially distributed survival times 
+(see details).}
+
+\item{kappa}{The shape parameter of the Weibull distribution, default is \code{1}. 
+The Weibull distribution cannot be used for the piecewise definition of the 
+survival time distribution. 
+Note that the parameters \code{shape} and \code{scale} in \code{\link[stats]{Weibull}} 
+are equivalent to \code{kappa} and \code{1 / lambda}, respectively, in rpact.}
+
+\item{hazardRatio}{The vector of hazard ratios under consideration. 
+If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
+not to be specified as it is calculated.}
+
+\item{piecewiseSurvivalTime}{A vector that specifies the time intervals for the piecewise 
+definition of the exponential survival time cumulative distribution function (see details).}
+
+\item{allocationRatioPlanned}{The planned allocation ratio, default is \code{1}. 
 If \code{allocationRatioPlanned = 0} is entered, the optimal allocation ratio yielding the 
-smallest number of patients is determined.}
+smallest number of subjects is determined.}
 
 \item{accountForObservationTimes}{If \code{accountForObservationTimes = TRUE}, the number of 
-patients is calculates assuming assuming specific accrual and follow-up time. 
-The formula of Kim & Tsiatis (Biometrics, 1990) is used to calculated the expected 
-number of events under the alternative (see also Lakatos & Lan, Statistics in Medicine, 1992).}
+subjects is calculated assuming specific accrual and follow-up time, default is \code{TRUE} 
+(see details).}
 
-\item{eventTime}{The assumed time under which the event rates are calculated 
-(need to be specified if \code{accountForObservationTimes = TRUE}).}
+\item{eventTime}{The assumed time under which the event rates are calculated, default is \code{12}.}
 
-\item{accrualTime}{The assumed accrual time for the study (need to be specified if \cr 
-\code{accountForObservationTimes = TRUE}).}
+\item{accrualTime}{The assumed accrual time intervals for the study, default is 
+\code{c(0,12)} (see details).}
 
-\item{followUpTime}{The assumed (additional) follow-up time for the study 
-(need to be specified if \code{accountForObservationTimes = TRUE}). 
-The total study duration is accrualTime + followUpTime.}
+\item{accrualIntensity}{A vector of accrual intensities, default is the relative 
+intensity \code{0.1} (see details).}
 
-\item{maxNumberOfPatients}{For \code{accountForObservationTimes = TRUE}, if \cr
-\code{maxNumberOfPatients > 0} is specified, the follow-up time for the required 
-number of events is determined.}
+\item{followUpTime}{The assumed (additional) follow-up time for the study, default is \code{6}. 
+The total study duration is \code{accrualTime + followUpTime}.}
 
-\item{dropOutRate1}{The assumed drop-out rate in the control group, default is 0.}
+\item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified, 
+the follow-up time for the required number of events is determined.}
 
-\item{dropOutRate2}{The assumed drop-out rate in the treatment group, default is 0.}
+\item{dropoutRate1}{The assumed drop-out rate in the treatment group, default is \code{0}.}
 
-\item{dropOutTime}{The assumed time for drop-out rates in the control and the 
-treatment group, default is 12.}
+\item{dropoutRate2}{The assumed drop-out rate in the control group, default is \code{0}.}
+
+\item{dropoutTime}{The assumed time for drop-out rates in the control and the 
+treatment group, default is \code{12}.}
 }
 \value{
-Returns a \code{TrialDesignPlanSurvival} object.
+Returns a \code{\link{TrialDesignPlanSurvival}} object.
 }
 \description{
 Returns the sample size for testing the hazard ratio in a two treatment groups survival design.
 }
 \details{
 At given design the function calculates the number of events and an estimate for the 
-necessary number of patients for testing the 
-hazard ratio log(1 - p1)/log(1 - p2) with no interim stages. 
-Accordingly, an event probability omega is calculated.
+necessary number of subjects for testing the hazard ratio in a survival design. 
 It also calculates the time when the required events are expected under the given 
-assumptions (assuming exponentially distributed survival times). 
-Furthermore, an allocation ratio = n1Fixed/n2Fixed can be specified.
+assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times 
+and constant or non-constant piecewise accrual). 
+Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number 
+of subjects in the two treatment groups. 
+
+The formula of Kim & Tsiatis (Biometrics, 1990) 
+is used to calculate the expected number of events under the alternative 
+(see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized 
+to piecewise survival times and non-constant piecewise accrual over time.\cr
+If \code{accountForObservationTimes = FALSE}, only the event rates are used for the calculation 
+of the maximum number of subjects. 
+
+\code{piecewiseSurvivalTime} 
+The first element of this vector must be equal to \code{0}. \code{piecewiseSurvivalTime} can also 
+be a list that combines the definition of the time intervals and hazard rates in the reference group. 
+The definition of the survival time in the treatment group is obtained by the specification 
+of the hazard ratio (see examples for details).
+
+\code{accrualTime} can also be used to define a non-constant accrual over time. 
+For this, \code{accrualTime} needs to be a vector that defines the accrual intervals and
+\code{accrualIntensity} needs to be specified. The first element of 
+\code{accrualTime} must be equal to 0.\cr 
+\code{accrualTime} can also be a list that combines the definition of the accrual time and 
+accrual intensity \code{accrualIntensity} (see below and examples for details). 
+If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
+the same (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to 
+be specified and the end of accrual is calculated.	
+
+\code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
+If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
+(i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to be specified 
+and the end of accrual is calculated.	
+In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
+If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
+(i.e., the end of accrual is defined), \code{maxNumberOfPatients} is calculated. 
+In that case, \code{accrualIntensity} defines the intensity how subjects enter the trial. 
+For example, \code{accrualIntensity = c(1,2)} specifies that in the second accrual interval 
+the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
+is calculated for the calculated  \code{maxNumberOfPatients}.
+
+\code{accountForObservationTime} can be selected as \code{FALSE}. In this case, 
+the number of subjects is calculated from the event probabilities only. 
+This kind of computation does not account for the specific accrual pattern and survival distribution.
 }
 \examples{
 
-# Calculate the number of events and number of patients calculated with 
-# the Schoenfeld formula.
-getSampleSizeSurvival(getDesignGroupSequential(alpha = 0.025, beta = 0.2, 
-    sided = 1), thetaH0 = 1, pi1 = 0.6, pi2 = 0.9, 
-    allocationRatioPlanned = 2, typeOfComputation = "Schoenfeld")
+# Fixed sample size trial with median survival 20 vs. 30 months in treatment and 
+# reference group, respectively, alpha = 0.05 (two-sided), and power 1 - beta = 90\%.
+# 20 subjects will be recruited per month up to 400 subjects, i.e., accrual time is 20 months.  
+getSampleSizeSurvival(alpha = 0.05, sided = 2, beta = 0.1, lambda1 = log(2) / 20, 
+    lambda2 = log(2) / 30, accrualTime = c(0,20), accrualIntensity = 20)
 
-# Calculate analysis times, number of aevent, and number of patients 
-# under specified event, accrual, followup, and dropout time and event 
-# and dropout rates.
-getSampleSizeSurvival(getDesignGroupSequential(alpha = .025, sided = 1), 
-    pi1 = c(0.25, 0.3, 0.35), pi2 = 0.4, allocationRatioPlanned = 0, 
-    typeOfComputation = "Schoenfeld", accountForObservationTimes = TRUE,
-    eventTime = 12, accrualTime = 6, followUpTime = 12, 
-    maxNumberOfPatients = 0, dropOutRate1 = 0.15, dropOutRate2 = 0.1, 
-    dropOutTime = 24)
+\donttest{
+
+# Fixed sample size with minimum required definitions, pi1 = c(0.4,0.5,0.6) and 
+# pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default, 
+# only alpha = 0.01 is specified  
+getSampleSizeSurvival(alpha = 0.01)
+
+# Four stage O'Brien & Fleming group sequential design with minimum required 
+# definitions, pi1 = c(0.4,0.5,0.6) and pi2 = 0.2 at event time 12, 
+# accrual time 12 and follow-up time 6 as default  
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 4))
+
+# For fixed sample design, determine necessary accrual time if 200 subjects and 
+# 30 subjects per time unit can be recruited 
+getSampleSizeSurvival(accrualTime = c(0), accrualIntensity = c(30), 
+	   maxNumberOfSubjects = 200)
+
+# Determine necessary accrual time if 200 subjects and if the first 6 time units 
+# 20 subjects per time unit can be recruited, then 30 subjects per time unit 
+getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(20, 30), 
+	   maxNumberOfSubjects = 200)
+
+# Determine maximum number of Subjects if the first 6 time units 20 subjects 
+# per time unit can be recruited, and after 10 time units 30 subjects per time unit
+getSampleSizeSurvival(accrualTime = c(0, 6, 10), accrualIntensity = c(20, 30))
+
+# Specify accrual time as a list
+at <- list(
+    "0 - <6"  = 20,
+    "6 - Inf" = 30)
+getSampleSizeSurvival(accrualTime = at, maxNumberOfSubjects = 200)
+
+# Specify accrual time as a list, if maximum number of subjects need to be calculated
+at <- list(
+    "0 - <6"   = 20,
+    "6 - <=10" = 30)
+getSampleSizeSurvival(accrualTime = at)
+
+# Specify effect size for a two-stage group design with O'Brien & Fleming boundaries
+# Effect size is based on event rates at specified event time 
+# needs to be specified because it should be shown that hazard ratio < 1
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
+	   pi1 = 0.2, pi2 = 0.3, eventTime = 24)
+
+# Effect size is based on event rate at specified event 
+# time for the reference group and hazard ratio 
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
+	   hazardRatio = 0.5, pi2 = 0.3, eventTime = 24)
+
+# Effect size is based on hazard rate for the reference group and hazard ratio
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
+	   hazardRatio = 0.5, lambda2 = 0.02) 
+
+# Specification of piecewise exponential survival time and hazard ratios  
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
+	   piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
+	   hazardRatio = c(1.5, 1.8, 2))
+
+# Specification of piecewise exponential survival time as a list and hazard ratios 
+pws <- list(
+    "0 - <5"  = 0.01,	
+    "5 - <10" = 0.02,	
+    ">=10"    = 0.04)
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
+	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2))
+
+# Specification of piecewise exponential survival time for both treatment arms
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
+	   piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
+	   lambda1 = c(0.015, 0.03, 0.06))
+
+# Specification of piecewise exponential survival time as a list
+pws <- list(
+    "0 - <5"  = 0.01,
+    "5 - <10" = 0.02,
+    ">=10"    = 0.04)
+getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
+	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2))
+
+# Specify effect size based on median survival times
+median1 <- 5
+median2 <- 3
+getSampleSizeSurvival(lambda1 = log(2) / median1, lambda2 = log(2) / median2)
+
+# Specify effect size based on median survival times of Weibull distribtion with kappa = 2
+median1 <- 5
+median2 <- 3
+kappa <- 2
+getSampleSizeSurvival(lambda1 = log(2)^(1 / kappa) / median1, 
+	   lambda2 = log(2)^(1 / kappa) / median2, kappa = kappa)
+
+# Identify minimal and maximal required subjects to 
+# reach the required events in spite of dropouts
+getSampleSizeSurvival(accrualTime = c(0, 18), accrualIntensity = c(20, 30), 
+    lambda2 = 0.4, lambda1 = 0.3, followUpTime = Inf, dropoutRate1 = 0.001, 
+    dropoutRate2 = 0.005)
+getSampleSizeSurvival(accrualTime = c(0, 18), accrualIntensity = c(20, 30), 
+    lambda2 = 0.4, lambda1 = 0.3, followUpTime = 0, dropoutRate1 = 0.001, 
+    dropoutRate2 = 0.005)
+
+}
 
 }

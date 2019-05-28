@@ -5,8 +5,9 @@
 \alias{as.data.frame.ParameterSet}
 \title{Coerce Parameter Set to a Data Frame}
 \usage{
-\method{as.data.frame}{ParameterSet}(x, row.names = NULL, optional = FALSE,
-  niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...)
+\method{as.data.frame}{ParameterSet}(x, row.names = NULL,
+  optional = FALSE, niceColumnNamesEnabled = TRUE,
+  includeAllParameters = FALSE, ...)
 }
 \description{
 Returns the \code{ParameterSet} as data frame.

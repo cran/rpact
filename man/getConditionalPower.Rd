@@ -22,7 +22,7 @@ the subsequent stages, the default value is 1.}
 
 \item{thetaH1}{or pi1, pi2 Assumed effect sizes or assumed rates pi1 to calculate the 
 conditional power. Depending on the type of dataset, either thetaH1 (means and survival) 
-or pi1, pi2 (rates) needs to be specified. Also a range for thetaH1 or pi1 can be specified.
+or pi1, pi2 (rates) needs to be specified. 
    Additionally, if testing means is specified, an assumed standard (\code{assumedStDev}) 
    deviation can be specified, default is 1.}
 
@@ -42,6 +42,6 @@ For Fisher's combination test, the conditional power for more than one remaining
 estimated via simulation.
 }
 \seealso{
-\code{\link{StageResults_plot}} or \code{\link{AnalysisResults_plot}} for plotting the conditional power.
+\code{\link{plot.StageResults}} or \code{\link{plot.AnalysisResults}} for plotting the conditional power.
 }
 \keyword{internal}

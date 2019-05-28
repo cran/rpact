@@ -19,6 +19,7 @@
 
 
 #' @include f_core_constants.R
+#' @include f_core_plot.R
 NULL
 
 #' 
@@ -38,12 +39,10 @@ NULL
 #'   \item \code{\link{TrialDesignInverseNormal}}.
 #' }
 #' 
-#' @name TrialDesign_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
 #' @include f_core_constants.R
+#' @include f_core_plot.R
 #' 
 #' @keywords internal
 #' 
@@ -51,6 +50,7 @@ NULL
 #' 
 TrialDesign <- setRefClass("TrialDesign",
 	contains = "ParameterSet",
+	
 	fields = list(
 		kMax = "integer", 
 		alpha = "numeric",
@@ -63,17 +63,19 @@ TrialDesign <- setRefClass("TrialDesign",
 		bindingFutility = "logical",
 		tolerance = "numeric"
 	),
+	
 	methods = list(
 		initialize = function(...,
-			kMax = NA_integer_, 
-			alpha = NA_real_, 
-			informationRates = NA_real_, 
-			userAlphaSpending = NA_real_, 
-			criticalValues = NA_real_, 
-			stageLevels = NA_real_, 
-			alphaSpent = NA_real_, 
-			bindingFutility = NA,
-			tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+				kMax = NA_integer_, 
+				alpha = NA_real_, 
+				informationRates = NA_real_, 
+				userAlphaSpending = NA_real_, 
+				criticalValues = NA_real_, 
+				stageLevels = NA_real_, 
+				alphaSpent = NA_real_, 
+				bindingFutility = NA,
+				tolerance = 1e-06 # C_ANALYSIS_TOLERANCE_DEFAULT
+				) {
 			callSuper(..., 
 				kMax = kMax, 
 				alpha = alpha, 
@@ -100,42 +102,50 @@ TrialDesign <- setRefClass("TrialDesign",
 			
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
+		
 		show = function(showType = 1) {
+			.show(showType = showType, consoleOutputEnabled = TRUE)
+		},
+		
+		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing trial design objects'
+			.resetCat()
 			.initStages()
 			if (showType == 2) {
-				cat("Technical summary of the trial design object of class",
-					methods::classLabel(class(.self)), ":\n\n", sep = "")
-				.showAllParameters()
-				.showParameterTypeDescription()
+				.cat("Technical summary of the trial design object of class ",
+					methods::classLabel(class(.self)), ":\n\n", heading = 1,
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
+				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
 			} else {
-				cat("Design parameters and output of ", .toString(), ":\n\n", sep = "")
+				.cat("Design parameters and output of ", .toString(), ":\n\n", heading = 1,
+					consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
-					orderByParameterName = FALSE)
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getDerivedParameters(), "Derived from user defined parameters",
-					orderByParameterName = FALSE)
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
-					orderByParameterName = FALSE)
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getGeneratedParameters(), "Output",
-					orderByParameterName = FALSE)
-				.showUnknownParameters()
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 			}
 		},
+		
 		.toString = function(startWithUpperCase = FALSE) {
+			s <- "unknown trial design"
 			if (.isTrialDesignGroupSequential(.self)) {
-				return(paste(ifelse(startWithUpperCase, "Group", "group"), "sequential design"))
+				s <- "group sequential design"
 			}
-			
-			if (.isTrialDesignInverseNormal(.self)) {
-				return(paste(ifelse(startWithUpperCase, "Inverse", "inverse"), "normal design"))
+			else if (.isTrialDesignInverseNormal(.self)) {
+				s <- "inverse normal design"
 			}
-			
-			if (.isTrialDesignFisher(.self)) {
-				return("Fisher design")
+			else if (.isTrialDesignFisher(.self)) {
+				s <- "Fisher design"
 			}
-			
-			return("unknown trial design")
+			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		},
+		
 		.initStages = function() {
 			if (!is.na(kMax) && kMax > 0) {
 				stages <<- c(1L:kMax)
@@ -146,6 +156,7 @@ TrialDesign <- setRefClass("TrialDesign",
 				}
 			}
 		},
+		
 		.setParameterType = function(parameterName, parameterType) {
 			parameterType <- callSuper(parameterName = parameterName, 
 				parameterType = parameterType)
@@ -155,6 +166,10 @@ TrialDesign <- setRefClass("TrialDesign",
 			}
 			
 			invisible(parameterType)
+		},
+		
+		.isTrialDesignFisher = function(design = .self) {
+			return(class(design) == C_CLASS_NAME_TRIAL_DESIGN_FISHER)
 		}
 	)
 )
@@ -184,6 +199,7 @@ TrialDesign <- setRefClass("TrialDesign",
 #' 
 TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",	
 	contains = "ParameterSet",
+	
 	fields = list(
 		.design = "TrialDesign", 
 		.probs = "matrix", 
@@ -199,29 +215,35 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 		averageSampleNumber01 = "numeric", 
 		averageSampleNumber0 = "numeric"
 	),
+	
 	methods = list(
 		initialize = function(design, ...) {
 			callSuper(.design = design, ...)
 			.parameterNames <<- .getParameterNames(design)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
+		
 		show = function(showType = 1) {
-			'Method for automatically printing trial design characteristics objects'	
+			.show(showType = showType, consoleOutputEnabled = TRUE)
+		},
+		
+		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
+			'Method for automatically printing trial design characteristics objects'
+			.resetCat()
 			.initStages()		
 			if (showType == 2) {
-				cat("Technical summary of the design characteristics object of class",
-					methods::classLabel(class(.self)), ":\n", sep = "")
-				.showAllParameters()
-				.showParameterTypeDescription()
+				.cat("Technical summary of the design characteristics object of class ",
+					methods::classLabel(class(.self)), ":\n", heading = 1,
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
+				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
 			} else {
-				cat(.toString(startWithUpperCase = TRUE), ":\n\n", sep = "")
-				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
-					orderByParameterName = FALSE)
-				.showParametersOfOneGroup(.getGeneratedParameters(), "Calculated design characteristics",
-					orderByParameterName = FALSE)
-				.showUnknownParameters()
+				.showParametersOfOneGroup(.getGeneratedParameters(), title = .toString(startWithUpperCase = TRUE),
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 			}
 		},
+		
 		.initStages = function() {
 			if (!is.na(.design$kMax) && .design$kMax > 0) {
 				stages <<- c(1L:.design$kMax)
@@ -232,6 +254,11 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 				}
 			}
 		},
+		
+		.getUserDefinedParameters = function() {
+			return("design")
+		},
+		
 		.toString = function(startWithUpperCase = FALSE) {
 			return(paste(.design$.toString(startWithUpperCase = startWithUpperCase), "characteristics"))
 		}
@@ -295,6 +322,7 @@ as.data.frame.TrialDesignCharacteristics <- function(x, row.names = NULL,
 #' 
 TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,	
 	contains = "TrialDesign",
+	
 	fields = list(
 		method = "character", 
 		alpha0Vec = "numeric",
@@ -305,6 +333,7 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 		iterations = "numeric",
 		seed = "numeric"
 	),
+	
 	methods = list(
 		initialize = function(..., 
 			method = NA_character_, 
@@ -341,6 +370,28 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 			.parameterFormatFunctions$criticalValues <<- "formatFisherCriticalValues"
 			
 			.initParameterTypes()
+		},
+		
+		hasChanged = function(kMax, alpha, sided, method, informationRates, alpha0Vec, userAlphaSpending, bindingFutility) {
+			
+			informationRatesTemp <- informationRates
+			if (any(is.na(informationRatesTemp))) {
+				informationRatesTemp <- (1:kMax) / kMax
+			}
+			alpha0VecTemp <- alpha0Vec[1:(kMax - 1)]
+			if (any(is.na(alpha0VecTemp))) {
+				alpha0VecTemp <- rep(C_FUTILITY_BOUNDS_DEFAULT, kMax - 1)
+			}
+			
+			if (!identical(kMax, .self$kMax)) return(TRUE)
+			if (!identical(alpha, .self$alpha)) return(TRUE)
+			if (!identical(sided, .self$sided)) return(TRUE)
+			if (!identical(method, .self$method)) return(TRUE)
+			if (!identical(informationRatesTemp, .self$informationRates)) return(TRUE)
+			if (!identical(alpha0VecTemp, .self$alpha0Vec)) return(TRUE)
+			if (!identical(userAlphaSpending, .self$userAlphaSpending)) return(TRUE)
+			if (!identical(bindingFutility, .self$bindingFutility)) return(TRUE)
+			return(FALSE)
 		},
 		
 		# Defines the order of the parameter output
@@ -394,6 +445,7 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 #' 
 TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,	
 	contains = "TrialDesign",
+	
 	fields = list( 
 		typeOfDesign = "character",
 		beta = "numeric", 
@@ -410,17 +462,18 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 		twoSidedPower = "logical",
 		constantBoundsHP = "numeric"
 	),
+	
 	methods = list(
 		initialize = function(..., 
 			beta = C_BETA_DEFAULT, 
 			betaSpent = NA_real_,
-			sided = as.integer(1), 
+			sided = 1L, 
 			futilityBounds = NA_real_,
 			typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN,
-			deltaWT = 0,
+			deltaWT = 0.0,
 			optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT,
-			gammaA = 1,
-			gammaB = 1,
+			gammaA = 1.0,
+			gammaB = 1.0,
 			typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE,
 			userBetaSpending = NA_real_, 
 			power = NA_real_,
@@ -466,6 +519,64 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 			
 			.initParameterTypes()
 			
+		},
+		
+		.pasteComparisonResult = function(name, newValue, oldValue) {
+			return(paste0(name, "_new = ", .arrayToString(newValue), " (", class(newValue), "), ", 
+					name, "_old = ", .arrayToString(oldValue), " (", class(oldValue), ")"))
+		},
+		
+		hasChanged = function(kMax, 
+				alpha, 
+				beta, 
+				sided, 
+				typeOfDesign, 
+				deltaWT, 
+				informationRates, 
+				futilityBounds, 
+				optimizationCriterion, 
+				typeBetaSpending, 
+				gammaA, 
+				gammaB, 
+				bindingFutility, 
+				userAlphaSpending, 
+				userBetaSpending, 
+				twoSidedPower, 
+				constantBoundsHP) {
+			
+			informationRatesTemp <- informationRates
+			if (any(is.na(informationRatesTemp))) {
+				informationRatesTemp <- (1:kMax) / kMax
+			}
+			futilityBoundsTemp <- futilityBounds[1:(kMax - 1)]
+			if (any(is.na(futilityBoundsTemp))) {
+				futilityBoundsTemp <- rep(C_FUTILITY_BOUNDS_DEFAULT, kMax - 1)
+			}
+				
+			if (!identical(kMax, .self$kMax)) return(.pasteComparisonResult("kMax", kMax, .self$kMax))
+			if (!identical(alpha, .self$alpha)) return(.pasteComparisonResult("alpha", alpha, .self$alpha))
+			if (!identical(beta, .self$beta)) return(.pasteComparisonResult("beta", beta, .self$beta))
+			if (!identical(sided, .self$sided)) return(.pasteComparisonResult("sided", sided, .self$sided))
+			if (!identical(typeOfDesign, .self$typeOfDesign)) return(.pasteComparisonResult("typeOfDesign", typeOfDesign, .self$typeOfDesign))
+			if (typeOfDesign == C_TYPE_OF_DESIGN_WT) {
+				if (!identical(deltaWT, .self$deltaWT)) return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
+			}
+			if (!identical(informationRatesTemp, .self$informationRates)) return(.pasteComparisonResult("informationRates", informationRatesTemp, .self$informationRates))
+			if (!(grepl("^as.*", typeOfDesign) && typeBetaSpending == "bsUser")) {
+				if (!identical(futilityBoundsTemp, .self$futilityBounds)) return(.pasteComparisonResult("futilityBounds", futilityBoundsTemp, .self$futilityBounds))
+			}
+			if (!identical(optimizationCriterion, .self$optimizationCriterion)) return(.pasteComparisonResult("optimizationCriterion", optimizationCriterion, .self$optimizationCriterion))
+			if (!identical(typeBetaSpending, .self$typeBetaSpending)) return(.pasteComparisonResult("typeBetaSpending", typeBetaSpending, .self$typeBetaSpending))
+			if (!identical(gammaA, .self$gammaA)) return(.pasteComparisonResult("gammaA", gammaA, .self$gammaA))
+			if (!identical(gammaB, .self$gammaB)) return(.pasteComparisonResult("gammaB", gammaB, .self$gammaB))
+			if (!identical(bindingFutility, .self$bindingFutility)) return(.pasteComparisonResult("bindingFutility", bindingFutility, .self$bindingFutility))
+			if (!identical(userAlphaSpending, .self$userAlphaSpending)) return(.pasteComparisonResult("userAlphaSpending", userAlphaSpending, .self$userAlphaSpending))
+			if (!identical(userBetaSpending, .self$userBetaSpending)) return(.pasteComparisonResult("userBetaSpending", userBetaSpending, .self$userBetaSpending))
+			if (!identical(twoSidedPower, .self$twoSidedPower)) return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
+			if (typeOfDesign == C_TYPE_OF_DESIGN_HP) {
+				if (!identical(constantBoundsHP, .self$constantBoundsHP)) return(.pasteComparisonResult("constantBoundsHP", constantBoundsHP, .self$constantBoundsHP))
+			}
+			return(FALSE)
 		},
 		
 		# Defines the order of the parameter output
@@ -539,8 +650,6 @@ TrialDesignGroupSequential <- setRefClass(
 )
 
 #' 
-#' @name TrialDesign_plot
-#' 
 #' @title
 #' Trial Design Plotting
 #' 
@@ -562,6 +671,9 @@ TrialDesignGroupSequential <- setRefClass(
 #' @param theta A vector of theta values.
 #' @param nMax The maximum sample size.
 #' @param plotPointsEnabled If \code{TRUE}, additional points will be plotted.
+#' @param showSource If \code{TRUE}, the parameter names of the object will 
+#'        be printed which were used to create the plot; that may be, e.g., 
+#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
 #' @param legendPosition The position of the legend. 
 #' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
 #' Choose one of the following values to specify the position manually:
@@ -578,19 +690,21 @@ TrialDesignGroupSequential <- setRefClass(
 #' }
 #' @param type The plot type (default = \code{1}). The following plot types are available:
 #' \itemize{
-#'   \item \code{1}: creates a 'Boundary Plot'
-#'   \item \code{2}: creates an 'Average Sample Size and Power / Early Stop' plot
-#'   \item \code{3}: creates a 'Stage Levels Plot'
-#'   \item \code{4}: creates a 'Power' plot
-#'   \item \code{5}: creates a 'Stopping Probability' plot
-#'   \item \code{6}: creates an 'Error Spending Plot'
+#'   \item \code{1}: creates a 'Boundaries' plot
+#'   \item \code{3}: creates a 'Stage Levels' plot
+#'   \item \code{4}: creates a 'Type One Error Spending' plot
+#'   \item \code{5}: creates a 'Power and Early Stopping' plot
+#'   \item \code{6}: creates an 'Average Sample Size and Power / Early Stop' plot
+#'   \item \code{7}: creates an 'Power' plot
+#'   \item \code{8}: creates an 'Early Stopping' plot
+#'   \item \code{9}: creates an 'Average Sample Size' plot
 #' }
 #' @param ... Optional \code{ggplot2} arguments.
 #' 
 #' @details
 #' Generic function to plot a trial design.
 #' 
-#' @seealso \code{\link{TrialDesignSet_plot}} to compare different designs or design parameters visual.
+#' @seealso \code{\link{plot.TrialDesignSet}} to compare different designs or design parameters visual.
 #'
 #' @export
 #' 
@@ -603,17 +717,15 @@ TrialDesignGroupSequential <- setRefClass(
 #' 
 #' if (require(ggplot2)) {
 #'     plot(design) # default: type = 1
-#'     plot(design, type = 2, nMax = 20, theta = seq(0, 1, 0.05))
-#'     plot(design, type = 3)
-#'     plot(design, type = 4, nMax = 20, theta = seq(0, 1, 0.05))
-#'     plot(design, type = 5, nMax = 20, theta = seq(0, 1, 0.05))
-#'     plot(design, type = 6)
 #' }
 #' 
 plot.TrialDesign = function(x, y, main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, type = 1, palette = "Set1",
-		theta = seq(-2, 2, 0.01), nMax = NA_integer_, plotPointsEnabled = NA, 
-		legendPosition = NA_integer_, ...) {
+		theta = seq(-1, 1, 0.01), nMax = NA_integer_, plotPointsEnabled = NA, 
+		legendPosition = NA_integer_, showSource = FALSE, ...) {
+		
+	fCall = match.call(expand.dots = FALSE)
+	designName <- as.character(fCall$x)[1]
 		
 	.assertGgplotIsInstalled()
 	
@@ -624,38 +736,11 @@ plot.TrialDesign = function(x, y, main = NA_character_,
 		
 	designSet <- TrialDesignSet(design = x, singleDesign = TRUE)
 	
-	plot.TrialDesignSet(x = designSet, y = y, main = main, xlab = xlab, ylab = ylab, type = type,
+	.plotTrialDesignSet(x = designSet, y = y, main = main, xlab = xlab, ylab = ylab, type = type,
 		palette = palette, theta = theta, nMax = nMax, 
-		plotPointsEnabled = plotPointsEnabled, legendPosition = legendPosition, ...)
+		plotPointsEnabled = plotPointsEnabled, legendPosition = legendPosition, 
+		showSource = showSource, designSetName = designName, ...)
 }
-
-#'
-#' @name TrialDesign_summary
-#' 
-#' @title
-#' Object Summary
-#'
-#' @description
-#' Displays a summary of the trial design.
-#' Applicable for group sequential design, inverse normal design and Fisher design.
-#' 
-#' @details
-#' Summarizes the parameters and results of a design.
-#' 
-#' @export
-#' 
-#' @keywords internal
-#' 
-summary.TrialDesign <- function(object, ...) {
-	cat("This output summarizes the", object$.toString(), "specification and output.\n\n")
-	object$show()
-	cat("\n")
-	object$show(showType = 2)
-	cat("\n")
-	print.StageResults(object, ...) 
-}
-
-
 
 #'
 #' @name TrialDesign_as.data.frame

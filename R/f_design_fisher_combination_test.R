@@ -420,7 +420,7 @@ NULL
 #' @description
 #' Performs Fisher's combination test and returns critical values for this design.
 #'
-#' @param kMax The maximum number of stages K. K = 2, 3, ..., 6, default is 3.
+#' @param kMax The maximum number of stages K. K = 1, 2, 3, ..., 6, default is 3.
 #' @param alpha The significance level alpha, default is 0.025.
 #' @param sided Is the alternative one-sided (1) or two-sided (2), default is 1.
 #' @param method "equalAlpha", "fullAlpha", "noInteraction", or "userDefinedAlpha", default is "equalAlpha".
@@ -429,7 +429,7 @@ NULL
 #' @param alpha0Vec Stopping for futility bounds for stage-wise p-values.
 #' @param bindingFutility If \code{bindingFutility = FALSE} is specified the calculation of 
 #'        the critical values is not affected by the futility bounds (default is \code{TRUE}).
-#' @param informationRates Information rates that must be fixed prior to the trial, \cr
+#' @param informationRates Information rates that must be fixed prior to the trial, 
 #'        default is \code{(1 : kMax) / kMax}.
 #' @param tolerance The tolerance, default is 1E-14.
 #' @param iterations The number of simulation iterations, e.g.,
@@ -481,8 +481,9 @@ NULL
 getDesignFisher <- function(...,
 		kMax = NA_integer_, alpha = NA_real_, method = C_FISHER_METHOD_DEFAULT, 
 		userAlphaSpending = NA_real_, alpha0Vec = NA_real_, informationRates = NA_real_, 
-		sided = 1, bindingFutility = C_BINDING_FUTILITY_FISHER_DEFAULT, 
-		tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, iterations = 0, seed = NA_real_) {
+		sided = 1, bindingFutility = NA, 
+		tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, 
+		iterations = 0, seed = NA_real_) {
 	
 	.assertIsValidIterationsAndSeed(iterations, seed)
 	.warnInCaseOfUnknownArguments(functionName = "getDesignFisher", ...)
@@ -557,6 +558,14 @@ getDesignFisher <- function(...,
 		sided <- as.integer(sided)
 	}
 	
+	if (is.na(bindingFutility)) {
+		bindingFutility <- C_BINDING_FUTILITY_FISHER_DEFAULT
+	} else if (userFunctionCallEnabled && 
+			((!is.na(kMax) && kMax == 1) || (!any(is.na(alpha0Vec)) &&
+			all(alpha0Vec == C_ALPHA_0_VEC_DEFAULT)))) {
+		warning("'bindingFutility' (", bindingFutility, ") will be ignored", call. = FALSE)
+	}
+	
 	design <- TrialDesignFisher(
 		kMax = kMax, 
 		alpha = alpha, 
@@ -576,9 +585,9 @@ getDesignFisher <- function(...,
 	
 	.assertDesignParameterExists(design, "method", C_FISHER_METHOD_DEFAULT)
 	.assertIsCharacter(design$method, "method")
-	if (!isFisherMethod(design$method)) {
+	if (!.isFisherMethod(design$method)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"'method' must be one of the following: ", printFisherMethods())
+			"'method' must be one of the following: ", .printFisherMethods())
 	} 
 	
 	.assertDesignParameterExists(design, "bindingFutility", C_BINDING_FUTILITY_FISHER_DEFAULT)
@@ -797,6 +806,16 @@ getDesignFisher <- function(...,
 			seed = seed)
 		design$simAlpha <- simResult$alphaSimulated
 		design$.setParameterType("simAlpha", C_PARAM_GENERATED)
+	}
+	
+	if (design$kMax == 1) {
+		design$.setParameterType("alpha0Vec", C_PARAM_NOT_APPLICABLE)
+	}
+	
+	if (length(design$alpha0Vec) == 0 ||
+			all(design$alpha0Vec == C_ALPHA_0_VEC_DEFAULT)) {
+		# design$bindingFutility <- NA
+		design$.setParameterType("bindingFutility", C_PARAM_NOT_APPLICABLE)
 	}
 	
 	return(design)

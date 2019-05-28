@@ -17,7 +17,7 @@ getFinalConfidenceInterval(design, dataInput, ...)
 it is 1 for the survival case.      
 For testing a rate in one sample, a value \code{thetaH0} in (0,1) has to be specified for 
 defining the null hypothesis H0: pi= thetaH0. \cr
-   For noninferiority designs, this is the noninferiority bound.}
+   For non-inferiority designs, this is the non-inferiority bound.}
 
 \item{directionUpper}{The direction of one-sided testing. 
 Default is \code{directionUpper = TRUE} which means that larger values of the 

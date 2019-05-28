@@ -7,7 +7,7 @@
 getDesignFisher(..., kMax = NA_integer_, alpha = NA_real_,
   method = C_FISHER_METHOD_DEFAULT, userAlphaSpending = NA_real_,
   alpha0Vec = NA_real_, informationRates = NA_real_, sided = 1,
-  bindingFutility = C_BINDING_FUTILITY_FISHER_DEFAULT,
+  bindingFutility = NA,
   tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, iterations = 0,
   seed = NA_real_)
 }
@@ -15,7 +15,7 @@ getDesignFisher(..., kMax = NA_integer_, alpha = NA_real_,
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{kMax}{The maximum number of stages K. K = 2, 3, ..., 6, default is 3.}
+\item{kMax}{The maximum number of stages K. K = 1, 2, 3, ..., 6, default is 3.}
 
 \item{alpha}{The significance level alpha, default is 0.025.}
 
@@ -26,7 +26,7 @@ specifying the cumulative Type I error rate.}
 
 \item{alpha0Vec}{Stopping for futility bounds for stage-wise p-values.}
 
-\item{informationRates}{Information rates that must be fixed prior to the trial, \cr
+\item{informationRates}{Information rates that must be fixed prior to the trial, 
 default is \code{(1 : kMax) / kMax}.}
 
 \item{sided}{Is the alternative one-sided (1) or two-sided (2), default is 1.}

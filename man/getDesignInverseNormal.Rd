@@ -7,10 +7,11 @@
 getDesignInverseNormal(..., kMax = NA_integer_, alpha = NA_real_,
   beta = NA_real_, sided = 1, informationRates = NA_real_,
   futilityBounds = NA_real_, typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN,
-  deltaWT = 0, optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT,
-  gammaA = 1, typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE,
-  userAlphaSpending = NA_real_, userBetaSpending = NA_real_, gammaB = 1,
-  bindingFutility = C_BINDING_FUTILITY_DEFAULT,
+  deltaWT = 0,
+  optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, gammaA = 1,
+  typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE,
+  userAlphaSpending = NA_real_, userBetaSpending = NA_real_,
+  gammaB = 1, bindingFutility = C_BINDING_FUTILITY_DEFAULT,
   constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
   twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
   tolerance = C_DESIGN_TOLERANCE_DEFAULT)
@@ -19,15 +20,15 @@ getDesignInverseNormal(..., kMax = NA_integer_, alpha = NA_real_,
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{kMax}{The maximum number of stages K. K = 1, 2, ..., 10, default is 3.}
+\item{kMax}{The maximum number of stages K. K = 1, 2, 3,..., 10, default is \code{3}.}
 
-\item{alpha}{The significance level alpha, default is 0.025.}
+\item{alpha}{The significance level alpha, default is \code{0.025}.}
 
 \item{beta}{Type II error rate, necessary for providing sample size calculations \cr
 (e.g., \code{\link{getSampleSizeMeans}}), beta spending function designs, 
-or optimum designs, default is 0.20.}
+or optimum designs, default is \code{0.20}.}
 
-\item{sided}{One-sided or two-sided, default is 1.}
+\item{sided}{One-sided or two-sided, default is \code{1}.}
 
 \item{informationRates}{The information rates, default is \code{(1 : kMax)/kMax}.}
 
@@ -38,38 +39,40 @@ O'Brien & Fleming ("OF"), Pocock ("P"), Wang & Tsiatis Delta class ("WT"),
 Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class ("WToptimum"), 
 O'Brien & Fleming type alpha spending ("asOF"), Pocock type alpha spending ("asP"), 
 Kim & DeMets alpha spending ("asKD"), Hwang, Shi & DeCani alpha spending ("asHSD"), 
-user defined alpha spending ("asUser"), default is "OF".}
+user defined alpha spending ("asUser"), default is \code{"OF"}.}
 
 \item{deltaWT}{Delta for Wang & Tsiatis Delta class.}
 
 \item{optimizationCriterion}{Optimization criterion for optimum design within 
-Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is "ASNH1".}
+Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is \code{"ASNH1"}.}
 
-\item{gammaA}{Parameter for alpha spending function, default is 1.}
+\item{gammaA}{Parameter for alpha spending function, default is \code{1}.}
 
 \item{typeBetaSpending}{Type of beta spending. Type of of beta spending is one of the following: 
 O'Brien & Fleming type beta spending, Pocock type beta spending, 
 Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined 
 beta spending ("bsOF", "bsP",...).}
 
-\item{userAlphaSpending}{The user defined alpha spending.}
+\item{userAlphaSpending}{The user defined alpha spending. Vector of length kMax containing the cumulative 
+alpha-spending up to each interim stage.}
 
-\item{userBetaSpending}{The user defined beta spending.}
+\item{userBetaSpending}{The user defined beta spending. Vector of length kMax containing the cumulative 
+beta-spending up to each interim stage.}
 
-\item{gammaB}{Parameter for beta spending function, default is 1.}
+\item{gammaB}{Parameter for beta spending function, default is \code{1}.}
 
 \item{bindingFutility}{If \code{bindingFutility = TRUE} is specified the calculation of 
-the critical values is affected by the futility bounds (default is FALSE).}
+the critical values is affected by the futility bounds (default is \code{FALSE}).}
 
 \item{constantBoundsHP}{The constant bounds up to stage K - 1 for the 
-Haybittle & Peto design (default is 3).}
+Haybittle & Peto design (default is \code{3}).}
 
 \item{twoSidedPower}{For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
 the sample size calculation is performed by considering both tails of the distribution. 
-Default is FALSE, i.e., it is assumed that one tail probability is equal to 0 or the power
+Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 should be directed to one part.}
 
-\item{tolerance}{The tolerance, default is 1e-08.}
+\item{tolerance}{The tolerance, default is \code{1e-08}.}
 }
 \value{
 Returns a \code{\link{TrialDesignInverseNormal}} object.
@@ -90,71 +93,10 @@ additionally a beta spending function can be specified to produce futility bound
 # Run with default values
 getDesignInverseNormal() 
 
-# The output is
-# 
-# Design parameters and output of inverse normal design:
-# 
-# User defined parameters: not available
-# 
-# Derived from user defined parameters: not available
-# 
-# Default parameters:
-#   Type of design                        : OF 
-#   Maximum number of stages              : 3 
-#   Stages                                : 1, 2, 3 
-#   Information rates                     : 0.333, 0.667, 1.000 
-#   Significance level                    : 0.0250 
-#   Type II error rate                    : 0.2 
-#   Two-sided power                       : FALSE 
-#   Delta for Wang & Tsiatis Delta class  : 0 
-#   Futility bounds (non-binding)         : -Inf, -Inf 
-#   Binding futility                      : FALSE 
-#   Haybittle Peto constants              : 3.000 
-#   Parameter for alpha spending function : 1 
-#   Parameter for beta spending function  : 1 
-#   Optimization criterion for optimum design within Wang & Tsiatis class : ASNH1 
-#   Test                                  : one-sided 
-#   Tolerance                             : 1e-08 
-#   Type of beta spending                 : none 
-#                                       
-# Output:                               
-#   Cumulative alpha spending             : 0.0002592, 0.0071601, 0.0250000 
-#   Critical values                       : 3.471, 2.454, 2.004 
-#   Stage levels                          : 0.0002592, 0.0070554, 0.0225331 
-# 
-
 # Calculate the Pocock type alpha spending critical values if the second 
 # interim analysis was performed after 70\% of information was observed
 getDesignInverseNormal(informationRates = c(0.4, 0.7), 
     typeOfDesign = "asP") 
-
-# The output is
-#
-# Design parameters and output of inverse normal design: 
-#
-# User defined parameters: 
-#   Type of design                        : asP 
-#   Stages                                : 1, 2 
-#   Information rates                     : 0.400, 0.700 
-# 
-# Derived from user defined parameters : 
-#   Maximum number of stages              : 2 
-#   Futility bounds (non-binding)         : -Inf 
-# 
-# Default parameters: 
-#   Significance level                    : 0.0250 
-#   Type II error rate                    : 0.2 
-#   Delta for Wang & Tsiatis Delta class  : 0 
-#   Parameter for alpha spending function : 1 
-#   Parameter for beta spending function  : 1 
-#   Optimization criterion for Optimum design within Wang & Tsiatis class : ASNH1 
-#   Test                                  : one-sided 
-#   Tolerance                             : 1e-08 
-#   Type of beta                          : none 
-# Output: 
-#   Cumulative alpha spending             : 0.01308, 0.01974 
-#   Critical values                       : 2.224, 2.305 
-#   Stage levels                          : 0.01308, 0.01058 
 
 }
 \seealso{

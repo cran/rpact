@@ -5,7 +5,13 @@
 \alias{print.ParameterSet}
 \title{Print Parameter Set Values}
 \usage{
-\method{print}{ParameterSet}(x, ...)
+\method{print}{ParameterSet}(x, ..., markdown = FALSE)
+}
+\arguments{
+\item{x}{The object to print.}
+
+\item{markdown}{If \code{TRUE}, the object \code{x} will be printed using markdown syntax; 
+normal representation will be used otherwise (default is \code{FALSE})}
 }
 \description{
 \code{print} prints its \code{ParameterSet} argument and returns it invisibly (via \code{invisible(x)}).

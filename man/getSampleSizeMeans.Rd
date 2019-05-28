@@ -4,55 +4,70 @@
 \alias{getSampleSizeMeans}
 \title{Get Sample Size Means}
 \usage{
-getSampleSizeMeans(design, ..., normalApproximation = FALSE,
-  meanRatio = FALSE, thetaH0 = 0, alternative = seq(0.2, 1, 0.2),
-  stDev = 1, groups = 2, allocationRatioPlanned = 1)
+getSampleSizeMeans(design = NULL, ..., normalApproximation = FALSE,
+  meanRatio = FALSE, thetaH0 = ifelse(meanRatio, 1, 0),
+  alternative = C_ALTERNATIVE_DEFAULT, stDev = C_STDEV_DEFAULT,
+  groups = 2, allocationRatioPlanned = NA_real_)
 }
 \arguments{
-\item{design}{The trial design.}
+\item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 
+   In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, 
+and \code{sided} can be directly entered as argument.}
 
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
 \item{normalApproximation}{If \code{normalApproximation = TRUE} is specified, the variance is 
-assumed to be known, default is FALSE.}
+assumed to be known, default is FALSE, i.e., the calculations are performed 
+with the t distribution.}
 
 \item{meanRatio}{If \code{meanRatio = TRUE} is specified, the sample size for 
-one-sided testing of H0: mu1/mu2 = thetaH0 is calculated, default is FALSE.}
+one-sided testing of H0: mu1/mu2 = thetaH0 is calculated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value. For one-sided testing, a value != 0 
-(or a value != 1 for testing the mean ratio) can be specified, default is 0.}
+(or a value != 1 for testing the mean ratio) can be specified, default is 
+\code{0} or \code{1} for difference and ratio testing, respectively.}
 
 \item{alternative}{The alternative hypothesis value. This can be a vector of assumed 
-alternatives, default is seq(0.1, 2, 0.2).}
+alternatives, default is \code{seq(0.2,1,0.2)}.}
 
 \item{stDev}{The standard deviation, default is 1. If \code{meanRatio = TRUE} 
 is specified, stDev defines the coefficient of variation sigma/mu2.}
 
-\item{groups}{The number of treatment groups (1 or 2), default is 2.}
+\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio for a two treatment groups 
 design, default is 1. If \code{allocationRatioPlanned = 0} is entered, 
    the optimal allocation ratio yielding the smallest overall sample size is determined.}
 }
 \value{
-Returns a \code{TrialDesignPlanMeans} object.
+Returns a \code{\link{TrialDesignPlanMeans}} object.
 }
 \description{
-Returns the sample size for testing means in one and two samples.
+Returns the sample size for testing means in one or two samples.
 }
 \details{
-At given design the function calculates the sample size for testing means.
-In a two treatment groups design, additionally, an allocation ratio = n1Fixed/n2Fixed can be specified. 
+At given design the function calculates the stage-wise (non-cumulated) and maximum 
+sample size for testing means.
+In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
 A null hypothesis value thetaH0 != 0 for testing the difference of two means or  
 thetaH0 != 1 for testing the ratio of two means can be specified.
+Critical bounds and stopping for futility bounds are provided at the effect scale 
+(mean, mean difference, or mean ratio, respectively) for each sample size calculation separately.
 }
 \examples{
+ 
+# Calculate sample sizes in a fixed sample size parallel group design 
+# with allocation ratio n1/n2 = 2 for a range of alternative values 1,...,5 
+# with assumed standard deviation = 3.5; two-sided alpha = 0.05, power 1 - beta = 90\%:
+getSampleSizeMeans(alpha = 0.05, beta = 0.1, sided = 2, groups = 2, 
+    alternative = seq(1, 5, 1), stDev = 3.5, allocationRatioPlanned = 2)
 
-# Calculate sample sizes n1Fixed, n2Fixed, and 
-# nFixed for a range of alternative values:
-getSampleSizeMeans(getDesignGroupSequential(alpha = 0.025, sided = 1), 
-    groups = 2, alternative = seq(0.1, 2, 0.2), 
-    normalApproximation = FALSE, allocationRatioPlanned = 2)
+# Calculate sample sizes in a three-stage Pocock paired comparison design testing 
+# H0: mu = 2 for a range of alternative values 3,4,5 with assumed standard 
+# deviation = 3.5; one-sided alpha = 0.05, power 1 - beta = 90\%:
+getSampleSizeMeans(getDesignGroupSequential(typeOfDesign = "P", alpha = 0.05, 
+    sided = 1, beta = 0.1), groups = 1, thetaH0 = 2, 
+    alternative = seq(3, 5, 1), stDev = 3.5)
 
 }

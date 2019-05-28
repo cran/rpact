@@ -11,10 +11,5 @@ Trial design plan for rates.
 This object can not be created directly; use \code{\link{getSampleSizeRates}} 
 with suitable arguments to create a design plan for a dataset of rates.
 }
-\section{Methods}{
-
-\describe{
-\item{\code{show(showType = 1)}}{Method for automatically printing trial plan objects}
-}}
 
 \keyword{internal}

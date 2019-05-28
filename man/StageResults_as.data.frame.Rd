@@ -5,9 +5,9 @@
 \alias{as.data.frame.StageResults}
 \title{Coerce Stage Results to a Data Frame}
 \usage{
-\method{as.data.frame}{StageResults}(x, row.names = NULL, optional = FALSE,
-  niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, type = 1,
-  ...)
+\method{as.data.frame}{StageResults}(x, row.names = NULL,
+  optional = FALSE, niceColumnNamesEnabled = TRUE,
+  includeAllParameters = FALSE, type = 1, ...)
 }
 \description{
 Returns the \code{StageResults} as data frame.

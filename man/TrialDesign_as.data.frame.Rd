@@ -5,8 +5,9 @@
 \alias{as.data.frame.TrialDesign}
 \title{Coerce TrialDesign to a Data Frame}
 \usage{
-\method{as.data.frame}{TrialDesign}(x, row.names = NULL, optional = FALSE,
-  niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...)
+\method{as.data.frame}{TrialDesign}(x, row.names = NULL,
+  optional = FALSE, niceColumnNamesEnabled = TRUE,
+  includeAllParameters = FALSE, ...)
 }
 \arguments{
 \item{niceColumnNamesEnabled}{logical. If \code{TRUE}, nice looking names will be used; 

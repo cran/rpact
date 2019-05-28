@@ -11,10 +11,5 @@ Trial design plan for means.
 This object can not be created directly; use \code{\link{getSampleSizeMeans}} 
 with suitable arguments to create a design plan for a dataset of means.
 }
-\section{Methods}{
-
-\describe{
-\item{\code{show(showType = 1)}}{Method for automatically printing trial plan objects}
-}}
 
 \keyword{internal}

@@ -11,11 +11,6 @@ Trial design for group sequential design.
 This object should not be created directly; use \code{\link{getDesignGroupSequential}} 
 with suitable arguments to create a group sequential design.
 }
-\section{Methods}{
-
-\describe{
-\item{\code{show(showType = 1)}}{Method for automatically printing trial design objects}
-}}
 
 \seealso{
 \code{\link{getDesignGroupSequential}} for creating a group sequential design.

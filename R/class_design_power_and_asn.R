@@ -31,9 +31,6 @@
 #' This object can not be created directly; use \code{getPowerAndAverageSampleNumber} 
 #' with suitable arguments to create it.
 #' 
-#' @name PowerAndAverageSampleNumberResult_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_design.R
 #' 
@@ -49,15 +46,15 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 		theta = "numeric",
 		averageSampleNumber = "numeric", 
 		calculatedPower = "numeric", 
-		earlyStop = "matrix", 
-		rejectPerStage = "matrix", 
-		futilityPerStage = "matrix",
 		overallEarlyStop = "numeric", 
-		overallRejectPerStage = "numeric", 
-		overallFutilityPerStage = "numeric"
+		earlyStop = "matrix", 
+		overallReject = "numeric", 
+		rejectPerStage = "matrix", 
+		overallFutility = "numeric",
+		futilityPerStage = "matrix"
 	),
 	methods = list(
-		initialize = function(design, theta = seq(-1, 1, 0.02), nMax = 100L, ...) {
+		initialize = function(design, theta = seq(-1, 1, 0.05), nMax = 100L, ...) {
 			callSuper(.design = design, theta = theta, nMax = nMax, ...)
 			theta <<- .assertIsValidThetaRange(thetaRange = theta, thetaAutoSeqEnabled = FALSE)
 			.initPowerAndAverageSampleNumber(design = design, theta = .self$theta, nMax = nMax)			
@@ -65,23 +62,46 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
 		
+		clone = function() {
+			return(PowerAndAverageSampleNumberResult(design = .self$.design, theta = .self$theta, nMax = .self$nMax))
+		},
+		
 		show = function(showType = 1) {
+			.show(showType = showType, consoleOutputEnabled = TRUE)
+		},
+		
+		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing a power and average sample size (ASN) result'
-	
+			.resetCat()
 			if (showType == 2) {
-				cat("Technical summary of the power and average sample size (ASN) object:\n")
-				.showAllParameters()
-				.showParameterTypeDescription()
+				.cat("Technical summary of the power and average sample size (ASN) object:\n", heading = 1,
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
+				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
 			} else {
-				cat("Power and average sample size (ASN):\n\n")
+				.cat("Power and average sample size (ASN):\n\n", heading = 1,
+					consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
-					orderByParameterName = FALSE)
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
-					orderByParameterName = FALSE)
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getGeneratedParameters(), "Output",
-					orderByParameterName = FALSE)
-				.showUnknownParameters()
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
+				if (.design$kMax > 1) {
+					.cat("Legend:\n", heading = 2,
+						consoleOutputEnabled = consoleOutputEnabled)
+					if (.design$kMax > 1) {
+						.cat("  [k]: values at stage k\n", consoleOutputEnabled = consoleOutputEnabled)
+					}
+					.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
+				}
 			}
+		},
+		
+		.toString = function(startWithUpperCase = FALSE) {
+			s <- "power and average sample size (ASN)"
+			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		},
 		
 		.initPowerAndAverageSampleNumber = function(design, theta = C_POWER_ASN_THETA_DEFAULT, 
@@ -142,11 +162,11 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			overallEarlyStop <<- .getOverallParameter(earlyStop)
 			.setParameterType("overallEarlyStop", C_PARAM_GENERATED)
 			
-			overallRejectPerStage <<- .getOverallParameter(rejectPerStage)
-			.setParameterType("overallRejectPerStage", C_PARAM_GENERATED)
+			overallReject <<- .getOverallParameter(rejectPerStage)
+			.setParameterType("overallReject", C_PARAM_GENERATED)
 			
-			overallFutilityPerStage <<- .getOverallParameter(futilityPerStage)
-			.setParameterType("overallFutilityPerStage", C_PARAM_GENERATED)
+			overallFutility <<- .getOverallParameter(futilityPerStage)
+			.setParameterType("overallFutility", C_PARAM_GENERATED)
 		},
 		
 		.getPowerAndAverageSampleNumberByDesign = function(design, theta, nMax) {
@@ -235,12 +255,14 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 #' @keywords internal
 #' 
 as.data.frame.PowerAndAverageSampleNumberResult <- function(x, row.names = NULL, 
-	optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...) {
+		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...) {
 	
 	parameterNames <- x$.getVisibleFieldNames()
 	parameterNames <- parameterNames[parameterNames != "nMax"]	
-	return(x$.getAsDataFrame(parameterNames = parameterNames, 
-			niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters,
-			tableColumnNames = .getTableColumnNames(design = x$.design)))
+	dataFrame <- x$.getAsDataFrame(parameterNames = parameterNames, 
+		niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters,
+		tableColumnNames = .getTableColumnNames(design = x$.design))
+	dataFrame <- cbind(Stage = 1:nrow(dataFrame), dataFrame)
+	return(dataFrame)
 }
 

@@ -4,8 +4,8 @@
 #                                                                                    #
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
+# File version: 1.0.1                                                                #
+# Date: 23-11-2018                                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -17,6 +17,7 @@
 #                                                                                    #
 ######################################################################################
 
+C_KEY_WORDS_GROUPS <- c("group", "groups")
 C_KEY_WORDS_STAGES <- c("stage", "stages")
 
 C_KEY_WORDS_SAMPLE_SIZES <- c("n", "sampleSizes", "sampleSize")
@@ -68,6 +69,7 @@ C_KEY_WORDS_OVERALL_LOG_RANKS <- c("overallLogRanks", "overallLogRank", "olr",
 	"overall.log.ranks", "overall.log.rank")
 
 C_KEY_WORDS <- c(
+	C_KEY_WORDS_GROUPS,
 	C_KEY_WORDS_STAGES,
 	C_KEY_WORDS_SAMPLE_SIZES, 
 	C_KEY_WORDS_MEANS, 
@@ -111,7 +113,7 @@ C_KEY_WORDS <- c(
 #' @param sep The field separator character. Values on each line of the file are separated 
 #'        by this character. If sep = "," (the default for \code{readDataset}) the separator is a comma.
 #' @param quote The set of quoting characters. To disable quoting altogether, use 
-#'        quote = "". See scan for the behaviour on quotes embedded in quotes. Quoting is only 
+#'        quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
 #'        considered for columns read as character, which is all of them unless \code{colClasses} is specified.
 #' @param dec The character used in the file for decimal points.
 #' @param fill logical. If \code{TRUE} then in case the rows have unequal length, blank fields 
@@ -162,11 +164,11 @@ readDataset <- function(file, ..., header = TRUE, sep = ",", quote = "\"",
 #' @param dataset A dataset.
 #' @param file The target CSV file.
 #' @param append Logical. Only relevant if file is a character string. 
-#'        If \code{TRUE}, the output is appended to the file. If FALSE, any existing file of the name is destroyed.
+#'        If \code{TRUE}, the output is appended to the file. If \code{FALSE}, any existing file of the name is destroyed.
 #' @param sep The field separator character. Values on each line of the file are separated 
 #'        by this character. If sep = "," (the default for \code{writeDataset}) the separator is a comma.
 #' @param quote The set of quoting characters. To disable quoting altogether, use 
-#'        quote = "". See scan for the behaviour on quotes embedded in quotes. Quoting is only 
+#'        quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
 #'        considered for columns read as character, which is all of them unless \code{colClasses} is specified.
 #' @param dec The character used in the file for decimal points.
 #' @param eol The character(s) to print at the end of each line (row). 
@@ -181,7 +183,7 @@ readDataset <- function(file, ..., header = TRUE, sep = ",", quote = "\"",
 #' @param fileEncoding Character string: if non-empty declares the encoding used on a file 
 #'        (not a connection) so the character data can be re-encoded. 
 #'        See the 'Encoding' section of the help for file, the 'R Data Import/Export Manual' and 'Note'.
-#' @param ... Further arguments to be passed to code{\link[utils]{write.table}}.
+#' @param ... Further arguments to be passed to \code{\link[utils]{write.table}}.
 #' 
 #' @details
 #' \code{\link{writeDataset}} is a wrapper function that coerces the dataset to a data frame and uses \cr 
@@ -223,7 +225,7 @@ writeDataset <- function(dataset, file, ..., append = FALSE, quote = TRUE, sep =
 #' @param sep The field separator character. Values on each line of the file are separated 
 #'        by this character. If sep = "," (the default for \code{readDatasets}) the separator is a comma.
 #' @param quote The set of quoting characters. To disable quoting altogether, use 
-#'        quote = "". See scan for the behaviour on quotes embedded in quotes. Quoting is only 
+#'        quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
 #'        considered for columns read as character, which is all of them unless \code{colClasses} is specified.
 #' @param dec The character used in the file for decimal points.
 #' @param fill logical. If \code{TRUE} then in case the rows have unequal length, blank fields 
@@ -233,7 +235,7 @@ writeDataset <- function(dataset, file, ..., append = FALSE, quote = TRUE, sep =
 #' @param fileEncoding character string: if non-empty declares the encoding used on a file 
 #'        (not a connection) so the character data can be re-encoded. 
 #'        See the 'Encoding' section of the help for file, the 'R Data Import/Export Manual' and 'Note'.
-#' @param ... Further arguments to be passed to code{\link[utils]{read.table}}.
+#' @param ... Further arguments to be passed to \code{\link[utils]{read.table}}.
 #' 
 #' @details
 #' Reads a file that was written by \code{\link{writeDatasets}} before.
@@ -298,7 +300,7 @@ readDatasets <- function(file, ..., header = TRUE, sep = ",", quote = "\"",
 #' @param sep The field separator character. Values on each line of the file are separated 
 #'        by this character. If sep = "," (the default for \code{writeDatasets}) the separator is a comma.
 #' @param quote The set of quoting characters. To disable quoting altogether, use 
-#'        quote = "". See scan for the behaviour on quotes embedded in quotes. Quoting is only 
+#'        quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
 #'        considered for columns read as character, which is all of them unless \code{colClasses} is specified.
 #' @param dec The character used in the file for decimal points.
 #' @param eol The character(s) to print at the end of each line (row). 
@@ -313,7 +315,7 @@ readDatasets <- function(file, ..., header = TRUE, sep = ",", quote = "\"",
 #' @param fileEncoding Character string: if non-empty declares the encoding used on a file 
 #'        (not a connection) so the character data can be re-encoded. 
 #'        See the 'Encoding' section of the help for file, the 'R Data Import/Export Manual' and 'Note'.
-#' @param ... Further arguments to be passed to code{\link[utils]{write.table}}.
+#' @param ... Further arguments to be passed to \code{\link[utils]{write.table}}.
 #' 
 #' @details 
 #' The format of the CSV file is optimized for usage of \code{\link{readDatasets}}.
@@ -775,9 +777,6 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 #' This basic class contains the fields \code{stages} and \code{groups} and several commonly used
 #' functions.
 #' 
-#' @name Dataset_initialize
-#' Initializes the object.
-#' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
 #' @include f_core_constants.R
@@ -816,25 +815,34 @@ Dataset <- setRefClass("Dataset",
 		getPlotSettings = function() {
 			return(.plotSettings)
 		},
-		
+
 		show = function(showType = 1) {
-			'Method for automatically printing dataset objects'			
+			'Method for automatically printing dataset objects'	
+			.show(showType = showType, consoleOutputEnabled = TRUE)
+		},
+		
+		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
+			.resetCat()
 			if (showType == 2) {
-				cat("Technical summary of the dataset object of class",
-					methods::classLabel(class(.self)), ":\n", sep = "")
-				.showAllParameters()
-				.showParameterTypeDescription()
+				.cat("Technical summary of the dataset object of class",
+					methods::classLabel(class(.self)), ":\n", heading = 1, 
+					consoleOutputEnabled = consoleOutputEnabled)
+				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
+				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.showParametersOfOneGroup(.getUserDefinedParameters(), 
-					title = .toString(startWithUpperCase = TRUE), orderByParameterName = FALSE)
-
+					title = .toString(startWithUpperCase = TRUE), orderByParameterName = FALSE,
+					consoleOutputEnabled = consoleOutputEnabled)
+				
 				.showParametersOfOneGroup(.getGeneratedParameters(), 
-					title = "Calculated data", orderByParameterName = FALSE)
-
-				.showUnknownParameters()
+					title = "Calculated data", orderByParameterName = FALSE,
+					consoleOutputEnabled = consoleOutputEnabled)
+				
+				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
 				if (!is.na(.description) && nchar(.description) > 0) {
-					cat("Description:", .description, "\n\n")
+					.cat("Description: ", .description, "\n\n", 
+						consoleOutputEnabled = consoleOutputEnabled)
 				}
 			}
 		},
@@ -878,7 +886,7 @@ Dataset <- setRefClass("Dataset",
 		.fillWithNAs = function(kMax) {
 			numberOfStages <- getNumberOfStages()
 			if (numberOfStages >= kMax) {
-				return()
+				return(invisible())
 			}
 			
 			numberOfGroups <- getNumberOfGroups()
@@ -1020,20 +1028,17 @@ Dataset <- setRefClass("Dataset",
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
-			prefix <- ifelse(startWithUpperCase, "Dataset", "dataset")
+			s <- "unknown dataset"
 			if (isDatasetMeans()) {
-				return(paste(prefix, "of means"))
+				s <- "dataset of means"
 			}
-			
-			if (isDatasetRates()) {
-				return(paste(prefix, "of rates"))
+			else if (isDatasetRates()) {
+				s <- "datasetof rates"
 			}
-			
-			if (isDatasetSurvival()) {
-				return(paste(prefix, "of survival data"))
+			else if (isDatasetSurvival()) {
+				s <- " datasetof survival data"
 			}
-			
-			return("unknown dataset")
+			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		}
 	)
 )
@@ -1056,9 +1061,6 @@ Dataset <- setRefClass("Dataset",
 #' @details 
 #' This object can not be created directly; better use \code{\link{getDataset}} 
 #' with suitable arguments to create a dataset of means.
-#' 
-#' @name DatasetMeans_initialize
-#' Initializes the object.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
@@ -1510,8 +1512,6 @@ DatasetMeans <- setRefClass("DatasetMeans",
 )
 
 #'
-#' @name Dataset_plot
-#' 
 #' @title
 #' Dataset Plotting
 #' 
@@ -1522,6 +1522,9 @@ DatasetMeans <- setRefClass("DatasetMeans",
 #' @param ylab The y-axis label.
 #' @param legendTitle The legend title, default is \code{"Group"}.
 #' @param palette The palette, default is \code{"Set1"}.
+#' @param showSource If \code{TRUE}, the parameter names of the object will 
+#'        be printed which were used to create the plot; that may be, e.g., 
+#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
 #' @param ... Optional \code{ggplot2} arguments.
 #' 
 #' @description
@@ -1556,7 +1559,7 @@ DatasetMeans <- setRefClass("DatasetMeans",
 #' @export
 #'
 plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_character_,
-		legendTitle = "Group", palette = "Set1") {
+		legendTitle = "Group", palette = "Set1", showSource = FALSE) {
 		
 	.assertGgplotIsInstalled()
 	
@@ -1575,6 +1578,10 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 	else if (x$isDatasetSurvival()) {
 		# Open work: implement dataset plot of survival data
 		stop("Plot of survival data is not implemented yet")
+	}
+	
+	if (showSource) {
+		warning("'showSource' = TRUE is not implemented yet for class ", class(x))
 	}
 	
 	if (x$getNumberOfGroups() == 1) {	
@@ -1695,9 +1702,6 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 #' @details 
 #' This object can not be created directly; better use \code{\link{getDataset}} 
 #' with suitable arguments to create a dataset of rates.
-#' 
-#' @name DatasetRates_initialize
-#' Initializes the object.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
@@ -2060,9 +2064,6 @@ DatasetRates <- setRefClass("DatasetRates",
 #' @details 
 #' This object can not be created directly; better use \code{\link{getDataset}} 
 #' with suitable arguments to create a dataset of survival data.
-#' 
-#' @name DatasetSurvival_initialize
-#' Initializes the object.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R

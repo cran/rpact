@@ -11,10 +11,5 @@ Trial design plan for survival data.
 This object can not be created directly; use \code{\link{getSampleSizeSurvival}} 
 with suitable arguments to create a design plan for a dataset of survival data.
 }
-\section{Methods}{
-
-\describe{
-\item{\code{show(showType = 1)}}{Method for automatically printing trial plan objects}
-}}
 
 \keyword{internal}

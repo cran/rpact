@@ -98,7 +98,7 @@ NULL
 .validateGroupSequentialProbabilityResults <- function(results, variableName) {
 	numberOfNAs <- sum(is.na(results))
 	if (numberOfNAs == 0) {
-		return()
+		return(invisible())
 	}
 	
 	stop(sprintf(paste0(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
@@ -131,17 +131,14 @@ NULL
 
 .getOptimumDesign <- function(deltaWT, design) {
 	
-	bindingFutility <- C_BINDING_FUTILITY_DEFAULT	
-	
 	scale <- .getOneDimensionalRoot(function(scale) {
 		criticalValues <- scale * design$informationRates^(deltaWT - 0.5)
 		if (design$sided == 2) {
 			decisionMatrix <- (matrix(c(-criticalValues, criticalValues), nrow = 2, byrow = TRUE))
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
-			return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - alpha)
-		}
-		else{
-			if (bindingFutility) {
+			return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - design$alpha)
+		} else {
+			if (design$bindingFutility) { 
 				decisionMatrix <- matrix(c(design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
 					criticalValues), nrow = 2, byrow = TRUE)
 			} else {
@@ -154,7 +151,7 @@ NULL
 	}, lower = 0, upper = 5, tolerance = design$tolerance)
 
 	design$criticalValues <- scale * design$informationRates^(deltaWT - 0.5)
-	designCharacteristics <- .getDesignCharacteristics(design)
+	designCharacteristics <- .getDesignCharacteristics(design = design)
 	
 	y <- NA_integer_
 	if (design$optimizationCriterion == C_OPTIMIZATION_CRITERION_ASNH1) {
@@ -181,10 +178,11 @@ NULL
 	design$.setParameterType("gammaA", C_PARAM_NOT_APPLICABLE)
 	design$.setParameterType("gammaB", C_PARAM_NOT_APPLICABLE)
 	design$.setParameterType("typeBetaSpending", C_PARAM_NOT_APPLICABLE)
+	design$.setParameterType("constantBoundsHP", C_PARAM_NOT_APPLICABLE) 
 	
-	if (!(design$typeOfDesign %in% getDesignTypes())) {
+	if (!(design$typeOfDesign %in% .getDesignTypes())) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"type of design must be one of the following :  ", printDesignTypes())
+			"type of design (", design$typeOfDesign, ") must be one of the following :  ", .printDesignTypes())
 	}
 	
 	if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT) {
@@ -194,17 +192,20 @@ NULL
 			stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, "'deltaWT' (", design$deltaWT, ") out of bounds [-0.5; 1]")
 		}
 	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
+	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
 		.assertDesignParameterExists(design, "optimizationCriterion", C_OPTIMIZATION_CRITERION_DEFAULT)
 		
-		if (!isOptimizationCriterion(design$optimizationCriterion)) {
+		if (!.isOptimizationCriterion(design$optimizationCriterion)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"optimization criterion must be one of the following :  ", printOptimizationCriterion())
+				"optimization criterion must be one of the following :  ", .printOptimizationCriterion())
 		}		
 	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_KD) {
+	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
+		.assertDesignParameterExists(design, "constantBoundsHP", C_CONST_BOUND_HP_DEFAULT)
+		.assertIsSingleNumber(design$constantBoundsHP, "constantBoundsHP")
+		.assertIsInClosedInterval(design$constantBoundsHP, "constantBoundsHP", lower = 2, upper = NULL)
+	}
+	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_KD) {
 		.assertDesignParameterExists(design, "gammaA", 1)
 		
 		if (design$gammaA < 0.4 || design$gammaA > 8) {
@@ -213,8 +214,7 @@ NULL
 				"spending function out of bounds [0.4; 8]")
 		}			
 	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_HSD) {
+	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_HSD) {
 		.assertDesignParameterExists(design, "gammaA", 1)
 		
 		if (design$gammaA < -10 || design$gammaA > 5) {
@@ -223,8 +223,7 @@ NULL
 				"alpha spending function out of bounds [-10; 5]")
 		}			
 	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
+	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
 		.validateUserAlphaSpending(design)		
 	}
 	
@@ -233,12 +232,12 @@ NULL
 		design$.setParameterType("alpha", C_PARAM_DEFAULT_VALUE)
 	}
 	
-	if (isAlphaSpendingDesignType(design$typeOfDesign)) {
+	if (.isAlphaSpendingDesignType(design$typeOfDesign)) {
 		.assertDesignParameterExists(design, "typeBetaSpending", C_TYPE_OF_DESIGN_BS_NONE)
 		
-		if (!isBetaSpendingDesignType(design$typeBetaSpending, noneIncluded = TRUE)) {
+		if (!.isBetaSpendingDesignType(design$typeBetaSpending, noneIncluded = TRUE)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-				"type of beta spending must be one of the following :  ", printBetaSpendingDesignTypes())
+				"type of beta spending must be one of the following :  ", .printBetaSpendingDesignTypes())
 		}
 		
 		if (design$typeBetaSpending == C_TYPE_OF_DESIGN_BS_KD) {
@@ -257,7 +256,7 @@ NULL
 			if (design$gammaB < -10 || design$gammaB > 5) {
 				stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
 					"Parameter 'gammaB' (", design$gammaB, ") for Hwang, Shih & DeCani ", 
-					"alpha spending out of bounds [-10; 5]")
+					"beta spending out of bounds [-10; 5]")
 			}			
 		}
 		
@@ -377,7 +376,14 @@ NULL
 	design$userAlphaSpending <- userAlphaSpending 
 	design$userBetaSpending <- userBetaSpending 
 	design$bindingFutility <- bindingFutility
-	design$constantBoundsHP <- constantBoundsHP
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
+		.assertIsSingleNumber(constantBoundsHP, "constantBoundsHP")
+		.assertIsInClosedInterval(constantBoundsHP, "constantBoundsHP", lower = 2, upper = NULL)
+		design$constantBoundsHP <- constantBoundsHP
+	} else if (constantBoundsHP != C_CONST_BOUND_HP_DEFAULT) {
+		warning("'constantBoundsHP' (", constantBoundsHP, 
+			") will be ignored because it is only applicable for 'typeOfDesign' = \"", C_TYPE_OF_DESIGN_HP, "\"")
+	}
 	design$twoSidedPower <- twoSidedPower
 	design$tolerance <- tolerance
 	
@@ -542,7 +548,7 @@ NULL
 	}, lower = 0, upper = 5, tolerance = design$tolerance)
 	
 	design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
-	designCharacteristics <- .getDesignCharacteristics(design)	
+	designCharacteristics <- .getDesignCharacteristics(design = design)	
 	design$power <- designCharacteristics$power
 	
 	design$.setParameterType("power", C_PARAM_GENERATED)
@@ -694,7 +700,7 @@ NULL
 .getDesignGroupSequentialBetaSpendingApproaches <- function(design) {
 	
 	# beta spending approaches (additional to alpha spending)!
-	if (isBetaSpendingDesignType(design$typeBetaSpending, 
+	if (.isBetaSpendingDesignType(design$typeBetaSpending, 
 			userDefinedBetaSpendingIncluded = FALSE, noneIncluded = FALSE)) { 		
 		.getDesignGroupSequentialBetaSpending(design)
 	}
@@ -715,8 +721,6 @@ NULL
 	
 	# Note: calculated without .getOneDimensionalRoot because results may not achieved in inner search
 	# Direct bisection produced reliable results (although sometimes slowly)   
-
-	bindingFutility <- FALSE 
 	
 	if (design$sided == 2) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -783,8 +787,6 @@ NULL
 	
 	# Note: calculated without .getOneDimensionalRoot because results may not achieved in inner search
 	# Direct bisection produced reliable results (although sometimes slowly)   
-	
-	bindingFutility <- FALSE
 	
 	if (design$typeBetaSpending != C_TYPE_OF_DESIGN_BS_USER) { 
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
@@ -854,40 +856,42 @@ NULL
 #' Provides adjusted boundaries and defines a group sequential design for its use in 
 #' the inverse normal combination test.   
 #' 
-#' @param kMax The maximum number of stages K. K = 1, 2, ..., 10, default is 3.
-#' @param alpha The significance level alpha, default is 0.025. 
+#' @param kMax The maximum number of stages K. K = 1, 2, 3,..., 10, default is \code{3}.
+#' @param alpha The significance level alpha, default is \code{0.025}. 
 #' @param beta Type II error rate, necessary for providing sample size calculations \cr
 #'        (e.g., \code{\link{getSampleSizeMeans}}), beta spending function designs, 
-#'        or optimum designs, default is 0.20.
-#' @param sided One-sided or two-sided, default is 1.
+#'        or optimum designs, default is \code{0.20}.
+#' @param sided One-sided or two-sided, default is \code{1}.
 #' @param typeOfDesign The type of design. Type of design is one of the following: 
 #'        O'Brien & Fleming ("OF"), Pocock ("P"), Wang & Tsiatis Delta class ("WT"), 
 #'        Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class ("WToptimum"), 
 #'        O'Brien & Fleming type alpha spending ("asOF"), Pocock type alpha spending ("asP"), 
 #'        Kim & DeMets alpha spending ("asKD"), Hwang, Shi & DeCani alpha spending ("asHSD"), 
-#'        user defined alpha spending ("asUser"), default is "OF".
+#'        user defined alpha spending ("asUser"), default is \code{"OF"}.
 #' @param informationRates The information rates, default is \code{(1 : kMax)/kMax}.
 #' @param futilityBounds The futility bounds (vector of length K - 1).
 #' @param bindingFutility If \code{bindingFutility = TRUE} is specified the calculation of 
-#'        the critical values is affected by the futility bounds (default is FALSE).
+#'        the critical values is affected by the futility bounds (default is \code{FALSE}).
 #' @param deltaWT Delta for Wang & Tsiatis Delta class.
 #' @param constantBoundsHP The constant bounds up to stage K - 1 for the 
-#'        Haybittle & Peto design (default is 3).
+#'        Haybittle & Peto design (default is \code{3}).
 #' @param optimizationCriterion Optimization criterion for optimum design within 
-#'        Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is "ASNH1".
+#'        Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is \code{"ASNH1"}.
 #' @param typeBetaSpending Type of beta spending. Type of of beta spending is one of the following: 
 #'        O'Brien & Fleming type beta spending, Pocock type beta spending, 
 #'        Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined 
 #'        beta spending ("bsOF", "bsP",...).
-#' @param gammaA Parameter for alpha spending function, default is 1.
-#' @param gammaB Parameter for beta spending function, default is 1.
-#' @param userAlphaSpending The user defined alpha spending.
-#' @param userBetaSpending The user defined beta spending.
+#' @param gammaA Parameter for alpha spending function, default is \code{1}.
+#' @param gammaB Parameter for beta spending function, default is \code{1}.
+#' @param userAlphaSpending The user defined alpha spending. Vector of length kMax containing the cumulative 
+#' 		  alpha-spending up to each interim stage.
+#' @param userBetaSpending The user defined beta spending. Vector of length kMax containing the cumulative 
+#' 		  beta-spending up to each interim stage.
 #' @param twoSidedPower For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
 #'        the sample size calculation is performed by considering both tails of the distribution. 
-#'        Default is FALSE, i.e., it is assumed that one tail probability is equal to 0 or the power
+#'        Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 #'        should be directed to one part.
-#' @param tolerance The tolerance, default is 1e-08.
+#' @param tolerance The tolerance, default is \code{1e-08}.
 #' @param ... Ensures that all arguments are be named and 
 #'        that a warning will be displayed if unknown arguments are passed.
 #' 
@@ -909,72 +913,10 @@ NULL
 #' # Run with default values
 #' getDesignInverseNormal() 
 #' 
-#' # The output is
-#' # 
-#' # Design parameters and output of inverse normal design:
-#' # 
-#' # User defined parameters: not available
-#' # 
-#' # Derived from user defined parameters: not available
-#' # 
-#' # Default parameters:
-#' #   Type of design                        : OF 
-#' #   Maximum number of stages              : 3 
-#' #   Stages                                : 1, 2, 3 
-#' #   Information rates                     : 0.333, 0.667, 1.000 
-#' #   Significance level                    : 0.0250 
-#' #   Type II error rate                    : 0.2 
-#' #   Two-sided power                       : FALSE 
-#' #   Delta for Wang & Tsiatis Delta class  : 0 
-#' #   Futility bounds (non-binding)         : -Inf, -Inf 
-#' #   Binding futility                      : FALSE 
-#' #   Haybittle Peto constants              : 3.000 
-#' #   Parameter for alpha spending function : 1 
-#' #   Parameter for beta spending function  : 1 
-#' #   Optimization criterion for optimum design within Wang & Tsiatis class : ASNH1 
-#' #   Test                                  : one-sided 
-#' #   Tolerance                             : 1e-08 
-#' #   Type of beta spending                 : none 
-#' #                                       
-#' # Output:                               
-#' #   Cumulative alpha spending             : 0.0002592, 0.0071601, 0.0250000 
-#' #   Critical values                       : 3.471, 2.454, 2.004 
-#' #   Stage levels                          : 0.0002592, 0.0070554, 0.0225331 
-#' # 
-#' 
 #' # Calculate the Pocock type alpha spending critical values if the second 
 #' # interim analysis was performed after 70% of information was observed
 #' getDesignInverseNormal(informationRates = c(0.4, 0.7), 
 #'     typeOfDesign = "asP") 
-#' 
-#' # The output is
-#' #
-#' # Design parameters and output of inverse normal design: 
-#' #
-#' # User defined parameters: 
-#' #   Type of design                        : asP 
-#' #   Stages                                : 1, 2 
-#' #   Information rates                     : 0.400, 0.700 
-#' # 
-#' # Derived from user defined parameters : 
-#' #   Maximum number of stages              : 2 
-#' #   Futility bounds (non-binding)         : -Inf 
-#' # 
-#' # Default parameters: 
-#' #   Significance level                    : 0.0250 
-#' #   Type II error rate                    : 0.2 
-#' #   Delta for Wang & Tsiatis Delta class  : 0 
-#' #   Parameter for alpha spending function : 1 
-#' #   Parameter for beta spending function  : 1 
-#' #   Optimization criterion for Optimum design within Wang & Tsiatis class : ASNH1 
-#' #   Test                                  : one-sided 
-#' #   Tolerance                             : 1e-08 
-#' #   Type of beta                          : none 
-#  #
-#' # Output: 
-#' #   Cumulative alpha spending             : 0.01308, 0.01974 
-#' #   Critical values                       : 2.224, 2.305 
-#' #   Stage levels                          : 0.01308, 0.01058 
 #' 
 getDesignInverseNormal <- function(
 		...,
@@ -1081,6 +1023,14 @@ getDesignInverseNormal <- function(
 			kMax <- as.integer(kMax)
 		}
 	}
+	
+	if (is.na(bindingFutility)) {
+		bindingFutility <- C_BINDING_FUTILITY_DEFAULT
+	} else if (userFunctionCallEnabled && 
+			((!is.na(kMax) && kMax == 1) || (!any(is.na(futilityBounds)) &&
+			all(futilityBounds == C_FUTILITY_BOUNDS_DEFAULT)))) {
+		warning("'bindingFutility' (", bindingFutility, ") will be ignored", call. = FALSE)
+	}
 		
 	design <- .createDesign(
 		designClass             = designClass,
@@ -1111,13 +1061,7 @@ getDesignInverseNormal <- function(
 		.assertDesignParameterExists(design, "beta", C_BETA_DEFAULT)
 		.assertDesignParameterExists(design, "sided", 1)
 		.assertDesignParameterExists(design, "typeOfDesign", C_DEFAULT_TYPE_OF_DESIGN)
-		.assertDesignParameterExists(design, "deltaWT", 0)
-		.assertDesignParameterExists(design, "optimizationCriterion", C_OPTIMIZATION_CRITERION_DEFAULT)
-		.assertDesignParameterExists(design, "gammaA", 1)
-		.assertDesignParameterExists(design, "gammaB", 1)
-		.assertDesignParameterExists(design, "typeBetaSpending", C_TYPE_OF_DESIGN_BS_NONE)
 		.assertDesignParameterExists(design, "bindingFutility", C_BINDING_FUTILITY_DEFAULT)
-		.assertDesignParameterExists(design, "constantBoundsHP", C_CONST_BOUND_HP_DEFAULT)
 		.assertDesignParameterExists(design, "twoSidedPower", C_TWO_SIDED_POWER_DEFAULT)
 		.assertDesignParameterExists(design, "tolerance", C_DESIGN_TOLERANCE_DEFAULT)
 	}
@@ -1171,7 +1115,7 @@ getDesignInverseNormal <- function(
 		}
 		
 		# alpha spending approaches
-		else if (isAlphaSpendingDesignType(design$typeOfDesign, userDefinedAlphaSpendingIncluded = FALSE)) { 
+		else if (.isAlphaSpendingDesignType(design$typeOfDesign, userDefinedAlphaSpendingIncluded = FALSE)) { 
 			.getDesignGroupSequentialAlphaSpending(design)
 		}
 		
@@ -1182,7 +1126,18 @@ getDesignInverseNormal <- function(
 	}	
 	
 	design$stageLevels <- 1 - stats::pnorm(design$criticalValues)	
-	design$.setParameterType("stageLevels", C_PARAM_GENERATED)	
+	design$.setParameterType("stageLevels", C_PARAM_GENERATED)
+	
+	if (design$kMax == 1) {
+		design$.setParameterType("futilityBounds", C_PARAM_NOT_APPLICABLE)
+	}
+	
+	if (length(design$futilityBounds) == 0 ||
+			all(design$futilityBounds == C_FUTILITY_BOUNDS_DEFAULT)) {
+		# design$bindingFutility <- NA
+		design$.setParameterType("bindingFutility", C_PARAM_NOT_APPLICABLE)
+		design$.setParameterType("futilityBounds", C_PARAM_NOT_APPLICABLE)
+	}
 	
 	return(design)
 }
@@ -1193,40 +1148,42 @@ getDesignInverseNormal <- function(
 #' @description
 #' Provides adjusted boundaries and defines a group sequential design.   
 #' 
-#' @param kMax The maximum number of stages K. K = 1, 2, ..., 10, default is 3.
-#' @param alpha The significance level alpha, default is 0.025. 
+#' @param kMax The maximum number of stages K. K = 1, 2, 3,..., 10, default is \code{3}.
+#' @param alpha The significance level alpha, default is \code{0.025}. 
 #' @param beta Type II error rate, necessary for providing sample size calculations \cr
 #'        (e.g., \code{\link{getSampleSizeMeans}}), beta spending function designs, 
-#'        or optimum designs, default is 0.20.
-#' @param sided One-sided or two-sided, default is 1.
+#'        or optimum designs, default is \code{0.20}.
+#' @param sided One-sided or two-sided, default is \code{1}.
 #' @param typeOfDesign The type of design. Type of design is one of the following: 
 #'        O'Brien & Fleming ("OF"), Pocock ("P"), Wang & Tsiatis Delta class ("WT"), 
 #'        Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class ("WToptimum"), 
 #'        O'Brien & Fleming type alpha spending ("asOF"), Pocock type alpha spending ("asP"), 
 #'        Kim & DeMets alpha spending ("asKD"), Hwang, Shi & DeCani alpha spending ("asHSD"), 
-#'        user defined alpha spending ("asUser"), default is "OF".
+#'        user defined alpha spending ("asUser"), default is \code{"OF"}.
 #' @param informationRates The information rates, default is \code{(1 : kMax)/kMax}.
-#' @param futilityBounds The futility bounds (vector of length K - 1).
+#' @param futilityBounds The futility bounds, defined on the test statistic z scale (vector of length K - 1).
 #' @param bindingFutility If \code{bindingFutility = TRUE} is specified the calculation of 
-#'        the critical values is affected by the futility bounds (default is FALSE).
+#'        the critical values is affected by the futility bounds (default is \code{FALSE}).
 #' @param deltaWT Delta for Wang & Tsiatis Delta class.
 #' @param constantBoundsHP The constant bounds up to stage K - 1 for the 
-#'        Haybittle & Peto design (default is 3).
+#'        Haybittle & Peto design (default is \code{3}).
 #' @param optimizationCriterion Optimization criterion for optimum design within 
-#'        Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is "ASNH1".
+#'        Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is \code{"ASNH1"}.
 #' @param typeBetaSpending Type of beta spending. Type of of beta spending is one of the following: 
 #'        O'Brien & Fleming type beta spending, Pocock type beta spending, 
 #'        Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined 
 #'        beta spending ("bsOF", "bsP",...).
-#' @param gammaA Parameter for alpha spending function, default is 1.
-#' @param gammaB Parameter for beta spending function, default is 1.
-#' @param userAlphaSpending The user defined alpha spending.
-#' @param userBetaSpending The user defined beta spending.
+#' @param gammaA Parameter for alpha spending function, default is \code{1}.
+#' @param gammaB Parameter for beta spending function, default is \code{1}.
+#' @param userAlphaSpending The user defined alpha spending. Vector of length kMax containing the cumulative 
+#' 		  alpha-spending up to each interim stage.
+#' @param userBetaSpending The user defined beta spending. Vector of length kMax containing the cumulative 
+#' 		  beta-spending up to each interim stage.
 #' @param twoSidedPower For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
 #'        the sample size calculation is performed by considering both tails of the distribution. 
-#'        Default is FALSE, i.e., it is assumed that one tail probability is equal to 0 or the power
+#'        Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 #'        should be directed to one part.
-#' @param tolerance The tolerance, default is 1e-08.
+#' @param tolerance The tolerance, default is \code{1e-08}.
 #' @param ... Ensures that all arguments are be named and 
 #'        that a warning will be displayed if unknown arguments are passed.
 #' 
@@ -1248,71 +1205,9 @@ getDesignInverseNormal <- function(
 #' # Run with default values
 #' getDesignGroupSequential() 
 #' 
-#' # The output is:
-#' #
-#' # Design parameters and output of group sequential design:
-#' # 
-#' # User defined parameters: not available
-#' # 
-#' # Derived from user defined parameters: not available
-#' # 
-#' # Default parameters:
-#' #   Type of design                        : OF 
-#' #   Maximum number of stages              : 3 
-#' #   Stages                                : 1, 2, 3 
-#' #   Information rates                     : 0.333, 0.667, 1.000 
-#' #   Significance level                    : 0.0250 
-#' #   Type II error rate                    : 0.2 
-#' #   Two-sided power                       : FALSE 
-#' #   Delta for Wang & Tsiatis Delta class  : 0 
-#' #   Futility bounds (non-binding)         : -Inf, -Inf 
-#' #   Binding futility                      : FALSE 
-#' #   Haybittle Peto constants              : 3.000 
-#' #   Parameter for alpha spending function : 1 
-#' #   Parameter for beta spending function  : 1 
-#' #   Optimization criterion for optimum design within Wang & Tsiatis class : ASNH1 
-#' #   Test                                  : one-sided 
-#' #   Tolerance                             : 1e-08 
-#' #   Type of beta spending                 : none 
-#' #                                       
-#' # Output:                               
-#' #   Cumulative alpha spending             : 0.0002592, 0.0071601, 0.0250000 
-#' #   Critical values                       : 3.471, 2.454, 2.004 
-#' #   Stage levels                          : 0.0002592, 0.0070554, 0.0225331 
-#' # 
-#' 
 #' # Calculate the Pocock type alpha spending critical values if the second 
 #' # interim analysis was performed after 70% of information was observed
-#' getDesignGroupSequential(informationRates = c(0.4, 0.7), 
-#'     typeOfDesign = "asP") 
-#' 
-#' # The output is:
-#' #
-#' # Design parameters and output of group sequential design : 
-#' # User defined parameters: 
-#' #   Type of design                        : asP 
-#' #   Stages                                : 1, 2 
-#' #   Information rates                     : 0.400, 0.700 
-#' # 
-#' # Derived from user defined parameters : 
-#' #   Maximum number of stages              : 2 
-#' #   Futility bounds (non-binding)         : -Inf 
-#' # 
-#' # Default parameters: 
-#' #   Significance level                    : 0.0250 
-#' #   Type II error rate                    : 0.2 
-#' #   Delta for Wang & Tsiatis Delta class  : 0 
-#' #   Parameter for alpha spending function : 1 
-#' #   Parameter for beta spending function  : 1 
-#' #   Optimization criterion for Optimum design within Wang & Tsiatis class : ASNH1 
-#' #   Test                                  : one-sided 
-#' #   Tolerance                             : 1e-08 
-#' #   Type of beta                          : none 
-#  #
-#' # Output: 
-#' #   Cumulative alpha spending             : 0.01308, 0.01974 
-#' #   Critical values                       : 2.224, 2.305 
-#' #   Stage levels                          : 0.01308, 0.01058 
+#' getDesignGroupSequential(informationRates = c(0.4, 0.7), typeOfDesign = "asP") 
 #' 
 getDesignGroupSequential <- function(
 		..., kMax = NA_integer_, alpha = NA_real_, 
@@ -1322,7 +1217,7 @@ getDesignGroupSequential <- function(
 		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, gammaA = 1, 
 		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
 		userAlphaSpending = NA_real_, userBetaSpending = NA_real_, gammaB = 1, 
-		bindingFutility = C_BINDING_FUTILITY_DEFAULT,
+		bindingFutility = NA,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
 		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
@@ -1362,13 +1257,14 @@ getDesignGroupSequential <- function(
 	} 
 	if (twoSidedPower) {
 		n <- .getOneDimensionalRoot(function(n) {
-				stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n)) - stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n)) + beta
+				stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n)) - 
+					stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n)) + beta
 			}, 
 			lower = 0, 
 			upper = 2 * (stats::qnorm(1 - alpha / 2) + stats::qnorm(1 - beta))^2, 
 			tolerance = 1e-08)
 	} else {
-		n <- (stats::qnorm(1 - alpha/2) + stats::qnorm(1 - beta))^2
+		n <- (stats::qnorm(1 - alpha / 2) + stats::qnorm(1 - beta))^2
 	}	
 	return(n)
 	
@@ -1401,7 +1297,7 @@ getDesignCharacteristics <- function(design) {
 	return(.getDesignCharacteristics(design = design, userFunctionCallEnabled = TRUE) )
 }
 
-.getDesignCharacteristics <- function(design, userFunctionCallEnabled = FALSE) {
+.getDesignCharacteristics <- function(..., design, userFunctionCallEnabled = FALSE) {
 
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	.assertDesignParameterExists(design, "sided", 1)
@@ -1455,7 +1351,7 @@ getDesignCharacteristics <- function(design) {
 							design$criticalValues - sqrt(shift*informationRates)), nrow = 2, byrow = TRUE)
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
 			if (design$twoSidedPower) {
-					return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - 1 + design$beta)
+				return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - 1 + design$beta)
 			} else {
 				return(sum(probs[3, ] - probs[2, ]) - 1 + design$beta)
 			}	
@@ -1563,16 +1459,27 @@ getDesignCharacteristics <- function(design) {
 #' Returns the power and average sample number of the specified design.
 #' 
 #' @param design The design.
-#' @param theta A vector of theta values.
+#' @param theta A vector of standardized effect sizes.
 #' @param nMax The maximum sample size.
 #' 
 #' @details 
-#' ASN = Average sample number (size)
+#' This function returns the power and average sample number (ASN) of the specified design for the prototype case which is testing H0: mu = mu0 in a one-sample design.
+#' theta represents the standardized effect (mu - mu0)/sigma and power and ASN is calculated for maximum sample size nMax.
+#' For other designs than the one-sample test of a mean the standardized effect needs to be adjusted accordingly.  
+#' 
+#' @return Returns a \code{\link{PowerAndAverageSampleNumberResult}} object.
 #' 
 #' @export
 #' 
+#' @examples 
+#' 
+#' getPowerAndAverageSampleNumber(
+#'     getDesignGroupSequential(), 
+#'     theta = seq(-1, 1, 0.5), nMax = 100)
+#' 
 getPowerAndAverageSampleNumber <- function(design, theta = seq(-1, 1, 0.02), nMax = 100) {	
-	fCall = match.call(expand.dots = FALSE)
-	theta <- .assertIsValidThetaRange(thetaRange = theta, thetaAutoSeqEnabled = (as.character(fCall$theta)[1] != "seq"))
+	.assertIsTrialDesign(design)
+	.assertIsSingleNumber(nMax, "nMax")
+	.assertIsInClosedInterval(nMax, "nMax", lower = 1, upper = NULL)
 	return(PowerAndAverageSampleNumberResult(design = design, theta = theta, nMax = nMax))	
 }

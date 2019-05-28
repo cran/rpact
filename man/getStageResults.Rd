@@ -20,7 +20,7 @@ See \code{\link{getDataset}}.}
       it is 1 for the survival case.      
       For testing a rate in one sample, a value thetaH0 in (0, 1) has to be specified for 
       defining the null hypothesis H0: pi = thetaH0. \cr
-         For noninferiority designs, this is the noninferiority bound. } 
+         For non-inferiority designs, this is the non-inferiority bound. } 
   \item{thetaH1 and assumedStDev or pi1, pi2}{The assumed effect size or assumed rates to calculate the 
       conditional power. Depending on the type of dataset, either thetaH1 (means and survival) 
       or pi1, pi2 (rates) can be specified. Additionally, if testing means is specified, 
@@ -41,7 +41,7 @@ See \code{\link{getDataset}}.}
 }}
 }
 \value{
-Returns a \code{StageResults} object.
+Returns a \code{\link{StageResults}} object.
 }
 \description{
 Returns summary statistics and p-values for a given data set and a given design.
@@ -50,32 +50,13 @@ Returns summary statistics and p-values for a given data set and a given design.
 Calculates and returns the stage results of the specified design and data input at the specified stage.
 }
 \examples{
+
 design <- getDesignInverseNormal()
 dataRates <- getDataset(
     n1 = c(10,10),
     n2 = c(20,20),
     events1 = c(8,10),
     events2 = c(10,16))
-
 getStageResults(design, dataRates)
-
-# produces:
-#
-# Stage results of rates:
-#   Stages                     : 1, 2, 3 
-#   Overall test statistics    : 1.581, 2.064, NA 
-#   Overall p-values           : 0.05692, 0.01949, NA 
-#   Overall events (1)         : 8, 18 
-#   Overall events (2)         : 10, 26 
-#   Overall sample sizes (1)   : 10, 20 
-#   Overall sample sizes (2)   : 20, 40 
-#   Test statistics            : 1.581, 1.519, NA 
-#   p-values                   : 0.05692, 0.06437, NA 
-#   Effect sizes               : 0.30, 0.25, NA 
-#   Inverse Normal Combination : 1.581, 2.192, NA 
-#   Weights Inverse Normal     : 0.577, 0.577, 0.577 
-#   Theta H0                   : 0 
-#   Direction                  : upper 
-#   Normal approximation       : TRUE 
 
 }

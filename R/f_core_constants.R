@@ -25,9 +25,7 @@ C_LOG_LEVEL_INFO <- "INFO"
 C_LOG_LEVEL_WARN <- "WARN"
 C_LOG_LEVEL_ERROR <- "ERROR"
 C_LOG_LEVEL_PROGRESS <- "PROGRESS"
-C_LOG_LEVEL_DISABLED <- ""
-
-C_LOG_LEVEL <- C_LOG_LEVEL_PROGRESS
+C_LOG_LEVEL_DISABLED <- "DISABLED"
 
 # the ratio of the circumference of a circle to its diameter
 C_CIRCLE_CONSTANT_PI <- base::pi # 3.1415926535897931
@@ -73,6 +71,7 @@ C_EQUAL_VARIANCES_DEFAULT <- TRUE
 C_ITERATIONS_DEFAULT <- 10000
 
 C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT <- 50
+C_VARIED_PARAMETER_SEQUENCE_LENGTH_DEFAULT <- 30
 
 C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL <- "TrialDesignGroupSequential"
 C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL <- "TrialDesignInverseNormal"
@@ -108,6 +107,32 @@ C_PARAM_NOT_APPLICABLE <- "."
 C_PARAM_TYPE_UNKNOWN <- "?"
 
 # 
+# Constants used in 'f_simulation_survival.R'
+# 
+C_PI_2_DEFAULT <- 0.2
+C_PI_1_DEFAULT <- seq(0.2, 0.5, 0.1)
+C_PI_1_SAMPLE_SIZE_DEFAULT <- c(0.4, 0.5, 0.6)
+C_DROP_OUT_RATE_1_DEFAULT <- 0
+C_DROP_OUT_RATE_2_DEFAULT <- 0
+C_DROP_OUT_TIME_DEFAULT <- 12L
+C_EVENT_TIME_DEFAULT <- 12L
+C_ALLOCATION_1_DEFAULT <- 1
+C_ALLOCATION_2_DEFAULT <- 1
+C_MAX_ITERATIONS_DEFAULT <- 10L
+C_MAX_SIMULATION_ITERATIONS_DEFAULT <- 1000L
+C_ACCRUAL_TIME_DEFAULT <- c(0L, 12L)
+C_ACCRUAL_INTENSITY_DEFAULT <- 0.1
+C_FOLLOW_UP_TIME_DEFAULT <- 6L
+
+# 
+# Additional constants used in 'f_design_sample_size_calculator.R'
+# 
+
+C_ALTERNATIVE_DEFAULT <- seq(0.2, 1, 0.2)
+C_ALTERNATIVE_POWER_SIMULATION_DEFAULT <- seq(0, 1, 0.2)
+C_STDEV_DEFAULT <- 1
+
+# 
 # Constants used in 'core_group_sequential_design.R'
 # 
 # Type of design is one of the following: 
@@ -134,7 +159,7 @@ C_TYPE_OF_DESIGN_AS_HSD <- "asHSD"  # Hwang, Shi & DeCani alpha spending
 C_TYPE_OF_DESIGN_AS_USER <- "asUser" # user defined alpha spending
 C_DEFAULT_TYPE_OF_DESIGN <- C_TYPE_OF_DESIGN_OF # the default type of design
 
-getDesignTypes <- function() {
+.getDesignTypes <- function() {
 	return(c(
 		C_TYPE_OF_DESIGN_OF,
 		C_TYPE_OF_DESIGN_P,
@@ -149,11 +174,11 @@ getDesignTypes <- function() {
 	))
 }
 
-printDesignTypes <- function() {
-	.arrayToString(getDesignTypes(), encapsulate = TRUE)
+.printDesignTypes <- function() {
+	.arrayToString(.getDesignTypes(), encapsulate = TRUE)
 }
 
-isAlphaSpendingDesignType <- function(typeOfDesign, userDefinedAlphaSpendingIncluded = TRUE) {
+.isAlphaSpendingDesignType <- function(typeOfDesign, userDefinedAlphaSpendingIncluded = TRUE) {
 	if (userDefinedAlphaSpendingIncluded && typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
 		return(TRUE)
 	}
@@ -178,7 +203,7 @@ C_TYPE_OF_DESIGN_BS_KD <- "bsKD"     # Kim & DeMets beta spending
 C_TYPE_OF_DESIGN_BS_HSD <- "bsHSD"   # Hwang, Shi & DeCani beta spending
 C_TYPE_OF_DESIGN_BS_USER <- "bsUser" # user defined beta spending
 
-getBetaSpendingDesignTypes <- function() {
+.getBetaSpendingDesignTypes <- function() {
 	return(c(
 		C_TYPE_OF_DESIGN_BS_NONE,
 		C_TYPE_OF_DESIGN_BS_P,
@@ -189,11 +214,11 @@ getBetaSpendingDesignTypes <- function() {
 	))
 }
 
-printBetaSpendingDesignTypes <- function() {
-	.arrayToString(getBetaSpendingDesignTypes(), encapsulate = TRUE)
+.printBetaSpendingDesignTypes <- function() {
+	.arrayToString(.getBetaSpendingDesignTypes(), encapsulate = TRUE)
 }
 
-isBetaSpendingDesignType <- function(typeOfDesign, userDefinedBetaSpendingIncluded = TRUE, noneIncluded = FALSE) {
+.isBetaSpendingDesignType <- function(typeOfDesign, userDefinedBetaSpendingIncluded = TRUE, noneIncluded = FALSE) {
 	if (userDefinedBetaSpendingIncluded && typeOfDesign == C_TYPE_OF_DESIGN_BS_USER) {
 		return(TRUE)
 	}
@@ -219,7 +244,7 @@ C_OPTIMIZATION_CRITERION_ASNIFH1 <- "ASNIFH1"
 C_OPTIMIZATION_CRITERION_ASN_SUM <- "ASNsum"
 C_OPTIMIZATION_CRITERION_DEFAULT <- C_OPTIMIZATION_CRITERION_ASNH1
 
-getOptimizationCriterions <- function() {
+.getOptimizationCriterions <- function() {
 	return(c(
 		C_OPTIMIZATION_CRITERION_ASNH1,
 		C_OPTIMIZATION_CRITERION_ASNIFH1,
@@ -227,12 +252,12 @@ getOptimizationCriterions <- function() {
 	))
 }
 
-printOptimizationCriterion <- function() {
-	.arrayToString(getOptimizationCriterions(), encapsulate = TRUE)
+.printOptimizationCriterion <- function() {
+	.arrayToString(.getOptimizationCriterions(), encapsulate = TRUE)
 }
 
-isOptimizationCriterion <- function(x) {
-	return(x %in% getOptimizationCriterions())
+.isOptimizationCriterion <- function(x) {
+	return(x %in% .getOptimizationCriterions())
 }
 
 ##
@@ -245,7 +270,7 @@ C_FISHER_METHOD_NO_INTERACTION <- "noInteraction"
 C_FISHER_METHOD_USER_DEFINED_ALPHA <- "userDefinedAlpha"
 C_FISHER_METHOD_DEFAULT <- C_FISHER_METHOD_EQUAL_ALPHA
 
-getFisherMethods <- function() {
+.getFisherMethods <- function() {
 	return(c(
 		C_FISHER_METHOD_FULL_ALPHA,
 		C_FISHER_METHOD_EQUAL_ALPHA,
@@ -254,12 +279,12 @@ getFisherMethods <- function() {
 	))
 }
 
-printFisherMethods <- function() {
-	.arrayToString(getFisherMethods(), encapsulate = TRUE)
+.printFisherMethods <- function() {
+	.arrayToString(.getFisherMethods(), encapsulate = TRUE)
 }
 
-isFisherMethod <- function(method) {
-	return(method %in% getFisherMethods())
+.isFisherMethod <- function(method) {
+	return(method %in% .getFisherMethods())
 }
 
 ##
@@ -275,7 +300,6 @@ C_PARAMETER_NAMES <- list(
 	sampleSizes = "Sample sizes",
 	means = "Means",
 	stDevs = "Standard deviations",
-	events = "Events",	
 	overallEvents = "Overall events",
 	overallAllocationRatios = "Overall allocation ratios",
 	overallLogRanks = "Overall logranks",
@@ -286,7 +310,7 @@ C_PARAMETER_NAMES <- list(
 	kMax = "Maximum number of stages",
 	alpha = "Significance level",
 	finalStage = "Final stage",
-	informationRates = "Information rates",
+	informationRates = "Information rates", # DOTO remove ending 's' (plural)?
 	criticalValues = "Critical values",
 	stageLevels = "Stage levels", 
 	alphaSpent = "Cumulative alpha spending",
@@ -316,22 +340,23 @@ C_PARAMETER_NAMES <- list(
 	normalApproximation = "Normal approximation",
 	equalVariances = "Equal variances",
 	
-	nFixed = "N fixed",
 	shift = "Shift",
 	inflationFactor = "Inflation factor",
 	information = "Informations",
 	rejectionProbabilities = "Rejection probabilities",
 	futilityProbabilities = "Futility probabilities",
-	averageSampleNumber1 = "Expected reduction under H1",
-	averageSampleNumber01 = "Expected reduction under a value between H0 and H1",
-	averageSampleNumber0 = "Expected reduction under H0",
+	averageSampleNumber1 = "Ratio expected vs fixed sample size under H1",
+	averageSampleNumber01 = "Ratio expected vs fixed sample size under a value between H0 and H1",
+	averageSampleNumber0 = "Ratio expected vs fixed sample size under H0",
 	
 	allocationRatioPlanned = "Planned allocation ratio",
-	thetaH0 = "Theta H0", # Effect
+	thetaH0 = "Theta H0", 
 	thetaH1 = "Assumed effect",
 	assumedStDev = "Assumed standard deviation",
-	pi1 = "pi_1",
-	pi2 = "pi_2",
+	pi1 = "pi (1)",
+	pi2 = "pi (2)",
+	pi1H1 = "pi (1) under H1",
+	pi2H1 = "pi (2) under H1",
 	nPlanned = "Planned sample size",
 	
 	effectSizes = "Effect sizes",
@@ -340,7 +365,8 @@ C_PARAMETER_NAMES <- list(
 	combinationTestStatistics = "Combination test statistics",
 	testActions = "Actions",
 	conditionalPower = "Conditional power",
-	conditionalPowerSimulated = "Conditional power (simulated)",
+	conditionalPowerAchieved = "Cond. power (achieved)",
+	conditionalPowerSimulated = "Cond. power (simulated)",
 	conditionalRejectionProbabilities = "CRP",
 	repeatedConfidenceIntervalLowerBounds = "RCIs (lower)",
 	repeatedConfidenceIntervalUpperBounds = "RCIs (upper)",
@@ -362,17 +388,17 @@ C_PARAMETER_NAMES <- list(
 	overallStDevs2 = "Overall standard deviations (2)", 
 	overallStDevs = "Overall standard deviations", 
 	testStatistics = "Test statistics", 
-	combInverseNormal = "Inverse Normal Combination", 
-	combFisher = "Fisher Combination", 
+	combInverseNormal = "Inverse normal combination", 
+	combFisher = "Fisher combination", 
 	weightsFisher = "Weights Fisher", 
-	weightsInverseNormal = "Weights Inverse Normal",
+	weightsInverseNormal = "Weights inverse normal",
 	
 	overallLogRanks = "Overall logranks",
-	overallEvents = "Overall events",
-	overallEvents1 = "Overall events (1)",
-	overallEvents2 = "Overall events (2)",
+	overallEvents = "Overall number of events",
+	overallEvents1 = "Overall number of events (1)",
+	overallEvents2 = "Overall number of events (2)",
 	overallAllocationRatios = "Overall allocation ratios",
-	events = "Events",
+	events = "Number of events",
 	allocationRatios = "Allocation ratios",
 	logRanks = "Log ranks",
 	
@@ -381,56 +407,159 @@ C_PARAMETER_NAMES <- list(
 	calculatedPower = "Power",
 	earlyStop = "Early stop",
 	rejectPerStage = "Reject per stage",
-	futilityPerStage = "Futility per stage",
-	overallEarlyStop = "Overall early stop",
-	overallRejectPerStage = "Overall reject per stage",
-	overallFutilityPerStage = "Overall futility per stage",
+	futilityPerStage = "Futility stop per stage",
+	overallEarlyStop = "Overall Early stop",
+	overallReject = "Overall reject",
+	overallFutility = "Overall futility",
 	
 	riskRatio = "Risk ratio",
 	meanRatio = "Mean ratio",
 	alternative = "Alternatives",
 	stDev = "Standard deviation",
-	nFixed1 = "N fixed (1)",
-	nFixed2 = "N fixed (2)",
+	nFixed = "Number of subjects fixed",
+	nFixed1 = "Number of subjects fixed (1)",
+	nFixed2 = "Number of subjects fixed (2)",
 	
-	maxNumberOfPatients = "Maximum number of patients",					
-	numberOfPatients = "Number of patients",
-	numberOfPatientsGroup1 = "Number of patients (1)",
-	numberOfPatientsGroup2 = "Number of patients (2)",
-	expectedPatientsH0 = "Expected patients H0",
-	expectedPatientsH01 = "Expected patients H0/H1",
-	expectedPatientsH1 = "Expected patients H1",
+	maxNumberOfSubjects = "Maximum number of subjects",					
+	maxNumberOfSubjects1 = "Maximum number of subjects (1)",					
+	maxNumberOfSubjects2 = "Maximum number of subjects (2)",					
+	numberOfSubjects = "Number of subjects",
+	numberOfSubjects1 = "Number of subjects (1)",
+	numberOfSubjects2 = "Number of subjects (2)",
+	expectedNumberOfSubjectsH0 = "Expected number of subjects under H0",
+	expectedNumberOfSubjectsH01 = "Expected number of subjects under H0/H1",
+	expectedNumberOfSubjectsH1 = "Expected number of subjects under H1",
+	expectedNumberOfSubjects = "Expected number of subjects",
 	
-	omega = "Probabilities of an event",
+	omega = "Probability of an event",
 	hazardRatio = "Hazard ratio",
 	
 	typeOfComputation = "Type of computation",
 	accountForObservationTimes = "Account for observation times",
 	eventTime = "Event time",
 	accrualTime = "Accrual time",
+	totalAccrualTime = "Total accrual time",
+	remainingTime = "Remaining time",
 	followUpTime = "Follow up time",
-	dropOutRate1 = "Drop-out rate (1)",
-	dropOutRate2 = "Drop-out rate (2)",
-	dropOutTime = "Drop-out time",
+	dropoutRate1 = "Drop-out rate (1)",
+	dropoutRate2 = "Drop-out rate (2)",
+	dropoutTime = "Drop-out time",
 	calculateFollowUpTime = "Calculate follow up time",
-	eventsFixed = "Events fixed",
-	expectedEventsH0 = "Expected events H0",
-	expectedEventsH01 = "Expected events H0/H1",
-	expectedEventsH1 = "Expected events H1",
+	eventsFixed = "Number of events fixed",
+	expectedEventsH0 = "Expected number of events under H0",
+	expectedEventsH01 = "Expected number of events under H0/H1",
+	expectedEventsH1 = "Expected number of events under H1",
 	
-	analysisTimes = "Analysis times", 
-	studyDurationH1 = "Study duration H1",
-	eventsOverStages = "Events over stages", 
-	expectedNumberOfPatientsH1 = "Expected number of patients H1",
+	analysisTime = "Analysis times", 
+	studyDurationH1 = "Expected study duration under H1",
+	eventsPerStage = "Number of events by stage", 
+	expectedNumberOfSubjectsH1 = "Expected number of subjects under H1",
 	
-	twoSidedPower = "Two-sided power"
+	twoSidedPower = "Two-sided power",
+	
+	plannedEvents = "Planned events",
+	plannedSubjects = "Planned subjects",
+	minNumberOfAdditionalEventsPerStage = "Minimum number of additional events per stage",
+	maxNumberOfAdditionalEventsPerStage = "Maximum number of additional events per stage",
+	minNumberOfAdditionalSubjectsPerStage = "Minimum number of additional subjects per stage",
+	maxNumberOfAdditionalSubjectsPerStage = "Maximum number of additional subjects per stage",
+	accrualIntensity = "Accrual intensity",
+	accrualIntensityRelative = "Accrual intensity (relative)",
+	maxNumberOfIterations = "Maximum number of iterations",
+	allocation1 = "Allocation 1",
+	allocation2 = "Allocation 2",
+	expectedNumberOfEvents = "Expected number of events",
+	expectedNumberOfEventsPerStage = "Expected number of events by stage",
+	eventsNotAchieved = "Events not achieved",
+	subjects = "Subjects",
+	overallReject = "Overall reject",
+	futilityStop = "Futility stop",
+	studyDuration = "Expected study duration",
+	maxStudyDuration = "Maximal study duration",
+	directionUpper = "Direction upper",
+	piecewiseSurvivalTime = "Piecewise survival times",
+	lambda2 = "Lambda (2)",
+	lambda1 = "Lambda (1)",
+	kappa = "Kappa",
+	
+	earlyStopPerStage = "Early stop per stage",
+	effect = "Effect",
+	maxNumberOfEvents = "Maximum number of events",
+	
+	criticalValuesEffectScale = "Critical values (effect scale)",
+	criticalValuesEffectScaleLower = "Lower critical values (effect scale)",
+	criticalValuesEffectScaleUpper = "Upper critical values (effect scale)",
+	criticalValuesPValueScale = "Local one-sided significance levels",
+	".design$stageLevels" = "Local one-sided significance levels",
+	futilityBoundsEffectScale = "Futility bounds (effect scale)",
+	futilityBoundsPValueScale = "Futility bounds (1-sided p-value scale)",
+	
+	analysisTime = "Analysis time",
+	eventsPerStage1 = "Observed # events by stage (1)",
+	eventsPerStage2 = "Observed # events by stage (2)",
+	testStatistic = "Test statistic",
+	logRankStatistic = "Log-rank statistic",
+	hazardRatioEstimateLR = "Hazard ratio estimate LR",
+	
+	delayedResponseAllowed = "Delayed response allowed",
+	delayedResponseEnabled = "Delayed response enabled",
+	piecewiseSurvivalEnabled = "Piecewise exponential survival enabled",
+	
+	median1 = "Median (1)",
+	median2 = "Median (2)",
+	
+	eventsPerStage = "Observed number of events by stage", 
+	expectedNumberOfEvents = "Observed number of events",
+	expectedNumberOfSubjects = "Observed number of subjects",
+	
+	endOfAccrualIsUserDefined = "End of accrual is user defined",
+	followUpTimeMustBeUserDefined = "Follow-up time must be user defined",
+	maxNumberOfSubjectsIsUserDefined = "Max number of subjects is user defined",
+	maxNumberOfSubjectsCanBeCalculatedDirectly = "Max number of subjects can be calculated",
+	absoluteAccrualIntensityEnabled = "Absolute accrual intensity is enabled",
+	
+	time = "Time",
+	overallEventProbabilities = "Overall event probabilities",
+	eventProbabilities1 = "Event probabilities (1)",
+	eventProbabilities2 = "Event probabilities (2)"
 )
 
-.getParameterNames <- function(design = NULL) {
+.getParameterNames <- function(design = NULL, designPlan = NULL) {
 	parameterNames <- C_PARAMETER_NAMES
+	
 	if (!is.null(design) && !is.na(design$bindingFutility) && !design$bindingFutility) {
 		parameterNames$futilityBounds <- C_PARAMETER_NAMES[["futilityBoundsNonBinding"]]
 	}
+	
+	if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlanSurvival") &&
+			!is.null(designPlan$.piecewiseSurvivalTime) &&
+		designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
+		parameterNames$lambda2 <- "Piecewise survival lambda (2)"
+		parameterNames$lambda1 <- "Piecewise survival lambda (1)"
+	}
+	
+	if (!is.null(designPlan) && 
+			inherits(designPlan, "TrialDesignPlanSurvival") && 
+			identical(designPlan$.design$kMax, 1L)) {
+		parameterNames$maxNumberOfEvents <- "Number of events"
+	}
+
+	if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlan") && 
+			identical(designPlan$.design$kMax, 1L)) {
+		parameterNames$studyDuration <- "Study duration"
+	}
+	
+	if (!is.null(designPlan) && 
+			(inherits(designPlan, "TrialDesignPlanMeans") || 
+				inherits(designPlan, "SimulationResultsMeans")) && 
+			isTRUE(designPlan$meanRatio)) {
+		parameterNames$stDev <- "Coefficient of variation"
+	}
+	
+	if (!is.null(design) && class(design) != "TrialDesign" && design$sided == 2) {
+		parameterNames$criticalValuesPValueScale <- "Local two-sided significance levels"
+	}
+	
 	return(parameterNames)
 }
 
@@ -443,7 +572,6 @@ C_TABLE_COLUMN_NAMES <- list(
 	sampleSizes = "Sample size",
 	means = "Mean",
 	stDevs = "Standard deviation",
-	events = "Event",	
 	overallEvents = "Overall event",
 	overallAllocationRatios = "Overall allocation ratio",
 	overallLogRanks = "Overall log rank",
@@ -452,7 +580,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constant",
 	
-	kMax = "Maximum number of stages",
+	kMax = "Maximum # stages",
 	alpha = "Significance level",
 	finalStage = "Final stage",
 	informationRates = "Information rate",
@@ -487,16 +615,23 @@ C_TABLE_COLUMN_NAMES <- list(
 
 	assumedStDev = "Assumed standard deviation",
 	
-	nFixed = "N fixed",
 	shift = "Shift",
 	inflationFactor = "Inflation factor",
 	information = "Information",
 	rejectionProbabilities = "Rejection probability",
 	futilityProbabilities = "Futility probability",
-	averageSampleNumber1 = "Expected reduction under H1",
-	averageSampleNumber01 = "Expected reduction under a value between H0 and H1",
-	averageSampleNumber0 = "Expected reduction under H0",
+	averageSampleNumber1 = "Ratio expected vs fixed sample size under H1",
+	averageSampleNumber01 = "Ratio expected vs fixed sample size under a value between H0 and H1",
+	averageSampleNumber0 = "Ratio expected vs fixed sample size under H0",
 	
+	allocationRatioPlanned = "Planned allocation ratio",
+	thetaH0 = "Theta H0", # Effect
+	thetaH1 = "Assumed effect",
+	assumedStDev = "Assumed standard deviation",
+	pi1 = "pi (1)",
+	pi2 = "pi (2)",
+	pi1H1 = "pi (1) under H1",
+	pi2H1 = "pi (2) under H1",
 	nPlanned = "Planned sample size",
 	
 	stages = "Stage",
@@ -506,7 +641,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	combinationTestStatistics = "Combination test statistic",
 	testActions = "Action",
 	conditionalPower = "Conditional power",
-	conditionalPowerSimulated = "Conditional power (simulated)",
+	conditionalPowerAchieved = "Cond. power (achieved)",
+	conditionalPowerSimulated = "Cond. power (simulated)",
 	conditionalRejectionProbabilities = "CRP",
 	repeatedConfidenceIntervalLowerBounds = "RCI (lower)",
 	repeatedConfidenceIntervalUpperBounds = "RCI (upper)",
@@ -533,11 +669,11 @@ C_TABLE_COLUMN_NAMES <- list(
 	weightsInverseNormal = "Weight Inverse Normal",
 	
 	overallLogRanks = "Overall log rank",
-	overallEvents = "Overall event",
-	overallEvents1 = "Overall event (1)",
-	overallEvents2 = "Overall event (2)",
+	overallEvents = "Overall # events",
+	overallEvents1 = "Overall # events (1)",
+	overallEvents2 = "Overall #events (2)",
 	overallAllocationRatios = "Overall allocation ratio",
-	events = "Event",
+	events = "# events", 
 	allocationRatios = "Allocation ratio",
 	logRanks = "Log rank",
 	
@@ -546,25 +682,29 @@ C_TABLE_COLUMN_NAMES <- list(
 	calculatedPower = "Power",
 	earlyStop = "Early stop",
 	rejectPerStage = "Reject per stage",
-	futilityPerStage = "Futility per stage",
-	overallEarlyStop = "Overall early stop",
-	overallRejectPerStage = "Overall reject per stage",
-	overallFutilityPerStage = "Overall futility per stage",
+	futilityPerStage = "Futility stop per stage",
+	overallEarlyStop = "Overall Early stop",
+	overallReject = "Overall reject",
+	overallFutility = "Overall futility",
 	
 	riskRatio = "Risk ratio",
 	meanRatio = "Mean ratio",
 	alternative = "Alternative",
 	stDev = "Standard deviation",
-	nFixed1 = "N fixed (1)",
-	nFixed2 = "N fixed (2)",
+	nFixed = "# subjects fixed",
+	nFixed1 = "# subjects fixed (1)",
+	nFixed2 = "# subjects fixed (2)",
 	
-	maxNumberOfPatients = "Max # patients",					
-	numberOfPatients = "# patients",
-	numberOfPatientsGroup1 = "# patients (1)",
-	numberOfPatientsGroup2 = "# patients (2)",
-	expectedPatientsH0 = "Expected patients H0",
-	expectedPatientsH01 = "Expected patients H0/H1",
-	expectedPatientsH1 = "Expected patients H1",
+	maxNumberOfSubjects = "Max # subjects",					
+	maxNumberOfSubjects1 = "Max # subjects (1)",					
+	maxNumberOfSubjects2 = "Max # subjects (2)",					
+	numberOfSubjects = "# subjects",
+	numberOfSubjects1 = "# subjects (1)",
+	numberOfSubjects2 = "# subjects (2)",
+	expectedNumberOfSubjectsH0 = "Expected # subjects under H0",
+	expectedNumberOfSubjectsH01 = "Expected # subjects under H0/H1",
+	expectedNumberOfSubjectsH1 = "Expected # subjects under H1",
+	expectedNumberOfSubjects = "Expected # subjects",
 	
 	omega = "Probability of an event",
 	hazardRatio = "Hazard ratio",
@@ -573,29 +713,122 @@ C_TABLE_COLUMN_NAMES <- list(
 	accountForObservationTimes = "Account for observation times",
 	eventTime = "Event time",
 	accrualTime = "Accrual time",
+	totalAccrualTime = "Total accrual time",
+	remainingTime = "Remaining time",
 	followUpTime = "Follow up time",
-	dropOutRate1 = "Drop-out rate (1)",
-	dropOutRate2 = "Drop-out rate (2)",
-	dropOutTime = "Drop-out time",
+	dropoutRate1 = "Drop-out rate (1)",
+	dropoutRate2 = "Drop-out rate (2)",
+	dropoutTime = "Drop-out time",
 	calculateFollowUpTime = "Calculate follow up time",
-	eventsFixed = "Event fixed",
-	expectedEventsH0 = "Expected event H0",
-	expectedEventsH01 = "Expected event H0/H1",
-	expectedEventsH1 = "Expected event H1",
+	eventsFixed = "# events fixed",
+	expectedEventsH0 = "Expected # events under H0",
+	expectedEventsH01 = "Expected # events under H0/H1",
+	expectedEventsH1 = "Expected # events under H1",
 	
-	analysisTimes = "Analysis time", 
-	studyDurationH1 = "Study duration H1",
-	eventsOverStages = "Events over stages", 
-	expectedNumberOfPatientsH1 = "Expected number of patients H1",
+	analysisTime = "Analysis time", 
+	eventsPerStage1 = "Observed # events by stage (1)",
+	eventsPerStage2 = "Observed # events by stage (2)",
+	studyDurationH1 = "Expected study duration H1",
+	eventsPerStage = "# events by stage", 
+	expectedNumberOfSubjectsH1 = "Expected # subjects H1",
 	
-	twoSidedPower = "Two-sided power"
+	twoSidedPower = "Two-sided power",
+	
+	plannedEvents = "Required planned events",
+	plannedSubjects = "Required planned subjects",
+	minNumberOfAdditionalEventsPerStage = "Minimum # additional events per stage",
+	maxNumberOfAdditionalEventsPerStage = "Maximum # additional events per stage",
+	minNumberOfAdditionalSubjectsPerStage = "Minimum # of additional subjects per stage",
+	maxNumberOfAdditionalSubjectsPerStage = "Maximum # of additional subjects per stage",
+	accrualIntensity = "Accrual intensity",
+	accrualIntensityRelative = "Accrual intensity (relative)",
+	maxNumberOfIterations = "Maximum # iterations",
+	allocation1 = "Allocation 1",
+	allocation2 = "Allocation 2",
+	expectedNumberOfEvents = "Expected # events",
+	expectedNumberOfEventsPerStage = "Expected # events by stage",
+	eventsNotAchieved = "Events not achieved",
+	subjects = "Subjects",
+	futilityStop = "Futility stop",
+	studyDuration = "Expected study duration",
+	maxStudyDuration = "Maximal study duration",
+	directionUpper = "Direction upper",
+	piecewiseSurvivalTime = "Piecewise survival times",
+	lambda2 = "Lambda (2)",
+	lambda1 = "Lambda (1)",
+	kappa = "Kappa",
+	
+	earlyStopPerStage = "Early stop per stage",
+	effect = "Effect",
+	maxNumberOfEvents = "Maximum # events",
+	
+	criticalValuesEffectScale = "Critical value (effect scale)",
+	criticalValuesEffectScaleLower = "Lower critical value (effect scale)",
+	criticalValuesEffectScaleUpper = "Upper critical value (effect scale)",
+	criticalValuesPValueScale = "Local one-sided significance level",
+	".design$stageLevels" = "Local one-sided significance level",
+	futilityBoundsEffectScale = "Futility bound (effect scale)",
+	futilityBoundsPValueScale = "Futility bound (1-sided p-value scale)",
+	
+	delayedResponseAllowed = "Delayed response allowed",
+	delayedResponseEnabled = "Delayed response enabled",
+	piecewiseSurvivalEnabled = "Piecewise exponential survival enabled",
+	
+	median1 = "Median (1)",
+	median2 = "Median (2)",
+	
+	eventsPerStage = "Observed number of events by stage", 
+	expectedNumberOfEvents = "Observed number of events",
+	expectedNumberOfSubjects = "Observed number of subjects",
+	
+	endOfAccrualIsUserDefined = "End of accrual is user defined",
+	followUpTimeMustBeUserDefined = "Follow-up time must be user defined",
+	maxNumberOfSubjectsIsUserDefined = "Max number of subjects is user defined",
+	maxNumberOfSubjectsCanBeCalculatedDirectly = "Max number of subjects can be calculated",
+	absoluteAccrualIntensityEnabled = "Absolute accrual intensity is enabled",
+	
+	time = "Time",
+	overallEventProbabilities = "Overall event probability",
+	eventProbabilities1 = "Event probability (1)",
+	eventProbabilities2 = "Event probability (2)"
 )
 
-.getTableColumnNames <- function(design = NULL) {
+.getTableColumnNames <- function(design = NULL, designPlan = NULL) {
 	tableColumnNames <- C_TABLE_COLUMN_NAMES
+	
 	if (!is.null(design) && !is.na(design$bindingFutility) && !design$bindingFutility) {
 		tableColumnNames$futilityBounds <- C_TABLE_COLUMN_NAMES[["futilityBoundsNonBinding"]]
 	}
+	
+	if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlanSurvival") &&
+			!is.null(designPlan$.piecewiseSurvivalTime) &&
+			designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
+		tableColumnNames$lambda2 = "Piecewise survival lambda (2)"
+		tableColumnNames$lambda1 = "Piecewise survival lambda (1)"
+	}
+	
+	if (!is.null(designPlan) && 
+			inherits(designPlan, "TrialDesignPlanSurvival") && 
+			identical(designPlan$.design$kMax, 1L)) {
+		tableColumnNames$maxNumberOfEvents <- "Number of events"
+	}
+	
+	if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlan") && 
+			identical(designPlan$.design$kMax, 1L)) {
+		tableColumnNames$studyDuration <- "Study duration"
+	}
+	
+	if (!is.null(designPlan) && 
+			(inherits(designPlan, "TrialDesignPlanMeans") || 
+				inherits(designPlan, "SimulationResultsMeans")) && 
+			isTRUE(designPlan$meanRatio)) {
+		tableColumnNames$stDev <- "Coefficient of variation"
+	}
+	
+	if (!is.null(design) && class(design) != "TrialDesign" && design$sided == 2) {
+		tableColumnNames$criticalValuesPValueScale <- "Local two-sided significance level"
+	}
+	
 	return(tableColumnNames)
 }
 
@@ -606,6 +839,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	assumedStDev = "formatStDevs",
 	overallAllocationRatios = "formatRatios",
 	overallLogRanks = "formatTestStatistics",
+	allocationRatioPlanned = "formatRatios",
 	
 	alpha = "formatProbabilities",
 	informationRates = "formatRates",
@@ -640,6 +874,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	pValues = "formatPValues",
 	combinationTestStatistics = "formatTestStatistics",
 	conditionalPower = "formatConditionalPower", 
+	conditionalPowerAchieved = "formatConditionalPower",
 	conditionalPowerSimulated = "formatConditionalPower", 
 	conditionalRejectionProbabilities = "formatProbabilities",
 	repeatedConfidenceIntervalLowerBounds = "formatStDevs",
@@ -674,34 +909,82 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	rejectPerStage = "formatDouble",
 	futilityPerStage = "formatDouble",
 	overallEarlyStop = "formatDouble",
-	overallRejectPerStage = "formatDouble",
-	overallFutilityPerStage = "formatDouble",
+	overallReject = "formatDouble",
+	overallFutility = "formatDouble",
 	
-	maxNumberOfPatients = "formatSampleSizes",					
-	numberOfPatients = "formatSampleSizes",
-	numberOfPatientsGroup1 = "formatSampleSizes",
-	numberOfPatientsGroup2 = "formatSampleSizes",
-	expectedPatientsH0 = "formatSampleSizes",
-	expectedPatientsH01 = "formatSampleSizes",
-	expectedPatientsH1 = "formatSampleSizes",
+	maxNumberOfSubjects = "formatSampleSizes",	
+	maxNumberOfSubjects1 = "formatSampleSizes",	
+	maxNumberOfSubjects2 = "formatSampleSizes",	
+	maxNumberOfEvents = "formatSampleSizes",
+	numberOfSubjects = "formatSampleSizes",
+	numberOfSubjects1 = "formatSampleSizes",
+	numberOfSubjects2 = "formatSampleSizes",
+	expectedNumberOfSubjectsH0 = "formatSampleSizes",
+	expectedNumberOfSubjectsH01 = "formatSampleSizes",
+	expectedNumberOfSubjectsH1 = "formatSampleSizes",
+	expectedNumberOfSubjects = "formatSampleSizes",
 	
 	omega = "formatRates",
 	hazardRatio = "formatRates",
 	
+	pi1 = "formatRates",
+	pi2 = "formatRates",
+	pi1H1 = "formatRates",
+	pi2H1 = "formatRates",
+	piecewiseSurvivalTime = "formatTime",
+	lambda2 = "formatRates",
+	lambda1 = "formatRates",
+	
 	eventTime = "formatDouble",
-	accrualTime = "formatDouble",
-	followUpTime = "formatDouble",
-	dropOutRate1 = "formatRates",
-	dropOutRate2 = "formatRates",
-	dropOutTime = "formatDouble",
+	accrualTime = "formatTime",
+	totalAccrualTime = "formatTime",
+	remainingTime = "formatTime",
+	followUpTime = "formatTime",
+	dropoutRate1 = "formatRates",
+	dropoutRate2 = "formatRates",
+	dropoutTime = "formatTime",
 	eventsFixed = "formatSampleSizes",
 	expectedEventsH0 = "formatSampleSizes",
 	expectedEventsH01 = "formatSampleSizes",
 	expectedEventsH1 = "formatSampleSizes",
-	analysisTimes = "formatDouble", 
-	studyDurationH1 = "formatDouble",
-	eventsOverStages = "formatSampleSizes", 
-	expectedNumberOfPatientsH1 = "formatSampleSizes"
+	analysisTime = "formatTime", 
+	studyDurationH1 = "formatDurations",
+	eventsPerStage = "formatSampleSizes", 
+	expectedNumberOfSubjectsH1 = "formatSampleSizes",
+	
+	events = "formatSampleSizes",
+	expectedNumberOfEvents = "formatSampleSizes",
+	expectedNumberOfEventsPerStage = "formatSampleSizes",
+	eventsNotAchieved = "formatDouble",
+	subjects = "formatSampleSizes",
+	futilityStop = "formatSimulationOutput",
+	studyDuration = "formatDurations",
+	maxStudyDuration = "formatDurations",
+	
+	earlyStopPerStage = "formatDouble",
+	effect = "formatDouble",
+	
+	criticalValuesEffectScale = "formatGroupSequentialCriticalValues",
+	criticalValuesEffectScaleLower = "formatGroupSequentialCriticalValues",
+	criticalValuesEffectScaleUpper = "formatGroupSequentialCriticalValues",
+	criticalValuesPValueScale = "formatProbabilities",
+	futilityBoundsEffectScale = "formatGroupSequentialCriticalValues",
+	futilityBoundsPValueScale = "formatProbabilities",
+	
+	median1 = "formatRatesDynamic",
+	median2 = "formatRatesDynamic",
+	
+	accrualIntensity = "formatAccrualIntensities",
+	accrualIntensityRelative = "formatAccrualIntensities",
+	
+	eventsPerStage = "formatSampleSizes", 
+	expectedNumberOfEvents = "formatSampleSizes",
+	expectedNumberOfSubjects = "formatSampleSizes",
+	
+	time = "formatTime",
+	overallEventProbabilities = "formatProbabilities",
+	eventProbabilities1 = "formatProbabilities",
+	eventProbabilities2 = "formatProbabilities"
 )
 
 .getParameterFormatFunctions <- function() {

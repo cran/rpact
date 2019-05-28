@@ -4,18 +4,31 @@
 \alias{getPowerAndAverageSampleNumber}
 \title{Get Power And Average Sample Number}
 \usage{
-getPowerAndAverageSampleNumber(design, theta = seq(-1, 1, 0.02), nMax = 100)
+getPowerAndAverageSampleNumber(design, theta = seq(-1, 1, 0.02),
+  nMax = 100)
 }
 \arguments{
 \item{design}{The design.}
 
-\item{theta}{A vector of theta values.}
+\item{theta}{A vector of standardized effect sizes.}
 
 \item{nMax}{The maximum sample size.}
+}
+\value{
+Returns a \code{\link{PowerAndAverageSampleNumberResult}} object.
 }
 \description{
 Returns the power and average sample number of the specified design.
 }
 \details{
-ASN = Average sample number (size)
+This function returns the power and average sample number (ASN) of the specified design for the prototype case which is testing H0: mu = mu0 in a one-sample design.
+theta represents the standardized effect (mu - mu0)/sigma and power and ASN is calculated for maximum sample size nMax.
+For other designs than the one-sample test of a mean the standardized effect needs to be adjusted accordingly.
+}
+\examples{
+
+getPowerAndAverageSampleNumber(
+    getDesignGroupSequential(), 
+    theta = seq(-1, 1, 0.5), nMax = 100)
+
 }

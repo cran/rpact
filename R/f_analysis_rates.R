@@ -255,7 +255,7 @@ getStageResultsRates <- function(..., design, dataInput, thetaH0 = NA_real_,
 		directionUpper = TRUE, normalApproximation = TRUE) {
 	
 	.assertIsDatasetRates(dataInput)
-	.assertIsValidThetaH0(thetaH0, dataInput)
+	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.warnInCaseOfUnknownArguments(functionName = "getStageResultsRates", ignore = c("stage"), ...)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
 
@@ -766,42 +766,51 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 		nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 	}	
 		
-	# shifted decision region for use in getGroupSeqProbs 
-	# Group Sequential Method
-	shiftedDecisionRegion <- criticalValuesInverseNormal[(stage + 1):kMax] * 
-		sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
-		sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
-		stats::qnorm(1 - stageResults$overallPValues[stage]) * sqrt(sum(weights[1:stage]^2)) / 
-		sqrt(cumsum(weights[(stage + 1):kMax]^2)) - 
-		thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):kMax]) *	weights[(stage + 1):kMax]) / 
-		sqrt(cumsum(weights[(stage + 1):kMax]^2))
+	shiftedDecisionRegionUpper <- criticalValuesInverseNormal[(stage + 1):kMax] * 
+			sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
+			c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2)) - 
+			thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):kMax]) *	weights[(stage + 1):kMax]) / 
+			sqrt(cumsum(weights[(stage + 1):kMax]^2))
 	
+	if (design$sided == 2) {
+		shiftedDecisionRegionLower <- -criticalValuesInverseNormal[(stage + 1):kMax] * 
+				sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
+				sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
+				c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
+				sqrt(cumsum(weights[(stage + 1):kMax]^2)) - 
+				thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):kMax]) *	weights[(stage + 1):kMax]) / 
+				sqrt(cumsum(weights[(stage + 1):kMax]^2))
+	}
 	if (stage == kMax - 1) {
 		shiftedFutilityBounds <- c()
 	} else {
 		shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] * 
-			sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):(kMax - 1)]^2)) / 
-			sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
-			stats::qnorm(1 - stageResults$overallPValues[stage]) * sqrt(sum(weights[1:stage]^2)) / 
-			sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
-			thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):(kMax - 1)]) * weights[(stage + 1):(kMax - 1)]) / 
-			sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2))
+				sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):(kMax - 1)]^2)) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
+				c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - 
+				thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):(kMax - 1)]) * weights[(stage + 1):(kMax - 1)]) / 
+				sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2))
 	}
 	
-	# scaled information for use in getGroupSeqProbs
+	# Scaled information for use in getGroupSeqProbs
 	scaledInformation <- (informationRates[(stage + 1):kMax] - informationRates[stage]) / 
 			(1 - informationRates[stage])
 	
 	if (design$sided == 2) {
-		decisionMatrix <- (matrix(c(-shiftedDecisionRegion, shiftedDecisionRegion), nrow = 2, byrow = TRUE))
-		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+		decisionMatrix <- matrix(c(shiftedDecisionRegionLower, shiftedDecisionRegionUpper), nrow = 2, byrow = TRUE)
+	} else {
+		decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
+						shiftedDecisionRegionUpper), nrow = 2, byrow = TRUE)
+	}
+	probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
 			informationRates = scaledInformation)
+	
+	if (design$twoSidedPower){
 		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
 	} else {
-		decisionMatrix <- (matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
-			shiftedDecisionRegion), nrow = 2, byrow = TRUE))
-		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
-			informationRates = scaledInformation)
 		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
 	}
 	
@@ -878,7 +887,7 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 		nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 	}	
 		
-	shiftedDecisionRegion <- criticalValuesInverseNormal[(stage + 1):kMax] * 
+	shiftedDecisionRegionUpper <- criticalValuesInverseNormal[(stage + 1):kMax] * 
 		sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
 		sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
 		c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
@@ -886,6 +895,15 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 		thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):kMax]) *	weights[(stage + 1):kMax]) / 
 		sqrt(cumsum(weights[(stage + 1):kMax]^2))
 	
+	if (design$sided == 2) {
+		shiftedDecisionRegionLower <- -criticalValuesInverseNormal[(stage + 1):kMax] * 
+				sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
+				sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
+				c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
+				sqrt(cumsum(weights[(stage + 1):kMax]^2)) - 
+				thetaH1 * cumsum(sqrt(nPlanned[(stage + 1):kMax]) *	weights[(stage + 1):kMax]) / 
+				sqrt(cumsum(weights[(stage + 1):kMax]^2))
+	}
 	if (stage == kMax - 1) {
 		shiftedFutilityBounds <- c()
 	} else {
@@ -903,15 +921,17 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 			(1 - informationRates[stage])
 	
 	if (design$sided == 2) {
-		decisionMatrix <- (matrix(c(-shiftedDecisionRegion, shiftedDecisionRegion), nrow = 2, byrow = TRUE))
-		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
+		decisionMatrix <- matrix(c(shiftedDecisionRegionLower, shiftedDecisionRegionUpper), nrow = 2, byrow = TRUE)
+	} else {
+		decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
+						shiftedDecisionRegionUpper), nrow = 2, byrow = TRUE)
+	}
+	probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
 			informationRates = scaledInformation)
+	
+	if (design$twoSidedPower){
 		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
 	} else {
-		decisionMatrix <- (matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, shiftedDecisionRegion), 
-			nrow = 2, byrow = TRUE))
-		probs <- .getGroupSequentialProbabilities(decisionMatrix = decisionMatrix, 
-			informationRates = scaledInformation)
 		conditionalPower[(stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
 	}
 	
@@ -1155,9 +1175,9 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 	
 	
 	if (stageResults$isOneSampleDataset()) {
-		subTitle <- paste0("Stage = ", stage, ", # of remaining patients = ", sum(nPlanned))
+		subTitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned))
 	} else {
-		subTitle <- paste0("Stage = ", stage, ", # of remaining patients = ", sum(nPlanned), 
+		subTitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned), 
 			", pi2 = ", pi2, ", allocation ratio = ", allocationRatioPlanned)
 	}
 	
@@ -1372,7 +1392,8 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 			
 			if (design$kMax > 2) {
 				warning("Calculation of final confidence interval performed for kMax = ", design$kMax, 
-						" (for kMax > 2, it is theoretically shown that it is valid only if no sample size change was performed)", call. = FALSE)
+						" (for kMax > 2, it is theoretically shown that it is valid only ", 
+						"if no sample size change was performed)", call. = FALSE)
 			}
 			
 			finalConfidenceIntervalGeneral[1] <- .getDecisionMatrixRoot(design = design, 
@@ -1511,7 +1532,8 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 	# Early stopping or at end of study
 	if (stageFisher < design$kMax || stage == design$kMax) {
 		
-		warning("Calculation of final confidence interval for Fisher's design not implemented yet.", call. = FALSE)
+		warning("Calculation of final confidence interval for Fisher's ", 
+			"design not implemented yet.", call. = FALSE)
 		return(list(finalStage = NA_integer_ , medianUnbiased = NA_real_, 
 						finalConfidenceInterval = rep(NA_real_, design$kMax)))
 		
@@ -1531,7 +1553,7 @@ getFinalConfidenceIntervalRates <- function(..., design, dataInput,
 	
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
 	.assertIsValidStage(stage, design$kMax)
-	.assertIsValidThetaH0(thetaH0, dataInput)
+	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.warnInCaseOfUnknownArguments(functionName = "getFinalConfidenceIntervalRates", ignore = c("stage"), ...)
 	
 	if (is.na(thetaH0)) {
