@@ -149,7 +149,7 @@ double vectorProduct(NumericVector x, NumericVector y) {
 }
 
 double round(double value, int digits) {
-	double mult = pow(10, digits);
+	double mult = std::pow(10.0, (double)digits);
 	return round(value * mult) / mult;
 }
 
@@ -303,7 +303,8 @@ List logRankTest(NumericVector accrualTime, NumericVector survivalTime,
 				events2++;
 			}
 			if (subjectsT1 + subjectsT2 > 0) {
-				denominator += thetaH0 * subjectsT1 * subjectsT2 / pow(thetaH0 * subjectsT1 + subjectsT2, 2);
+				denominator += thetaH0 * subjectsT1 * subjectsT2 /
+					pow(thetaH0 * subjectsT1 + subjectsT2, 2);
 			}
 		}
 		if (treatmentGroupSorted[i] == 1) {
@@ -606,7 +607,7 @@ NumericMatrix getSimulationStepResultsSurvival(
 			}
 		} else { // all other designs
 			if ((sided == 1 && testStatistic[0] >= criticalValues[k - 1]) ||
-					(sided == 2 && abs(testStatistic[0]) >= criticalValues[k - 1])) {
+					(sided == 2 && std::abs(testStatistic[0]) >= criticalValues[k - 1])) {
 				rejections[k - 1]++;
 				trialStopEventCounter++;
 			}

@@ -854,7 +854,10 @@ getSimulationSurvival <- function(design = NULL, ...,
 	simulationResults$.data <- data
 	
 	stages <- 1:design$kMax
-	rawData <- resultData$rawData[!is.na(resultData$rawData$iterationNumber), ]
+	rawData <- resultData$rawData
+	if (!is.null(rawData) && nrow(rawData) > 0 && ncol(rawData) > 0) {
+		rawData <- rawData[!is.na(rawData$iterationNumber), ]
+	}
 	if (!is.null(rawData) && nrow(rawData) > 0 && ncol(rawData) > 0) {
 		stopStageNumbers <- rawData$stopStage
 		missingStageNumbers <- c()

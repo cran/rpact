@@ -1,4 +1,10 @@
 
+# rpact 2.0.1
+
+* Function base::isFALSE replaced to guarantee R 3.4.x compatibility
+* C++ compiler warning on r-devel-linux-x86_64-debian-clang system removed 
+* C++ compiler error on r-patched-solaris-x86 system fixed 
+
 # rpact 2.0.0
 
 ## New features

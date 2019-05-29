@@ -228,7 +228,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 
 .showPlotSourceInformation <- function(objectName, ..., xParameterName, yParameterNames, 
 		hint = NA_character_, nMax = NA_integer_, showSource = FALSE) {
-	if (isFALSE(showSource)) {
+	if (!isTRUE(showSource)) {
 		return(invisible())
 	}
 	

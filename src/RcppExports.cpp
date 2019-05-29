@@ -78,7 +78,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rpact_getRandomSurvivalDistribution", (DL_FUNC) &_rpact_getRandomSurvivalDistribution, 2},
     {"_rpact_getRandomPiecewiseExponentialDistribution", (DL_FUNC) &_rpact_getRandomPiecewiseExponentialDistribution, 3},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},
-    {"R_getDensityValues", (DL_FUNC) &R_getDensityValues, 6},
+    {"R_getDensityValues",                               (DL_FUNC) &R_getDensityValues,                                6},
     {NULL, NULL, 0}
 };
 
