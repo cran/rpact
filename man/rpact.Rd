@@ -4,9 +4,9 @@
 \name{rpact}
 \alias{rpact}
 \alias{rpact-package}
-\title{RPACT - Confirmatory Adaptive Clinical Trial Design and Analysis}
+\title{rpact - Confirmatory Adaptive Clinical Trial Design and Analysis}
 \description{
-RPACT (R Package for Adaptive Clinical Trials) is a comprehensive package that enables 
+rpact (R Package for Adaptive Clinical Trials) is a comprehensive package that enables 
 the design and analysis of confirmatory adaptive group sequential designs. 
 Particularly, the methods described in the recent 
 \href{http://monograph.wassmer.brannath.rpact.com}{monograph by Wassmer and Brannath} 
@@ -15,7 +15,7 @@ size calculations for fixed sample size designs incl., e.g., sample size calcula
 trials with piecewise exponentially distributed survival times and staggered patients entry.
 }
 \details{
-RPACT includes the classical group sequential designs (incl. user spending function approaches) 
+rpact includes the classical group sequential designs (incl. user spending function approaches) 
 where the sample sizes per stage (or the time points of interim analysis) cannot be changed 
 in a data-driven way. 
 Confirmatory adaptive designs explicitly allow for this under control of the Type I error rate.
@@ -34,7 +34,7 @@ If you are interested in professional services round about the package or need
 a comprehensive validation documentation to fulfill regulatory requirements 
 please visit \href{https://www.rpact.com}{www.rpact.com}.
 
-RPACT is developed by 
+rpact is developed by 
 \itemize{
   \item Gernot Wassmer (\href{mailto:gernot.wassmer@rpact.com}{gernot.wassmer@rpact.com}) and
   \item Friedrich Pahlke (\href{mailto:friedrich.pahlke@rpact.com}{friedrich.pahlke@rpact.com}).

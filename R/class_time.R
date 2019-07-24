@@ -562,7 +562,9 @@ getAccrualTime <- function(accrualTime = NA_real_,
 	
 	if (inherits(accrualTime, "AccrualTime") ||
 			inherits(accrualTime, "TrialDesignPlanSurvival")) {
-		.warnInCaseOfUnusedArgument(accrualIntensity, "accrualIntensity", NA_real_, "getAccrualTime")
+		if (!identical(accrualIntensity, C_ACCRUAL_INTENSITY_DEFAULT)) {
+			.warnInCaseOfUnusedArgument(accrualIntensity, "accrualIntensity", NA_real_, "getAccrualTime")
+		}
 		.warnInCaseOfUnusedArgument(maxNumberOfSubjects, "maxNumberOfSubjects", NA_real_, "getAccrualTime")
 	}
 	
@@ -1279,8 +1281,18 @@ AccrualTime <- setRefClass("AccrualTime",
 			remainingTime <<- NA_real_
 			
 			.init(accrualTime)
+			
+			# case 6 correction
+			if (!endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined && 
+					!absoluteAccrualIntensityEnabled) {
+				remainingTime <<- NA_real_ 
+				.setParameterType("remainingTime", C_PARAM_NOT_APPLICABLE)
+				.self$accrualTime <<- .self$accrualTime[1:length(.self$accrualIntensity)]
+			}
+			
 			.initAccrualIntensityAbsolute()
 			.validateFormula()
+			.showWarningIfCaseIsNotAllowd()
 		},
 		
 		.asDataFrame = function() {
@@ -1380,7 +1392,8 @@ AccrualTime <- setRefClass("AccrualTime",
 				if (i < length(accrualTime)) {
 					s <- paste0(s, (round(accrualTime[i + 1], 4) - round(accrualTime[i], 4)), 
 						" * ", round(accrualIntensity[i], 4))
-					if (!absoluteAccrualIntensityEnabled) {
+					if (!absoluteAccrualIntensityEnabled && 
+							(!maxNumberOfSubjectsIsUserDefined || !endOfAccrualIsUserDefined)) {
 						s <- paste0(s, " * c ")
 					}
 					if (i < length(accrualIntensity)) {
@@ -1412,6 +1425,22 @@ AccrualTime <- setRefClass("AccrualTime",
 			}
 		},
 		
+		.showWarningIfCaseIsNotAllowd = function() {
+			caseIsAllowed <- TRUE
+			if (!endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined &&
+				!absoluteAccrualIntensityEnabled) {
+				caseIsAllowed <- FALSE
+			} else if (!endOfAccrualIsUserDefined && !maxNumberOfSubjectsIsUserDefined && 
+				followUpTimeMustBeUserDefined && !absoluteAccrualIntensityEnabled) {
+				caseIsAllowed <- FALSE
+			}
+			if (!caseIsAllowed) {
+				warning("The specified accrual time and intensity can not be ",
+					"supplemented automatically with the missing information; ",
+					"therefore further calculations are not possible", call. = FALSE)
+			}
+		},
+		
 		.showFormula = function(consoleOutputEnabled) {
 			.cat("Formula:\n", sep = "", heading = 1, consoleOutputEnabled = consoleOutputEnabled)
 			.cat("  ", consoleOutputEnabled = consoleOutputEnabled)
@@ -1422,20 +1451,23 @@ AccrualTime <- setRefClass("AccrualTime",
 			.cat(.getFormula(), consoleOutputEnabled = consoleOutputEnabled)
 			if (length(accrualTime) == length(accrualIntensity)) {
 				.cat("(x - ", accrualTime[length(accrualTime)], ") * ", 
-					accrualIntensity[length(accrualIntensity)], 
-					", where 'x' is the unknown last accrual time",
+					accrualIntensity[length(accrualIntensity)],
 					consoleOutputEnabled = consoleOutputEnabled)
-				if (!absoluteAccrualIntensityEnabled) {
+				if (!absoluteAccrualIntensityEnabled && 
+					(!maxNumberOfSubjectsIsUserDefined || !endOfAccrualIsUserDefined)) {
+					.cat(" * c ", consoleOutputEnabled = consoleOutputEnabled)
+				}
+				.cat(", where 'x' is the unknown last accrual time",
+					consoleOutputEnabled = consoleOutputEnabled)
+				if (!absoluteAccrualIntensityEnabled && 
+						(!maxNumberOfSubjectsIsUserDefined || !endOfAccrualIsUserDefined)) {
 					.cat(" and 'c' a constant factor", consoleOutputEnabled = consoleOutputEnabled)
 				}
-			} else if (!absoluteAccrualIntensityEnabled) {
+			} else if (!absoluteAccrualIntensityEnabled && 
+					(!maxNumberOfSubjectsIsUserDefined || !endOfAccrualIsUserDefined)) {
 				.cat(", where 'c' is a constant factor", consoleOutputEnabled = consoleOutputEnabled)
 			}
 			.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
-		},
-		
-		.getCase = function() {
-			
 		},
 		
 		.showCase = function(consoleOutputEnabled = TRUE) {
@@ -1454,7 +1486,7 @@ AccrualTime <- setRefClass("AccrualTime",
 					" 'followUpTime'** shall be calculated.\n", 
 					consoleOutputEnabled = consoleOutputEnabled)
 				.cat(prefix, "Example: getAccrualTime(accrualTime = c(0, 6, 30), ",
-					"accrualIntensity = c(22, 33), maxNumberOfSubjects = 1000)\n", 
+					"accrualIntensity = c(22, 33), maxNumberOfSubjects = 924)\n", 
 					consoleOutputEnabled = consoleOutputEnabled)
 			}
 			
@@ -1663,6 +1695,11 @@ AccrualTime <- setRefClass("AccrualTime",
 			if (is.null(maxNumberOfSubjects) || length(maxNumberOfSubjects) != 1 || 
 					is.na(maxNumberOfSubjects) || maxNumberOfSubjects == 0) {
 				return(invisible())
+			}
+			
+			if (!endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined && 
+					!absoluteAccrualIntensityEnabled) {
+				return(invisible()) # case 6
 			}
 			
 			if (length(accrualTime) >= 2 && length(accrualTime) == length(accrualIntensity) + 1 &&
@@ -1966,6 +2003,7 @@ AccrualTime <- setRefClass("AccrualTime",
 			remainingTime <<- remainingSubjects / lastAccrualIntensity
 			.setParameterType("remainingTime", C_PARAM_GENERATED)
 			accrualTime <<- c(accrualTime, accrualTime[length(accrualTime)] + remainingTime)
+			.setParameterType("accrualTime", C_PARAM_GENERATED)
 			if (any(accrualTime < 0)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjects' (", maxNumberOfSubjects, ") ",
 					"is too small for the defined accrual time")

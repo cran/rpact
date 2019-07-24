@@ -134,8 +134,12 @@ getAnalysisResultsRates <- function(design, ...) {
 	.logProgress("Stage results calculated", startTime = startTime)
 	
 	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, dataInput$getNumberOfGroups())
-	.assertIsValidPi(pi1, "pi1")
-	.assertIsValidPi(pi2, "pi2")
+	
+	pi1 <- .assertIsValidPi1(pi1, stageResults, stage)
+	
+	if (dataInput$getNumberOfGroups() == 2) {
+		pi2 <- .assertIsValidPi2(pi2, stageResults, stage)
+	}
 	
 	results$directionUpper <- directionUpper
 	results$normalApproximation <- normalApproximation
@@ -372,8 +376,8 @@ getStageResultsRates <- function(..., design, dataInput, thetaH0 = NA_real_,
 	pValues <- rep(NA_real_, design$kMax)
 	combInverseNormal <- rep(NA_real_, design$kMax)
 	combFisher <- rep(NA_real_, design$kMax)
-	weightsInverseNormal <- .getWeighsInverseNormal(design) 
-	weightsFisher <- .getWeighsFisher(design)
+	weightsInverseNormal <- .getWeightsInverseNormal(design) 
+	weightsFisher <- .getWeightsFisher(design)
 	for (k in 1:stage) {
 		
 		if (dataInput$getNumberOfGroups() == 1) {
@@ -1046,22 +1050,18 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 .getConditionalPowerRates <- function(..., design, stageResults,  
 		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, pi1, pi2) {
 		
-	.assertIsValidPi(pi1, "pi1")
-	.assertIsValidPi(pi2, "pi2")
-			
-	if (stageResults$isOneSampleDataset()) {
-		if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, pi1 = pi1)) {
-			return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
-		}
-		pi2 <- 0
-	} else {
-		if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, pi1 = pi1, pi2 = pi2)) {
-			return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
-		}
-	}
-	
 	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
 	.assertIsValidStage(stage, design$kMax)
+	
+	pi1 <- .assertIsValidPi1(pi1, stageResults, stage)
+	
+	if (!stageResults$isOneSampleDataset()){ 
+		pi2 <- .assertIsValidPi2(pi2, stageResults, stage)
+	}
+	
+	if (any(is.na(nPlanned))) {		
+		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
+	}
 	
 	if (!.isValidNPlanned(nPlanned = nPlanned, kMax = design$kMax, stage = stage)) {
 		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))

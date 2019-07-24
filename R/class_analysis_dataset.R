@@ -605,7 +605,8 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 			stageIndex <- naIndices[length(naIndices)]
 			if (stageIndex != numberOfValues) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"'", argName, "' contains a NA at stage ", stageIndex, " followed by a value for a higher stage; NA's must be the last values")
+					"'", argName, "' contains a NA at stage ", stageIndex, 
+					" followed by a value for a higher stage; NA's must be the last values")
 			}
 		}
 		if (length(naIndices) > 1) {
@@ -614,7 +615,8 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 				index <- naIndices[i]
 				if (indexBefore - index > 1) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-						"'", argName, "' contains alternating values and NA's; NA's must be the last values")
+						"'", argName, "' contains alternating values and NA's; ",
+						"NA's must be the last values")
 				}
 			}
 		}
@@ -854,7 +856,8 @@ Dataset <- setRefClass("Dataset",
 			}
 			
 			if (!.paramExists(dataFrame, "stage") && !.paramExists(dataFrame, "stages")) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataFrame' must contain parameter 'stages' or 'stage'")
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+					"'dataFrame' must contain parameter 'stages' or 'stage'")
 			}
 			
 			stages <<- as.integer(.getValuesByParameterName(dataFrame, c("stages", "stage")))
@@ -1227,8 +1230,10 @@ DatasetMeans <- setRefClass("DatasetMeans",
 					
 				stages <<- c(stages, stages)
 				
-				n1 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1))
-				n2 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2))
+				n1 <- .getValidatedSampleSizes(.getValuesByParameterName(
+						dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1))
+				n2 <- .getValidatedSampleSizes(.getValuesByParameterName(
+						dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2))
 				.validateValues(n1, "n1")
 				.validateValues(n2, "n2")
 				sampleSizes <<- c(n1, n2)
@@ -1366,7 +1371,8 @@ DatasetMeans <- setRefClass("DatasetMeans",
 			}
 			
 			else {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "sample sizes are missing or not correctly specified")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"sample sizes are missing or not correctly specified")
 			}
 			
 			.data <<- data.frame(stage = stages, group = groups, sampleSize = sampleSizes, 
@@ -1448,19 +1454,20 @@ DatasetMeans <- setRefClass("DatasetMeans",
 				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'stDevs'")
 			}
 			
-			dataInput$overallSampleSizes <- c(base::cumsum(dataInput$sampleSizes[1 : stage]), 
+			dataInput$overallSampleSizes <- c(base::cumsum(dataInput$sampleSizes[1:stage]), 
 				rep(NA_real_, kMax - stage))
 			
-			dataInput$overallMeans <- c(base::cumsum(dataInput$sampleSizes[1 : stage] * dataInput$means[1 : stage]) /
-				base::cumsum(dataInput$sampleSizes[1 : stage]), rep(NA_real_, kMax - stage))
+			dataInput$overallMeans <- c(base::cumsum(dataInput$sampleSizes[1:stage] * 
+				dataInput$means[1:stage]) /
+				base::cumsum(dataInput$sampleSizes[1:stage]), rep(NA_real_, kMax - stage))
 			
 			dataInput$overallStDevs <- rep(NA_real_, kMax)
 			for (k in 1:stage) {
 				dataInput$overallStDevs[k] <- 
-					base::sqrt((base::sum((dataInput$sampleSizes[1 : k] - 1) * dataInput$stDevs[1 : k]^2) + 
-					base::sum(dataInput$sampleSizes[1 : k] * 
-					(dataInput$means[1 : k] - dataInput$overallMeans[k])^2)) /
-					(base::sum(dataInput$sampleSizes[1 : k]) - 1))
+					base::sqrt((base::sum((dataInput$sampleSizes[1:k] - 1) * dataInput$stDevs[1:k]^2) + 
+					base::sum(dataInput$sampleSizes[1:k] * 
+					(dataInput$means[1:k] - dataInput$overallMeans[k])^2)) /
+					(base::sum(dataInput$sampleSizes[1:k]) - 1))
 			}	
 			return(dataInput)
 		},
@@ -1468,7 +1475,8 @@ DatasetMeans <- setRefClass("DatasetMeans",
 		.getStageWiseData = function(dataInput, kMax, stage) {
 			"Calculates stagewise means and standard deviation if overall data is available"
 			if (is.null(dataInput[["overallSampleSizes"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallSampleSizes'")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"data input must contain variable 'overallSampleSizes'")
 			}
 			if (is.null(dataInput[["overallMeans"]])) {
 				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallMeans'")
@@ -1477,13 +1485,13 @@ DatasetMeans <- setRefClass("DatasetMeans",
 				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallStDevs'")
 			}
 			
-			dataInput$sampleSizes <- c(dataInput$overallSampleSizes[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$sampleSizes <- c(dataInput$overallSampleSizes[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1) {
-				dataInput$sampleSizes[2 : stage] <- dataInput$overallSampleSizes[2 : stage] - 
-					dataInput$overallSampleSizes[1 : (stage - 1)]
+				dataInput$sampleSizes[2:stage] <- dataInput$overallSampleSizes[2:stage] - 
+					dataInput$overallSampleSizes[1:(stage - 1)]
 			}	
 			
-			dataInput$means <- c(dataInput$overallMeans[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$means <- c(dataInput$overallMeans[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1){
 				for (k in 2:stage) {
 					dataInput$means[k] <- (dataInput$overallSampleSizes[k] * dataInput$overallMeans[k] -
@@ -1492,16 +1500,16 @@ DatasetMeans <- setRefClass("DatasetMeans",
 				}
 			}
 			
-			dataInput$stDevs <- c(dataInput$overallStDevs[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$stDevs <- c(dataInput$overallStDevs[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1){
 				for (k in 2:stage) {
 					dataInput$stDevs[k] <- 
 						base::sqrt(((dataInput$overallSampleSizes[k] - 1) * dataInput$overallStDevs[k]^2 - 
 						(dataInput$overallSampleSizes[k - 1] - 1) * dataInput$overallStDevs[k - 1]^2 + 
-						base::sum(dataInput$sampleSizes[1 : (k - 1)] * 
-						(dataInput$means[1 : (k - 1)] - dataInput$overallMeans[k - 1])^2) -
-						base::sum(dataInput$sampleSizes[1 : k] * 
-						(dataInput$means[1 : k] - dataInput$overallMeans[k])^2)) /
+						base::sum(dataInput$sampleSizes[1:(k - 1)] * 
+						(dataInput$means[1:(k - 1)] - dataInput$overallMeans[k - 1])^2) -
+						base::sum(dataInput$sampleSizes[1:k] * 
+						(dataInput$means[1:k] - dataInput$overallMeans[k])^2)) /
 						(dataInput$sampleSizes[k] - 1))
 				}
 			}	
@@ -1516,7 +1524,8 @@ DatasetMeans <- setRefClass("DatasetMeans",
 #' Dataset Plotting
 #' 
 #' @param x The \code{\link{Dataset}} object to plot.
-#' @param y Not available for this kind of plot (is only defined to be compatible to the generic plot function).
+#' @param y Not available for this kind of plot (is only defined to be compatible 
+#'        to the generic plot function).
 #' @param main The main title, default is \code{"Dataset"}.
 #' @param xlab The x-axis label, default is \code{"Stage"}.
 #' @param ylab The y-axis label.
@@ -1623,7 +1632,8 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 				position = ggplot2::position_dodge(.75), 
 				size = x$getPlotSettings()$pointSize)
 			p <- p + ggplot2::geom_boxplot()
-			p <- p + ggplot2::stat_summary(ggplot2::aes(colour = data$group), fun.y = "mean", geom = "point", 
+			p <- p + ggplot2::stat_summary(ggplot2::aes(colour = data$group), 
+				fun.y = "mean", geom = "point", 
 				shape = 21, position = ggplot2::position_dodge(.75), size = 4, fill = "white", 
 				show.legend = FALSE)
 		} 
@@ -1778,7 +1788,8 @@ DatasetRates <- setRefClass("DatasetRates",
 			
 			# case: one rate - stage wise
 			if (.paramExists(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)) {
-				sampleSizes <<- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, C_KEY_WORDS_SAMPLE_SIZES))
+				sampleSizes <<- .getValidatedSampleSizes(
+					.getValuesByParameterName(dataFrame, C_KEY_WORDS_SAMPLE_SIZES))
 				.validateValues(sampleSizes, "n")
 				events <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_EVENTS)
 				.validateValues(events, "events")
@@ -1829,8 +1840,10 @@ DatasetRates <- setRefClass("DatasetRates",
 					
 				stages <<- c(stages, stages)
 				
-				n1 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1))
-				n2 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2))
+				n1 <- .getValidatedSampleSizes(.getValuesByParameterName(
+					dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1))
+				n2 <- .getValidatedSampleSizes(.getValuesByParameterName(
+					dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2))
 				.validateValues(n1, "n1")
 				.validateValues(n2, "n2")
 				sampleSizes <<- c(n1, n2)
@@ -1931,7 +1944,8 @@ DatasetRates <- setRefClass("DatasetRates",
 			}
 			
 			else {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "sample sizes are missing or not correctly specified")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"sample sizes are missing or not correctly specified")
 			}
 			
 			if (base::sum(stats::na.omit(events) < 0) > 0) {
@@ -2012,10 +2026,11 @@ DatasetRates <- setRefClass("DatasetRates",
 				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'events'")
 			}
 			
-			dataInput$overallSampleSizes <- c(base::cumsum(dataInput$sampleSizes[1 : stage]), 
+			dataInput$overallSampleSizes <- c(base::cumsum(dataInput$sampleSizes[1:stage]), 
 				rep(NA_real_, kMax - stage))
 			
-			dataInput$overallEvents <- c(base::cumsum(dataInput$events[1 : stage]), rep(NA_real_, kMax - stage))
+			dataInput$overallEvents <- c(base::cumsum(dataInput$events[1:stage]), 
+				rep(NA_real_, kMax - stage))
 				
 			return(dataInput)
 		},
@@ -2023,22 +2038,24 @@ DatasetRates <- setRefClass("DatasetRates",
 		.getStageWiseData = function(dataInput, kMax, stage) {
 			"Calculates stagewise values if overall data is available"
 			if (is.null(dataInput[["overallSampleSizes"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallSampleSizes'")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"data input must contain variable 'overallSampleSizes'")
 			}
 			if (is.null(dataInput[["overallEvents"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallEvents'")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"data input must contain variable 'overallEvents'")
 			}
 			
-			dataInput$sampleSizes <- c(dataInput$overallSampleSizes[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$sampleSizes <- c(dataInput$overallSampleSizes[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1) {
-				dataInput$sampleSizes[2 : stage] <- dataInput$overallSampleSizes[2 : stage] - 
-					dataInput$overallSampleSizes[1 : (stage - 1)]
+				dataInput$sampleSizes[2:stage] <- dataInput$overallSampleSizes[2:stage] - 
+					dataInput$overallSampleSizes[1:(stage - 1)]
 			}	
 			
-			dataInput$events <- c(dataInput$overallEvents[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$events <- c(dataInput$overallEvents[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1) {
-				dataInput$events[2 : stage] <- dataInput$overallEvents[2 : stage] - 
-					dataInput$overallEvents[1 : (stage - 1)]
+				dataInput$events[2:stage] <- dataInput$overallEvents[2:stage] - 
+					dataInput$overallEvents[1:(stage - 1)]
 			}	
 			
 			return(dataInput)
@@ -2291,25 +2308,32 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'logRanks'")
 			}
 			if (is.null(dataInput[["allocationRatios"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'allocationRatios'")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"data input must contain variable 'allocationRatios'")
 			}
 			
-			dataInput$overallEvents <- c(base::cumsum(dataInput$events[1 : stage]), rep(NA_real_, kMax - stage))
+			dataInput$overallEvents <- c(base::cumsum(dataInput$events[1:stage]), 
+				rep(NA_real_, kMax - stage))
 			
-			dataInput$overallLogRanks <- c(dataInput$logRanks[1 : stage], rep(NA_real_, kMax - stage))
-			for (k in (2 : stage)){
-				dataInput$overallLogRanks[k] <- (base::sqrt(dataInput$events[k]) * dataInput$logRanks[k] + 
+			dataInput$overallLogRanks <- c(dataInput$logRanks[1:stage], rep(NA_real_, kMax - stage))
+			if (stage > 1) {
+				for (k in 2:stage){
+					dataInput$overallLogRanks[k] <- 
+						(base::sqrt(dataInput$events[k]) * dataInput$logRanks[k] + 
 						base::sqrt(dataInput$overallEvents[k - 1]) * 
 						dataInput$overallLogRanks[k - 1]) / base::sqrt(dataInput$overallEvents[k])  
-			}		
+				}		
+			}
 						
-			dataInput$overallAllocationRatios <- c(dataInput$allocationRatios[1 : stage], 
+			dataInput$overallAllocationRatios <- c(dataInput$allocationRatios[1:stage], 
 				rep(NA_real_, kMax - stage))
-			for (k in (2 : stage)){
-				dataInput$overallAllocationRatios[k] <- (dataInput$events[k] * 
+			if (stage > 1) {
+			for (k in 2:stage){
+					dataInput$overallAllocationRatios[k] <- (dataInput$events[k] * 
 						dataInput$allocationRatios[k] + dataInput$overallEvents[k - 1] * 
 						dataInput$overallAllocationRatios[k - 1]) / dataInput$overallEvents[k]  
-			}		
+				}
+			}
 			
 			return(dataInput)
 		},
@@ -2317,33 +2341,36 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 		.getStageWiseData = function(dataInput, kMax, stage) {
 			"Calculates stagewise logrank statistics, events, and allocation ratios if overall data is available"
 			if (is.null(dataInput[["overallEvents"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallEvents'")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"data input must contain variable 'overallEvents'")
 			}
 			if (is.null(dataInput[["overallLogRanks"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallLogRanks'")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"data input must contain variable 'overallLogRanks'")
 			}
 			if (is.null(dataInput[["overallAllocationRatios"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallAllocationRatios'")
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"data input must contain variable 'overallAllocationRatios'")
 			}	
 			
-			dataInput$events <- c(dataInput$overallEvents[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$events <- c(dataInput$overallEvents[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1) {
-				dataInput$events[2 : stage] <- dataInput$overallEvents[2 : stage] - 
-					dataInput$overallEvents[1 : (stage - 1)]
+				dataInput$events[2:stage] <- dataInput$overallEvents[2:stage] - 
+					dataInput$overallEvents[1:(stage - 1)]
 			}	
 			
-			dataInput$logRanks <- c(dataInput$overallLogRanks[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$logRanks <- c(dataInput$overallLogRanks[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1) {
-				dataInput$logRanks[2 : stage] <- (base::sqrt(dataInput$overallEvents[2:stage]) * 
+				dataInput$logRanks[2:stage] <- (base::sqrt(dataInput$overallEvents[2:stage]) * 
 					dataInput$overallLogRanks[2:stage] - 
 					base::sqrt(dataInput$overallEvents[1:(stage - 1)]) * 
 					dataInput$overallLogRanks[1:(stage - 1)]) /
 					base::sqrt(dataInput$overallEvents[2:stage] - dataInput$overallEvents[1:(stage - 1)])
 			}	
 			
-			dataInput$allocationRatios <- c(dataInput$overallAllocationRatios[1 : stage], rep(NA_real_, kMax - stage))
+			dataInput$allocationRatios <- c(dataInput$overallAllocationRatios[1:stage], rep(NA_real_, kMax - stage))
 			if (stage > 1) {
-				dataInput$allocationRatios[2 : stage] <- (dataInput$overallAllocationRatios[2:stage] - 
+				dataInput$allocationRatios[2:stage] <- (dataInput$overallAllocationRatios[2:stage] - 
 					dataInput$overallAllocationRatios[1:(stage - 1)] * 
 					dataInput$overallEvents[1:(stage - 1)] / 
 					dataInput$overallEvents[2:stage]) /	(dataInput$events[2:stage] / 

@@ -19,9 +19,9 @@ getSimulationSurvival(design = NULL, ...,
   dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT,
   dropoutTime = C_DROP_OUT_TIME_DEFAULT,
   maxNumberOfSubjects = NA_real_, plannedEvents = NA_real_,
-  minNumberOfAdditionalEventsPerStage = NA_real_,
-  maxNumberOfAdditionalEventsPerStage = NA_real_,
-  conditionalPower = NA_real_, thetaH1 = NA_real_,
+  minNumberOfEventsPerStage = NA_real_,
+  maxNumberOfEventsPerStage = NA_real_, conditionalPower = NA_real_,
+  thetaH1 = NA_real_,
   maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT,
   maxNumberOfRawDatasetsPerStage = 0,
   longTimeSimulationAllowed = FALSE, seed = NA_real_)
@@ -93,19 +93,18 @@ If accrual time and accrual intensity is specified, this will be calculated.}
 (the number of stages of the design) with increasing numbers
    that determines the number of cumulated (overall) events when the interim stages are planned.}
 
-\item{minNumberOfAdditionalEventsPerStage}{When performing a data driven sample size recalculation, 
-   the vector with length kMax \code{minNumberOfAdditionalEventsPerStage} determines the 
+\item{minNumberOfEventsPerStage}{When performing a data driven sample size recalculation, 
+   the vector with length kMax \code{minNumberOfEventsPerStage} determines the 
 minimum number of events per stage (i.e., not cumulated), the first element 
 is not taken into account.}
 
-\item{maxNumberOfAdditionalEventsPerStage}{When performing a data driven sample size recalculation, 
-   the vector with length kMax \code{maxNumberOfAdditionalEventsPerStage} determines the maximum number 
+\item{maxNumberOfEventsPerStage}{When performing a data driven sample size recalculation, 
+   the vector with length kMax \code{maxNumberOfEventsPerStage} determines the maximum number 
 of events per stage (i.e., not cumulated), the first element is not taken into account.}
 
-\item{conditionalPower}{The conditional power under which the sample size recalculation is performed.}
+\item{conditionalPower}{The conditional power for the subsequent stage under which the sample size recalculation is performed.}
 
-\item{thetaH1}{If specified, the value of the hazard ratio under which the conditional 
-power calculation is performed.}
+\item{thetaH1}{If specified, the value of the hazard ratio under which the conditional power calculation is performed.}
 
 \item{maxNumberOfIterations}{The number of simulation iterations.}
 
@@ -144,6 +143,9 @@ The first element of this vector must be equal to \code{0}. \code{piecewiseSurvi
 be a list that combines the definition of the time intervals and hazard rates in the reference group. 
 The definition of the survival time in the treatment group is obtained by the specification 
 of the hazard ratio (see examples for details).
+
+Note that \code{numberOfSubjects}, \code{numberOfSubjects1}, and \code{numberOfSubjects2} in the output
+are expected number of subjects.
 }
 \section{Simulation Data}{
 
@@ -365,16 +367,16 @@ getSimulationSurvival(lambda1 = log(2)^(1 / kappa) / median1,
 # three-stage design with inverse normal combination test, where the conditional power 
 # is calculated under the specified effect size thetaH1 = 1.3 and up to a four-fold 
 # increase in originally planned sample size (number of events) is allowed
-# Note that the first value in minNumberOfAdditionalEventsPerStage and 
-# maxNumberOfAdditionalEventsPerStage is arbitrary, i.e., it has no effect.
+# Note that the first value in minNumberOfEventsPerStage and 
+# maxNumberOfEventsPerStage is arbitrary, i.e., it has no effect.
 dIN <- getDesignInverseNormal(informationRates = c(0.4, 0.7, 1))
 
 resultsWithSSR1 <- getSimulationSurvival(design = dIN, 
     hazardRatio = seq(1, 1.6, 0.1), 
     pi2 = 0.3, conditionalPower = 0.8, thetaH1 = 1.3, 
     plannedEvents = c(58, 102, 146), 
-	   minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-    maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+	   minNumberOfEventsPerStage = c(58, 44, 44), 
+    maxNumberOfEventsPerStage = 4 * c(58, 44, 44),
 	   maxNumberOfSubjects = 800, maxNumberOfIterations = 50)
 resultsWithSSR1
 
@@ -384,8 +386,8 @@ resultsWithSSR1
 resultsWithSSR2 <- getSimulationSurvival(design = dIN, 
     hazardRatio = seq(1, 1.6, 0.1), 
 	   pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-	   minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-    maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+	   minNumberOfEventsPerStage = c(58, 44, 44), 
+    maxNumberOfEventsPerStage = 4 * c(58, 44, 44),
 	   maxNumberOfSubjects = 800, maxNumberOfIterations = 50)
 resultsWithSSR2
 
@@ -403,8 +405,8 @@ resultsWithSSR2$overallReject
 dGS <- getDesignGroupSequential(informationRates = c(0.4, 0.7, 1))
 resultsWithSSRGS <- getSimulationSurvival(design = dGS, hazardRatio = seq(1), 
 	   pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 145), 
-	   minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-    maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+	   minNumberOfEventsPerStage = c(58, 44, 44), 
+    maxNumberOfEventsPerStage = 4 * c(58, 44, 44),
 	   maxNumberOfSubjects = 800, maxNumberOfIterations = 50)
 resultsWithSSRGS$overallReject
 

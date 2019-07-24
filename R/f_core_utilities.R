@@ -590,7 +590,7 @@ resetLogLevel <- function() {
 		lower, upper, tolerance, direction)
 		
 	precision <- 1
-	while (precision > tolerance) {
+	while (!is.na(precision) && precision > tolerance) {
 		argument <- (lower + upper) / 2
 		result <- f(argument)
 		
@@ -1265,6 +1265,8 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 #' 
 testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE, 
 		types = "tests", sourceDirectory = NULL) {
+	
+	.assertTestthatIsInstalled()
 		
 	if (!dir.exists(outDir)) {
 		stop("Test output directory '", outDir, "' does not exist")

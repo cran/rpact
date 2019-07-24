@@ -4,10 +4,10 @@
 \alias{getPowerRates}
 \title{Get Power Rates}
 \usage{
-getPowerRates(design = NULL, ..., normalApproximation = TRUE,
-  riskRatio = FALSE, thetaH0 = ifelse(riskRatio, 1, 0),
-  pi1 = C_PI_1_DEFAULT, pi2 = 0.2, directionUpper = NA,
-  maxNumberOfSubjects = NA_real_, groups = 2,
+getPowerRates(design = NULL, ..., groups = 2,
+  normalApproximation = TRUE, riskRatio = FALSE,
+  thetaH0 = ifelse(riskRatio, 1, 0), pi1 = C_PI_1_DEFAULT, pi2 = 0.2,
+  directionUpper = NA, maxNumberOfSubjects = NA_real_,
   allocationRatioPlanned = NA_real_)
 }
 \arguments{
@@ -17,11 +17,13 @@ In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entere
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
+\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
+
 \item{normalApproximation}{If \code{normalApproximation = FALSE} is specified, the sample size 
 for the case of one treatment group is calculated exactly using the binomial distribution, 
 default is \code{TRUE}.}
 
-\item{riskRatio}{If \code{riskRatio = TRUE} is specified, the sample size for one-sided 
+\item{riskRatio}{If \code{riskRatio = TRUE} is specified, the power for one-sided 
 testing of H0: \code{pi1/pi2 = thetaH0} is calculated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value. For one-sided testing, a value != 0 
@@ -35,10 +37,7 @@ default is \code{seq(0.2,0.5,0.1)}.}
 
 \item{directionUpper}{Specifies the direction of the alternative, only applicable for one-sided testing, default is \code{TRUE}.}
 
-\item{maxNumberOfSubjects}{\code{maxNumberOfSubjects > 0} needs to be specified.
-If accrual time and accrual intensity is specified, this will be calculated.}
-
-\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
+\item{maxNumberOfSubjects}{\code{maxNumberOfSubjects > 0} needs to be specified.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio for a two treatment groups design, default is \code{1}.}
 }

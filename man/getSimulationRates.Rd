@@ -9,9 +9,9 @@ getSimulationRates(design = NULL, ..., groups = 2L,
   pi1 = C_PI_1_DEFAULT, pi2 = NA_real_, plannedSubjects = NA_real_,
   directionUpper = C_DIRECTION_UPPER_DEFAULT,
   allocationRatioPlanned = NA_real_,
-  minNumberOfAdditionalSubjectsPerStage = NA_real_,
-  maxNumberOfAdditionalSubjectsPerStage = NA_real_,
-  conditionalPower = NA_real_, pi1H1 = NA_real_, pi2H1 = 0.2,
+  minNumberOfSubjectsPerStage = NA_real_,
+  maxNumberOfSubjectsPerStage = NA_real_, conditionalPower = NA_real_,
+  pi1H1 = NA_real_, pi2H1 = 0.2,
   maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT,
   seed = NA_real_, calcSubjectsFunction = NULL)
 }
@@ -46,16 +46,16 @@ for one-sided testing, default is \code{TRUE}.}
 \item{allocationRatioPlanned}{The planned allocation ratio for a two treatment groups 
 design, default is \code{1}.}
 
-\item{minNumberOfAdditionalSubjectsPerStage}{When performing a data driven sample size recalculation, 
-   the vector with length kMax \code{minNumberOfAdditionalSubjectsPerStage} determines the 
+\item{minNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation, 
+   the vector with length kMax \code{minNumberOfSubjectsPerStage} determines the 
 minimum number of subjects per stage (i.e., not cumulated), the first element 
 is not taken into account.}
 
-\item{maxNumberOfAdditionalSubjectsPerStage}{When performing a data driven sample size recalculation, 
-   the vector with length kMax \code{maxNumberOfAdditionalSubjectsPerStage} determines the maximum number 
+\item{maxNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation, 
+   the vector with length kMax \code{maxNumberOfSubjectsPerStage} determines the maximum number 
 of subjects per stage (i.e., not cumulated), the first element is not taken into account.}
 
-\item{conditionalPower}{The conditional power under which the sample size recalculation is performed.}
+\item{conditionalPower}{The conditional power for the subsequent stage under which the sample size recalculation is performed.}
 
 \item{pi1H1}{If specified, the assumed probability in the active treatment group if two treatment groups 
 are considered, or the assumed probability for a one treatment group design, for which the conditional 
@@ -70,7 +70,7 @@ are considered, for which the conditional power was calculated, default is \code
 
 \item{calcSubjectsFunction}{Optionally, a function can be entered that defines the way of performing the sample size
 recalculation. By default, sample size recalulation is performed with conditional power and specified
-\code{minNumberOfAdditionalSubjectsPerStage} and \code{maxNumberOfAdditionalSubjectsPerStage} (see details
+\code{minNumberOfSubjectsPerStage} and \code{maxNumberOfSubjectsPerStage} (see details
 and examples).}
 }
 \value{
@@ -89,8 +89,8 @@ of subjects in the two treatment groups.
 calcSubjectsFunction\cr 
 This function returns the number of subjects at given conditional power and conditional Type I error rate for specified 
 testing situation. The function might depend on variables \code{stage}, \code{riskRatio}, \code{thetaH0}, \code{groups}, 
-\code{plannedSubjects}, \code{directionUpper}, \code{allocationRatioPlanned}, \code{minNumberOfAdditionalSubjectsPerStage}, 
-\code{maxNumberOfAdditionalSubjectsPerStage}, \code{sampleSizesPerStage}, \code{conditionalPower}, 
+\code{plannedSubjects}, \code{directionUpper}, \code{allocationRatioPlanned}, \code{minNumberOfSubjectsPerStage}, 
+\code{maxNumberOfSubjectsPerStage}, \code{sampleSizesPerStage}, \code{conditionalPower}, 
 \code{conditionalCriticalValue}, \code{overallRate}, \code{farringtonManningValue1}, and \code{farringtonManningValue2}.
 The function has to obtain the three-dots arument '...' (see examples).
 }
@@ -161,16 +161,16 @@ getPowerRates(designIN, pi1 = seq(0.3, 0.6, 0.1), pi2 = 0.3, maxNumberOfSubjects
 
 # Assess power and average sample size if a sample size reassessment is 
 # foreseen at conditional power 80\% for the subsequent stage (decrease and increase) 
-# based on observed overall rates and specified minNumberOfAdditionalSubjectsPerStage 
-# and maxNumberOfAdditionalSubjectsPerStage
+# based on observed overall rates and specified minNumberOfSubjectsPerStage 
+# and maxNumberOfSubjectsPerStage
 
 # Do the same under the assumption that a sample size increase only takes place 
 # if the rate difference exceeds the value 0.1 at interim. For this, the sample 
 # size recalculation method needs to be redefined:  
 mySampleSizeCalculationFunction <- function(..., stage,
         plannedSubjects,
-        minNumberOfAdditionalSubjectsPerStage,
-        maxNumberOfAdditionalSubjectsPerStage,
+        minNumberOfSubjectsPerStage,
+        maxNumberOfSubjectsPerStage,
         conditionalPower,
         conditionalCriticalValue,
         overallRate) {
@@ -184,14 +184,14 @@ mySampleSizeCalculationFunction <- function(..., stage,
             (1 - overallRate[1]) + overallRate[2] * (1 - overallRate[2]))))^2 /
             (max(1e-12,	(overallRate[1] - overallRate[2])))^2
         stageSubjects <- ceiling(min(max(
-            minNumberOfAdditionalSubjectsPerStage[stage], 
-            stageSubjects), maxNumberOfAdditionalSubjectsPerStage[stage]))
+            minNumberOfSubjectsPerStage[stage], 
+            stageSubjects), maxNumberOfSubjectsPerStage[stage]))
         return(stageSubjects)
     }	
 }
 getSimulationRates(designIN, pi1 = seq(0.3, 0.6, 0.1), pi2 = 0.3, 
-    plannedSubjects = c(40, 80), minNumberOfAdditionalSubjectsPerStage = c(40, 20), 
-    maxNumberOfAdditionalSubjectsPerStage = c(40, 160), conditionalPower = 0.8, 
+    plannedSubjects = c(40, 80), minNumberOfSubjectsPerStage = c(40, 20), 
+    maxNumberOfSubjectsPerStage = c(40, 160), conditionalPower = 0.8, 
     calcSubjectsFunction = mySampleSizeCalculationFunction, maxNumberOfIterations = 50)
 
 }

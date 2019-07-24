@@ -4,10 +4,10 @@
 \alias{getSampleSizeRates}
 \title{Get Sample Size Rates}
 \usage{
-getSampleSizeRates(design = NULL, ..., normalApproximation = TRUE,
-  riskRatio = FALSE, thetaH0 = ifelse(riskRatio, 1, 0),
-  pi1 = seq(0.4, 0.6, 0.1), pi2 = 0.2, groups = 2,
-  allocationRatioPlanned = NA_real_)
+getSampleSizeRates(design = NULL, ..., groups = 2,
+  normalApproximation = TRUE, riskRatio = FALSE,
+  thetaH0 = ifelse(riskRatio, 1, 0), pi1 = seq(0.4, 0.6, 0.1),
+  pi2 = 0.2, allocationRatioPlanned = NA_real_)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 
@@ -15,6 +15,8 @@ In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} 
 
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
+
+\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
 \item{normalApproximation}{If \code{normalApproximation = FALSE} is specified, the sample size 
 for the case of one treatment group is calculated exactly using the binomial distribution, 
@@ -28,11 +30,9 @@ testing of H0: \code{pi1/pi2 = thetaH0} is calculated, default is \code{FALSE}.}
 
 \item{pi1}{The assumed probability in the active treatment group if two treatment groups 
 are considered, or the alternative probability for a one treatment group design, 
-default is seq(0.4,0.6,0.1).}
+default is \code{seq(0.4,0.6,0.1)}.}
 
 \item{pi2}{The assumed probability in the reference group if two treatment groups are considered, default is \code{0.2}.}
-
-\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio for a two treatment groups design. \cr
 If \code{allocationRatioPlanned = 0} is entered, the optimal allocation ratio yielding the 

@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 12:56:22                                                        #
+# Date: 23 July 2019, 11:46:19                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -37,12 +37,6 @@ test_that("Testing '.assertDesignParameterExists'", {
 	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(kMax = NA_integer_), 
 			parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
 		"Missing argument: parameter 'kMax' must be specified in design", fixed = TRUE)
-
-	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(kMax = NULL), 
-			parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
-		paste0("invalid assignment for reference class field 'kMax', should be from ", 
-		"class \"integer\" or a subclass (was class \"NULL\")"), fixed = TRUE)
-
 })
 
 test_that("Testing '.assertIsValidThetaRange'	", {
@@ -102,9 +96,7 @@ test_that("Testing '.isValidNPlanned", {
 
 	expect_equal(.isValidNPlanned(nPlanned = c(1, 2), kMax = 4, stage = 2), TRUE)
 
-	expect_warning(.isValidNPlanned(nPlanned = NA_real_, kMax = 4, stage = 2),
-		"'nPlanned' (NA) will be ignored: length must be equal to 'kMax' (4) - 'stage' (2)", 
-		fixed = TRUE)
+	expect_silent(.isValidNPlanned(nPlanned = NA_real_, kMax = 4, stage = 2))
 
 	expect_warning(.isValidNPlanned(nPlanned = c(1), kMax = 4, stage = 2),
 		"'nPlanned' (1) will be ignored: length must be equal to 'kMax' (4) - 'stage' (2)", 

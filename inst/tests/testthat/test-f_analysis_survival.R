@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 12:55:49                                                        #
+# Date: 23 July 2019, 11:45:44                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -47,7 +47,7 @@ test_that("'getAnalysisResults' for a group sequential design and survival data"
 	expect_equal(x1$pValues, c(0.064255488, 0.34636063, 0.003022069, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(x1$thetaH0, 1)
-	expect_equal(x1$thetaH1, NA_real_)
+	expect_equal(x1$thetaH1, 2.9359555, tolerance = 1e-07)
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.07432319, 0.044563047, 0.46900287, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$nPlanned, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$allocationRatioPlanned, 1)
@@ -66,7 +66,7 @@ test_that("'getAnalysisResults' for a group sequential design and survival data"
 	expect_equal(x1$overallPValues, c(0.064255488, 0.083793322, 0.0018658133, NA_real_), tolerance = 1e-07)
 
 	.skipTestifDisabled()
-	
+
 	x2 <- getAnalysisResults(design1, dataExample1, stage = 2, nPlanned = c(20,40), 
 		allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE) 
 
@@ -195,7 +195,7 @@ test_that("'getAnalysisResults' for a group sequential design and survival data 
 	expect_equal(x1$pValues, c(0.064255488, 0.34636063, 0.003022069, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(x1$thetaH0, 1)
-	expect_equal(x1$thetaH1, NA_real_)
+	expect_equal(x1$thetaH1, 0.34060461, tolerance = 1e-07)
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.07432319, 0.044563047, 0.46900287, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$nPlanned, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$allocationRatioPlanned, 1)
@@ -293,7 +293,7 @@ test_that("'getAnalysisResults' for an inverse normal design and survival data",
 	expect_equal(x1$pValues, c(0.064255488, 0.34636063, 0.003022069, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(x1$thetaH0, 1)
-	expect_equal(x1$thetaH1, NA_real_)
+	expect_equal(x1$thetaH1, 2.9359555, tolerance = 1e-07)
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.07432319, 0.042056716, 0.36917623, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$nPlanned, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$allocationRatioPlanned, 1)
@@ -436,7 +436,7 @@ test_that("'getAnalysisResults' for an inverse normal design and survival data (
 	expect_equal(x1$pValues, c(0.064255488, 0.34636063, 0.003022069, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(x1$thetaH0, 1)
-	expect_equal(x1$thetaH1, NA_real_)
+	expect_equal(x1$thetaH1, 0.34060461, tolerance = 1e-07)
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.07432319, 0.042056716, 0.36917623, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$nPlanned, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$allocationRatioPlanned, 1)

@@ -934,7 +934,7 @@ getDesignInverseNormal <- function(
 		userAlphaSpending = NA_real_, 
 		userBetaSpending = NA_real_, 
 		gammaB = 1, 
-		bindingFutility = C_BINDING_FUTILITY_DEFAULT,
+		bindingFutility = NA,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
 		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {

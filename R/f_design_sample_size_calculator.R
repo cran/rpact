@@ -89,8 +89,6 @@
 .getEffectScaleBoundaryDataMeans <- function(design, thetaH0, meanRatio, stDev, 
 		maxNumberOfSubjects, groups, allocationRatioPlanned, directionUpper) {
 	
-	
-	
 	futilityBoundsEffectScale <- rep(NA_real_, design$kMax - 1) #  Initialising effect scale matrix
 		
 	if (groups == 1) {
@@ -162,15 +160,15 @@
 	if (groups == 1) {
 		n1 <- design$informationRates %*% t(maxNumberOfSubjects) 
 		for (j in (1:nParameters)) {
-			criticalValuesEffectScaleUpper[, j] <- thetaH0 + (2 * sign(directionUpper[j]) - 1) * 
+			criticalValuesEffectScaleUpper[, j] <- thetaH0 + (2 * directionUpper[j] - 1) * 
 				design$criticalValues * sqrt(thetaH0 * (1 - thetaH0)) / sqrt(n1[,j])
 			if (design$sided == 2) {
-				criticalValuesEffectScaleLower[, j] <- thetaH0 - (2*sign(directionUpper[j]) - 1) * 
+				criticalValuesEffectScaleLower[, j] <- thetaH0 -  
 					design$criticalValues * sqrt(thetaH0 * (1 - thetaH0)) / sqrt(n1[,j])
 			}
 			if (!.isTrialDesignFisher(design) && (design$sided == 1) && 
 					any(design$futilityBounds > -6)) {
-				futilityBoundsEffectScale[, j] <- thetaH0 + (2 * sign(directionUpper[j]) - 1) * 
+				futilityBoundsEffectScale[, j] <- thetaH0 + (2 * directionUpper[j] - 1) * 
 					design$futilityBounds * sqrt(thetaH0 * (1 - thetaH0)) / 
 					sqrt(n1[1:(design$kMax - 1), j])
 			}
@@ -192,8 +190,8 @@
 						fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
 							allocationRatioPlanned[j], method = "diff")
 						(x - pi2 - thetaH0) / sqrt(fm$ml1 * (1 - fm$ml1) / 
-							n1[i] + fm$ml2 * (1 - fm$ml2) / n2[i]) - (2 * 
-							directionUpper[j] - 1) * boundaries[i]
+							n1[i] + fm$ml2 * (1 - fm$ml2) / n2[i]) - 
+							(2 * directionUpper[j] - 1) * boundaries[i]
 					}, lower = 0, upper = 1, tol = .Machine$double.eps^0.5)$root
 				}, error = function(e) {
 					pi1Bound <<- NA_real_
@@ -208,7 +206,7 @@
 								allocationRatioPlanned[j], method = "diff")
 							(x - pi2 - thetaH0) / sqrt(fm$ml1 * (1 - fm$ml1) / 
 								n1[i] + fm$ml2 * (1 - fm$ml2) / n2[i]) + 
-								(2 * directionUpper[j] - 1) * boundaries[i]
+								boundaries[i]
 						}, lower = 0, upper = 1, tol = .Machine$double.eps^0.5)$root
 					}, error = function(e) {
 						pi1Bound <<- NA_real_
@@ -253,8 +251,8 @@
 						fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
 							allocationRatioPlanned[j], method = "ratio")
 						(x - thetaH0 * pi2) / sqrt(fm$ml1 * (1 - fm$ml1) / n1[i] + 
-							thetaH0^2 * fm$ml2 * (1 - fm$ml2) / n2[i]) - (2 * 
-							directionUpper[j] - 1) * boundaries[i]
+							thetaH0^2 * fm$ml2 * (1 - fm$ml2) / n2[i]) - 
+							(2 * directionUpper[j] - 1) * boundaries[i]
 					}, lower = 0, upper = 1, tol = .Machine$double.eps^0.5)$root
 				}, error = function(e) {
 					pi1Bound <<- NA_real_
@@ -269,7 +267,7 @@
 								allocationRatioPlanned[j], method = "ratio")
 							(x - thetaH0 * pi2) / sqrt(fm$ml1 * (1 - fm$ml1) / n1[i] + 
 								thetaH0^2 * fm$ml2 * (1 - fm$ml2) / n2[i]) + 
-								(2 * directionUpper[j] - 1) * boundaries[i]
+								boundaries[i]
 						}, lower = 0, upper = 1, tol = .Machine$double.eps^0.5)$root
 					}, error = function(e) {
 						pi1Bound <<- NA_real_
@@ -335,7 +333,7 @@
 		if (design$sided == 2) {		
 			criticalValuesEffectScaleLower[,j] <- thetaH0 * (exp(-design$criticalValues * 
 				(1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] * 
-				eventsPerStage[,j])))^(2 * directionUpper[j] - 1)
+				eventsPerStage[,j])))
 		}
 		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(design$futilityBounds > -6)) {
 			futilityBoundsEffectScale[,j] <- thetaH0 * (exp(design$futilityBounds *
@@ -361,6 +359,7 @@
 #' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
 #' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, 
 #'        and \code{sided} can be directly entered as argument.  
+#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
 #' @param normalApproximation If \code{normalApproximation = TRUE} is specified, the variance is 
 #'        assumed to be known, default is FALSE, i.e., the calculations are performed 
 #'        with the t distribution.
@@ -373,7 +372,6 @@
 #'        alternatives, default is \code{seq(0.2,1,0.2)}. 
 #' @param stDev The standard deviation, default is 1. If \code{meanRatio = TRUE} 
 #'        is specified, stDev defines the coefficient of variation sigma/mu2. 
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
 #' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups 
 #'        design, default is 1. If \code{allocationRatioPlanned = 0} is entered, 
 #' 		  the optimal allocation ratio yielding the smallest overall sample size is determined.
@@ -408,9 +406,9 @@
 #'     sided = 1, beta = 0.1), groups = 1, thetaH0 = 2, 
 #'     alternative = seq(3, 5, 1), stDev = 3.5)
 #' 
-getSampleSizeMeans <- function(design = NULL, ..., normalApproximation = FALSE, 
+getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximation = FALSE, 
 		meanRatio = FALSE, thetaH0 = ifelse(meanRatio, 1, 0), alternative = C_ALTERNATIVE_DEFAULT, 
-		stDev = C_STDEV_DEFAULT, groups = 2, allocationRatioPlanned = NA_real_) {
+		stDev = C_STDEV_DEFAULT, allocationRatioPlanned = NA_real_) {
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
@@ -474,6 +472,7 @@ getSampleSizeMeans <- function(design = NULL, ..., normalApproximation = FALSE,
 #' 
 #' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
 #' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} can be directly entered as argument.  
+#' @param groups The number of treatment groups (1 or 2), default is \code{2}. 
 #' @param normalApproximation If \code{normalApproximation = FALSE} is specified, the sample size 
 #'        for the case of one treatment group is calculated exactly using the binomial distribution, 
 #'        default is \code{TRUE}.
@@ -483,9 +482,8 @@ getSampleSizeMeans <- function(design = NULL, ..., normalApproximation = FALSE,
 #'        (or != 1 for testing the risk ratio \code{pi1/pi2}) can be specified, default is \code{0} or \code{1} for difference and ratio testing, respectively.
 #' @param pi1 The assumed probability in the active treatment group if two treatment groups 
 #'        are considered, or the alternative probability for a one treatment group design, 
-#'        default is seq(0.4,0.6,0.1).
+#'        default is \code{seq(0.4,0.6,0.1)}.
 #' @param pi2 The assumed probability in the reference group if two treatment groups are considered, default is \code{0.2}. 
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
 #' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups design. \cr
 #'        If \code{allocationRatioPlanned = 0} is entered, the optimal allocation ratio yielding the 
 #'        smallest overall sample size is determined, default is \code{1}.
@@ -525,9 +523,9 @@ getSampleSizeMeans <- function(design = NULL, ..., normalApproximation = FALSE,
 #'     sided = 1), groups = 2, riskRatio = TRUE, thetaH0 = 0.80, pi1 = seq(0.3,0.5,0.025), 
 #'     pi2 = 0.3, allocationRatioPlanned = 0)
 #' 
-getSampleSizeRates <- function(design = NULL, ..., normalApproximation = TRUE, 
+getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximation = TRUE, 
 		riskRatio = FALSE, thetaH0 = ifelse(riskRatio, 1, 0), pi1 = seq(0.4, 0.6, 0.1), 
-		pi2 = 0.2, groups = 2, allocationRatioPlanned = NA_real_) {
+		pi2 = 0.2, allocationRatioPlanned = NA_real_) {
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
@@ -799,6 +797,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			accrualIntensity = accrualIntensity, 
 			maxNumberOfSubjects = maxNumberOfSubjects, showWarnings = FALSE)
 	accrualSetup$.validate()
+	
 	if (!accrualSetup$maxNumberOfSubjectsCanBeCalculatedDirectly &&
 			accrualSetup$followUpTimeMustBeUserDefined) {
 		if (is.na(followUpTime)) {
@@ -850,20 +849,20 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		
 		maxNumberOfSubjectsTarget <- NA_real_
 		withCallingHandlers({
-				
-			# start help
+					
+			# search for accrual time that provides a result 
 			at <- accrualSetup$accrualTime
-			endOfAccrualMin <- at[length(at)] + 0.0001
-			searchMaxNumberOfSubjectsLowerEnabled <- TRUE
+			additionalAccrual <- 1
+			searchAccrualTimeEnabled <- TRUE
 			maxSearchIterations <- 50
 			maxNumberOfSubjectsLower <- NA_real_
 			sampleSize <- NULL
-			while (searchMaxNumberOfSubjectsLowerEnabled && maxSearchIterations >= 0) {
+			while (searchAccrualTimeEnabled && maxSearchIterations >= 0) {
 				tryCatch({	
 					maxNumberOfSubjectsLower <- getAccrualTime(
-						accrualTime = c(at, endOfAccrualMin), 
+						accrualTime = c(at, at[length(at)] + additionalAccrual), 
 						accrualIntensity = accrualSetup$accrualIntensity)$maxNumberOfSubjects
-					endOfAccrualMin <- endOfAccrualMin + 1
+					additionalAccrual <- 2 * additionalAccrual	
 					sampleSize <- .getSampleSizeSurvival(design = design, 
 						typeOfComputation = typeOfComputation, 
 						thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1, 
@@ -873,34 +872,63 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
 						piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
 						followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsLower, 
-						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, 
-						dropoutTime = dropoutTime, 
+						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, dropoutTime = dropoutTime, 
 						hazardRatio = hazardRatio)
-					searchMaxNumberOfSubjectsLowerEnabled <- FALSE
+					searchAccrualTimeEnabled <- FALSE
 				}, error = function(e) {
 					#print(e$message)
 				})
 				maxSearchIterations <- maxSearchIterations - 1
 			}
-			if (is.null(sampleSize)) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'maxNumberOfSubjectsLower' could not be found")
+			if (is.null(sampleSize) || is.na(sampleSize$followUpTime)) {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'additionalAccrual' could not be found, change accrual time specification")
 			}
 			
+			# define lower bound for maxNumberOfSubjects
 			maxNumberOfSubjectsLower <- ceiling(max(na.omit(c(sampleSize$eventsFixed, 
 				as.vector(sampleSize$eventsPerStage)))))
 			if (is.na(maxNumberOfSubjectsLower)) {
 				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'maxNumberOfSubjectsLower' could not be found")
 			}
-						
-			atSetupUpper <- getAccrualTime(
-				accrualTime = c(at, 5 * endOfAccrualMin), 
-				accrualIntensity = accrualSetup$accrualIntensity)
-			atSetupUpper$.validate()
-			maxNumberOfSubjectsUpper <- atSetupUpper$maxNumberOfSubjects
+		
+			# check whether accrual time already fulfills requirement 
+			# (followUpTime < given value) or need to be increased,
+			# then define upper bound for maxNumberOfSubjects 	
+			maxSearchIterations <- 50
+			maxNumberOfSubjectsUpper <- NA_real_
+			fut <- sampleSize$followUpTime
+			if (fut <= followUpTime) {
+				fut <- 2 * followUpTime
+			}
+			while (!is.na(fut) && fut > followUpTime && maxSearchIterations >= 0) {
+				maxNumberOfSubjectsUpper <- getAccrualTime(
+					accrualTime = c(at, at[length(at)] + additionalAccrual), 
+					accrualIntensity = accrualSetup$accrualIntensity)$maxNumberOfSubjects
+				additionalAccrual <- 2 * additionalAccrual
+				fut <- .getSampleSizeSurvival(design = design, 
+						typeOfComputation = typeOfComputation, 
+						thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1, 
+						allocationRatioPlanned = allocationRatioPlanned, 
+						accountForObservationTimes = accountForObservationTimes, 
+						eventTime = eventTime, accrualTime = accrualSetup$accrualTime, 
+						accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
+						piecewiseSurvivalTime = piecewiseSurvivalTime,	lambda2 = lambda2, lambda1 = lambda1,
+						followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsUpper, 
+						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, dropoutTime = dropoutTime, 
+						hazardRatio = hazardRatio)$followUpTime
+				maxSearchIterations <- maxSearchIterations - 1
+			}
+			if (is.na(maxNumberOfSubjectsUpper)) {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+					"'maxNumberOfSubjectsUpper' could not be found ",
+					"(fut = ", fut, ", followUpTime = ", followUpTime, ")")
+			}
 			
+			# use maxNumberOfSubjectsLower and maxNumberOfSubjectsUpper to find end of accrual 
 			if (dropoutRate1 != 0 || dropoutRate2 != 0) {
 				prec <- 1
-				while (prec > 1e-04) {
+				maxSearchIterations <- 50
+				while (prec > 1e-04 && maxSearchIterations >= 0) {
 					maxNumberOfSubjectsTarget <- (maxNumberOfSubjectsLower + maxNumberOfSubjectsUpper) / 2
 					fut <- .getSampleSizeSurvival(design = design, 
 						typeOfComputation = typeOfComputation, 
@@ -919,6 +947,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						maxNumberOfSubjectsUpper <- maxNumberOfSubjectsTarget, 
 						maxNumberOfSubjectsLower <- maxNumberOfSubjectsTarget)
 					prec <- maxNumberOfSubjectsUpper - maxNumberOfSubjectsLower
+					maxSearchIterations <- maxSearchIterations - 1
 				}
 			} else {
 				maxNumberOfSubjectsTarget <- .getOneDimensionalRootBisectionMethod(
@@ -953,7 +982,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		
 		if (is.na(maxNumberOfSubjectsTarget)) {
 			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-				"failed to calculate 'maxNumberOfSubjects' by given 'followUpTime'")
+				"failed to calculate 'maxNumberOfSubjects' by given 'followUpTime' ",
+				"(lower = ", maxNumberOfSubjectsLower, ", upper = ", maxNumberOfSubjectsUpper, ")")
 		}
 		
 		sampleSizeSurvival <- .getSampleSizeSurvival(design = design, 
@@ -961,8 +991,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1, 
 			allocationRatioPlanned = allocationRatioPlanned, 
 			accountForObservationTimes = accountForObservationTimes, 
-			eventTime = eventTime, accrualTime = accrualTime, 
-			accrualIntensity = accrualIntensity, kappa = kappa, 
+			eventTime = eventTime, accrualTime = accrualSetup$accrualTime, 
+			accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
 			piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
 			followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsTarget, 
 			dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, 
@@ -989,6 +1019,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		}
 		
 		sampleSizeSurvival$.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
+		sampleSizeSurvival$.setParameterType("accrualTime", C_PARAM_GENERATED)
 		
 		return(sampleSizeSurvival)
 	}
@@ -3622,9 +3653,10 @@ getNumberOfSubjects <- function(time, ...,
 #'
 #' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
 #' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} can be directly entered as argument.  
+#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
 #' @param normalApproximation If \code{normalApproximation = TRUE} is specified, the variance is 
 #'        assumed to be known, default is FALSE, i.e., the calculations are performed with the t distribution.
-#' @param meanRatio If \code{meanRatio = TRUE} is specified, the sample size for 
+#' @param meanRatio If \code{meanRatio = TRUE} is specified, the power for 
 #'        one-sided testing of H0: mu1/mu2 = thetaH0 is calculated, default is \code{FALSE}.
 #' @param thetaH0 The null hypothesis value. For one-sided testing, a value != 0 
 #'        (or a value != 1 for testing the mean ratio) can be specified, default is \code{0} or \code{1} for difference and ratio testing, respectively.
@@ -3634,9 +3666,7 @@ getNumberOfSubjects <- function(time, ...,
 #'        is specified, stDev defines the coefficient of variation sigma/mu2. 
 #' @param directionUpper Specifies the direction of the alternative, 
 #'        only applicable for one-sided testing, default is \code{TRUE}.  
-#' @param maxNumberOfSubjects \code{maxNumberOfSubjects > 0} needs to be specified.
-#' 		  If accrual time and accrual intensity is specified, this will be calculated.   
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
+#' @param maxNumberOfSubjects \code{maxNumberOfSubjects > 0} needs to be specified for power calculations.
 #' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups 
 #'        design, default is \code{1}. 
 #' @param ... Ensures that all arguments are be named and 
@@ -3669,10 +3699,10 @@ getNumberOfSubjects <- function(time, ...,
 #'     normalApproximation = FALSE, maxNumberOfSubjects = 80, 
 #'     allocationRatioPlanned = 2)
 #' 
-getPowerMeans <- function(design = NULL, ..., normalApproximation = FALSE, meanRatio = FALSE, 
+getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = FALSE, meanRatio = FALSE, 
 		thetaH0 = ifelse(meanRatio, 1, 0), alternative = C_ALTERNATIVE_POWER_SIMULATION_DEFAULT, 
 		stDev = C_STDEV_DEFAULT, directionUpper = NA, 
-		maxNumberOfSubjects = NA_real_, groups = 2, allocationRatioPlanned = NA_real_) {
+		maxNumberOfSubjects = NA_real_, allocationRatioPlanned = NA_real_) {
 	
 	.assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects)
 	
@@ -3773,10 +3803,11 @@ getPowerMeans <- function(design = NULL, ..., normalApproximation = FALSE, meanR
 #' 
 #' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
 #' 		  In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument  
+#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
 #' @param normalApproximation If \code{normalApproximation = FALSE} is specified, the sample size 
 #'        for the case of one treatment group is calculated exactly using the binomial distribution, 
 #'        default is \code{TRUE}.
-#' @param riskRatio If \code{riskRatio = TRUE} is specified, the sample size for one-sided 
+#' @param riskRatio If \code{riskRatio = TRUE} is specified, the power for one-sided 
 #'        testing of H0: \code{pi1/pi2 = thetaH0} is calculated, default is \code{FALSE}. 
 #' @param thetaH0 The null hypothesis value. For one-sided testing, a value != 0 
 #'        (or != 1 for testing the risk ratio \code{pi1/pi2}) can be specified, default is \code{0} or \code{1} for difference and ratio testing, respectively.
@@ -3786,8 +3817,6 @@ getPowerMeans <- function(design = NULL, ..., normalApproximation = FALSE, meanR
 #' @param pi2 The assumed probability in the reference group if two treatment groups are considered, default is \code{0.2}. 
 #' @param directionUpper Specifies the direction of the alternative, only applicable for one-sided testing, default is \code{TRUE}.  
 #' @param maxNumberOfSubjects \code{maxNumberOfSubjects > 0} needs to be specified.
-#' 		  If accrual time and accrual intensity is specified, this will be calculated.   
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
 #' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups design, default is \code{1}.
 #' @param ... Ensures that all arguments are be named and 
 #'        that a warning will be displayed if unknown arguments are passed.
@@ -3828,9 +3857,9 @@ getPowerMeans <- function(design = NULL, ..., normalApproximation = FALSE, meanR
 #'     sided = 2), groups = 1, thetaH0 = 0.3, pi1 = seq(0.3, 0.5, 0.05),  
 #'     maxNumberOfSubjects = 60)
 #' 
-getPowerRates <- function(design = NULL, ..., normalApproximation = TRUE, riskRatio = FALSE, 
+getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = TRUE, riskRatio = FALSE, 
 		thetaH0 = ifelse(riskRatio, 1, 0), pi1 = C_PI_1_DEFAULT, pi2 = 0.2, 
-		directionUpper = NA, maxNumberOfSubjects = NA_real_, groups = 2, 
+		directionUpper = NA, maxNumberOfSubjects = NA_real_, 
 		allocationRatioPlanned = NA_real_) {
 	
 	if (!normalApproximation) {

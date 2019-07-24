@@ -17,7 +17,6 @@
 #                                                                                    			 #
 ##################################################################################################
 
-
 .getTestStatisticsMeans <- function(
 		designNumber,
 		informationRates,
@@ -79,8 +78,8 @@
 .getSimulationMeansStageSubjects <- function(..., stage, 
 		meanRatio, thetaH0, groups, plannedSubjects, 
 		allocationRatioPlanned,
-		minNumberOfAdditionalSubjectsPerStage,
-		maxNumberOfAdditionalSubjectsPerStage,
+		minNumberOfSubjectsPerStage,
+		maxNumberOfSubjectsPerStage,
 		sampleSizesPerStage,
 		thetaStandardized,		
 		conditionalPower, 
@@ -99,8 +98,8 @@
 	stageSubjects <- (max(0, conditionalCriticalValue + stats::qnorm(conditionalPower)))^2 * mult / 
 		(max(1e-12, thetaStandardized))^2
 	
-	stageSubjects <- min(max(minNumberOfAdditionalSubjectsPerStage[stage], stageSubjects), 
-		maxNumberOfAdditionalSubjectsPerStage[stage])
+	stageSubjects <- min(max(minNumberOfSubjectsPerStage[stage], stageSubjects), 
+		maxNumberOfSubjectsPerStage[stage])
 	
 	return(stageSubjects)
 }
@@ -122,8 +121,8 @@
 		plannedSubjects,		
 		directionUpper,	
 		allocationRatioPlanned,
-		minNumberOfAdditionalSubjectsPerStage,
-		maxNumberOfAdditionalSubjectsPerStage, 
+		minNumberOfSubjectsPerStage,
+		maxNumberOfSubjectsPerStage, 
 		conditionalPower, 
 		thetaH1,
 		effectEstimate,
@@ -167,8 +166,8 @@
 			plannedSubjects = plannedSubjects,
 			sampleSizesPerStage = sampleSizesPerStage,
 			allocationRatioPlanned = allocationRatioPlanned,
-			minNumberOfAdditionalSubjectsPerStage = minNumberOfAdditionalSubjectsPerStage,
-			maxNumberOfAdditionalSubjectsPerStage = maxNumberOfAdditionalSubjectsPerStage, 
+			minNumberOfSubjectsPerStage = minNumberOfSubjectsPerStage,
+			maxNumberOfSubjectsPerStage = maxNumberOfSubjectsPerStage, 
 			conditionalPower = conditionalPower, 
 			thetaStandardized = thetaStandardized, 
 			conditionalCriticalValue = conditionalCriticalValue)
@@ -229,7 +228,7 @@
 			trialStop <- TRUE
 		}
 	} else {
-		if (testStatistic$value >= criticalValues[k]) {
+		if (testStatistic$value <= criticalValues[k]) {
 			simulatedRejections <- 1
 			trialStop <- TRUE
 		} 
@@ -280,22 +279,21 @@
 #'        design, default is \code{1}. 
 #' @param plannedSubjects \code{plannedSubjects} is a vector of length \code{kMax} (the number of stages of the design) 
 #' 	      that determines the number of cumulated (overall) subjects when the interim stages are planned.
-#' @param minNumberOfAdditionalSubjectsPerStage When performing a data driven sample size recalculation, 
-#' 		  the vector with length kMax \code{minNumberOfAdditionalSubjectsPerStage} determines the 
+#' @param minNumberOfSubjectsPerStage When performing a data driven sample size recalculation, 
+#' 		  the vector with length kMax \code{minNumberOfSubjectsPerStage} determines the 
 #'        minimum number of subjects per stage (i.e., not cumulated), the first element 
 #'        is not taken into account.   
-#' @param maxNumberOfAdditionalSubjectsPerStage When performing a data driven sample size recalculation, 
-#' 	      the vector with length kMax \code{maxNumberOfAdditionalSubjectsPerStage} determines the maximum number 
+#' @param maxNumberOfSubjectsPerStage When performing a data driven sample size recalculation, 
+#' 	      the vector with length kMax \code{maxNumberOfSubjectsPerStage} determines the maximum number 
 #'        of subjects per stage (i.e., not cumulated), the first element is not taken into account.
-#' @param conditionalPower The conditional power under which the sample size recalculation is performed.
-#' @param thetaH1 If specified, the value of the alternative under which the conditional 
-#'        power calculation is performed.
+#' @param conditionalPower The conditional power for the subsequent stage under which the sample size recalculation is performed.
+#' @param thetaH1 If specified, the value of the alternative under which the conditional power calculation is performed.
 #' @param stDev The standard deviation under which the conditional power calculation is performed, default is 1. 
 #'        If \code{meanRatio = TRUE} is specified, stDev defines the coefficient of variation sigma/mu2. 
 #' @param maxNumberOfIterations The number of simulation iterations.
 #' @param calcSubjectsFunction Optionally, a function can be entered that defines the way of performing the sample size
 #' 		  recalculation. By default, sample size recalulation is performed with conditional power with specified
-#' 		  \code{minNumberOfAdditionalSubjectsPerStage} and \code{maxNumberOfAdditionalSubjectsPerStage} (see details
+#' 		  \code{minNumberOfSubjectsPerStage} and \code{maxNumberOfSubjectsPerStage} (see details
 #' 		  and examples).
 #' @param seed The seed to reproduce the simulation, default is a random seed.
 #' @param ... Ensures that all arguments are be named and 
@@ -311,8 +309,8 @@
 #' This function returns the number of subjects at given conditional power and conditional Type I error rate for specified 
 #' testing situation. The function might depend on variables \code{stage}, \code{meanRatio}, \code{thetaH0}, \code{groups}, 
 #' \code{plannedSubjects}, \code{sampleSizesPerStage}, \code{directionUpper}, \code{allocationRatioPlanned}, 
-#' \code{minNumberOfAdditionalSubjectsPerStage}, 
-#' \code{maxNumberOfAdditionalSubjectsPerStage}, \code{conditionalPower}, \code{conditionalCriticalValue}, 
+#' \code{minNumberOfSubjectsPerStage}, 
+#' \code{maxNumberOfSubjectsPerStage}, \code{conditionalPower}, \code{conditionalCriticalValue}, 
 #' \code{thetaStandardized}.
 #' The function has to obtain the three-dots arument '...' (see examples). 
 #' 
@@ -383,20 +381,21 @@
 #' 
 #' # Assess power and average sample size if a sample size increase is foreseen 
 #' # at conditional power 80% for each subsequent stage based on observed overall 
-#' # effect and specified minNumberOfAdditionalSubjectsPerStage and
-#' # maxNumberOfAdditionalSubjectsPerStage
+#' # effect and specified minNumberOfSubjectsPerStage and
+#' # maxNumberOfSubjectsPerStage
 #' getSimulationMeans(designIN, alternative = 0:4, stDev = 5, 
 #'     plannedSubjects = c(20, 40, 60), 
-#'     minNumberOfAdditionalSubjectsPerStage = c(20, 20, 20), 
-#'     maxNumberOfAdditionalSubjectsPerStage = c(80, 80, 80),
-#'     conditionalPower = 0.8,	maxNumberOfIterations = 50)
+#'     minNumberOfSubjectsPerStage = c(20, 20, 20), 
+#'     maxNumberOfSubjectsPerStage = c(80, 80, 80),
+#'     conditionalPower = 0.8,	
+#' 	   maxNumberOfIterations = 50)
 #' 
 #' # Do the same under the assumption that a sample size increase only takes 
 #' # place at the first interim. The sample size for the third stage is set equal 
 #' # to the second stage sample size.
 #' mySampleSizeCalculationFunction <- function(..., stage, 
-#'         minNumberOfAdditionalSubjectsPerStage,
-#'         maxNumberOfAdditionalSubjectsPerStage,
+#'         minNumberOfSubjectsPerStage,
+#'         maxNumberOfSubjectsPerStage,
 #'         sampleSizesPerStage,
 #'         conditionalPower,
 #'         conditionalCriticalValue,
@@ -404,8 +403,8 @@
 #'     if (stage == 2) {
 #'         stageSubjects <- 4 * (max(0, conditionalCriticalValue + 
 #'             stats::qnorm(conditionalPower)))^2 / (max(1e-12, thetaStandardized))^2
-#'         stageSubjects <- min(max(minNumberOfAdditionalSubjectsPerStage[stage], 
-#'             stageSubjects), maxNumberOfAdditionalSubjectsPerStage[stage])
+#'         stageSubjects <- min(max(minNumberOfSubjectsPerStage[stage], 
+#'             stageSubjects), maxNumberOfSubjectsPerStage[stage])
 #'     } else {
 #'         stageSubjects <- sampleSizesPerStage[stage - 1]
 #'     }
@@ -413,8 +412,8 @@
 #' }
 #' getSimulationMeans(designIN, alternative = 2:4, stDev = 5, 
 #'     plannedSubjects = c(20, 40, 60), 
-#'     minNumberOfAdditionalSubjectsPerStage = c(20, 20, 2), 
-#'     maxNumberOfAdditionalSubjectsPerStage = c(40, 160, 16),
+#'     minNumberOfSubjectsPerStage = c(20, 20, 20), 
+#'     maxNumberOfSubjectsPerStage = c(40, 160, 160),
 #'     conditionalPower = 0.8, 
 #'     calcSubjectsFunction = mySampleSizeCalculationFunction, 
 #'     maxNumberOfIterations = 50)
@@ -431,8 +430,8 @@ getSimulationMeans <- function(
 		plannedSubjects = NA_real_,		
 		directionUpper = C_DIRECTION_UPPER_DEFAULT,	
 		allocationRatioPlanned = NA_real_,
-		minNumberOfAdditionalSubjectsPerStage = NA_real_,
-		maxNumberOfAdditionalSubjectsPerStage = NA_real_, 
+		minNumberOfSubjectsPerStage = NA_real_,
+		maxNumberOfSubjectsPerStage = NA_real_, 
 		conditionalPower = NA_real_, 
 		thetaH1 = NA_real_,
 		maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT, 
@@ -452,10 +451,10 @@ getSimulationMeans <- function(
 		.assertIsInOpenInterval(thetaH0, "thetaH0", 0, NULL, naAllowed = TRUE)
 	}
 	.assertIsNumericVector(alternative, "alternative", naAllowed = FALSE)
-	.assertIsNumericVector(minNumberOfAdditionalSubjectsPerStage, 
-		"minNumberOfAdditionalSubjectsPerStage", naAllowed = TRUE)
-	.assertIsNumericVector(maxNumberOfAdditionalSubjectsPerStage, 
-		"maxNumberOfAdditionalSubjectsPerStage", naAllowed = TRUE)
+	.assertIsNumericVector(minNumberOfSubjectsPerStage, 
+		"minNumberOfSubjectsPerStage", naAllowed = TRUE)
+	.assertIsNumericVector(maxNumberOfSubjectsPerStage, 
+		"maxNumberOfSubjectsPerStage", naAllowed = TRUE)
 	.assertIsSingleNumber(conditionalPower, "conditionalPower", naAllowed = TRUE)
 	.assertIsInOpenInterval(conditionalPower, "conditionalPower", 0, 1, naAllowed = TRUE)
 	.assertIsSingleNumber(thetaH1, "thetaH1", naAllowed = TRUE)
@@ -464,7 +463,7 @@ getSimulationMeans <- function(
 	}
 	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned", naAllowed = TRUE)
 	.assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, NULL, naAllowed = TRUE)	
-	.assertIsSingleInteger(maxNumberOfIterations, "maxNumberOfIterations", validateType = FALSE)
+	.assertIsSinglePositiveInteger(maxNumberOfIterations, "maxNumberOfIterations", validateType = FALSE)
 	.assertIsSingleNumber(seed, "seed", naAllowed = TRUE)
 	.assertIsValidStandardDeviation(stDev)
 	if (is.null(calcSubjectsFunction)) {
@@ -494,61 +493,40 @@ getSimulationMeans <- function(
 
 	simulationResults <- SimulationResultsMeans(design, meanRatio = meanRatio)
 	
+	minNumberOfSubjectsPerStage <- .assertIsValidMinNumberOfSubjectsPerStage(minNumberOfSubjectsPerStage, 
+		"minNumberOfSubjectsPerStage", plannedSubjects, conditionalPower, design$kMax) 
+	maxNumberOfSubjectsPerStage <- .assertIsValidMinNumberOfSubjectsPerStage(maxNumberOfSubjectsPerStage, 
+		"maxNumberOfSubjectsPerStage", plannedSubjects, conditionalPower, design$kMax) 
+	
 	if (!is.na(conditionalPower)) {
 		if (design$kMax > 1) {
-			if (length(minNumberOfAdditionalSubjectsPerStage) == 0 || 
-					any(is.na(minNumberOfAdditionalSubjectsPerStage))) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"'minNumberOfAdditionalSubjectsPerStage' must be defined ",
-					"because 'conditionalPower' is defined")
+			if (any(maxNumberOfSubjectsPerStage - minNumberOfSubjectsPerStage < 0)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjectsPerStage' (", 
+					.arrayToString(maxNumberOfSubjectsPerStage), 
+					") must be not smaller than minNumberOfSubjectsPerStage' (", 
+					.arrayToString(minNumberOfSubjectsPerStage), ")")
 			}
-			if (length(maxNumberOfAdditionalSubjectsPerStage) == 0 || 
-					any(is.na(maxNumberOfAdditionalSubjectsPerStage))) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"'maxNumberOfAdditionalSubjectsPerStage' must be defined ", 
-					"because 'conditionalPower' is defined")
-			}
-			if (length(minNumberOfAdditionalSubjectsPerStage) != design$kMax) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'minNumberOfAdditionalSubjectsPerStage' (", 
-					.arrayToString(minNumberOfAdditionalSubjectsPerStage), ") must have length ", design$kMax)
-			}
-			if (length(maxNumberOfAdditionalSubjectsPerStage) != design$kMax) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfAdditionalSubjectsPerStage' (", 
-					.arrayToString(maxNumberOfAdditionalSubjectsPerStage), ") must have length ", design$kMax)
-			}
-			if (any(maxNumberOfAdditionalSubjectsPerStage - minNumberOfAdditionalSubjectsPerStage < 0)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfAdditionalSubjectsPerStage' (", 
-					.arrayToString(maxNumberOfAdditionalSubjectsPerStage), 
-					") must be not smaller than minNumberOfAdditionalSubjectsPerStage' (", 
-					.arrayToString(minNumberOfAdditionalSubjectsPerStage), ")")
-			}
-			.assertIsInClosedInterval(minNumberOfAdditionalSubjectsPerStage, 
-				"minNumberOfAdditionalSubjectsPerStage", 
-				lower = 1, upper = NULL)
-			.assertIsInClosedInterval(maxNumberOfAdditionalSubjectsPerStage, 
-				"maxNumberOfAdditionalSubjectsPerStage", 
-				lower = 1, upper = NULL)
-			.setValueAndParameterType(simulationResults, "minNumberOfAdditionalSubjectsPerStage",
-				minNumberOfAdditionalSubjectsPerStage, NA_real_)
-			.setValueAndParameterType(simulationResults, "maxNumberOfAdditionalSubjectsPerStage", 
-				maxNumberOfAdditionalSubjectsPerStage, NA_real_)
+			.setValueAndParameterType(simulationResults, "minNumberOfSubjectsPerStage",
+				minNumberOfSubjectsPerStage, NA_real_)
+			.setValueAndParameterType(simulationResults, "maxNumberOfSubjectsPerStage", 
+				maxNumberOfSubjectsPerStage, NA_real_)
 		} else {
 			warning("'conditionalPower' will be ignored for fixed sample design", call. = FALSE)
 		}
 	} else {
-		if (length(minNumberOfAdditionalSubjectsPerStage) != 1 || 
-				!is.na(minNumberOfAdditionalSubjectsPerStage)) {
-			warning("'minNumberOfAdditionalSubjectsPerStage' (", 
-				.arrayToString(minNumberOfAdditionalSubjectsPerStage), ") ",
+		if (length(minNumberOfSubjectsPerStage) != 1 || 
+				!is.na(minNumberOfSubjectsPerStage)) {
+			warning("'minNumberOfSubjectsPerStage' (", 
+				.arrayToString(minNumberOfSubjectsPerStage), ") ",
 				"will be ignored because no 'conditionalPower' is defined", call. = FALSE)
-			simulationResults$minNumberOfAdditionalSubjectsPerStage <- NA_real_
+			simulationResults$minNumberOfSubjectsPerStage <- NA_real_
 		}
-		if (length(maxNumberOfAdditionalSubjectsPerStage) != 1 || 
-				!is.na(maxNumberOfAdditionalSubjectsPerStage)) {
-			warning("'maxNumberOfAdditionalSubjectsPerStage' (", 
-				.arrayToString(maxNumberOfAdditionalSubjectsPerStage), ") ",
+		if (length(maxNumberOfSubjectsPerStage) != 1 || 
+				!is.na(maxNumberOfSubjectsPerStage)) {
+			warning("'maxNumberOfSubjectsPerStage' (", 
+				.arrayToString(maxNumberOfSubjectsPerStage), ") ",
 				"will be ignored because no 'conditionalPower' is defined", call. = FALSE)
-			simulationResults$maxNumberOfAdditionalSubjectsPerStage <- NA_real_
+			simulationResults$maxNumberOfSubjectsPerStage <- NA_real_
 		}
 	}
 	
@@ -578,10 +556,10 @@ getSimulationMeans <- function(
 		plannedSubjects, NA_real_)
 	.setValueAndParameterType(simulationResults, "directionUpper", 
 		directionUpper, C_DIRECTION_UPPER_DEFAULT)
-	.setValueAndParameterType(simulationResults, "minNumberOfAdditionalSubjectsPerStage", 
-		minNumberOfAdditionalSubjectsPerStage, NA_real_, notApplicableIfNA = TRUE)
-	.setValueAndParameterType(simulationResults, "maxNumberOfAdditionalSubjectsPerStage", 
-		maxNumberOfAdditionalSubjectsPerStage, NA_real_, notApplicableIfNA = TRUE)
+	.setValueAndParameterType(simulationResults, "minNumberOfSubjectsPerStage", 
+		minNumberOfSubjectsPerStage, NA_real_, notApplicableIfNA = TRUE)
+	.setValueAndParameterType(simulationResults, "maxNumberOfSubjectsPerStage", 
+		maxNumberOfSubjectsPerStage, NA_real_, notApplicableIfNA = TRUE)
 	.setValueAndParameterType(simulationResults, "conditionalPower", 
 		conditionalPower, NA_real_, notApplicableIfNA = TRUE)
 	.setValueAndParameterType(simulationResults, "thetaH1", 
@@ -671,8 +649,8 @@ getSimulationMeans <- function(
 						plannedSubjects = plannedSubjects,		
 						directionUpper = directionUpper,	
 						allocationRatioPlanned = allocationRatioPlanned,
-						minNumberOfAdditionalSubjectsPerStage = minNumberOfAdditionalSubjectsPerStage,
-						maxNumberOfAdditionalSubjectsPerStage = maxNumberOfAdditionalSubjectsPerStage, 
+						minNumberOfSubjectsPerStage = minNumberOfSubjectsPerStage,
+						maxNumberOfSubjectsPerStage = maxNumberOfSubjectsPerStage, 
 						conditionalPower = conditionalPower, 
 						thetaH1 = thetaH1,
 						effectEstimate = effectEstimate,

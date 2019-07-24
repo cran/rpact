@@ -431,8 +431,8 @@ NumericVector getRecalculatedEventSizes(int designNumber, int stage, int kMax,
 		NumericVector criticalValues, NumericVector informationRates,
 		double conditionalPower, NumericVector plannedEvents,
 		double thetaH1, NumericVector eventsPerStage, NumericVector logRankOverStages,
-		NumericVector testStatisticOverStages, NumericVector minNumberOfAdditionalEventsPerStage,
-		NumericVector maxNumberOfAdditionalEventsPerStage,
+		NumericVector testStatisticOverStages, NumericVector minNumberOfEventsPerStage,
+		NumericVector maxNumberOfEventsPerStage,
 		bool directionUpper, double allocation1, double allocation2) {
 
 	double requiredStageEvents = plannedEvents[stage - 1];
@@ -487,8 +487,8 @@ NumericVector getRecalculatedEventSizes(int designNumber, int stage, int kMax,
 			pow(log(theta), 2);
 
 		requiredStageEvents = min(NumericVector::create(
-			max(NumericVector::create(minNumberOfAdditionalEventsPerStage[stage - 1], requiredStageEvents)),
-			maxNumberOfAdditionalEventsPerStage[stage - 1])) + eventsPerStage[stage - 2];
+			max(NumericVector::create(minNumberOfEventsPerStage[stage - 1], requiredStageEvents)),
+			maxNumberOfEventsPerStage[stage - 1])) + eventsPerStage[stage - 2];
 	}
 
 	NumericVector result = NumericVector(3, NA_REAL);
@@ -507,8 +507,8 @@ NumericMatrix getSimulationStepResultsSurvival(
 		double conditionalPower,
 		NumericVector plannedEvents,
 		double thetaH1,
-		NumericVector minNumberOfAdditionalEventsPerStage,
-		NumericVector maxNumberOfAdditionalEventsPerStage,
+		NumericVector minNumberOfEventsPerStage,
+		NumericVector maxNumberOfEventsPerStage,
 		bool directionUpper,
 		double allocation1,
 		double allocation2,
@@ -548,7 +548,7 @@ NumericMatrix getSimulationStepResultsSurvival(
 				designNumber, k, kMax, criticalValues, informationRates,
 				conditionalPower, plannedEvents,
 				thetaH1, eventsPerStage, logRankOverStages, testStatisticOverStages,
-				minNumberOfAdditionalEventsPerStage, maxNumberOfAdditionalEventsPerStage,
+				minNumberOfEventsPerStage, maxNumberOfEventsPerStage,
 				directionUpper, allocation1, allocation2);
 
 		double requiredStageEvents = recalculatedEventSizes[0];
@@ -770,20 +770,20 @@ NumericMatrix getExtendedSurvivalDataSet(IntegerVector treatmentGroup,
 void assertArgumentsAreValid(
 		int kMax,
 		NumericVector plannedEvents,
-		NumericVector minNumberOfAdditionalEventsPerStage,
-		NumericVector maxNumberOfAdditionalEventsPerStage
+		NumericVector minNumberOfEventsPerStage,
+		NumericVector maxNumberOfEventsPerStage
 		) {
 
-	if (kMax > minNumberOfAdditionalEventsPerStage.size()) {
+	if (kMax > minNumberOfEventsPerStage.size()) {
 		throw Rcpp::exception(tfm::format(
-			"'minNumberOfAdditionalEventsPerStage' must have length %s (is %s)",
-			kMax, minNumberOfAdditionalEventsPerStage.size()).c_str());
+			"'minNumberOfEventsPerStage' must have length %s (is %s)",
+			kMax, minNumberOfEventsPerStage.size()).c_str());
 	}
 
-	if (kMax > maxNumberOfAdditionalEventsPerStage.size()) {
+	if (kMax > maxNumberOfEventsPerStage.size()) {
 		throw Rcpp::exception(tfm::format(
-			"'maxNumberOfAdditionalEventsPerStage' must have length %s (is %s)",
-			kMax, maxNumberOfAdditionalEventsPerStage.size()).c_str());
+			"'maxNumberOfEventsPerStage' must have length %s (is %s)",
+			kMax, maxNumberOfEventsPerStage.size()).c_str());
 	}
 
 	if (kMax > plannedEvents.size()) {
@@ -853,8 +853,8 @@ List getSimulationSurvivalCpp(
 		double conditionalPower,
 		NumericVector plannedEvents,
 		double thetaH1,
-		NumericVector minNumberOfAdditionalEventsPerStage,
-		NumericVector maxNumberOfAdditionalEventsPerStage,
+		NumericVector minNumberOfEventsPerStage,
+		NumericVector maxNumberOfEventsPerStage,
 		bool directionUpper,
 		double allocation1,
 		double allocation2,
@@ -991,8 +991,8 @@ List getSimulationSurvivalCpp(
 				conditionalPower,
 				plannedEvents,
 				thetaH1,
-				minNumberOfAdditionalEventsPerStage,
-				maxNumberOfAdditionalEventsPerStage,
+				minNumberOfEventsPerStage,
+				maxNumberOfEventsPerStage,
 				directionUpper,
 				allocation1,
 				allocation2,

@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 14:30:39                                                        #
+# Date: 23 July 2019, 11:47:00                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -58,8 +58,8 @@ test_that("'getSimulationSurvival': configuration 2", {
 			directionUpper = FALSE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20, 
 			allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 			accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-			dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-			maxNumberOfAdditionalEventsPerStage = c(100, 100, 200), maxNumberOfIterations = 100,
+			dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+			maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
 			seed = 1234567890)
 
 
@@ -113,8 +113,8 @@ test_that("'getSimulationSurvival': configuration 3", {
 			directionUpper = TRUE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20, 
 			allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 			accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-			dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-			maxNumberOfAdditionalEventsPerStage = c(100, 100, 200), maxNumberOfIterations = 100,
+			dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+			maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
 			seed = 1234567890)
 
 	##
@@ -176,8 +176,8 @@ test_that("'getSimulationSurvival': configuration 4", {
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 1.7, 
 		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-		maxNumberOfAdditionalEventsPerStage = c(100, 100, 200), maxNumberOfIterations = 100,
+		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+		maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
 		seed = 1234567890)
 
 	##
@@ -227,8 +227,8 @@ test_that("'getSimulationSurvival': configuration 5", {
 		directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20, 
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-		maxNumberOfAdditionalEventsPerStage = c(40,40,40), maxNumberOfIterations = 100,
+		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+		maxNumberOfEventsPerStage = c(NA_real_, 40, 40), maxNumberOfIterations = 100,
 		seed = 1234567890)
 
 	##
@@ -290,8 +290,8 @@ test_that("'getSimulationSurvival': configuration 6", {
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = c(0.8, 0.9),
 		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-		maxNumberOfAdditionalEventsPerStage = c(100, 400, 200), maxNumberOfIterations = 100,
+		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
 		seed = 1234567890)
 
 	##
@@ -344,8 +344,8 @@ test_that("'getSimulationSurvival': configuration 7", {
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
 		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-		maxNumberOfAdditionalEventsPerStage = c(100, 400, 200), maxNumberOfIterations = 100,
+		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
 		seed = 1234567890)
 
 	##
@@ -457,8 +457,8 @@ test_that("'getSimulationSurvival': configuration 9; ", {
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 		piecewiseSurvivalTime = c(0, 6), lambda2 = c(0.01, 0.03), hazardRatio = c(0.75),
 		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-		maxNumberOfAdditionalEventsPerStage = c(100, 400, 200), maxNumberOfIterations = 100,
+		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
 		seed = 1234567890)
 
 	##
@@ -513,8 +513,8 @@ test_that("'getSimulationSurvival': configuration 10; ", {
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 		lambda2 = 0.03, hazardRatio = c(0.75, 0.8, 0.9),
 		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfAdditionalEventsPerStage = c(20, 10, 10), 
-		maxNumberOfAdditionalEventsPerStage = c(100, 400, 200), maxNumberOfIterations = 100,
+		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
+		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
 		seed = 1234567890)
 
 	##
@@ -569,7 +569,8 @@ test_that("'getSimulationSurvival': test accrual time and intensity definition",
 
 	accrualIntensity <- getSimulationSurvival(plannedEvents = 100, 
 		accrualTime = c(0, 6, 12), accrualIntensity = c(0.2, 0.3), 
-		maxNumberOfSubjects = 330, maxNumberOfIterations = 100)$accrualIntensity 
+		maxNumberOfSubjects = 330, maxNumberOfIterations = 100,
+		seed = 1234567890)$accrualIntensity 
 	expect_equal(accrualIntensity, c(22, 33))
 
 })
@@ -580,133 +581,120 @@ test_that("'getSimulationSurvival': test exptected warnings and errors", {
 
 	expect_warning(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, 44), maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100),
-		"'minNumberOfAdditionalEventsPerStage' (58, 44, 44) will be ignored because no 'conditionalPower' is defined", 
+			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890),
+		"'minNumberOfEventsPerStage' (NA, 44, 44) will be ignored because no 'conditionalPower' is defined", 
 		fixed = TRUE)
 
 	expect_warning(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, 44), maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100),
-		"'maxNumberOfAdditionalEventsPerStage' (232, 176, 176) will be ignored because no 'conditionalPower' is defined", 
+			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890),
+		"'maxNumberOfEventsPerStage' (NA, 176, 176) will be ignored because no 'conditionalPower' is defined", 
 		fixed = TRUE)
 
 	expect_warning(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100),
-		"'minNumberOfAdditionalEventsPerStage' (58, 44, 44) will be ignored because no 'conditionalPower' is defined", 
+			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890),
+		"'minNumberOfEventsPerStage' (NA, 44, 44) will be ignored because no 'conditionalPower' is defined", 
 		fixed = TRUE)
 
 	expect_warning(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, plannedEvents = c(58, 102, 146), 
-			maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100),
-		"'maxNumberOfAdditionalEventsPerStage' (232, 176, 176) will be ignored because no 'conditionalPower' is defined", 
+			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890),
+		"'maxNumberOfEventsPerStage' (NA, 176, 176) will be ignored because no 'conditionalPower' is defined", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100), 
-		"Missing argument: 'minNumberOfAdditionalEventsPerStage' must be defined because 'conditionalPower' is defined", 
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
+		"Missing argument: 'minNumberOfEventsPerStage' must be defined because 'conditionalPower' is defined", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100), 
-		"Missing argument: 'maxNumberOfAdditionalEventsPerStage' must be defined because 'conditionalPower' is defined", 
+			minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
+		"Missing argument: 'maxNumberOfEventsPerStage' must be defined because 'conditionalPower' is defined", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100), 
-		"Missing argument: 'minNumberOfAdditionalEventsPerStage' must be defined because 'conditionalPower' is defined", 
+			maxNumberOfEventsPerStage = 4 * c(58, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
+		"Missing argument: 'minNumberOfEventsPerStage' must be defined because 'conditionalPower' is defined", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, conditionalPower = -0.1, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, 44), maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100), 
+			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
 		"Argument out of bounds: 'conditionalPower' (-0.1) is out of bounds (0; 1)", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, conditionalPower = 1.1, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, 44), maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100), 
+			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
 		"Argument out of bounds: 'conditionalPower' (1.1) is out of bounds (0; 1)", 
 		fixed = TRUE)
 
-	#expect_error(getSimulationSurvival(plannedEvents = 100,
-	#		conditionalPower = 0.8,
-	#		minNumberOfAdditionalEventsPerStage = c(50, 100),
-	#		maxNumberOfAdditionalEventsPerStage = 150,
-	#		accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33), 
-	#		maxNumberOfIterations = 100), 
-	#	"Illegal argument: 'minNumberOfAdditionalEventsPerStage' (50, 100) must have length 1", 
-	#	fixed = TRUE)
-
-	#expect_error(getSimulationSurvival(plannedEvents = 100,
-	#		conditionalPower = 0.8,
-	#		minNumberOfAdditionalEventsPerStage = 50,
-	#		maxNumberOfAdditionalEventsPerStage = c(150, 200),
-	#		accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33), 
-	#		maxNumberOfIterations = 100), 
-	#	"Illegal argument: 'maxNumberOfAdditionalEventsPerStage' (150, 200) must have length 1", 
-	#	fixed = TRUE)
-
 	expect_error(getSimulationSurvival(plannedEvents = -100, 
 			accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33), 
-			maxNumberOfIterations = 100), 
+			maxNumberOfIterations = 100, seed = 1234567890), 
 		"Argument out of bounds: 'plannedEvents' (-100) must be >= 1", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, plannedEvents = c(100,100, 150), 
 				accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33), 
-				maxNumberOfIterations = 100), 
+				maxNumberOfIterations = 100, seed = 1234567890), 
 			"Illegal argument: 'plannedEvents' (100, 100, 150) must be strictly increasing: x_1 < .. < x_3", 
 			fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, -44), 
-			maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100), 
-		"Argument out of bounds: each value of 'minNumberOfAdditionalEventsPerStage' (58, 44, -44) must be >= 1", 
+			minNumberOfEventsPerStage = c(NA_real_, 44, -44), 
+			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
+		"Argument out of bounds: each value of 'minNumberOfEventsPerStage' (58, 44, -44) must be >= 1", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-			maxNumberOfAdditionalEventsPerStage = 4 * c(-58, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100), 
-		"Illegal argument: 'maxNumberOfAdditionalEventsPerStage' (-232, 176, 176) must be not smaller than minNumberOfAdditionalEventsPerStage' (58, 44, 44)", 
+			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+			maxNumberOfEventsPerStage = 4 * c(NA_real_, 10, 44),
+			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
+		"Illegal argument: 'maxNumberOfEventsPerStage' (58, 40, 176) must be not smaller than minNumberOfEventsPerStage' (58, 44, 44)", 
 		fixed = TRUE)
 
-	expect_error(getSimulationSurvival(plannedEvents = 100, maxNumberOfIterations = 100), 
+	expect_error(getSimulationSurvival(plannedEvents = 100, maxNumberOfIterations = 100, seed = 1234567890), 
 		"Illegal argument: 'maxNumberOfSubjects' must be defined", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, thetaH1 = 0, maxNumberOfIterations = 100), 
+			accrualIntensity = 20, thetaH1 = 0, maxNumberOfIterations = 100, seed = 1234567890), 
 		"Argument out of bounds: 'thetaH1' (0) must be > 0", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, conditionalPower = 0, maxNumberOfIterations = 100), 
+			accrualIntensity = 20, conditionalPower = 0, maxNumberOfIterations = 100, seed = 1234567890), 
 		"Argument out of bounds: 'conditionalPower' (0) is out of bounds (0; 1)", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, conditionalPower = 1, maxNumberOfIterations = 100), 
+			accrualIntensity = 20, conditionalPower = 1, maxNumberOfIterations = 100, seed = 1234567890), 
 		"Argument out of bounds: 'conditionalPower' (1) is out of bounds (0; 1)", 
 		fixed = TRUE)
 
 	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, conditionalPower = c(0.5, 0.8), maxNumberOfIterations = 100), 
+			accrualIntensity = 20, conditionalPower = c(0.5, 0.8), 
+			maxNumberOfIterations = 100, seed = 1234567890), 
 		"Illegal argument: 'conditionalPower' c(0.5, 0.8) must be a single numerical value", 
 		fixed = TRUE)
 
@@ -781,6 +769,7 @@ test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subj
 	##
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	##
+	expect_equal(simulationResult$accrualTime, 6.6666667, tolerance = 1e-07)
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(simulationResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(simulationResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -809,6 +798,7 @@ test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subj
 	##
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	##
+	expect_equal(simulationResult$accrualTime, c(6, 8.6666667), tolerance = 1e-07)
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(simulationResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(simulationResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -865,6 +855,7 @@ test_that("'getSimulationSurvival': Specify accrual time as a list", {
 	##
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	##
+	expect_equal(simulationResult$accrualTime, c(6, 8.6666667), tolerance = 1e-07)
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(simulationResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(simulationResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1341,15 +1332,15 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 	# three-stage design with inverse normal combination test, where the conditional power 
 	# is calculated under the specified effect size thetaH1 = 1.3 and up to a four-fold 
 	# increase in originally planned sample size (number of events) is allowed
-	# Note that the first value in \code{minNumberOfAdditionalEventsPerStage} and 
-	# \code{maxNumberOfAdditionalEventsPerStage} is arbitrary, i.e., it has no effect.
+	# Note that the first value in \code{minNumberOfEventsPerStage} and 
+	# \code{maxNumberOfEventsPerStage} is arbitrary, i.e., it has no effect.
 
 	dIN <- getDesignInverseNormal(informationRates = c(0.4, 0.7, 1))
 
 	resultsWithSSR1 <- getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 		pi2 = 0.3, conditionalPower = 0.8, thetaH1 = 1.3, plannedEvents = c(58, 102, 146), 
-		minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-		maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+		minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+		maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
 		maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890)
 
 	##
@@ -1396,8 +1387,8 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 	# recalculation of the number of events
 	resultsWithSSR2 <- getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
 		pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-		minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-		maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+		minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+		maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
 		maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890)
 
 	##
@@ -1468,8 +1459,8 @@ test_that("'getSimulationSurvival': Confirm that event size racalcuation increas
 	dGS <- getDesignGroupSequential(informationRates = c(0.4, 0.7, 1))
 	resultsWithSSRGS <- getSimulationSurvival(design = dGS, hazardRatio = seq(1), 
 		pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 145), 
-		minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-		maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+		minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
+		maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
 		maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890)
 
 	##

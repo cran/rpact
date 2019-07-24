@@ -122,12 +122,15 @@ getAnalysisResultsSurvival <- function(design, ...) {
 		nPlanned, allocationRatioPlanned, tolerance,
 		iterations, seed) {
 	
-	.assertIsValidThetaH1(thetaH1)
 	startTime <- Sys.time()
 	stageResults <- getStageResultsSurvival(design = design, dataInput = dataInput, stage = stage, 
 		thetaH0 = thetaH0, directionUpper = directionUpper)
 	results$.stageResults <- stageResults
 	.logProgress("Stage results calculated", startTime = startTime)
+	
+	thetaH1 <- .assertIsValidThetaH1(thetaH1, stageResults, stage)
+	
+	.assertIsInOpenInterval(thetaH1, "thetaH1",0,Inf)
 		
 	results$directionUpper <- directionUpper
 	results$normalApproximation <- TRUE
@@ -289,8 +292,8 @@ getStageResultsSurvival <- function(..., design, dataInput,
 	pValues <- rep(NA_real_, design$kMax)
 	combInverseNormal <- rep(NA_real_, design$kMax)
 	combFisher <- rep(NA_real_, design$kMax)
-	weightsInverseNormal <- .getWeighsInverseNormal(design) 
-	weightsFisher <- .getWeighsFisher(design) 
+	weightsInverseNormal <- .getWeightsInverseNormal(design) 
+	weightsFisher <- .getWeightsFisher(design) 
 	for (k in 1:stage) {
 		if (directionUpper) {
 			pValues[k] <- 1 - stats::pnorm(logRanks[k] - 
@@ -798,13 +801,15 @@ getRepeatedConfidenceIntervalsSurvival <- function(design, ...) {
 .getConditionalPowerSurvival <- function(..., design, stageResults, 
 		nPlanned = NA_real_, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, thetaH1 = NA_real_) {
 	
-	if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, thetaH1 = thetaH1)) {
+	if (any(is.na(nPlanned))) {		
 		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
 	}
 	
 	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
 	.assertIsValidStage(stage, design$kMax)
-	.assertIsValidThetaH1(thetaH1)
+	
+	thetaH1 <- .assertIsValidThetaH1(thetaH1, stageResults, stage)
+	.assertIsInOpenInterval(thetaH1, "thetaH1", 0, Inf)
 	
 	if (!.isValidNPlanned(nPlanned = nPlanned, kMax = design$kMax, stage = stage)) {
 		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))

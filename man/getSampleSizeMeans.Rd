@@ -4,10 +4,11 @@
 \alias{getSampleSizeMeans}
 \title{Get Sample Size Means}
 \usage{
-getSampleSizeMeans(design = NULL, ..., normalApproximation = FALSE,
-  meanRatio = FALSE, thetaH0 = ifelse(meanRatio, 1, 0),
+getSampleSizeMeans(design = NULL, ..., groups = 2,
+  normalApproximation = FALSE, meanRatio = FALSE,
+  thetaH0 = ifelse(meanRatio, 1, 0),
   alternative = C_ALTERNATIVE_DEFAULT, stDev = C_STDEV_DEFAULT,
-  groups = 2, allocationRatioPlanned = NA_real_)
+  allocationRatioPlanned = NA_real_)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 
@@ -16,6 +17,8 @@ and \code{sided} can be directly entered as argument.}
 
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
+
+\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
 \item{normalApproximation}{If \code{normalApproximation = TRUE} is specified, the variance is 
 assumed to be known, default is FALSE, i.e., the calculations are performed 
@@ -33,8 +36,6 @@ alternatives, default is \code{seq(0.2,1,0.2)}.}
 
 \item{stDev}{The standard deviation, default is 1. If \code{meanRatio = TRUE} 
 is specified, stDev defines the coefficient of variation sigma/mu2.}
-
-\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio for a two treatment groups 
 design, default is 1. If \code{allocationRatioPlanned = 0} is entered, 

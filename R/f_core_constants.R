@@ -17,8 +17,6 @@
 #                                                                                    #
 ######################################################################################
 
-C_COMPLETE_UNIT_TEST_SET_ENABLED <- FALSE
-
 C_LOG_LEVEL_TRACE <- "TRACE"
 C_LOG_LEVEL_DEBUG <- "DEBUG"
 C_LOG_LEVEL_INFO <- "INFO"
@@ -459,10 +457,10 @@ C_PARAMETER_NAMES <- list(
 	
 	plannedEvents = "Planned events",
 	plannedSubjects = "Planned subjects",
-	minNumberOfAdditionalEventsPerStage = "Minimum number of additional events per stage",
-	maxNumberOfAdditionalEventsPerStage = "Maximum number of additional events per stage",
-	minNumberOfAdditionalSubjectsPerStage = "Minimum number of additional subjects per stage",
-	maxNumberOfAdditionalSubjectsPerStage = "Maximum number of additional subjects per stage",
+	minNumberOfEventsPerStage = "Minimum number of events per stage",
+	maxNumberOfEventsPerStage = "Maximum number of events per stage",
+	minNumberOfSubjectsPerStage = "Minimum number of subjects per stage",
+	maxNumberOfSubjectsPerStage = "Maximum number of subjects per stage",
 	accrualIntensity = "Accrual intensity",
 	accrualIntensityRelative = "Accrual intensity (relative)",
 	maxNumberOfIterations = "Maximum number of iterations",
@@ -515,7 +513,7 @@ C_PARAMETER_NAMES <- list(
 	endOfAccrualIsUserDefined = "End of accrual is user defined",
 	followUpTimeMustBeUserDefined = "Follow-up time must be user defined",
 	maxNumberOfSubjectsIsUserDefined = "Max number of subjects is user defined",
-	maxNumberOfSubjectsCanBeCalculatedDirectly = "Max number of subjects can be calculated",
+	maxNumberOfSubjectsCanBeCalculatedDirectly = "Max number of subjects can be calculated directly",
 	absoluteAccrualIntensityEnabled = "Absolute accrual intensity is enabled",
 	
 	time = "Time",
@@ -603,7 +601,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	optimizationCriterion = "Optimization criterion (Wang & Tsiatis)",
 	gammaA = "Parameter for alpha spending function",
 	gammaB = "Parameter for beta spending function",
-	typeBetaSpending = "Type of beta",
+	typeBetaSpending = "Type of beta spending",
 	userAlphaSpending = "User defined alpha spending",
 	userBetaSpending = "User defined beta spending",
 	probs = "Internal calculation probabilities" ,
@@ -736,10 +734,10 @@ C_TABLE_COLUMN_NAMES <- list(
 	
 	plannedEvents = "Required planned events",
 	plannedSubjects = "Required planned subjects",
-	minNumberOfAdditionalEventsPerStage = "Minimum # additional events per stage",
-	maxNumberOfAdditionalEventsPerStage = "Maximum # additional events per stage",
-	minNumberOfAdditionalSubjectsPerStage = "Minimum # of additional subjects per stage",
-	maxNumberOfAdditionalSubjectsPerStage = "Maximum # of additional subjects per stage",
+	minNumberOfEventsPerStage = "Minimum # additional events per stage",
+	maxNumberOfEventsPerStage = "Maximum # additional events per stage",
+	minNumberOfSubjectsPerStage = "Minimum # of additional subjects per stage",
+	maxNumberOfSubjectsPerStage = "Maximum # of additional subjects per stage",
 	accrualIntensity = "Accrual intensity",
 	accrualIntensityRelative = "Accrual intensity (relative)",
 	maxNumberOfIterations = "Maximum # iterations",
@@ -784,7 +782,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	endOfAccrualIsUserDefined = "End of accrual is user defined",
 	followUpTimeMustBeUserDefined = "Follow-up time must be user defined",
 	maxNumberOfSubjectsIsUserDefined = "Max number of subjects is user defined",
-	maxNumberOfSubjectsCanBeCalculatedDirectly = "Max number of subjects can be calculated",
+	maxNumberOfSubjectsCanBeCalculatedDirectly = "Max number of subjects can be calculated directly",
 	absoluteAccrualIntensityEnabled = "Absolute accrual intensity is enabled",
 	
 	time = "Time",
@@ -870,6 +868,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	averageSampleNumber0 = "formatProbabilities",
 
 	effectSizes = "formatMeans",
+	thetaH1 = "formatMeans",
 	testStatistics = "formatTestStatistics",
 	pValues = "formatPValues",
 	combinationTestStatistics = "formatTestStatistics",

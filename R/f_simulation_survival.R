@@ -70,16 +70,15 @@ NULL
 #' @param plannedEvents \code{plannedEvents} is a vector of length kMax 
 #'        (the number of stages of the design) with increasing numbers
 #' 	      that determines the number of cumulated (overall) events when the interim stages are planned.
-#' @param minNumberOfAdditionalEventsPerStage When performing a data driven sample size recalculation, 
-#' 		  the vector with length kMax \code{minNumberOfAdditionalEventsPerStage} determines the 
+#' @param minNumberOfEventsPerStage When performing a data driven sample size recalculation, 
+#' 		  the vector with length kMax \code{minNumberOfEventsPerStage} determines the 
 #'        minimum number of events per stage (i.e., not cumulated), the first element 
 #'        is not taken into account.   
-#' @param maxNumberOfAdditionalEventsPerStage When performing a data driven sample size recalculation, 
-#' 	      the vector with length kMax \code{maxNumberOfAdditionalEventsPerStage} determines the maximum number 
+#' @param maxNumberOfEventsPerStage When performing a data driven sample size recalculation, 
+#' 	      the vector with length kMax \code{maxNumberOfEventsPerStage} determines the maximum number 
 #'        of events per stage (i.e., not cumulated), the first element is not taken into account.
-#' @param conditionalPower The conditional power under which the sample size recalculation is performed.
-#' @param thetaH1 If specified, the value of the hazard ratio under which the conditional 
-#'        power calculation is performed.  
+#' @param conditionalPower The conditional power for the subsequent stage under which the sample size recalculation is performed.
+#' @param thetaH1 If specified, the value of the hazard ratio under which the conditional power calculation is performed.  
 #' @param maxNumberOfIterations The number of simulation iterations.
 #' @param maxNumberOfRawDatasetsPerStage The number of raw datasets per stage that shall 
 #'        be extracted and saved as \code{\link[base]{data.frame}}, default is \code{0}. 
@@ -109,6 +108,9 @@ NULL
 #' be a list that combines the definition of the time intervals and hazard rates in the reference group. 
 #' The definition of the survival time in the treatment group is obtained by the specification 
 #' of the hazard ratio (see examples for details).
+#' 
+#' Note that \code{numberOfSubjects}, \code{numberOfSubjects1}, and \code{numberOfSubjects2} in the output
+#' are expected number of subjects.
 #' 
 #' @section Simulation Data:
 #' The summary statistics "Simulated data" contains the following 
@@ -331,16 +333,16 @@ NULL
 #' # three-stage design with inverse normal combination test, where the conditional power 
 #' # is calculated under the specified effect size thetaH1 = 1.3 and up to a four-fold 
 #' # increase in originally planned sample size (number of events) is allowed
-#' # Note that the first value in minNumberOfAdditionalEventsPerStage and 
-#' # maxNumberOfAdditionalEventsPerStage is arbitrary, i.e., it has no effect.
+#' # Note that the first value in minNumberOfEventsPerStage and 
+#' # maxNumberOfEventsPerStage is arbitrary, i.e., it has no effect.
 #' dIN <- getDesignInverseNormal(informationRates = c(0.4, 0.7, 1))
 #' 
 #' resultsWithSSR1 <- getSimulationSurvival(design = dIN, 
 #'     hazardRatio = seq(1, 1.6, 0.1), 
 #'     pi2 = 0.3, conditionalPower = 0.8, thetaH1 = 1.3, 
 #'     plannedEvents = c(58, 102, 146), 
-#' 	   minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-#'     maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+#' 	   minNumberOfEventsPerStage = c(58, 44, 44), 
+#'     maxNumberOfEventsPerStage = 4 * c(58, 44, 44),
 #' 	   maxNumberOfSubjects = 800, maxNumberOfIterations = 50)
 #' resultsWithSSR1
 #' 
@@ -350,8 +352,8 @@ NULL
 #' resultsWithSSR2 <- getSimulationSurvival(design = dIN, 
 #'     hazardRatio = seq(1, 1.6, 0.1), 
 #' 	   pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-#' 	   minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-#'     maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+#' 	   minNumberOfEventsPerStage = c(58, 44, 44), 
+#'     maxNumberOfEventsPerStage = 4 * c(58, 44, 44),
 #' 	   maxNumberOfSubjects = 800, maxNumberOfIterations = 50)
 #' resultsWithSSR2
 #' 
@@ -369,8 +371,8 @@ NULL
 #' dGS <- getDesignGroupSequential(informationRates = c(0.4, 0.7, 1))
 #' resultsWithSSRGS <- getSimulationSurvival(design = dGS, hazardRatio = seq(1), 
 #' 	   pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 145), 
-#' 	   minNumberOfAdditionalEventsPerStage = c(58, 44, 44), 
-#'     maxNumberOfAdditionalEventsPerStage = 4 * c(58, 44, 44),
+#' 	   minNumberOfEventsPerStage = c(58, 44, 44), 
+#'     maxNumberOfEventsPerStage = 4 * c(58, 44, 44),
 #' 	   maxNumberOfSubjects = 800, maxNumberOfIterations = 50)
 #' resultsWithSSRGS$overallReject
 #' 
@@ -405,8 +407,8 @@ getSimulationSurvival <- function(design = NULL, ...,
 		dropoutTime = C_DROP_OUT_TIME_DEFAULT,
 		maxNumberOfSubjects = NA_real_,		
 		plannedEvents = NA_real_, 
-		minNumberOfAdditionalEventsPerStage = NA_real_,
-		maxNumberOfAdditionalEventsPerStage = NA_real_, 
+		minNumberOfEventsPerStage = NA_real_,
+		maxNumberOfEventsPerStage = NA_real_, 
 		conditionalPower = NA_real_, 
 		thetaH1 = NA_real_,
 		maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT, 
@@ -427,24 +429,23 @@ getSimulationSurvival <- function(design = NULL, ...,
 	.assertIsSingleLogical(directionUpper, "directionUpper")
 	.assertIsSingleNumber(thetaH0, "thetaH0")
 	.assertIsInOpenInterval(thetaH0, "thetaH0", 0, NULL, naAllowed = TRUE)
-	.assertIsNumericVector(minNumberOfAdditionalEventsPerStage, 
-		"minNumberOfAdditionalEventsPerStage", naAllowed = TRUE)
-	.assertIsNumericVector(maxNumberOfAdditionalEventsPerStage, 
-		"maxNumberOfAdditionalEventsPerStage", naAllowed = TRUE)
+	.assertIsNumericVector(minNumberOfEventsPerStage, 
+		"minNumberOfEventsPerStage", naAllowed = TRUE)
+	.assertIsNumericVector(maxNumberOfEventsPerStage, 
+		"maxNumberOfEventsPerStage", naAllowed = TRUE)
 	.assertIsSingleNumber(conditionalPower, "conditionalPower", naAllowed = TRUE)
 	.assertIsInOpenInterval(conditionalPower, "conditionalPower", 0, 1, naAllowed = TRUE)
 	.assertIsSingleNumber(thetaH1, "thetaH1", naAllowed = TRUE)
 	.assertIsInOpenInterval(thetaH1, "thetaH1", 0, NULL, naAllowed = TRUE)
-	.assertIsSingleInteger(maxNumberOfIterations, "maxNumberOfIterations", validateType = FALSE)
+	.assertIsSinglePositiveInteger(maxNumberOfIterations, "maxNumberOfIterations", validateType = FALSE)
 	.assertIsSingleNumber(seed, "seed", naAllowed = TRUE)
 	.assertIsNumericVector(lambda1, "lambda1", naAllowed = TRUE)
 	.assertIsNumericVector(lambda2, "lambda2", naAllowed = TRUE)
+	.assertIsSinglePositiveInteger(allocation1, "allocation1", validateType = FALSE)
+	.assertIsSinglePositiveInteger(allocation2, "allocation2", validateType = FALSE)
 	if (!is.na(thetaH1) && is.na(conditionalPower)) {
 		warning("'thetaH1' (", thetaH1, ") ",
 			"will be ignored because no 'conditionalPower' is defined", call. = FALSE)
-	}
-	if (!is.na(thetaH0) && !is.na(thetaH1)) {
-		thetaH1 <- thetaH1 / thetaH0
 	}
 	
 	if (design$sided == 2) {
@@ -471,64 +472,46 @@ getSimulationSurvival <- function(design = NULL, ...,
 	
 	simulationResults <- SimulationResultsSurvival(design)
 	
+	if (is.na(conditionalPower)) {
+		if (length(minNumberOfEventsPerStage) != 1 || 
+				!is.na(minNumberOfEventsPerStage)) {
+			warning("'minNumberOfEventsPerStage' (", 
+				.arrayToString(minNumberOfEventsPerStage), ") ",
+				"will be ignored because no 'conditionalPower' is defined", call. = FALSE)
+		}
+		if (length(maxNumberOfEventsPerStage) != 1 || 
+				!is.na(maxNumberOfEventsPerStage)) {
+			warning("'maxNumberOfEventsPerStage' (", 
+				.arrayToString(maxNumberOfEventsPerStage), ") ",
+				"will be ignored because no 'conditionalPower' is defined", call. = FALSE)
+		}
+	}
+	
+	minNumberOfEventsPerStage <- .assertIsValidMinNumberOfSubjectsPerStage(minNumberOfEventsPerStage, 
+		"minNumberOfEventsPerStage", plannedEvents, conditionalPower, design$kMax) 
+	maxNumberOfEventsPerStage <- .assertIsValidMinNumberOfSubjectsPerStage(maxNumberOfEventsPerStage, 
+		"maxNumberOfEventsPerStage", plannedEvents, conditionalPower, design$kMax) 
+	
 	if (!is.na(conditionalPower)) {
 		if (design$kMax > 1) {
-			if (length(minNumberOfAdditionalEventsPerStage) == 0 || 
-					any(is.na(minNumberOfAdditionalEventsPerStage))) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"'minNumberOfAdditionalEventsPerStage' must be defined ",
-					"because 'conditionalPower' is defined")
+			if (any(maxNumberOfEventsPerStage - minNumberOfEventsPerStage < 0)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfEventsPerStage' (", 
+					.arrayToString(maxNumberOfEventsPerStage), 
+					") must be not smaller than minNumberOfEventsPerStage' (", 
+					.arrayToString(minNumberOfEventsPerStage), ")")
 			}
-			if (length(maxNumberOfAdditionalEventsPerStage) == 0 || 
-					any(is.na(maxNumberOfAdditionalEventsPerStage))) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"'maxNumberOfAdditionalEventsPerStage' must be defined ",
-					"because 'conditionalPower' is defined")
-			}
-			if (length(minNumberOfAdditionalEventsPerStage) != design$kMax) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'minNumberOfAdditionalEventsPerStage' (", 
-					.arrayToString(minNumberOfAdditionalEventsPerStage), ") must have length ", design$kMax)
-			}
-			if (length(maxNumberOfAdditionalEventsPerStage) != design$kMax) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfAdditionalEventsPerStage' (", 
-					.arrayToString(maxNumberOfAdditionalEventsPerStage), ") must have length ", design$kMax)
-			}
-			if (any(maxNumberOfAdditionalEventsPerStage - minNumberOfAdditionalEventsPerStage < 0)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfAdditionalEventsPerStage' (", 
-					.arrayToString(maxNumberOfAdditionalEventsPerStage), 
-					") must be not smaller than minNumberOfAdditionalEventsPerStage' (", 
-					.arrayToString(minNumberOfAdditionalEventsPerStage), ")")
-			}
-			.assertIsInClosedInterval(minNumberOfAdditionalEventsPerStage, 
-				"minNumberOfAdditionalEventsPerStage", 
-				lower = 1, upper = NULL)
-			.assertIsInClosedInterval(maxNumberOfAdditionalEventsPerStage, 
-				"maxNumberOfAdditionalEventsPerStage", 
-				lower = 1, upper = NULL)
-			.setValueAndParameterType(simulationResults, "minNumberOfAdditionalEventsPerStage", 
-				minNumberOfAdditionalEventsPerStage, NA_real_)
-			.setValueAndParameterType(simulationResults, "maxNumberOfAdditionalEventsPerStage", 
-				maxNumberOfAdditionalEventsPerStage, NA_real_)
+			.setValueAndParameterType(simulationResults, "minNumberOfEventsPerStage", 
+				minNumberOfEventsPerStage, NA_real_)
+			.setValueAndParameterType(simulationResults, "maxNumberOfEventsPerStage", 
+				maxNumberOfEventsPerStage, NA_real_)
 		} else {
 			warning("'conditionalPower' will be ignored for fixed sample design", call. = FALSE)
 		}
 	} else {
-		if (length(minNumberOfAdditionalEventsPerStage) != 1 || 
-				!is.na(minNumberOfAdditionalEventsPerStage)) {
-			warning("'minNumberOfAdditionalEventsPerStage' (", 
-				.arrayToString(minNumberOfAdditionalEventsPerStage), ") ",
-				"will be ignored because no 'conditionalPower' is defined", call. = FALSE)
-			simulationResults$minNumberOfAdditionalEventsPerStage <- NA_real_
-		}
-		if (length(maxNumberOfAdditionalEventsPerStage) != 1 || 
-				!is.na(maxNumberOfAdditionalEventsPerStage)) {
-			warning("'maxNumberOfAdditionalEventsPerStage' (", 
-				.arrayToString(maxNumberOfAdditionalEventsPerStage), ") ",
-				"will be ignored because no 'conditionalPower' is defined", call. = FALSE)
-			simulationResults$maxNumberOfAdditionalEventsPerStage <- NA_real_
-		}
-		simulationResults$.setParameterType("minNumberOfAdditionalEventsPerStage", C_PARAM_NOT_APPLICABLE)
-		simulationResults$.setParameterType("maxNumberOfAdditionalEventsPerStage", C_PARAM_NOT_APPLICABLE)
+		simulationResults$minNumberOfEventsPerStage <- NA_real_
+		simulationResults$maxNumberOfEventsPerStage <- NA_real_
+		simulationResults$.setParameterType("minNumberOfEventsPerStage", C_PARAM_NOT_APPLICABLE)
+		simulationResults$.setParameterType("maxNumberOfEventsPerStage", C_PARAM_NOT_APPLICABLE)
 		simulationResults$.setParameterType("conditionalPower", C_PARAM_NOT_APPLICABLE)
 	}
 	
@@ -664,7 +647,13 @@ getSimulationSurvival <- function(design = NULL, ...,
 	.setValueAndParameterType(simulationResults, "allocation1", allocation1, C_ALLOCATION_1_DEFAULT)
 	.setValueAndParameterType(simulationResults, "allocation2", allocation2, C_ALLOCATION_2_DEFAULT)
 	.setValueAndParameterType(simulationResults, "conditionalPower", conditionalPower, NA_real_)
-	.setValueAndParameterType(simulationResults, "thetaH1", thetaH1, NA_real_)
+	if (!is.na(thetaH0) && !is.na(thetaH1) && thetaH0 != 1) {
+		thetaH1 <- thetaH1 / thetaH0
+		.setValueAndParameterType(simulationResults, "thetaH1", thetaH1, NA_real_)
+		simulationResults$.setParameterType("thetaH1", C_PARAM_GENERATED)
+	} else {
+		.setValueAndParameterType(simulationResults, "thetaH1", thetaH1, NA_real_)
+	}
 	if (is.na(conditionalPower)) {
 		simulationResults$.setParameterType("thetaH1", C_PARAM_NOT_APPLICABLE)
 	}
@@ -725,8 +714,8 @@ getSimulationSurvival <- function(design = NULL, ...,
 		conditionalPower,
 		plannedEvents,
 		thetaH1,
-		minNumberOfAdditionalEventsPerStage,
-		maxNumberOfAdditionalEventsPerStage,
+		minNumberOfEventsPerStage,
+		maxNumberOfEventsPerStage,
 		directionUpper,
 		allocation1,
 		allocation2,
@@ -769,6 +758,17 @@ getSimulationSurvival <- function(design = NULL, ...,
 	}
 	simulationResults$eventsNotAchieved <- matrix(overview$eventsNotAchieved, nrow = design$kMax)
 	simulationResults$numberOfSubjects <- matrix(overview$numberOfSubjects, nrow = design$kMax)
+	
+	allocationRatioPlanned <- allocation1 / allocation2
+	simulationResults$numberOfSubjects1 <- 
+		.getNumberOfSubjects1(simulationResults$numberOfSubjects, allocationRatioPlanned)
+	simulationResults$numberOfSubjects2 <- 
+		.getNumberOfSubjects2(simulationResults$numberOfSubjects, allocationRatioPlanned)
+	if (allocationRatioPlanned != 1) {
+		simulationResults$.setParameterType("numberOfSubjects1", C_PARAM_GENERATED)
+		simulationResults$.setParameterType("numberOfSubjects2", C_PARAM_GENERATED)
+	}
+	
 	if (design$kMax > 1) {
 		simulationResults$rejectPerStage <- matrix(overview$rejectPerStage, nrow = design$kMax)
 	}

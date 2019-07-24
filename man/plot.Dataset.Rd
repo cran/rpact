@@ -11,7 +11,8 @@
 \arguments{
 \item{x}{The \code{\link{Dataset}} object to plot.}
 
-\item{y}{Not available for this kind of plot (is only defined to be compatible to the generic plot function).}
+\item{y}{Not available for this kind of plot (is only defined to be compatible 
+to the generic plot function).}
 
 \item{...}{Optional \code{ggplot2} arguments.}
 

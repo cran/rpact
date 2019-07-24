@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 14:30:38                                                        #
+# Date: 23 July 2019, 11:46:58                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -203,8 +203,8 @@ test_that("'getSimulationRates': check several configurations", {
 	x7 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5), typeOfDesign = "P"), 
 		thetaH0 = 0.3, groups = 1, plannedSubjects = c(30,60), 
 		pi1 = seq(0.3,0.5,0.05),maxNumberOfIterations = maxNumberOfIterations, 
-		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(30, 30), 
-		maxNumberOfAdditionalSubjectsPerStage = 5 * c(30, 30), 
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(30, 30), 
+		maxNumberOfSubjectsPerStage = 5 * c(30, 30), 
 		directionUpper = TRUE, seed = seed)
 
 	##
@@ -229,8 +229,8 @@ test_that("'getSimulationRates': check several configurations", {
 		futilityBounds = c(0.5,0.5), typeOfDesign = "P"), 
 		thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 3, plannedSubjects = (1:3) * 100, 
 		pi1 = seq(0.2, 0.4, 0.05), pi2 = 0.2, maxNumberOfIterations = maxNumberOfIterations, 
-		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(100,100,100), 
-		maxNumberOfAdditionalSubjectsPerStage = 5*c(100,100,100), 
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100,100,100), 
+		maxNumberOfSubjectsPerStage = 5*c(100,100,100), 
 		directionUpper = FALSE, seed = seed)
 
 	##
@@ -261,8 +261,8 @@ test_that("'getSimulationRates': check several configurations", {
 		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 3, 
 		maxNumberOfIterations = maxNumberOfIterations,
 		plannedSubjects = c(100,200), pi1 = seq(0.15, 0.4, 0.05), pi2 = 0.2, 
-		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(100,100), 
-		maxNumberOfAdditionalSubjectsPerStage = 5*c(100, 100), directionUpper = TRUE, seed = seed)
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100,100), 
+		maxNumberOfSubjectsPerStage = 5*c(100, 100), directionUpper = TRUE, seed = seed)
 
 	##
 	## Comparison of the results of SimulationResultsRates object 'x9' with expected results
@@ -284,8 +284,8 @@ test_that("'getSimulationRates': check several configurations", {
 
 	mySampleSizeCalculationFunction <- function(...,stage,
 			plannedSubjects,
-			minNumberOfAdditionalSubjectsPerStage,
-			maxNumberOfAdditionalSubjectsPerStage,
+			minNumberOfSubjectsPerStage,
+			maxNumberOfSubjectsPerStage,
 			conditionalPower,
 			conditionalCriticalValue,
 			overallRate) {
@@ -298,15 +298,15 @@ test_that("'getSimulationRates': check several configurations", {
 				stats::qnorm(conditionalPower) * sqrt(overallRate[1] * (1 - overallRate[1]) +
 				overallRate[2] * (1 - overallRate[2]))))^2 /
 				(max(1e-12,	(overallRate[1] - overallRate[2])))^2
-	 		stageSubjects <- ceiling(min(max(minNumberOfAdditionalSubjectsPerStage[stage], 
-	 			stageSubjects), maxNumberOfAdditionalSubjectsPerStage[stage]))
+	 		stageSubjects <- ceiling(min(max(minNumberOfSubjectsPerStage[stage], 
+	 			stageSubjects), maxNumberOfSubjectsPerStage[stage]))
 	 		return(stageSubjects)
 	 	}	
 	}
 	x10 <- getSimulationRates(design = getDesignInverseNormal(kMax = 2), 
 		pi1 = seq(0.3,0.6,0.1), pi2 = 0.3, plannedSubjects = c(40, 80), 
-		minNumberOfAdditionalSubjectsPerStage = c(40, 20), 
-		maxNumberOfAdditionalSubjectsPerStage = c(40, 160),
+		minNumberOfSubjectsPerStage = c(40, 20), 
+		maxNumberOfSubjectsPerStage = c(40, 160),
 		conditionalPower = 0.8,	calcSubjectsFunction = mySampleSizeCalculationFunction, 
 		maxNumberOfIterations = maxNumberOfIterations, seed = seed)
 
@@ -336,7 +336,7 @@ test_that("'getSimulationRates': check several configurations", {
 	#
 	#x <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(-1), informationRates = informationRates,typeOfDesign = "P"), 
 	#		thetaH0 = 0.4, groups = 1, plannedSubjects = plannedSubjects, pi1 = seq(0.3,0.4,0.02),maxNumberOfIterations = maxNumberOfIterations, 
-	#		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(100,100), maxNumberOfAdditionalSubjectsPerStage = 5*c(100,100), directionUpper = FALSE)
+	#		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100,100), maxNumberOfSubjectsPerStage = 5*c(100,100), directionUpper = FALSE)
 	#x$overallReject
 	#x$expectedNumberOfSubjects
 	#x$conditionalPowerAchieved
@@ -356,7 +356,7 @@ test_that("'getSimulationRates': check several configurations", {
 	#
 	#x <- getSimulationRates(design = getDesignGroupSequential(futilityBounds = c(-1,1), typeOfDesign = "P"), 
 	#		thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 2, plannedSubjects = (1:3)*100, pi1 = seq(0.2, 0.4, 0.05), pi2 = 0.1, 
-	#		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(100,100,100), maxNumberOfAdditionalSubjectsPerStage = 1*c(100,100,100), directionUpper = FALSE)
+	#		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100,100,100), maxNumberOfSubjectsPerStage = 1*c(100,100,100), directionUpper = FALSE)
 	#
 	#y <- getPowerRates(design = getDesignGroupSequential(futilityBounds = c(-1,1), typeOfDesign = "P"), 
 	#		thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 2, pi1 = seq(0.2, 0.4, 0.05), pi2 = 0.1, directionUpper = FALSE, maxNumberOfSubjects = 300)
@@ -371,7 +371,7 @@ test_that("'getSimulationRates': check several configurations", {
 	#
 	#x <- getSimulationRates(design = getDesignGroupSequential(futilityBounds = c(-1,1), informationRates = informationRates,typeOfDesign = "P"), 
 	#		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2, plannedSubjects = plannedSubjects, pi1 = seq(0.15,0.4,0.05), pi2 = 0.2, 
-	#		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = plannedSubjects, maxNumberOfAdditionalSubjectsPerStage = c(100,200,300), directionUpper = TRUE)
+	#		conditionalPower = 0.8, minNumberOfSubjectsPerStage = plannedSubjects, maxNumberOfSubjectsPerStage = c(100,200,300), directionUpper = TRUE)
 	#
 	#y <- getPowerRates(design = getDesignGroupSequential(futilityBounds = c(-1,1), informationRates = informationRates,typeOfDesign = "P"), 
 	#		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2, pi1 = seq(0.15,0.4,0.05), pi2 = 0.2, maxNumberOfSubjects = maxNumberOfSubjects, 

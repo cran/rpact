@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 12:52:06                                                        #
+# Date: 23 July 2019, 11:42:03                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -804,11 +804,11 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	expect_equal(accrualTime11$maxNumberOfSubjectsIsUserDefined, TRUE)
 	expect_equal(accrualTime11$maxNumberOfSubjectsCanBeCalculatedDirectly, TRUE)
 	expect_equal(accrualTime11$absoluteAccrualIntensityEnabled, FALSE)
-	expect_equal(accrualTime11$accrualTime, c(0, 6, 3032.303), tolerance = 1e-07)
+	expect_equal(accrualTime11$accrualTime, c(0, 6))
 	expect_equal(accrualTime11$accrualIntensity, c(0.22, 0.33), tolerance = 1e-07)
 	expect_equal(accrualTime11$accrualIntensityRelative, NA_real_)
 	expect_equal(accrualTime11$maxNumberOfSubjects, 1000)
-	expect_equal(accrualTime11$remainingTime, 3026.303, tolerance = 1e-07)
+	expect_equal(accrualTime11$remainingTime, NA_real_)
 	expect_equal(accrualTime11$piecewiseAccrualEnabled, TRUE)
 
 	accrualTime12 <- getAccrualTime(list(
@@ -824,11 +824,11 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	expect_equal(accrualTime12$maxNumberOfSubjectsIsUserDefined, TRUE)
 	expect_equal(accrualTime12$maxNumberOfSubjectsCanBeCalculatedDirectly, TRUE)
 	expect_equal(accrualTime12$absoluteAccrualIntensityEnabled, FALSE)
-	expect_equal(accrualTime12$accrualTime, c(0, 6, 3032.303), tolerance = 1e-07)
+	expect_equal(accrualTime12$accrualTime, c(0, 6))
 	expect_equal(accrualTime12$accrualIntensity, c(0.22, 0.33), tolerance = 1e-07)
 	expect_equal(accrualTime12$accrualIntensityRelative, NA_real_)
 	expect_equal(accrualTime12$maxNumberOfSubjects, 1000)
-	expect_equal(accrualTime12$remainingTime, 3026.303, tolerance = 1e-07)
+	expect_equal(accrualTime12$remainingTime, NA_real_)
 	expect_equal(accrualTime12$piecewiseAccrualEnabled, TRUE)
 
 	accrualTime13 <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(22, 33)) 

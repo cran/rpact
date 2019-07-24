@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 12:56:36                                                        #
+# Date: 23 July 2019, 11:46:33                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -28,7 +28,6 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS1, groups = 1, thetaH0 = 0.5, stDev = 2, 
 		normalApproximation = FALSE, alternative = c(-1,1.2,1.4),
-
 		directionUpper = TRUE, maxNumberOfSubjects = 50)
 
 	##
@@ -1742,6 +1741,7 @@ test_that("'getPowerSurvival': For fixed sample design, determine necessary accr
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
 	expect_equal(powerResult$lambda2, 0.018595296, tolerance = 1e-07)
 	expect_equal(powerResult$hazardRatio, c(1, 1.5984103, 2.2892242, 3.1062837), tolerance = 1e-07)
+	expect_equal(powerResult$accrualTime, 6.6666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, c(8.7010979, 6.004962, 4.1561659, 2.779256), tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], c(15.367765, 12.671629, 10.822833, 9.4459226), tolerance = 1e-07)
 	expect_equal(powerResult$studyDuration, c(15.367765, 12.671629, 10.822833, 9.4459226), tolerance = 1e-07)
@@ -1766,6 +1766,7 @@ test_that("'getPowerSurvival': Determine necessary accrual time if 200 subjects 
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
 	expect_equal(powerResult$lambda2, 0.018595296, tolerance = 1e-07)
 	expect_equal(powerResult$hazardRatio, c(1, 1.5984103, 2.2892242, 3.1062837), tolerance = 1e-07)
+	expect_equal(powerResult$accrualTime, c(6, 8.6666667), tolerance = 1e-07)
 	expect_equal(powerResult$totalAccrualTime, 8.6666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, c(8.127286, 5.4402735, 3.6040872, 2.2435211), tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], c(16.793953, 14.10694, 12.270754, 10.910188), tolerance = 1e-07)
@@ -1817,6 +1818,7 @@ test_that("'getPowerSurvival': Specify accrual time as a list", {
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
 	expect_equal(powerResult$lambda2, 0.018595296, tolerance = 1e-07)
 	expect_equal(powerResult$hazardRatio, c(1, 1.5984103, 2.2892242, 3.1062837), tolerance = 1e-07)
+	expect_equal(powerResult$accrualTime, c(6, 8.6666667), tolerance = 1e-07)
 	expect_equal(powerResult$totalAccrualTime, 8.6666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, c(8.127286, 5.4402735, 3.6040872, 2.2435211), tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], c(16.793953, 14.10694, 12.270754, 10.910188), tolerance = 1e-07)

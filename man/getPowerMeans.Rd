@@ -4,12 +4,12 @@
 \alias{getPowerMeans}
 \title{Get Power Means}
 \usage{
-getPowerMeans(design = NULL, ..., normalApproximation = FALSE,
-  meanRatio = FALSE, thetaH0 = ifelse(meanRatio, 1, 0),
+getPowerMeans(design = NULL, ..., groups = 2,
+  normalApproximation = FALSE, meanRatio = FALSE,
+  thetaH0 = ifelse(meanRatio, 1, 0),
   alternative = C_ALTERNATIVE_POWER_SIMULATION_DEFAULT,
   stDev = C_STDEV_DEFAULT, directionUpper = NA,
-  maxNumberOfSubjects = NA_real_, groups = 2,
-  allocationRatioPlanned = NA_real_)
+  maxNumberOfSubjects = NA_real_, allocationRatioPlanned = NA_real_)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 
@@ -18,10 +18,12 @@ In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} 
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
+\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
+
 \item{normalApproximation}{If \code{normalApproximation = TRUE} is specified, the variance is 
 assumed to be known, default is FALSE, i.e., the calculations are performed with the t distribution.}
 
-\item{meanRatio}{If \code{meanRatio = TRUE} is specified, the sample size for 
+\item{meanRatio}{If \code{meanRatio = TRUE} is specified, the power for 
 one-sided testing of H0: mu1/mu2 = thetaH0 is calculated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value. For one-sided testing, a value != 0 
@@ -36,10 +38,7 @@ is specified, stDev defines the coefficient of variation sigma/mu2.}
 \item{directionUpper}{Specifies the direction of the alternative, 
 only applicable for one-sided testing, default is \code{TRUE}.}
 
-\item{maxNumberOfSubjects}{\code{maxNumberOfSubjects > 0} needs to be specified.
-If accrual time and accrual intensity is specified, this will be calculated.}
-
-\item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
+\item{maxNumberOfSubjects}{\code{maxNumberOfSubjects > 0} needs to be specified for power calculations.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio for a two treatment groups 
 design, default is \code{1}.}

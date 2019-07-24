@@ -675,7 +675,7 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 # 
 # Returns the weights for inverse normal statistic
 # 
-.getWeighsInverseNormal <- function(design) {
+.getWeightsInverseNormal <- function(design) {
 	weights <- rep(NA, design$kMax) 
 	weights[1] <- sqrt(design$informationRates[1])
 	if (design$kMax == 1) {
@@ -690,7 +690,7 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 # 
 # Returns the weights for Fisher's combination test statistic
 # 
-.getWeighsFisher <- function(design) {
+.getWeightsFisher <- function(design) {
 	weights <- rep(NA, design$kMax) 
 	weights[1] <- 1
 	if (design$kMax == 1) {

@@ -406,6 +406,7 @@
 	}
 }
 
+
 .assertIsSingleInteger <- function(x, argumentName, naAllowed = FALSE, validateType = TRUE) {
 	if (missing(x) || is.null(x) || length(x) == 0) {
 		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid single integer value")
@@ -418,6 +419,21 @@
 	
 	if ((!naAllowed && is.na(x)) || (validateType && !is.integer(x)) || (!validateType && as.integer(x) != x)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", x, ") must be a valid single integer value")
+	}
+}
+
+.assertIsSinglePositiveInteger <- function(x, argumentName, naAllowed = FALSE, validateType = TRUE) {
+	if (missing(x) || is.null(x) || length(x) == 0 || x <= 0) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a positive single integer value")
+	}
+	
+	if (length(x) > 1) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' ", 
+				.arrayToString(x, vectorLookAndFeelEnabled = TRUE), " must be a single integer value")
+	}
+	
+	if ((!naAllowed && is.na(x)) || (validateType && !is.integer(x)) || (!validateType && as.integer(x) != x)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", x, ") must be a positive single integer value")
 	}
 }
 
@@ -880,24 +896,24 @@
 
 .isValidNPlanned <- function(nPlanned, kMax, stage) {
 	if (missing(nPlanned)) {
-		warning("'nPlanned' is mssing", call. = FALSE)
+		warning("'nPlanned' is missing", call. = FALSE)
 		return(FALSE)
+	} 
+	if (!any(is.na(nPlanned))) {
+		if ((length(nPlanned) != kMax - stage)) {
+			warning(sprintf(paste0("'nPlanned' (%s) will be ignored: ", 
+				"length must be equal to 'kMax' (%s) - 'stage' (%s)"),
+				.arrayToString(nPlanned), kMax, stage), call. = FALSE)
+			return(FALSE)
+		}
+		
+		if (sum(is.na(nPlanned)) > 0 || sum(nPlanned <= 0) > 0) {
+			warning(sprintf(paste0("'nPlanned' (%s) will be ignored: ", 
+						"all values must be > 0"),
+					.arrayToString(nPlanned)), call. = FALSE)
+			return(FALSE)
+		}
 	}
-	
-	if (length(nPlanned) != kMax - stage) {
-		warning(sprintf(paste0("'nPlanned' (%s) will be ignored: ", 
-			"length must be equal to 'kMax' (%s) - 'stage' (%s)"),
-			.arrayToString(nPlanned), kMax, stage), call. = FALSE)
-		return(FALSE)
-	}
-	
-	if (sum(is.na(nPlanned)) > 0 || sum(nPlanned <= 0) > 0) {
-		warning(sprintf(paste0("'nPlanned' (%s) will be ignored: ", 
-					"all values must be > 0"),
-				.arrayToString(nPlanned)), call. = FALSE)
-		return(FALSE)
-	}
-	
 	return(TRUE)
 }
 
@@ -962,6 +978,13 @@
 	}
 }
 
+.assertTestthatIsInstalled <- function() {
+	if (!requireNamespace("testthat", quietly = TRUE)) {
+		stop("Package \"testthat\" is needed for this function to work. Please install and load it.",
+			call. = FALSE)
+	}
+}
+
 .assertIsValidThetaH0 <- function(thetaH0, ..., endpoint = c("means", "rates", "survival"), 
 		groups, ratioEnabled = FALSE) {
 		
@@ -989,7 +1012,7 @@
 		if (groups == 1) {
 			if (thetaH0 <= 0 || thetaH0 >= 1) {
 				stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, 
-					"'thetaH0' (", thetaH0, ") is out of bounds (0; 1)") 
+					"'thetaH0' (", thetaH0, ") is out of bounds (0; 1) or not specified") 
 			}
 		} else {
 			if (thetaH0 <= -1 || thetaH0 >= 1) {
@@ -1023,22 +1046,20 @@
 			"'thetaRange' must be a vector with two entries defining minimum and maximum ",
 			"or a sequence of values with length > 2")
 	}
-	else if (length(thetaRange) == 2) {
-		if (thetaAutoSeqEnabled) {
-			minValue <- thetaRange[1]
-			maxValue <- thetaRange[2]
-			if (survivalDataEnabled) {
-				.assertIsValidThetaH1(minValue, "thetaRange[1]")
-				.assertIsValidThetaH1(maxValue, "thetaRange[2]")
-			}
-			if (minValue == maxValue) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"'thetaRange' with length 2 must contain minimum != maximum (", 
-					minValue, " == ", maxValue , ")")
-			}
-			by <- (maxValue - minValue) / C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT
-			thetaRange <- seq(minValue, maxValue, by)
+	else if (length(thetaRange) == 2 && thetaAutoSeqEnabled) {
+		minValue <- thetaRange[1]
+		maxValue <- thetaRange[2]
+		if (survivalDataEnabled) {
+			.assertIsValidHazardRatio(minValue, "thetaRange[1]")
+			.assertIsValidHazardRatio(maxValue, "thetaRange[2]")
 		}
+		if (minValue == maxValue) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				"'thetaRange' with length 2 must contain minimum != maximum (", 
+				minValue, " == ", maxValue , ")")
+		}
+		by <- (maxValue - minValue) / C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT
+		thetaRange <- seq(minValue, maxValue, by)
 	}
 	
 	invisible(thetaRange)
@@ -1090,15 +1111,31 @@
 	}
 }
 
-.assertIsValidThetaH1 <- function(thetaH1, thetaName = "thetaH1") {
-	if (!is.na(thetaH1) && !is.numeric(thetaH1)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", thetaName, "' must be a valid numeric value")
+.assertIsValidPi1 <- function(pi1, stageResults = NULL, stage = NULL) {
+
+	if (is.na(pi1) && !is.null(stageResults) && !is.null(stage)) {
+		if (stageResults$isOneSampleDataset()) {
+			pi1 <- stageResults$overallEvents[stage]/stageResults$overallSampleSizes[stage]
+		} else {
+			pi1 <- stageResults$overallEvents1[stage]/stageResults$overallSampleSizes1[stage]
+		}
+	}
+	.assertIsInClosedInterval(pi1, "pi1", lower = 0, upper = 1)
+
+	invisible(pi1)
+}
+
+.assertIsValidPi2 <- function(pi2, stageResults = NULL, stage = NULL) {
+	
+	if (is.na(pi2) && !is.null(stageResults) && !is.null(stage)) {
+		pi2 <- stageResults$overallEvents2[stage]/stageResults$overallSampleSizes2[stage]
 	}
 	
-	if (!is.na(thetaH1) && thetaH1 <= 0) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", thetaName, "' (", thetaH1, ") must be > 0")
-	}
+	.assertIsInClosedInterval(pi2, "pi2", lower = 0, upper = 1)
+	
+	invisible(pi2)
 }
+
 
 .assertIsValidAllocationRatioPlanned <- function(allocationRatioPlanned, numberOfGroups) {
 	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
@@ -1126,16 +1163,26 @@
 	}
 }
 
+.assertIsValidThetaH1 <- function(thetaH1, stageResults = NULL, stage = NULL) {
+	if (is.na(thetaH1) && !is.null(stageResults) && !is.null(stage)) {
+		thetaH1 <- stageResults$effectSizes[stage]
+	}
+
+	.assertIsSingleNumber(thetaH1, "thetaH1")
+	
+	invisible(thetaH1)
+}
+
 .assertIsValidAssumedStDev <- function(assumedStDev, stageResults = NULL, stage = NULL) {
 	if (is.na(assumedStDev) && !is.null(stageResults) && !is.null(stage)) {
 		assumedStDev <- stageResults$overallStDevs[stage]
 	}
-	
+
 	.assertIsSingleNumber(assumedStDev, "assumedStDev")
 	
-	if (assumedStDev < 0) {
+	if (assumedStDev <= 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-			"'assumedStDev' (", assumedStDev, ") must be >= 0")
+			"'assumedStDev' (", assumedStDev, ") must be > 0")
 	}
 	
 	invisible(assumedStDev)
@@ -1150,16 +1197,19 @@
 }
 
 .assertIsValidHazardRatio <- function(hazardRatio, thetaH0) {
+
 	.assertIsNumericVector(hazardRatio, "hazardRatio")
 	
 	if (any(hazardRatio == thetaH0)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"alternative not correctly specified: ", 
-			"each hazard ratio (", 
-			.arrayToString(hazardRatio[1:min(length(hazardRatio), 10)]), 
-			") must be unequal to 'thetaH0' (", thetaH0, ")")
+				"alternative not correctly specified: ", 
+				"each hazard ratio (", 
+				.arrayToString(hazardRatio[1:min(length(hazardRatio), 10)]), 
+				") must be unequal to 'thetaH0' (", thetaH0, ")")
 	}
+	
 }
+
 
 .assertIsValidHazardRatioVector <- function(hazardRatio) {
 	.assertIsNumericVector(hazardRatio, "hazardRatio")
@@ -1278,5 +1328,41 @@
 			funArgName, "' (", functionName, "): \n", 
 			.arrayToString(unusedArgs), call. = FALSE)
 	}
+}
+
+.assertIsValidMinNumberOfSubjectsPerStage <- function(
+		parameterValues, parameterName, plannedSubjects, conditionalPower, kMax) {
+		
+	if (kMax == 1 || is.na(conditionalPower)) {
+		return(invisible(NA_real_))
+	}
+	
+	.assertIsNumericVector(parameterValues, parameterName, naAllowed = TRUE)
+	
+	if (length(parameterValues) == 0 || (length(parameterValues) == 1 && is.na(parameterValues))) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+			"'", parameterName, "' must be defined ",
+			"because 'conditionalPower' is defined")
+	}
+	
+	if (length(parameterValues) != kMax) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", parameterName, "' (", 
+			.arrayToString(parameterValues), ") must have length ", kMax)
+	}
+	
+	if (any(is.na(parameterValues[2:length(parameterValues)]))) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", parameterName, "' (", 
+			.arrayToString(parameterValues), ") must contain valid numeric values")
+	}
+	
+	if (!is.na(parameterValues[1]) && parameterValues[1] != plannedSubjects[1]) {
+		warning("First value of '", parameterName, "' (", parameterValues[1], ") will be ignored")
+	}
+	
+	parameterValues[1] <- plannedSubjects[1]
+	
+	.assertIsInClosedInterval(parameterValues, parameterName, lower = 1, upper = NULL)
+	
+	return(invisible(parameterValues))
 }
 

@@ -31,8 +31,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // getSimulationSurvivalCpp
-List getSimulationSurvivalCpp(int designNumber, int kMax, int sided, NumericVector criticalValues, NumericVector informationRates, double conditionalPower, NumericVector plannedEvents, double thetaH1, NumericVector minNumberOfAdditionalEventsPerStage, NumericVector maxNumberOfAdditionalEventsPerStage, bool directionUpper, double allocation1, double allocation2, NumericVector accrualTime, IntegerVector treatmentGroup, double thetaH0, NumericVector futilityBounds, NumericVector alpha0Vec, NumericVector pi1Vec, double pi2, double eventTime, NumericVector piecewiseSurvivalTime, NumericVector cdfValues1, NumericVector cdfValues2, NumericVector lambdaVec1, NumericVector lambdaVec2, NumericVector phi, int maxNumberOfSubjects, int maxNumberOfIterations, int maxNumberOfRawDatasetsPerStage, double kappa);
-RcppExport SEXP _rpact_getSimulationSurvivalCpp(SEXP designNumberSEXP, SEXP kMaxSEXP, SEXP sidedSEXP, SEXP criticalValuesSEXP, SEXP informationRatesSEXP, SEXP conditionalPowerSEXP, SEXP plannedEventsSEXP, SEXP thetaH1SEXP, SEXP minNumberOfAdditionalEventsPerStageSEXP, SEXP maxNumberOfAdditionalEventsPerStageSEXP, SEXP directionUpperSEXP, SEXP allocation1SEXP, SEXP allocation2SEXP, SEXP accrualTimeSEXP, SEXP treatmentGroupSEXP, SEXP thetaH0SEXP, SEXP futilityBoundsSEXP, SEXP alpha0VecSEXP, SEXP pi1VecSEXP, SEXP pi2SEXP, SEXP eventTimeSEXP, SEXP piecewiseSurvivalTimeSEXP, SEXP cdfValues1SEXP, SEXP cdfValues2SEXP, SEXP lambdaVec1SEXP, SEXP lambdaVec2SEXP, SEXP phiSEXP, SEXP maxNumberOfSubjectsSEXP, SEXP maxNumberOfIterationsSEXP, SEXP maxNumberOfRawDatasetsPerStageSEXP, SEXP kappaSEXP) {
+List getSimulationSurvivalCpp(int designNumber, int kMax, int sided, NumericVector criticalValues, NumericVector informationRates, double conditionalPower, NumericVector plannedEvents, double thetaH1, NumericVector minNumberOfEventsPerStage, NumericVector maxNumberOfEventsPerStage, bool directionUpper, double allocation1, double allocation2, NumericVector accrualTime, IntegerVector treatmentGroup, double thetaH0, NumericVector futilityBounds, NumericVector alpha0Vec, NumericVector pi1Vec, double pi2, double eventTime, NumericVector piecewiseSurvivalTime, NumericVector cdfValues1, NumericVector cdfValues2, NumericVector lambdaVec1, NumericVector lambdaVec2, NumericVector phi, int maxNumberOfSubjects, int maxNumberOfIterations, int maxNumberOfRawDatasetsPerStage, double kappa);
+RcppExport SEXP _rpact_getSimulationSurvivalCpp(SEXP designNumberSEXP, SEXP kMaxSEXP, SEXP sidedSEXP, SEXP criticalValuesSEXP, SEXP informationRatesSEXP, SEXP conditionalPowerSEXP, SEXP plannedEventsSEXP, SEXP thetaH1SEXP, SEXP minNumberOfEventsPerStageSEXP, SEXP maxNumberOfEventsPerStageSEXP, SEXP directionUpperSEXP, SEXP allocation1SEXP, SEXP allocation2SEXP, SEXP accrualTimeSEXP, SEXP treatmentGroupSEXP, SEXP thetaH0SEXP, SEXP futilityBoundsSEXP, SEXP alpha0VecSEXP, SEXP pi1VecSEXP, SEXP pi2SEXP, SEXP eventTimeSEXP, SEXP piecewiseSurvivalTimeSEXP, SEXP cdfValues1SEXP, SEXP cdfValues2SEXP, SEXP lambdaVec1SEXP, SEXP lambdaVec2SEXP, SEXP phiSEXP, SEXP maxNumberOfSubjectsSEXP, SEXP maxNumberOfIterationsSEXP, SEXP maxNumberOfRawDatasetsPerStageSEXP, SEXP kappaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,8 +44,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type conditionalPower(conditionalPowerSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type plannedEvents(plannedEventsSEXP);
     Rcpp::traits::input_parameter< double >::type thetaH1(thetaH1SEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type minNumberOfAdditionalEventsPerStage(minNumberOfAdditionalEventsPerStageSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type maxNumberOfAdditionalEventsPerStage(maxNumberOfAdditionalEventsPerStageSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type minNumberOfEventsPerStage(minNumberOfEventsPerStageSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type maxNumberOfEventsPerStage(maxNumberOfEventsPerStageSEXP);
     Rcpp::traits::input_parameter< bool >::type directionUpper(directionUpperSEXP);
     Rcpp::traits::input_parameter< double >::type allocation1(allocation1SEXP);
     Rcpp::traits::input_parameter< double >::type allocation2(allocation2SEXP);
@@ -67,7 +67,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type maxNumberOfIterations(maxNumberOfIterationsSEXP);
     Rcpp::traits::input_parameter< int >::type maxNumberOfRawDatasetsPerStage(maxNumberOfRawDatasetsPerStageSEXP);
     Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
-    rcpp_result_gen = Rcpp::wrap(getSimulationSurvivalCpp(designNumber, kMax, sided, criticalValues, informationRates, conditionalPower, plannedEvents, thetaH1, minNumberOfAdditionalEventsPerStage, maxNumberOfAdditionalEventsPerStage, directionUpper, allocation1, allocation2, accrualTime, treatmentGroup, thetaH0, futilityBounds, alpha0Vec, pi1Vec, pi2, eventTime, piecewiseSurvivalTime, cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, phi, maxNumberOfSubjects, maxNumberOfIterations, maxNumberOfRawDatasetsPerStage, kappa));
+    rcpp_result_gen = Rcpp::wrap(getSimulationSurvivalCpp(designNumber, kMax, sided, criticalValues, informationRates, conditionalPower, plannedEvents, thetaH1, minNumberOfEventsPerStage, maxNumberOfEventsPerStage, directionUpper, allocation1, allocation2, accrualTime, treatmentGroup, thetaH0, futilityBounds, alpha0Vec, pi1Vec, pi2, eventTime, piecewiseSurvivalTime, cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, phi, maxNumberOfSubjects, maxNumberOfIterations, maxNumberOfRawDatasetsPerStage, kappa));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -78,7 +78,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rpact_getRandomSurvivalDistribution", (DL_FUNC) &_rpact_getRandomSurvivalDistribution, 2},
     {"_rpact_getRandomPiecewiseExponentialDistribution", (DL_FUNC) &_rpact_getRandomPiecewiseExponentialDistribution, 3},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},
-    {"R_getDensityValues",                               (DL_FUNC) &R_getDensityValues,                                6},
+    {"R_getDensityValues", (DL_FUNC) &R_getDensityValues, 6},
     {NULL, NULL, 0}
 };
 

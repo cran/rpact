@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 12:52:07                                                        #
+# Date: 23 July 2019, 11:42:04                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -20,7 +20,7 @@
 context("Testing the analysis means functionality for one treatment")
 
 
-test_that("'getAnalysisResults' for different designs and a dataset of one mean per stage (bindingFutility = TRUE)", {
+test_that("'getAnalysisResults' for group sequential design and a dataset of one mean per stage (bindingFutility = TRUE)", {
 	dataExample1 <- getDataset(
 		n = c(20, 30, 30),
 		means = c(0.45, 0.51, 0.45) * 100,
@@ -114,8 +114,18 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(result1$overallTestStatistics, c(1.2040366, 2.025312, 2.5895142, NA_real_), tolerance = 1e-07)
 	expect_equal(result1$overallPValues, c(0.12168078, 0.02415027, 0.0057194973, NA_real_), tolerance = 1e-07)
 
+})
+
+test_that("'getAnalysisResults' for inverse normal and Fisher designs and a dataset of one mean per stage (bindingFutility = TRUE)", {
+
 	.skipTestifDisabled()
-	
+
+	dataExample1 <- getDataset(
+		n = c(20, 30, 30),
+		means = c(0.45, 0.51, 0.45) * 100,
+		stDevs = c(1.3, 1.4, 1.2) * 100
+	)
+
 	design2 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
 		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
 
@@ -343,7 +353,7 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(result1$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
 	expect_equal(result1$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(result1$thetaH0, 10)
-	expect_equal(result1$thetaH1, NA_real_)
+	expect_equal(result1$thetaH1, 47.25, tolerance = 1e-07)
 	expect_equal(result1$assumedStDev, 128.66279, tolerance = 1e-07)
 	expect_equal(result1$conditionalRejectionProbabilities, c(0.046837862, 0.17749108, 0.46585158, NA_real_), tolerance = 1e-07)
 	expect_equal(result1$nPlanned, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -432,7 +442,7 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(result2$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
 	expect_equal(result2$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(result2$thetaH0, 10)
-	expect_equal(result2$thetaH1, NA_real_)
+	expect_equal(result2$thetaH1, 47.25, tolerance = 1e-07)
 	expect_equal(result2$assumedStDev, 128.66279, tolerance = 1e-07)
 	expect_equal(result2$conditionalRejectionProbabilities, c(0.046837862, 0.16190673, 0.42383694, NA_real_), tolerance = 1e-07)
 	expect_equal(result2$nPlanned, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -579,7 +589,7 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	expect_equal(result$pValues, c(2.1583718e-05, 0.33839752, 6.5708867e-06, 0.0050256902), tolerance = 1e-07)
 	expect_equal(result$testActions, c("reject and stop", "reject and stop", "reject and stop", "reject"))
 	expect_equal(result$thetaH0, 0)
-	expect_equal(result$thetaH1, NA_real_)
+	expect_equal(result$thetaH1, 188.47418, tolerance = 1e-07)
 	expect_equal(result$assumedStDev, 192.76382, tolerance = 1e-07)
 	expect_equal(result$conditionalRejectionProbabilities, c(1, 1, 1, NA_real_))
 	expect_equal(result$nPlanned, c(NA_real_, NA_real_, NA_real_, NA_real_))

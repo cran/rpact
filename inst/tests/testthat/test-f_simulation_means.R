@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 27 May 2019, 14:30:36                                                        #
+# Date: 23 July 2019, 11:46:57                                                       #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -189,7 +189,7 @@ test_that("'getSimulationMeans': several configurations", {
 
 	x7 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = informationRates), groups = 1, thetaH0 = -0.2, 
 		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, stDev = 3.5, alternative = seq(-1.2,-0.2,0.2), 
-		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(10,10,10), maxNumberOfAdditionalSubjectsPerStage = c(100,100,100), directionUpper = FALSE, seed = seed)
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10,10,10), maxNumberOfSubjectsPerStage = c(100,100,100), directionUpper = FALSE, seed = seed)
 
 	##
 	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
@@ -216,7 +216,7 @@ test_that("'getSimulationMeans': several configurations", {
 
 	x8 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5)), groups = 2, meanRatio = FALSE, thetaH0 = -0.1, 
 		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, allocationRatioPlanned = 3, stDev = 3.5, 
-		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(10,40,40), maxNumberOfAdditionalSubjectsPerStage = c(100,400,400), 
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10,40,40), maxNumberOfSubjectsPerStage = c(100,400,400), 
 		seed = seed)
 
 	##
@@ -244,7 +244,7 @@ test_that("'getSimulationMeans': several configurations", {
 
 	x9 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5)), groups = 2, meanRatio = TRUE, thetaH0 = 1.6, 
 		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, allocationRatioPlanned = 3, stDev = 1.5, alternative = seq(0.8,1.6,0.2),
-		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(50,50,50), maxNumberOfAdditionalSubjectsPerStage = c(400,400,400), directionUpper = FALSE, seed = seed)
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(50,50,50), maxNumberOfSubjectsPerStage = c(400,400,400), directionUpper = FALSE, seed = seed)
 
 	##
 	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
@@ -270,15 +270,15 @@ test_that("'getSimulationMeans': several configurations", {
 	expect_equal(x9$conditionalPowerAchieved[3, ], c(0.84712236, 0.77882668, 0.6178067, 0.51284066, 0.41825576), tolerance = 1e-07)
 
 	myStageSubjects <- function(..., stage, thetaH0, allocationRatioPlanned,
-			minNumberOfAdditionalSubjectsPerStage,	maxNumberOfAdditionalSubjectsPerStage,
+			minNumberOfSubjectsPerStage,	maxNumberOfSubjectsPerStage,
 			sampleSizesPerStage, thetaStandardized,	conditionalPower, conditionalCriticalValue) {
 		mult <- 1
 		if (stage == 2){
 			stageSubjects <- (1 + 1/allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned))*
 					(max(0, conditionalCriticalValue + stats::qnorm(conditionalPower)))^2 * mult / 
 					(max(1e-12, thetaStandardized))^2
-			stageSubjects <- min(max(minNumberOfAdditionalSubjectsPerStage[stage], stageSubjects), 
-					maxNumberOfAdditionalSubjectsPerStage[stage])
+			stageSubjects <- min(max(minNumberOfSubjectsPerStage[stage], stageSubjects), 
+					maxNumberOfSubjectsPerStage[stage])
 		} else {
 			stageSubjects <- sampleSizesPerStage[stage - 1]
 		}
@@ -286,7 +286,7 @@ test_that("'getSimulationMeans': several configurations", {
 	}
 	x10 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(0.5,0.5)), groups = 2, meanRatio = TRUE, thetaH0 = 1.6, 
 		plannedSubjects = c(80,160,240), maxNumberOfIterations = maxNumberOfIterations, stDev = 1.5, alternative = seq(0.8,1.6,0.2),
-		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(10,40,40), maxNumberOfAdditionalSubjectsPerStage = c(200,400,400), 
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10,40,40), maxNumberOfSubjectsPerStage = c(200,400,400), 
 		allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed, calcSubjectsFunction = myStageSubjects)
 
 	##
@@ -387,7 +387,7 @@ test_that("'getSimulationMeans': several configurations", {
 	#
 	#x <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(0.5,0.5), informationRates = informationRates), groups = 1, thetaH0 = 0, 
 	#		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, stDev = 3.5, alternative = seq(-1,0,0.2), 
-	#		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(10,10,10), maxNumberOfAdditionalSubjectsPerStage = c(100,100,100), directionUpper = FALSE)
+	#		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10,10,10), maxNumberOfSubjectsPerStage = c(100,100,100), directionUpper = FALSE)
 	#x$overallReject
 	#x$futilityStop
 	#x$expectedNumberOfSubjects
@@ -396,7 +396,7 @@ test_that("'getSimulationMeans': several configurations", {
 	#
 	#x <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5)), groups = 2, meanRatio = FALSE, thetaH0 = -0.1, 
 	#		plannedSubjects = c(80,160,240), maxNumberOfIterations = maxNumberOfIterations, allocationRatioPlanned = 3, stDev = 3.5, 
-	#		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(10, 40, 40), maxNumberOfAdditionalSubjectsPerStage = c(100,400, 400))
+	#		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 40, 40), maxNumberOfSubjectsPerStage = c(100,400, 400))
 	#x$overallReject
 	#x$futilityStop
 	#x$expectedNumberOfSubjects
@@ -405,7 +405,7 @@ test_that("'getSimulationMeans': several configurations", {
 	#
 	#x <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(0.5,0.5)), groups = 2, meanRatio = TRUE, thetaH0 = 1.6, 
 	#		plannedSubjects = c(80,160,240), maxNumberOfIterations = maxNumberOfIterations, stDev = 1.5, alternative = seq(0.8,1.6,0.2),
-	#		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(10,40,40), maxNumberOfAdditionalSubjectsPerStage = c(200,400,400), 
+	#		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10,40,40), maxNumberOfSubjectsPerStage = c(200,400,400), 
 	#		allocationRatioPlanned = 3, directionUpper = FALSE)
 	#
 	#x$overallReject
@@ -415,14 +415,14 @@ test_that("'getSimulationMeans': several configurations", {
 	#x$sampleSizes
 	#
 	#myStageSubjects <- function(..., stage, thetaH0, allocationRatioPlanned,
-	#		minNumberOfAdditionalSubjectsPerStage,	maxNumberOfAdditionalSubjectsPerStage,
+	#		minNumberOfSubjectsPerStage,	maxNumberOfSubjectsPerStage,
 	#		sampleSizesPerStage, thetaStandardized,	conditionalPower, conditionalCriticalValue) {
 	#	if (stage == 2){
 	#		stageSubjects <- (1 + 1/allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned))*
 	#				(max(0, conditionalCriticalValue + stats::qnorm(conditionalPower)))^2 * mult / 
 	#				(max(1e-12, thetaStandardized))^2
-	#		stageSubjects <- min(max(minNumberOfAdditionalSubjectsPerStage[stage], stageSubjects), 
-	#				maxNumberOfAdditionalSubjectsPerStage[stage])
+	#		stageSubjects <- min(max(minNumberOfSubjectsPerStage[stage], stageSubjects), 
+	#				maxNumberOfSubjectsPerStage[stage])
 	#	} else {
 	#		stageSubjects <- sampleSizesPerStage[stage - 1]
 	#	}
@@ -431,7 +431,7 @@ test_that("'getSimulationMeans': several configurations", {
 	#
 	#x <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(0.5,0.5)), groups = 2, meanRatio = TRUE, thetaH0 = 1.6, 
 	#		plannedSubjects = c(80,160,240), maxNumberOfIterations = maxNumberOfIterations, stDev = 1.5, alternative = seq(0.8,1.6,0.2),
-	#		conditionalPower = 0.8, minNumberOfAdditionalSubjectsPerStage = c(10,40,40), maxNumberOfAdditionalSubjectsPerStage = c(200,400,400), 
+	#		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10,40,40), maxNumberOfSubjectsPerStage = c(200,400,400), 
 	#		allocationRatioPlanned = 3, directionUpper = FALSE, calcSubjectsFunction = myStageSubjects)
 	#
 	#

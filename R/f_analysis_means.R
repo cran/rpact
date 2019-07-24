@@ -142,8 +142,11 @@ getAnalysisResultsMeans <- function(design, dataInput, ...) {
 	.logProgress("Stage results calculated", startTime = startTime)
 	
 	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, dataInput$getNumberOfGroups())
+	
 	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
-
+	
+	thetaH1 <- .assertIsValidThetaH1(thetaH1, stageResults, stage)
+	
 	results$directionUpper <- directionUpper
 	results$normalApproximation <- normalApproximation
 	results$equalVariances <- equalVariances
@@ -423,8 +426,8 @@ getStageResultsMeans <- function(..., design, dataInput,
 	pValues <- rep(NA_real_, design$kMax)
 	combInverseNormal <- rep(NA_real_, design$kMax)
 	combFisher <- rep(NA_real_, design$kMax)
-	weightsInverseNormal <- .getWeighsInverseNormal(design) 
-	weightsFisher <- .getWeighsFisher(design) 
+	weightsInverseNormal <- .getWeightsInverseNormal(design) 
+	weightsFisher <- .getWeightsFisher(design) 
 	
 	for (k in 1:stage) {
 		
@@ -750,7 +753,11 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 	.assertIsTrialDesignGroupSequential(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
 	.assertIsValidStage(stage, design$kMax)
+	
 	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+	
+	thetaH1 <- .assertIsValidThetaH1(thetaH1, stageResults, stage)
+	
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansGroupSequential", 
 		ignore = c("stage"), ...)
 	
@@ -853,7 +860,11 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 	.assertIsTrialDesignInverseNormal(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
 	.assertIsValidStage(stage, design$kMax)
+	
 	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+	
+	thetaH1 <- .assertIsValidThetaH1(thetaH1, stageResults, stage)
+	
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansInverseNormal", 
 		ignore = c("stage"), ...)
 	
@@ -957,7 +968,11 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
 	.assertIsValidStage(stage, design$kMax)
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
+	
 	assumedStDev <- .assertIsValidAssumedStDev(assumedStDev, stageResults, stage)
+	
+	thetaH1 <- .assertIsValidThetaH1(thetaH1, stageResults, stage)
+	
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansFisher", 
 		ignore = c("stage"), ...)
 	
@@ -1026,7 +1041,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 .getConditionalPowerMeans <- function(..., design, stageResults, 
 		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, thetaH1, assumedStDev = NA_real_) {
 		
-	if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, thetaH1 = thetaH1)) {
+	if (any(is.na(nPlanned))) {			
 		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
 	}
 	
@@ -1039,7 +1054,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 	
 	if (.isTrialDesignGroupSequential(design)) {
 		return(.getConditionalPowerMeansGroupSequential(design = design, stageResults = stageResults, 
-			nPlanned = nPlanned,	allocationRatioPlanned = allocationRatioPlanned, 
+			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, 
 			thetaH1 = thetaH1, assumedStDev = assumedStDev, ...))
 	}
 	

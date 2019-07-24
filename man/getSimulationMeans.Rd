@@ -10,9 +10,9 @@ getSimulationMeans(design = NULL, ..., groups = 2L,
   stDev = C_STDEV_DEFAULT, plannedSubjects = NA_real_,
   directionUpper = C_DIRECTION_UPPER_DEFAULT,
   allocationRatioPlanned = NA_real_,
-  minNumberOfAdditionalSubjectsPerStage = NA_real_,
-  maxNumberOfAdditionalSubjectsPerStage = NA_real_,
-  conditionalPower = NA_real_, thetaH1 = NA_real_,
+  minNumberOfSubjectsPerStage = NA_real_,
+  maxNumberOfSubjectsPerStage = NA_real_, conditionalPower = NA_real_,
+  thetaH1 = NA_real_,
   maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT,
   seed = NA_real_, calcSubjectsFunction = NULL)
 }
@@ -47,19 +47,18 @@ for one-sided testing, default is \code{TRUE}.}
 \item{allocationRatioPlanned}{The planned allocation ratio for a two treatment groups 
 design, default is \code{1}.}
 
-\item{minNumberOfAdditionalSubjectsPerStage}{When performing a data driven sample size recalculation, 
-   the vector with length kMax \code{minNumberOfAdditionalSubjectsPerStage} determines the 
+\item{minNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation, 
+   the vector with length kMax \code{minNumberOfSubjectsPerStage} determines the 
 minimum number of subjects per stage (i.e., not cumulated), the first element 
 is not taken into account.}
 
-\item{maxNumberOfAdditionalSubjectsPerStage}{When performing a data driven sample size recalculation, 
-   the vector with length kMax \code{maxNumberOfAdditionalSubjectsPerStage} determines the maximum number 
+\item{maxNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation, 
+   the vector with length kMax \code{maxNumberOfSubjectsPerStage} determines the maximum number 
 of subjects per stage (i.e., not cumulated), the first element is not taken into account.}
 
-\item{conditionalPower}{The conditional power under which the sample size recalculation is performed.}
+\item{conditionalPower}{The conditional power for the subsequent stage under which the sample size recalculation is performed.}
 
-\item{thetaH1}{If specified, the value of the alternative under which the conditional 
-power calculation is performed.}
+\item{thetaH1}{If specified, the value of the alternative under which the conditional power calculation is performed.}
 
 \item{maxNumberOfIterations}{The number of simulation iterations.}
 
@@ -67,7 +66,7 @@ power calculation is performed.}
 
 \item{calcSubjectsFunction}{Optionally, a function can be entered that defines the way of performing the sample size
 recalculation. By default, sample size recalulation is performed with conditional power with specified
-\code{minNumberOfAdditionalSubjectsPerStage} and \code{maxNumberOfAdditionalSubjectsPerStage} (see details
+\code{minNumberOfSubjectsPerStage} and \code{maxNumberOfSubjectsPerStage} (see details
 and examples).}
 }
 \value{
@@ -87,8 +86,8 @@ calcSubjectsFunction\cr
 This function returns the number of subjects at given conditional power and conditional Type I error rate for specified 
 testing situation. The function might depend on variables \code{stage}, \code{meanRatio}, \code{thetaH0}, \code{groups}, 
 \code{plannedSubjects}, \code{sampleSizesPerStage}, \code{directionUpper}, \code{allocationRatioPlanned}, 
-\code{minNumberOfAdditionalSubjectsPerStage}, 
-\code{maxNumberOfAdditionalSubjectsPerStage}, \code{conditionalPower}, \code{conditionalCriticalValue}, 
+\code{minNumberOfSubjectsPerStage}, 
+\code{maxNumberOfSubjectsPerStage}, \code{conditionalPower}, \code{conditionalCriticalValue}, 
 \code{thetaStandardized}.
 The function has to obtain the three-dots arument '...' (see examples).
 }
@@ -157,20 +156,21 @@ getPowerMeans(designIN, alternative = 0:4, stDev = 5,
 
 # Assess power and average sample size if a sample size increase is foreseen 
 # at conditional power 80\% for each subsequent stage based on observed overall 
-# effect and specified minNumberOfAdditionalSubjectsPerStage and
-# maxNumberOfAdditionalSubjectsPerStage
+# effect and specified minNumberOfSubjectsPerStage and
+# maxNumberOfSubjectsPerStage
 getSimulationMeans(designIN, alternative = 0:4, stDev = 5, 
     plannedSubjects = c(20, 40, 60), 
-    minNumberOfAdditionalSubjectsPerStage = c(20, 20, 20), 
-    maxNumberOfAdditionalSubjectsPerStage = c(80, 80, 80),
-    conditionalPower = 0.8,	maxNumberOfIterations = 50)
+    minNumberOfSubjectsPerStage = c(20, 20, 20), 
+    maxNumberOfSubjectsPerStage = c(80, 80, 80),
+    conditionalPower = 0.8,	
+	   maxNumberOfIterations = 50)
 
 # Do the same under the assumption that a sample size increase only takes 
 # place at the first interim. The sample size for the third stage is set equal 
 # to the second stage sample size.
 mySampleSizeCalculationFunction <- function(..., stage, 
-        minNumberOfAdditionalSubjectsPerStage,
-        maxNumberOfAdditionalSubjectsPerStage,
+        minNumberOfSubjectsPerStage,
+        maxNumberOfSubjectsPerStage,
         sampleSizesPerStage,
         conditionalPower,
         conditionalCriticalValue,
@@ -178,8 +178,8 @@ mySampleSizeCalculationFunction <- function(..., stage,
     if (stage == 2) {
         stageSubjects <- 4 * (max(0, conditionalCriticalValue + 
             stats::qnorm(conditionalPower)))^2 / (max(1e-12, thetaStandardized))^2
-        stageSubjects <- min(max(minNumberOfAdditionalSubjectsPerStage[stage], 
-            stageSubjects), maxNumberOfAdditionalSubjectsPerStage[stage])
+        stageSubjects <- min(max(minNumberOfSubjectsPerStage[stage], 
+            stageSubjects), maxNumberOfSubjectsPerStage[stage])
     } else {
         stageSubjects <- sampleSizesPerStage[stage - 1]
     }
@@ -187,8 +187,8 @@ mySampleSizeCalculationFunction <- function(..., stage,
 }
 getSimulationMeans(designIN, alternative = 2:4, stDev = 5, 
     plannedSubjects = c(20, 40, 60), 
-    minNumberOfAdditionalSubjectsPerStage = c(20, 20, 2), 
-    maxNumberOfAdditionalSubjectsPerStage = c(40, 160, 16),
+    minNumberOfSubjectsPerStage = c(20, 20, 20), 
+    maxNumberOfSubjectsPerStage = c(40, 160, 160),
     conditionalPower = 0.8, 
     calcSubjectsFunction = mySampleSizeCalculationFunction, 
     maxNumberOfIterations = 50)

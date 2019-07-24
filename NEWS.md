@@ -1,4 +1,21 @@
 
+# rpact 2.02
+
+* Minor corrections in the inline help
+* Labeling of lower and upper critical values (effect scale) reverted
+* Simulation for Fisher's combination test corrected
+* Parameter minNumberOfAdditionalEventsPerStage renamed to minNumberOfEventsPerStage
+* Parameter maxNumberOfAdditionalEventsPerStage renamed to maxNumberOfEventsPerStage
+* Parameter minNumberOfAdditionalSubjectsPerStage renamed to minNumberOfSubjectsPerStage
+* Parameter maxNumberOfAdditionalSubjectsPerStage renamed to maxNumberOfSubjectsPerStage
+* Output of function getAccrualTime() improved
+* Validation of arguments maxNumberOfIterations, allocation1, and allocation2 added: check for positive integer 
+* Function getSampleSizeSurvival improved: numeric search for accrualTime if followUpTime is given
+* Default value improved for analysis tools: if no effect was specified for conditional power calculation, the observed effect is selected
+* Fixed: function getDataset produced an error if only one log-rank value and one event was defined
+* Number of subjects per treatment arm are provided in output of simulation survival if allocation ratio != 1
+* Function getSimulationSurvival improved: first value of minNumberOfEventsPerStage and maxNumberOfEventsPerStage must be NA or equal to first value of plannedSubjects
+
 # rpact 2.0.1
 
 * Function base::isFALSE replaced to guarantee R 3.4.x compatibility
