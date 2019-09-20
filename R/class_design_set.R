@@ -148,10 +148,20 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'designsToAdd' must be not empty")
 			}
 			
+			designsToAddValidated <- list()
 			for (d in designsToAdd) {
-				if (!.isTrialDesign(d)) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-						"'designsToAdd' must be a list of trial designs (found '", class(d), "')")
+				if (.isTrialDesign(d)) {
+					designsToAddValidated <- c(designsToAddValidated, d)
+				} else {
+					parentDesign <- d[[".design"]] 
+					if (is.null(parentDesign)) {
+						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+							"'designsToAdd' must be a list of trial designs (found '", class(d), "')")
+					}
+					
+					warning("Only the parent design of ", class(d), 
+						" was added to trial design set", call. = FALSE)
+					designsToAddValidated <- c(designsToAddValidated, parentDesign)
 				}
 			}
 			
@@ -167,7 +177,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 					"because for 'designs' only argument 'variedParameters' will be respected", call. = FALSE)
 			}
 			
-			designs <<- c(designs, designsToAdd)
+			designs <<- c(designs, designsToAddValidated)
 		},
 		
 		addVariedParameters = function(varPar) {
@@ -557,6 +567,15 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 			kMax <- design$kMax
 			df[[futilityBoundsName]][kMax] <- design$criticalValues[kMax]
 		}
+		if (.isTrialDesignWithValidAlpha0Vec(design)) {
+			alpha0VecName <- "alpha0Vec"
+			if (niceColumnNamesEnabled) {
+				alpha0VecName <- .getTableColumnNames(design = design)[["alpha0Vec"]]
+			}
+			
+			kMax <- design$kMax
+			df[[alpha0VecName]][kMax] <- design$criticalValues[kMax]
+		}
 		
 		if (addPowerAndAverageSampleNumber) {
 			results <- PowerAndAverageSampleNumberResult(design, theta = theta, nMax = nMax)
@@ -682,10 +701,14 @@ plot.TrialDesignSet <- function(x, y, type = 1L, main = NA_character_,
 	if (type == 1) {
 		main <- ifelse(is.na(main), "Boundaries", main)
 		xParameterName <- "informationRates"
-		if (designMaster$sided == 1 && .isTrialDesignWithValidFutilityBounds(designMaster)) {
-			yParameterNames <- c("futilityBounds", "criticalValues")
-		} else {
-			yParameterNames <- c("criticalValues")
+		yParameterNames <- c("criticalValues")
+		if (designMaster$sided == 1) {
+			if (.isTrialDesignWithValidFutilityBounds(designMaster)) {
+				yParameterNames <- c("futilityBounds", "criticalValues")
+			}
+			if (.isTrialDesignWithValidAlpha0Vec(designMaster)) {
+				yParameterNames <- c("alpha0Vec", "criticalValues")
+			}
 		}
 	}
 	
@@ -703,7 +726,8 @@ plot.TrialDesignSet <- function(x, y, type = 1L, main = NA_character_,
 		main <- ifelse(is.na(main), "Type One Error Spending", main)
 		xParameterName <- "informationRates"
 		yParameterNames <- c("alphaSpent")
-		if (designMaster$typeBetaSpending != C_TYPE_OF_DESIGN_BS_NONE) {
+		if (!.isTrialDesignFisher(designMaster) && 
+				designMaster$typeBetaSpending != C_TYPE_OF_DESIGN_BS_NONE) {
 			yParameterNames <- c(yParameterNames, "betaSpent")
 			palette <- "Paired"
 		}

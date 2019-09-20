@@ -295,6 +295,17 @@ qpwexp <- function(q, ..., s = NA_real_, lambda = NA_real_, kappa = 1) {
 		piecewiseSurvivalTime = s, piecewiseLambda = lambda, kappa = kappa, ...)
 }
 
+.getPiecewiseExponentialRandomNumbersFast <- function(n, piecewiseSurvivalTime, piecewiseLambda) {
+	result <- rexp(n, rate = piecewiseLambda[1])
+	if (length(piecewiseSurvivalTime) > 1) {
+		for (i in 2:length(piecewiseSurvivalTime)) {
+			result <- ifelse(result < piecewiseSurvivalTime[i], 
+				result, piecewiseSurvivalTime[i] + rexp(n, rate = piecewiseLambda[i]))
+		}
+	}
+	result
+}
+
 #' @rdname utilitiesForPiecewiseExponentialDistribution
 #' @export
 getPiecewiseExponentialRandomNumbers <- function(n, ..., 
@@ -309,6 +320,12 @@ getPiecewiseExponentialRandomNumbers <- function(n, ...,
 	
 	settings <- .getPiecewiseExponentialSettings(piecewiseSurvivalTime = piecewiseSurvivalTime,
 		piecewiseLambda = piecewiseLambda, kappa = kappa)
+	
+	if (kappa == 1) {
+		return(.getPiecewiseExponentialRandomNumbersFast(n, 
+			piecewiseSurvivalTime = settings$piecewiseSurvivalTime, 
+			piecewiseLambda = settings$piecewiseLambda))
+	}
 	
 	randomQuantiles <- runif(n, 0, 1)
 	result <- c()
@@ -386,12 +403,12 @@ getPiByLambda <- function(lambda, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) {
 	return(1 - exp(-(lambda * eventTime)^kappa))
 }
 
-# alternative: return(1 - exp(-(log(2)^(1 / kappa) / median1 * eventTime)^kappa))
+# alternative: return(1 - exp(-(log(2)^(1 / kappa) / median * eventTime)^kappa))
 #' @rdname utilitiesForSurvivalTrials
 #' @export
 getPiByMedian <- function(median, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) {
 	.assertIsValidKappa(kappa)
-	return(1 - 2^(-(eventTime / median1)^kappa))
+	return(1 - 2^(-(eventTime / median)^kappa))
 }
 
 #' @rdname utilitiesForSurvivalTrials
@@ -409,3 +426,195 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 	getMedianByLambda(getLambdaByPi(piValue, eventTime, kappa), kappa)
 }
 
+.getSimpleBoundarySummaryParameter <- function(designPlan, parameterName, parameterCaption, ...,
+	roundDigits = NA_integer_, ceilingEnabeld = FALSE, cumsumEnabled = FALSE, 
+	parameterCaptionSingle = parameterCaption) {
+	
+	if (is.character(parameterName)) {
+		values <- designPlan[[parameterName]]
+	} else {
+		values <- parameterName
+	}
+	
+	parameterNames <- designPlan$.getVisibleFieldNamesOrdered()
+	numberOfVariants <- designPlan$.getMultidimensionalNumberOfVariants(parameterNames)
+	numberOfStages <- designPlan$.getMultidimensionalNumberOfStages(parameterNames)
+	
+	parameters <- c()
+	if ((!is.matrix(values) || ncol(values) == 1) && 
+		(numberOfStages > 1 || length(values) != numberOfVariants)) {
+		if (cumsumEnabled) {
+			values <- cumsum(values)
+		}
+		if (ceilingEnabeld) {
+			values <- ceiling(values)
+		}
+		else if (!is.na(roundDigits)) {
+			values <- round(values, roundDigits)
+		}
+		parameters <- list(values)
+		names(parameters) <- parameterCaptionSingle
+	} else {
+		variedParameter <- designPlan$.getVariedParameter(parameterNames, numberOfVariants)
+		variedParameterCaption <- designPlan$.getDataFrameColumnCaption(variedParameter, 
+			tableColumnNames = C_TABLE_COLUMN_NAMES, niceColumnNamesEnabled = TRUE)
+		variedParameterValues <- designPlan[[variedParameter]]
+		for (i in 1:numberOfVariants) {
+			if (length(values) == 1) {
+				colValues <- values
+			} else if (is.matrix(values)) {
+				colValues <- values[, i]
+			} else {
+				colValues <- values[i]
+			}
+			if (cumsumEnabled) {
+				colValues <- cumsum(colValues)
+			}
+			if (ceilingEnabeld) {
+				colValues <- ceiling(colValues)
+			}
+			else if (!is.na(roundDigits)) {
+				colValues <- round(colValues, roundDigits)
+			}
+			parameter <- list(colValues)
+			names(parameter) <- paste0(parameterCaption, ", ", 
+				variedParameterCaption," = ", variedParameterValues[i])
+			parameters <- c(parameters, parameter)
+		}
+	}
+	return(parameters)
+}
+
+.getSimpleBoundarySummary <- function(designPlan) {
+	if (.isTrialDesignPlan(designPlan) || inherits(designPlan, "SimulationResults")) {
+		design <- designPlan$.design
+	}
+	else if (.isTrialDesign(designPlan)) {
+		design <- designPlan
+		designPlan <- NULL
+	}
+	else {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'designPlan' must be a valid design, design plan, ", 
+			"or simulation result object (is class ", class(designPlan), ")")
+	}
+	
+	designCharacteristics <- NULL
+	probsH0 <- NULL
+	probsH1 <- NULL
+	if (.isTrialDesignInverseNormalOrGroupSequential(design)) {
+		designCharacteristics <- getDesignCharacteristics(design)
+		probsH0 <- getPowerAndAverageSampleNumber(design, theta = 0, nMax = designCharacteristics$shift) 
+		probsH1 <- getPowerAndAverageSampleNumber(design, theta = 1, nMax = designCharacteristics$shift) 
+	}
+	
+	parameters <- list(
+		"Stage" = c(1:design$kMax), 
+		"Information rate" = paste0(round(100 * design$informationRates, 1), "%")
+	)
+	
+	if (!is.null(designPlan)) {
+		if (design$kMax == 1) {
+			if (grepl("Survival", class(designPlan))) {
+				parameters <- c(parameters, 
+					.getSimpleBoundarySummaryParameter(designPlan, "eventsFixed", 
+						parameterCaption = "Cumulative number of events", roundDigits = 1))
+				parameters <- c(parameters, 
+					.getSimpleBoundarySummaryParameter(designPlan, "analysisTime", 
+						parameterCaption = "Analysis time under H1", roundDigits = 1))
+			} else {
+				parameters <- c(parameters, 
+					.getSimpleBoundarySummaryParameter(designPlan, "nFixed", 
+						parameterCaption = "Total sample size",
+						ceilingEnabeld = TRUE, cumsumEnabled = TRUE))
+			}
+		} else {
+			if (grepl("Survival", class(designPlan))) {
+				parameters <- c(parameters, 
+					.getSimpleBoundarySummaryParameter(designPlan, "eventsPerStage", 
+						parameterCaption = "Cumulative number of events", roundDigits = 1))
+				parameters <- c(parameters, 
+					.getSimpleBoundarySummaryParameter(designPlan, "analysisTime", 
+						parameterCaption = "Analysis time under H1", roundDigits = 1))
+			} else {
+				parameters <- c(parameters, 
+					.getSimpleBoundarySummaryParameter(designPlan, "numberOfSubjects", 
+						parameterCaption = "Total sample size",
+						ceilingEnabeld = TRUE, cumsumEnabled = TRUE, 
+						parameterCaptionSingle = "Total sample size (cumulative)"))
+			}
+		}
+	}
+	
+	parameters <- c(parameters, list(
+		"Cumulative alpha spent" = round(design$alphaSpent, 4)
+	))
+	if (!is.null(designCharacteristics)) {
+		parameters <- c(parameters, list(
+			"Cumulative power" = round(designCharacteristics$power, 3)
+		))
+	}
+	if (design$sided == 2) {
+		parameters <- c(parameters, list(
+			"Two-sided local significance level" = round(2 * design$stageLevels, 4)
+		))
+	} else {
+		parameters <- c(parameters, list(
+			"One-sided local significance level" = round(design$stageLevels, 4)
+		))
+	}
+	parameters <- c(parameters, list(
+		"Efficacy boundary (Z-value scale)" = round(design$criticalValues, 3)
+	))
+	
+	if (!is.null(designPlan) && .isTrialDesignPlan(designPlan)) {
+		if (ncol(designPlan$criticalValuesEffectScale) > 0) {
+			parameters <- c(parameters, 
+				.getSimpleBoundarySummaryParameter(designPlan, "criticalValuesEffectScale", 
+					parameterCaption = "Efficacy boundary (approximate treatment effect scale)", 
+					roundDigits = 3))
+		}
+		
+		if (ncol(designPlan$futilityBoundsEffectScale) > 0 && 
+			!all(is.na(designPlan$futilityBoundsEffectScale))) {
+			parameters <- c(parameters, 
+				.getSimpleBoundarySummaryParameter(designPlan, 
+					rbind(designPlan$futilityBoundsEffectScale, 
+						rep(NA_real_, ncol(designPlan$futilityBoundsEffectScale))), 
+					parameterCaption = "Futility boundary (approximate treatment effect scale)", 
+					roundDigits = 3))
+		}
+	}
+	
+	if (!is.null(probsH1) && !is.null(probsH0)) {
+		if (any(design$futilityBounds > -6)) {
+			parameters <- c(parameters, list(
+				"Overall exit probability (under H1)" = 
+					.getFormattedValue(probsH1$earlyStop[, 1], digits = 3),
+				"Overall exit probability (under H0)" = 
+					.getFormattedValue(probsH0$earlyStop[, 1], digits = 3)
+			))
+		}
+		parameters <- c(parameters, list(
+			"Exit probability for efficacy (under H1)" = 
+				.getFormattedValue(probsH1$rejectPerStage[, 1], digits = 3),
+			"Exit probability for efficacy (under H0)" = 
+				.getFormattedValue(probsH0$rejectPerStage[, 1], digits = 3)
+		))
+		if (any(design$futilityBounds > -6)) {
+			parameters <- c(parameters, list(
+				"Exit probability for futility (under H1)" = 
+					.getFormattedValue(c(probsH1$futilityPerStage[, 1], NA_real_), digits = 3),
+				"Exit probability for futility (under H0)" = 
+					.getFormattedValue(c(probsH0$futilityPerStage[, 1], NA_real_), digits = 3)
+			))
+		}
+	}
+	
+	names(parameters) <- paste0(format(names(parameters)), " ")
+	for (paramName in names(parameters)) {
+		values <- parameters[[paramName]]
+		values <- format(c("        ", values))[2:(length(values) + 1)]
+		cat(paramName, values, "\n")
+	}
+}

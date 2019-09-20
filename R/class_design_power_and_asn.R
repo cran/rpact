@@ -262,7 +262,6 @@ as.data.frame.PowerAndAverageSampleNumberResult <- function(x, row.names = NULL,
 	dataFrame <- x$.getAsDataFrame(parameterNames = parameterNames, 
 		niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters,
 		tableColumnNames = .getTableColumnNames(design = x$.design))
-	dataFrame <- cbind(Stage = 1:nrow(dataFrame), dataFrame)
 	return(dataFrame)
 }
 

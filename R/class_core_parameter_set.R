@@ -394,7 +394,7 @@ ParameterSet <- setRefClass("ParameterSet",
 			return(.getParametersOfOneGroup(C_PARAM_TYPE_UNKNOWN))
 		},
 		
-		.getParameterValueIfUserDefined = function(parameterName) {
+		.getParameterValueIfUserDefinedOrDefault = function(parameterName) {
 			if (isUserDefinedParameter(parameterName) || isDefaultParameter(parameterName)) {
 				return(.self[[parameterName]])
 			}
@@ -672,13 +672,11 @@ ParameterSet <- setRefClass("ParameterSet",
 			result <- as.matrix(dataFrame)
 			if (.isTrialDesignPlan(.self)) {
 				dimnames(result)[[1]] <- paste("  ", c(1:nrow(dataFrame)))
-			} else {
-				if (!is.null(.self[["stages"]])) {
-					dimnames(result)[[1]] <- paste("  Stage", c(1:nrow(dataFrame)))
-				}
+			} else if (!is.null(.self[["stages"]])) {
+				dimnames(result)[[1]] <- paste("  Stage", c(1:nrow(dataFrame)))
 			}
 			
-			print(result, quote=FALSE, right=FALSE)
+			print(result, quote = FALSE, right = FALSE)
 		},
 		
 		.getNumberOfRows = function(parameterNames) {
@@ -696,6 +694,284 @@ ParameterSet <- setRefClass("ParameterSet",
 			return(numberOfRows)
 		},
 		
+		.containsMultidimensionalParameters = function(parameterNames) {
+			for (parameterName in parameterNames) {
+				parameterValues <- .self[[parameterName]]
+				if (!is.null(parameterValues) && is.matrix(parameterValues) && 
+						nrow(parameterValues) > 0 && ncol(parameterValues) > 0) {
+					return(TRUE)
+				}
+			}
+			return(FALSE)
+		},
+		
+		.getMultidimensionalNumberOfVariants = function(parameterNames) {
+			n <- 1
+			for (parameterName in parameterNames) {
+				parameterValues <- .self[[parameterName]]
+				if (!is.null(parameterValues)) {
+					if (is.matrix(parameterValues)) {
+						if (nrow(parameterValues) > 0 && ncol(parameterValues) > n) {
+							n <- ncol(parameterValues)
+						}
+					}
+					else if (length(parameterValues) > n &&
+							!(parameterName %in% c("accrualTime", "accrualIntensity", 
+								"plannedEvents", "minNumberOfEventsPerStage", 
+								"maxNumberOfEventsPerStage", "piecewiseSurvivalTime", "lambda2"))) {
+						n <- length(parameterValues)
+					}
+				}
+			}
+			return(n)
+		},
+		
+		.getMultidimensionalNumberOfStages = function(parameterNames) {
+			n <- 1
+			for (parameterName in parameterNames) {
+				parameterValues <- .self[[parameterName]]
+				if (!is.null(parameterValues) && is.matrix(parameterValues) && 
+						ncol(parameterValues) > 0 && nrow(parameterValues) > n) {
+					n <- nrow(parameterValues)
+				}
+			}
+			return(n)
+		},
+		
+		.getVariedParameter = function(parameterNames, numberOfVariants) {
+			
+			
+			for (parameterName in parameterNames) {
+				parameterValues <- .self[[parameterName]]
+				if (!is.null(parameterValues) && !is.matrix(parameterValues) &&
+						length(parameterValues) == numberOfVariants &&
+						parameterName %in% C_VARIABLE_DESIGN_PLAN_PARAMETERS &&
+						.getParameterType(parameterName) == C_PARAM_USER_DEFINED) {
+					return(parameterName)
+				}
+			}
+			for (parameterName in parameterNames) {
+				parameterValues <- .self[[parameterName]]
+				if (!is.null(parameterValues) && !is.matrix(parameterValues) &&
+						length(parameterValues) == numberOfVariants &&
+						parameterName %in% C_VARIABLE_DESIGN_PLAN_PARAMETERS &&
+						.getParameterType(parameterName) == C_PARAM_DEFAULT_VALUE) {
+					return(parameterName)
+				}
+			}
+			#stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to find varied parameter")
+			return(NULL)
+		},
+		
+		.getDataFrameColumnValues = function(parameterName, numberOfVariants, 
+				numberOfStages, includeAllParameters) {
+				
+			if (.getParameterType(parameterName) == C_PARAM_TYPE_UNKNOWN) {
+				return(NULL)
+			}
+			if (!includeAllParameters && .getParameterType(parameterName) == C_PARAM_NOT_APPLICABLE) {
+				return(NULL)
+			}
+			
+			parameterValues <- .self[[parameterName]]
+			if (is.null(parameterValues) || length(parameterValues) == 0) {
+				return(NULL)
+			}
+			
+			if (!is.matrix(parameterValues)) {
+				if (length(parameterValues) == 1) {
+					return(rep(parameterValues, numberOfVariants * numberOfStages))
+				}
+				
+				if (length(parameterValues) == numberOfVariants) {
+					return(rep(parameterValues, numberOfStages))
+				}
+				
+				if (parameterName %in% c("accrualTime", "accrualIntensity", 
+						"plannedEvents", "plannedSubjects", 
+						"minNumberOfEventsPerStage", "maxNumberOfEventsPerStage", 
+						"minNumberOfSubjectsPerStage", "maxNumberOfSubjectsPerStage", 
+						"piecewiseSurvivalTime", "lambda2")) {
+					return(NULL)
+				}
+				
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+					"parameter '", parameterName, "' has an invalid ", 
+					"dimension (length is ", length(parameterValues), ")")
+			}
+			
+			if (grepl("futility|alpha0Vec", parameterName) && 
+					nrow(parameterValues) == numberOfStages - 1) {
+				parameterValues <- rbind(parameterValues, rep(NA_real_, ncol(parameterValues)))
+			}
+			
+			if (nrow(parameterValues) == numberOfStages && ncol(parameterValues) == 1) {
+				columnValues <- c()
+				for (parameterValue in parameterValues) {
+					columnValues <- c(columnValues, rep(parameterValue, numberOfVariants))
+				}
+				return(columnValues)
+			}
+			
+			if (nrow(parameterValues) == numberOfStages && ncol(parameterValues) == numberOfVariants) {
+				columnValues <- c()
+				for (i in 1:nrow(parameterValues)) {
+					for (j in 1:ncol(parameterValues)) {
+						columnValues <- c(columnValues, parameterValues[i, j])
+					}
+				}
+				return(columnValues)
+			}
+			
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+				"parameter '", parameterName, "' has an invalid ", 
+				"dimension (", nrow(parameterValues), " x ", ncol(parameterValues), ")")
+		},
+		
+		.getAsDataFrameMultidimensional = function(parameterNames, niceColumnNamesEnabled, 
+				includeAllParameters, returnParametersAsCharacter, tableColumnNames) {
+				
+			numberOfVariants <- .getMultidimensionalNumberOfVariants(parameterNames)
+			numberOfStages <- .getMultidimensionalNumberOfStages(parameterNames)
+			
+			stagesCaption <- .getDataFrameColumnCaption("stages", 
+				tableColumnNames, niceColumnNamesEnabled)
+			
+			dataFrame <- data.frame(
+				stages = sort(rep(1:numberOfStages, numberOfVariants))
+			)
+			names(dataFrame) <- stagesCaption
+			
+			variedParameter <- .getVariedParameter(parameterNames, numberOfVariants)
+			if (!is.null(variedParameter) && variedParameter != "stages") {
+				variedParameterCaption <- .getDataFrameColumnCaption(variedParameter, 
+					tableColumnNames, niceColumnNamesEnabled)
+				dataFrame[[variedParameterCaption]] <- rep(.self[[variedParameter]], numberOfStages)
+			}
+			
+			for (parameterName in parameterNames) {
+				if (parameterName != "stages" && 
+						(is.null(variedParameter) || parameterName != variedParameter)) {
+					columnValues <- .getDataFrameColumnValues(parameterName, 
+						numberOfVariants, numberOfStages, includeAllParameters) 
+					if (!is.null(columnValues)) {
+						columnCaption <- .getDataFrameColumnCaption(parameterName, 
+							tableColumnNames, niceColumnNamesEnabled)
+						dataFrame[[columnCaption]] <- columnValues
+						if (returnParametersAsCharacter) {
+							.formatDataFrameParametersAsCharacter(dataFrame, 
+								parameterName, columnValues, columnCaption)
+						}
+					}
+				}
+			}
+			
+			return(dataFrame)
+		},
+		
+		.getDataFrameColumnCaption = function(parameterName, tableColumnNames, niceColumnNamesEnabled) {
+			tableColumnName <- tableColumnNames[[parameterName]]
+			ifelse(niceColumnNamesEnabled && !is.null(tableColumnName), 
+				tableColumnName, parameterName)
+		},
+		
+		.getUnidimensionalNumberOfStages = function(parameterNames) {
+			kMax <- .self[["kMax"]]
+			if (is.null(kMax) && !is.null(.self[[".design"]])) {
+				kMax <- .self[[".design"]][["kMax"]]
+			}
+			if (!is.null(kMax) && length(kMax) == 1 && is.integer(kMax)) {
+				return(kMax)
+			}
+			
+			n <- 1
+			for (parameterName in parameterNames) {
+				parameterValues <- .self[[parameterName]]
+				if (!is.null(parameterValues) && !is.matrix(parameterValues) && 
+						length(parameterValues) > n) {
+					n <- length(parameterValues)
+				}
+			}
+			return(n)
+		},
+		
+		.formatDataFrameParametersAsCharacter = function(dataFrame, 
+				parameterName, parameterValues, parameterCaption) {
+			tryCatch({	
+				formatFunctionName <- .parameterFormatFunctions[[parameterName]]
+				if (!is.null(formatFunctionName)) {
+					parameterValuesFormatted <- eval(call(formatFunctionName, parameterValues))
+				} else {
+					parameterValuesFormatted <- as.character(parameterValues)
+				}
+				
+				if (parameterName == "sided") {
+					parameterValuesFormatted <- ifelse(parameterValues == 1, 
+						"one-sided", "two-sided")
+				}
+				
+				if (!is.null(dataFrame[[parameterCaption]])) {
+					parameterValuesFormatted[is.na(dataFrame[[parameterCaption]])] <- ""
+				}
+				parameterValuesFormatted[is.na(parameterValuesFormatted)] <- ""
+				parameterValuesFormatted[parameterValuesFormatted == "NA"] <- ""
+				if (is.null(dataFrame)) {
+					dataFrame <- data.frame(x = parameterValuesFormatted)
+					names(dataFrame) <- parameterCaption
+				} else {
+					dataFrame[[parameterCaption]] <- parameterValuesFormatted
+				}
+				
+			}, error = function(e) {
+				.logError(paste0("Error in '.getAsDataFrame'. Failed to show parameter '%s' ", 
+						"(class '%s'): %s"), parameterName, class(.self), e)
+			})
+		},
+		
+		.getAsDataFrameUnidimensional = function(parameterNames, niceColumnNamesEnabled, 
+				includeAllParameters, returnParametersAsCharacter, tableColumnNames) {
+				
+			numberOfStages <- .getUnidimensionalNumberOfStages(parameterNames)
+
+			dataFrame <- NULL
+			for (parameterName in parameterNames) {			
+				tryCatch({	
+					parameterCaption <- ifelse(niceColumnNamesEnabled 
+							&& !is.null(tableColumnNames[[parameterName]]), 
+						tableColumnNames[[parameterName]], parameterName)
+					parameterValues <- .self[[parameterName]]
+					if (parameterName == "futilityBounds") {
+						parameterValues[parameterValues == C_FUTILITY_BOUNDS_DEFAULT] <- -Inf
+					}
+					if (length(parameterValues) == 1) {
+						parameterValues <- rep(parameterValues, numberOfStages)
+					} else {
+						while (length(parameterValues) < numberOfStages) {
+							parameterValues <- c(parameterValues, NA)
+						}
+					}
+					if (includeAllParameters || (
+							.getParameterType(parameterName) != C_PARAM_NOT_APPLICABLE && 
+							sum(is.na(parameterValues)) < length(parameterValues))) {
+						if (is.null(dataFrame)) {
+							dataFrame <- data.frame(x = parameterValues)
+							names(dataFrame) <- parameterCaption
+						} else {
+							dataFrame[[parameterCaption]] <- parameterValues
+						}
+					}
+					if (returnParametersAsCharacter) {
+						.formatDataFrameParametersAsCharacter(dataFrame, 
+							parameterName, parameterValues, parameterCaption)
+					}
+				}, error = function(e) {
+					.logError("Failed to add parameter '%s' to data.frame: %s", parameterName, e)
+				})
+			}
+			
+			return(dataFrame)
+		},
+		
 		.getAsDataFrame = function(parameterNames, niceColumnNamesEnabled = TRUE, 
 				includeAllParameters = FALSE, handleParameterNamesAsToBeExcluded = FALSE,
 				returnParametersAsCharacter = FALSE, tableColumnNames = C_TABLE_COLUMN_NAMES) {
@@ -711,7 +987,13 @@ ParameterSet <- setRefClass("ParameterSet",
 			else if (is.null(parameterNames)) {
 				parameterNames <- .getVisibleFieldNamesOrdered()
 			}
-				
+			
+			if (.containsMultidimensionalParameters(parameterNames)) {
+				return(.getAsDataFrameMultidimensional(parameterNames, niceColumnNamesEnabled, 
+						includeAllParameters, returnParametersAsCharacter, tableColumnNames))
+			} 
+			
+			# remove matrices
 			for (parameterName in parameterNames) {
 				parameterValues <- .self[[parameterName]]
 				if (is.matrix(parameterValues) && nrow(parameterValues) != 1 && ncol(parameterValues) != 1) {
@@ -723,75 +1005,8 @@ ParameterSet <- setRefClass("ParameterSet",
 				return(data.frame())
 			}
 			
-			parameterName1 <- parameterNames[1]
-			
-			parameterCaption <- ifelse(niceColumnNamesEnabled 
-					&& !is.null(tableColumnNames[[parameterName1]]), 
-				tableColumnNames[[parameterName1]], parameterName1)
-			parameterValues <- .self[[parameterName1]]
-			if (parameterName1 == "kMax" && length(parameterValues) == 1) {
-				parameterValues <- c(parameterValues[1], rep(NA_integer_, parameterValues[1] - 1))
-			}
-			
-			numberOfRows <- .getNumberOfRows(parameterNames)
-			while (length(parameterValues) < numberOfRows) {
-				parameterValues <- c(parameterValues, NA)
-			}
-			
-			dataFrame <- data.frame(parameterValues)
-			names(dataFrame) <- parameterCaption
-			if (length(parameterNames) < 2) {
-				return(dataFrame)
-			}
-	
-			for (i in 2:length(parameterNames)) {			
-				tryCatch({	
-					parameterName <- parameterNames[i]
-					parameterCaption <- ifelse(niceColumnNamesEnabled 
-							&& !is.null(tableColumnNames[[parameterName]]), 
-						tableColumnNames[[parameterName]], parameterName)
-					parameterValues <- .self[[parameterName]]
-					if (parameterName == "futilityBounds") {
-						parameterValues[parameterValues == C_FUTILITY_BOUNDS_DEFAULT] <- -Inf
-					}
-					while (length(parameterValues) < nrow(dataFrame)) {
-						parameterValues <- c(parameterValues, NA)
-					}
-					if (includeAllParameters || sum(is.na(parameterValues)) < length(parameterValues)) {
-						dataFrame[[parameterCaption]] <- parameterValues
-					}
-					if (returnParametersAsCharacter) {
-						tryCatch({	
-							formatFunctionName <- .parameterFormatFunctions[[parameterName]]
-							if (!is.null(formatFunctionName)) {
-								parameterValuesFormatted <- eval(call(formatFunctionName, parameterValues))
-							} else {
-								parameterValuesFormatted <- as.character(parameterValues)
-							}
-							
-							if (parameterName == "sided") {
-								parameterValuesFormatted <- ifelse(parameterValues == 1, 
-									"one-sided", "two-sided")
-							}
-							
-							if (!is.null(dataFrame[[parameterCaption]])) {
-								parameterValuesFormatted[is.na(dataFrame[[parameterCaption]])] <- ""
-							}
-							parameterValuesFormatted[is.na(parameterValuesFormatted)] <- ""
-							parameterValuesFormatted[parameterValuesFormatted == "NA"] <- ""
-							dataFrame[[parameterCaption]] <- parameterValuesFormatted
-
-						}, error = function(e) {
-							.logError(paste0("Error in '.getAsDataFrame'. Failed to show parameter '%s' ", 
-								"(class '%s'): %s"), parameterName, class(.self), e)
-						})
-					}
-				}, error = function(e) {
-					.logError("Failed to add parameter '%s' to data.frame: %s", parameterName, e)
-				})
-			}
-			
-			return(dataFrame)
+			return(.getAsDataFrameUnidimensional(parameterNames, niceColumnNamesEnabled, 
+				includeAllParameters, returnParametersAsCharacter, tableColumnNames))
 		},
 		
 		# 
@@ -900,6 +1115,8 @@ as.matrix.FieldSet <- function(x, rownames.force = NA, ...) {
 	if ((is.na(rownames.force) || isTRUE(rownames.force)) && nrow(result) > 0) {
 		if (.isTrialDesignPlan(x)) {
 			dimnames(result)[[1]] <- paste("  ", c(1:nrow(dataFrame)))
+		} else if (inherits(x, "PowerAndAverageSampleNumberResult")) {
+			dimnames(result)[[1]] <- rep("", nrow(dataFrame))
 		} else {
 			if (!is.null(x[["stages"]]) || class(x) == "PowerAndAverageSampleNumberResult") {
 				dimnames(result)[[1]] <- paste("  Stage", c(1:nrow(dataFrame)))
@@ -925,7 +1142,50 @@ as.matrix.FieldSet <- function(x, rownames.force = NA, ...) {
 #' 
 #' @keywords internal
 #' 
-summary.ParameterSet <- function(object, ...) {
+summary.ParameterSet <- function(object, ..., type = 1) {
+	if (type == 1 && (inherits(object, "TrialDesign") || inherits(object, "TrialDesignPlan") || 
+			inherits(object, "SimulationResults"))) {
+		design <- object[[".design"]]
+		if (is.null(design)) {
+			design <- object
+		}
+		kMax <- ifelse(is.null(design), object$kMax, design$kMax)
+		
+		title <- ""
+		if (kMax == 1) {
+			title <- "Fixed sample"
+		} else {
+			title <- paste0("Interim analysis with a maximum of ", kMax, " looks")
+		}
+		
+		if (!inherits(object, "TrialDesign")) {
+			title <- paste0(title, ", ")
+		}
+		
+		if (inherits(object, "SimulationResults")) {
+			title <- paste0(title, "simulation of a ")
+		}
+		
+		if (grepl("Means", class(object))) {
+			title <- paste0(title, "continuous endpoint")
+		}
+		else if (grepl("Rates", class(object))) {
+			title <- paste0(title, "binary endpoint")
+		}
+		else if (grepl("Survival", class(object))) {
+			title <- paste0(title, "survival endpoint")
+		}
+		
+		if (kMax > 1) {
+			title <- paste0(title, " (", design$.toString(startWithUpperCase = FALSE), ")")
+		}
+		
+		object$.cat(title, ":\n\n", heading = 1)
+		object$show(showType = 3)
+		object$.cat("\n")
+		return(invisible(object))
+	}
+	
 	object$.cat("This output summarizes the ", object$.toString(), " specification.\n\n", heading = 1)
 	object$show()
 	object$.cat("\n")

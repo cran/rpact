@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 23 July 2019, 11:46:19                                                       #
+# Date: 11 September 2019, 13:41:50                                                  #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -37,6 +37,7 @@ test_that("Testing '.assertDesignParameterExists'", {
 	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(kMax = NA_integer_), 
 			parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
 		"Missing argument: parameter 'kMax' must be specified in design", fixed = TRUE)
+
 })
 
 test_that("Testing '.assertIsValidThetaRange'	", {

@@ -412,6 +412,8 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeMeans", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeMeans", ...)
@@ -425,7 +427,7 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 	return(.getSampleSize(designPlan))
 }
 
-.getDefaultDesignForSampleSizeCalculations <- function(...) {
+.getDefaultDesignForSampleSizeCalculations <- function(..., powerEnabled = FALSE) {
 	ignore = c()
 	alpha <- .getOptionalArgument("alpha", ...)
 	if (is.null(alpha)) {
@@ -447,7 +449,11 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 	}
 	twoSidedPower <- .getOptionalArgument("twoSidedPower", ...)
 	if (is.null(twoSidedPower)) {
-		twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
+		if (powerEnabled) {
+			twoSidedPower <- TRUE
+		} else {
+			twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
+		}
 	} else {
 		ignore <- c(ignore, "twoSidedPower")
 	}
@@ -529,6 +535,8 @@ getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximati
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeRates", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeRates", ...)
@@ -782,6 +790,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", ...)
@@ -1461,31 +1471,37 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 .getSampleSize <- function(designPlan) {
 	
 	if (.isTrialDesignPlanMeans(designPlan) || .isTrialDesignPlanRates(designPlan)) {
+		
+		if (identical(designPlan$allocationRatioPlanned, 0)) {
+			designPlan$optimumAllocationRatio <- TRUE
+			designPlan$.setParameterType("optimumAllocationRatio", C_PARAM_USER_DEFINED)
+		}
+		
 		if (.isTrialDesignPlanMeans(designPlan)) {
 			sampleSizeFixed <- .getSampleSizeFixedMeans(
-					alpha = designPlan$getAlpha(), 
-					beta = designPlan$getBeta(), 
-					sided = designPlan$getSided(), 
-					twoSidedPower = designPlan$getTwoSidedPower(), 
-					normalApproximation = designPlan$normalApproximation, 
-					meanRatio = designPlan$meanRatio, 
-					thetaH0 = designPlan$thetaH0, 
-					alternative = designPlan$alternative, 
-					stDev = designPlan$stDev, 
-					groups = designPlan$groups, 
-					allocationRatioPlanned = designPlan$allocationRatioPlanned)
+				alpha = designPlan$getAlpha(), 
+				beta = designPlan$getBeta(), 
+				sided = designPlan$getSided(), 
+				twoSidedPower = designPlan$getTwoSidedPower(), 
+				normalApproximation = designPlan$normalApproximation, 
+				meanRatio = designPlan$meanRatio, 
+				thetaH0 = designPlan$thetaH0, 
+				alternative = designPlan$alternative, 
+				stDev = designPlan$stDev, 
+				groups = designPlan$groups, 
+				allocationRatioPlanned = designPlan$allocationRatioPlanned)
 		} else {
 			sampleSizeFixed <- .getSampleSizeFixedRates(
-					alpha = designPlan$getAlpha(), 
-					beta = designPlan$getBeta(), 
-					sided = designPlan$getSided(), 
-					normalApproximation = designPlan$normalApproximation, 
-					riskRatio = designPlan$riskRatio, 
-					thetaH0 = designPlan$thetaH0, 
-					pi1 = designPlan$pi1, 
-					pi2 = designPlan$pi2, 
-					groups = designPlan$groups, 
-					allocationRatioPlanned = designPlan$allocationRatioPlanned)
+				alpha = designPlan$getAlpha(), 
+				beta = designPlan$getBeta(), 
+				sided = designPlan$getSided(), 
+				normalApproximation = designPlan$normalApproximation, 
+				riskRatio = designPlan$riskRatio, 
+				thetaH0 = designPlan$thetaH0, 
+				pi1 = designPlan$pi1, 
+				pi2 = designPlan$pi2, 
+				groups = designPlan$groups, 
+				allocationRatioPlanned = designPlan$allocationRatioPlanned)
 		}
 		
 		# Fixed
@@ -1811,7 +1827,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 									abs(theta - thetaH0) / stDev) - beta)
 							}, lower = 0.001, upper = up, tolerance = 1e-04
 						)
-						nFixed[i] <- n2Fixed*(1 + allocationRatioPlanned)
+						nFixed[i] <- n2Fixed * (1 + allocationRatioPlanned)
 					} else {
 						nFixed[i] <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned * 
 							(stats::qnorm(1 - alpha / sided) + stats::qnorm(1 - beta))^2 / 
@@ -1906,32 +1922,32 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	
 	if (groups == 1) {
 		return(list(alpha = alpha, 
-						beta = beta, 
-						sided = sided, 
-						groups = groups, 
-						thetaH0 = thetaH0, 
-						alternative = alternative, 
-						stDev = stDev, 
-						normalApproximation = normalApproximation, 
-						nFixed = nFixed)
+			beta = beta, 
+			sided = sided, 
+			groups = groups, 
+			thetaH0 = thetaH0, 
+			alternative = alternative, 
+			stDev = stDev, 
+			normalApproximation = normalApproximation, 
+			nFixed = nFixed)
 		)
 	}
 	if (groups == 2) {
 		n1Fixed <- nFixed*allocationRatioPlanned / (1 + allocationRatioPlanned)
 		n2Fixed <- n1Fixed / allocationRatioPlanned 
 		return(list(alpha = alpha, 
-						beta = beta, 
-						sided = sided, 
-						groups = groups, 
-						allocationRatioPlanned = allocationRatioPlanned, 
-						thetaH0 = thetaH0, 
-						meanRatio = meanRatio, 
-						alternative = alternative, 
-						stDev = stDev, 
-						normalApproximation = normalApproximation, 
-						n1Fixed = n1Fixed, 
-						n2Fixed = n2Fixed, 
-						nFixed = nFixed)
+			beta = beta, 
+			sided = sided, 
+			groups = groups, 
+			allocationRatioPlanned = allocationRatioPlanned, 
+			thetaH0 = thetaH0, 
+			meanRatio = meanRatio, 
+			alternative = alternative, 
+			stDev = stDev, 
+			normalApproximation = normalApproximation, 
+			n1Fixed = n1Fixed, 
+			n2Fixed = n2Fixed, 
+			nFixed = nFixed)
 		)
 	}
 }
@@ -2894,8 +2910,8 @@ getNumberOfSubjects <- function(time, ...,
 		eventsFixed <- (stats::qnorm(1 - alpha / sided) + stats::qnorm(1 - beta))^2 *
 				(1 + hazardRatio)^2 / (1 - hazardRatio)^2*
 				(1 + allocationRatioPlanned)^2 / (4 * allocationRatioPlanned)
-		if (twoSidedPower && (sided == 2)) {
-			up <- 2*eventsFixed
+		if (twoSidedPower && sided == 2) {
+			up <- 2 * eventsFixed
 			eventsFixed <- .getOneDimensionalRoot(
 				function(n) {
 					return(stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n) *  
@@ -2945,6 +2961,8 @@ getNumberOfSubjects <- function(time, ...,
 	if (allocationRatioPlanned == 0) {
 		allocationRatioPlannedVec <- rep(NA_real_, numberOfResults)
 		calculateAllocationRatioPlanned <- TRUE
+		designPlan$optimumAllocationRatio <- TRUE
+		designPlan$.setParameterType("optimumAllocationRatio", C_PARAM_USER_DEFINED)
 	}
 	
 	userDefinedMaxNumberOfSubjects <- .isUserDefinedMaxNumberOfSubjects(designPlan)
@@ -3638,7 +3656,7 @@ getNumberOfSubjects <- function(time, ...,
 	} else {
 		.setValueAndParameterType(designPlan, "riskRatio", riskRatio, FALSE)
 		.setValueAndParameterType(designPlan, "allocationRatioPlanned", 
-			allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
+			allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT) 
 	}
 	.setValueAndParameterType(designPlan, "groups", groups, 2)
 	
@@ -3652,7 +3670,7 @@ getNumberOfSubjects <- function(time, ...,
 #' Returns the power, stopping probabilities, and expected sample size for testing means in one or two samples at given sample size.
 #'
 #' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} can be directly entered as argument.  
+#' 		  In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument.  
 #' @param groups The number of treatment groups (1 or 2), default is \code{2}.
 #' @param normalApproximation If \code{normalApproximation = TRUE} is specified, the variance is 
 #'        assumed to be known, default is FALSE, i.e., the calculations are performed with the t distribution.
@@ -3707,16 +3725,17 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 	.assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects)
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		design <- .getDefaultDesignForSampleSizeCalculations(..., powerEnabled = TRUE)
+		.warnInCaseOfUnknownArguments(functionName = "getPowerMeans", 
+			ignore = c("alpha", "beta", "sided"), ...)
 	} else {
 		.warnInCaseOfUnknownArguments(functionName = "getPowerMeans", ...)
 		.assertIsTrialDesign(design)
-		.warnInCaseOfTwoSidedPowerArgument(...)		
+		.warnInCaseOfTwoSidedPowerArgument(...)	
+		if (design$sided == 2 && !is.na(design$twoSidedPower) && !design$twoSidedPower) {
+			warning("design$twoSidedPower = FALSE will be ignored", call. = FALSE)
+		}
 	}
-	
-	if (design$sided == 2) {	
-		design$twoSidedPower <- TRUE
-	} 
 	
 	designPlan <- .createDesignPlanMeans(objectType = "power", 
 		design = design, normalApproximation = normalApproximation, meanRatio = meanRatio, 
@@ -3869,16 +3888,17 @@ getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = 
 	} 
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		design <- .getDefaultDesignForSampleSizeCalculations(..., powerEnabled = TRUE)
+		.warnInCaseOfUnknownArguments(functionName = "getPowerRates", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.warnInCaseOfUnknownArguments(functionName = "getPowerRates", ...)
 		.assertIsTrialDesign(design)
 		.warnInCaseOfTwoSidedPowerArgument(...)
+		if (design$sided == 2 && !is.na(design$twoSidedPower) && !design$twoSidedPower) {
+			warning("design$twoSidedPower = FALSE will be ignored", call. = FALSE)
+		}
 	}
-	
-	if (design$sided == 2) {	
-		design$twoSidedPower <- TRUE
-	} 
 	
 	designPlan <- .createDesignPlanRates(objectType = "power", 
 		design = design, normalApproximation = normalApproximation, riskRatio = riskRatio, 
@@ -4008,7 +4028,7 @@ getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' Returns the power, stopping probabilities, and expected sample size for testing the hazard ratio in a two treatment groups survival design. 
 #'
 #' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} can be directly entered as argument.  
+#' 		  In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument.  
 #' @param typeOfComputation Three options are available: "Schoenfeld", "Freedman", "HsiehFreedman", 
 #'        the default is "Schoenfeld". For details, see Hsieh 
 #'        (Statistics in Medicine, 1992). For non-inferiority testing (i.e., thetaH0 != 1),
@@ -4219,16 +4239,17 @@ getPowerSurvival <- function(design = NULL, ...,
 	typeOfComputation <- match.arg(typeOfComputation)
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		design <- .getDefaultDesignForSampleSizeCalculations(..., powerEnabled = TRUE)
+		.warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", ...)
 		.warnInCaseOfTwoSidedPowerArgument(...)
+		if (design$sided == 2 && !is.na(design$twoSidedPower) && !design$twoSidedPower) {
+			warning("design$twoSidedPower = FALSE will be ignored", call. = FALSE)
+		}
 	}
-	
-	if (design$sided == 2) {	
-		design$twoSidedPower <- TRUE
-	} 
 	
 	designPlan <- .createDesignPlanSurvival(objectType = "power",
 		design = design, 

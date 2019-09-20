@@ -681,19 +681,12 @@ resetLogLevel <- function() {
 
 .getRelativeFigureOutputPath <- function(subDir = NULL) {
 	if (is.null(subDir)) {
-		today <- Sys.Date()
-		subDir <- format(today, format="%Y-%m-%d")
+		subDir <- format(Sys.Date(), format="%Y-%m-%d")
 	}
-	
-	figPath <- getwd()
-	subDirs <- c("_examples", "output", "figures", subDir)
-	for (s in subDirs) {
-		figPath <- file.path(figPath, s)
-		if (!file.exists(figPath)) {
-			dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
-		}  
-	}
-	 
+	figPath <- file.path(getwd(), "_examples", "output", "figures", subDir)
+	if (!dir.exists(figPath)) {
+		dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+	}  
 	return(figPath)
 }
 
@@ -701,7 +694,8 @@ resetLogLevel <- function() {
 # Save Last Plot
 # 
 # @description 
-# Saves the last plot to a PNG file located in '[getwd()]/figures/[current date]/[filename].png'.
+# Saves the last plot to a PNG file located in 
+# '[getwd()]/_examples/output/figures/[current date]/[filename].png'.
 # 
 # @param filename The filename (without extension!).
 # 
@@ -717,7 +711,11 @@ resetLogLevel <- function() {
 saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) {
 	.assertGgplotIsInstalled()
 	
-	path <- file.path(outputPath, paste0(filename, ".png"))
+	if (!grepl("\\.png$", filename)) {
+		filename <- paste0(filename, ".png")
+	}
+	
+	path <- file.path(outputPath, filename)
 	ggplot2::ggsave(filename = path, 
 		plot = ggplot2::last_plot(), device = NULL, path = NULL,
 		scale = 1.2, width = 16, height = 15, units = "cm", dpi = 600, limitsize = TRUE)
@@ -916,9 +914,8 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	}
 	
 	if (design$.getParameterType(parameterName) == C_PARAM_USER_DEFINED) {
-		warning(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-			"binding futility bounds specified in '", parameterName, "' are ignored", 
-			call. = FALSE)
+		warning("'", parameterName, "' (", .arrayToString(design[[parameterName]]), 
+			") will be ignored because it will be calculated", call. = FALSE)
 	}
 	else if (design$.getParameterType(parameterName) == C_PARAM_GENERATED) {
 		return(FALSE)

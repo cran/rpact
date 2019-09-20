@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 26-02-2019                                                                   #
+# Date: 11 September 2019, 16:23:24                                                  #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -17,26 +17,923 @@
 #                                                                                    #
 ######################################################################################
 
-
 context("Testing design utility functions")
 
-test_that("'getPiecewiseExponentialDistribution' and 'getPiecewiseExponentialQuantile' produce corresponding results", {
-	for (eventTime in 1:20) {
-		for (kappa in 1:5) {
-			for (lambda in seq(0.1, 0.8, 0.1)) {
-				pi <- getPiByLambda(lambda, eventTime = eventTime, kappa = kappa)
-				if (pi < 1 - 1e-15 || pi > 1 + 1e-15) {
-					result <- getLambdaByPi(pi, eventTime = eventTime, kappa = kappa)
-					expect_equal(result, lambda, tolerance = 1e-04)
-				}
 
-			}
-		}
-	}
+test_that("'getPiByLambda' and 'getLambdaByPi' produce corresponding results", {
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 1, kappa = 1), eventTime = 1, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 1, kappa = 2), eventTime = 1, kappa = 2), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 1, kappa = 3), eventTime = 1, kappa = 3), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 1, kappa = 4), eventTime = 1, kappa = 4), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 1, kappa = 5), eventTime = 1, kappa = 5), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 2, kappa = 1), eventTime = 2, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 2, kappa = 2), eventTime = 2, kappa = 2), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 2, kappa = 3), eventTime = 2, kappa = 3), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 2, kappa = 4), eventTime = 2, kappa = 4), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 2, kappa = 5), eventTime = 2, kappa = 5), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 3, kappa = 1), eventTime = 3, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 3, kappa = 2), eventTime = 3, kappa = 2), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 3, kappa = 3), eventTime = 3, kappa = 3), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 3, kappa = 4), eventTime = 3, kappa = 4), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 3, kappa = 5), eventTime = 3, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 3, kappa = 5), eventTime = 3, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 3, kappa = 5), eventTime = 3, kappa = 5), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 3, kappa = 5), eventTime = 3, kappa = 5), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 3, kappa = 5), eventTime = 3, kappa = 5), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 3, kappa = 5), eventTime = 3, kappa = 5), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 4, kappa = 1), eventTime = 4, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 4, kappa = 2), eventTime = 4, kappa = 2), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 4, kappa = 3), eventTime = 4, kappa = 3), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 4, kappa = 4), eventTime = 4, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 4, kappa = 4), eventTime = 4, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 4, kappa = 4), eventTime = 4, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 4, kappa = 4), eventTime = 4, kappa = 4), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 4, kappa = 4), eventTime = 4, kappa = 4), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 4, kappa = 4), eventTime = 4, kappa = 4), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 4, kappa = 5), eventTime = 4, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 4, kappa = 5), eventTime = 4, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 4, kappa = 5), eventTime = 4, kappa = 5), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 4, kappa = 5), eventTime = 4, kappa = 5), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 4, kappa = 5), eventTime = 4, kappa = 5), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 5, kappa = 1), eventTime = 5, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 5, kappa = 2), eventTime = 5, kappa = 2), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 5, kappa = 3), eventTime = 5, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 5, kappa = 3), eventTime = 5, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 5, kappa = 3), eventTime = 5, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 5, kappa = 3), eventTime = 5, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 5, kappa = 3), eventTime = 5, kappa = 3), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 5, kappa = 3), eventTime = 5, kappa = 3), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 5, kappa = 4), eventTime = 5, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 5, kappa = 4), eventTime = 5, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 5, kappa = 4), eventTime = 5, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 5, kappa = 4), eventTime = 5, kappa = 4), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 5, kappa = 5), eventTime = 5, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 5, kappa = 5), eventTime = 5, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 5, kappa = 5), eventTime = 5, kappa = 5), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 5, kappa = 5), eventTime = 5, kappa = 5), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 6, kappa = 1), eventTime = 6, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 6, kappa = 2), eventTime = 6, kappa = 2), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 6, kappa = 3), eventTime = 6, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 6, kappa = 3), eventTime = 6, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 6, kappa = 3), eventTime = 6, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 6, kappa = 3), eventTime = 6, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 6, kappa = 3), eventTime = 6, kappa = 3), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 6, kappa = 4), eventTime = 6, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 6, kappa = 4), eventTime = 6, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 6, kappa = 4), eventTime = 6, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 6, kappa = 4), eventTime = 6, kappa = 4), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 6, kappa = 5), eventTime = 6, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 6, kappa = 5), eventTime = 6, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 6, kappa = 5), eventTime = 6, kappa = 5), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 7, kappa = 1), eventTime = 7, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 7, kappa = 2), eventTime = 7, kappa = 2), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 7, kappa = 3), eventTime = 7, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 7, kappa = 3), eventTime = 7, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 7, kappa = 3), eventTime = 7, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 7, kappa = 3), eventTime = 7, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 7, kappa = 4), eventTime = 7, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 7, kappa = 4), eventTime = 7, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 7, kappa = 4), eventTime = 7, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 7, kappa = 5), eventTime = 7, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 7, kappa = 5), eventTime = 7, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 8, kappa = 1), eventTime = 8, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 8, kappa = 2), eventTime = 8, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 8, kappa = 2), eventTime = 8, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 8, kappa = 2), eventTime = 8, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 8, kappa = 2), eventTime = 8, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 8, kappa = 2), eventTime = 8, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 8, kappa = 2), eventTime = 8, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 8, kappa = 2), eventTime = 8, kappa = 2), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 8, kappa = 3), eventTime = 8, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 8, kappa = 3), eventTime = 8, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 8, kappa = 3), eventTime = 8, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 8, kappa = 3), eventTime = 8, kappa = 3), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 8, kappa = 4), eventTime = 8, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 8, kappa = 4), eventTime = 8, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 8, kappa = 4), eventTime = 8, kappa = 4), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 8, kappa = 5), eventTime = 8, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 8, kappa = 5), eventTime = 8, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 9, kappa = 1), eventTime = 9, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 9, kappa = 2), eventTime = 9, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 9, kappa = 2), eventTime = 9, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 9, kappa = 2), eventTime = 9, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 9, kappa = 2), eventTime = 9, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 9, kappa = 2), eventTime = 9, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 9, kappa = 2), eventTime = 9, kappa = 2), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 9, kappa = 3), eventTime = 9, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 9, kappa = 3), eventTime = 9, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 9, kappa = 3), eventTime = 9, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 9, kappa = 4), eventTime = 9, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 9, kappa = 4), eventTime = 9, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 9, kappa = 5), eventTime = 9, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 9, kappa = 5), eventTime = 9, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 10, kappa = 1), eventTime = 10, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 10, kappa = 2), eventTime = 10, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 10, kappa = 2), eventTime = 10, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 10, kappa = 2), eventTime = 10, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 10, kappa = 2), eventTime = 10, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 10, kappa = 2), eventTime = 10, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 10, kappa = 3), eventTime = 10, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 10, kappa = 3), eventTime = 10, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 10, kappa = 3), eventTime = 10, kappa = 3), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 10, kappa = 4), eventTime = 10, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 10, kappa = 4), eventTime = 10, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 10, kappa = 5), eventTime = 10, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 10, kappa = 5), eventTime = 10, kappa = 5), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 11, kappa = 1), eventTime = 11, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 11, kappa = 2), eventTime = 11, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 11, kappa = 2), eventTime = 11, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 11, kappa = 2), eventTime = 11, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 11, kappa = 2), eventTime = 11, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 11, kappa = 2), eventTime = 11, kappa = 2), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 11, kappa = 3), eventTime = 11, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 11, kappa = 3), eventTime = 11, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 11, kappa = 4), eventTime = 11, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 11, kappa = 4), eventTime = 11, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 11, kappa = 5), eventTime = 11, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 12, kappa = 1), eventTime = 12, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 12, kappa = 2), eventTime = 12, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 12, kappa = 2), eventTime = 12, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 12, kappa = 2), eventTime = 12, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 12, kappa = 2), eventTime = 12, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 12, kappa = 3), eventTime = 12, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 12, kappa = 3), eventTime = 12, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 12, kappa = 4), eventTime = 12, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 12, kappa = 4), eventTime = 12, kappa = 4), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 12, kappa = 5), eventTime = 12, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 13, kappa = 1), eventTime = 13, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 13, kappa = 2), eventTime = 13, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 13, kappa = 2), eventTime = 13, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 13, kappa = 2), eventTime = 13, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 13, kappa = 2), eventTime = 13, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 13, kappa = 3), eventTime = 13, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 13, kappa = 3), eventTime = 13, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 13, kappa = 4), eventTime = 13, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 13, kappa = 5), eventTime = 13, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 14, kappa = 1), eventTime = 14, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 14, kappa = 2), eventTime = 14, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 14, kappa = 2), eventTime = 14, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 14, kappa = 2), eventTime = 14, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 14, kappa = 2), eventTime = 14, kappa = 2), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 14, kappa = 3), eventTime = 14, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 14, kappa = 3), eventTime = 14, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 14, kappa = 4), eventTime = 14, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 14, kappa = 5), eventTime = 14, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 15, kappa = 1), eventTime = 15, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 15, kappa = 2), eventTime = 15, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 15, kappa = 2), eventTime = 15, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 15, kappa = 2), eventTime = 15, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 15, kappa = 3), eventTime = 15, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 15, kappa = 3), eventTime = 15, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 15, kappa = 4), eventTime = 15, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 15, kappa = 5), eventTime = 15, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 16, kappa = 1), eventTime = 16, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 16, kappa = 2), eventTime = 16, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 16, kappa = 2), eventTime = 16, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 16, kappa = 2), eventTime = 16, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 16, kappa = 3), eventTime = 16, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 16, kappa = 3), eventTime = 16, kappa = 3), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 16, kappa = 4), eventTime = 16, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 16, kappa = 5), eventTime = 16, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 17, kappa = 1), eventTime = 17, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 17, kappa = 2), eventTime = 17, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 17, kappa = 2), eventTime = 17, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 17, kappa = 2), eventTime = 17, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 17, kappa = 3), eventTime = 17, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 17, kappa = 4), eventTime = 17, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 17, kappa = 5), eventTime = 17, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 18, kappa = 1), eventTime = 18, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 18, kappa = 2), eventTime = 18, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 18, kappa = 2), eventTime = 18, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 18, kappa = 2), eventTime = 18, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 18, kappa = 3), eventTime = 18, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 18, kappa = 4), eventTime = 18, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 18, kappa = 5), eventTime = 18, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 19, kappa = 1), eventTime = 19, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 19, kappa = 2), eventTime = 19, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 19, kappa = 2), eventTime = 19, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 19, kappa = 2), eventTime = 19, kappa = 2), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 19, kappa = 3), eventTime = 19, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 19, kappa = 4), eventTime = 19, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 19, kappa = 5), eventTime = 19, kappa = 5), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.3, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.3, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.4, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.4, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.5, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.5, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.6, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.6, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.7, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.7, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.8, eventTime = 20, kappa = 1), eventTime = 20, kappa = 1), 0.8, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 20, kappa = 2), eventTime = 20, kappa = 2), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.2, eventTime = 20, kappa = 2), eventTime = 20, kappa = 2), 0.2, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 20, kappa = 3), eventTime = 20, kappa = 3), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 20, kappa = 4), eventTime = 20, kappa = 4), 0.1, tolerance = 1e-04)
+
+	expect_equal(getLambdaByPi(getPiByLambda(0.1, eventTime = 20, kappa = 5), eventTime = 20, kappa = 5), 0.1, tolerance = 1e-04)
+
+
+
+
 })
 
 test_that("'getPiecewiseExponentialDistribution' and 'getPiecewiseExponentialQuantile' produce corresponding results", {
-		
+
 	piecewiseLambda <- c(0.03, 0.05, 0.08)
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	time <- seq(2, 50, 4)
@@ -44,12 +941,13 @@ test_that("'getPiecewiseExponentialDistribution' and 'getPiecewiseExponentialQua
 		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda) 
 	y <- getPiecewiseExponentialQuantile(quantile, 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda)
-	
+
 	expect_equal(y, time, tolerance = 1e-06)
+
 })
 
 test_that("'ppwexp' and 'qpwexp' produce corresponding results", {
-		
+
 	piecewiseLambda <- c(0.03, 0.05, 0.08)
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	time <- seq(2, 50, 4)
@@ -57,12 +955,13 @@ test_that("'ppwexp' and 'qpwexp' produce corresponding results", {
 		s = piecewiseSurvivalTime, lambda = piecewiseLambda) 
 	y <- qpwexp(quantile, 
 		s = piecewiseSurvivalTime, lambda = piecewiseLambda)
-	
+
 	expect_equal(y, time, tolerance = 1e-06)
+
 })
 
 test_that("'getPiecewiseExponentialDistribution' and 'getPiecewiseExponentialQuantile' produce corresponding results ('piecewiseSurvivalTime' defined as list)", {
-		
+
 	piecewiseSurvivalTime <- list(
 		"<16"      = 0.03, 
 		"16 - <22" = 0.05, 
@@ -72,12 +971,13 @@ test_that("'getPiecewiseExponentialDistribution' and 'getPiecewiseExponentialQua
 		piecewiseSurvivalTime = piecewiseSurvivalTime) 
 	y <- getPiecewiseExponentialQuantile(quantile, 
 		piecewiseSurvivalTime = piecewiseSurvivalTime)
-	
+
 	expect_equal(y, time, tolerance = 1e-06)
+
 })
 
 test_that("'ppwexp' and 'qpwexp' produce corresponding results ('piecewiseSurvivalTime' defined as list)", {
-		
+
 	piecewiseSurvivalTime <- list(
 		"<16"      = 0.03, 
 		"16 - <22" = 0.05, 
@@ -85,53 +985,60 @@ test_that("'ppwexp' and 'qpwexp' produce corresponding results ('piecewiseSurviv
 	time <- seq(2, 50, 4)
 	quantile <- ppwexp(time, s = piecewiseSurvivalTime) 
 	y <- qpwexp(quantile, s = piecewiseSurvivalTime)
-	
+
 	expect_equal(y, time, tolerance = 1e-06)
+
 })
 
 test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers are as expected", {
-	
+
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	piecewiseLambda <- c(0.003, 0.003, 0.003)
 	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda, kappa = 1))
-	
+			piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda, kappa = 1))
+
 	expect_equal(y, piecewiseLambda[1], tolerance = 5e-04)
+
 })
 
 test_that("'rpwexp': test that mean random numbers are as expected", {
-	
+
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	piecewiseLambda <- c(0.003, 0.003, 0.003)
 	y <- 1 / mean(rpwexp(5000, s = piecewiseSurvivalTime, lambda = piecewiseLambda, kappa = 1))
-	
+
 	expect_equal(y, piecewiseLambda[1], tolerance = 5e-04)
+
 })
 
 test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers are as expected ('piecewiseSurvivalTime' defined as list)", {
-		
+
 	piecewiseSurvivalTime <- list(
 		"<16"      = 0.003, 
 		"16 - <22" = 0.003, 
 		">=22"      = 0.003)
 	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
 			piecewiseSurvivalTime = piecewiseSurvivalTime, kappa = 1))
-	
+
 	expect_equal(y, 0.003, tolerance = 5e-04)
+
 })
 
 test_that("'rpwexp': test that mean random numbers are as expected ('piecewiseSurvivalTime' defined as list)", {
-		
+
 	piecewiseSurvivalTime <- list(
 		"<16"      = 0.003, 
 		"16 - <22" = 0.003, 
 		">=22"      = 0.003)
 	y <- 1 / mean(rpwexp(5000, s = piecewiseSurvivalTime, kappa = 1))
-	
+
 	expect_equal(y, 0.003, tolerance = 5e-04)
+
 })
 
 test_that("'getPiecewiseExponentialDistribution': test that function call with singel lambda is working", {
+
 	expect_equal(getPiecewiseExponentialDistribution(4, piecewiseLambda = 0.003), 0.01192829, tolerance = 5e-05)
+
 })
 

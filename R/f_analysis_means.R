@@ -373,7 +373,6 @@ getStageResultsMeans <- function(..., design, dataInput,
 	}
 	
 	if (dataInput$getNumberOfGroups() == 2) {
-		
 		# common variance
 		overallStDevs <- rep(NA_real_, design$kMax)
 		for (k in 1:stage) {
@@ -463,8 +462,8 @@ getStageResultsMeans <- function(..., design, dataInput,
 				pValues[k] <- 1 - stats::pnorm(testStatistics[k])
 			} else {
 				if (equalVariances) {
-					pValues[k] <- 1 - stats::pt(testStatistics[k], dataInput$getSampleSize(k, 1) + 
-						dataInput$getSampleSize(k, 2) - 2)
+					pValues[k] <- 1 - stats::pt(testStatistics[k], 
+						dataInput$getSampleSize(k, 1) +	dataInput$getSampleSize(k, 2) - 2)
 				} else {
 					u <- dataInput$getStDev(k, 1)^2 / dataInput$getSampleSize(k, 1) / (dataInput$getStDev(k, 1)^2 / 
 						dataInput$getSampleSize(k, 1) + dataInput$getStDev(k, 2)^2 / dataInput$getSampleSize(k, 2))
@@ -486,7 +485,7 @@ getStageResultsMeans <- function(..., design, dataInput,
 	}
 	
 	if (dataInput$getNumberOfGroups() == 1) {
-		return(StageResultsMeans(
+		stageResults <- StageResultsMeans(
 			design = design,
 			dataInput = dataInput,
 			overallTestStatistics = overallTestStatistics, 
@@ -505,19 +504,18 @@ getStageResultsMeans <- function(..., design, dataInput,
 			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
 			normalApproximation = normalApproximation, 
 			equalVariances = equalVariances
-		))
+		)
 	}
-	
-	if (dataInput$getNumberOfGroups() == 2) {
-		return(StageResultsMeans(
+	else if (dataInput$getNumberOfGroups() == 2) {
+		stageResults <- StageResultsMeans(
 			design = design,
 			dataInput = dataInput,
 			overallTestStatistics = overallTestStatistics, 
 			overallPValues = overallPValues, 
-			overallMeans1 = dataInput$getOverallMeans(1), 
-			overallMeans2 = dataInput$getOverallMeans(2), 
-			overallStDevs1 = dataInput$getOverallStDevs(1), 
-			overallStDevs2 = dataInput$getOverallStDevs(2), 
+			overallMeans1 = dataInput$getOverallMeans(group = 1), 
+			overallMeans2 = dataInput$getOverallMeans(group = 2), 
+			overallStDevs1 = dataInput$getOverallStDevs(group = 1), 
+			overallStDevs2 = dataInput$getOverallStDevs(group = 2), 
 			overallStDevs = overallStDevs, # common variance
 			overallSampleSizes1 = dataInput$getOverallSampleSizesUpTo(stage),
 			overallSampleSizes2 = dataInput$getOverallSampleSizesUpTo(stage, 2),
@@ -532,8 +530,17 @@ getStageResultsMeans <- function(..., design, dataInput,
 			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
 			normalApproximation = normalApproximation, 
 			equalVariances = equalVariances
-		))
+		)
 	}	
+	if (.isTrialDesignFisher(design)) {	
+		stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
+		stageResults$.setParameterType("weightsFisher", C_PARAM_GENERATED)
+	}
+	else if (.isTrialDesignInverseNormal(design)) {
+		stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
+		stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
+	}
+	return(stageResults)
 }
 
 # 
@@ -615,8 +622,8 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 }
 
 .getRepeatedConfidenceIntervalsMeans <- function(..., design, dataInput, 
-		normalApproximation = FALSE, equalVariances = TRUE, 
-		directionUpper = TRUE , tolerance = C_ANALYSIS_TOLERANCE_DEFAULT,
+		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
+		directionUpper = C_DIRECTION_UPPER_DEFAULT, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT,
 		firstParameterName) {
 	
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
@@ -702,7 +709,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 #
 .getRepeatedConfidenceIntervalsMeansGroupSequential <- function(..., design, dataInput,
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
-		directionUpper = TRUE, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+		directionUpper = C_DIRECTION_UPPER_DEFAULT, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
 		
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsMeansGroupSequential", ignore = c("stage"), ...)
@@ -718,7 +725,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 #
 .getRepeatedConfidenceIntervalsMeansInverseNormal <- function(..., design, dataInput,  
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
-		directionUpper = TRUE, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+		directionUpper = C_DIRECTION_UPPER_DEFAULT, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
 		
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsMeansInverseNormal", ignore = c("stage"), ...)
@@ -733,7 +740,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 #
 .getRepeatedConfidenceIntervalsMeansFisher <- function(..., design, dataInput,    
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, equalVariances = C_EQUAL_VARIANCES_DEFAULT, 
-		directionUpper = TRUE, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
+		directionUpper = C_DIRECTION_UPPER_DEFAULT, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
 		
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsMeansFisher", ignore = c("stage"), ...)
@@ -777,7 +784,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 		))
 	}
 	
-	criticalValuesInverseNormal <- design$criticalValues
+	criticalValues <- design$criticalValues
 	
 	if (stageResults$isTwoSampleDataset()) {
 		.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
@@ -792,7 +799,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 	
 	# shifted decision region for use in getGroupSeqProbs 
 	# Group Sequential Method
-	shiftedDecisionRegionUpper <- criticalValuesInverseNormal[(stage + 1):kMax] * 
+	shiftedDecisionRegionUpper <- criticalValues[(stage + 1):kMax] * 
 			sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
 			sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
 			stats::qnorm(1 - stageResults$overallPValues[stage]) * sqrt(sum(weights[1:stage]^2)) / 
@@ -801,7 +808,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 			sqrt(cumsum(weights[(stage + 1):kMax]^2))
 	
 	if (design$sided == 2) {
-		shiftedDecisionRegionLower <- -criticalValuesInverseNormal[(stage + 1):kMax] * 
+		shiftedDecisionRegionLower <- -criticalValues[(stage + 1):kMax] * 
 				sqrt(sum(weights[1:stage]^2) + 	cumsum(weights[(stage + 1):kMax]^2)) / 
 				sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
 				c(weights[1:stage] %*% stats::qnorm(1 - stageResults$pValues[1:stage])) / 
@@ -1007,7 +1014,8 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 				reject <- reject + .getRejectValueConditionalPowerFisher(
 						kMax = kMax, alpha0Vec = design$alpha0Vec, 
 						criticalValues = criticalValues, weightsFisher = weightsFisher, 
-						pValues = pValues, k = k, thetaH1 = thetaH1, stage = stage, nPlanned = nPlanned)
+						pValues = pValues, currentKMax = k, thetaH1 = thetaH1, 
+						stage = stage, nPlanned = nPlanned)
 			}
 			conditionalPower[k] <- reject / iterations
 		}
@@ -1039,7 +1047,7 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 }
 
 .getConditionalPowerMeans <- function(..., design, stageResults, 
-		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, thetaH1, assumedStDev = NA_real_) {
+		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, thetaH1 = NA_real_, assumedStDev = NA_real_) {
 		
 	if (any(is.na(nPlanned))) {			
 		return(list(conditionalPower = rep(NA_real_, design$kMax), simulated = FALSE))
@@ -1074,11 +1082,12 @@ getRepeatedConfidenceIntervalsMeans <- function(design, ...) {
 }
 
 .getConditionalPowerPlotMeans <- function(..., design, stageResults, stage, 
-		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, thetaRange, assumedStDev = NA_real_) {
+		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, 
+		thetaRange, assumedStDev = NA_real_) {
 		
 	if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, thetaRange = thetaRange)) {
-		warning("You must specify a planned sample size (nPlanned) and ", 
-			"a range of effect sizes (thetaRange)", call. = FALSE)
+		warning("A planned sample size (nPlanned) and ", 
+			"a range of effect sizes (thetaRange) must be specified", call. = FALSE)
 	}
 	
 	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, 

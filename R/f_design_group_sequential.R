@@ -70,11 +70,7 @@ NULL
 		probs[, k] <- c(seq1, seq2, probs[2, k - 1] - probs[1, k - 1])
 	}
 	
-	.validateGroupSequentialProbabilityResults(dn, "dn")
-	.validateGroupSequentialProbabilityResults(dn2, "dn2")
-	.validateGroupSequentialProbabilityResults(x, "x")
-	.validateGroupSequentialProbabilityResults(x2, "x2")
-	.validateGroupSequentialProbabilityResults(w, "w")
+	.validateGroupSequentialProbabilityResultsMulti(dn = dn, dn2 = dn2, x = x, x2 = x2, w = w)
 	
 	return(probs)
 }
@@ -95,14 +91,26 @@ NULL
 		sqrt(epsilonVec[k - 1])) * dn2)
 }
 
+.validateGroupSequentialProbabilityResultsMulti <- function(...) {
+	args <- list(...)
+	for (variableName in names(args)) {
+		if (!.validateGroupSequentialProbabilityResults(results = args[[variableName]], variableName)) {
+			return(invisible())
+		}
+	}
+}
+
 .validateGroupSequentialProbabilityResults <- function(results, variableName) {
 	numberOfNAs <- sum(is.na(results))
 	if (numberOfNAs == 0) {
-		return(invisible())
+		return(TRUE)
 	}
 	
-	stop(sprintf(paste0(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-		"variable '%s' contains %s NA's"), variableName, numberOfNAs))
+	warning(sprintf(paste0(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+		"in .getGroupSequentialProbabilities(): ", 
+		"variable '%s' contains %s NA's (%.1f%%)"), 
+	variableName, numberOfNAs, 100 * numberOfNAs / length(results)), call. = FALSE)
+	return(FALSE)
 }
 
 .getSpendingValue <- function(alpha, x, sided, typeOfDesign, gamma = 1) {
@@ -963,6 +971,53 @@ getDesignInverseNormal <- function(
 		tolerance = tolerance, 
 		userFunctionCallEnabled = TRUE
 	))
+}
+
+.getDesignInverseNormal <- function(
+		...,
+		kMax = NA_integer_, 
+		alpha = NA_real_, 
+		beta = NA_real_, 
+		sided = 1, 
+		informationRates = NA_real_, 
+		futilityBounds = NA_real_, 		
+		typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN, 
+		deltaWT = 0, 
+		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, 
+		gammaA = 1, 
+		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
+		userAlphaSpending = NA_real_, 
+		userBetaSpending = NA_real_, 
+		gammaB = 1, 
+		bindingFutility = NA,
+		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
+		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
+		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
+	
+	.warnInCaseOfUnknownArguments(functionName = "getDesignInverseNormal", ...)
+	
+	return(.getDesignGroupSequential(
+					designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,
+					kMax = kMax, 
+					alpha = alpha, 
+					beta = beta, 
+					sided = sided, 
+					informationRates = informationRates, 
+					futilityBounds = futilityBounds, 		
+					typeOfDesign = typeOfDesign, 
+					deltaWT = deltaWT, 
+					optimizationCriterion = optimizationCriterion, 
+					gammaA = gammaA, 
+					typeBetaSpending = typeBetaSpending, 
+					userAlphaSpending = userAlphaSpending, 
+					userBetaSpending = userBetaSpending, 
+					gammaB = gammaB, 
+					bindingFutility = bindingFutility,
+					constantBoundsHP = constantBoundsHP,
+					twoSidedPower = twoSidedPower,
+					tolerance = tolerance, 
+					userFunctionCallEnabled = FALSE
+			))
 }
 
 .getDesignGroupSequentialDefaultValues <- function() {

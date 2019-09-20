@@ -889,16 +889,17 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 					} else {
 						.logDebug(".init: set pi2 to default")
 						pi2 <<- 0.2
-						.setParameterType("pi2", ifelse(pi2 == 0.2, 
-								C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 					}
 				} else {
 					.assertIsSingleNumber(pi2, "pi2")
+					
 					if (!any(is.na(median2))) {
 						warning("'median2' (", .arrayToString(median2), ") will be ignored")
 						median2 <<- NA_real_
 					}
 				}
+				.setParameterType("pi2", ifelse(pi2 == C_PI_2_DEFAULT, 
+						C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 				
 				hazardRatioCalculationEnabled <- TRUE
 				if (all(is.na(pi1))) {
@@ -976,6 +977,10 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				return(invisible())
 			}
 			
+			if (length(pwSurvTime) == 1 && is.na(pwSurvTime)) {
+				pwSurvTime <- NA_real_
+			}
+			
 			if (is.list(pwSurvTime)) {
 				.assertIsValidHazardRatioVector(hazardRatio)
 				.initFromList(pwSurvTime)
@@ -1022,6 +1027,17 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				.initMedian()
 			}
 			
+			if (piecewiseSurvivalEnabled) {
+				pi1 <<- NA_real_
+				pi2 <<- NA_real_
+				median1 <<- NA_real_
+				median2 <<- NA_real_
+				.setParameterType("pi1", C_PARAM_NOT_APPLICABLE)
+				.setParameterType("pi2", C_PARAM_NOT_APPLICABLE)
+				.setParameterType("median1", C_PARAM_NOT_APPLICABLE)
+				.setParameterType("median2", C_PARAM_NOT_APPLICABLE)
+			}
+			
 			.validateInitialization()
 		},
 		
@@ -1062,7 +1078,6 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			
 			.setParameterType("lambda2", C_PARAM_USER_DEFINED)
 			.setParameterType("hazardRatio", C_PARAM_USER_DEFINED)
-			.setParameterType("eventTime", C_PARAM_USER_DEFINED)
 			
 			if (piecewiseSurvivalEnabled && length(hazardRatio) > 1) {
 				return(invisible())
@@ -1320,7 +1335,6 @@ AccrualTime <- setRefClass("AccrualTime",
 		.isAbsoluteAccrualIntensity = function(x) {
 			return(!.isRelativeAccrualIntensity(x))
 		},
-		
 		
 		.isRelativeAccrualIntensity = function(x) {
 			return(all(x < 1))

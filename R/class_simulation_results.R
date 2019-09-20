@@ -81,7 +81,14 @@ SimulationResults <- setRefClass("SimulationResults",
 		.show = function(showType = 1, consoleOutputEnabled = TRUE, showStatistics = TRUE) {
 			'Method for automatically printing simulation result objects'	
 			.resetCat()
-			if (showType == 2) {
+			if (showType == 3) {
+				parameterList <- .getSimpleBoundarySummary(.self)
+				for (parameterName in names(parameterList)) {
+					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
+						consoleOutputEnabled = consoleOutputEnabled)
+				}
+			}
+			else if (showType == 2) {
 				.cat("Technical summary of the simulation results object of class ",
 					methods::classLabel(class(.self)), ":\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)

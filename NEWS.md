@@ -1,4 +1,24 @@
 
+# rpact 2.03
+
+## New features
+
+* Plot function for Fisher design implemented
+* Generic function 'summary' implemented for getDesign[...], getSampleSize[...], getPower[...], and getSimulation[...] results: a simple boundary summary will be displayed
+
+## Improvements, issues and changes
+
+* Generic function as.data.frame improved for getDesign[...], getSampleSize[...], getPower[...], and getSimulation[...] results
+* Ouput of getStageResults() improved
+* Improvements for Shiny app compatibility and better Shiny app performance
+* Repeated p-values are no longer calculated for typeOfDesign = "WToptimum"
+* Piecewise suvival time improved for numeric definition: median and pi will not be calculated and displayed any longer
+* Plot: legend title and tick mark positioning improved; optional arguments xlim and ylim implemented
+* Sample size/power: usage of argument 'twoSidedPower' optimized
+* Performance of function rpwexp/getPiecewiseExponentialRandomNumbers improved (special thanks to Marcel Wolbers for his example code)
+* For group sequential designs a warning will be displayed if information rates from design not according to data information
+* Format for output of standard deviation optimized
+
 # rpact 2.02
 
 * Minor corrections in the inline help

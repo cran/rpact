@@ -5,7 +5,8 @@
 \title{Stage Results Plotting}
 \usage{
 \method{plot}{StageResults}(x, y, ..., type = 1L, nPlanned,
-  stage = x$getNumberOfStages(), allocationRatioPlanned = NA_real_,
+  stage = x$getNumberOfStages(),
+  allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
   main = NA_character_, xlab = NA_character_, ylab = NA_character_,
   legendTitle = NA_character_, palette = "Set1",
   legendPosition = NA_integer_, showSource = FALSE)

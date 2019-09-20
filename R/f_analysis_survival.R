@@ -321,7 +321,7 @@ getStageResultsSurvival <- function(..., design, dataInput,
 		overallPValues <- stats::pnorm(overallLogRanks)
 	}
 		
-	return(StageResultsSurvival(
+	stageResults <- StageResultsSurvival(
 		design = design,
 		dataInput = dataInput,
 		overallLogRanks = overallLogRanks, 
@@ -339,7 +339,18 @@ getStageResultsSurvival <- function(..., design, dataInput,
 		weightsInverseNormal = weightsInverseNormal,
 		thetaH0 = thetaH0,
 		direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER)
-	))
+	)
+
+	if (.isTrialDesignFisher(design)) {	
+		stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
+		stageResults$.setParameterType("weightsFisher", C_PARAM_GENERATED)
+	}
+	else if (.isTrialDesignInverseNormal(design)) {
+		stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
+		stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
+	}
+	
+	return(stageResults)
 }
 
 #
@@ -768,8 +779,10 @@ getRepeatedConfidenceIntervalsSurvival <- function(design, ...) {
 			reject <- 0
 			for (i in 1:iterations) {
 				reject <- reject + .getRejectValueConditionalPowerFisher(
-					kMax, alpha0Vec = design$alpha0Vec, criticalValues, weightsFisher, 
-					pValues, k, thetaH1, stage, nPlanned)
+					kMax = kMax, alpha0Vec = design$alpha0Vec, 
+					criticalValues = criticalValues, weightsFisher = weightsFisher, 
+					pValues = pValues, currentKMax = k, thetaH1 = thetaH1, 
+					stage = stage, nPlanned = nPlanned)
 			}
 			conditionalPower[k] <- reject / iterations
 		}

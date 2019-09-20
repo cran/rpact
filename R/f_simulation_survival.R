@@ -420,6 +420,8 @@ getSimulationSurvival <- function(design = NULL, ...,
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		.warnInCaseOfUnknownArguments(functionName = "getSimulationSurvival", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationSurvival", ...)

@@ -61,7 +61,7 @@
 }
 
 .onAttach <- function(libname, pkgname) {
-	packageStartupMessage("Thank you for using rpact! Need help or more information? Visit www.rpact.com")
+	#packageStartupMessage("Thank you for using rpact! Need help or more information? Visit www.rpact.com")
 }
 
 .onUnload <- function(libpath) {

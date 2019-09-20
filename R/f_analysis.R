@@ -123,6 +123,7 @@ getAnalysisResults <- function(
 	.assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
 	.assertIsValidStage(stage, design$kMax)
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
+	.assertAreSuitableInformationRates(design, dataInput, stage = stage)
 
 	if (design$kMax < 2) stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "getAnalysisResults only available for design with interim stage(s)")	
 	
@@ -236,7 +237,7 @@ getStageResults <- function(design, dataInput, ...) {
 		.assertIsDataset(dataInput)
 		stage <- dataInput$getNumberOfStages()
 	}
-	return(stage)
+	return(as.integer(stage))
 }
 
 #' 
@@ -559,6 +560,11 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 				C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
 			return(rep(NA_real_, design$kMax))
 		}
+		if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
+			warning("Repeated p-values not available for 'typeOfDesign' = '", 
+					C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
+			return(rep(NA_real_, design$kMax))
+		}
 	}	
 	
 	if (.isTrialDesignFisher(design)) {
@@ -698,14 +704,13 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 	}
 	
 	weights[2:design$kMax] <- sqrt((design$informationRates[2:design$kMax] - 
-						design$informationRates[1:(design$kMax - 1)]) / design$informationRates[1]) 
+		design$informationRates[1:(design$kMax - 1)]) / design$informationRates[1]) 
 	return(weights)
 }
 
 # 
 # Returns the stage when using the inverse normal combination test
 # 
-
 .getStageInverseNormal <- function(design, stageResults, stage) {
 	
 	for (k in 1:stage) {
@@ -777,7 +782,6 @@ getRepeatedPValues <- function(design, stageResults, ...) {
 	# no early stopping
 	return(as.integer(stage + design$kMax)) 
 }
-
 
 # @title
 # q function
@@ -1283,6 +1287,23 @@ getFinalConfidenceInterval <- function(design, dataInput, ...) {
 	return(repeatedPValues)
 }
 
+.getRejectValueConditionalPowerFisher <- function(kMax, alpha0Vec, 
+		criticalValues, weightsFisher, pValues, currentKMax, thetaH1, stage, nPlanned) {
+	
+	pValues <- c(pValues[1:stage], 1 - stats::pnorm(stats::rnorm(kMax - stage, 
+		thetaH1 * sqrt(nPlanned[(stage + 1):currentKMax]))))
+	
+	for (j in 1:currentKMax) {
+		reject <- .getRejectValueFisherForOneStage(kMax = currentKMax, alpha0Vec, criticalValues, 
+				weightsFisher, stage = j, pValues)
+		if (reject >= 0) {
+			return(reject)
+		}
+	}
+	
+	return(0)
+}
+
 .getRejectValueFisherForOneStage <- function(kMax, alpha0Vec, criticalValues, weightsFisher, stage, pValues) {
 	
 	if (stage < kMax && pValues[stage] >= alpha0Vec[stage]) {
@@ -1298,11 +1319,10 @@ getFinalConfidenceInterval <- function(design, dataInput, ...) {
 		stop("No critical value available for stage ", stage, 
 			" ('criticalValues' = ", .arrayToString(criticalValues), ")")
 	}
-		
+	
 	if (p < criticalValues[stage]) {
 		return(1)
 	}
-	
 	return(-1)
 }
 
@@ -1312,8 +1332,8 @@ getFinalConfidenceInterval <- function(design, dataInput, ...) {
 	
 	for (stage in 1:kMax) {
 		reject <- .getRejectValueFisherForOneStage(kMax = kMax, alpha0Vec = alpha0Vec, 
-			criticalValues = criticalValues, weightsFisher = weightsFisher, stage = stage, 
-			pValues = pValues)
+				criticalValues = criticalValues, weightsFisher = weightsFisher, stage = stage, 
+				pValues = pValues)
 		if (reject >= 0) {
 			return(reject)
 		}
@@ -1322,22 +1342,6 @@ getFinalConfidenceInterval <- function(design, dataInput, ...) {
 	return(0)
 }
 
-.getRejectValueConditionalPowerFisher <- function(kMax, alpha0Vec, 
-		criticalValues, weightsFisher, pValues, k, thetaH1, stage, nPlanned) {
-	
-	pValues <- c(pValues[1:stage], 1 - stats::pnorm(stats::rnorm(kMax - stage, 
-		thetaH1 * sqrt(nPlanned[(stage + 1):k]))))
-	
-	for (j in 1:k) {
-		reject <- .getRejectValueFisherForOneStage(kMax = k, alpha0Vec, criticalValues, 
-				weightsFisher, stage = j, pValues)
-		if (reject >= 0) {
-			return(reject)
-		}
-	}
-	
-	return(0)
-}
 
 #
 # Get CRP based on inverse normal or group sequential method
@@ -1689,4 +1693,4 @@ getConditionalRejectionProbabilities <- function(design, stageResults, ...) {
 }
 
 
-	
+		

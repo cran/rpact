@@ -5,7 +5,7 @@
 \alias{summary.ParameterSet}
 \title{Parameter Set Summary}
 \usage{
-\method{summary}{ParameterSet}(object, ...)
+\method{summary}{ParameterSet}(object, ..., type = 1)
 }
 \description{
 Displays a summary of \code{ParameterSet} object.

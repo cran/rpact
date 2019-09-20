@@ -186,7 +186,11 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		}
 	}
 	else if (inherits(obj, "TrialDesign") || inherits(obj, "TrialDesignSet")) {
-		types <- c(types, 1, 3:9)
+		if (inherits(obj, "TrialDesignFisher")) {
+			types <- c(1, 3, 4)
+		} else {
+			types <- c(types, 1, 3:9)
+		}
 	}
 	
 	if (output == "numeric") {
@@ -330,7 +334,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		palette = "Set1", theta = seq(-1, 1, 0.02), nMax = NA_integer_, 
 		plotPointsEnabled = NA, legendPosition = NA_integer_, 
 		variedParameters = logical(0), qnormAlphaLineEnabled = TRUE, yAxisScalingEnabled = TRUE, 
-		ratioEnabled = NA, ...) {
+		ratioEnabled = NA, plotSettings = NULL, ...) {
 	
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
 		parameterNames <- c(xParameterName, yParameterNames)
@@ -346,9 +350,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 					"do not contain a field with name '", parameterName, "'")
 			}
 		}
-		plotSettings <- parameterSet$getPlotSettings()
+		if (is.null(plotSettings) || !inherits(plotSettings, "PlotSettings")) {
+			plotSettings <- parameterSet$getPlotSettings()
+		}
 	} else {
-		plotSettings <- PlotSettings()
+		if (is.null(plotSettings) || !inherits(plotSettings, "PlotSettings")) {
+			plotSettings <- PlotSettings()
+		}
 	}
 	
 	if (.isTrialDesignSet(parameterSet)) {
@@ -371,6 +379,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			theta = theta, nMax = nMax)
 		data <- df$data	
 		variedParameters <- df$variedParameters
+		variedParameters <- variedParameters[!is.na(variedParameters) && variedParameters != "NA"]
 	} else if (is.data.frame(parameterSet)) {
 		data <- parameterSet
 	} else {
@@ -512,7 +521,8 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		data$categories <- factor(data$categories, levels = unqiueValues[order(unqiueValues, decreasing = decreasing)])
 		
 		if (yParameterName1 == "alphaSpent" && yParameterName2 == "betaSpent") {
-			legendTitle <- paste(legendTitle, "Type of error", sep = "\n")
+			sep <- ifelse(length(legendTitle) > 0 && nchar(legendTitle) > 0, "\n", "")
+			legendTitle <- paste(legendTitle, "Type of error", sep = sep)
 		}
 	}
 	
@@ -531,8 +541,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		xAxisLabel = xAxisLabel, yAxisLabel1 = yAxisLabel1, yAxisLabel2 = yAxisLabel2, 
 		palette = palette, plotPointsEnabled = plotPointsEnabled, legendTitle = legendTitle,
 		legendPosition = legendPosition, scalingFactor1 = scalingFactor1, scalingFactor2 = scalingFactor2,
-		addPowerAndAverageSampleNumber = addPowerAndAverageSampleNumber, mirrorModeEnabled = mirrorModeEnabled,
-		ratioEnabled = ratioEnabled, plotSettings = plotSettings, sided = designMaster$sided, ...)
+		addPowerAndAverageSampleNumber = addPowerAndAverageSampleNumber, 
+		mirrorModeEnabled = mirrorModeEnabled, ratioEnabled = ratioEnabled, 
+		plotSettings = plotSettings, sided = designMaster$sided, ...)
+	
+	if (xParameterName == "informationRates") {
+		p <- p + ggplot2::scale_x_continuous(breaks=c(0, round(data$xValues, 3)))
+	}
 	
 	if (!is.data.frame(parameterSet) && yParameterName1 == "criticalValues" && designMaster$sided == 2) {
 		p <- plotSettings$mirrorYValues(p, yValues = data$yValues, 
@@ -540,14 +555,17 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			pointBorder = .getPointBorder(data, plotSettings))
 	}
 	
-	if (qnormAlphaLineEnabled && ((!is.data.frame(parameterSet) && (yParameterName1 == "criticalValues" || 
-					(yParameterName1 == "futilityBounds" && !is.null(yParameterName2) && yParameterName2 == "criticalValues"))) || 
+	if (!.isTrialDesignFisher(designMaster) && qnormAlphaLineEnabled && 
+			((!is.data.frame(parameterSet) && (yParameterName1 == "criticalValues" || 
+			(yParameterName1 == "futilityBounds" && !is.null(yParameterName2) && 
+			yParameterName2 == "criticalValues"))) || 
 			(yParameterName1 %in% c("futilityBounds", "criticalValues") && !is.null(yParameterName2) && 
-				yParameterName2 %in% c("criticalValues", "criticalValuesMirrored")))) {
+			yParameterName2 %in% c("criticalValues", "criticalValuesMirrored")))) {
 		p <- .addQnormAlphaLine(p, designMaster, plotSettings, data)
 	}
 	
-	if ((xParameterName == "informationRates" || xParameterName == "eventsPerStage") && 
+	if (!.isTrialDesignFisher(designMaster) && 
+			(xParameterName == "informationRates" || xParameterName == "eventsPerStage") && 
 			yParameterName1 == "stageLevels") {
 		yValue <- designMaster$alpha
 		if (designMaster$sided == 2) {
@@ -653,6 +671,22 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		p <- plotSettings$setLegendLabelSize(p)
 	}
 	
+	# set optional scale limits
+	xLim <- .getOptionalArgument("xlim", ...)
+	yLim <- .getOptionalArgument("ylim", ...)
+	if (is.null(yLim) && !missing(yAxisLabel1) && 
+			!is.na(yAxisLabel1) && yAxisLabel1 == "Critical value") {
+		yMax <- max(na.omit(data$yValues))
+		if (length(yMax) == 1 && yMax < 0.1) {
+			yLim <- c(0, 2 * yMax)
+		}
+	}
+	if ((!is.null(xLim) && is.numeric(xLim) && length(xLim) == 2) ||
+			(!is.null(yLim) && is.numeric(yLim) && length(yLim) == 2)) {
+		p <- p + ggplot2::coord_cartesian(xlim = xLim, ylim = yLim, expand = TRUE,
+			default = FALSE, clip = "on")
+	}
+	
 	# add dashed line to y = 0 or y = 1
 	if (mirrorModeEnabled) {
 		p <- p + ggplot2::geom_hline(yintercept = ifelse(ratioEnabled, 1, 0), linetype = "dashed")
@@ -667,7 +701,8 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		xlab = xlab, ylab = ylab, scalingFactor1 = scalingFactor1, scalingFactor2 = scalingFactor2)
 	
 	# plot lines and points
-	plotPointsEnabled <- ifelse(is.na(plotPointsEnabled), !addPowerAndAverageSampleNumber, plotPointsEnabled) 
+	plotPointsEnabled <- ifelse(is.na(plotPointsEnabled), 
+		!addPowerAndAverageSampleNumber, plotPointsEnabled) 
 	if (length(data$xValues) > 20) {
 		plotPointsEnabled <- FALSE
 	}
@@ -695,7 +730,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	pointBorder <- 4
-	if (length(data$xValues) > 10) {
+	if (length(data$xValues) / numberOfCategories > 10) {
 		pointBorder <- 1
 		plotSettings$adjustPointSize(-2)
 	}
@@ -721,8 +756,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	if (.isTrialDesignWithValidFutilityBounds(designMaster) &&
-		yParameterName1 == "futilityBounds" && yParameterName2 == "criticalValues") {
+			yParameterName1 == "futilityBounds" && yParameterName2 == "criticalValues") {
 		return(C_POSITION_RIGHT_BOTTOM)
+	}
+	
+	if (.isTrialDesignWithValidAlpha0Vec(designMaster) &&
+			yParameterName1 == "alpha0Vec" && yParameterName2 == "criticalValues") {
+		return(C_POSITION_RIGHT_TOP)
 	}
 	
 	if (yParameterName1 == "criticalValues") {

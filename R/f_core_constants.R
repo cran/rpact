@@ -67,6 +67,7 @@ C_NORMAL_APPROXIMATION_MEANS_DEFAULT <- FALSE
 C_NORMAL_APPROXIMATION_RATES_DEFAULT <- TRUE
 C_EQUAL_VARIANCES_DEFAULT <- TRUE
 C_ITERATIONS_DEFAULT <- 10000
+C_ACCEPT_DEVIATION_INFORMATIONRATES <- 0.05
 
 C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT <- 50
 C_VARIED_PARAMETER_SEQUENCE_LENGTH_DEFAULT <- 30
@@ -74,11 +75,16 @@ C_VARIED_PARAMETER_SEQUENCE_LENGTH_DEFAULT <- 30
 C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL <- "TrialDesignGroupSequential"
 C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL <- "TrialDesignInverseNormal"
 C_CLASS_NAME_TRIAL_DESIGN_FISHER <- "TrialDesignFisher"
+C_CLASS_NAME_TRIAL_DESIGN_CONDITIONAL_DUNNETT <- "TrialDesignConditionalDunnett"
 
-.getTrialDesignClassNames <- function() {
-	return(c(C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL, 
-			C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,
-			C_CLASS_NAME_TRIAL_DESIGN_FISHER))
+.getTrialDesignClassNames <- function(inclusiveConditionalDunnet = TRUE) {
+	trialDesignClassNames <- c(C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL, 
+		C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,
+		C_CLASS_NAME_TRIAL_DESIGN_FISHER)
+	if (inclusiveConditionalDunnet) {
+		trialDesignClassNames <- c(trialDesignClassNames, C_CLASS_NAME_TRIAL_DESIGN_CONDITIONAL_DUNNETT)
+	}
+	return(trialDesignClassNames)
 }
 
 C_EXCEPTION_TYPE_RUNTIME_ISSUE = "Runtime exception: "
@@ -93,6 +99,12 @@ C_EXCEPTION_TYPE_INCOMPLETE_ARGUMENTS = "Incomplete associated arguments: "
 
 C_DIRECTION_LOWER = "lower"
 C_DIRECTION_UPPER = "upper"
+
+# 
+# Constants used in 'f_analysis_multiarmed'
+# 
+C_INTERSECTIONTEST_MULTIARMED_DEFAULT <- "Dunnett"
+C_VARIANCES_OPTION_DEFAULT <- "overallPooled" 
 
 # 
 # Constants used in 'parameters.R'
@@ -216,7 +228,8 @@ C_TYPE_OF_DESIGN_BS_USER <- "bsUser" # user defined beta spending
 	.arrayToString(.getBetaSpendingDesignTypes(), encapsulate = TRUE)
 }
 
-.isBetaSpendingDesignType <- function(typeOfDesign, userDefinedBetaSpendingIncluded = TRUE, noneIncluded = FALSE) {
+.isBetaSpendingDesignType <- function(typeOfDesign, 
+		userDefinedBetaSpendingIncluded = TRUE, noneIncluded = FALSE) {
 	if (userDefinedBetaSpendingIncluded && typeOfDesign == C_TYPE_OF_DESIGN_BS_USER) {
 		return(TRUE)
 	}
@@ -519,7 +532,16 @@ C_PARAMETER_NAMES <- list(
 	time = "Time",
 	overallEventProbabilities = "Overall event probabilities",
 	eventProbabilities1 = "Event probabilities (1)",
-	eventProbabilities2 = "Event probabilities (2)"
+	eventProbabilities2 = "Event probabilities (2)",
+	
+	informationAtInterim = "Information at interim",
+	secondStageConditioning = "Conditional second stage p-values",
+	
+	separatePValues = "Separate p-values",
+	singleStepAdjustedPValues = "Single step adjusted p-values",
+	intersectionTest = "Intersection test",
+	varianceOption = "Variance option",
+	optimumAllocationRatio = "Optimum allocation ratio"
 )
 
 .getParameterNames <- function(design = NULL, designPlan = NULL) {
@@ -734,10 +756,10 @@ C_TABLE_COLUMN_NAMES <- list(
 	
 	plannedEvents = "Required planned events",
 	plannedSubjects = "Required planned subjects",
-	minNumberOfEventsPerStage = "Minimum # additional events per stage",
-	maxNumberOfEventsPerStage = "Maximum # additional events per stage",
-	minNumberOfSubjectsPerStage = "Minimum # of additional subjects per stage",
-	maxNumberOfSubjectsPerStage = "Maximum # of additional subjects per stage",
+	minNumberOfEventsPerStage = "Minimum # events per stage",
+	maxNumberOfEventsPerStage = "Maximum # events per stage",
+	minNumberOfSubjectsPerStage = "Minimum # of subjects per stage",
+	maxNumberOfSubjectsPerStage = "Maximum # of subjects per stage",
 	accrualIntensity = "Accrual intensity",
 	accrualIntensityRelative = "Accrual intensity (relative)",
 	maxNumberOfIterations = "Maximum # iterations",
@@ -788,7 +810,16 @@ C_TABLE_COLUMN_NAMES <- list(
 	time = "Time",
 	overallEventProbabilities = "Overall event probability",
 	eventProbabilities1 = "Event probability (1)",
-	eventProbabilities2 = "Event probability (2)"
+	eventProbabilities2 = "Event probability (2)",
+	
+	informationAtInterim = "Information at interim",
+	secondStageConditioning = "Conditional second stage p-value",
+	
+	separatePValues = "Separate p-value",
+	singleStepAdjustedPValues = "Single step adjusted p-value",
+	intersectionTest = "Intersection test",
+	varianceOption = "Variance option",
+	optimumAllocationRatio = "Optimum allocation ratio"
 )
 
 .getTableColumnNames <- function(design = NULL, designPlan = NULL) {
@@ -983,7 +1014,12 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	time = "formatTime",
 	overallEventProbabilities = "formatProbabilities",
 	eventProbabilities1 = "formatProbabilities",
-	eventProbabilities2 = "formatProbabilities"
+	eventProbabilities2 = "formatProbabilities",
+	
+	informationAtInterim = "formatRates",
+	
+	separatePValues = "formatPValues",
+	singleStepAdjustedPValues = "formatPValues"
 )
 
 .getParameterFormatFunctions <- function() {

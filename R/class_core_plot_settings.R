@@ -276,9 +276,13 @@ PlotSettings <- setRefClass("PlotSettings",
 			
 			if (!is.na(subtitle)) {
 				p <- p + ggplot2::ggtitle(mainTitle, subtitle = subtitle)
+				subtitleFontSize <- nchar(subtitle) / 14.5
+				if (subtitleFontSize > mainTitleFontSize - 2) {
+					subtitleFontSize <- mainTitleFontSize - 2
+				}
 				p <- p + ggplot2::theme(
 					plot.title = ggplot2::element_text(hjust = 0.5, size = mainTitleFontSize, face = "bold"), 
-					plot.subtitle = ggplot2::element_text(hjust = 0.5, size = mainTitleFontSize - 2))
+					plot.subtitle = ggplot2::element_text(hjust = 0.5, size = subtitleFontSize))
 			} else {
 				p <- p + ggplot2::ggtitle(mainTitle)
 				p <- p + ggplot2::theme(plot.title = ggplot2::element_text(
@@ -330,21 +334,24 @@ PlotSettings <- setRefClass("PlotSettings",
 			return(p)
 		},
 		
-		plotValues = function(p, plotLineEnabled = TRUE, plotPointsEnabled = TRUE, pointBorder = 4) {
+		plotValues = function(p, ..., plotLineEnabled = TRUE, 
+				plotPointsEnabled = TRUE, pointBorder = 4) {
 			if (plotLineEnabled) {
 				p <- p + ggplot2::geom_line(size = lineSize)
 			}
 			if (plotPointsEnabled) {
 				# plot white border around the points
 				if (pointBorder > 0) {
-					p <- p + ggplot2::geom_point(color = "white", size = pointSize + pointBorder)
+					p <- p + ggplot2::geom_point(color = "white", size = pointSize, alpha = 1, 
+						shape = 21, stroke = pointBorder / 2.25)
 				}
-				p <- p + ggplot2::geom_point(size = pointSize)
+				p <- p + ggplot2::geom_point(size = pointSize)	
 			}
 			return(p)
 		},
 		
-		mirrorYValues = function(p, yValues, plotLineEnabled = TRUE, plotPointsEnabled = TRUE, pointBorder = 4) {
+		mirrorYValues = function(p, yValues, plotLineEnabled = TRUE, 
+				plotPointsEnabled = TRUE, pointBorder = 4) {
 			if (plotLineEnabled) {
 				p <- p + ggplot2::geom_line(ggplot2::aes(y = -yValues), size = lineSize)
 			}
@@ -352,7 +359,8 @@ PlotSettings <- setRefClass("PlotSettings",
 				# plot white border around the points
 				if (pointBorder > 0) {
 					p <- p + ggplot2::geom_point(ggplot2::aes(y = -yValues), 
-						color = "white", size = pointSize + pointBorder)
+						color = "white", size = pointSize, alpha = 1, 
+						shape = 21, stroke = pointBorder / 2.25)
 				}
 				p <- p + ggplot2::geom_point(ggplot2::aes(y = -yValues), size = pointSize)
 			}

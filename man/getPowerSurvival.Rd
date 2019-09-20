@@ -20,7 +20,7 @@ getPowerSurvival(design = NULL, ...,
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 
-In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} can be directly entered as argument.}
+In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument.}
 
 \item{...}{Ensures that all arguments are be named and 
 that a warning will be displayed if unknown arguments are passed.}

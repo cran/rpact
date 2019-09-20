@@ -585,6 +585,8 @@ getSimulationRates <- function(design = NULL, ...,
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		.warnInCaseOfUnknownArguments(functionName = "getSimulationRates", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationRates", ...)

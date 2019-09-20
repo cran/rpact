@@ -440,6 +440,8 @@ getSimulationMeans <- function(
 		
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		.warnInCaseOfUnknownArguments(functionName = "getSimulationMeans", 
+			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMeans", ...)

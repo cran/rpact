@@ -21,6 +21,8 @@
 #' @include f_design_utilities.R
 NULL
 
+C_VARIABLE_DESIGN_PLAN_PARAMETERS <- c("lambda1", "pi1", "median1", "alternative", "hazardRatio")
+
 C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_MEANS <- list(
 	normalApproximation = FALSE, 
 	meanRatio = FALSE, 
@@ -127,6 +129,7 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 					.setParameterType(parameterName, C_PARAM_USER_DEFINED)
 				}
 			}
+			.setParameterType("optimumAllocationRatio", C_PARAM_NOT_APPLICABLE)
 		},
 		
 		.setSampleSizeObject = function(objectType) {
@@ -162,7 +165,14 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing trial plan objects'
 			.resetCat()
-			if (showType == 2) {
+			if (showType == 3) {
+				parameterList <- .getSimpleBoundarySummary(.self)
+				for (parameterName in names(parameterList)) {
+					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
+						consoleOutputEnabled = consoleOutputEnabled)
+				}
+			}
+			else if (showType == 2) {
 				.cat("Technical summary of the design plan object of class ",
 					methods::classLabel(class(.self)), ":\n\n", sep = "", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
@@ -177,10 +187,11 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 						.isBetaSpendingDesignType(.design$typeBetaSpending))) {
 					designParametersToShow <- c(designParametersToShow, ".design$beta")
 				}
+				if (.objectType == "sampleSize"  && !is.null(.design$sided) && 
+					!is.na(.design$sided) && .design$sided == 2) {
+					designParametersToShow <- c(designParametersToShow, ".design$twoSidedPower")
+				}
 				designParametersToShow <- c(designParametersToShow, ".design$sided")
-#				if (!is.null(.design$bindingFutility) && !is.na(.design$bindingFutility)) {
-#					designParametersToShow <- c(designParametersToShow, ".design$bindingFutility")
-#				}
 				.showParametersOfOneGroup(designParametersToShow, "Design parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				
@@ -304,6 +315,7 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 		stDev = "numeric", 
 		groups = "numeric", 
 		allocationRatioPlanned = "numeric",
+		optimumAllocationRatio = "logical",
 		directionUpper = "logical",
 		
 		nFixed = "numeric",
@@ -382,24 +394,24 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 			}
 			if (.objectType == "sampleSize") {
 				return(getSampleSizeMeans(design = .self$.design, 
-					normalApproximation = .self$.getParameterValueIfUserDefined("normalApproximation"), 
-					meanRatio = .self$meanRatio, #.getParameterValueIfUserDefined("meanRatio"), 
-					thetaH0 = .self$.getParameterValueIfUserDefined("thetaH0"), 
+					normalApproximation = .self$.getParameterValueIfUserDefinedOrDefault("normalApproximation"), 
+					meanRatio = .self$meanRatio, #.getParameterValueIfUserDefinedOrDefault("meanRatio"), 
+					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
 					alternative = alternativeTemp, 
-					stDev = .self$.getParameterValueIfUserDefined("stDev"), 
-					groups = .self$.getParameterValueIfUserDefined("groups"), 
-					allocationRatioPlanned = .self$.getParameterValueIfUserDefined("allocationRatioPlanned")))
+					stDev = .self$.getParameterValueIfUserDefinedOrDefault("stDev"), 
+					groups = .self$.getParameterValueIfUserDefinedOrDefault("groups"), 
+					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned")))
 			} else {
 				return(getPowerMeans(design = .self$.design, 
-					normalApproximation = .self$.getParameterValueIfUserDefined("normalApproximation"), 
-					meanRatio = .self$meanRatio, #.getParameterValueIfUserDefined("meanRatio"), 
-					thetaH0 = .self$.getParameterValueIfUserDefined("thetaH0"), 
+					normalApproximation = .self$.getParameterValueIfUserDefinedOrDefault("normalApproximation"), 
+					meanRatio = .self$meanRatio, #.getParameterValueIfUserDefinedOrDefault("meanRatio"), 
+					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
 					alternative = alternativeTemp, 
-					stDev = .self$.getParameterValueIfUserDefined("stDev"), 
-					directionUpper = .self$.getParameterValueIfUserDefined("directionUpper"), 
-					maxNumberOfSubjects = .self$.getParameterValueIfUserDefined("maxNumberOfSubjects"), 
-					groups = .self$.getParameterValueIfUserDefined("groups"), 
-					allocationRatioPlanned = .self$.getParameterValueIfUserDefined("allocationRatioPlanned")))
+					stDev = .self$.getParameterValueIfUserDefinedOrDefault("stDev"), 
+					directionUpper = .self$.getParameterValueIfUserDefinedOrDefault("directionUpper"), 
+					maxNumberOfSubjects = .self$.getParameterValueIfUserDefinedOrDefault("maxNumberOfSubjects"), 
+					groups = .self$.getParameterValueIfUserDefinedOrDefault("groups"), 
+					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned")))
 			}
 		},
 		
@@ -443,6 +455,7 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 		pi2 = "numeric", 
 		groups = "numeric", 
 		allocationRatioPlanned = "numeric",
+		optimumAllocationRatio = "logical",
 		directionUpper = "logical",
 		
 		nFixed = "numeric",
@@ -520,24 +533,24 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 			}
 			if (.objectType == "sampleSize") {
 				return(getSampleSizeRates(design = .self$.design, 
-					normalApproximation = .self$.getParameterValueIfUserDefined("normalApproximation"), 
-					riskRatio = .self$riskRatio, #.getParameterValueIfUserDefined("riskRatio"), 
-					thetaH0 = .self$.getParameterValueIfUserDefined("thetaH0"), 
+					normalApproximation = .self$.getParameterValueIfUserDefinedOrDefault("normalApproximation"), 
+					riskRatio = .self$riskRatio, #.getParameterValueIfUserDefinedOrDefault("riskRatio"), 
+					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
 					pi1 = pi1Temp, 
-					pi2 = .self$.getParameterValueIfUserDefined("pi2"), 
-					groups = .self$.getParameterValueIfUserDefined("groups"), 
-					allocationRatioPlanned = .self$.getParameterValueIfUserDefined("allocationRatioPlanned")))
+					pi2 = .self$.getParameterValueIfUserDefinedOrDefault("pi2"), 
+					groups = .self$.getParameterValueIfUserDefinedOrDefault("groups"), 
+					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned")))
 			} else {
 				return(getPowerRates(design = .self$.design, 
-					normalApproximation = .self$.getParameterValueIfUserDefined("normalApproximation"), 
-					riskRatio = .self$riskRatio, #.getParameterValueIfUserDefined("riskRatio"), 
-					thetaH0 = .self$.getParameterValueIfUserDefined("thetaH0"), 
+					normalApproximation = .self$.getParameterValueIfUserDefinedOrDefault("normalApproximation"), 
+					riskRatio = .self$riskRatio, #.getParameterValueIfUserDefinedOrDefault("riskRatio"), 
+					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
 					pi1 = pi1Temp, 
-					pi2 = .self$.getParameterValueIfUserDefined("pi2"), 
-					directionUpper = .self$.getParameterValueIfUserDefined("directionUpper"), 
-					maxNumberOfSubjects = .self$.getParameterValueIfUserDefined("maxNumberOfSubjects"), 
-					groups = .self$.getParameterValueIfUserDefined("groups"), 
-					allocationRatioPlanned = .self$.getParameterValueIfUserDefined("allocationRatioPlanned")))
+					pi2 = .self$.getParameterValueIfUserDefinedOrDefault("pi2"), 
+					directionUpper = .self$.getParameterValueIfUserDefinedOrDefault("directionUpper"), 
+					maxNumberOfSubjects = .self$.getParameterValueIfUserDefinedOrDefault("maxNumberOfSubjects"), 
+					groups = .self$.getParameterValueIfUserDefinedOrDefault("groups"), 
+					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned")))
 			}
 		},
 		
@@ -591,6 +604,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		maxNumberOfSubjects2 = "numeric",
 		maxNumberOfEvents = "numeric",
 		allocationRatioPlanned = "numeric", 
+		optimumAllocationRatio = "logical",
 		accountForObservationTimes = "logical",
 		eventTime = "numeric",
 		accrualTime = "numeric",
@@ -672,38 +686,47 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 			}
 		},
 		
-		clone = function(hazardRatio = NA_real_) {
-			if (any(is.na(hazardRatio))) {
-				hr <- .self$hazardRatio
-			} else {
+		clone = function(hazardRatio = NA_real_, pi1 = NA_real_) {
+			hr <- NA_real_
+			if (.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
 				hr <- hazardRatio
+				if (any(is.na(hazardRatio))) {
+					hr <- .self$hazardRatio
+				}
 			}
-			accrualTimeTemp <- .self$.getParameterValueIfUserDefined("accrualTime")
+			pi1Temp <- NA_real_
+			if (.getParameterType("pi1") == C_PARAM_USER_DEFINED) {
+				pi1Temp <- pi1
+				if (any(is.na(pi1))) {
+					pi1Temp <- .self$pi1	
+				}
+			}
+			accrualTimeTemp <- .self$.getParameterValueIfUserDefinedOrDefault("accrualTime")
 			if (!is.null(accrualTimeTemp) && length(accrualTimeTemp) > 0 && 
 					!all(is.na(accrualTimeTemp)) && accrualTimeTemp[1] != 0) {
 				accrualTimeTemp <- c(0, accrualTimeTemp)
 			}
-			accrualIntensityTemp <- .self$.getParameterValueIfUserDefined("accrualIntensity")
+			accrualIntensityTemp <- .self$.getParameterValueIfUserDefinedOrDefault("accrualIntensity")
 			if (all(is.na(accrualIntensityTemp))) {
 				accrualIntensityTemp <- C_ACCRUAL_INTENSITY_DEFAULT
 			}
 			if (.objectType == "sampleSize") {
 				return(getSampleSizeSurvival(design = .self$.design, 
-					typeOfComputation = .self$.getParameterValueIfUserDefined("typeOfComputation"), 
-					thetaH0 = .self$.getParameterValueIfUserDefined("thetaH0"), 
-					pi1 = .self$.getParameterValueIfUserDefined("pi1"), 
-					pi2 = .self$.getParameterValueIfUserDefined("pi2"), 
+					typeOfComputation = .self$.getParameterValueIfUserDefinedOrDefault("typeOfComputation"), 
+					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
+					pi1 = pi1Temp, 
+					pi2 = .self$.getParameterValueIfUserDefinedOrDefault("pi2"), 
 					allocationRatioPlanned = .self$allocationRatioPlanned, 
-					accountForObservationTimes = .self$.getParameterValueIfUserDefined("accountForObservationTimes"), 
+					accountForObservationTimes = .self$.getParameterValueIfUserDefinedOrDefault("accountForObservationTimes"), 
 					eventTime = .self$eventTime, 
 					accrualTime = accrualTimeTemp, 
 					accrualIntensity = accrualIntensityTemp, 
 					kappa = .self$kappa, 
-					piecewiseSurvivalTime = .self$.getParameterValueIfUserDefined("piecewiseSurvivalTime"), 
-					lambda2 = .self$.getParameterValueIfUserDefined("lambda2"),
-					lambda1 = .self$.getParameterValueIfUserDefined("lambda1"),
-					followUpTime = .self$.getParameterValueIfUserDefined("followUpTime"), 
-					maxNumberOfSubjects = .self$.getParameterValueIfUserDefined("maxNumberOfSubjects"), 
+					piecewiseSurvivalTime = .self$.getParameterValueIfUserDefinedOrDefault("piecewiseSurvivalTime"), 
+					lambda2 = .self$.getParameterValueIfUserDefinedOrDefault("lambda2"),
+					lambda1 = .self$.getParameterValueIfUserDefinedOrDefault("lambda1"),
+					followUpTime = .self$.getParameterValueIfUserDefinedOrDefault("followUpTime"), 
+					maxNumberOfSubjects = .self$.getParameterValueIfUserDefinedOrDefault("maxNumberOfSubjects"), 
 					dropoutRate1 = .self$dropoutRate1, 
 					dropoutRate2 = .self$dropoutRate2, 
 					dropoutTime = .self$dropoutTime, 
@@ -714,22 +737,22 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 					directionUpperTemp <- directionUpperTemp[1]
 				}
 				return(getPowerSurvival(design = .self$.design, 
-					typeOfComputation = .self$.getParameterValueIfUserDefined("typeOfComputation"), 
-					thetaH0 = .self$.getParameterValueIfUserDefined("thetaH0"), 
-					pi1 = .self$.getParameterValueIfUserDefined("pi1"), 
-					pi2 = .self$.getParameterValueIfUserDefined("pi2"), 
+					typeOfComputation = .self$.getParameterValueIfUserDefinedOrDefault("typeOfComputation"), 
+					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
+					pi1 = pi1Temp, 
+					pi2 = .self$.getParameterValueIfUserDefinedOrDefault("pi2"), 
 					directionUpper = directionUpperTemp,
 					allocationRatioPlanned = .self$allocationRatioPlanned, 
 					eventTime = .self$eventTime, 
 					accrualTime = accrualTimeTemp, 
 					accrualIntensity = accrualIntensityTemp, 
 					kappa = .self$kappa, 
-					piecewiseSurvivalTime = .self$.getParameterValueIfUserDefined("piecewiseSurvivalTime"), 
-					lambda2 = .self$.getParameterValueIfUserDefined("lambda2"), 
-					lambda1 = .self$.getParameterValueIfUserDefined("lambda1"), 
+					piecewiseSurvivalTime = .self$.getParameterValueIfUserDefinedOrDefault("piecewiseSurvivalTime"), 
+					lambda2 = .self$.getParameterValueIfUserDefinedOrDefault("lambda2"), 
+					lambda1 = .self$.getParameterValueIfUserDefinedOrDefault("lambda1"), 
 					hazardRatio = hr,
-					maxNumberOfSubjects = .self$.getParameterValueIfUserDefined("maxNumberOfSubjects"), 
-					maxNumberOfEvents = .self$.getParameterValueIfUserDefined("maxNumberOfEvents"),
+					maxNumberOfSubjects = .self$.getParameterValueIfUserDefinedOrDefault("maxNumberOfSubjects"), 
+					maxNumberOfEvents = .self$.getParameterValueIfUserDefinedOrDefault("maxNumberOfEvents"),
 					dropoutRate1 = .self$dropoutRate1, 
 					dropoutRate2 = .self$dropoutRate2, 
 					dropoutTime = .self$dropoutTime))
@@ -773,7 +796,11 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 #' 
 #' @keywords internal
 #' 
-summary.TrialDesignPlanSurvival <- function(object, ...) {
+summary.TrialDesignPlanSurvival <- function(object, ..., type = 1) {
+	if (type == 1) {
+		return(invisible(summary.ParameterSet(object = object, ..., type = type)))
+	} 
+	
 	object$.cat("This output summarizes the ", object$.toString(), " specification.\n\n", heading = 1)
 	
 	object$show()
@@ -797,6 +824,7 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 		}
 	}
 	object$.printAsDataFrame(parameterNames = parametersToShow)
+	
 	invisible(object)
 }
 
@@ -818,17 +846,25 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 			items$add("N", round(nMax, 1), "max")
 		}	
 		
-		if (designPlan$meanRatio) items$add("coefficient of variation", designPlan$stDev) else items$add("standard deviation", designPlan$stDev)
+		if (designPlan$meanRatio) {
+			items$add("coefficient of variation", designPlan$stDev) 
+		} else { 
+			items$add("standard deviation", designPlan$stDev)
+		}
 
 		if (designPlan$groups == 1) {
 			if  (type %in% c(2,(5:9))) {
 				items$add("H0: mu", designPlan$thetaH0)
-				items$add("allocation ratio", designPlan$allocationRatioPlanned)
+				items$add("allocation ratio", round(designPlan$allocationRatioPlanned, 2))
 			}
 		}	else {
 			if  (type %in% c(2,(5:9))) {
-				if (designPlan$meanRatio) items$add("H0: mean ratio", designPlan$thetaH0) else items$add("H0: mean difference", designPlan$thetaH0)
-				items$add("allocation ratio", designPlan$allocationRatioPlanned)
+				if (designPlan$meanRatio) {
+					items$add("H0: mean ratio", designPlan$thetaH0) 
+				} else {
+					items$add("H0: mean difference", designPlan$thetaH0)
+				}
+				items$add("allocation ratio", round(designPlan$allocationRatioPlanned, 2))
 			}
 		}
 		
@@ -855,8 +891,12 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 			}	
 		} else {
 			if  (type %in% c(2,(5:9))) {
-				if (designPlan$riskRatio) items$add("H0: risk ratio", designPlan$thetaH0) else items$add("H0: risk difference", designPlan$thetaH0)				
-				items$add("allocation ratio", designPlan$allocationRatioPlanned)
+				if (designPlan$riskRatio) {
+					items$add("H0: risk ratio", designPlan$thetaH0) 
+				} else {
+					items$add("H0: risk difference", designPlan$thetaH0)
+				}
+				items$add("allocation ratio", round(designPlan$allocationRatioPlanned, 2))
 			}
 		}
 		
@@ -870,7 +910,7 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 		}	
 		if (type %in% c(2,(5:12))) {
 			items$add("H0: hazard ratio", designPlan$thetaH0)
-			items$add("allocation ratio", designPlan$allocationRatioPlanned)
+			items$add("allocation ratio", round(designPlan$allocationRatioPlanned, 2))
 		}
 	}
 }
@@ -901,7 +941,6 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
 		theta = seq(-1, 1, 0.02), plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, designPlanName = NA_character_, ...) {
-
 	
 	.assertGgplotIsInstalled()
 	.assertIsTrialDesignPlan(designPlan) 
@@ -910,6 +949,8 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 	
 	nMax <- ifelse(.isTrialDesignPlanSurvival(designPlan), designPlan$maxNumberOfEvents[1], 
 		designPlan$maxNumberOfSubjects[1]) # use first value for plotting
+	
+	plotSettings <- designPlan$.plotSettings
 	
 	if (designMaster$kMax == 1 && (type %in% c(1:4))) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, 
@@ -942,21 +983,25 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 	
 	showSourceHint <- ""
 	if (type %in% c(5:12)) {
-		if (.isTrialDesignPlanMeans(designPlan) && length(designPlan$alternative) == 2) {
+		if (.isTrialDesignPlanMeans(designPlan) && length(designPlan$alternative) == 2 &&
+				designPlan$.getParameterType("alternative") == C_PARAM_USER_DEFINED) {
 			if (showSource) {
 				showSourceHint <- .getVariedParameterHint(designPlan$alternative, "alternative")
 			}
 			designPlan <- designPlan$clone(alternative = 
 				.getVariedParameterVector(designPlan$alternative, "alternative"))
 		}
-		else if (.isTrialDesignPlanRates(designPlan) && length(designPlan$pi1) == 2) {
+		else if ((.isTrialDesignPlanRates(designPlan) || .isTrialDesignPlanSurvival(designPlan)) && 
+				length(designPlan$pi1) == 2 &&
+				designPlan$.getParameterType("pi1") == C_PARAM_USER_DEFINED) {
 			if (showSource) {
 				showSourceHint <- .getVariedParameterHint(designPlan$pi1, "pi1")
 			}
 			designPlan <- designPlan$clone(pi1 = 
 				.getVariedParameterVector(designPlan$pi1, "pi1"))
 		}
-		else if (.isTrialDesignPlanSurvival(designPlan) && length(designPlan$hazardRatio) == 2) {
+		else if (.isTrialDesignPlanSurvival(designPlan) && length(designPlan$hazardRatio) == 2 &&
+				designPlan$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
 			if (showSource) {
 				showSourceHint <- .getVariedParameterHint(designPlan$hazardRatio, "hazardRatio")
 			}
@@ -1010,7 +1055,7 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 					xlab = xlab, ylab = ylab, type = type,
 					palette = palette, theta = theta, nMax = nMax, 
 					plotPointsEnabled = plotPointsEnabled, legendPosition = legendPosition, 
-					designSetName = designPlanName))
+					designSetName = designPlanName, ...))
 		}
 	}
 	
@@ -1230,7 +1275,7 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 					legendPosition = legendPosition, variedParameters = variedParameters, 
-					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE))
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
 		} else {
 			if (is.na(main)) {
 				items <- PlotSubTitleItems(title = "Overall Power and Early Stopping")
@@ -1243,9 +1288,36 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 				xParameterName <- "effect"
 			}
 			yParameterNames <- c("overallReject", "futilityStop", "earlyStop")
-			if (is.na(legendPosition)) {
-				legendPosition <- C_POSITION_RIGHT_CENTER
+			
+			if (.isTrialDesignPlanRates(designPlan)) {
+				if (is.na(ylab)) {
+					ylab <- ""
+				}
+				if (is.na(legendPosition)) {
+					legendPosition <- C_POSITION_LEFT_TOP
+				}
+				if (is.null(list(...)[["ylim"]])) {
+					ylim <- c(0, 1)
+					return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
+						xParameterName = xParameterName,
+						yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+						palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+						legendPosition = legendPosition, variedParameters = variedParameters, 
+						qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...))
+				} else {
+					return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
+						xParameterName = xParameterName,
+						yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+						palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+						legendPosition = legendPosition, variedParameters = variedParameters, 
+						qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+				}
+			} else {
+				if (is.na(legendPosition)) {
+					legendPosition <- C_POSITION_RIGHT_CENTER
+				}
 			}
+			
 			.showPlotSourceInformation(objectName = designPlanName, 
 				xParameterName = xParameterName, 
 				yParameterNames = yParameterNames, 
@@ -1439,13 +1511,13 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 					xlab = NA_character_, ylab = NA_character_, xAxisLabel = "Hazard Ratio",
 					yAxisLabel1 = "Analysis Time", yAxisLabel2 = NA_character_, 
 					plotPointsEnabled = TRUE, legendTitle = "Stage",
-					legendPosition = legendPosition, sided = designMaster$sided))
+					legendPosition = legendPosition, sided = designMaster$sided, ...))
 		}
 		
 		else if (type == 13 || type == 14) { # Cumulative Distribution Function / Survival function
 			return(.plotSurvivalFunction(designPlan, designMaster = designMaster, type = type, main = main, 
 				xlab = xlab, ylab = ylab, palette = palette,
-				legendPosition = legendPosition, showSource = showSource))
+				legendPosition = legendPosition, showSource = showSource, ...))
 		}
 		
 		else {
@@ -1462,7 +1534,8 @@ summary.TrialDesignPlanSurvival <- function(object, ...) {
 			yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 			palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 			legendPosition = legendPosition, variedParameters = variedParameters, 
-			qnormAlphaLineEnabled = (type != 2), ratioEnabled = ratioEnabled))
+			qnormAlphaLineEnabled = (type != 2), ratioEnabled = ratioEnabled,
+			plotSettings = plotSettings, ...))
 }
 
 # Cumulative Distribution Function / Survival function

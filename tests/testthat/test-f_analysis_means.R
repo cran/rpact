@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 23 July 2019, 11:42:04                                                       #
+# Date: 11 September 2019, 16:24:16                                                  #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -37,7 +37,6 @@ test_that("'getAnalysisResults' for group sequential design and a dataset of one
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults1' with expected results
 	##
-	expect_equal(stageResults1$stages, c(1, 2, 3, 4))
 	expect_equal(stageResults1$overallTestStatistics, c(1.2040366, 2.025312, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$overallPValues, c(0.12168078, 0.02415027, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$overallMeans, c(45, 48.6, 47.25), tolerance = 1e-07)
@@ -46,9 +45,6 @@ test_that("'getAnalysisResults' for group sequential design and a dataset of one
 	expect_equal(stageResults1$testStatistics, c(1.2040366, 1.6040446, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$pValues, c(0.12168078, 0.059770605, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(stageResults1$thetaH0, 10)
-	expect_equal(stageResults1$direction, "upper")
-	expect_equal(stageResults1$normalApproximation, FALSE)
 
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
@@ -136,7 +132,6 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults2' with expected results
 	##
-	expect_equal(stageResults2$stages, c(1, 2, 3, 4))
 	expect_equal(stageResults2$overallTestStatistics, c(1.2040366, 2.025312, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$overallPValues, c(0.12168078, 0.02415027, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$overallMeans, c(45, 48.6, 47.25), tolerance = 1e-07)
@@ -147,9 +142,6 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	expect_equal(stageResults2$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$combInverseNormal, c(1.1666257, 1.9256836, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$weightsInverseNormal, c(0.5, 0.5, 0.5, 0.5), tolerance = 1e-07)
-	expect_equal(stageResults2$thetaH0, 10)
-	expect_equal(stageResults2$direction, "upper")
-	expect_equal(stageResults2$normalApproximation, FALSE)
 
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
@@ -223,7 +215,6 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults3' with expected results
 	##
-	expect_equal(stageResults3$stages, c(1, 2, 3, 4))
 	expect_equal(stageResults3$overallTestStatistics, c(1.2040366, 2.025312, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$overallPValues, c(0.12168078, 0.02415027, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$overallMeans, c(45, 48.6, 47.25), tolerance = 1e-07)
@@ -234,9 +225,6 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	expect_equal(stageResults3$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$combFisher, c(0.12168078, 0.007272934, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$weightsFisher, c(1, 1, 1, 1))
-	expect_equal(stageResults3$thetaH0, 10)
-	expect_equal(stageResults3$direction, "upper")
-	expect_equal(stageResults3$normalApproximation, FALSE)
 
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
@@ -300,7 +288,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults1' with expected results
 	##
-	expect_equal(stageResults1$stages, c(1, 2, 3, 4))
 	expect_equal(stageResults1$overallTestStatistics, c(1.2040366, 2.025312, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$overallPValues, c(0.12168078, 0.02415027, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$overallMeans, c(45, 48.6, 47.25), tolerance = 1e-07)
@@ -309,9 +296,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(stageResults1$testStatistics, c(1.2040366, 1.6040446, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$pValues, c(0.12168078, 0.059770605, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults1$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(stageResults1$thetaH0, 10)
-	expect_equal(stageResults1$direction, "upper")
-	expect_equal(stageResults1$normalApproximation, FALSE)
 
 	plotData1 <- testGetStageResultsPlotData(stageResults1, stage = 2, nPlanned = c(30, 20), 
 		thetaRange = seq(10, 80, 5), assumedStDev = 100)
@@ -387,7 +371,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults2' with expected results
 	##
-	expect_equal(stageResults2$stages, c(1, 2, 3, 4))
 	expect_equal(stageResults2$overallTestStatistics, c(1.2040366, 2.025312, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$overallPValues, c(0.12168078, 0.02415027, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$overallMeans, c(45, 48.6, 47.25), tolerance = 1e-07)
@@ -398,9 +381,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(stageResults2$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$combInverseNormal, c(1.1666257, 1.9256836, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults2$weightsInverseNormal, c(0.5, 0.5, 0.5, 0.5), tolerance = 1e-07)
-	expect_equal(stageResults2$thetaH0, 10)
-	expect_equal(stageResults2$direction, "upper")
-	expect_equal(stageResults2$normalApproximation, FALSE)
 
 	plotData2 <- testGetStageResultsPlotData(stageResults2, stage = 2, nPlanned = c(30, 20), 
 		thetaRange = seq(10, 80, 5), assumedStDev = 100)
@@ -477,7 +457,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults3' with expected results
 	##
-	expect_equal(stageResults3$stages, c(1, 2, 3, 4))
 	expect_equal(stageResults3$overallTestStatistics, c(1.2040366, 2.025312, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$overallPValues, c(0.12168078, 0.02415027, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$overallMeans, c(45, 48.6, 47.25), tolerance = 1e-07)
@@ -488,9 +467,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(stageResults3$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$combFisher, c(0.12168078, 0.007272934, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults3$weightsFisher, c(1, 1, 1, 1))
-	expect_equal(stageResults3$thetaH0, 10)
-	expect_equal(stageResults3$direction, "upper")
-	expect_equal(stageResults3$normalApproximation, FALSE)
 
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
@@ -800,7 +776,6 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	expect_equal(design9$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
 	expect_equal(design9$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
 
-	# @refFS[Formula]{fs:testStatisticTwoMeansUnEqualVariances}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterUnequalVariances}
 	# @refFS[Formula]{fs:testStatisticsGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
@@ -1156,7 +1131,6 @@ test_that("Check that the conditional power is as expected for different designs
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults' with expected results
 	##
-	expect_equal(stageResults$stages, c(1, 2, 3, 4))
 	expect_equal(stageResults$overallTestStatistics, c(1.9899749, 1.7720581, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults$overallPValues, c(0.026564837, 0.040500218, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults$overallMeans1, c(1, 1.0371429, 1.022807, 1.0185714), tolerance = 1e-07)
@@ -1170,10 +1144,6 @@ test_that("Check that the conditional power is as expected for different designs
 	expect_equal(stageResults$effectSizes, c(-0.4, -0.39619048), tolerance = 1e-07)
 	expect_equal(stageResults$combInverseNormal, c(1.9338654, 1.7805468, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(stageResults$weightsInverseNormal, c(0.4472136, 0.54772256, 0.54772256, 0.4472136), tolerance = 1e-07)
-	expect_equal(stageResults$thetaH0, -1)
-	expect_equal(stageResults$direction, "upper")
-	expect_equal(stageResults$normalApproximation, FALSE)
-	expect_equal(stageResults$equalVariances, TRUE)
 
 	conditionalPower <- getConditionalPower(design = design12, stageResults = stageResults,
 			stage = 2, thetaH1 = 0.840, nPlanned = c(96,64), assumedStDev = 2)
@@ -1309,7 +1279,6 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults1' with expected results
 	##
-	expect_equal(stageResults1$stages, c(1, 2))
 	expect_equal(stageResults1$overallTestStatistics, c(6.3245553, 8.3272484), tolerance = 1e-07)
 	expect_equal(stageResults1$overallPValues, c(6.846828e-05, 4.5964001e-08), tolerance = 1e-07)
 	expect_equal(stageResults1$overallMeans, c(2, 2.5), tolerance = 1e-07)
@@ -1320,9 +1289,6 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 	expect_equal(stageResults1$effectSizes, c(2, 2.5), tolerance = 1e-07)
 	expect_equal(stageResults1$combInverseNormal, c(3.813637, 5.3932972), tolerance = 1e-07)
 	expect_equal(stageResults1$weightsInverseNormal, c(0.70710678, 0.70710678), tolerance = 1e-07)
-	expect_equal(stageResults1$thetaH0, 0)
-	expect_equal(stageResults1$direction, "upper")
-	expect_equal(stageResults1$normalApproximation, FALSE)
 
 	dataExample9 <- getDataset(
 		n1 = c(22, 11, 22, 11),
@@ -1342,7 +1308,6 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults2' with expected results
 	##
-	expect_equal(stageResults2$stages, c(1, 2))
 	expect_equal(stageResults2$overallTestStatistics, c(-1.3266499, -1.1850988), tolerance = 1e-07)
 	expect_equal(stageResults2$overallPValues, c(0.90410354, 0.87988596), tolerance = 1e-07)
 	expect_equal(stageResults2$overallMeans1, c(1, 1.0333333, 1.02, 1.0166667), tolerance = 1e-07)
@@ -1356,10 +1321,6 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 	expect_equal(stageResults2$effectSizes, c(-0.4, -0.40380952), tolerance = 1e-07)
 	expect_equal(stageResults2$combInverseNormal, c(-1.3052935, -1.2633725), tolerance = 1e-07)
 	expect_equal(stageResults2$weightsInverseNormal, c(0.70710678, 0.70710678), tolerance = 1e-07)
-	expect_equal(stageResults2$thetaH0, 0)
-	expect_equal(stageResults2$direction, "upper")
-	expect_equal(stageResults2$normalApproximation, FALSE)
-	expect_equal(stageResults2$equalVariances, TRUE)
 
 })
 
@@ -1385,7 +1346,6 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults3' with expected results
 	##
-	expect_equal(stageResults3$stages, c(1, 2))
 	expect_equal(stageResults3$overallTestStatistics, c(6.3245553, 8.3272484), tolerance = 1e-07)
 	expect_equal(stageResults3$overallPValues, c(6.846828e-05, 4.5964001e-08), tolerance = 1e-07)
 	expect_equal(stageResults3$overallMeans, c(2, 2.5), tolerance = 1e-07)
@@ -1396,9 +1356,6 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 	expect_equal(stageResults3$effectSizes, c(2, 2.5), tolerance = 1e-07)
 	expect_equal(stageResults3$combFisher, c(6.846828e-05, 4.6879053e-09), tolerance = 1e-07)
 	expect_equal(stageResults3$weightsFisher, c(1, 1))
-	expect_equal(stageResults3$thetaH0, 0)
-	expect_equal(stageResults3$direction, "upper")
-	expect_equal(stageResults3$normalApproximation, FALSE)
 
 	dataExample11 <- getDataset(
 		n1 = c(22, 11, 22, 11),
@@ -1418,7 +1375,6 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 	##
 	## Comparison of the results of StageResultsMeans object 'stageResults4' with expected results
 	##
-	expect_equal(stageResults4$stages, c(1, 2))
 	expect_equal(stageResults4$overallTestStatistics, c(-1.3266499, -1.1850988), tolerance = 1e-07)
 	expect_equal(stageResults4$overallPValues, c(0.90410354, 0.87988596), tolerance = 1e-07)
 	expect_equal(stageResults4$overallMeans1, c(1, 1.0333333, 1.02, 1.0166667), tolerance = 1e-07)
@@ -1432,10 +1388,6 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 	expect_equal(stageResults4$effectSizes, c(-0.4, -0.40380952), tolerance = 1e-07)
 	expect_equal(stageResults4$combFisher, c(0.90410354, 0.61920111), tolerance = 1e-07)
 	expect_equal(stageResults4$weightsFisher, c(1, 1))
-	expect_equal(stageResults4$thetaH0, 0)
-	expect_equal(stageResults4$direction, "upper")
-	expect_equal(stageResults4$normalApproximation, FALSE)
-	expect_equal(stageResults4$equalVariances, TRUE)
 
 })
 

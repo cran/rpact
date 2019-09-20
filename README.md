@@ -1,10 +1,8 @@
-rpact
-=====
+# rpact
 
 Confirmatory Adaptive Clinical Trial Design and Analysis.
 
-Installation
-============
+# Installation
 
 Install the latest CRAN release via
 
@@ -12,12 +10,10 @@ Install the latest CRAN release via
 install.packages("rpact")
 ```
 
-Documentation
-=============
+# Documentation
 
 The documentation is hosted at <https://www.rpact.org>
 
-Vignettes
-=========
+# Vignettes
 
 The vignettes are hosted at <https://www.rpact.org/vignettes>

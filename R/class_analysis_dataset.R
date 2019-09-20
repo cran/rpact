@@ -522,9 +522,25 @@ writeDatasets <- function(datasets, file, ..., append = FALSE, quote = TRUE, sep
 #' 
 getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	
+	args <- list(...)
+	if (length(args) == 0) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame or data vectors expected")
+	}
+	
 	dataFrame <- .getDataFrameFromArgs(...)
 	
 	if (is.null(dataFrame)) {
+		
+		paramNames <- names(args)
+		paramNames <- paramNames[paramNames != ""]
+		if (length(paramNames) != length(args)) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all parameters must be named")
+		}
+		
+		if (length(paramNames) != length(unique(paramNames))) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "the parameter names must be unique")
+		}
+		
 		dataFrame <- .createDataFrame(...)
 	}
 	
@@ -546,6 +562,49 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "failed to identify dataset type")
 }
 
+getDataSet <- function(..., floatingPointNumbersEnabled = FALSE) {
+	
+	args <- list(...)
+	if (length(args) == 0) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame or data vectors expected")
+	}
+	
+	dataFrame <- .getDataFrameFromArgs(...)
+	
+	if (is.null(dataFrame)) {
+		
+		paramNames <- names(args)
+		paramNames <- paramNames[paramNames != ""]
+		if (length(paramNames) != length(args)) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all parameters must be named")
+		}
+		
+		if (length(paramNames) != length(unique(paramNames))) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "the parameter names must be unique")
+		}
+		
+		dataFrame <- .createDataFrame(...)
+	}
+	
+	if (.isDataObjectMeans(...)) {
+		return(DatasetMeans(dataFrame = dataFrame, 
+						floatingPointNumbersEnabled = floatingPointNumbersEnabled))
+	}
+	
+	if (.isDataObjectRates(...)) {
+		return(DatasetRates(dataFrame = dataFrame,
+						floatingPointNumbersEnabled = floatingPointNumbersEnabled))
+	}
+	
+	if (.isDataObjectSurvival(...)) {
+		return(DatasetSurvival(dataFrame = dataFrame,
+						floatingPointNumbersEnabled = floatingPointNumbersEnabled))
+	}
+	
+	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "failed to identify dataset type")
+}
+
+
 .arraysAreEqual <- function(a1, a2) {
 	if (length(a1) != length(a2)) {
 		return(FALSE)
@@ -563,6 +622,8 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	return(TRUE)
 }
 
+any(grepl("3", c("name2", "name3")))
+
 .createDataFrame <- function(...) {
 	args <- list(...)
 	argNames <- .getArgumentNames(...)
@@ -570,6 +631,7 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame or data vectors expected")
 	}
 	
+	multiArmEnabled <- any(grep("3", argNames))
 	numberOfValues <- length(args[[1]])
 	naIndicesBefore <- NULL
 	for (argName in argNames) {	
@@ -618,9 +680,11 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 						"'", argName, "' contains alternating values and NA's; ",
 						"NA's must be the last values")
 				}
+				indexBefore <- index
 			}
 		}
-		if (!is.null(naIndicesBefore) && !.equalsRegexpIgnoreCase(argName, "^stages?$")) {
+		if (!multiArmEnabled && !is.null(naIndicesBefore) && 
+				!.equalsRegexpIgnoreCase(argName, "^stages?$")) {
 			if (!.arraysAreEqual(naIndicesBefore, naIndices)) {
 				stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
 					"if NA's exist, then they are mandatory for each data vector at the same position")
@@ -700,7 +764,29 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	argNamesLower <- tolower(argNames)
 	dataObjectkeyWords <- tolower(C_KEY_WORDS)
 	
+	multiArmKeywords <- tolower(c(C_KEY_WORDS_EVENTS, 
+		C_KEY_WORDS_OVERALL_EVENTS, 
+		C_KEY_WORDS_SAMPLE_SIZES, 
+		C_KEY_WORDS_MEANS, 
+		C_KEY_WORDS_ST_DEVS, 
+		C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 
+		C_KEY_WORDS_OVERALL_MEANS, 
+		C_KEY_WORDS_OVERALL_ST_DEVS))
 	unknownArgs <- setdiff(argNamesLower, dataObjectkeyWords)
+	unknownArgsChecked <- unknownArgs
+	unknownArgs <- c()
+	for (unknownArg in unknownArgsChecked) {
+		unknown <- TRUE
+		for (multiArmKeyword in multiArmKeywords) {
+			if (grepl(paste0(multiArmKeyword, "\\d{1,4}"), unknownArg)) {
+				unknown <- FALSE
+			}
+		}
+		if (unknown) {
+			unknownArgs <- c(unknownArgs, unknownArg)
+		}
+	}
+	
 	if (length(unknownArgs) > 0) {
 		for (i in 1:length(unknownArgs)) {
 			unknownArgs[i] <- argNames[argNamesLower == unknownArgs[i]][1]
@@ -925,10 +1011,12 @@ Dataset <- setRefClass("Dataset",
 			return(FALSE)
 		},
 		
-		.getValuesByParameterName = function(dataFrame, parameterNameVariants, defaultValues = NULL) {
+		.getValuesByParameterName = function(dataFrame, parameterNameVariants, ...,
+				defaultValues = NULL, suffix = "") {
 			for (parameterName in parameterNameVariants) {
-				if (.paramExists(dataFrame, parameterName)) {
-					return(dataFrame[[parameterName]])
+				key <- paste0(parameterName, suffix)
+				if (.paramExists(dataFrame, key)) {
+					return(dataFrame[[key]])
 				}
 			}
 			
@@ -937,7 +1025,7 @@ Dataset <- setRefClass("Dataset",
 			}
 			
 			stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "parameter '", 
-				parameterNameVariants[1], "' is missing or not correctly specified")
+				paste0(parameterNameVariants[1], suffix), "' is missing or not correctly specified")
 		},
 		
 		.getIndices = function(stage, group) {
@@ -945,34 +1033,55 @@ Dataset <- setRefClass("Dataset",
 				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'.data' must be defined")
 			}
 			
+			if (!is.null(stage) && !any(is.na(stage)) && all(stage < 0)) {
+				i <- 1:getNumberOfStages()
+				stage <- i[!(i %in% abs(stage))]
+			}
+			
+			if (!is.null(group) && !any(is.na(group)) && all(group < 0)) {
+				i <- 1:getNumberOfGroups()
+				group <- i[!(i %in% abs(group))]
+			}
+			
+			if (!is.null(group) && length(group) == 1 && is.na(group)) {
+				if (!all(stage %in% .data$stage)) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stage' (", .arrayToString(stage), 
+						") out of range [", .arrayToString(sort(unique(.data$stage))), "]")
+				}
+				
+				indices <- (.data$stage %in% stage)
+				indices[is.na(indices)] <- FALSE
+				return(indices)
+			}
+			
 			if (!is.null(stage) && length(stage) == 1 && is.na(stage)) {
-				if (length(group) == 1 && !(group %in% .data$group)) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'group' (", group, 
+				if (!all(group %in% .data$group)) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'group' (", .arrayToString(group), 
 						") out of range [", .arrayToString(sort(unique(.data$group))), "]")
 				}
 				
-				indices <- (.data$group == group)
+				indices <- (.data$group %in% group)
 				indices[is.na(indices)] <- FALSE
 				return(indices)
 			}
 
-			if (length(stage) == 1 && !(stage %in% .data$stage)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stages' (", stage, 
+			if (!all(stage %in% .data$stage)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stage' (", .arrayToString(stage), 
 					") out of range [", .arrayToString(sort(unique(.data$stage))), "]")
 			}
 			
-			if (length(group) == 1 && !(group %in% .data$group)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'group' (", group, 
+			if (!all(group %in% .data$group)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'group' (", .arrayToString(group), 
 					") out of range [", .arrayToString(sort(unique(.data$group))), "]")
 			}
 			
 			if (length(stage) > 1) {
-				indices <- (.data$stage %in% stage & .data$group == group)
+				indices <- (.data$stage %in% stage & .data$group %in% group)
 				indices[is.na(indices)] <- FALSE
 				return(indices)
 			}
 			
-			indices <- (.data$stage == stage & .data$group == group)
+			indices <- (.data$stage %in% stage & .data$group %in% group)
 			indices[is.na(indices)] <- FALSE
 			return(indices)
 		},
@@ -990,6 +1099,35 @@ Dataset <- setRefClass("Dataset",
 			
 			n[!is.na(n)] <- as.integer(n[!is.na(n)])
 			return(n)
+		},
+		
+		.keyWordExists = function(dataFrame, keyWords, suffix = "") {
+			for (key in keyWords) {
+				if (.paramExists(dataFrame, paste0(key, suffix))) {
+					return(TRUE)
+				}
+			}
+			return(FALSE)
+		},
+		
+		.getNumberOfGroups = function(dataFrame, keyWords) {
+			for (group in 3:1000) {
+				if (!.keyWordExists(dataFrame, keyWords, group)) {
+					return(group - 1)
+				}
+			}
+			return(2)
+		},
+		
+		.getValidatedStage = function(..., stage = NA_integer_, group = NA_integer_) {
+			if (length(list(...)) > 0) {
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"argument 'stage' or 'group' is missing, all arguments must be named")
+			}
+			if (all(is.na(stage))) {
+				stage <- c(1:getNumberOfStages())
+			}
+			return(stage)
 		},
 		
 		getNumberOfGroups = function() {
@@ -1036,10 +1174,10 @@ Dataset <- setRefClass("Dataset",
 				s <- "dataset of means"
 			}
 			else if (isDatasetRates()) {
-				s <- "datasetof rates"
+				s <- "dataset of rates"
 			}
 			else if (isDatasetSurvival()) {
-				s <- " datasetof survival data"
+				s <- "dataset of survival data"
 			}
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		}
@@ -1097,16 +1235,19 @@ DatasetMeans <- setRefClass("DatasetMeans",
 			return(.data$stDev[.getIndices(stage = stage, group = group)])
 		},
 		
-		getSampleSizes = function(group = 1) {
-			return(.data$sampleSize[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$sampleSize[.getIndices(stage = stage, group = group)])
 		},
 		
-		getMeans = function(group = 1) {
-			return(.data$mean[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getMeans = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$mean[.getIndices(stage = stage, group = group)])
 		},
 		
-		getStDevs = function(group = 1) {
-			return(.data$stDev[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getStDevs = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$stDev[.getIndices(stage = stage, group = group)])
 		},
 		
 		getSampleSizesUpTo = function(to, group = 1) {
@@ -1133,16 +1274,19 @@ DatasetMeans <- setRefClass("DatasetMeans",
 			return(.data$overallStDev[.getIndices(stage = stage, group = group)])
 		},
 		
-		getOverallSampleSizes = function(group = 1) {
-			return(.data$overallSampleSize[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getOverallSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallSampleSize[.getIndices(stage = stage, group = group)])
 		},
 		
-		getOverallMeans = function(group = 1) {
-			return(.data$overallMean[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getOverallMeans = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallMean[.getIndices(stage = stage, group = group)])
 		},
 		
-		getOverallStDevs = function(group = 1) {
-			return(.data$overallStDev[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getOverallStDevs = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallStDev[.getIndices(stage = stage, group = group)])
 		},
 		
 		getOverallSampleSizesUpTo = function(to, group = 1) {
@@ -1224,67 +1368,56 @@ DatasetMeans <- setRefClass("DatasetMeans",
 				.setParameterType("overallStDevs", C_PARAM_USER_DEFINED)
 			}
 			
-			# case: two means - stage wise
-			else if (.paramExists(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1) && 
-					.paramExists(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2)) {
+			# case: two or more means - stage wise
+			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 1)) && 
+					.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 2))) {
 					
-				stages <<- c(stages, stages)
+				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)
 				
-				n1 <- .getValidatedSampleSizes(.getValuesByParameterName(
-						dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1))
-				n2 <- .getValidatedSampleSizes(.getValuesByParameterName(
-						dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2))
-				.validateValues(n1, "n1")
-				.validateValues(n2, "n2")
-				sampleSizes <<- c(n1, n2)
+				stages <<- rep(stages, numberOfTreatmentGroups)
+				
+				groups <<- integer(0)
+				sampleSizes <<- numeric(0)
+				means <<- numeric(0)
+				stDevs <<- numeric(0)
+				overallSampleSizes <<- numeric(0)
+				overallMeans <<- numeric(0)
+				overallStDevs <<- numeric(0)
+				for (group in 1:numberOfTreatmentGroups) {
+					sampleSizesTemp <- .getValidatedSampleSizes(.getValuesByParameterName(
+							dataFrame, C_KEY_WORDS_SAMPLE_SIZES, suffix = group))
+					.validateValues(sampleSizesTemp, paste0("n", group))
+					sampleSizes <<- c(sampleSizes, sampleSizesTemp)
+					
+					meansTemp <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_MEANS, suffix = group)
+					.validateValues(meansTemp, paste0("means", group))
+					means <<- c(means, meansTemp)
+					
+					stDevsTemp <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_ST_DEVS, suffix = group)
+					.validateValues(stDevsTemp, paste0("stDevs", group))
+					stDevs <<- c(stDevs, stDevsTemp)
+					
+					groups <<- c(groups, rep(as.integer(group), length(sampleSizesTemp)))
+					
+					kMax <- length(sampleSizesTemp)
+					numberOfValidStages <- length(stats::na.omit(sampleSizesTemp))
+					overallData <- .getOverallData(data.frame(
+							sampleSizes = sampleSizesTemp,
+							means = meansTemp,
+							stDevs = stDevsTemp), kMax, stage = numberOfValidStages)
+					
+					overallSampleSizes <<- c(overallSampleSizes, 
+						.getValidatedSampleSizes(overallData$overallSampleSizes))
+					overallMeans <<- c(overallMeans, overallData$overallMeans)
+					overallStDevs <<- c(overallStDevs, overallData$overallStDevs)
+				}
 				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
 				}
-				
-				means1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_MEANS_1)
-				means2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_MEANS_2)
-				.validateValues(means1, "means1")
-				.validateValues(means2, "means2")
-				means <<- c(means1, means2)
-				
-				stDevs1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_ST_DEVS_1)
-				stDevs2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_ST_DEVS_2)
-				.validateValues(stDevs1, "stDevs1")
-				.validateValues(stDevs2, "stDevs2")
-				stDevs <<- c(stDevs1, stDevs2)
 				if (base::sum(stats::na.omit(stDevs) < 0) > 0) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all standard deviations must be >= 0")
 				}
-				
-				kMax <- length(n1)
-				stageNumber <- length(stats::na.omit(n1))
-				dataInput1 <- data.frame(
-					sampleSizes = n1,
-					means = means1,
-					stDevs = stDevs1)
-				dataInput1 <- .getOverallData(dataInput1, kMax, stage = stageNumber)
-				
-				dataInput2 <- data.frame(
-					sampleSizes = n2,
-					means = means2,
-					stDevs = stDevs2)
-				dataInput2 <- .getOverallData(dataInput2, kMax, stage = stageNumber)
-				
-				
-				overallSampleSizes1 <- .getValidatedSampleSizes(dataInput1$overallSampleSizes)
-				overallSampleSizes2 <- .getValidatedSampleSizes(dataInput2$overallSampleSizes)
-				overallSampleSizes <<- c(overallSampleSizes1, overallSampleSizes2)
-				
-				overallMeans1 <- dataInput1$overallMeans
-				overallMeans2 <- dataInput2$overallMeans
-				overallMeans <<- c(overallMeans1, overallMeans2)
-				
-				overallStDevs1 <- dataInput1$overallStDevs
-				overallStDevs2 <- dataInput2$overallStDevs
-				overallStDevs <<- c(overallStDevs1, overallStDevs2)
-				
-				groups <<- c(rep(1L, length(n1)), rep(2L, length(n1)))
-				
+			
 				.setParameterType("sampleSizes", C_PARAM_USER_DEFINED)
 				.setParameterType("means", C_PARAM_USER_DEFINED)
 				.setParameterType("stDevs", C_PARAM_USER_DEFINED)
@@ -1294,72 +1427,59 @@ DatasetMeans <- setRefClass("DatasetMeans",
 				.setParameterType("overallStDevs", C_PARAM_GENERATED)
 			}
 					
-			# case: two means - overall
-			else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1) &&
-					.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2)) {
+			# case: two or more means - overall
+			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 1)) &&
+					.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 2))) {
+					
+				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES)
 				
-				stages <<- c(stages, stages)
+				stages <<- rep(stages, numberOfTreatmentGroups)
 				
-				overallSampleSizes1 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
-						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1))
-				.validateValues(overallSampleSizes1, "overallSampleSizes1")
-				overallSampleSizes2 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
-						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2))
-				.validateValues(overallSampleSizes2, "overallSampleSizes2")
-				overallSampleSizes <<- c(overallSampleSizes1, overallSampleSizes2)
-				
-				overallMeans1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_MEANS_1)
-				.validateValues(overallMeans1, "overallMeans1")
-				overallMeans2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_MEANS_2)
-				.validateValues(overallMeans2, "overallMeans2")
-				overallMeans <<- c(overallMeans1, overallMeans2)
-				
-				overallStDevs1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_ST_DEVS_1)
-				.validateValues(overallStDevs1, "overallStDevs1")
-				overallStDevs2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_ST_DEVS_2)
-				.validateValues(overallStDevs2, "overallStDevs2")
-				overallStDevs <<- c(overallStDevs1, overallStDevs2)
-				
-				kMax <- length(overallSampleSizes1)
-				stageNumber <- length(stats::na.omit(overallSampleSizes1))
-
-				dataInput1 <- data.frame(
-					overallSampleSizes = overallSampleSizes1,
-					overallMeans = overallMeans1,
-					overallStDevs = overallStDevs1)
-				dataInput1 <- .getStageWiseData(dataInput1, kMax, stage = stageNumber)
-				
-				dataInput2 <- data.frame(
-					overallSampleSizes = overallSampleSizes2,
-					overallMeans = overallMeans2,
-					overallStDevs = overallStDevs2)
-				dataInput2 <- .getStageWiseData(dataInput2, kMax, stage = stageNumber)
-				
-				n1 <- .getValidatedSampleSizes(dataInput1$sampleSizes)
-				n2 <- .getValidatedSampleSizes(dataInput2$sampleSizes)
-				.validateValues(n1, "n1")
-				.validateValues(n2, "n2")
-				sampleSizes <<- c(n1, n2)
-				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
+				groups <<- integer(0)
+				sampleSizes <<- numeric(0)
+				means <<- numeric(0)
+				stDevs <<- numeric(0)
+				overallSampleSizes <<- numeric(0)
+				overallMeans <<- numeric(0)
+				overallStDevs <<- numeric(0)
+				for (group in 1:numberOfTreatmentGroups) {
+					overallSampleSizesTemp <- .getValidatedSampleSizes(.getValuesByParameterName(
+							dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES, suffix = group))
+					.validateValues(overallSampleSizesTemp, paste0("overallSampleSizes", group))
+					overallSampleSizes <<- c(overallSampleSizes, overallSampleSizesTemp)
+					
+					overallMeansTemp <- .getValuesByParameterName(dataFrame, 
+						C_KEY_WORDS_OVERALL_MEANS, suffix = group)
+					.validateValues(overallMeansTemp, paste0("overallMeans", group))
+					overallMeans <<- c(overallMeans, overallMeansTemp)
+					
+					overallStDevsTemp <- .getValuesByParameterName(dataFrame, 
+						C_KEY_WORDS_OVERALL_ST_DEVS, suffix = group)
+					.validateValues(overallStDevsTemp, paste0("overallStDevs", group))
+					overallStDevs <<- c(overallStDevs, overallStDevsTemp)
+					
+					groups <<- c(groups, rep(as.integer(group), length(overallSampleSizesTemp)))
+					
+					kMax <- length(overallSampleSizesTemp)
+					numberOfValidStages <- length(stats::na.omit(overallSampleSizesTemp))
+					overallData <- .getStageWiseData(data.frame(
+							overallSampleSizes = overallSampleSizesTemp,
+							overallMeans = overallMeansTemp,
+							overallStDevs = overallStDevsTemp), kMax, stage = numberOfValidStages)
+					
+					validatedSampleSizes <- .getValidatedSampleSizes(overallData$sampleSizes)
+					.validateValues(validatedSampleSizes, paste0("n", group))
+					sampleSizes <<- c(sampleSizes, validatedSampleSizes)
+					means <<- c(means, overallData$means)
+					stDevs <<- c(stDevs, overallData$stDevs)
+					
+					if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
+						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
+					}
+					if (base::sum(stats::na.omit(stDevs) < 0) > 0) {
+						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all standard deviations must be >= 0")
+					}
 				}
-				
-				means1 <- dataInput1$means
-				means2 <- dataInput2$means
-				.validateValues(means1, "means1")
-				.validateValues(means2, "means2")
-				means <<- c(means1, means2)
-
-				stDevs1 <- dataInput1$stDevs
-				stDevs2 <- dataInput2$stDevs
-				.validateValues(stDevs1, "stDevs1")
-				.validateValues(stDevs2, "stDevs2")
-				stDevs <<- c(stDevs1, stDevs2)
-				if (base::sum(stats::na.omit(stDevs) < 0) > 0) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all standard deviations must be >= 0")
-				}
-				
-				groups <<- c(rep(1L, length(n1)), rep(2L, length(n1)))
 				
 				.setParameterType("sampleSizes", C_PARAM_GENERATED)
 				.setParameterType("means", C_PARAM_GENERATED)
@@ -1735,8 +1855,9 @@ DatasetRates <- setRefClass("DatasetRates",
 			return(.data$sampleSize[.getIndices(stage = stage, group = group)])
 		},
 		
-		getSampleSizes = function(group = 1) {
-			return(.data$sampleSize[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$sampleSize[.getIndices(stage = stage, group = group)])
 		},
 		
 		getSampleSizesUpTo = function(to, group = 1) {
@@ -1747,8 +1868,9 @@ DatasetRates <- setRefClass("DatasetRates",
 			return(.data$event[.getIndices(stage = stage, group = group)])
 		},
 		
-		getEvents = function(group = 1) {
-			return(.data$event[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getEvents = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$event[.getIndices(stage = stage, group = group)])
 		},
 		
 		getEventsUpTo = function(to, group = 1) {
@@ -1759,8 +1881,9 @@ DatasetRates <- setRefClass("DatasetRates",
 			return(.data$overallSampleSize[.getIndices(stage = stage, group = group)])
 		},
 		
-		getOverallSampleSizes = function(group = 1) {
-			return(.data$overallSampleSize[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getOverallSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallSampleSize[.getIndices(stage = stage, group = group)])
 		},
 		
 		getOverallSampleSizesUpTo = function(to, group = 1) {
@@ -1771,8 +1894,9 @@ DatasetRates <- setRefClass("DatasetRates",
 			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
 		},
 		
-		getOverallEvents = function(group = 1) {
-			return(.data$overallEvent[.getIndices(stage = c(1:getNumberOfStages()), group = group)])
+		getOverallEvents = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
 		},
 		
 		getOverallEventsUpTo = function(to, group = 1) {
@@ -1834,50 +1958,44 @@ DatasetRates <- setRefClass("DatasetRates",
 				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
 			}
 			
-			# case: tow rates - stage wise
-			else if (.paramExists(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1) && 
-					.paramExists(dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2)) {
-					
-				stages <<- c(stages, stages)
+			# case: two or more rates - stage wise
+			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 1)) && 
+				.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 2))) {
 				
-				n1 <- .getValidatedSampleSizes(.getValuesByParameterName(
-					dataFrame, C_KEY_WORDS_SAMPLE_SIZES_1))
-				n2 <- .getValidatedSampleSizes(.getValuesByParameterName(
-					dataFrame, C_KEY_WORDS_SAMPLE_SIZES_2))
-				.validateValues(n1, "n1")
-				.validateValues(n2, "n2")
-				sampleSizes <<- c(n1, n2)
+				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)
+				
+				stages <<- rep(stages, numberOfTreatmentGroups)
+				
+				groups <<- integer(0)
+				sampleSizes <<- numeric(0)
+				events <<- numeric(0)
+				overallSampleSizes <<- numeric(0)
+				overallEvents <<- numeric(0)
+				for (group in 1:numberOfTreatmentGroups) {
+					sampleSizesTemp <- .getValidatedSampleSizes(.getValuesByParameterName(
+							dataFrame, C_KEY_WORDS_SAMPLE_SIZES, suffix = group))
+					.validateValues(sampleSizesTemp, paste0("n", group))
+					sampleSizes <<- c(sampleSizes, sampleSizesTemp)
+					
+					eventsTemp <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_EVENTS, suffix = group)
+					.validateValues(eventsTemp, paste0("events", group))
+					events <<- c(events, eventsTemp)
+					
+					groups <<- c(groups, rep(as.integer(group), length(sampleSizesTemp)))
+					
+					kMax <- length(sampleSizesTemp)
+					numberOfValidStages <- length(stats::na.omit(sampleSizesTemp))
+					overallData <- .getOverallData(data.frame(
+							sampleSizes = sampleSizesTemp,
+							events = eventsTemp), kMax, stage = numberOfValidStages)
+					
+					overallSampleSizes <<- c(overallSampleSizes, 
+						.getValidatedSampleSizes(overallData$overallSampleSizes))
+					overallEvents <<- c(overallEvents, overallData$overallEvents)
+				}
 				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
 				}
-				
-				events1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_EVENTS_1)
-				events2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_EVENTS_2)
-				.validateValues(events1, "events1")
-				.validateValues(events2, "events2")
-				events <<- c(events1, events2)
-				
-				kMax <- length(n1)
-				stageNumber <- length(stats::na.omit(n1))
-				dataInput1 <- data.frame(
-					sampleSizes = n1,
-					events = events1)
-				dataInput1 <- .getOverallData(dataInput1, kMax, stage = stageNumber)
-				
-				dataInput2 <- data.frame(
-					sampleSizes = n2,
-					events = events2)
-				dataInput2 <- .getOverallData(dataInput2, kMax, stage = stageNumber)
-								
-				overallSampleSizes1 <- .getValidatedSampleSizes(dataInput1$overallSampleSizes)
-				overallSampleSizes2 <- .getValidatedSampleSizes(dataInput2$overallSampleSizes)
-				overallSampleSizes <<- c(overallSampleSizes1, overallSampleSizes2)
-				
-				overallEvents1 <- dataInput1$overallEvents
-				overallEvents2 <- dataInput2$overallEvents
-				overallEvents <<- c(overallEvents1, overallEvents2)
-				
-				groups <<- c(rep(1L, length(n1)), rep(2L, length(n1)))
 				
 				.setParameterType("sampleSizes", C_PARAM_USER_DEFINED)
 				.setParameterType("events", C_PARAM_USER_DEFINED)
@@ -1886,55 +2004,104 @@ DatasetRates <- setRefClass("DatasetRates",
 				.setParameterType("overallEvents", C_PARAM_GENERATED)
 			}
 			
-			# case: two rates - overall
-			else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1) &&
-				.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2)) {
+#			# case: two rates - overall
+#			else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1) &&
+#				.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2)) {
+#				
+#				stages <<- c(stages, stages)
+#				
+#				overallSampleSizes1 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
+#						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1))
+#				.validateValues(overallSampleSizes1, "overallSampleSizes1")
+#				overallSampleSizes2 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
+#						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2))
+#				.validateValues(overallSampleSizes2, "overallSampleSizes2")
+#				overallSampleSizes <<- c(overallSampleSizes1, overallSampleSizes2)
+#				
+#				overallEvents1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS_1)
+#				.validateValues(overallEvents1, "overallEvents1")
+#				overallEvents2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS_2)
+#				.validateValues(overallEvents2, "overallEvents2")
+#				overallEvents <<- c(overallEvents1, overallEvents2)
+#				
+#				kMax <- length(overallSampleSizes1)
+#				stageNumber <- length(stats::na.omit(overallSampleSizes1))
+#				
+#				dataInput1 <- data.frame(
+#					overallSampleSizes = overallSampleSizes1,
+#					overallEvents = overallEvents1)
+#				dataInput1 <- .getStageWiseData(dataInput1, kMax, stage = stageNumber)
+#				
+#				dataInput2 <- data.frame(
+#					overallSampleSizes = overallSampleSizes2,
+#					overallEvents = overallEvents2)
+#				dataInput2 <- .getStageWiseData(dataInput2, kMax, stage = stageNumber)
+#				
+#				n1 <- .getValidatedSampleSizes(dataInput1$sampleSizes)
+#				n2 <- .getValidatedSampleSizes(dataInput2$sampleSizes)
+#				.validateValues(n1, "n1")
+#				.validateValues(n2, "n2")
+#				sampleSizes <<- c(n1, n2)
+#				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
+#					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
+#				}
+#				
+#				events1 <- dataInput1$events
+#				events2 <- dataInput2$events
+#				.validateValues(events1, "events1")
+#				.validateValues(events2, "events2")
+#				events <<- c(events1, events2)
+#				
+#				groups <<- c(rep(1L, length(n1)), rep(2L, length(n1)))
+#				
+#				.setParameterType("sampleSizes", C_PARAM_GENERATED)
+#				.setParameterType("events", C_PARAM_GENERATED)
+#				
+#				.setParameterType("overallSampleSizes", C_PARAM_USER_DEFINED)
+#				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
+#			}
+			
+			# case: two or more rates - overall
+			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 1)) &&
+				.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 2))) {
 				
-				stages <<- c(stages, stages)
+				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES)
 				
-				overallSampleSizes1 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
-						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1))
-				.validateValues(overallSampleSizes1, "overallSampleSizes1")
-				overallSampleSizes2 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
-						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2))
-				.validateValues(overallSampleSizes2, "overallSampleSizes2")
-				overallSampleSizes <<- c(overallSampleSizes1, overallSampleSizes2)
+				stages <<- rep(stages, numberOfTreatmentGroups)
 				
-				overallEvents1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS_1)
-				.validateValues(overallEvents1, "overallEvents1")
-				overallEvents2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS_2)
-				.validateValues(overallEvents2, "overallEvents2")
-				overallEvents <<- c(overallEvents1, overallEvents2)
-				
-				kMax <- length(overallSampleSizes1)
-				stageNumber <- length(stats::na.omit(overallSampleSizes1))
-				
-				dataInput1 <- data.frame(
-					overallSampleSizes = overallSampleSizes1,
-					overallEvents = overallEvents1)
-				dataInput1 <- .getStageWiseData(dataInput1, kMax, stage = stageNumber)
-				
-				dataInput2 <- data.frame(
-					overallSampleSizes = overallSampleSizes2,
-					overallEvents = overallEvents2)
-				dataInput2 <- .getStageWiseData(dataInput2, kMax, stage = stageNumber)
-				
-				n1 <- .getValidatedSampleSizes(dataInput1$sampleSizes)
-				n2 <- .getValidatedSampleSizes(dataInput2$sampleSizes)
-				.validateValues(n1, "n1")
-				.validateValues(n2, "n2")
-				sampleSizes <<- c(n1, n2)
-				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
+				groups <<- integer(0)
+				sampleSizes <<- numeric(0)
+				events <<- numeric(0)
+				overallSampleSizes <<- numeric(0)
+				overallEvents <<- numeric(0)
+				for (group in 1:numberOfTreatmentGroups) {
+					overallSampleSizesTemp <- .getValidatedSampleSizes(.getValuesByParameterName(
+							dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES, suffix = group))
+					.validateValues(overallSampleSizesTemp, paste0("overallSampleSizes", group))
+					overallSampleSizes <<- c(overallSampleSizes, overallSampleSizesTemp)
+					
+					overallEventsTemp <- .getValuesByParameterName(dataFrame, 
+						C_KEY_WORDS_OVERALL_EVENTS, suffix = group)
+					.validateValues(overallEventsTemp, paste0("overallEvents", group))
+					overallEvents <<- c(overallEvents, overallEventsTemp)
+					
+					groups <<- c(groups, rep(as.integer(group), length(overallSampleSizesTemp)))
+					
+					kMax <- length(overallSampleSizesTemp)
+					numberOfValidStages <- length(stats::na.omit(overallSampleSizesTemp))
+					overallData <- .getStageWiseData(data.frame(
+							overallSampleSizes = overallSampleSizesTemp,
+							overallEvents = overallEventsTemp), kMax, stage = numberOfValidStages)
+					
+					validatedSampleSizes <- .getValidatedSampleSizes(overallData$sampleSizes)
+					.validateValues(validatedSampleSizes, paste0("n", group))
+					sampleSizes <<- c(sampleSizes, validatedSampleSizes)
+					events <<- c(events, overallData$events)
+					
+					if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
+						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
+					}
 				}
-				
-				events1 <- dataInput1$events
-				events2 <- dataInput2$events
-				.validateValues(events1, "events1")
-				.validateValues(events2, "events2")
-				events <<- c(events1, events2)
-				
-				groups <<- c(rep(1L, length(n1)), rep(2L, length(n1)))
 				
 				.setParameterType("sampleSizes", C_PARAM_GENERATED)
 				.setParameterType("events", C_PARAM_GENERATED)
@@ -2212,6 +2379,8 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
 				.setParameterType("overallAllocationRatios", C_PARAM_USER_DEFINED)
 				.setParameterType("overallLogRanks", C_PARAM_USER_DEFINED)
+				
+				.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
 			}
 			
 			# case: survival - stage wise
@@ -2244,6 +2413,8 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				.setParameterType("overallEvents", C_PARAM_GENERATED)
 				.setParameterType("overallAllocationRatios", C_PARAM_GENERATED)
 				.setParameterType("overallLogRanks", C_PARAM_GENERATED)
+				
+				.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
 			}
 			
 			.data <<- data.frame(stage = stages, group = groups, 

@@ -765,31 +765,36 @@ getDesignFisher <- function(...,
 		
 		if (userFunctionCallEnabled) {	
 			if (design$method == C_FISHER_METHOD_NO_INTERACTION && abs(size - design$alpha) > 1e-03) {
-				stop('Numerical overflow in computation routine')
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'numerical overflow in computation routine')
 			}
 			
 			if (design$method == C_FISHER_METHOD_EQUAL_ALPHA && 
-				abs(mean(design$stageLevels) - design$stageLevels[1]) > 1E-3) {
-				stop('Numerical overflow in computation routine')
+					abs(mean(design$stageLevels) - design$stageLevels[1]) > 1e-03) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'numerical overflow in computation routine')
 			}
 			
 			if (design$kMax > 1) {
 				if (any(design$criticalValues[2:design$kMax] - 
-							design$criticalValues[1:(design$kMax - 1)] > 1e-12) || 
-					any(design$stageLevels[1:(design$kMax - 1)] > design$alpha)) {
-					stop('No calculation possible or design$alpha not correctly specified')
+						design$criticalValues[1:(design$kMax - 1)] > 1e-12)) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'no calculation possible')
+				} 
+				
+				if (any(design$stageLevels[1:(design$kMax - 1)] > design$alpha)) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+						"'alpha' (", design$alpha, ") not correctly specified")
 				} 
 			}
 			
 			if (design$method == C_FISHER_METHOD_USER_DEFINED_ALPHA) {
 				if (any(abs(design$alphaSpent - design$userAlphaSpending) > 1e-05)) {
-					stop('No calculation possible or design$alpha not correctly specified')	
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "no calculation possible or ",
+						"'alpha' (", design$alpha, ") not correctly specified")
 				}
 			}
 		}
 		
 	}, error = function(e) {
-		warning("Failed to calculate output of Fisher design: ", e, call. = FALSE)
+		warning("Output may be wrong because an error occured: ", e$message, call. = FALSE)
 	})
 	
 	design$.setParameterType("simAlpha", C_PARAM_NOT_APPLICABLE)

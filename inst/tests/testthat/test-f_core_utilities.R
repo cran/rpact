@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 23 July 2019, 11:46:20                                                       #
+# Date: 11 September 2019, 13:41:50                                                  #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -826,11 +826,11 @@ test_that("Testing 'isUndefinedArgument' and 'isValidArgument'", {
 	expect_error(.isDefinedArgument(notExistingTestVariable),
 		"Missing argument: the object 'notExistingTestVariable' has not been defined anywhere. Please define it first, e.g., run 'notExistingTestVariable <- 1'", fixed = TRUE)
 
-	# @refFS[Sec.]{fs:subsec:reproducibilityOfSimulationResults}
 })
 
 test_that("Result of 'setSeed(seed)' is working for different arguments, incl. NULL and NA", {
 
+	# @refFS[Sec.]{fs:subsec:reproducibilityOfSimulationResults}
 	expect_false(is.null(.setSeed()))
 	expect_false(is.na(.setSeed()))
 	expect_true(is.numeric(.setSeed()))
@@ -939,12 +939,7 @@ test_that("Testing '.getOneDimensionalRoot'", {
 	)
 	design1 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, typeOfDesign = "WT", deltaWT = 0.25)
 	result1 <- getRepeatedConfidenceIntervals(design1, dataExample1, stage = 3) 
-
-	##
-	## Comparison of the results of matrix object 'result1' with expected results
-	##
-	expect_equal(result1[1, ], c(0.54923831, 0.77922365, 1.0261298), tolerance = 1e-07)
-	expect_equal(result1[2, ], c(3.7041718, 2.7014099, 2.5669073), tolerance = 1e-07)
+# [ERROR] in line 'getUnitTestObject(result1, "result1")': could not find function "expect_equal"
 
 	design2 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, informationRates = c(0.4, 0.7, 1),
 		typeOfDesign = "WT", deltaWT = 0.35)

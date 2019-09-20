@@ -300,8 +300,8 @@ getStageResultsRates <- function(..., design, dataInput, thetaH0 = NA_real_,
 			thetaH0 <- C_THETA_H0_RATES_DEFAULT
 		}
 		
-		overallEvents1 <- dataInput$getOverallEvents(1)
-		overallEvents2 <- dataInput$getOverallEvents(2)
+		overallEvents1 <- dataInput$getOverallEvents(group = 1)
+		overallEvents2 <- dataInput$getOverallEvents(group = 2)
 		
 		overallTestStatistics <- rep(NA_real_, design$kMax)
 		overallPValues <- rep(NA_real_, design$kMax)
@@ -465,13 +465,13 @@ getStageResultsRates <- function(..., design, dataInput, thetaH0 = NA_real_,
 
 	direction <- ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER)
 	if (dataInput$getNumberOfGroups() == 1) {
-		return(StageResultsRates(
+		stageResults <- StageResultsRates(
 			design = design,
 			dataInput = dataInput,
 			overallTestStatistics = overallTestStatistics, 
 			overallPValues = overallPValues,
 			effectSizes = effectSizes,			
-			overallEvents = dataInput$getOverallEvents(1),
+			overallEvents = dataInput$getOverallEvents(group = 1),
 			overallSampleSizes = dataInput$getOverallSampleSizesUpTo(stage, 1),
 			testStatistics = testStatistics, 
 			pValues = pValues, 
@@ -482,18 +482,17 @@ getStageResultsRates <- function(..., design, dataInput, thetaH0 = NA_real_,
 			thetaH0 = thetaH0, 
 			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
 			normalApproximation = normalApproximation
-		))
+		)
 	}
-	
-	if (dataInput$getNumberOfGroups() == 2) {
-		return(StageResultsRates(
+	else if (dataInput$getNumberOfGroups() == 2) {
+		stageResults <- StageResultsRates(
 			design = design,
 			dataInput = dataInput,
 			overallTestStatistics = overallTestStatistics, 
 			overallPValues = overallPValues, 
 			effectSizes = effectSizes,
-			overallEvents1 = dataInput$getOverallEvents(1), 
-			overallEvents2 = dataInput$getOverallEvents(2), 
+			overallEvents1 = dataInput$getOverallEvents(group = 1), 
+			overallEvents2 = dataInput$getOverallEvents(group = 2), 
 			overallSampleSizes1 = dataInput$getOverallSampleSizesUpTo(stage, 1),
 			overallSampleSizes2 = dataInput$getOverallSampleSizesUpTo(stage, 2),
 			testStatistics = testStatistics, 
@@ -505,8 +504,19 @@ getStageResultsRates <- function(..., design, dataInput, thetaH0 = NA_real_,
 			thetaH0 = thetaH0, 
 			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
 			normalApproximation = normalApproximation
-		))
+		)
 	}
+	
+	if (.isTrialDesignFisher(design)) {	
+		stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
+		stageResults$.setParameterType("weightsFisher", C_PARAM_GENERATED)
+	}
+	else if (.isTrialDesignInverseNormal(design)) {
+		stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
+		stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
+	}
+	
+	return(stageResults)
 }
 
 # 
@@ -1015,8 +1025,10 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 			reject <- 0
 			for (i in 1:iterations) {
 				reject <- reject + .getRejectValueConditionalPowerFisher(
-					kMax, alpha0Vec = design$alpha0Vec, criticalValues, weightsFisher, 
-					pValues, k, thetaH1, stage, nPlanned)
+					kMax = kMax, alpha0Vec = design$alpha0Vec, 
+					criticalValues = criticalValues, weightsFisher = weightsFisher, 
+					pValues = pValues, currentKMax = k, thetaH1 = thetaH1, 
+					stage = stage, nPlanned = nPlanned)
 			}
 			conditionalPower[k] <- reject / iterations
 		}
@@ -1048,7 +1060,7 @@ getRepeatedConfidenceIntervalsRates <- function(design, ...) {
 }
 
 .getConditionalPowerRates <- function(..., design, stageResults,  
-		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, pi1, pi2) {
+		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, pi1 = NA_real_, pi2 = NA_real_) {
 		
 	stage <- .getStageFromOptionalArguments(..., dataInput = stageResults$getDataInput())
 	.assertIsValidStage(stage, design$kMax)

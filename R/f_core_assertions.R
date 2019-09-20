@@ -56,13 +56,17 @@
 	return(class(design) == C_CLASS_NAME_TRIAL_DESIGN_FISHER)
 }
 
+.isTrialDesignConditionalDunnett <- function(design) {
+	return(class(design) == C_CLASS_NAME_TRIAL_DESIGN_CONDITIONAL_DUNNETT)
+}
+
 .isTrialDesignInverseNormalOrGroupSequential <- function(design) {
 	return(.isTrialDesignInverseNormal(design) || .isTrialDesignGroupSequential(design))
 }
 
 .isTrialDesign <- function(design) {
 	return(.isTrialDesignInverseNormal(design) || .isTrialDesignGroupSequential(design) || 
-			.isTrialDesignFisher(design))
+			.isTrialDesignFisher(design) || .isTrialDesignConditionalDunnett(design))
 }
 
 .isTrialDesignPlanMeans <- function(designPlan) {
@@ -118,6 +122,13 @@
 	}
 }
 
+.assertIsTrialDesignConditionalDunnett <- function(design) {
+	if (!.isTrialDesignConditionalDunnett(design)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				"'design' must be an instance of class 'TrialDesignConditionalDunnett' (is '", class(design), "')")
+	}
+}
+
 .assertIsTrialDesignInverseNormalOrGroupSequential <- function(design) {
 	if (!.isTrialDesignInverseNormalOrGroupSequential(design)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -138,26 +149,41 @@
 }
 
 .isStageResults <- function(stageResults) {
-	return(.isStageResultsMeans(stageResults) || .isStageResultsRates(stageResults) || 
-			.isStageResultsSurvival(stageResults))
+	return(.isStageResultsMeans(stageResults) || 
+			.isStageResultsRates(stageResults) || 
+			.isStageResultsSurvival(stageResults) ||
+			.isStageResultsMeansMultiArmed(stageResults) || 
+			.isStageResultsRatesMultiArmed(stageResults) || 
+			.isStageResultsSurvivalMultiArmed(stageResults))
 }
 
 .isStageResultsMeans <- function(stageResults) {
 	return(class(stageResults) == "StageResultsMeans")
 }
 
+.isStageResultsMeansMultiArmed <- function(stageResults) {
+	return(class(stageResults) == "StageResultsMeansMultiArmed")
+}
+
 .isStageResultsRates <- function(stageResults) {
 	return(class(stageResults) == "StageResultsRates")
 }
 
+.isStageResultsRatesMultiArmed <- function(stageResults) {
+	return(class(stageResults) == "StageResultsRatesMultiArmed")
+}
 .isStageResultsSurvival <- function(stageResults) {
 	return(class(stageResults) == "StageResultsSurvival")
 }
 
+.isStageResultsSurvivalMultiArmed <- function(stageResults) {
+	return(class(stageResults) == "StageResultsSurvivalMultiArmed")
+}
 .assertIsStageResults <- function(stageResults) {
 	if (!.isStageResults(stageResults)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stageResults' must be an instance of ", .arrayToString(
-				.getStageResultsClassNames(), vectorLookAndFeelEnabled = FALSE), " (is '", class(stageResults), "')")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stageResults' must be an instance of ", 
+			.arrayToString(.getStageResultsClassNames(), vectorLookAndFeelEnabled = FALSE), 
+			" (is '", class(stageResults), "')")
 	}
 }
 
@@ -228,58 +254,58 @@
 	if (!is.null(stage)) {
 		if (dataInput$getNumberOfGroups() == 1) {
 			if (.isDatasetMeans(dataInput) ) {
-				if (any(dataInput$getStDevsUpTo(stage) <= 0)) {
+				if (any(na.omit(dataInput$getStDevsUpTo(stage)) <= 0)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all standard deviations must be > 0")
 				} 
-				if (any(dataInput$getSampleSizesUpTo(stage) <= 0)) {
+				if (any(na.omit(dataInput$getSampleSizesUpTo(stage)) <= 0)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all sample sizes must be > 0")
 				} 
 			} 
 			else if (.isDatasetRates(dataInput) ) {
-				if (any(dataInput$getEventsUpTo(stage) < 0)) {
+				if (any(na.omit(dataInput$getEventsUpTo(stage)) < 0)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all events must be >= 0")
 				}
-				if (any(dataInput$getSampleSizesUpTo(stage) <= 0)) {
+				if (any(na.omit(dataInput$getSampleSizesUpTo(stage)) <= 0)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all sample sizes must be > 0")
 				}
-				if (any(dataInput$getEventsUpTo(stage) > dataInput$getSampleSizesUpTo(stage))) {
+				if (any(na.omit(dataInput$getEventsUpTo(stage)) > na.omit(dataInput$getSampleSizesUpTo(stage)))) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all events must be <= corresponding sample size")
 				}
 			}
 		}
 		else if (dataInput$getNumberOfGroups() == 2) {
 			if (.isDatasetMeans(dataInput) ) {
-
-				if (any(dataInput$getStDevsUpTo(stage, 1) <= 0) || any(dataInput$getStDevsUpTo(stage, 2) <= 0)) {
+				if (any(na.omit(dataInput$getStDevsUpTo(stage, 1)) <= 0) || 
+						any(na.omit(dataInput$getStDevsUpTo(stage, 2)) <= 0)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all standard deviations must be > 0")
 				} 
-				if (any(dataInput$getSampleSizesUpTo(stage, 1) <= 0) || 
-						any(dataInput$getSampleSizesUpTo(stage, 2) <= 0)	) {
+				if (any(na.omit(dataInput$getSampleSizesUpTo(stage, 1)) <= 0) || 
+						any(na.omit(dataInput$getSampleSizesUpTo(stage, 2)) <= 0)	) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all sample sizes must be > 0")
 				} 
 			} 
 			else if (.isDatasetRates(dataInput) ) {
-				if (any(dataInput$getEventsUpTo(stage, 1) < 0) || 
-						any(dataInput$getEventsUpTo(stage, 2) < 0)) {
+				if (any(na.omit(dataInput$getEventsUpTo(stage, 1)) < 0) || 
+						any(na.omit(dataInput$getEventsUpTo(stage, 2)) < 0)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all events must be >= 0")
 				}
-				if (any(dataInput$getSampleSizesUpTo(stage, 1) <= 0)  || 
-						any(dataInput$getSampleSizesUpTo(stage, 2) <= 0)) {
+				if (any(na.omit(dataInput$getSampleSizesUpTo(stage, 1)) <= 0)  || 
+						any(na.omit(dataInput$getSampleSizesUpTo(stage, 2)) <= 0)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all sample sizes must be > 0")
 				}
-				if (any(dataInput$getEventsUpTo(stage, 1) > dataInput$getSampleSizesUpTo(stage, 1)) ||  
-						any(dataInput$getEventsUpTo(stage, 2) > dataInput$getSampleSizesUpTo(stage, 2))) {
+				if (any(na.omit(dataInput$getEventsUpTo(stage, 1)) > na.omit(dataInput$getSampleSizesUpTo(stage, 1))) ||  
+						any(na.omit(dataInput$getEventsUpTo(stage, 2)) > na.omit(dataInput$getSampleSizesUpTo(stage, 2)))) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all events must be <= corresponding sample size")
 				}
 			}
 		}
 		
 		if (.isDatasetSurvival(dataInput) ) {
-			if (any(dataInput$getOverallEventsUpTo(stage) < 0)) {
+			if (any(na.omit(dataInput$getOverallEventsUpTo(stage)) < 0)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all overall events must be >= 0")
 			}
 			
-			if (any(dataInput$getOverallAllocationRatiosUpTo(stage) <= 0)) {
+			if (any(na.omit(dataInput$getOverallAllocationRatiosUpTo(stage)) <= 0)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all overall allocation ratios must be > 0")
 			}
 		}
@@ -964,25 +990,41 @@
 	return(sum(futilityBounds == C_FUTILITY_BOUNDS_DEFAULT) == 0)
 }
 
-.assertGgplotIsInstalled <- function() {
-	if (!requireNamespace("ggplot2", quietly = TRUE)) {
-		stop("Package \"ggplot2\" is needed for this function to work. Please install and load it.",
-			call. = FALSE)
+.isTrialDesignWithValidAlpha0Vec <- function(design) {
+	if (is.null(design) || !.isTrialDesignFisher(design)) {
+		return(FALSE)
 	}
+	
+	alpha0Vec <- design[["alpha0Vec"]]
+	if (is.null(alpha0Vec)) {
+		return(FALSE)
+	}
+	
+	alpha0Vec <- na.omit(alpha0Vec)
+	if (length(alpha0Vec) == 0 || all(is.na(alpha0Vec))) {
+		return(FALSE)
+	}
+	
+	return(sum(alpha0Vec == C_ALPHA_0_VEC_DEFAULT) == 0)
+}
+
+.assertPackageIsInstalled <- function(packageName) {
+	if (!requireNamespace(packageName, quietly = TRUE)) {
+		stop("Package \"", packageName, "\" is needed for this function to work. ", 
+			"Please install and load it.", call. = FALSE)
+	}
+}
+
+.assertGgplotIsInstalled <- function() {
+	.assertPackageIsInstalled("ggplot2")
 }
 
 .assertRcppIsInstalled <- function() {
-	if (!requireNamespace("Rcpp", quietly = TRUE)) {
-		stop("Package \"Rcpp\" is needed for this function to work. Please install and load it.",
-			call. = FALSE)
-	}
+	.assertPackageIsInstalled("Rcpp")
 }
 
 .assertTestthatIsInstalled <- function() {
-	if (!requireNamespace("testthat", quietly = TRUE)) {
-		stop("Package \"testthat\" is needed for this function to work. Please install and load it.",
-			call. = FALSE)
-	}
+	.assertPackageIsInstalled("testthat")
 }
 
 .assertIsValidThetaH0 <- function(thetaH0, ..., endpoint = c("means", "rates", "survival"), 
@@ -1188,6 +1230,34 @@
 	invisible(assumedStDev)
 }
 
+.assertIsValidThetaH1ForMultiArm <- function(thetaH1, stageResults = NULL, stage = NULL) {
+	
+	if (is.na(thetaH1) && !is.null(stageResults) && !is.null(stage)) {
+		thetaH1 <- stageResults$effectSizes[,stage]
+	}
+		
+	.assertIsNumericVector(thetaH1, "thetaH1", naAllowed  = TRUE)
+	
+	invisible(thetaH1)
+}
+
+.assertIsValidAssumedStDevForMultiArm <- function(assumedStDev, stageResults = NULL, stage = NULL) {
+	
+	if (is.na(assumedStDev) && !is.null(stageResults) && !is.null(stage)) {
+		assumedStDev <- stageResults$overallStDevs[,stage]
+	}
+	
+	.assertIsNumericVector(assumedStDev, "assumedStDev", naAllowed  = TRUE)
+	
+	if (any(assumedStDev <= 0, na.rm = TRUE)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+				"'assumedStDev' (", assumedStDev, ") must be > 0")
+	}
+	
+	invisible(assumedStDev)
+}
+
+
 .isValidValueOrVector <- function(x) {
 	if (is.null(x) || length(x) == 0) {
 		return(FALSE)
@@ -1365,4 +1435,46 @@
 	
 	return(invisible(parameterValues))
 }
+
+.assertAreSuitableInformationRates <- function(design, dataInput, stage) {
+	if (!.isTrialDesignGroupSequential(design) || stage == 1) {
+		return(invisible())
+	}
+
+	param <- NA_character_
+	if (dataInput$isDatasetSurvival()) {
+		if (any(abs(design$informationRates[2:stage] - dataInput$getOverallEventsUpTo(stage)[2:stage] /
+				dataInput$getOverallEventsUpTo(1) * design$informationRates[1]) > 
+				C_ACCEPT_DEVIATION_INFORMATIONRATES)) {
+			param <- "events"
+		}
+	} else {
+		if (dataInput$getNumberOfGroups() == 1) {	
+			if (any(abs(design$informationRates[2:stage] - 
+					dataInput$getOverallSampleSizesUpTo(stage)[2:stage] /
+					dataInput$getOverallSampleSizesUpTo(1) * design$informationRates[1]) > 
+					C_ACCEPT_DEVIATION_INFORMATIONRATES)) {
+				param <- "sample sizes"
+			}
+		}
+		else if (dataInput$getNumberOfGroups() == 2) {	
+			if (any(abs(design$informationRates[2:stage] - 
+						dataInput$getOverallSampleSizesUpTo(stage)[2:stage] /
+						dataInput$getOverallSampleSizesUpTo(1) * design$informationRates[1]) > 
+						C_ACCEPT_DEVIATION_INFORMATIONRATES) ||
+					any(abs(design$informationRates[2:stage] - 
+						dataInput$getOverallSampleSizesUpTo(stage,2)[2:stage] / 
+						dataInput$getOverallSampleSizesUpTo(1,2)*design$informationRates[1]) > 
+						C_ACCEPT_DEVIATION_INFORMATIONRATES)) {
+				param <- "sample sizes"
+			}
+		}
+	}
+	if (!is.na(param)) {
+		warning("Observed ", param, " not according to specified information rates in ", 
+			"group sequential design. ", 
+			"Test procedure might not control Type I error rate.", call. = FALSE)
+	}
+}
+
 

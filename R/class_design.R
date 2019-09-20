@@ -87,18 +87,22 @@ TrialDesign <- setRefClass("TrialDesign",
 				bindingFutility = bindingFutility,
 				tolerance = tolerance)
 			
-			.parameterNames <<- .getSubListByNames(.getParameterNames(design = .self), c(
-				"stages", 
-				"kMax", 
-				"alpha", 
-				"informationRates", 
-				"userAlphaSpending", 
-				"criticalValues", 
-				"stageLevels", 
-				"alphaSpent", 
-				"bindingFutility",
-				"tolerance"
-			))
+			if (inherits(.self, "TrialDesignConditionalDunnett")) {
+				.parameterNames <<- C_PARAMETER_NAMES
+			} else {
+				.parameterNames <<- .getSubListByNames(.getParameterNames(design = .self), c(
+					"stages", 
+					"kMax", 
+					"alpha", 
+					"informationRates", 
+					"userAlphaSpending", 
+					"criticalValues", 
+					"stageLevels", 
+					"alphaSpent", 
+					"bindingFutility",
+					"tolerance"
+				))
+			}
 			
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
@@ -111,7 +115,14 @@ TrialDesign <- setRefClass("TrialDesign",
 			'Method for automatically printing trial design objects'
 			.resetCat()
 			.initStages()
-			if (showType == 2) {
+			if (showType == 3) {
+				parameterList <- .getSimpleBoundarySummary(.self)
+				for (parameterName in names(parameterList)) {
+					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
+						consoleOutputEnabled = consoleOutputEnabled)
+				}
+			}
+			else if (showType == 2) {
 				.cat("Technical summary of the trial design object of class ",
 					methods::classLabel(class(.self)), ":\n\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
@@ -142,6 +153,9 @@ TrialDesign <- setRefClass("TrialDesign",
 			}
 			else if (.isTrialDesignFisher(.self)) {
 				s <- "Fisher design"
+			}
+			else if (.isTrialDesignConditionalDunnett(.self)) {
+				s <- "conditional Dunnett test design"
 			}
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		},
@@ -557,24 +571,50 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 			if (!identical(alpha, .self$alpha)) return(.pasteComparisonResult("alpha", alpha, .self$alpha))
 			if (!identical(beta, .self$beta)) return(.pasteComparisonResult("beta", beta, .self$beta))
 			if (!identical(sided, .self$sided)) return(.pasteComparisonResult("sided", sided, .self$sided))
-			if (!identical(typeOfDesign, .self$typeOfDesign)) return(.pasteComparisonResult("typeOfDesign", typeOfDesign, .self$typeOfDesign))
+			if (!identical(typeOfDesign, .self$typeOfDesign)) {
+				return(.pasteComparisonResult("typeOfDesign", typeOfDesign, .self$typeOfDesign))
+			}
 			if (typeOfDesign == C_TYPE_OF_DESIGN_WT) {
-				if (!identical(deltaWT, .self$deltaWT)) return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
+				if (!identical(deltaWT, .self$deltaWT)) {
+					return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
+				}
 			}
-			if (!identical(informationRatesTemp, .self$informationRates)) return(.pasteComparisonResult("informationRates", informationRatesTemp, .self$informationRates))
-			if (!(grepl("^as.*", typeOfDesign) && typeBetaSpending == "bsUser")) {
-				if (!identical(futilityBoundsTemp, .self$futilityBounds)) return(.pasteComparisonResult("futilityBounds", futilityBoundsTemp, .self$futilityBounds))
+			if (!identical(informationRatesTemp, .self$informationRates)) {
+				return(.pasteComparisonResult("informationRates", informationRatesTemp, .self$informationRates))
 			}
-			if (!identical(optimizationCriterion, .self$optimizationCriterion)) return(.pasteComparisonResult("optimizationCriterion", optimizationCriterion, .self$optimizationCriterion))
-			if (!identical(typeBetaSpending, .self$typeBetaSpending)) return(.pasteComparisonResult("typeBetaSpending", typeBetaSpending, .self$typeBetaSpending))
-			if (!identical(gammaA, .self$gammaA)) return(.pasteComparisonResult("gammaA", gammaA, .self$gammaA))
-			if (!identical(gammaB, .self$gammaB)) return(.pasteComparisonResult("gammaB", gammaB, .self$gammaB))
-			if (!identical(bindingFutility, .self$bindingFutility)) return(.pasteComparisonResult("bindingFutility", bindingFutility, .self$bindingFutility))
-			if (!identical(userAlphaSpending, .self$userAlphaSpending)) return(.pasteComparisonResult("userAlphaSpending", userAlphaSpending, .self$userAlphaSpending))
-			if (!identical(userBetaSpending, .self$userBetaSpending)) return(.pasteComparisonResult("userBetaSpending", userBetaSpending, .self$userBetaSpending))
-			if (!identical(twoSidedPower, .self$twoSidedPower)) return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
+			if (!grepl("^as.*", typeOfDesign)) {
+				if (!identical(futilityBoundsTemp, .self$futilityBounds)) {
+					return(.pasteComparisonResult("futilityBounds", futilityBoundsTemp, .self$futilityBounds))
+				}
+			}
+			if (!identical(optimizationCriterion, .self$optimizationCriterion)) {
+				return(.pasteComparisonResult("optimizationCriterion", optimizationCriterion, .self$optimizationCriterion))
+			}
+			if (!identical(typeBetaSpending, .self$typeBetaSpending)) {
+				return(.pasteComparisonResult("typeBetaSpending", typeBetaSpending, .self$typeBetaSpending))
+			}
+			if (!identical(gammaA, .self$gammaA)) {
+				return(.pasteComparisonResult("gammaA", gammaA, .self$gammaA))
+			}
+			if (!identical(gammaB, .self$gammaB)) {
+				return(.pasteComparisonResult("gammaB", gammaB, .self$gammaB))
+			}
+			if (any(na.omit(futilityBounds) > -6) && !identical(bindingFutility, .self$bindingFutility)) {
+				return(.pasteComparisonResult("bindingFutility", bindingFutility, .self$bindingFutility))
+			}
+			if (!identical(userAlphaSpending, .self$userAlphaSpending)) {
+				return(.pasteComparisonResult("userAlphaSpending", userAlphaSpending, .self$userAlphaSpending))
+			}
+			if (!identical(userBetaSpending, .self$userBetaSpending)) {
+				return(.pasteComparisonResult("userBetaSpending", userBetaSpending, .self$userBetaSpending))
+			}
+			if (!identical(twoSidedPower, .self$twoSidedPower)) {
+				return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
+			}
 			if (typeOfDesign == C_TYPE_OF_DESIGN_HP) {
-				if (!identical(constantBoundsHP, .self$constantBoundsHP)) return(.pasteComparisonResult("constantBoundsHP", constantBoundsHP, .self$constantBoundsHP))
+				if (!identical(constantBoundsHP, .self$constantBoundsHP)) {
+					return(.pasteComparisonResult("constantBoundsHP", constantBoundsHP, .self$constantBoundsHP))
+				}
 			}
 			return(FALSE)
 		},
@@ -648,6 +688,81 @@ TrialDesignGroupSequential <- setRefClass(
 		}
 	)
 )
+
+#' 
+#' @name TrialDesignConditionalDunnett
+#' 
+#' @title
+#' Conditional Dunnett Design
+#' 
+#' @description
+#' Trial design for conditional Dunnett tests.
+#' 
+#' @details
+#' This object should not be created directly.
+# This object should not be created directly; use \code{\link{getDesignConditionalDunnett}} 
+# with suitable arguments to create a conditional Dunnett test design.
+#'
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include f_core_constants.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#' 
+# @seealso \code{\link{getDesignConditionalDunnett}} for creating a conditional Dunnett test design.
+TrialDesignConditionalDunnett <- setRefClass(
+	C_CLASS_NAME_TRIAL_DESIGN_CONDITIONAL_DUNNETT,	
+	contains = "TrialDesign",
+	
+	fields = list(
+		informationAtInterim = "numeric",
+		secondStageConditioning = "logical"
+	),
+	
+	methods = list(
+		initialize = function(...) {
+			callSuper(...)
+			
+			notApplicableParameters <- c(
+				"kMax", 
+				"stages", 
+				"informationRates", 
+				"userAlphaSpending", 
+				"criticalValues", 
+				"stageLevels", 
+				"alphaSpent", 
+				"bindingFutility", 
+				"tolerance"
+			)
+			for (notApplicableParameter in notApplicableParameters) {
+				.setParameterType(notApplicableParameter, C_PARAM_NOT_APPLICABLE)
+			}
+			.setParameterType("alpha", ifelse(
+				identical(alpha, C_ALPHA_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+			.setParameterType("informationAtInterim", ifelse(
+					identical(informationAtInterim, 0.5), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+			.setParameterType("secondStageConditioning", ifelse(
+					identical(secondStageConditioning, TRUE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+	
+		},
+		show = function(showType = 1) {
+			'Method for automatically printing trial design objects'
+			callSuper(showType)
+		}
+	)
+)
+
+getDesignConditionalDunnett <- function(alpha = C_ALPHA_DEFAULT, 
+		informationAtInterim = 0.5, secondStageConditioning = TRUE) {
+		
+	.assertIsValidAlpha(alpha)
+	.assertIsNumericVector(informationAtInterim, "informationAtInterim")
+	return(TrialDesignConditionalDunnett(alpha = alpha, 
+		informationAtInterim = informationAtInterim, 
+		secondStageConditioning = secondStageConditioning))
+}
 
 #' 
 #' @title
@@ -729,9 +844,9 @@ plot.TrialDesign = function(x, y, main = NA_character_,
 		
 	.assertGgplotIsInstalled()
 	
-	if (.isTrialDesignFisher(x)) {
-		cat("Plot object of class ", methods::classLabel(class(x)), "\n")
-		stop("Plot function for Fisher design is not implemented yet.\n")
+	if (.isTrialDesignFisher(x) && !(type %in% c(1, 3, 4))) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'type' (", type, ") is not allowed; must be 1, 3 or 4")
 	}
 		
 	designSet <- TrialDesignSet(design = x, singleDesign = TRUE)

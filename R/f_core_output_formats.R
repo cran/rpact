@@ -354,12 +354,12 @@ formatRatios <- function(value) {
 # Formats the output of standard deviations.
 # 
 # @details
-# Digits = 3
+# Digits = 4
 # 
 # @keywords internal
 # 
 formatStDevs <- function(value) {
-	return(.getFormattedValue(value, digits = 3))
+	return(.getFormattedValue(value, digits = 4))
 }
 
 # 
