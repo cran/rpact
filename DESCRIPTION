@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 2.0.3
-Date: 2019-09-20
+Version: 2.0.4
+Date: 2019-10-02
 Authors@R: c(
 	person("Gernot", "Wassmer", email = "gernot.wassmer@rpact.com", role = c("aut")),
     person("Friedrich", "Pahlke", email = "friedrich.pahlke@rpact.com", role = c("aut", "cre")))
@@ -33,9 +33,9 @@ Collate: 'RcppExports.R' 'f_core_constants.R'
         'f_design_sample_size_calculator.R' 'f_simulation_means.R'
         'f_simulation_rates.R' 'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2019-09-20 09:53:08 UTC; Pahlke
+Packaged: 2019-10-02 14:45:38 UTC; fried
 Author: Gernot Wassmer [aut],
   Friedrich Pahlke [aut, cre]
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2019-09-20 10:30:02 UTC
+Date/Publication: 2019-10-02 15:10:02 UTC

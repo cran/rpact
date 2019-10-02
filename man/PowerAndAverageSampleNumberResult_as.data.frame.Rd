@@ -6,7 +6,7 @@
 \title{Coerce Power And Average Sample Number Result to a Data Frame}
 \usage{
 \method{as.data.frame}{PowerAndAverageSampleNumberResult}(x,
-  row.names = NULL, optional = FALSE, niceColumnNamesEnabled = TRUE,
+  row.names = NULL, optional = FALSE, niceColumnNamesEnabled = FALSE,
   includeAllParameters = FALSE, ...)
 }
 \description{

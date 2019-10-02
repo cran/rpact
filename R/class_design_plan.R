@@ -277,7 +277,7 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 #' @keywords internal
 #'  
 as.data.frame.TrialDesignPlan <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...) {	
+		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {	
 	return(x$.getAsDataFrame(parameterNames = NULL, 
 			niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters))
 }

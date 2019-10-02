@@ -651,7 +651,7 @@ ParameterSet <- setRefClass("ParameterSet",
 			.cat("  ", C_PARAM_NOT_APPLICABLE, ": not applicable or hidden\n", consoleOutputEnabled = consoleOutputEnabled)
 		},
 		
-		.printAsDataFrame = function(parameterNames, niceColumnNamesEnabled = TRUE,
+		.printAsDataFrame = function(parameterNames, niceColumnNamesEnabled = FALSE,
 				includeAllParameters = FALSE, handleParameterNamesAsToBeExcluded = FALSE,
 				lineBreakEnabled = FALSE) {
 			
@@ -1088,7 +1088,7 @@ print.FieldSet <- function(x, ...) {
 #' @keywords internal
 #'  
 as.data.frame.ParameterSet <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...) {	
+		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {	
 	return(x$.getAsDataFrame(parameterNames = NULL, 
 			niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters))
 }

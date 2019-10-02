@@ -255,7 +255,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 #' @keywords internal
 #' 
 as.data.frame.PowerAndAverageSampleNumberResult <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...) {
+		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {
 	
 	parameterNames <- x$.getVisibleFieldNames()
 	parameterNames <- parameterNames[parameterNames != "nMax"]	

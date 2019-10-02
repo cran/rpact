@@ -690,7 +690,8 @@ names.StageResults <- function(x) {
 #' @keywords internal
 #'  
 as.data.frame.StageResults <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, type = 1, ...) {
+		optional = FALSE, niceColumnNamesEnabled = FALSE, 
+		includeAllParameters = FALSE, type = 1, ...) {
 	
 	if (type == 1) {
 		parametersToShow <- x$.getParametersToShow()

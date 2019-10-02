@@ -426,9 +426,13 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 	getMedianByLambda(getLambdaByPi(piValue, eventTime, kappa), kappa)
 }
 
+.getFormattedSimpleBoundarySummaryValues <- function(values, digits = 3) {
+	return(sprintf(paste0("%.", digits, "f"), round(values, digits)))
+}
+
 .getSimpleBoundarySummaryParameter <- function(designPlan, parameterName, parameterCaption, ...,
-	roundDigits = NA_integer_, ceilingEnabeld = FALSE, cumsumEnabled = FALSE, 
-	parameterCaptionSingle = parameterCaption) {
+		roundDigits = NA_integer_, ceilingEnabeld = FALSE, cumsumEnabled = FALSE, 
+		parameterCaptionSingle = parameterCaption) {
 	
 	if (is.character(parameterName)) {
 		values <- designPlan[[parameterName]]
@@ -442,7 +446,7 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 	
 	parameters <- c()
 	if ((!is.matrix(values) || ncol(values) == 1) && 
-		(numberOfStages > 1 || length(values) != numberOfVariants)) {
+			((numberOfStages > 1 && numberOfStages == length(values)) || length(values) != numberOfVariants)) {
 		if (cumsumEnabled) {
 			values <- cumsum(values)
 		}
@@ -450,7 +454,8 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 			values <- ceiling(values)
 		}
 		else if (!is.na(roundDigits)) {
-			values <- round(values, roundDigits)
+			#values <- round(values, roundDigits)
+			values <- .getFormattedSimpleBoundarySummaryValues(values, digits = roundDigits)
 		}
 		parameters <- list(values)
 		names(parameters) <- parameterCaptionSingle
@@ -460,10 +465,14 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 			tableColumnNames = C_TABLE_COLUMN_NAMES, niceColumnNamesEnabled = TRUE)
 		variedParameterValues <- designPlan[[variedParameter]]
 		for (i in 1:numberOfVariants) {
-			if (length(values) == 1) {
+			if (length(values) <= 1) {
 				colValues <- values
 			} else if (is.matrix(values)) {
-				colValues <- values[, i]
+				if (ncol(values) == 1) {
+					colValues <- values[i, 1]
+				} else {
+					colValues <- values[, i]
+				}
 			} else {
 				colValues <- values[i]
 			}
@@ -474,7 +483,8 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 				colValues <- ceiling(colValues)
 			}
 			else if (!is.na(roundDigits)) {
-				colValues <- round(colValues, roundDigits)
+				#colValues <- round(colValues, roundDigits)
+				colValues <- .getFormattedSimpleBoundarySummaryValues(colValues, digits = roundDigits)
 			}
 			parameter <- list(colValues)
 			names(parameter) <- paste0(parameterCaption, ", ", 
@@ -507,6 +517,13 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 		probsH0 <- getPowerAndAverageSampleNumber(design, theta = 0, nMax = designCharacteristics$shift) 
 		probsH1 <- getPowerAndAverageSampleNumber(design, theta = 1, nMax = designCharacteristics$shift) 
 	}
+	if (!is.null(designPlan) && design$kMax > 1) {
+		probsH1 <- list(
+			earlyStop = designPlan$rejectPerStage[1:(design$kMax - 1), ] + designPlan$futilityPerStage,
+			rejectPerStage = designPlan$rejectPerStage,
+			futilityPerStage = designPlan$futilityPerStage
+		)
+	}
 	
 	parameters <- list(
 		"Stage" = c(1:design$kMax), 
@@ -526,7 +543,7 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 				parameters <- c(parameters, 
 					.getSimpleBoundarySummaryParameter(designPlan, "nFixed", 
 						parameterCaption = "Total sample size",
-						ceilingEnabeld = TRUE, cumsumEnabled = TRUE))
+						ceilingEnabeld = TRUE, cumsumEnabled = FALSE)) # TODO FALSE
 			}
 		} else {
 			if (grepl("Survival", class(designPlan))) {
@@ -540,7 +557,7 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 				parameters <- c(parameters, 
 					.getSimpleBoundarySummaryParameter(designPlan, "numberOfSubjects", 
 						parameterCaption = "Total sample size",
-						ceilingEnabeld = TRUE, cumsumEnabled = TRUE, 
+						ceilingEnabeld = TRUE, cumsumEnabled = FALSE, # TODO FALSE
 						parameterCaptionSingle = "Total sample size (cumulative)"))
 			}
 		}
@@ -549,7 +566,13 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 	parameters <- c(parameters, list(
 		"Cumulative alpha spent" = round(design$alphaSpent, 4)
 	))
-	if (!is.null(designCharacteristics)) {
+	if (!is.null(designPlan)) {
+		if (design$kMax > 1 || any(!is.na(designPlan$rejectPerStage))) {
+			parameters <- c(parameters, 
+				.getSimpleBoundarySummaryParameter(designPlan, "rejectPerStage", 
+					parameterCaption = "Cumulative power", roundDigits = 4, cumsumEnabled = TRUE))
+		}
+	} else if (!is.null(designCharacteristics)) {
 		parameters <- c(parameters, list(
 			"Cumulative power" = round(designCharacteristics$power, 3)
 		))
@@ -579,35 +602,55 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 			!all(is.na(designPlan$futilityBoundsEffectScale))) {
 			parameters <- c(parameters, 
 				.getSimpleBoundarySummaryParameter(designPlan, 
-					rbind(designPlan$futilityBoundsEffectScale, 
-						rep(NA_real_, ncol(designPlan$futilityBoundsEffectScale))), 
+					designPlan$futilityBoundsEffectScale, 
 					parameterCaption = "Futility boundary (approximate treatment effect scale)", 
 					roundDigits = 3))
 		}
 	}
 	
-	if (!is.null(probsH1) && !is.null(probsH0)) {
+	if (!is.null(probsH1) && !is.null(probsH0) && design$kMax > 1) {
+		
+		probsH0$earlyStop <- matrix(probsH0$earlyStop[1:(design$kMax - 1), 1], ncol = 1)
+		probsH0$rejectPerStage <- matrix(probsH0$rejectPerStage[1:(design$kMax - 1), 1], ncol = 1)
+		
+		if (is.matrix(probsH0$earlyStop)) {
+			probsH1$rejectPerStage <- probsH1$rejectPerStage[1:(design$kMax - 1), ]
+		} else {
+			probsH1$rejectPerStage <- probsH1$rejectPerStage[1:(design$kMax - 1)]
+		}
+	
 		if (any(design$futilityBounds > -6)) {
+			if (is.matrix(probsH0$earlyStop)) {
+				probsH1$earlyStop <- probsH1$earlyStop[1:(design$kMax - 1), ]
+			} else {
+				probsH1$earlyStop <- probsH1$earlyStop[1:(design$kMax - 1)]
+			}
 			parameters <- c(parameters, list(
-				"Overall exit probability (under H1)" = 
-					.getFormattedValue(probsH1$earlyStop[, 1], digits = 3),
 				"Overall exit probability (under H0)" = 
-					.getFormattedValue(probsH0$earlyStop[, 1], digits = 3)
-			))
+					.getFormattedSimpleBoundarySummaryValues(probsH0$earlyStop, digits = 3)
+				))
+			parameters <- c(parameters, 
+				.getSimpleBoundarySummaryParameter(designPlan, probsH1$earlyStop, 
+					parameterCaption = "Overall exit probability (under H1)", 
+					roundDigits = 3))
 		}
 		parameters <- c(parameters, list(
-			"Exit probability for efficacy (under H1)" = 
-				.getFormattedValue(probsH1$rejectPerStage[, 1], digits = 3),
 			"Exit probability for efficacy (under H0)" = 
-				.getFormattedValue(probsH0$rejectPerStage[, 1], digits = 3)
-		))
+				.getFormattedSimpleBoundarySummaryValues(probsH0$rejectPerStage, digits = 3)
+			))
+		parameters <- c(parameters, 
+			.getSimpleBoundarySummaryParameter(designPlan, probsH1$rejectPerStage, 
+				parameterCaption = "Exit probability for efficacy (under H1)", 
+				roundDigits = 3))
 		if (any(design$futilityBounds > -6)) {
 			parameters <- c(parameters, list(
-				"Exit probability for futility (under H1)" = 
-					.getFormattedValue(c(probsH1$futilityPerStage[, 1], NA_real_), digits = 3),
 				"Exit probability for futility (under H0)" = 
-					.getFormattedValue(c(probsH0$futilityPerStage[, 1], NA_real_), digits = 3)
+					.getFormattedSimpleBoundarySummaryValues(probsH0$futilityPerStage, digits = 3)
 			))
+			parameters <- c(parameters, 
+				.getSimpleBoundarySummaryParameter(designPlan, probsH1$futilityPerStage, 
+					parameterCaption = "Exit probability for futility (under H1)", 
+					roundDigits = 3))
 		}
 	}
 	
@@ -618,3 +661,5 @@ getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) 
 		cat(paramName, values, "\n")
 	}
 }
+
+

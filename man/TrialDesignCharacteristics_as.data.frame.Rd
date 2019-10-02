@@ -6,7 +6,7 @@
 \title{Coerce TrialDesignCharacteristics to a Data Frame}
 \usage{
 \method{as.data.frame}{TrialDesignCharacteristics}(x, row.names = NULL,
-  optional = FALSE, niceColumnNamesEnabled = TRUE,
+  optional = FALSE, niceColumnNamesEnabled = FALSE,
   includeAllParameters = FALSE, ...)
 }
 \arguments{

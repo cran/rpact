@@ -1,4 +1,9 @@
 
+# rpact 2.04
+
+* Incorrect output of function 'summary' fixed for getSampleSize[...] and getPower[...]
+* as.data.frame: default value of argument 'niceColumnNamesEnabled' changed from TRUE to FALSE
+
 # rpact 2.03
 
 ## New features

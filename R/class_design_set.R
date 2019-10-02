@@ -530,7 +530,7 @@ length.TrialDesignSet <- function(x) {
 #' @keywords internal
 #' 
 as.data.frame.TrialDesignSet <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, 
+		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, 
 		addPowerAndAverageSampleNumber = FALSE, theta = seq(-1, 1, 0.02), nMax = NA_integer_, ...) {
 	
 	.assertIsTrialDesignSet(x)	

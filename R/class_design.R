@@ -301,7 +301,7 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 #' @keywords internal
 #'
 as.data.frame.TrialDesignCharacteristics <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...) {
+		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {
 	
 	x$.initStages()
 	parameterNamesToBeExcluded = c("nFixed", "shift")
@@ -879,7 +879,7 @@ plot.TrialDesign = function(x, y, main = NA_character_,
 #' @keywords internal
 #' 
 as.data.frame.TrialDesign <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = TRUE, includeAllParameters = FALSE, ...) {
+		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {
 		
 	.assertIsTrialDesign(x)
 	

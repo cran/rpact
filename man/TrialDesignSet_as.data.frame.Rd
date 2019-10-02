@@ -6,7 +6,7 @@
 \title{Coerce Trial Design Set to a Data Frame}
 \usage{
 \method{as.data.frame}{TrialDesignSet}(x, row.names = NULL,
-  optional = FALSE, niceColumnNamesEnabled = TRUE,
+  optional = FALSE, niceColumnNamesEnabled = FALSE,
   includeAllParameters = FALSE, addPowerAndAverageSampleNumber = FALSE,
   theta = seq(-1, 1, 0.02), nMax = NA_integer_, ...)
 }

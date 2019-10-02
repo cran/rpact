@@ -6,7 +6,7 @@
 \title{Coerce Trial Design Plan to a Data Frame}
 \usage{
 \method{as.data.frame}{TrialDesignPlan}(x, row.names = NULL,
-  optional = FALSE, niceColumnNamesEnabled = TRUE,
+  optional = FALSE, niceColumnNamesEnabled = FALSE,
   includeAllParameters = FALSE, ...)
 }
 \description{
