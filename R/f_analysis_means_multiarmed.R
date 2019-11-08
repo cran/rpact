@@ -31,6 +31,7 @@
 	return(indices)
 }
 
+.getMultivariateDistribution <- NULL
 #.getMultivariateDistribution <- function(type = c("normal", "t", "quantile"), ..., upper, sigma, 
 #		df = NA_real_, alpha = NA_real_) {
 #	
@@ -41,7 +42,7 @@
 #	} else if (type == "t") {
 #		return(mnormt::sadmvt(lower = -Inf, upper = upper, mean = 0, S = sigma, df = df))
 #	} else if (type == "quantile") {
-#		return(rpact:::.getOneDimensionalRoot(
+#		return(.getOneDimensionalRoot(
 #			function(x) {
 #				return(mnormt::pmnorm(x, varcov = sigma) - (1 - alpha)) 
 #			}, 
@@ -53,7 +54,7 @@
 #}
 
 .performClosedCombinationTest <- function(design, stageResults, intersectionTest,
-		multivariateDistributionFunction) {
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	dataInput <- stageResults$.dataInput
 	stage <- stageResults$stage
@@ -168,7 +169,7 @@
 }
 
 getClosedCombinationTestResults <- function(design, stageResults, 
-		multivariateDistributionFunction = NULL) {
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 		
 	.assertIsValidMultivariateDistributionFunctionDefined(multivariateDistributionFunction)
 		
@@ -207,7 +208,7 @@ getStageResultsMeansMultiArmed <- function(..., design, dataInput,
 		varianceOption = C_VARIANCES_OPTION_DEFAULT,
 		intersectionTest = C_INTERSECTIONTEST_MULTIARMED_DEFAULT,
 		calculateSingleStepAdjusted = FALSE,
-		multivariateDistributionFunction = NULL) {	
+		multivariateDistributionFunction = .getMultivariateDistribution) {	
 	
 	.assertIsTrialDesign(design)
 	.assertIsDatasetMeans(dataInput)
@@ -455,7 +456,7 @@ getStageResultsMeansMultiArmed <- function(..., design, dataInput,
 # Repeated p-values for multi-armed designs
 #
 getRepeatedPValuesMultiArmed <- function(design, stageResults, ..., 
-		multivariateDistributionFunction = NULL) {
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 		
 	.assertIsValidMultivariateDistributionFunctionDefined(multivariateDistributionFunction)
 	.warnInCaseOfUnknownArguments(functionName = "getRepeatedPValuesMultiArmed", ignore = c("stage"), ...)
@@ -591,7 +592,7 @@ getRepeatedConfidenceIntervalsMeansMultiArmed <- function(design, ...) {
 .getRootThetaMeansMultiArmed <- function(design, dataInput, treatmentArm, stage, 
 		directionUpper, normalApproximation, varianceOption, intersectionTest,
 		thetaLow, thetaUp, firstParameterName, secondValue, tolerance, 
-		multivariateDistributionFunction) {
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	result <- .getOneDimensionalRoot( 
 		function(theta) {
@@ -617,7 +618,7 @@ getRepeatedConfidenceIntervalsMeansMultiArmed <- function(design, ...) {
 
 .getUpperLowerThetaMeansMultiArmed <- function(design, dataInput, theta, treatmentArm, stage, 
 		directionUpper,	normalApproximation, varianceOption, conditionFunction, intersectionTest,
-		firstParameterName, secondValue, multivariateDistributionFunction) {
+		firstParameterName, secondValue, multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	stageResults <- getStageResultsMeansMultiArmed(design = design, dataInput = dataInput, 
 		stage = stage, thetaH0 = theta, directionUpper = directionUpper, 
@@ -656,7 +657,7 @@ getRepeatedConfidenceIntervalsMeansMultiArmed <- function(design, ...) {
 		varianceOption = C_VARIANCES_OPTION_DEFAULT, 
 		intersectionTest = C_INTERSECTIONTEST_MULTIARMED_DEFAULT,
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT, 
-		firstParameterName, multivariateDistributionFunction) {
+		firstParameterName, multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	kMax <- design$kMax
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput)
@@ -796,7 +797,7 @@ getRepeatedConfidenceIntervalsMeansMultiArmed <- function(design, ...) {
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		intersectionTest = C_INTERSECTIONTEST_MULTIARMED_DEFAULT,
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT,
-		multivariateDistributionFunction) {
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 			".getRepeatedConfidenceIntervalsMeansMultiArmedInverseNormal", ignore = c("stage"), ...)
@@ -818,7 +819,7 @@ getRepeatedConfidenceIntervalsMeansMultiArmed <- function(design, ...) {
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		intersectionTest = C_INTERSECTIONTEST_MULTIARMED_DEFAULT,
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT,
-		multivariateDistributionFunction) {
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 			".getRepeatedConfidenceIntervalsMeansMultiArmedFisher", ignore = c("stage"), ...)
@@ -834,7 +835,7 @@ getConditionalPowerMeansMultiArmed <- function(..., design, stageResults, stage 
 		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, 
 		thetaH1 = NA_real_, assumedStDevs = NA_real_,
 		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_,
-		multivariateDistributionFunction = NULL) {
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 		
 	.assertIsValidMultivariateDistributionFunctionDefined(multivariateDistributionFunction)
 	
@@ -913,7 +914,8 @@ getConditionalPowerMeansMultiArmed <- function(..., design, stageResults, stage 
 # Calculation of conditional power based on inverse normal method
 #
 .getConditionalPowerMeansMultiArmedInverseNormal <- function(..., design, stageResults, stage,
-		allocationRatioPlanned, nPlanned, thetaH1, assumedStDevs, multivariateDistributionFunction) {
+		allocationRatioPlanned, nPlanned, thetaH1, assumedStDevs, 
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	.assertIsTrialDesignInverseNormal(design)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansMultiArmedInverseNormal", 
@@ -990,7 +992,7 @@ getConditionalPowerMeansMultiArmed <- function(..., design, stageResults, stage 
 #
 .getConditionalPowerMeansMultiArmedFisher <- function(..., design, stageResults, stage,  
 		allocationRatioPlanned, nPlanned, thetaH1, assumedStDevs,
-		iterations, seed, multivariateDistributionFunction) {
+		iterations, seed, multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	.assertIsTrialDesignFisher(design)
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
@@ -1103,7 +1105,8 @@ getConditionalPowerMeansMultiArmed <- function(..., design, stageResults, stage 
 .getConditionalPowerPlotMeansMultiArmed <- function(..., stageResults, stage, 
 		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, 
 		thetaRange, assumedStDevs = NA_real_,
-		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_) {
+		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_,
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	if (!.associatedArgumentsAreDefined(nPlanned = nPlanned, thetaRange = thetaRange)) {
 		warning("A planned sample size (nPlanned) and ", 
@@ -1140,20 +1143,23 @@ getConditionalPowerMeansMultiArmed <- function(..., design, stageResults, stage 
 			condPowerValues[, i] <- .getConditionalPowerMeansMultiArmedInverseNormal(
 				design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
 				allocationRatioPlanned = allocationRatioPlanned, 
-				thetaH1 = thetaRange[i], assumedStDevs = assumedStDevs)$conditionalPower[,kMax]
+				thetaH1 = thetaRange[i], assumedStDevs = assumedStDevs,
+				multivariateDistributionFunction = multivariateDistributionFunction)$conditionalPower[, kMax]
 		}
 		else if (.isTrialDesignFisher(design)) {
 			condPowerValues[, i] <- .getConditionalPowerMeansMultiArmedFisher(
 				design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
 				allocationRatioPlanned = allocationRatioPlanned, 
 				thetaH1 = thetaRange[i], assumedStDevs = assumedStDevs, 
-				iterations = iterations, seed = seed)$conditionalPower[,kMax]
+				iterations = iterations, seed = seed,
+				multivariateDistributionFunction = multivariateDistributionFunction)$conditionalPower[, kMax]
 		}
 		else if (.isTrialDesignConditionalDunnett(design)) {
 			condPowerValues[, i] <- .getConditionalPowerMeansMultiArmedConditionalDunnett(
 				design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
 				allocationRatioPlanned = allocationRatioPlanned, 
-				thetaH1 = thetaRange[i], assumedStDevs = assumedStDevs)$conditionalPower[, 2]
+				thetaH1 = thetaRange[i], assumedStDevs = assumedStDevs,
+				multivariateDistributionFunction = multivariateDistributionFunction)$conditionalPower[, 2]
 		}
 		
 		likelihoodValues[, i] <- stats::dnorm(thetaRange[i], stageResults$effectSizes[,stage], stdErr) / 
@@ -1180,23 +1186,25 @@ getConditionalPowerMeansMultiArmed <- function(..., design, stageResults, stage 
 getPlotMeansMultiArmed <- function(..., stageResults, stage, 
 		nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, 
 		thetaRange, assumedStDevs = NA_real_,
-		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_, showArms = NA_real_) {
+		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_, showArms = NA_real_,
+		multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	z <- .getConditionalPowerPlotMeansMultiArmed(
 		stageResults = stageResults, stage = stage, 
 		nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, 
-		thetaRange = thetaRange, assumedStDevs = assumedStDevs, iterations = iterations, seed = seed)
+		thetaRange = thetaRange, assumedStDevs = assumedStDevs, iterations = iterations, seed = seed,
+		multivariateDistributionFunction = multivariateDistributionFunction)
 	
 	if (any(is.na(showArms))) {
 		showArms <- (1:nrow(stageResults$testStatistics))
 	} 	
-	plot(x = z$xValues,y = z$condPowerValues[showArms[1],], type = "l", 
+	graphics::plot(x = z$xValues,y = z$condPowerValues[showArms[1],], type = "l", 
 		xlab = z$xlab, main = z$main, sub = z$sub, 
 		ylab = z$ylab, ylim = c(0,1), lwd = 2, col = "Black")
 	
 	for (g in showArms) {
-		lines(z$xValues,z$condPowerValues[g,], lwd = 2, lty = 1, col = g)
-		lines(z$xValues,z$likelihoodValues[g,], lwd = 2, lty = 2, col = g)
+		graphics::lines(z$xValues,z$condPowerValues[g,], lwd = 2, lty = 1, col = g)
+		graphics::lines(z$xValues,z$likelihoodValues[g,], lwd = 2, lty = 2, col = g)
 	}
 }	
 
@@ -1204,7 +1212,7 @@ getPlotMeansMultiArmed <- function(..., stageResults, stage,
 # Conditional Dunnett test
 #
 getConditionalDunnettTest <- function(design = getDesignConditionalDunnett(), ...,
-		stageResults, stage = NA_integer_, multivariateDistributionFunction = NULL) {
+		stageResults, stage = NA_integer_, multivariateDistributionFunction = .getMultivariateDistribution) {
 	
 	.assertIsValidMultivariateDistributionFunctionDefined(multivariateDistributionFunction)
 		

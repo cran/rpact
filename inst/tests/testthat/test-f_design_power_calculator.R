@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 11 September 2019, 13:42:02                                                  #
+# Date: 06 November 2019, 17:12:32                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -675,8 +675,7 @@ test_that("'getPowerRates': power calculation of rate in one sample for one-side
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleRate}
 	powerResult <- getPowerRates(designGS1, groups = 1, thetaH0 = 0.4, 
-		pi1 = c(0.2,0.3,0.4), normalApproximation = TRUE, 
-		directionUpper = FALSE, maxNumberOfSubjects = 40)
+		pi1 = c(0.2,0.3,0.4), directionUpper = FALSE, maxNumberOfSubjects = 40)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -747,8 +746,7 @@ test_that("'getPowerRates': power calculation of rate in one sample for two-side
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleRate}
 	powerResult <- getPowerRates(designGS2, groups = 1, thetaH0 = 0.4, 
-		pi1 = seq(0.2,0.6,0.1), normalApproximation = TRUE, 
-		maxNumberOfSubjects = 40)
+		pi1 = seq(0.2,0.6,0.1), maxNumberOfSubjects = 40)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -787,8 +785,8 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
 	powerResult <- getPowerRates(designGS1, groups = 2, thetaH0 = 0.1, 
-		pi2 = 0.4, pi1 = c(0.1,0.2,0.3), normalApproximation = TRUE, 
-		directionUpper = FALSE, maxNumberOfSubjects = 40, allocationRatioPlanned = 3)
+		pi2 = 0.4, pi1 = c(0.1,0.2,0.3), directionUpper = FALSE, 
+		maxNumberOfSubjects = 40, allocationRatioPlanned = 3)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -827,8 +825,8 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
 	powerResult <- getPowerRates(designGS1, groups = 2, thetaH0 = -0.1, 
-		pi2 = 0.4, pi1 = c(0.2, 0.3, 0.4, 0.5), normalApproximation = TRUE, 
-		directionUpper = TRUE, maxNumberOfSubjects = 80, allocationRatioPlanned = 3)
+		pi2 = 0.4, pi1 = c(0.2, 0.3, 0.4, 0.5), directionUpper = TRUE, 
+		maxNumberOfSubjects = 80, allocationRatioPlanned = 3)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -874,8 +872,8 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
 	# @refFS[Formula]{fs:EstimatesRatioFarringtonManning}
 	powerResult <- getPowerRates(designGS1, groups = 2, thetaH0 = 0.8, 
-		pi2 = 0.5, pi1 = c(0.1,0.2,0.3), riskRatio = T, normalApproximation = TRUE, 
-		directionUpper = FALSE, maxNumberOfSubjects = 40, allocationRatioPlanned = 5)
+		pi2 = 0.5, pi1 = c(0.1,0.2,0.3), riskRatio = T, directionUpper = FALSE, 
+		maxNumberOfSubjects = 40, allocationRatioPlanned = 5)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -914,8 +912,8 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
 	# @refFS[Formula]{fs:EstimatesRatioFarringtonManning}
 	powerResult <- getPowerRates(designGS1, groups = 2, thetaH0 = 0.8, 
-		pi2 = 0.4, pi1 = c(0.4, 0.5, 0.6), riskRatio = T, normalApproximation = TRUE, 
-		directionUpper = TRUE, maxNumberOfSubjects = 80, allocationRatioPlanned = 3)
+		pi2 = 0.4, pi1 = c(0.4, 0.5, 0.6), riskRatio = T, directionUpper = TRUE, 
+		maxNumberOfSubjects = 80, allocationRatioPlanned = 3)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -961,8 +959,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
 	powerResult <- getPowerRates(designGS2, groups = 2, pi2 = 0.5, pi1 = c(0.1,0.2,0.3), 
-		riskRatio = F, normalApproximation = TRUE, 
-		maxNumberOfSubjects = 40, allocationRatioPlanned = 0.5)
+		riskRatio = F, maxNumberOfSubjects = 40, allocationRatioPlanned = 0.5)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -997,8 +994,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
 	# @refFS[Formula]{fs:EstimatesRatioFarringtonManning}
 	powerResult <- getPowerRates(designGS2, groups = 2, pi2 = 0.4, pi1 = c(0.4, 0.5, 0.6), 
-		riskRatio = T, normalApproximation = TRUE, 
-		maxNumberOfSubjects = 80, allocationRatioPlanned = 7)
+		riskRatio = T, maxNumberOfSubjects = 80, allocationRatioPlanned = 7)
 
 	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
@@ -2030,6 +2026,7 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
 	##
 	expect_equal(powerResult$lambda1, c(0.015, 0.03, 0.06), tolerance = 1e-07)
+	expect_equal(powerResult$hazardRatio, 1.5, tolerance = 1e-07)
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, 4.2070411, tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], 12.173669, tolerance = 1e-07)
@@ -2097,6 +2094,7 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 	expect_equal(powerResult$pi2, 0.9375, tolerance = 1e-07)
 	expect_equal(powerResult$median1, 5, tolerance = 1e-07)
 	expect_equal(powerResult$median2, 3)
+	expect_equal(powerResult$hazardRatio, 0.6, tolerance = 1e-07)
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, -5.9093279, tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], 6.0906721, tolerance = 1e-07)
@@ -2124,6 +2122,7 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 	expect_equal(powerResult$pi2, 0.99998474, tolerance = 1e-07)
 	expect_equal(powerResult$median1, 5, tolerance = 1e-07)
 	expect_equal(powerResult$median2, 3)
+	expect_equal(powerResult$hazardRatio, 0.36, tolerance = 1e-07)
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, -5.7378582, tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], 6.2621418, tolerance = 1e-07)

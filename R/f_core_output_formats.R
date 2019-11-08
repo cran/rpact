@@ -56,7 +56,7 @@
 	return(value)
 }
 
-.getDecimalPlaces <- function(value) {
+.getPValueDecimalPlaces <- function(value) {
 	value <- stats::na.omit(value)
 	if (length(value) == 0) {
 		return(4)
@@ -90,9 +90,11 @@ formatPValues <- function(value) {
 		return(value)
 	}
 	
-	decimalPlaces <- .getDecimalPlaces(value)
+	decimalPlaces <- .getPValueDecimalPlaces(value)
 	if (is.na(decimalPlaces) || is.nan(decimalPlaces)) {
 		decimalPlaces <- 4
+	} else if (decimalPlaces > 4) {
+		decimalPlaces <- decimalPlaces - 1
 	}
 	
 	threshold <- 10^-decimalPlaces
@@ -470,5 +472,9 @@ formatVariableName <- function(name, n, prefix = "", postfix = "") {
 	name <- paste0("  ", name, " :")
 	
 	return(name)
+}
+
+formatHowItIs <- function(value) {
+	return(format(value, scientific = FALSE))
 }
 

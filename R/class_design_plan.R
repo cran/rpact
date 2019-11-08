@@ -105,7 +105,7 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 			.plotSettings <<- PlotSettings()
 			.parameterNames <<- .getParameterNames(design, .self)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
-						
+			
 			if (.isTrialDesignPlanMeans(.self)) {
 				defaultValueList <- C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_MEANS
 			}
@@ -158,15 +158,15 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 			return(.plotSettings)
 		},
 		
-		show = function(showType = 1) {
-			.show(showType = showType, consoleOutputEnabled = TRUE)
+		show = function(showType = 1, digits = NA_integer_) {
+			.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
 		},
 		
-		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
+		.show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing trial plan objects'
 			.resetCat()
 			if (showType == 3) {
-				parameterList <- .getSimpleBoundarySummary(.self)
+				parameterList <- .createSummary(.self, digits = digits)
 				for (parameterName in names(parameterList)) {
 					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
 						consoleOutputEnabled = consoleOutputEnabled)
@@ -368,6 +368,7 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 				allocationRatioPlanned = allocationRatioPlanned
 				)
 			
+			optimumAllocationRatio <<- FALSE
 			visibleFieldNames <- .getVisibleFieldNames()
 			startIndex <- which(visibleFieldNames == "directionUpper")
 			for (i in startIndex:length(visibleFieldNames)) {
@@ -415,9 +416,9 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 			}
 		},
 		
-		show = function(showType = 1) {
+		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial plan objects'
-			callSuper(showType)
+			callSuper(showType = showType, digits = digits)
 		}
 	)
 )
@@ -507,6 +508,7 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 				groups = groups, 
 				allocationRatioPlanned = allocationRatioPlanned)
 			
+			optimumAllocationRatio <<- FALSE
 			visibleFieldNames <- .getVisibleFieldNames()
 			startIndex <- which(visibleFieldNames == "directionUpper")
 			for (i in startIndex:length(visibleFieldNames)) {
@@ -542,7 +544,6 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned")))
 			} else {
 				return(getPowerRates(design = .self$.design, 
-					normalApproximation = .self$.getParameterValueIfUserDefinedOrDefault("normalApproximation"), 
 					riskRatio = .self$riskRatio, #.getParameterValueIfUserDefinedOrDefault("riskRatio"), 
 					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
 					pi1 = pi1Temp, 
@@ -554,9 +555,9 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 			}
 		},
 		
-		show = function(showType = 1) {
+		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial plan objects'
-			callSuper(showType)
+			callSuper(showType = showType, digits = digits)
 		}
 	)
 )
@@ -658,6 +659,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		initialize = function(...) {
 			callSuper(...)
 	
+			optimumAllocationRatio <<- FALSE
 			visibleFieldNames <- .getVisibleFieldNames()
 			startIndex <- which(visibleFieldNames == "hazardRatio")
 			for (i in startIndex:length(visibleFieldNames)) {
@@ -766,9 +768,9 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 			}
 		},
 		
-		show = function(showType = 1) {
+		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial plan objects'
-			callSuper(showType)
+			callSuper(showType = showType, digits = digits)
 		}, 
 		
 		.warnInCaseArgumentExists = function(argument, argumentName) {
@@ -796,9 +798,9 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 #' 
 #' @keywords internal
 #' 
-summary.TrialDesignPlanSurvival <- function(object, ..., type = 1) {
+summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_integer_) {
 	if (type == 1) {
-		return(invisible(summary.ParameterSet(object = object, ..., type = type)))
+		return(invisible(summary.ParameterSet(object = object, ..., type = type, digits = digits)))
 	} 
 	
 	object$.cat("This output summarizes the ", object$.toString(), " specification.\n\n", heading = 1)
@@ -1258,7 +1260,7 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1) {
 				}
 				
 				if (is.na(legendPosition)) {
-					legendPosition <- C_POSITION_LEFT_TOP
+					legendPosition <- C_POSITION_RIGHT_TOP
 				}
 				yParameterNamesSrc <- c("eventsFixed", 
 					paste0("eventsPerStage[", designMaster$kMax, ", ]"), "expectedEventsH1")
@@ -1289,35 +1291,28 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1) {
 			}
 			yParameterNames <- c("overallReject", "futilityStop", "earlyStop")
 			
-			if (.isTrialDesignPlanRates(designPlan)) {
-				if (is.na(ylab)) {
-					ylab <- ""
-				}
-				if (is.na(legendPosition)) {
-					legendPosition <- C_POSITION_LEFT_TOP
-				}
-				if (is.null(list(...)[["ylim"]])) {
-					ylim <- c(0, 1)
-					return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
-						xParameterName = xParameterName,
-						yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
-						palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
-						legendPosition = legendPosition, variedParameters = variedParameters, 
-						qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...))
-				} else {
-					return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
-						xParameterName = xParameterName,
-						yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
-						palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
-						legendPosition = legendPosition, variedParameters = variedParameters, 
-						qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
-				}
-			} else {
-				if (is.na(legendPosition)) {
-					legendPosition <- C_POSITION_RIGHT_CENTER
-				}
+			if (is.na(ylab)) {
+				ylab <- ""
 			}
-			
+			if (is.na(legendPosition)) {
+				legendPosition <- C_POSITION_LEFT_TOP
+			}
+			if (is.null(list(...)[["ylim"]])) {
+				ylim <- c(0, 1)
+				return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
+					xParameterName = xParameterName,
+					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+					legendPosition = legendPosition, variedParameters = variedParameters, 
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...))
+			} else {
+				return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
+					xParameterName = xParameterName,
+					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+					legendPosition = legendPosition, variedParameters = variedParameters, 
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+			}
 			.showPlotSourceInformation(objectName = designPlanName, 
 				xParameterName = xParameterName, 
 				yParameterNames = yParameterNames, 
@@ -1573,14 +1568,14 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1) {
 		.addPlotSubTitleItems(designPlan, designMaster, items, type)
 		if (!piecewiseSurvivalEnabled) {
 			if (designPlan$.piecewiseSurvivalTime$.isLambdaBased(minNumberOfLambdas = 1)) {
-				items$add("lambda", designPlan$lambda1[1], 1)
-				items$add("lambda", designPlan$lambda2, 2)
+				items$add("lambda", round(designPlan$lambda1[1],4), 1)
+				items$add("lambda", round(designPlan$lambda2,4), 2)
 			} else {
-				items$add("pi", designPlan$pi1[1], 1)
-				items$add("pi", designPlan$pi2, 2)
+				items$add("pi", round(designPlan$pi1[1],3), 1)
+				items$add("pi", round(designPlan$pi2,3), 2)
 			}
 		} else if (length(designPlan$hazardRatio) == 1) {
-			items$add("Hazard Ratio", designPlan$hazardRatio[1])
+			items$add("Hazard Ratio", round(designPlan$hazardRatio[1],3))
 		}
 		main <- items$toQuote()
 	}
@@ -1623,7 +1618,7 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1) {
 	} else {
 		if (designPlan$.piecewiseSurvivalTime$.isLambdaBased(minNumberOfLambdas = 1)) {
 			if (length(designPlan$lambda1) > 1) {
-				warning("Only the first 'lambda1' (", designPlan$lambda1[1], ") was used for plotting", call. = FALSE)
+				warning("Only the first 'lambda1' (", round(designPlan$lambda1[1],4), ") was used for plotting", call. = FALSE)
 			}
 		} else {
 			.warnInCaseOfUnusedValuesForPlottingRates(designPlan$pi1)

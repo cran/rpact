@@ -42,6 +42,8 @@ NULL
 #' @param lambda2 The assumed hazard rate in the reference group, there is no default.
 #'  	  lambda2 can also be used to define piecewise exponentially distributed survival times 
 #'        (see details).
+#' @param median1 The assumed median survival time in the treatment group, there is no default.
+#' @param median2 The assumed median survival time in the reference group, there is no default.
 #' @param hazardRatio The vector of hazard ratios under consideration. 
 #'        If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
 #'        not to be specified as it is calculated. 
@@ -312,20 +314,13 @@ NULL
 #'     maxNumberOfSubjects = 200, maxNumberOfIterations = 50)
 #' 
 #' # Specify effect size based on median survival times
-#' median1 <- 5
-#' median2 <- 3
-#' getSimulationSurvival(lambda1 = log(2) / median1, 
-#' 	   lambda2 = log(2) / median2, plannedEvents = 40, 
+#' getSimulationSurvival(median1 = 5, median2 = 3, plannedEvents = 40, 
 #' 	   maxNumberOfSubjects = 200, directionUpper = FALSE, 
 #'     maxNumberOfIterations = 50)
 #' 
 #' # Specify effect size based on median survival 
 #' # times of Weibull distribtion with kappa = 2
-#' median1 <- 5
-#' median2 <- 3
-#' kappa <- 2
-#' getSimulationSurvival(lambda1 = log(2)^(1 / kappa) / median1, 
-#' 	   lambda2 = log(2)^(1 / kappa) / median2, kappa = kappa, 
+#' getSimulationSurvival(median1 = 5, median2 = 3, kappa = 2, 
 #' 	   plannedEvents = 40, maxNumberOfSubjects = 200, 
 #'     directionUpper = FALSE, maxNumberOfIterations = 50)
 #' 
@@ -394,6 +389,8 @@ getSimulationSurvival <- function(design = NULL, ...,
 		pi2 = NA_real_,
 		lambda1 = NA_real_, 
 		lambda2 = NA_real_,
+		median1 = NA_real_,	
+		median2 = NA_real_, 
 		hazardRatio = NA_real_,
 		kappa = 1,	
 		piecewiseSurvivalTime = NA_real_,
@@ -553,7 +550,7 @@ getSimulationSurvival <- function(design = NULL, ...,
 	simulationResults$.setParameterType("plannedEvents", C_PARAM_USER_DEFINED)
 	
 	pwsTimeObject <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = piecewiseSurvivalTime, 
-		lambda2 = lambda2, lambda1 = lambda1, 
+		lambda2 = lambda2, lambda1 = lambda1, median1 = median1, median2 = median2,
 		hazardRatio = hazardRatio, pi1 = pi1, pi2 = pi2, eventTime = eventTime, kappa = kappa,
 		delayedResponseAllowed = TRUE, .pi1Default = C_PI_1_DEFAULT)
 	
@@ -648,6 +645,8 @@ getSimulationSurvival <- function(design = NULL, ...,
 	.setValueAndParameterType(simulationResults, "thetaH0", thetaH0, C_THETA_H0_SURVIVAL_DEFAULT)
 	.setValueAndParameterType(simulationResults, "allocation1", allocation1, C_ALLOCATION_1_DEFAULT)
 	.setValueAndParameterType(simulationResults, "allocation2", allocation2, C_ALLOCATION_2_DEFAULT)
+	allocationRatioPlanned <- allocation1 / allocation2
+	.setValueAndParameterType(simulationResults, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	.setValueAndParameterType(simulationResults, "conditionalPower", conditionalPower, NA_real_)
 	if (!is.na(thetaH0) && !is.na(thetaH1) && thetaH0 != 1) {
 		thetaH1 <- thetaH1 / thetaH0
@@ -761,7 +760,6 @@ getSimulationSurvival <- function(design = NULL, ...,
 	simulationResults$eventsNotAchieved <- matrix(overview$eventsNotAchieved, nrow = design$kMax)
 	simulationResults$numberOfSubjects <- matrix(overview$numberOfSubjects, nrow = design$kMax)
 	
-	allocationRatioPlanned <- allocation1 / allocation2
 	simulationResults$numberOfSubjects1 <- 
 		.getNumberOfSubjects1(simulationResults$numberOfSubjects, allocationRatioPlanned)
 	simulationResults$numberOfSubjects2 <- 

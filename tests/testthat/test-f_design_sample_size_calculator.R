@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 11 September 2019, 13:42:06                                                  #
+# Date: 06 November 2019, 17:12:36                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -3884,7 +3884,6 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	expect_equal(sampleSizeResult$lambda1, c(0.025476782, 0.036487545), tolerance = 1e-07)
 	expect_equal(sampleSizeResult$lambda2, 0.015938825, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$hazardRatio, c(1.5984103, 2.2892242), tolerance = 1e-07)
-	expect_equal(sampleSizeResult$maxNumberOfSubjects, c(194, 194))
 	expect_equal(sampleSizeResult$maxNumberOfSubjects1, c(145.5, 145.5), tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfSubjects2, c(48.5, 48.5), tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfEvents, c(132.64612, 45.793857), tolerance = 1e-07)
@@ -4373,6 +4372,7 @@ test_that("'getSampleSizeSurvival': Specification of piecewise exponential survi
 	##
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
 	expect_equal(sampleSizeResult$lambda1, c(0.015, 0.03, 0.06), tolerance = 1e-07)
+	expect_equal(sampleSizeResult$hazardRatio, 1.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfSubjects, 762.70199, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfSubjects1, 381.35099, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfSubjects2, 381.35099, tolerance = 1e-07)
@@ -4454,6 +4454,7 @@ test_that("'getSampleSizeSurvival': Specify effect size based on median survival
 	expect_equal(sampleSizeResult$pi2, 0.9375, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$median1, 5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$median2, 3)
+	expect_equal(sampleSizeResult$hazardRatio, 0.6, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfEvents, 120.3157, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$calculateFollowUpTime, FALSE)
 	expect_equal(sampleSizeResult$nFixed, 141.26641, tolerance = 1e-07)
@@ -4480,6 +4481,7 @@ test_that("'getSampleSizeSurvival': Specify effect size based on median survival
 	expect_equal(sampleSizeResult$pi2, 0.99998474, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$median1, 5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$median2, 3)
+	expect_equal(sampleSizeResult$hazardRatio, 0.36, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfEvents, 30.078926, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$calculateFollowUpTime, FALSE)
 	expect_equal(sampleSizeResult$nFixed, 31.248566, tolerance = 1e-07)
@@ -4506,6 +4508,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfSubjects, 477.30924, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$accrualTime, c(6, 12.515269), tolerance = 1e-07)
@@ -4529,6 +4532,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult2$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult2$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult2$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult2$maxNumberOfSubjects, 741.77932, tolerance = 1e-07)
 	expect_equal(sampleSizeResult2$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult2$accrualTime, c(6, 17.50527), tolerance = 1e-07)
@@ -4555,6 +4559,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult3$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult3$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult3$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult3$maxNumberOfSubjects, 70.679258, tolerance = 1e-07)
 	expect_equal(sampleSizeResult3$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult3$accrualTime, 3.2126936, tolerance = 1e-07)
@@ -4578,6 +4583,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult4$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult4$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult4$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult4$maxNumberOfSubjects, 11288.779, tolerance = 1e-07)
 	expect_equal(sampleSizeResult4$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult4$accrualTime, c(6, 216.50527), tolerance = 1e-07)
@@ -4602,6 +4608,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult5$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult5$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult5$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult5$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult5$maxNumberOfSubjects, 131.99999, tolerance = 1e-07)
 	expect_equal(sampleSizeResult5$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult5$accrualTime, 5.9999996, tolerance = 1e-07)
@@ -4625,6 +4632,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult6$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult6$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult6$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult6$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult6$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult6$accrualTime, c(60, 9469.0566), tolerance = 1e-07)
 	expect_equal(sampleSizeResult6$totalAccrualTime, 9469.0566, tolerance = 1e-07)
@@ -4649,6 +4657,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult7$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult7$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult7$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult7$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult7$maxNumberOfSubjects, 132.8172, tolerance = 1e-07)
 	expect_equal(sampleSizeResult7$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult7$accrualTime, c(6, 6.0154188), tolerance = 1e-07)
@@ -4673,6 +4682,7 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	expect_equal(sampleSizeResult8$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(sampleSizeResult8$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(sampleSizeResult8$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult8$hazardRatio, 0.5, tolerance = 1e-07)
 	expect_equal(sampleSizeResult8$maxNumberOfSubjects, 130.99398, tolerance = 1e-07)
 	expect_equal(sampleSizeResult8$maxNumberOfEvents, 65.345659, tolerance = 1e-07)
 	expect_equal(sampleSizeResult8$accrualTime, 5.9542719, tolerance = 1e-07)
@@ -4698,6 +4708,104 @@ test_that("'getSampleSizeSurvival': Calculation of median1 and median2", {
 		lambda2 = log(2)^(1 / kappa) / 5, kappa = kappa)
 	expect_equal(sampleSizeResult2$median1, 3)
 	expect_equal(sampleSizeResult2$median2, 5)
+
+	sampleSizeResult1 <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
+		median2 = 4, median1 = c(5), followUpTime = 5)
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult1' with expected results
+	##
+	expect_equal(sampleSizeResult1$directionUpper, FALSE)
+	expect_equal(sampleSizeResult1$pi1, 0.81053543, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$pi2, 0.875, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$lambda1, 0.13862944, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$lambda2, 0.1732868, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$hazardRatio, 0.8, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$maxNumberOfSubjects, 770.8069, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$maxNumberOfEvents, 630.52017, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$accrualTime, c(6, 18.05296), tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$totalAccrualTime, 18.05296, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeResult1$nFixed, 770.8069, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$nFixed1, 385.40345, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$nFixed2, 385.40345, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$analysisTime[1, ], 23.052959, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$studyDuration, 23.052959, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$criticalValuesEffectScale[1, ], 0.85546574, tolerance = 1e-07)
+	expect_equal(sampleSizeResult1$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeResult2 <- getSampleSizeSurvival(median2 = 25, lambda1 = c(0.021, 0.023), maxNumberOfSubjects = 2280)
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult2' with expected results
+	##
+	expect_equal(sampleSizeResult2$directionUpper, c(FALSE, FALSE))
+	expect_equal(sampleSizeResult2$pi1, c(0.22275526, 0.24118707), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$pi2, 0.28302238, tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$median1, c(33.007009, 30.136834), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$lambda2, 0.027725887, tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$hazardRatio, c(0.7574149, 0.82954965), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$maxNumberOfEvents, c(406.69171, 899.03732), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$accrualIntensity, 190)
+	expect_equal(sampleSizeResult2$followUpTime, c(2.2277357, 13.964693), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeResult2$nFixed, c(2280, 2280))
+	expect_equal(sampleSizeResult2$nFixed1, c(1140, 1140))
+	expect_equal(sampleSizeResult2$nFixed2, c(1140, 1140))
+	expect_equal(sampleSizeResult2$analysisTime[1, ], c(14.227736, 25.964693), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$studyDuration, c(14.227736, 25.964693), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$criticalValuesEffectScale[1, ], c(0.82334724, 0.87745097), tolerance = 1e-07)
+	expect_equal(sampleSizeResult2$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeResult3 <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
+		median2 = 50, lambda1 = 0.01, followUpTime = 5)
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult3' with expected results
+	##
+	expect_equal(sampleSizeResult3$directionUpper, FALSE)
+	expect_equal(sampleSizeResult3$pi1, 0.11307956, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$pi2, 0.15325469, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$median1, 69.314718, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$lambda2, 0.013862944, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$hazardRatio, 0.72134752, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$maxNumberOfSubjects, 1477.2065, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$maxNumberOfEvents, 294.26878, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$accrualTime, c(6, 31.381254), tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$totalAccrualTime, 31.381254, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeResult3$nFixed, 1477.2065, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$nFixed1, 738.60324, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$nFixed2, 738.60324, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$analysisTime[1, ], 36.381254, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$studyDuration, 36.381254, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$criticalValuesEffectScale[1, ], 0.79571801, tolerance = 1e-07)
+	expect_equal(sampleSizeResult3$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeResult4 <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
+		lambda2 = 0.02, median1 = 32, followUpTime = 5)
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult4' with expected results
+	##
+	expect_equal(sampleSizeResult4$directionUpper, TRUE)
+	expect_equal(sampleSizeResult4$pi1, 0.22889459, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$pi2, 0.21337214, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$median2, 34.657359, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$lambda1, 0.021660849, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$hazardRatio, 1.0830425, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$maxNumberOfSubjects, 7086.5152, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$maxNumberOfEvents, 4933.3616, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$accrualTime, c(6, 137.21727), tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$totalAccrualTime, 137.21727, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeResult4$nFixed, 7086.5152, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$nFixed1, 3543.2576, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$nFixed2, 3543.2576, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$analysisTime[1, ], 142.21727, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$studyDuration, 142.21727, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$criticalValuesEffectScale[1, ], 1.057396, tolerance = 1e-07)
+	expect_equal(sampleSizeResult4$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
 
 })
 
@@ -4773,21 +4881,39 @@ context("Testing expected warnings and errors")
 test_that("'getSampleSizeSurvival': illegal arguments", {
 	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
 			lambda2 = 0.02, lambda1 = c(0.01, 0.015), followUpTime = 5),
-		paste0("Illegal argument: 'hazardRatio' can only be calculated if 'unique(lambda1 / lambda2)' ", 
-			"result in a single value; current result = c(0.5, 0.75) (delayed response is not allowed)"), fixed = TRUE)
+		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+			"is only available for a single 'lambda1'; lambda1 = c(0.01, 0.015)"), fixed = TRUE)
+
+	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
+			lambda2 = 0.02, median1 = c(5, 6), followUpTime = 5),
+		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+			"is only available for a single 'lambda1'; lambda1 = c(0.139, 0.116)"), fixed = TRUE)
+
+	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
+			median2 = 4, median1 = c(5, 6), followUpTime = 5),
+		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+			"is only available for a single 'median1'; median1 = c(5, 6)"), fixed = TRUE)
+
+	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
+			pi2 =  0.213, pi1 = c(0.113, 0.165), followUpTime = 5),
+		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+			"is only available for a single 'pi1'; pi1 = c(0.113, 0.165)"), fixed = TRUE)
 
 	expect_error(getSampleSizeSurvival(accrualTime = c(0), pi1 = c(0.4, 0.5), 
 			accrualIntensity = c(22), followUpTime = 6),
-		"Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' is only available for a single 'pi1' (pi1 = c(0.4, 0.5))", 
+		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+			"is only available for a single 'pi1'; pi1 = c(0.4, 0.5)"), 
 		fixed = TRUE)
 
 	expect_warning(getSampleSizeSurvival(accrualTime = c(0, 6, 30), pi1 = 0.4,
 		accrualIntensity = c(0.22, 0.53), maxNumberOfSubjects = 1000),
-		"Accrual duration longer than maximal study duration (time to maximal number of events); followUpTime = -17.501", fixed = TRUE)
+		"Accrual duration longer than maximal study duration (time to maximal number of events); followUpTime = -17.501", 
+		fixed = TRUE)
 
 	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), pi1 = 0.4,
 		accrualIntensity = c(0.22, 0.53), maxNumberOfSubjects = 1000),
-		"Illegal argument: the calulation of 'followUpTime' for given 'maxNumberOfSubjects' and relative accrual intensities (< 1) can only be done if end of accrual is defined", fixed = TRUE)
+		paste0("Illegal argument: the calulation of 'followUpTime' for given 'maxNumberOfSubjects' and ",
+			"relative accrual intensities (< 1) can only be done if end of accrual is defined"), fixed = TRUE)
 
 	expect_error(getSampleSizeSurvival(lambda2 = -1, hazardRatio = 2),
 		"Argument out of bounds: 'lambda2' (-1) must be >= 0", fixed = TRUE)

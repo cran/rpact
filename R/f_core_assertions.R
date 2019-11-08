@@ -443,7 +443,7 @@
 			.arrayToString(x, vectorLookAndFeelEnabled = TRUE), " must be a single integer value")
 	}
 	
-	if ((!naAllowed && is.na(x)) || (validateType && !is.integer(x)) || (!validateType && as.integer(x) != x)) {
+	if ((!naAllowed && is.na(x)) || (validateType && !is.integer(x)) || (!validateType && !is.na(x) && as.integer(x) != x)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", x, ") must be a valid single integer value")
 	}
 }
@@ -1149,7 +1149,7 @@
 	
 	if (any(piValue <= 0) || any(piValue >= 1)) {
 		stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, 
-			"'", piName, "' (", .arrayToString(piValue), ") is out of bounds (0; 1)") 
+			"'", piName, "' (", .arrayToString(piValue), ") is out of bounds (0; 1) or event time too long") 
 	}
 }
 
@@ -1200,7 +1200,8 @@
 			maxNumberOfSubjects > 0 && allocationRatioPlanned == 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"determination of optimal allocation ratio not possible ", 
-			"if 'maxNumberOfSubjects' > 0, i.e., follow-up time should be calculated ",
+			"if explicit or implicit 'maxNumberOfSubjects' (", maxNumberOfSubjects, 
+			") > 0, i.e., follow-up time should be calculated ",
 			"(please specify an 'allocationRatioPlanned' > 0)")
 	}
 }
@@ -1403,11 +1404,15 @@
 .assertIsValidMinNumberOfSubjectsPerStage <- function(
 		parameterValues, parameterName, plannedSubjects, conditionalPower, kMax) {
 		
-	if (kMax == 1 || is.na(conditionalPower)) {
+	if (kMax == 1) {
 		return(invisible(NA_real_))
 	}
 	
 	.assertIsNumericVector(parameterValues, parameterName, naAllowed = TRUE)
+	
+	if (is.na(conditionalPower)) {
+		return(parameterValues)
+	}
 	
 	if (length(parameterValues) == 0 || (length(parameterValues) == 1 && is.na(parameterValues))) {
 		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 

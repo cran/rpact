@@ -350,7 +350,7 @@ NULL
 		gammaB = 1, 
 		bindingFutility = C_BINDING_FUTILITY_DEFAULT,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
-		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
+		twoSidedPower = NA,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
 	
 	if (designClass == C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
@@ -392,7 +392,14 @@ NULL
 		warning("'constantBoundsHP' (", constantBoundsHP, 
 			") will be ignored because it is only applicable for 'typeOfDesign' = \"", C_TYPE_OF_DESIGN_HP, "\"")
 	}
-	design$twoSidedPower <- twoSidedPower
+	if (is.na(twoSidedPower)) {
+		design$twoSidedPower <- FALSE
+		design$.setParameterType("twoSidedPower", C_PARAM_DEFAULT_VALUE)
+	} else {
+		design$twoSidedPower <- twoSidedPower
+		design$.setParameterType("twoSidedPower", C_PARAM_USER_DEFINED)
+	}
+	
 	design$tolerance <- tolerance
 	
 	return(design)
@@ -1067,7 +1074,7 @@ getDesignInverseNormal <- function(
 		gammaB = 1, 
 		bindingFutility = C_BINDING_FUTILITY_DEFAULT,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
-		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
+		twoSidedPower = NA,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT, 
 		userFunctionCallEnabled = FALSE) {
 	
@@ -1117,9 +1124,11 @@ getDesignInverseNormal <- function(
 		.assertDesignParameterExists(design, "sided", 1)
 		.assertDesignParameterExists(design, "typeOfDesign", C_DEFAULT_TYPE_OF_DESIGN)
 		.assertDesignParameterExists(design, "bindingFutility", C_BINDING_FUTILITY_DEFAULT)
-		.assertDesignParameterExists(design, "twoSidedPower", C_TWO_SIDED_POWER_DEFAULT)
+		#.assertDesignParameterExists(design, "twoSidedPower", C_TWO_SIDED_POWER_DEFAULT)
 		.assertDesignParameterExists(design, "tolerance", C_DESIGN_TOLERANCE_DEFAULT)
 	}
+	
+	
 	
 	if (design$sided == 2 && design$bindingFutility) {
 		warning("'bindingFutility' will be ignored because the test is defined as two-sided", call. = FALSE)
@@ -1274,7 +1283,7 @@ getDesignGroupSequential <- function(
 		userAlphaSpending = NA_real_, userBetaSpending = NA_real_, gammaB = 1, 
 		bindingFutility = NA,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
-		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
+		twoSidedPower = NA,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
 		
 	.warnInCaseOfUnknownArguments(functionName = "getDesignGroupSequential", ...)

@@ -1,4 +1,16 @@
 
+# rpact 2.05
+
+* Assumed median survival time: get[SampleSize/Power/Simulation]Survival now support direct input of arguments 'median1' and 'median2'
+* Output of generic function 'summary' improved
+* Plot type 5 of getPower[...] and getSimulation[...] objects improved
+* Output of getSampleSizeSurvival with given maxNumberOfSubjects improved
+* Output of get[SampleSize/Power]Survival for Kappa != 1 improved
+* Assert function for minNumberOfSubjectsPerStage corrected for undefined conditionalPower
+* Two-sided boundaries on effect scale in survival design improved
+* Error in 'summary' for getDesign[...] fixed
+* Other minor improvements
+
 # rpact 2.04
 
 * Incorrect output of function 'summary' fixed for getSampleSize[...] and getPower[...]

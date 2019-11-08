@@ -74,15 +74,15 @@ SimulationResults <- setRefClass("SimulationResults",
 			.showStatistics <<- showStatistics
 		},
 		
-		show = function(showType = 1, showStatistics = TRUE) {
-			.show(showType = showType, consoleOutputEnabled = TRUE, showStatistics = showStatistics)
+		show = function(showType = 1, digits = NA_integer_, showStatistics = TRUE) {
+			.show(showType = showType, digits = digits, showStatistics = showStatistics, consoleOutputEnabled = TRUE)
 		},
 		
-		.show = function(showType = 1, consoleOutputEnabled = TRUE, showStatistics = TRUE) {
+		.show = function(showType = 1, digits = NA_integer_, showStatistics = TRUE, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing simulation result objects'	
 			.resetCat()
 			if (showType == 3) {
-				parameterList <- .getSimpleBoundarySummary(.self)
+				parameterList <- .createSummary(.self, digits = digits)
 				for (parameterName in names(parameterList)) {
 					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
 						consoleOutputEnabled = consoleOutputEnabled)
@@ -459,6 +459,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		pi2 = "numeric",
 		median1 = "numeric", 
 		median2 = "numeric", 
+		allocationRatioPlanned = "numeric",	
 		directionUpper = "logical",
 		dropoutRate1 = "numeric",
 		dropoutRate2 = "numeric",
@@ -516,7 +517,8 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 					"futilityStop", 
 					"earlyStop",
 					"analysisTime", 
-					"studyDuration")) {
+					"studyDuration",
+					"allocationRatioPlanned")) {
 				.setParameterType(generatedParam, C_PARAM_GENERATED)
 			}
 			.setParameterType("numberOfSubjects1", C_PARAM_NOT_APPLICABLE)
@@ -549,11 +551,11 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 				is.na(simulationResults$hazardRatio) || 
 				length(simulationResults$hazardRatio) <= 1) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
-				" is only available if 'hazardRatio' with length > 1 is defined")
+				" is only available if 'hazardRatio' with length > 1 is defined or derived")
 		}
 		if (length(simulationResults$hazardRatio) != length(simulationResults$overallReject)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
-				" is only available for delayed piecewise survival")
+				" is not available for piecewise survival (only type 13 and 14)")
 		}
 	}
 }
@@ -579,7 +581,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 	
 	if (type %in% c(1:4)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, 
-			") is not available for simulation results")
+			") is not available for simulation results (type must be > 4)")
 	}
 	
 	if (!survivalEnabled && type %in% c(10:14)) {
@@ -614,8 +616,30 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		yParameterNames <- c("overallReject", "earlyStop", "futilityStop")
 
 		if (is.na(legendPosition)) {
-			legendPosition <- C_POSITION_RIGHT_CENTER
+			legendPosition <- C_POSITION_LEFT_TOP
 		}
+		
+		if (is.na(ylab)) {
+			ylab <- ""
+		}
+		
+		if (is.null(list(...)[["ylim"]])) {
+			ylim <- c(0, 1)
+			return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
+				xParameterName = xParameterName,
+				yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+				palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+				legendPosition = legendPosition, variedParameters = variedParameters, 
+				qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...)) # ratioEnabled = TRUE
+		} else {
+			return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
+				xParameterName = xParameterName,
+				yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+				palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+				legendPosition = legendPosition, variedParameters = variedParameters, 
+				qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+		}
+		
 		.showPlotSourceInformation(objectName = simulationResultsName, 
 			xParameterName = xParameterName, 
 			yParameterNames = yParameterNames, 

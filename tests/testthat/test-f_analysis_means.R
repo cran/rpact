@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 11 September 2019, 16:24:16                                                  #
+# Date: 08 November 2019, 09:36:03                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -21,6 +21,68 @@ context("Testing the analysis means functionality for one treatment")
 
 
 test_that("'getAnalysisResults' for group sequential design and a dataset of one mean per stage (bindingFutility = TRUE)", {
+	dataExample1 <- getDataset(
+		n = c(120, 130, 130),
+		means = c(0.45, 0.51, 0.45) * 100,
+		stDevs = c(1.3, 1.4, 1.2) * 100
+	)
+
+	design1 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
+		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
+
+	# @refFS[Formula]{fs:testStatisticOneMean}
+	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
+	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:definitionRCIInverseNormal}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:orderingPValueUpper}
+	# @refFS[Formula]{fs:finalCIOneMean}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
+	# @refFS[Formula]{fs:conditionalPowerOneMeanEffect}
+	result1 <- getAnalysisResults(design = design1, dataInput = dataExample1, 
+		nPlanned = 130, thetaH1 = 50, assumedStDev = 100, thetaH0 = 10)
+
+	##
+	## Comparison of the results of AnalysisResultsGroupSequential object 'result1' with expected results
+	##
+	expect_equal(result1$stages, c(1, 2, 3, 4))
+	expect_equal(result1$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result1$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
+	expect_equal(result1$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
+	expect_equal(result1$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
+	expect_equal(result1$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
+	expect_equal(result1$effectSizes, c(45, 48.12, 47.052632, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$testStatistics, c(2.9492753, 3.3390852, 3.3255117, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$pValues, c(0.0019178249, 0.00054956317, 0.00057478599, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$testActions, c("reject and stop", "reject and stop", "reject and stop", NA_character_))
+	expect_equal(result1$thetaH0, 10)
+	expect_equal(result1$thetaH1, 50)
+	expect_equal(result1$assumedStDev, 100)
+	expect_equal(result1$conditionalRejectionProbabilities, c(0.4390924, 0.99186839, 0.99999982, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$nPlanned, c(NA_real_, NA_real_, NA_real_, 130))
+	expect_equal(result1$allocationRatioPlanned, 1)
+	expect_equal(result1$conditionalPower, c(NA_real_, NA_real_, NA_real_, 1), tolerance = 1e-07)
+	expect_equal(result1$repeatedConfidenceIntervalLowerBounds, c(14.924587, 28.099918, 32.086386, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$repeatedConfidenceIntervalUpperBounds, c(75.075413, 68.140082, 62.018878, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$repeatedPValues, c(0.010254306, 3.704879e-05, 1.572203e-06, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$finalStage, 1)
+	expect_equal(result1$finalPValues, c(0.0019178249, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$finalConfidenceIntervalLowerBounds, c(21.740476, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$finalConfidenceIntervalUpperBounds, c(68.259524, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$medianUnbiasedEstimates, c(45, NA_real_, NA_real_, NA_real_))
+	expect_equal(result1$normalApproximation, FALSE)
+	expect_equal(result1$equalVariances, TRUE)
+	expect_equal(result1$directionUpper, TRUE)
+	expect_equal(result1$overallTestStatistics, c(2.9492753, 4.4628381, 5.558203, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$overallPValues, c(0.0019178249, 6.1303223e-06, 2.5741923e-08, NA_real_), tolerance = 1e-07)
+
+})
+
+test_that("'getStageResults' for group sequential design and a dataset of one mean per stage (bindingFutility = TRUE)", {
+
+	.skipTestifDisabled()
+
 	dataExample1 <- getDataset(
 		n = c(20, 30, 30),
 		means = c(0.45, 0.51, 0.45) * 100,
@@ -62,53 +124,6 @@ test_that("'getAnalysisResults' for group sequential design and a dataset of one
 	expect_equal(plotData1$xlab, "Effect size")
 	expect_equal(plotData1$ylab, "Conditional power / Likelihood")
 	expect_equal(plotData1$sub, "Stage = 2, # of remaining subjects = 50, std = 100")
-
-	# @refFS[Formula]{fs:testStatisticOneMean}
-	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
-	# @refFS[Formula]{fs:definitionRCIInverseNormal}
-	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	# @refFS[Formula]{fs:orderingPValueUpper}
-	# @refFS[Formula]{fs:finalCIOneMean}
-	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
-	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
-	# @refFS[Formula]{fs:conditionalPowerOneMeanEffect}
-	result1 <- getAnalysisResults(design = design1, dataInput = dataExample1, 
-				nPlanned = 30, thetaH1 = 50, assumedStDev = 100, thetaH0 = 10)
-
-	##
-	## Comparison of the results of AnalysisResultsGroupSequential object 'result1' with expected results
-	##
-	expect_equal(result1$stages, c(1, 2, 3, 4))
-	expect_equal(result1$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result1$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
-	expect_equal(result1$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
-	expect_equal(result1$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
-	expect_equal(result1$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
-	expect_equal(result1$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$testActions, c("continue", "continue", "reject and stop", NA_character_))
-	expect_equal(result1$thetaH0, 10)
-	expect_equal(result1$thetaH1, 50)
-	expect_equal(result1$assumedStDev, 100)
-	expect_equal(result1$conditionalRejectionProbabilities, c(0.054544013, 0.20492816, 0.51388905, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$nPlanned, c(NA_real_, NA_real_, NA_real_, 30))
-	expect_equal(result1$allocationRatioPlanned, 1)
-	expect_equal(result1$conditionalPower, c(NA_real_, NA_real_, NA_real_, 0.98698326), tolerance = 1e-07)
-	expect_equal(result1$repeatedConfidenceIntervalLowerBounds, c(-35.118855, 2.7165066, 14.460593, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$repeatedConfidenceIntervalUpperBounds, c(125.11886, 94.483493, 80.039407, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$repeatedPValues, c(0.18164628, 0.051710415, 0.012085356, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$finalStage, 3)
-	expect_equal(result1$finalPValues, c(NA_real_, NA_real_, 0.016174263, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 13.147855, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 77.032138, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$medianUnbiasedEstimates, c(NA_real_, NA_real_, 44.987662, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$normalApproximation, FALSE)
-	expect_equal(result1$equalVariances, TRUE)
-	expect_equal(result1$directionUpper, TRUE)
-	expect_equal(result1$overallTestStatistics, c(1.2040366, 2.025312, 2.5895142, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$overallPValues, c(0.12168078, 0.02415027, 0.0057194973, NA_real_), tolerance = 1e-07)
 
 })
 

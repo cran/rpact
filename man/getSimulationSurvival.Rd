@@ -8,8 +8,8 @@ getSimulationSurvival(design = NULL, ...,
   thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT,
   directionUpper = C_DIRECTION_UPPER_DEFAULT, pi1 = NA_real_,
   pi2 = NA_real_, lambda1 = NA_real_, lambda2 = NA_real_,
-  hazardRatio = NA_real_, kappa = 1,
-  piecewiseSurvivalTime = NA_real_,
+  median1 = NA_real_, median2 = NA_real_, hazardRatio = NA_real_,
+  kappa = 1, piecewiseSurvivalTime = NA_real_,
   allocation1 = C_ALLOCATION_1_DEFAULT,
   allocation2 = C_ALLOCATION_2_DEFAULT,
   eventTime = C_EVENT_TIME_DEFAULT,
@@ -51,6 +51,10 @@ lambda1 can also be used to define piecewise exponentially distributed survival 
 \item{lambda2}{The assumed hazard rate in the reference group, there is no default.
 lambda2 can also be used to define piecewise exponentially distributed survival times 
 (see details).}
+
+\item{median1}{The assumed median survival time in the treatment group, there is no default.}
+
+\item{median2}{The assumed median survival time in the reference group, there is no default.}
 
 \item{hazardRatio}{The vector of hazard ratios under consideration. 
 If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
@@ -346,20 +350,13 @@ getSimulationSurvival(design = getDesignGroupSequential(kMax = 2),
     maxNumberOfSubjects = 200, maxNumberOfIterations = 50)
 
 # Specify effect size based on median survival times
-median1 <- 5
-median2 <- 3
-getSimulationSurvival(lambda1 = log(2) / median1, 
-	   lambda2 = log(2) / median2, plannedEvents = 40, 
+getSimulationSurvival(median1 = 5, median2 = 3, plannedEvents = 40, 
 	   maxNumberOfSubjects = 200, directionUpper = FALSE, 
     maxNumberOfIterations = 50)
 
 # Specify effect size based on median survival 
 # times of Weibull distribtion with kappa = 2
-median1 <- 5
-median2 <- 3
-kappa <- 2
-getSimulationSurvival(lambda1 = log(2)^(1 / kappa) / median1, 
-	   lambda2 = log(2)^(1 / kappa) / median2, kappa = kappa, 
+getSimulationSurvival(median1 = 5, median2 = 3, kappa = 2, 
 	   plannedEvents = 40, maxNumberOfSubjects = 200, 
     directionUpper = FALSE, maxNumberOfIterations = 50)
 

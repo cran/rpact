@@ -12,8 +12,7 @@ getDesignGroupSequential(..., kMax = NA_integer_, alpha = NA_real_,
   typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE,
   userAlphaSpending = NA_real_, userBetaSpending = NA_real_,
   gammaB = 1, bindingFutility = NA,
-  constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
-  twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
+  constantBoundsHP = C_CONST_BOUND_HP_DEFAULT, twoSidedPower = NA,
   tolerance = C_DESIGN_TOLERANCE_DEFAULT)
 }
 \arguments{

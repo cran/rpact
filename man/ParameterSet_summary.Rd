@@ -5,12 +5,27 @@
 \alias{summary.ParameterSet}
 \title{Parameter Set Summary}
 \usage{
-\method{summary}{ParameterSet}(object, ..., type = 1)
+\method{summary}{ParameterSet}(object, ..., type = 1,
+  digits = NA_integer_)
+}
+\arguments{
+\item{digits}{defines how many digits are to be used for numeric values.}
 }
 \description{
 Displays a summary of \code{ParameterSet} object.
 }
 \details{
 Summarizes the parameters and results of a parameter set.
+
+The following options get be set globaly:
+\enumerate{
+  \item \code{rpact.summary.justify}: one of \code{c("right", "left", "centre")}; 
+    shall the values be right-justified (the default), left-justified or centred.
+  \item \code{rpact.summary.digits}: defines how many digits are to be used for numeric values (default is 3).
+  \item \code{rpact.summary.digits.fixed}: if \code{FALSE} (default) probabilities get one more digits a the as
+    the defined \code{rpact.summary.digits}. 
+  \item \code{rpact.summary.trim.zeroes}: if \code{TRUE} (default) zeroes will always displayed as "0",
+    e.g. "0.000" will become "0". 
+}
 }
 \keyword{internal}

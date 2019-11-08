@@ -84,11 +84,11 @@ PlotSettings <- setRefClass("PlotSettings",
 			)
 		},
 		
-		show = function(showType = 1) {
-			.show(showType = showType, consoleOutputEnabled = TRUE)
+		show = function(showType = 1, digits = NA_integer_) {
+			.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
 		},
 		
-		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
+		.show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing plot setting objects'	
 			.resetCat()
 			.showParametersOfOneGroup(parameters = .getVisibleFieldNames(), 

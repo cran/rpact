@@ -20,7 +20,7 @@ be executed; a subset of all unit tests will be used otherwise.}
 \item{sourceDirectory}{An optional directory to look for \code{.save} files.}
 }
 \description{
-These function allows the installed package \code{rpact} to be tested.
+This function allows the installed package \code{rpact} to be tested.
 }
 \details{
 This function creates the subdirectory \code{rpact-tests} in the specified output directory

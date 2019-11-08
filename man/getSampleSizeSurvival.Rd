@@ -8,9 +8,10 @@ getSampleSizeSurvival(design = NULL, ...,
   typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
   thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT, pi1 = NA_real_,
   pi2 = NA_real_, lambda1 = NA_real_, lambda2 = NA_real_,
-  kappa = 1, hazardRatio = NA_real_,
-  piecewiseSurvivalTime = NA_real_, allocationRatioPlanned = NA_real_,
-  accountForObservationTimes = TRUE, eventTime = C_EVENT_TIME_DEFAULT,
+  median1 = NA_real_, median2 = NA_real_, kappa = 1,
+  hazardRatio = NA_real_, piecewiseSurvivalTime = NA_real_,
+  allocationRatioPlanned = NA_real_, accountForObservationTimes = TRUE,
+  eventTime = C_EVENT_TIME_DEFAULT,
   accrualTime = C_ACCRUAL_TIME_DEFAULT,
   accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,
   followUpTime = NA_real_, maxNumberOfSubjects = NA_real_,
@@ -44,6 +45,10 @@ lambda1 can also be used to define piecewise exponentially distributed survival 
 \item{lambda2}{The assumed hazard rate in the reference group, there is no default.
 lambda2 can also be used to define piecewise exponentially distributed survival times 
 (see details).}
+
+\item{median1}{The assumed median survival time in the treatment group, there is no default.}
+
+\item{median2}{The assumed median survival time in the reference group, there is no default.}
 
 \item{kappa}{The shape parameter of the Weibull distribution, default is \code{1}. 
 The Weibull distribution cannot be used for the piecewise definition of the 
@@ -122,20 +127,24 @@ For this, \code{accrualTime} needs to be a vector that defines the accrual inter
 \code{accrualTime} can also be a list that combines the definition of the accrual time and 
 accrual intensity \code{accrualIntensity} (see below and examples for details). 
 If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
-the same (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to 
+the same (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to 
 be specified and the end of accrual is calculated.	
 
 \code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
 If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
-(i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to be specified 
+(i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to be specified 
 and the end of accrual is calculated.	
 In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
 If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
-(i.e., the end of accrual is defined), \code{maxNumberOfPatients} is calculated. 
-In that case, \code{accrualIntensity} defines the intensity how subjects enter the trial. 
-For example, \code{accrualIntensity = c(1,2)} specifies that in the second accrual interval 
+(i.e., the end of accrual is defined), \code{maxNumberOfSubjects} is calculated. \cr
+If all elements in \code{accrualIntensity} are smaller than 1, \code{accrualIntensity} defines 
+the *relative* intensity how subjects enter the trial, and \code{maxNumberOfSubjects} must be
+given or can be calculated at given follow-up time.
+For example, \code{accrualIntensity = c(0.1, 0.2)} specifies that in the second accrual interval 
 the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
-is calculated for the calculated  \code{maxNumberOfPatients}.
+is calculated for the given (or calculated) \code{maxNumberOfSubjects}.
+Note that the default is \code{accrualIntensity = 0.1} meaning that the *absolute* accrual intensity 
+will be calculated.  
 
 \code{accountForObservationTime} can be selected as \code{FALSE}. In this case, 
 the number of subjects is calculated from the event probabilities only. 
@@ -229,16 +238,10 @@ getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2),
 	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2))
 
 # Specify effect size based on median survival times
-median1 <- 5
-median2 <- 3
-getSampleSizeSurvival(lambda1 = log(2) / median1, lambda2 = log(2) / median2)
+getSampleSizeSurvival(median1 = 5, median2 = 3)
 
 # Specify effect size based on median survival times of Weibull distribtion with kappa = 2
-median1 <- 5
-median2 <- 3
-kappa <- 2
-getSampleSizeSurvival(lambda1 = log(2)^(1 / kappa) / median1, 
-	   lambda2 = log(2)^(1 / kappa) / median2, kappa = kappa)
+getSampleSizeSurvival(median1 = 5, median2 = 3, kappa = 2)
 
 # Identify minimal and maximal required subjects to 
 # reach the required events in spite of dropouts

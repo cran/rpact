@@ -171,6 +171,11 @@
 			conditionalPower = conditionalPower, 
 			thetaStandardized = thetaStandardized, 
 			conditionalCriticalValue = conditionalCriticalValue)
+		if (is.null(stageSubjects) || length(stageSubjects) != 1 || !is.numeric(stageSubjects) || is.na(stageSubjects)) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				"'calcSubjectsFunction' returned an illegal or undefined result (", stageSubjects,"); ", 
+				"the output must be a single numeric value")
+		}
 		
 		# calculate conditional power for computed stageSubjects 
 		if (groups == 1) {
@@ -554,6 +559,9 @@ getSimulationMeans <- function(
 	.setValueAndParameterType(simulationResults, "groups", as.integer(groups), 2L)
 	.setValueAndParameterType(simulationResults, "allocationRatioPlanned", 
 		allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
+	if (groups == 1L) {
+		simulationResults$.setParameterType("allocationRatioPlanned", C_PARAM_NOT_APPLICABLE)
+	}
 	.setValueAndParameterType(simulationResults, "plannedSubjects", 
 		plannedSubjects, NA_real_)
 	.setValueAndParameterType(simulationResults, "directionUpper", 

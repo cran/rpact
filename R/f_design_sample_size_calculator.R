@@ -327,14 +327,19 @@
 	futilityBoundsEffectScale <- matrix(, nrow = design$kMax - 1, ncol = nParameters) 	
 	
 	for (j in (1:nParameters)) {
-		criticalValuesEffectScaleUpper[,j] <- thetaH0 * (exp(design$criticalValues * 
+		if (design$sided == 1) {
+			criticalValuesEffectScaleUpper[,j] <- thetaH0 * (exp(design$criticalValues * 
 			(1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] * 
 			eventsPerStage[,j])))^(2 * directionUpper[j] - 1)
-		if (design$sided == 2) {		
+		} else {
+			criticalValuesEffectScaleUpper[,j] <- thetaH0 * (exp(design$criticalValues * 
+				(1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] * 
+				eventsPerStage[,j])))
 			criticalValuesEffectScaleLower[,j] <- thetaH0 * (exp(-design$criticalValues * 
 				(1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] * 
 				eventsPerStage[,j])))
 		}
+		
 		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(design$futilityBounds > -6)) {
 			futilityBoundsEffectScale[,j] <- thetaH0 * (exp(design$futilityBounds *
 				(1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] * 
@@ -424,6 +429,7 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 		design = design, normalApproximation = normalApproximation, meanRatio = meanRatio, 
 		thetaH0 = thetaH0, alternative = alternative, stDev = stDev, groups = groups, 
 		allocationRatioPlanned = allocationRatioPlanned, ...)
+	
 	return(.getSampleSize(designPlan))
 }
 
@@ -449,7 +455,7 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 	}
 	twoSidedPower <- .getOptionalArgument("twoSidedPower", ...)
 	if (is.null(twoSidedPower)) {
-		if (powerEnabled) {
+		if (powerEnabled && sided == 2) {
 			twoSidedPower <- TRUE
 		} else {
 			twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
@@ -467,6 +473,13 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 .warnInCaseOfTwoSidedPowerArgument <- function(...) {
 	if ("twoSidedPower" %in% names(list(...))) {
 		warning("'twoSidedPower' can only be defined in 'design'", call. = FALSE)
+	}
+}
+
+.warnInCaseOfTwoSidedPowerIsDisabled <- function(design) {
+	if (design$sided == 2 && !is.na(design$twoSidedPower) && !design$twoSidedPower &&
+			design$.getParameterType("twoSidedPower") == C_PARAM_USER_DEFINED) {
+		warning("design$twoSidedPower = FALSE will be ignored because design$sided = 2", call. = FALSE)
 	}
 }
 
@@ -573,6 +586,8 @@ getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximati
 #' @param lambda2 The assumed hazard rate in the reference group, there is no default.
 #'  	  lambda2 can also be used to define piecewise exponentially distributed survival times 
 #'        (see details).
+#' @param median1 The assumed median survival time in the treatment group, there is no default.
+#' @param median2 The assumed median survival time in the reference group, there is no default.
 #' @param piecewiseSurvivalTime A vector that specifies the time intervals for the piecewise 
 #'        definition of the exponential survival time cumulative distribution function (see details). 
 #' @param hazardRatio The vector of hazard ratios under consideration. 
@@ -634,20 +649,24 @@ getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximati
 #' \code{accrualTime} can also be a list that combines the definition of the accrual time and 
 #' accrual intensity \code{accrualIntensity} (see below and examples for details). 
 #' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
-#' the same (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to 
+#' the same (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to 
 #' be specified and the end of accrual is calculated.	
 #' 
 #' \code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
 #' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
-#' (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to be specified 
+#' (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to be specified 
 #' and the end of accrual is calculated.	
 #' In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
 #' If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
-#' (i.e., the end of accrual is defined), \code{maxNumberOfPatients} is calculated. 
-#' In that case, \code{accrualIntensity} defines the intensity how subjects enter the trial. 
-#' For example, \code{accrualIntensity = c(1,2)} specifies that in the second accrual interval 
+#' (i.e., the end of accrual is defined), \code{maxNumberOfSubjects} is calculated. \cr
+#' If all elements in \code{accrualIntensity} are smaller than 1, \code{accrualIntensity} defines 
+#' the *relative* intensity how subjects enter the trial, and \code{maxNumberOfSubjects} must be
+#' given or can be calculated at given follow-up time.
+#' For example, \code{accrualIntensity = c(0.1, 0.2)} specifies that in the second accrual interval 
 #' the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
-#' is calculated for the calculated  \code{maxNumberOfPatients}.
+#' is calculated for the given (or calculated) \code{maxNumberOfSubjects}.
+#' Note that the default is \code{accrualIntensity = 0.1} meaning that the *absolute* accrual intensity 
+#' will be calculated.  
 #' 
 #' \code{accountForObservationTime} can be selected as \code{FALSE}. In this case, 
 #' the number of subjects is calculated from the event probabilities only. 
@@ -745,16 +764,10 @@ getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximati
 #' 	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2))
 #' 
 #' # Specify effect size based on median survival times
-#' median1 <- 5
-#' median2 <- 3
-#' getSampleSizeSurvival(lambda1 = log(2) / median1, lambda2 = log(2) / median2)
+#' getSampleSizeSurvival(median1 = 5, median2 = 3)
 #' 
 #' # Specify effect size based on median survival times of Weibull distribtion with kappa = 2
-#' median1 <- 5
-#' median2 <- 3
-#' kappa <- 2
-#' getSampleSizeSurvival(lambda1 = log(2)^(1 / kappa) / median1, 
-#' 	   lambda2 = log(2)^(1 / kappa) / median2, kappa = kappa)
+#' getSampleSizeSurvival(median1 = 5, median2 = 3, kappa = 2)
 #' 
 #' # Identify minimal and maximal required subjects to 
 #' # reach the required events in spite of dropouts
@@ -774,6 +787,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		pi2 = NA_real_, 
 		lambda1 = NA_real_,	
 		lambda2 = NA_real_, 
+		median1 = NA_real_,	
+		median2 = NA_real_, 
 		kappa = 1, 
 		hazardRatio = NA_real_,
 		piecewiseSurvivalTime = NA_real_,		
@@ -811,7 +826,11 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	if (!accrualSetup$maxNumberOfSubjectsCanBeCalculatedDirectly &&
 			accrualSetup$followUpTimeMustBeUserDefined) {
 		if (is.na(followUpTime)) {
-			stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'followUpTime' must be defined")
+			if (accrualSetup$piecewiseAccrualEnabled && !accrualSetup$endOfAccrualIsUserDefined) {
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'followUpTime', 'maxNumberOfSubjects' or end of accrual must be defined")
+			}
+			
+			stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'followUpTime' or 'maxNumberOfSubjects' must be defined")
 		}
 		
 		if (followUpTime == Inf) {
@@ -823,13 +842,20 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		}
 		
 		pwst <- getPiecewiseSurvivalTime(
-			piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1, 
-			hazardRatio = hazardRatio, pi1 = pi1, pi2 = pi2, eventTime = eventTime, kappa = kappa)
+			piecewiseSurvivalTime = piecewiseSurvivalTime, 
+			lambda1 = lambda1, lambda2 = lambda2, 
+			pi1 = pi1, pi2 = pi2, 
+			median1 = median1, median2 = median2,
+			hazardRatio = hazardRatio, eventTime = eventTime, kappa = kappa)
 		paramName <- NULL
 		if (pwst$.getParameterType("pi1") == C_PARAM_USER_DEFINED ||
 				pwst$.getParameterType("pi1") == C_PARAM_DEFAULT_VALUE ||
 				pwst$.getParameterType("pi2") == C_PARAM_USER_DEFINED) {
 			paramName <- "pi1"
+		}
+		else if (pwst$.getParameterType("lambda1") == C_PARAM_USER_DEFINED ||
+				pwst$.getParameterType("lambda2") == C_PARAM_USER_DEFINED) {
+			paramName <- "lambda1"
 		}
 		else if (pwst$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
 			paramName <- "hazardRatio"
@@ -843,9 +869,9 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			if (!is.null(paramValue) && length(paramValue) > 1) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
-					"is only available for a single '", paramName, "' ",
-					"(", paramName, " = ", .arrayToString(
-						paramValue, vectorLookAndFeelEnabled = TRUE), ")")
+					"is only available for a single '", paramName, "'; ",
+					paramName, " = ", .arrayToString(
+						paramValue, vectorLookAndFeelEnabled = TRUE))
 			}
 		}
 		
@@ -866,9 +892,15 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			searchAccrualTimeEnabled <- TRUE
 			maxSearchIterations <- 50
 			maxNumberOfSubjectsLower <- NA_real_
+			maxNumberOfSubjectsLowerBefore <- 0
 			sampleSize <- NULL
-			while (searchAccrualTimeEnabled && maxSearchIterations >= 0) {
-				tryCatch({	
+			expectionMessage <- NA_character_
+			while (searchAccrualTimeEnabled && maxSearchIterations >= 0 && 
+					(is.na(maxNumberOfSubjectsLower) || 
+						maxNumberOfSubjectsLower < maxNumberOfSubjectsLowerBefore || 
+						maxNumberOfSubjectsLower < 1e8)) {
+				tryCatch({
+					maxNumberOfSubjectsLowerBefore <- ifelse(is.na(maxNumberOfSubjectsLower), 0, maxNumberOfSubjectsLower)
 					maxNumberOfSubjectsLower <- getAccrualTime(
 						accrualTime = c(at, at[length(at)] + additionalAccrual), 
 						accrualIntensity = accrualSetup$accrualIntensity)$maxNumberOfSubjects
@@ -881,24 +913,29 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						eventTime = eventTime, accrualTime = accrualSetup$accrualTime, 
 						accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
 						piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
+						median1 = median1, median2 = median2,
 						followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsLower, 
 						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, dropoutTime = dropoutTime, 
 						hazardRatio = hazardRatio)
 					searchAccrualTimeEnabled <- FALSE
 				}, error = function(e) {
-					#print(e$message)
+					expectionMessage <<- e$message
 				})
 				maxSearchIterations <- maxSearchIterations - 1
 			}
 			if (is.null(sampleSize) || is.na(sampleSize$followUpTime)) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'additionalAccrual' could not be found, change accrual time specification")
+				if (!is.na(expectionMessage) && grepl("'allocationRatioPlanned' > 0", expectionMessage)) {
+					stop(expectionMessage, call. = FALSE)
+				}
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+						"'additionalAccrual' could not be found, change accrual time specification", call. = FALSE)
 			}
 			
 			# define lower bound for maxNumberOfSubjects
 			maxNumberOfSubjectsLower <- ceiling(max(na.omit(c(sampleSize$eventsFixed, 
 				as.vector(sampleSize$eventsPerStage)))))
 			if (is.na(maxNumberOfSubjectsLower)) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'maxNumberOfSubjectsLower' could not be found")
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'maxNumberOfSubjectsLower' could not be found", call. = FALSE)
 			}
 		
 			# check whether accrual time already fulfills requirement 
@@ -923,6 +960,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						eventTime = eventTime, accrualTime = accrualSetup$accrualTime, 
 						accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
 						piecewiseSurvivalTime = piecewiseSurvivalTime,	lambda2 = lambda2, lambda1 = lambda1,
+						median1 = median1, median2 = median2,
 						followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsUpper, 
 						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, dropoutTime = dropoutTime, 
 						hazardRatio = hazardRatio)$followUpTime
@@ -931,7 +969,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			if (is.na(maxNumberOfSubjectsUpper)) {
 				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
 					"'maxNumberOfSubjectsUpper' could not be found ",
-					"(fut = ", fut, ", followUpTime = ", followUpTime, ")")
+					"(fut = ", fut, ", followUpTime = ", followUpTime, ")", call. = FALSE)
 			}
 			
 			# use maxNumberOfSubjectsLower and maxNumberOfSubjectsUpper to find end of accrual 
@@ -949,6 +987,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
 						piecewiseSurvivalTime = piecewiseSurvivalTime, 
 						lambda2 = lambda2, lambda1 = lambda1,
+						median1 = median1, median2 = median2,
 						followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsTarget, 
 						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, 
 						dropoutTime = dropoutTime, 
@@ -971,6 +1010,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 							accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
 							piecewiseSurvivalTime = piecewiseSurvivalTime, 
 							lambda2 = lambda2, lambda1 = lambda1,
+							median1 = median1, median2 = median2,
 							followUpTime = NA_real_, maxNumberOfSubjects = x, 
 							dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, 
 							dropoutTime = dropoutTime, 
@@ -1004,6 +1044,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			eventTime = eventTime, accrualTime = accrualSetup$accrualTime, 
 			accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
 			piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
+			median1 = median1, median2 = median2,
 			followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsTarget, 
 			dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, 
 			dropoutTime = dropoutTime, 
@@ -1042,6 +1083,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		eventTime = eventTime, accrualTime = accrualTime, 
 		accrualIntensity = accrualIntensity, kappa = kappa, 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
+		median1 = median1, median2 = median2,
 		followUpTime = followUpTime, maxNumberOfSubjects = maxNumberOfSubjects, 
 		dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, 
 		dropoutTime = dropoutTime, 
@@ -1054,8 +1096,9 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		allocationRatioPlanned = NA_real_, accountForObservationTimes = TRUE, 
 		eventTime = C_EVENT_TIME_DEFAULT, accrualTime = C_ACCRUAL_TIME_DEFAULT, 
 		accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT, kappa = 1, 
-		piecewiseSurvivalTime = NA_real_, lambda2 = NA_real_,
-		lambda1 = NA_real_,
+		piecewiseSurvivalTime = NA_real_, 
+		lambda2 = NA_real_, lambda1 = NA_real_,
+		median1 = NA_real_,	median2 = NA_real_, 
 		followUpTime = NA_real_, maxNumberOfSubjects = NA_real_, 
 		dropoutRate1 = 0, dropoutRate2 = dropoutRate1, dropoutTime = NA_real_, 
 		hazardRatio = NA_real_) {
@@ -1075,6 +1118,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			piecewiseSurvivalTime = piecewiseSurvivalTime, 
 			lambda2 = lambda2,
 			lambda1 = lambda1,
+			median1 = median1, 
+			median2 = median2,
 			followUpTime = followUpTime, 
 			maxNumberOfSubjects = maxNumberOfSubjects, 
 			dropoutRate1 = dropoutRate1, 
@@ -1098,6 +1143,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		piecewiseSurvivalTime, 
 		lambda2, 
 		lambda1,
+		median1, 
+		median2,
 		followUpTime = NA_real_, 
 		directionUpper = NA,
 		maxNumberOfEvents = NA_real_,
@@ -1225,7 +1272,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			designPlan$.setParameterType("maxNumberOfSubjects", 
 				accrualSetup$.getParameterType("maxNumberOfSubjects"))
 		}
-	} else if (maxNumberOfSubjects == 0) {
+	} else if (maxNumberOfSubjects == 0) { 
 		designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
 	} else { 
 		designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_USER_DEFINED)
@@ -1247,7 +1294,6 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			accrualSetup$.getParameterType("accrualIntensity"))
 	}
 	
-	.assertIsValidKappa(kappa)
 	.assertIsSingleNumber(designPlan$eventTime, "eventTime")
 	.assertIsSingleNumber(designPlan$allocationRatioPlanned, "allocationRatioPlanned")
 	.assertIsSingleNumber(designPlan$kappa, "kappa")
@@ -1265,8 +1311,10 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	}
 	designPlan$.piecewiseSurvivalTime <- getPiecewiseSurvivalTime(
 		piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1, 
+		median1 = median1, median2 = median2,
 		hazardRatio = hazardRatio, pi1 = pi1, pi2 = pi2, eventTime = eventTime, kappa = kappa,
 		.pi1Default = pi1Default)
+	designPlan$.setParameterType("kappa", designPlan$.piecewiseSurvivalTime$.getParameterType("kappa"))
 	
 	if (designPlan$.piecewiseSurvivalTime$.getParameterType("pi1") == C_PARAM_DEFAULT_VALUE &&
 			length(designPlan$.piecewiseSurvivalTime$pi1) > 1 &&
@@ -1512,6 +1560,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			designPlan$nFixed2 <- sampleSizeFixed$n2Fixed
 			designPlan$.setParameterType("nFixed1", C_PARAM_GENERATED)
 			designPlan$.setParameterType("nFixed2", C_PARAM_GENERATED)
+			designPlan$numberOfSubjects1 <- matrix(designPlan$nFixed1, nrow = 1)
+			designPlan$numberOfSubjects2 <- matrix(designPlan$nFixed2, nrow = 1)
 		}
 		designPlan$numberOfSubjects <- matrix(designPlan$nFixed, nrow = 1)
 		
@@ -1932,8 +1982,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			nFixed = nFixed)
 		)
 	}
-	if (groups == 2) {
-		n1Fixed <- nFixed*allocationRatioPlanned / (1 + allocationRatioPlanned)
+	else if (groups == 2) {
+		n1Fixed <- nFixed * allocationRatioPlanned / (1 + allocationRatioPlanned)
 		n2Fixed <- n1Fixed / allocationRatioPlanned 
 		return(list(alpha = alpha, 
 			beta = beta, 
@@ -2766,7 +2816,7 @@ getNumberOfSubjects <- function(time, ...,
 		
 	.assertIsSingleNumber(time, "time")
 	
-	if (length(accrualTimeVector) > 0 && accrualTimeVector[1] == 0) {
+	if (length(accrualTimeVector) > 1 && accrualTimeVector[1] == 0) {
 		accrualTimeVector <- accrualTimeVector[2:length(accrualTimeVector)]
 	}
 	
@@ -3119,6 +3169,9 @@ getNumberOfSubjects <- function(time, ...,
 	designPlan$nFixed2 <- designPlan$nFixed / (1 + allocationRatioPlanned)
 	designPlan$nFixed1 <- designPlan$nFixed2 * allocationRatioPlanned
 	
+	designPlan$numberOfSubjects1 <- matrix(designPlan$nFixed1, nrow = 1)
+	designPlan$numberOfSubjects2 <- matrix(designPlan$nFixed2, nrow = 1)
+	
 	if (!designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
 		eventRatio <- allocationRatioPlanned * pi1 / pi2
 	} else {
@@ -3257,9 +3310,8 @@ getNumberOfSubjects <- function(time, ...,
 				designPlan$followUpTime[i] <- totalTime - 
 					designPlan$accrualTime[length(designPlan$accrualTime)]
 				
-				
 				numberOfSubjects[, i] <- .getNumberOfSubjects(analysisTime[, i], designPlan$accrualTime, 
-						designPlan$accrualIntensity, designPlan$maxNumberOfSubjects[i])
+					designPlan$accrualIntensity, designPlan$maxNumberOfSubjects[i])
 				
 			} else {
 				
@@ -3374,7 +3426,9 @@ getNumberOfSubjects <- function(time, ...,
 	}
 
 	designPlan$maxNumberOfSubjects <- designPlan$numberOfSubjects[kMax, ]
-	designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
+	if (designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_NOT_APPLICABLE) {
+		designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
+	}
 	
 	designPlan$maxNumberOfSubjects1 <- .getNumberOfSubjects1(
 		designPlan$maxNumberOfSubjects, designPlan$allocationRatioPlanned)
@@ -3732,9 +3786,7 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 		.warnInCaseOfUnknownArguments(functionName = "getPowerMeans", ...)
 		.assertIsTrialDesign(design)
 		.warnInCaseOfTwoSidedPowerArgument(...)	
-		if (design$sided == 2 && !is.na(design$twoSidedPower) && !design$twoSidedPower) {
-			warning("design$twoSidedPower = FALSE will be ignored", call. = FALSE)
-		}
+		.warnInCaseOfTwoSidedPowerIsDisabled(design)
 	}
 	
 	designPlan <- .createDesignPlanMeans(objectType = "power", 
@@ -3823,9 +3875,6 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
 #' 		  In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument  
 #' @param groups The number of treatment groups (1 or 2), default is \code{2}.
-#' @param normalApproximation If \code{normalApproximation = FALSE} is specified, the sample size 
-#'        for the case of one treatment group is calculated exactly using the binomial distribution, 
-#'        default is \code{TRUE}.
 #' @param riskRatio If \code{riskRatio = TRUE} is specified, the power for one-sided 
 #'        testing of H0: \code{pi1/pi2 = thetaH0} is calculated, default is \code{FALSE}. 
 #' @param thetaH0 The null hypothesis value. For one-sided testing, a value != 0 
@@ -3841,7 +3890,8 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #'        that a warning will be displayed if unknown arguments are passed.
 #' 
 #' @details 
-#' At given design the function calculates the power, stopping probabilities, and expected sample size, for testing rates for given maximum sample size.
+#' At given design the function calculates the power, stopping probabilities, and expected sample size, 
+#' for testing rates for given maximum sample size.
 #' The sample sizes over the stages are calculated according to the specified information rate in the design. 
 #' In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
 #' If a null hypothesis value thetaH0 != 0 for testing the difference of two rates 
@@ -3849,7 +3899,7 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' formulas according to Farrington & Manning (Statistics in Medicine, 1990) are used (only one-sided testing).
 #' Critical bounds and stopping for futility bounds are provided at the effect scale (rate, rate difference, or rate ratio, respectively). 
 #' For the two-sample case, the calculation here is performed at fixed pi2 as given as argument in the function.  
-#' 
+#' Note that the power calculation for rates is always based on the normal approximation.
 #' 
 #' @return Returns a \code{\link{TrialDesignPlanRates}} object.
 #'
@@ -3876,16 +3926,10 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #'     sided = 2), groups = 1, thetaH0 = 0.3, pi1 = seq(0.3, 0.5, 0.05),  
 #'     maxNumberOfSubjects = 60)
 #' 
-getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = TRUE, riskRatio = FALSE, 
+getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE, 
 		thetaH0 = ifelse(riskRatio, 1, 0), pi1 = C_PI_1_DEFAULT, pi2 = 0.2, 
 		directionUpper = NA, maxNumberOfSubjects = NA_real_, 
 		allocationRatioPlanned = NA_real_) {
-	
-	if (!normalApproximation) {
-		warning("'normalApproximation' will be ignored because ",
-			"the power calculation is always based on the normal approximation", call. = FALSE)
-		normalApproximation <- TRUE
-	} 
 	
 	if (is.null(design)) {
 		design <- .getDefaultDesignForSampleSizeCalculations(..., powerEnabled = TRUE)
@@ -3895,13 +3939,11 @@ getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = 
 		.warnInCaseOfUnknownArguments(functionName = "getPowerRates", ...)
 		.assertIsTrialDesign(design)
 		.warnInCaseOfTwoSidedPowerArgument(...)
-		if (design$sided == 2 && !is.na(design$twoSidedPower) && !design$twoSidedPower) {
-			warning("design$twoSidedPower = FALSE will be ignored", call. = FALSE)
-		}
+		.warnInCaseOfTwoSidedPowerIsDisabled(design)
 	}
 	
 	designPlan <- .createDesignPlanRates(objectType = "power", 
-		design = design, normalApproximation = normalApproximation, riskRatio = riskRatio, 
+		design = design, riskRatio = riskRatio, 
 		thetaH0 = thetaH0, pi1 = pi1, pi2 = pi2, directionUpper = directionUpper, 
 		maxNumberOfSubjects = maxNumberOfSubjects, groups = groups, 
 		allocationRatioPlanned = allocationRatioPlanned, ...)
@@ -4044,6 +4086,8 @@ getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' @param lambda2 The assumed hazard rate in the reference group, there is no default.
 #'  	  lambda2 can also be used to define piecewise exponentially distributed survival times 
 #'        (see details).
+#' @param median1 The assumed median survival time in the treatment group, there is no default.
+#' @param median2 The assumed median survival time in the reference group, there is no default.
 #' @param piecewiseSurvivalTime A vector that specifies the time intervals for the piecewise 
 #'        definition of the exponential survival time cumulative distribution function (see details). 
 #' @param hazardRatio The vector of hazard ratios under consideration. 
@@ -4094,21 +4138,23 @@ getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' \code{accrualTime} can also be a list that combines the definition of the accrual time and 
 #' accrual intensity \code{accrualIntensity} (see below and examples for details). 
 #' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
-#' the same (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to 
+#' the same (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to 
 #' be specified and the end of accrual is calculated.	
 #' 
 #' \code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
 #' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
-#' (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to be specified 
+#' (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to be specified 
 #' and the end of accrual is calculated.	
 #' In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
 #' If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
-#' (i.e., the end of accrual is defined), \code{maxNumberOfPatients} is calculated. 
-#' In that case, \code{accrualIntensity} defines the intensity how subjects enter the trial. 
-#' For example, \code{accrualIntensity = c(1,2)} specifies that in the second accrual interval 
+#' (i.e., the end of accrual is defined), \code{maxNumberOfSubjects} is calculated.\cr 
+#' If all elements in \code{accrualIntensity} are smaller than 1, \code{accrualIntensity} defines 
+#' the *relative* intensity how subjects enter the trial.
+#' For example, \code{accrualIntensity = c(0.1, 0.2)} specifies that in the second accrual interval 
 #' the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
-#' is calculated for the calculated  \code{maxNumberOfPatients}.
-#' 
+#' is calculated for the given \code{maxNumberOfSubjects}.
+#' Note that the default is \code{accrualIntensity = 0.1} meaning that the *absolute* accrual intensity 
+#' will be calculated.  
 #' 
 #' @return Returns a \code{\link{TrialDesignPlanSurvival}} object.
 #'
@@ -4200,17 +4246,11 @@ getPowerRates <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' 	   maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 #' 
 #' # Specify effect size based on median survival times
-#' median1 <- 5
-#' median2 <- 3
-#' getPowerSurvival(lambda1 = log(2) / median1, lambda2 = log(2) / median2, 
+#' getPowerSurvival(median1 = 5, median2 = 3, 
 #' 	   maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 #' 
 #' # Specify effect size based on median survival times of Weibull distribtion with kappa = 2
-#' median1 <- 5
-#' median2 <- 3
-#' kappa <- 2
-#' getPowerSurvival(lambda1 = log(2)^(1 / kappa) / median1, 
-#' 	   lambda2 = log(2)^(1 / kappa) / median2, kappa = kappa, 
+#' getPowerSurvival(median1 = 5, median2 = 3, kappa = 2, 
 #' 	   maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 #' 
 #' }
@@ -4223,6 +4263,8 @@ getPowerSurvival <- function(design = NULL, ...,
 		pi2 = NA_real_, 
 		lambda1 = NA_real_,	
 		lambda2 = NA_real_, 
+		median1 = NA_real_,	
+		median2 = NA_real_, 
 		kappa = 1, 
 		hazardRatio = NA_real_,
 		piecewiseSurvivalTime = NA_real_,		
@@ -4246,9 +4288,7 @@ getPowerSurvival <- function(design = NULL, ...,
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", ...)
 		.warnInCaseOfTwoSidedPowerArgument(...)
-		if (design$sided == 2 && !is.na(design$twoSidedPower) && !design$twoSidedPower) {
-			warning("design$twoSidedPower = FALSE will be ignored", call. = FALSE)
-		}
+		.warnInCaseOfTwoSidedPowerIsDisabled(design)
 	}
 	
 	designPlan <- .createDesignPlanSurvival(objectType = "power",
@@ -4266,6 +4306,8 @@ getPowerSurvival <- function(design = NULL, ...,
 		piecewiseSurvivalTime = piecewiseSurvivalTime, 
 		lambda2 = lambda2,
 		lambda1 = lambda1,
+		median1 = median1, 
+		median2 = median2,
 		directionUpper = directionUpper,
 		maxNumberOfEvents = maxNumberOfEvents,
 		maxNumberOfSubjects = maxNumberOfSubjects, 
@@ -4385,6 +4427,7 @@ getPowerSurvival <- function(design = NULL, ...,
 		designPlan$expectedNumberOfSubjects <- .getNumberOfSubjects(
 			designPlan$analysisTime[1, ], designPlan$accrualTime, 
 			designPlan$accrualIntensity, designPlan$maxNumberOfSubjects)
+		designPlan$numberOfSubjects <- matrix(designPlan$expectedNumberOfSubjects, nrow = 1)
 	}
 	
 	designPlan$eventsPerStage <- matrix(eventsPerStage, ncol = 1)

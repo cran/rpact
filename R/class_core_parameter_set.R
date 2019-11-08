@@ -212,7 +212,7 @@ FieldSet <- setRefClass("FieldSet",
 		},
 		
 		.cat = function(..., file = "", sep = "", fill = FALSE, labels = NULL, 
-			append = FALSE, heading = 0, consoleOutputEnabled = TRUE) {
+				append = FALSE, heading = 0, consoleOutputEnabled = TRUE) {
 			
 			if (consoleOutputEnabled) {
 				cat(..., file = file, sep = sep, fill = fill, labels = labels, append = append)
@@ -474,7 +474,7 @@ ParameterSet <- setRefClass("ParameterSet",
 			return(visibleFieldNames)
 		},
 		
-		.show = function(consoleOutputEnabled = FALSE) {
+		.show = function(..., consoleOutputEnabled = FALSE) {
 			stop("Method '.show()' is not implemented in class '", class(.self), "'")
 		},
 		
@@ -553,7 +553,7 @@ ParameterSet <- setRefClass("ParameterSet",
 					return(NULL)
 				}
 				
-				paramValueFormatted = paramValue
+				paramValueFormatted <- paramValue
 				
 				formatFunctionName <- .parameterFormatFunctions[[parameterName]]
 				if (!is.null(formatFunctionName)) {
@@ -716,9 +716,11 @@ ParameterSet <- setRefClass("ParameterSet",
 						}
 					}
 					else if (length(parameterValues) > n &&
-							!(parameterName %in% c("accrualTime", "accrualIntensity", 
-								"plannedEvents", "minNumberOfEventsPerStage", 
-								"maxNumberOfEventsPerStage", "piecewiseSurvivalTime", "lambda2"))) {
+						!(parameterName %in% c("accrualTime", "accrualIntensity", 
+							"plannedSubjects", "plannedEvents",
+							"minNumberOfSubjectsPerStage", "maxNumberOfSubjectsPerStage",
+							"minNumberOfEventsPerStage", "maxNumberOfEventsPerStage", 
+							"piecewiseSurvivalTime", "lambda2"))) {
 						n <- length(parameterValues)
 					}
 				}
@@ -870,9 +872,13 @@ ParameterSet <- setRefClass("ParameterSet",
 		},
 		
 		.getDataFrameColumnCaption = function(parameterName, tableColumnNames, niceColumnNamesEnabled) {
+			if (length(parameterName) == 0 || parameterName == "") {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'parameterName' must be a valid parameter name")
+			}
+			
 			tableColumnName <- tableColumnNames[[parameterName]]
-			ifelse(niceColumnNamesEnabled && !is.null(tableColumnName), 
-				tableColumnName, parameterName)
+			return(ifelse(niceColumnNamesEnabled && !is.null(tableColumnName), 
+				tableColumnName, parameterName))
 		},
 		
 		.getUnidimensionalNumberOfStages = function(parameterNames) {
@@ -1131,6 +1137,8 @@ as.matrix.FieldSet <- function(x, rownames.force = NA, ...) {
 #' 
 #' @title
 #' Parameter Set Summary
+#' 
+#' @param digits defines how many digits are to be used for numeric values.
 #'
 #' @description
 #' Displays a summary of \code{ParameterSet} object.
@@ -1138,51 +1146,28 @@ as.matrix.FieldSet <- function(x, rownames.force = NA, ...) {
 #' @details
 #' Summarizes the parameters and results of a parameter set.
 #' 
+#' The following options get be set globaly:
+#' \enumerate{
+#'   \item \code{rpact.summary.justify}: one of \code{c("right", "left", "centre")}; 
+#'     shall the values be right-justified (the default), left-justified or centred.
+#'   \item \code{rpact.summary.digits}: defines how many digits are to be used for numeric values (default is 3).
+#'   \item \code{rpact.summary.digits.fixed}: if \code{FALSE} (default) probabilities get one more digits a the as
+#'     the defined \code{rpact.summary.digits}. 
+#'   \item \code{rpact.summary.trim.zeroes}: if \code{TRUE} (default) zeroes will always displayed as "0",
+#'     e.g. "0.000" will become "0". 
+#' }
+#' 
 #' @export
 #' 
 #' @keywords internal
 #' 
-summary.ParameterSet <- function(object, ..., type = 1) {
+summary.ParameterSet <- function(object, ..., type = 1, digits = NA_integer_) {
+	
+	.warnInCaseOfUnknownArguments(functionName = "summary.ParameterSet", ...)
+	
 	if (type == 1 && (inherits(object, "TrialDesign") || inherits(object, "TrialDesignPlan") || 
 			inherits(object, "SimulationResults"))) {
-		design <- object[[".design"]]
-		if (is.null(design)) {
-			design <- object
-		}
-		kMax <- ifelse(is.null(design), object$kMax, design$kMax)
-		
-		title <- ""
-		if (kMax == 1) {
-			title <- "Fixed sample"
-		} else {
-			title <- paste0("Interim analysis with a maximum of ", kMax, " looks")
-		}
-		
-		if (!inherits(object, "TrialDesign")) {
-			title <- paste0(title, ", ")
-		}
-		
-		if (inherits(object, "SimulationResults")) {
-			title <- paste0(title, "simulation of a ")
-		}
-		
-		if (grepl("Means", class(object))) {
-			title <- paste0(title, "continuous endpoint")
-		}
-		else if (grepl("Rates", class(object))) {
-			title <- paste0(title, "binary endpoint")
-		}
-		else if (grepl("Survival", class(object))) {
-			title <- paste0(title, "survival endpoint")
-		}
-		
-		if (kMax > 1) {
-			title <- paste0(title, " (", design$.toString(startWithUpperCase = FALSE), ")")
-		}
-		
-		object$.cat(title, ":\n\n", heading = 1)
-		object$show(showType = 3)
-		object$.cat("\n")
+		object$show(showType = 3, digits = digits)
 		return(invisible(object))
 	}
 	

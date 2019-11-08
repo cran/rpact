@@ -904,12 +904,12 @@ Dataset <- setRefClass("Dataset",
 			return(.plotSettings)
 		},
 
-		show = function(showType = 1) {
+		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing dataset objects'	
-			.show(showType = showType, consoleOutputEnabled = TRUE)
+			.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
 		},
 		
-		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
+		.show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
 			.resetCat()
 			if (showType == 2) {
 				.cat("Technical summary of the dataset object of class",

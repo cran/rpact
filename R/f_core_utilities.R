@@ -954,8 +954,8 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	if (notApplicableIfNA && all(is.na(value))) {
 		parameterSet$.setParameterType(parameterName, C_PARAM_NOT_APPLICABLE)
 	} else if (!is.null(value) && length(value) == length(defaultValue) && (
-				(all(is.na(value)) && all(is.na(value) == is.na(defaultValue))) ||
-				(!is.na(all(value == defaultValue)) && all(value == defaultValue))
+			(all(is.na(value)) && all(is.na(value) == is.na(defaultValue))) ||
+			(!is.na(all(value == defaultValue)) && all(value == defaultValue))
 			)) {
 		parameterSet$.setParameterType(parameterName, C_PARAM_DEFAULT_VALUE)
 	} else {
@@ -1231,7 +1231,7 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 #' Test Package
 # 
 #' @description
-#' These function allows the installed package \code{rpact} to be tested.
+#' This function allows the installed package \code{rpact} to be tested.
 #' 
 #' @param outDir The output directory where all test results shall be saved.
 #'     By default the current working directory is used.
@@ -1348,4 +1348,36 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 	return(numberOfSubjects / (allocationRatioPlanned + 1))
 }
 
+#' @title 
+#' Print Citation
+# 
+#' @description
+#' How to cite \code{rpact} and \code{R} in publications.
+#' 
+#' @param inclusiveR If \code{TRUE} (default) the information on how to cite the base R system in publications will be added.
+#' 
+#' @details 
+#' This function shows how to cite \code{rpact} and \code{R} (\code{inclusiveR = TRUE}) in publications.
+#' 
+#' @keywords internal
+#'
+#' @export 
+#' 
+#' @examples 
+#' 
+#' printCitation()
+#' 
+printCitation <- function(inclusiveR = TRUE) {
+	if (inclusiveR) {
+		citR <- capture.output(print(citation("base"), bibtex = FALSE))
+		indices <- which(citR == "")
+		indices <- indices[indices != 1 & indices != length(citR)]
+		if (length(indices) > 1) {
+			index <- indices[length(indices)]
+			citR <- citR[1:min(index, length(citR))]
+		}
+		cat("\n", trimws(paste(citR, collapse = "\n")), "\n", sep = "")
+	}
+	print(citation("rpact"), bibtex = FALSE)
+}
 

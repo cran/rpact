@@ -107,16 +107,16 @@ TrialDesign <- setRefClass("TrialDesign",
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
 		
-		show = function(showType = 1) {
-			.show(showType = showType, consoleOutputEnabled = TRUE)
+		show = function(showType = 1, digits = NA_integer_) {
+			.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
 		},
 		
-		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
+		.show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing trial design objects'
 			.resetCat()
 			.initStages()
 			if (showType == 3) {
-				parameterList <- .getSimpleBoundarySummary(.self)
+				parameterList <- .createSummary(.self, digits = digits)
 				for (parameterName in names(parameterList)) {
 					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
 						consoleOutputEnabled = consoleOutputEnabled)
@@ -237,11 +237,11 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
 		
-		show = function(showType = 1) {
-			.show(showType = showType, consoleOutputEnabled = TRUE)
+		show = function(showType = 1, digits = NA_integer_) {
+			.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
 		},
 		
-		.show = function(showType = 1, consoleOutputEnabled = TRUE) {
+		.show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing trial design characteristics objects'
 			.resetCat()
 			.initStages()		
@@ -682,9 +682,9 @@ TrialDesignGroupSequential <- setRefClass(
 			callSuper(...)
 			.parameterFormatFunctions$criticalValues <<- "formatGroupSequentialCriticalValues"
 		},
-		show = function(showType = 1) {
+		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial design objects'
-			callSuper(showType)
+			callSuper(showType = showType, digits = digits)
 		}
 	)
 )
@@ -747,9 +747,9 @@ TrialDesignConditionalDunnett <- setRefClass(
 					identical(secondStageConditioning, TRUE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 	
 		},
-		show = function(showType = 1) {
+		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial design objects'
-			callSuper(showType)
+			callSuper(showType = showType, digits = digits)
 		}
 	)
 )

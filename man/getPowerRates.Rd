@@ -4,8 +4,7 @@
 \alias{getPowerRates}
 \title{Get Power Rates}
 \usage{
-getPowerRates(design = NULL, ..., groups = 2,
-  normalApproximation = TRUE, riskRatio = FALSE,
+getPowerRates(design = NULL, ..., groups = 2, riskRatio = FALSE,
   thetaH0 = ifelse(riskRatio, 1, 0), pi1 = C_PI_1_DEFAULT, pi2 = 0.2,
   directionUpper = NA, maxNumberOfSubjects = NA_real_,
   allocationRatioPlanned = NA_real_)
@@ -18,10 +17,6 @@ In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entere
 that a warning will be displayed if unknown arguments are passed.}
 
 \item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
-
-\item{normalApproximation}{If \code{normalApproximation = FALSE} is specified, the sample size 
-for the case of one treatment group is calculated exactly using the binomial distribution, 
-default is \code{TRUE}.}
 
 \item{riskRatio}{If \code{riskRatio = TRUE} is specified, the power for one-sided 
 testing of H0: \code{pi1/pi2 = thetaH0} is calculated, default is \code{FALSE}.}
@@ -48,14 +43,16 @@ Returns a \code{\link{TrialDesignPlanRates}} object.
 Returns the power, stopping probabilities, and expected sample size for testing rates in one or two samples at given sample sizes.
 }
 \details{
-At given design the function calculates the power, stopping probabilities, and expected sample size, for testing rates for given maximum sample size.
+At given design the function calculates the power, stopping probabilities, and expected sample size, 
+for testing rates for given maximum sample size.
 The sample sizes over the stages are calculated according to the specified information rate in the design. 
 In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
 If a null hypothesis value thetaH0 != 0 for testing the difference of two rates 
 or thetaH0 != 1 for testing the risk ratio is specified, the  
 formulas according to Farrington & Manning (Statistics in Medicine, 1990) are used (only one-sided testing).
 Critical bounds and stopping for futility bounds are provided at the effect scale (rate, rate difference, or rate ratio, respectively). 
-For the two-sample case, the calculation here is performed at fixed pi2 as given as argument in the function.
+For the two-sample case, the calculation here is performed at fixed pi2 as given as argument in the function.  
+Note that the power calculation for rates is always based on the normal approximation.
 }
 \examples{
 

@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 11 September 2019, 16:00:43                                                  #
+# Date: 07 November 2019, 10:22:23                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -236,6 +236,239 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	expect_equal(pwSurvivalTime9$piecewiseSurvivalEnabled, FALSE)
 	expect_equal(pwSurvivalTime9$delayedResponseAllowed, FALSE)
 	expect_equal(pwSurvivalTime9$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime10 <- getPiecewiseSurvivalTime(median2 = 1.386294, hazardRatio = 0.8)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime10' with expected results
+	##
+	expect_equal(pwSurvivalTime10$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime10$lambda1, 0.4000001, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime10$lambda2, 0.50000013, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime10$hazardRatio, 0.8, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime10$pi1, 0.99177026, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime10$pi2, 0.99752125, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime10$median1, 1.7328675, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime10$median2, 1.386294, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime10$eventTime, 12)
+	expect_equal(pwSurvivalTime10$kappa, 1)
+	expect_equal(pwSurvivalTime10$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime10$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime10$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime11 <- getPiecewiseSurvivalTime(median2 = 1.386294, lambda1 = 0.4)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime11' with expected results
+	##
+	expect_equal(pwSurvivalTime11$piecewiseSurvivalTime, 0)
+	expect_equal(pwSurvivalTime11$lambda1, 0.4, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime11$lambda2, 0.50000013, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime11$hazardRatio, 0.79999979, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime11$pi1, 0.99177025, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime11$pi2, 0.99752125, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime11$median1, 1.732868, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime11$median2, 1.386294, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime11$eventTime, 12)
+	expect_equal(pwSurvivalTime11$kappa, 1)
+	expect_equal(pwSurvivalTime11$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime11$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime11$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime12 <- getPiecewiseSurvivalTime(median2 = 5, median1 = 6)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime12' with expected results
+	##
+	expect_equal(pwSurvivalTime12$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime12$lambda1, 0.11552453, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime12$lambda2, 0.13862944, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime12$hazardRatio, 0.83333333, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime12$pi1, 0.75, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime12$pi2, 0.81053543, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime12$median1, 6)
+	expect_equal(pwSurvivalTime12$median2, 5)
+	expect_equal(pwSurvivalTime12$eventTime, 12)
+	expect_equal(pwSurvivalTime12$kappa, 1)
+	expect_equal(pwSurvivalTime12$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime12$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime12$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime13 <- getPiecewiseSurvivalTime(median2 = 1.386294, lambda1 = c(0.3, 0.4))
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime13' with expected results
+	##
+	expect_equal(pwSurvivalTime13$piecewiseSurvivalTime, 0)
+	expect_equal(pwSurvivalTime13$lambda1, c(0.3, 0.4), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime13$lambda2, 0.50000013, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime13$hazardRatio, c(0.59999984, 0.79999979), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime13$pi1, c(0.97267628, 0.99177025), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime13$pi2, 0.99752125, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime13$median1, c(2.3104906, 1.732868), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime13$median2, 1.386294, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime13$eventTime, 12)
+	expect_equal(pwSurvivalTime13$kappa, 1)
+	expect_equal(pwSurvivalTime13$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime13$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime13$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime14 <- getPiecewiseSurvivalTime(median2 = 5, median1 = c(6:8))
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime14' with expected results
+	##
+	expect_equal(pwSurvivalTime14$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime14$lambda1, c(0.11552453, 0.099021026, 0.086643398), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime14$lambda2, 0.13862944, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime14$hazardRatio, c(0.83333333, 0.71428571, 0.625), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime14$pi1, c(0.75, 0.69524659, 0.64644661), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime14$pi2, 0.81053543, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime14$median1, c(6, 7, 8))
+	expect_equal(pwSurvivalTime14$median2, 5)
+	expect_equal(pwSurvivalTime14$eventTime, 12)
+	expect_equal(pwSurvivalTime14$kappa, 1)
+	expect_equal(pwSurvivalTime14$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime14$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime14$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime15 <- getPiecewiseSurvivalTime(median2 = 2, hazardRatio = 0.8)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime15' with expected results
+	##
+	expect_equal(pwSurvivalTime15$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime15$lambda1, 0.27725887, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime15$lambda2, 0.34657359, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime15$hazardRatio, 0.8, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime15$pi1, 0.96410318, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime15$pi2, 0.984375, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime15$median1, 2.5, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime15$median2, 2)
+	expect_equal(pwSurvivalTime15$eventTime, 12)
+	expect_equal(pwSurvivalTime15$kappa, 1)
+	expect_equal(pwSurvivalTime15$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime15$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime15$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime16 <- getPiecewiseSurvivalTime(median1 = c(2, 3), hazardRatio = 0.8)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime16' with expected results
+	##
+	expect_equal(pwSurvivalTime16$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime16$lambda1, c(0.34657359, 0.23104906), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime16$lambda2, 0.018595296, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime16$hazardRatio, 0.8, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime16$pi1, c(0.984375, 0.9375), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime16$pi2, 0.2, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime16$median1, c(2, 3))
+	expect_equal(pwSurvivalTime16$median2, 37.275405, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime16$eventTime, 12)
+	expect_equal(pwSurvivalTime16$kappa, 1)
+	expect_equal(pwSurvivalTime16$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime16$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime16$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime17 <- getPiecewiseSurvivalTime(median1 = c(2, 3), median2 = 4)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime17' with expected results
+	##
+	expect_equal(pwSurvivalTime17$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime17$lambda1, c(0.34657359, 0.23104906), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime17$lambda2, 0.1732868, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime17$hazardRatio, c(2, 1.3333333), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime17$pi1, c(0.984375, 0.9375), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime17$pi2, 0.875, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime17$median1, c(2, 3))
+	expect_equal(pwSurvivalTime17$median2, 4)
+	expect_equal(pwSurvivalTime17$eventTime, 12)
+	expect_equal(pwSurvivalTime17$kappa, 1)
+	expect_equal(pwSurvivalTime17$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime17$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime17$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime18 <- getPiecewiseSurvivalTime(median1 = c(2, 3), lambda2 = 0.4)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime18' with expected results
+	##
+	expect_equal(pwSurvivalTime18$piecewiseSurvivalTime, 0)
+	expect_equal(pwSurvivalTime18$lambda1, c(0.34657359, 0.23104906), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime18$lambda2, 0.4, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime18$hazardRatio, c(0.86643398, 0.57762265), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime18$pi1, c(0.984375, 0.9375), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime18$pi2, 0.99177025, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime18$median1, c(2, 3))
+	expect_equal(pwSurvivalTime18$median2, 1.732868, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime18$eventTime, 12)
+	expect_equal(pwSurvivalTime18$kappa, 1)
+	expect_equal(pwSurvivalTime18$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime18$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime18$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime19 <- getPiecewiseSurvivalTime(median1 = c(2, 3), pi2 = 0.4) 
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime19' with expected results
+	##
+	expect_equal(pwSurvivalTime19$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime19$lambda1, c(0.34657359, 0.23104906), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime19$lambda2, 0.042568802, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime19$hazardRatio, c(8.1414927, 5.4276618), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime19$pi1, c(0.984375, 0.9375), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime19$pi2, 0.4, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime19$median1, c(2, 3))
+	expect_equal(pwSurvivalTime19$median2, 16.282985, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime19$eventTime, 12)
+	expect_equal(pwSurvivalTime19$kappa, 1)
+	expect_equal(pwSurvivalTime19$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime19$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime19$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime20 <- getPiecewiseSurvivalTime(median1 = c(2, 3), hazardRatio = 0.8)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime20' with expected results
+	##
+	expect_equal(pwSurvivalTime20$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime20$lambda1, c(0.34657359, 0.23104906), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime20$lambda2, 0.018595296, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime20$hazardRatio, 0.8, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime20$pi1, c(0.984375, 0.9375), tolerance = 1e-07)
+	expect_equal(pwSurvivalTime20$pi2, 0.2, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime20$median1, c(2, 3))
+	expect_equal(pwSurvivalTime20$median2, 37.275405, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime20$eventTime, 12)
+	expect_equal(pwSurvivalTime20$kappa, 1)
+	expect_equal(pwSurvivalTime20$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime20$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime20$delayedResponseEnabled, FALSE)
+
+	pwSurvivalTime21 <- getPiecewiseSurvivalTime(median1 = 3, hazardRatio = 0.8)
+
+	##
+	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime21' with expected results
+	##
+	expect_equal(pwSurvivalTime21$piecewiseSurvivalTime, NA_real_)
+	expect_equal(pwSurvivalTime21$lambda1, 0.23104906, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime21$lambda2, 0.018595296, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime21$hazardRatio, 0.8, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime21$pi1, 0.9375, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime21$pi2, 0.2, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime21$median1, 3)
+	expect_equal(pwSurvivalTime21$median2, 37.275405, tolerance = 1e-07)
+	expect_equal(pwSurvivalTime21$eventTime, 12)
+	expect_equal(pwSurvivalTime21$kappa, 1)
+	expect_equal(pwSurvivalTime21$piecewiseSurvivalEnabled, FALSE)
+	expect_equal(pwSurvivalTime21$delayedResponseAllowed, FALSE)
+	expect_equal(pwSurvivalTime21$delayedResponseEnabled, FALSE)
+
+	getPiecewiseSurvivalTime(median1 = c(2, 3), lambda2 = 0.8)
+
+	expect_error(getPiecewiseSurvivalTime(median2 = 1.386294, lambda2 = 0.4, hazardRatio = 0.8)) 
+	expect_error(getPiecewiseSurvivalTime(median2 = c(1.5, 1.7), lambda1 = c(0.3, 0.4)))
 
 })
 

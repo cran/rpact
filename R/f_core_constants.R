@@ -378,7 +378,7 @@ C_PARAMETER_NAMES <- list(
 	conditionalPower = "Conditional power",
 	conditionalPowerAchieved = "Cond. power (achieved)",
 	conditionalPowerSimulated = "Cond. power (simulated)",
-	conditionalRejectionProbabilities = "CRP",
+	conditionalRejectionProbabilities = "Cond. rejection probability",
 	repeatedConfidenceIntervalLowerBounds = "RCIs (lower)",
 	repeatedConfidenceIntervalUpperBounds = "RCIs (upper)",
 	repeatedPValues = "Repeated p-values",
@@ -489,9 +489,9 @@ C_PARAMETER_NAMES <- list(
 	maxStudyDuration = "Maximal study duration",
 	directionUpper = "Direction upper",
 	piecewiseSurvivalTime = "Piecewise survival times",
-	lambda2 = "Lambda (2)",
-	lambda1 = "Lambda (1)",
-	kappa = "Kappa",
+	lambda2 = "lambda (2)",
+	lambda1 = "lambda (1)",
+	kappa = "kappa",
 	
 	earlyStopPerStage = "Early stop per stage",
 	effect = "Effect",
@@ -516,8 +516,8 @@ C_PARAMETER_NAMES <- list(
 	delayedResponseEnabled = "Delayed response enabled",
 	piecewiseSurvivalEnabled = "Piecewise exponential survival enabled",
 	
-	median1 = "Median (1)",
-	median2 = "Median (2)",
+	median1 = "median (1)",
+	median2 = "median (2)",
 	
 	eventsPerStage = "Observed number of events by stage", 
 	expectedNumberOfEvents = "Observed number of events",
@@ -663,7 +663,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	conditionalPower = "Conditional power",
 	conditionalPowerAchieved = "Cond. power (achieved)",
 	conditionalPowerSimulated = "Cond. power (simulated)",
-	conditionalRejectionProbabilities = "CRP",
+	conditionalRejectionProbabilities = "Cond. rejection probabilities",
 	repeatedConfidenceIntervalLowerBounds = "RCI (lower)",
 	repeatedConfidenceIntervalUpperBounds = "RCI (upper)",
 	repeatedPValues = "Repeated p-value",
@@ -774,9 +774,9 @@ C_TABLE_COLUMN_NAMES <- list(
 	maxStudyDuration = "Maximal study duration",
 	directionUpper = "Direction upper",
 	piecewiseSurvivalTime = "Piecewise survival times",
-	lambda2 = "Lambda (2)",
-	lambda1 = "Lambda (1)",
-	kappa = "Kappa",
+	lambda2 = "lambda (2)",
+	lambda1 = "lambda (1)",
+	kappa = "kappa",
 	
 	earlyStopPerStage = "Early stop per stage",
 	effect = "Effect",
@@ -794,8 +794,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	delayedResponseEnabled = "Delayed response enabled",
 	piecewiseSurvivalEnabled = "Piecewise exponential survival enabled",
 	
-	median1 = "Median (1)",
-	median2 = "Median (2)",
+	median1 = "median (1)",
+	median2 = "median (2)",
 	
 	eventsPerStage = "Observed number of events by stage", 
 	expectedNumberOfEvents = "Observed number of events",
@@ -1019,7 +1019,10 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	informationAtInterim = "formatRates",
 	
 	separatePValues = "formatPValues",
-	singleStepAdjustedPValues = "formatPValues"
+	singleStepAdjustedPValues = "formatPValues",
+	
+	userAlphaSpending = "formatHowItIs", 
+	userBetaSpending = "formatHowItIs"
 )
 
 .getParameterFormatFunctions <- function() {
