@@ -166,11 +166,8 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 			'Method for automatically printing trial plan objects'
 			.resetCat()
 			if (showType == 3) {
-				parameterList <- .createSummary(.self, digits = digits)
-				for (parameterName in names(parameterList)) {
-					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
-						consoleOutputEnabled = consoleOutputEnabled)
-				}
+				.createSummary(.self, digits = digits)$.show(showType = 1, 
+					digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			}
 			else if (showType == 2) {
 				.cat("Technical summary of the design plan object of class ",
@@ -800,7 +797,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 #' 
 summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_integer_) {
 	if (type == 1) {
-		return(invisible(summary.ParameterSet(object = object, ..., type = type, digits = digits)))
+		return(summary.ParameterSet(object = object, ..., type = type, digits = digits))
 	} 
 	
 	object$.cat("This output summarizes the ", object$.toString(), " specification.\n\n", heading = 1)
@@ -1224,7 +1221,10 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			
 			if (.isTrialDesignPlanMeans(designPlan)) {
 				xParameterName <- "alternative"
-				yParameterNames <- c("nFixed", "maxNumberOfSubjects", "expectedNumberOfSubjectsH1") 
+				yParameterNames <- c("nFixed") 
+				if (designMaster$kMax > 1) {
+					yParameterNames <- c(yParameterNames, "maxNumberOfSubjects", "expectedNumberOfSubjectsH1") 
+				}
 				if (is.na(ylab)) {
 					ylab <- "Sample Size"
 				}
@@ -1236,7 +1236,10 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 				
 			} else if (.isTrialDesignPlanRates(designPlan)) {
 				xParameterName <- "pi1"
-				yParameterNames <- c("nFixed", "maxNumberOfSubjects", "expectedNumberOfSubjectsH1") 
+				yParameterNames <- c("nFixed") 
+				if (designMaster$kMax > 1) {
+					yParameterNames <- c(yParameterNames, "maxNumberOfSubjects", "expectedNumberOfSubjectsH1") 
+				}
 				if (is.na(ylab)) {
 					ylab <- "Sample Size"
 				}
@@ -1254,7 +1257,10 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 					expectedEventsH1 = designPlan$expectedEventsH1
 				)
 				xParameterName <- "hazardRatio"
-				yParameterNames <- c("eventsFixed", "maxNumberOfEvents", "expectedEventsH1")
+				yParameterNames <- c("eventsFixed")
+				if (designMaster$kMax > 1) {
+					yParameterNames <- c(yParameterNames, "maxNumberOfEvents", "expectedEventsH1")
+				}
 				if (is.na(ylab)) {
 					ylab <- "# Events"
 				}
@@ -1805,6 +1811,9 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 #' 
 #' @details
 #' Generic function to plot all kinds of trial design plans.
+#' 
+#' @return 
+#' A \code{ggplot2} object.
 #' 
 #' @export
 #'

@@ -354,10 +354,10 @@ NULL
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
 	
 	if (designClass == C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
-		design <- TrialDesignInverseNormal()
+		design <- TrialDesignInverseNormal(kMax = kMax)
 	}
 	else if (designClass == C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL) {
-		design <- TrialDesignGroupSequential()
+		design <- TrialDesignGroupSequential(kMax = kMax)
 	}
 	else {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
@@ -369,7 +369,6 @@ NULL
 		sided <- as.integer(sided)
 	}
 	
-	design$kMax <- kMax 
 	design$alpha <- alpha 
 	design$beta <- beta 
 	design$sided <- sided 
@@ -443,6 +442,12 @@ NULL
 	}, lower = 0, upper = 8, tolerance = design$tolerance)
 	design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
 	
+	.calculateAlphaSpent(design)
+
+	invisible(design)
+}
+
+.calculateAlphaSpent <- function(design) {
 	if (design$sided == 2) {
 		decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
 	} else {
@@ -462,12 +467,13 @@ NULL
 		} else {
 			design$alphaSpent <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
 		} 
+		if (!is.na(design$alphaSpent[design$kMax])) {
+			design$alphaSpent[design$kMax] <- floor(design$alphaSpent[design$kMax] * 1e8) / 1e8
+		}
 		design$.setParameterType("alphaSpent", C_PARAM_GENERATED)
 	}, error = function(e) {
 		warning("Failed to calculate 'alphaSpent': ", e, call. = FALSE)
-	})
-
-	invisible(design)
+	})	
 }
 
 # 
@@ -496,33 +502,15 @@ NULL
 	
 	design$criticalValues <- c(rep(design$constantBoundsHP, design$kMax - 1), scale)
 	
-	if (design$sided == 2) {
-		decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
-	} else {
-		if (design$bindingFutility) {
-			decisionMatrix <- matrix(c(design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		} else {
-			decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		}
-	}
-	probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
-	
-	if (design$sided == 1) {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ])
-	} else {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
-	}
-	design$.setParameterType("alphaSpent", C_PARAM_GENERATED)
+	.calculateAlphaSpent(design)
 	
 	if (!is.na(design$criticalValues[design$kMax]) &&
-		!is.na(design$alphaSpent[design$kMax]) &&
-		(design$criticalValues[design$kMax] > 6 || abs(design$alphaSpent[design$kMax] - design$alpha) > 0.001)) {
-			stop(sprintf(paste0(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-				"critical values according to the Haybittle & Peto design cannot be calculated ", 
-				"(criticalValues[%s] = %s, alpha = %s)"),
-				design$kMax, design$criticalValues[design$kMax], design$alpha))
+			!is.na(design$alphaSpent[design$kMax]) &&
+			(design$criticalValues[design$kMax] > 6 || abs(design$alphaSpent[design$kMax] - design$alpha) > 0.001)) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+			"critical values according to the Haybittle & Peto design cannot be calculated ", 
+			"(criticalValues[%s] = %s, alpha = %s)"),
+			design$kMax, design$criticalValues[design$kMax], design$alpha))
 	}
 	
 	invisible(design)
@@ -565,29 +553,9 @@ NULL
 	design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
 	designCharacteristics <- .getDesignCharacteristics(design = design)	
 	design$power <- designCharacteristics$power
-	
 	design$.setParameterType("power", C_PARAM_GENERATED)
-	
-	if (design$sided == 2) {
-		decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), 
-			nrow = 2, byrow = TRUE)
-	} else {
-		if (design$bindingFutility) {
-			decisionMatrix <- matrix(c(design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		} else {
-			decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		}
-	}
-	probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
-	
-	if (design$sided == 1) {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ])
-	} else {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
-	}
-	design$.setParameterType("alphaSpent", C_PARAM_GENERATED)
+
+	.calculateAlphaSpent(design)
 	
 	invisible(design)
 }
@@ -632,26 +600,7 @@ NULL
 		}, lower = 0, upper = 8, tolerance = design$tolerance)
 	}
 	
-	if (design$sided == 2) {
-		decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), 
-			nrow = 2, byrow = TRUE)
-	} else {
-		if (design$bindingFutility) {
-			decisionMatrix <- matrix(c(design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		} else {
-			decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		}
-	}
-	probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
-		
-	if (design$sided == 1) {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ])
-	} else {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
-	}
-	design$.setParameterType("alphaSpent", C_PARAM_GENERATED)
+	.calculateAlphaSpent(design)
 	
 	.getDesignGroupSequentialBetaSpendingApproaches(design)
 }
@@ -685,26 +634,7 @@ NULL
 		}, lower = 0, upper = 8, tolerance = design$tolerance)
 	}
 	
-	if (design$sided == 2) {
-		decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), 
-			nrow = 2, byrow = TRUE)
-	} else {
-		if (design$bindingFutility) {
-			decisionMatrix <- matrix(c(design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		} else {
-			decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
-				design$criticalValues), nrow = 2, byrow = TRUE)
-		}
-	}
-	probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
-	
-	if (design$sided == 1) {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ])
-	} else {
-		design$alphaSpent <- cumsum(probs[3, ] - probs[2, ] + probs[1, ])
-	}
-	design$.setParameterType("alphaSpent", C_PARAM_GENERATED)
+	.calculateAlphaSpent(design)
 	
 	invisible(.getDesignGroupSequentialBetaSpendingApproaches(design))
 }

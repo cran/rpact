@@ -4,20 +4,31 @@
 \alias{getPowerSurvival}
 \title{Get Power Survival}
 \usage{
-getPowerSurvival(design = NULL, ...,
+getPowerSurvival(
+  design = NULL,
+  ...,
   typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
-  thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT, directionUpper = NA,
-  pi1 = NA_real_, pi2 = NA_real_, lambda1 = NA_real_,
-  lambda2 = NA_real_, median1 = NA_real_, median2 = NA_real_,
-  kappa = 1, hazardRatio = NA_real_,
-  piecewiseSurvivalTime = NA_real_, allocationRatioPlanned = 1,
+  thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT,
+  directionUpper = NA,
+  pi1 = NA_real_,
+  pi2 = NA_real_,
+  lambda1 = NA_real_,
+  lambda2 = NA_real_,
+  median1 = NA_real_,
+  median2 = NA_real_,
+  kappa = 1,
+  hazardRatio = NA_real_,
+  piecewiseSurvivalTime = NA_real_,
+  allocationRatioPlanned = 1,
   eventTime = C_EVENT_TIME_DEFAULT,
   accrualTime = C_ACCRUAL_TIME_DEFAULT,
   accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,
-  maxNumberOfSubjects = NA_real_, maxNumberOfEvents = NA_real_,
+  maxNumberOfSubjects = NA_real_,
+  maxNumberOfEvents = NA_real_,
   dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT,
   dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT,
-  dropoutTime = C_DROP_OUT_TIME_DEFAULT)
+  dropoutTime = C_DROP_OUT_TIME_DEFAULT
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

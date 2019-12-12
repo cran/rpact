@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 06 November 2019, 17:10:04                                                   #
+# Date: 26 November 2019, 08:45:16                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -30,7 +30,7 @@ test_that("'getAnalysisResults' for a group sequential design and one treatment"
 	)
 
 	x1 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 3, 	thetaH0 = 0.75, normalApproximation = FALSE, directionUpper = FALSE) 
+		stage = 3, thetaH0 = 0.75, normalApproximation = FALSE, directionUpper = FALSE) 
 
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x1' with expected results
@@ -854,7 +854,7 @@ test_that("'getAnalysisResults' for a Fisher design and one treatment", {
 	## Comparison of the results of list object 'plotData1' with expected results
 	##
 	expect_equal(plotData1$xValues, c(0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55), tolerance = 1e-07)
-	expect_equal(plotData1$condPowerValues, c(0.9991, 0.988, 0.9637, 0.9018, 0.8082, 0.6784, 0.5175), tolerance = 1e-07)
+	expect_equal(plotData1$condPowerValues, c(0.997, 0.99, 0.967, 0.9, 0.822, 0.659, 0.534), tolerance = 1e-07)
 	expect_equal(plotData1$likelihoodValues, c(0.10539922, 0.23692776, 0.44485807, 0.69767633, 0.91393119, 1, 0.91393119), tolerance = 1e-07)
 	expect_equal(plotData1$main, "Conditional Power Plot with Likelihood")
 	expect_equal(plotData1$xlab, "pi1")
@@ -975,7 +975,7 @@ test_that("'getAnalysisResults' for a Fisher design and one treatment", {
 	## Comparison of the results of list object 'plotData2' with expected results
 	##
 	expect_equal(plotData2$xValues, c(0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55), tolerance = 1e-07)
-	expect_equal(plotData2$condPowerValues, c(0.0422, 0.1045, 0.2175, 0.3551, 0.5294, 0.6784, 0.8077), tolerance = 1e-07)
+	expect_equal(plotData2$condPowerValues, c(0.039, 0.114, 0.208, 0.363, 0.54, 0.659, 0.817), tolerance = 1e-07)
 	expect_equal(plotData2$likelihoodValues, c(0.10539922, 0.23692776, 0.44485807, 0.69767633, 0.91393119, 1, 0.91393119), tolerance = 1e-07)
 	expect_equal(plotData2$main, "Conditional Power Plot with Likelihood")
 	expect_equal(plotData2$xlab, "pi1")
@@ -1076,7 +1076,7 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs",
 		informationRates = c(0.3, 1))
 
 	x3 <- getAnalysisResults(design6, dataExample4, thetaH0 = 0, stage = 2, directionUpper = TRUE, 
-		normalApproximation = FALSE)
+		normalApproximation = FALSE, seed = 123)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'x3' with expected results
@@ -1470,7 +1470,7 @@ test_that("'getAnalysisResults' for a Fisher design and two treatments", {
 	)
 
 	x1 <- getAnalysisResults(design9, dataExample7, thetaH0 = 0, stage = 2, nPlanned = c(60,30), 
-		pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2)
+		pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2, seed = 123)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'x1' with expected results
@@ -1501,7 +1501,7 @@ test_that("'getAnalysisResults' for a Fisher design and two treatments", {
 	expect_equal(x1$medianUnbiasedEstimates, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$normalApproximation, TRUE)
 	expect_equal(x1$directionUpper, TRUE)
-	expect_equal(x1$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.9129, 0.9784), tolerance = 1e-07)
+	expect_equal(x1$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.925, 0.972), tolerance = 1e-07)
 	expect_equal(x1$combinationTestStatistics, c(0.014194417, 0.0062944232, NA_real_, NA_real_), tolerance = 1e-07)
 
 	plotData1 <- testGetAnalysisResultsPlotData(x1, piRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)  			
@@ -1510,7 +1510,7 @@ test_that("'getAnalysisResults' for a Fisher design and two treatments", {
 	## Comparison of the results of list object 'plotData1' with expected results
 	##
 	expect_equal(plotData1$xValues, c(0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8), tolerance = 1e-07)
-	expect_equal(plotData1$condPowerValues, c(0.2057, 0.3564, 0.5056, 0.689, 0.8294, 0.9263, 0.9766), tolerance = 1e-07)
+	expect_equal(plotData1$condPowerValues, c(0.199, 0.364, 0.506, 0.686, 0.839, 0.927, 0.979), tolerance = 1e-07)
 	expect_equal(plotData1$likelihoodValues, c(0.63105765, 0.95013529, 0.95013529, 0.63105765, 0.27837883, 0.081561833, 0.015871623), tolerance = 1e-07)
 	expect_equal(plotData1$main, "Conditional Power Plot with Likelihood")
 	expect_equal(plotData1$xlab, "pi1")
@@ -1520,7 +1520,7 @@ test_that("'getAnalysisResults' for a Fisher design and two treatments", {
 	# reversed "directionUpper"
 
 	x2 <- getAnalysisResults(design9, dataExample7, thetaH0 = 0, stage = 2, nPlanned = c(60,30), 
-		pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5)
+		pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5, seed = 123)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'x2' with expected results
@@ -1551,7 +1551,7 @@ test_that("'getAnalysisResults' for a Fisher design and two treatments", {
 	expect_equal(x2$medianUnbiasedEstimates, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x2$normalApproximation, TRUE)
 	expect_equal(x2$directionUpper, FALSE)
-	expect_equal(x2$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.5638, 0.7946), tolerance = 1e-07)
+	expect_equal(x2$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.591, 0.788), tolerance = 1e-07)
 	expect_equal(x2$combinationTestStatistics, c(0.98580558, 0.54865641, NA_real_, NA_real_), tolerance = 1e-07)
 
 	plotData2 <- testGetAnalysisResultsPlotData(x2,piRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5) 				
@@ -1560,7 +1560,7 @@ test_that("'getAnalysisResults' for a Fisher design and two treatments", {
 	## Comparison of the results of list object 'plotData2' with expected results
 	##
 	expect_equal(plotData2$xValues, c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5), tolerance = 1e-07)
-	expect_equal(plotData2$condPowerValues, c(0.9986, 0.9908, 0.9652, 0.9014, 0.7908, 0.6483, 0.47), tolerance = 1e-07)
+	expect_equal(plotData2$condPowerValues, c(0.998, 0.992, 0.967, 0.892, 0.807, 0.623, 0.493), tolerance = 1e-07)
 	expect_equal(plotData2$likelihoodValues, c(1.003982e-05, 0.00017609247, 0.0020513476, 0.015871623, 0.081561833, 0.27837883, 0.63105765), tolerance = 1e-07)
 	expect_equal(plotData2$main, "Conditional Power Plot with Likelihood")
 	expect_equal(plotData2$xlab, "pi1")
@@ -1661,7 +1661,7 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs",
 		informationRates = c(0.3, 1))
 
 	x3 <- getAnalysisResults(design12, dataExample8, thetaH0 = 0, stage = 2, directionUpper = FALSE, 
-		normalApproximation = FALSE)
+		normalApproximation = FALSE, seed = 123)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'x3' with expected results

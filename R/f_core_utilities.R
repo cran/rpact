@@ -311,7 +311,11 @@ resetLogLevel <- function() {
 .arrayToString <- function(x, separator = ", ", 
 		vectorLookAndFeelEnabled = FALSE, 
 		encapsulate = FALSE,
-		digits = 3) {	
+		digits = 3) {
+		
+	if (digits < 0) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'digits' (", digits, ") must be >= 0")
+	}
 		
 	if (missing(x) || is.null(x) || length(x) == 0) {
 		return("NULL")
@@ -326,7 +330,11 @@ resetLogLevel <- function() {
 	}
 	
 	if (is.numeric(x)) {
-		indices <- which(!is.na(x))
+		if (digits > 0) {
+			indices <- which(!is.na(x) & abs(x) >= 10^-digits)
+		} else {
+			indices <- which(!is.na(x))
+		}
 		x[indices] <- round(x[indices], digits)
 	}
 	
@@ -794,7 +802,7 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 			C_LOG_LEVEL_ERROR, C_LOG_LEVEL_PROGRESS))) {
 		return(invisible())
 	}
-	
+	#return(invisible())
 	time <- Sys.time() - startTime	
 	timeStr <- paste0("[", round(as.numeric(time), 4), " secs]")
 	if (length(list(...)) > 0) {
@@ -1067,14 +1075,14 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 			(design$isDefaultParameter("informationRates") && !design$isUserDefinedParameter("kMax"))) &&
 		length(design$informationRates) != length(design$userAlphaSpending)) {
 		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-					"length of 'userAlphaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
-				length(design$userAlphaSpending), length(design$informationRates)))
+				"length of 'userAlphaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
+			length(design$userAlphaSpending), length(design$informationRates)))
 	}
 	
 	if (length(design$userAlphaSpending) != design$kMax) {
 		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-					"length of 'userAlphaSpending' (%s) must be equal to 'kMax' (%s)"), 
-				length(design$userAlphaSpending), design$kMax))
+				"length of 'userAlphaSpending' (%s) must be equal to 'kMax' (%s)"), 
+			length(design$userAlphaSpending), design$kMax))
 	}
 	
 	.validateUserAlphaSpendingLength(design)
@@ -1082,7 +1090,7 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	if (.isUndefinedArgument(design$alpha)) {
 		design$alpha <- design$userAlphaSpending[design$kMax]
 		design$.setParameterType("alpha", ifelse(design$alpha == C_ALPHA_DEFAULT, 
-				C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
+			C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
 	}
 	
 	.assertIsValidAlpha(design$alpha)
@@ -1090,10 +1098,10 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	if (design$kMax > 1 && (design$userAlphaSpending[1] < 0 || design$userAlphaSpending[design$kMax] > design$alpha ||
 			any(design$userAlphaSpending[2:design$kMax] - design$userAlphaSpending[1:(design$kMax - 1)] < 0))) {
 		stop(sprintf(paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-					"'userAlphaSpending' = %s must be a vector that satisfies the following condition: ", 
-					"0 <= alpha_1 <= .. <= alpha_%s <= alpha = %s"), 
-				.arrayToString(design$userAlphaSpending, vectorLookAndFeelEnabled = TRUE), 
-				design$kMax, design$alpha))
+				"'userAlphaSpending' = %s must be a vector that satisfies the following condition: ", 
+				"0 <= alpha_1 <= .. <= alpha_%s <= alpha = %s"), 
+			.arrayToString(design$userAlphaSpending, vectorLookAndFeelEnabled = TRUE), 
+			design$kMax, design$alpha))
 	}
 }
 
@@ -1108,26 +1116,26 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 			(design$isDefaultParameter("informationRates") && !design$isUserDefinedParameter("kMax"))) &&
 		length(design$informationRates) != length(design$userBetaSpending)) {
 		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-					"length of 'userBetaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
-				length(design$userBetaSpending), length(design$informationRates)))
+				"length of 'userBetaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
+			length(design$userBetaSpending), length(design$informationRates)))
 	}
 	
 	if (length(design$userBetaSpending) != design$kMax) {
 		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-					"length of 'userBetaSpending' (%s) must be equal to 'kMax' (%s)"), 
-				length(design$userBetaSpending), design$kMax))
+				"length of 'userBetaSpending' (%s) must be equal to 'kMax' (%s)"), 
+			length(design$userBetaSpending), design$kMax))
 	}
 	
 	if (length(design$userBetaSpending) < 2 || length(design$userBetaSpending) > C_KMAX_UPPER_BOUND) {
 		stop(sprintf(paste0(C_EXCEPTION_TYPE_ARGUMENT_LENGTH_OUT_OF_BOUNDS, 
-					"length of 'userBetaSpending' (%s) is out of bounds [2; %s]"), 
-				length(design$userBetaSpending), C_KMAX_UPPER_BOUND))
+				"length of 'userBetaSpending' (%s) is out of bounds [2; %s]"), 
+			length(design$userBetaSpending), C_KMAX_UPPER_BOUND))
 	}
 	
 	if (.isUndefinedArgument(design$beta)) {
 		design$beta <- design$userBetaSpending[design$kMax]
 		design$.setParameterType("beta", ifelse(design$beta == C_BETA_DEFAULT, 
-				C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
+			C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
 	}
 	
 	.assertIsValidBeta(beta = design$beta, alpha = design$alpha)
@@ -1135,10 +1143,10 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	if (design$kMax > 1 && (design$userBetaSpending[1] < 0 || design$userBetaSpending[design$kMax] > design$beta ||
 			any(design$userBetaSpending[2:design$kMax] - design$userBetaSpending[1:(design$kMax - 1)] < 0))) {
 		stop(sprintf(paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-					"'userBetaSpending' = %s must be a vector that satisfies the following condition: ", 
-					"0 <= beta_1 <= .. <= beta_%s <= beta = %s"), 
-				.arrayToString(design$userBetaSpending, vectorLookAndFeelEnabled = TRUE), 
-				design$kMax, design$beta))
+				"'userBetaSpending' = %s must be a vector that satisfies the following condition: ", 
+				"0 <= beta_1 <= .. <= beta_%s <= beta = %s"), 
+			.arrayToString(design$userBetaSpending, vectorLookAndFeelEnabled = TRUE), 
+			design$kMax, design$beta))
 	}
 }
 
@@ -1346,6 +1354,15 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 
 .getNumberOfSubjects2 <- function(numberOfSubjects, allocationRatioPlanned) {
 	return(numberOfSubjects / (allocationRatioPlanned + 1))
+}
+
+.fillWithNAs <- function(x, kMax) {
+	if (length(x) >= kMax) {
+		return(x)
+	}
+	
+	x[(length(x) + 1):kMax] <- NA_real_
+	return(x)
 }
 
 #' @title 

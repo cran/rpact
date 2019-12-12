@@ -66,7 +66,7 @@ C_DIRECTION_UPPER_DEFAULT <- TRUE
 C_NORMAL_APPROXIMATION_MEANS_DEFAULT <- FALSE
 C_NORMAL_APPROXIMATION_RATES_DEFAULT <- TRUE
 C_EQUAL_VARIANCES_DEFAULT <- TRUE
-C_ITERATIONS_DEFAULT <- 10000
+C_ITERATIONS_DEFAULT <- 1000
 C_ACCEPT_DEVIATION_INFORMATIONRATES <- 0.05
 
 C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT <- 50
@@ -101,10 +101,10 @@ C_DIRECTION_LOWER = "lower"
 C_DIRECTION_UPPER = "upper"
 
 # 
-# Constants used in 'f_analysis_multiarmed'
+# Constants used in 'f_analysis_multiarm'
 # 
 C_INTERSECTIONTEST_MULTIARMED_DEFAULT <- "Dunnett"
-C_VARIANCES_OPTION_DEFAULT <- "overallPooled" 
+C_VARIANCE_OPTION_DEFAULT <- "overallPooled" 
 
 # 
 # Constants used in 'parameters.R'
@@ -313,7 +313,7 @@ C_PARAMETER_NAMES <- list(
 	stDevs = "Standard deviations",
 	overallEvents = "Overall events",
 	overallAllocationRatios = "Overall allocation ratios",
-	overallLogRanks = "Overall logranks",
+	overallLogRanks = "Overall log-ranks",
 	
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constants",
@@ -370,6 +370,8 @@ C_PARAMETER_NAMES <- list(
 	pi2H1 = "pi (2) under H1",
 	nPlanned = "Planned sample size",
 	
+	piControl = "Control rates",
+	piTreatments = "Treatment rates",
 	effectSizes = "Effect sizes",
 	testStatistics = "Test statistics",
 	pValues = "p-values",
@@ -404,14 +406,14 @@ C_PARAMETER_NAMES <- list(
 	weightsFisher = "Weights Fisher", 
 	weightsInverseNormal = "Weights inverse normal",
 	
-	overallLogRanks = "Overall logranks",
+	overallLogRanks = "Overall log-ranks",
 	overallEvents = "Overall number of events",
 	overallEvents1 = "Overall number of events (1)",
 	overallEvents2 = "Overall number of events (2)",
 	overallAllocationRatios = "Overall allocation ratios",
 	events = "Number of events",
 	allocationRatios = "Allocation ratios",
-	logRanks = "Log ranks",
+	logRanks = "Log-ranks",
 	
 	nMax = "N_max",
 	averageSampleNumber = "Average sample sizes (ASN)",
@@ -541,7 +543,9 @@ C_PARAMETER_NAMES <- list(
 	singleStepAdjustedPValues = "Single step adjusted p-values",
 	intersectionTest = "Intersection test",
 	varianceOption = "Variance option",
-	optimumAllocationRatio = "Optimum allocation ratio"
+	optimumAllocationRatio = "Optimum allocation ratio",
+	
+	rejected = "Rejected"
 )
 
 .getParameterNames <- function(design = NULL, designPlan = NULL) {
@@ -594,7 +598,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	stDevs = "Standard deviation",
 	overallEvents = "Overall event",
 	overallAllocationRatios = "Overall allocation ratio",
-	overallLogRanks = "Overall log rank",
+	overallLogRanks = "Overall log-rank",
 	overallMeans = "Overall mean",
 	
 	bindingFutility = "Binding futility",
@@ -688,14 +692,14 @@ C_TABLE_COLUMN_NAMES <- list(
 	weightsFisher = "Weight Fisher", 
 	weightsInverseNormal = "Weight Inverse Normal",
 	
-	overallLogRanks = "Overall log rank",
+	overallLogRanks = "Overall log-rank",
 	overallEvents = "Overall # events",
 	overallEvents1 = "Overall # events (1)",
 	overallEvents2 = "Overall #events (2)",
 	overallAllocationRatios = "Overall allocation ratio",
 	events = "# events", 
 	allocationRatios = "Allocation ratio",
-	logRanks = "Log rank",
+	logRanks = "Log-rank",
 	
 	nMax = "N_max",
 	averageSampleNumber = "Average sample size (ASN)",
@@ -819,7 +823,9 @@ C_TABLE_COLUMN_NAMES <- list(
 	singleStepAdjustedPValues = "Single step adjusted p-value",
 	intersectionTest = "Intersection test",
 	varianceOption = "Variance option",
-	optimumAllocationRatio = "Optimum allocation ratio"
+	optimumAllocationRatio = "Optimum allocation ratio",
+	
+	rejected = "Rejected"
 )
 
 .getTableColumnNames <- function(design = NULL, designPlan = NULL) {

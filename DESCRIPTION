@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 2.0.5
-Date: 2019-11-08
+Version: 2.0.6
+Date: 2019-12-12
 Authors@R: c(
 	person("Gernot", "Wassmer", email = "gernot.wassmer@rpact.com", role = c("aut")),
     person("Friedrich", "Pahlke", email = "friedrich.pahlke@rpact.com", role = c("aut", "cre")))
@@ -16,7 +16,7 @@ Depends: R (>= 3.4.0)
 Imports: methods, stats, utils, graphics, tools, Rcpp (>= 1.0.0)
 LinkingTo: Rcpp
 Suggests: parallel, ggplot2 (>= 2.2.0), testthat (>= 2.0.0)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Collate: 'RcppExports.R' 'f_core_constants.R'
         'class_core_parameter_set.R' 'class_core_plot_settings.R'
         'class_analysis_dataset.R' 'f_core_plot.R' 'class_design.R'
@@ -25,17 +25,17 @@ Collate: 'RcppExports.R' 'f_core_constants.R'
         'f_core_assertions.R' 'f_design_utilities.R'
         'class_design_plan.R' 'class_design_power_and_asn.R'
         'class_event_probabilities.R' 'f_simulation_survival.R'
-        'class_simulation_results.R' 'class_summary.R' 'f_analysis.R'
-        'f_analysis_means.R' 'f_analysis_means_multiarmed.R'
-        'f_analysis_rates.R' 'f_analysis_survival.R'
+        'class_simulation_results.R' 'class_summary.R'
+        'f_analysis_base.R' 'f_analysis_base_means.R'
+        'f_analysis_base_rates.R' 'f_analysis_base_survival.R'
         'f_core_output_formats.R' 'f_design_fisher_combination_test.R'
         'f_design_group_sequential.R'
         'f_design_sample_size_calculator.R' 'f_simulation_means.R'
         'f_simulation_rates.R' 'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2019-11-08 10:20:55 UTC; fried
+Packaged: 2019-12-12 13:48:22 UTC; fried
 Author: Gernot Wassmer [aut],
   Friedrich Pahlke [aut, cre]
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2019-11-08 11:30:06 UTC
+Date/Publication: 2019-12-12 14:40:02 UTC

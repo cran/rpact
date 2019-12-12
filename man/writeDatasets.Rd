@@ -4,9 +4,21 @@
 \alias{writeDatasets}
 \title{Write Multiple Datasets}
 \usage{
-writeDatasets(datasets, file, ..., append = FALSE, quote = TRUE,
-  sep = ",", eol = "\\n", na = "NA", dec = ".", row.names = TRUE,
-  col.names = NA, qmethod = "double", fileEncoding = "UTF-8")
+writeDatasets(
+  datasets,
+  file,
+  ...,
+  append = FALSE,
+  quote = TRUE,
+  sep = ",",
+  eol = "\\n",
+  na = "NA",
+  dec = ".",
+  row.names = TRUE,
+  col.names = NA,
+  qmethod = "double",
+  fileEncoding = "UTF-8"
+)
 }
 \arguments{
 \item{datasets}{A list of datasets.}

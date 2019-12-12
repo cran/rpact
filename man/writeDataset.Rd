@@ -4,9 +4,21 @@
 \alias{writeDataset}
 \title{Write Dataset}
 \usage{
-writeDataset(dataset, file, ..., append = FALSE, quote = TRUE,
-  sep = ",", eol = "\\n", na = "NA", dec = ".", row.names = TRUE,
-  col.names = NA, qmethod = "double", fileEncoding = "UTF-8")
+writeDataset(
+  dataset,
+  file,
+  ...,
+  append = FALSE,
+  quote = TRUE,
+  sep = ",",
+  eol = "\\n",
+  na = "NA",
+  dec = ".",
+  row.names = TRUE,
+  col.names = NA,
+  qmethod = "double",
+  fileEncoding = "UTF-8"
+)
 }
 \arguments{
 \item{dataset}{A dataset.}

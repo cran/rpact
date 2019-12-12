@@ -5,9 +5,14 @@
 \alias{as.data.frame.TrialDesignCharacteristics}
 \title{Coerce TrialDesignCharacteristics to a Data Frame}
 \usage{
-\method{as.data.frame}{TrialDesignCharacteristics}(x, row.names = NULL,
-  optional = FALSE, niceColumnNamesEnabled = FALSE,
-  includeAllParameters = FALSE, ...)
+\method{as.data.frame}{TrialDesignCharacteristics}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  niceColumnNamesEnabled = FALSE,
+  includeAllParameters = FALSE,
+  ...
+)
 }
 \arguments{
 \item{niceColumnNamesEnabled}{logical. If \code{TRUE}, nice looking names will be used; 

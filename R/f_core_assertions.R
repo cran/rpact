@@ -19,7 +19,7 @@
 
 .stopWithWrongDesignMessage <- function(design) {
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'design' must be an instance of ", .arrayToString(
-			.getTrialDesignClassNames(), vectorLookAndFeelEnabled = FALSE), " (is '", class(design), "')")
+		.getTrialDesignClassNames(), vectorLookAndFeelEnabled = FALSE), " (is '", class(design), "')")
 }
 
 .isParameterSet <- function(x) {
@@ -152,33 +152,34 @@
 	return(.isStageResultsMeans(stageResults) || 
 			.isStageResultsRates(stageResults) || 
 			.isStageResultsSurvival(stageResults) ||
-			.isStageResultsMeansMultiArmed(stageResults) || 
-			.isStageResultsRatesMultiArmed(stageResults) || 
-			.isStageResultsSurvivalMultiArmed(stageResults))
+			.isStageResultsMeansMultiArm(stageResults) || 
+			.isStageResultsRatesMultiArm(stageResults) || 
+			.isStageResultsSurvivalMultiArm(stageResults))
 }
 
 .isStageResultsMeans <- function(stageResults) {
 	return(class(stageResults) == "StageResultsMeans")
 }
 
-.isStageResultsMeansMultiArmed <- function(stageResults) {
-	return(class(stageResults) == "StageResultsMeansMultiArmed")
+.isStageResultsMeansMultiArm <- function(stageResults) {
+	return(class(stageResults) == "StageResultsMultiArmMeans")
 }
 
 .isStageResultsRates <- function(stageResults) {
 	return(class(stageResults) == "StageResultsRates")
 }
 
-.isStageResultsRatesMultiArmed <- function(stageResults) {
-	return(class(stageResults) == "StageResultsRatesMultiArmed")
+.isStageResultsRatesMultiArm <- function(stageResults) {
+	return(class(stageResults) == "StageResultsMultiArmRates")
 }
 .isStageResultsSurvival <- function(stageResults) {
 	return(class(stageResults) == "StageResultsSurvival")
 }
 
-.isStageResultsSurvivalMultiArmed <- function(stageResults) {
-	return(class(stageResults) == "StageResultsSurvivalMultiArmed")
+.isStageResultsSurvivalMultiArm <- function(stageResults) {
+	return(class(stageResults) == "StageResultsMultiArmSurvival")
 }
+
 .assertIsStageResults <- function(stageResults) {
 	if (!.isStageResults(stageResults)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stageResults' must be an instance of ", 
@@ -193,19 +194,19 @@
 		return(invisible())
 	}
 	
-	if (length(x) > 1 && any(is.na(x))) {
+	if (!naAllowed && length(x) > 1 && any(is.na(x))) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'", xName, "' (", .arrayToString(x), ") must be a valid numeric vector or a single NA")
 	}
 	
 	if (is.null(upper) || is.na(upper)) {
-		if (any(x < lower)) {
+		if (any(x < lower, na.rm = TRUE)) {
 			prefix <- ifelse(length(x) > 1, "each value of ", "")
 			stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, prefix,
 				"'", xName, "' (", .arrayToString(x), ") must be >= ", lower)
 		}
 	}
-	else if (any(x < lower) || any(x > upper)) {
+	else if (any(x < lower, na.rm = TRUE) || any(x > upper, na.rm = TRUE)) {
 		stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
 			"'", xName, "' (", .arrayToString(x), ") is out of bounds [", lower, "; ", upper, "]")
 	}
@@ -216,19 +217,19 @@
 		return(invisible())
 	}
 	
-	if (length(x) > 1 && any(is.na(x))) {
+	if (!naAllowed && length(x) > 1 && any(is.na(x))) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'", xName, "' (", .arrayToString(x), ") must be a valid numeric vector or a single NA")
 	}
 	
 	if (is.null(upper) || is.na(upper)) {
-		if (any(x <= lower)) {
+		if (any(x <= lower, na.rm = TRUE)) {
 			prefix <- ifelse(length(x) > 1, "each value of ", "")
 			stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, prefix,
 				"'", xName, "' (", .arrayToString(x), ") must be > ", lower)
 		}
 	}
-	else if (any(x <= lower) || any(x >= upper)) {
+	else if (any(x <= lower, na.rm = TRUE) || any(x >= upper, na.rm = TRUE)) {
 		stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
 			"'", xName, "' (", .arrayToString(x), ") is out of bounds (", lower, "; ", upper, ")")
 	}
@@ -866,11 +867,17 @@
 }
 
 .associatedArgumentsAreDefined <- function(..., warningOnlyEnabled = TRUE) {
+	args <- NULL
+	tryCatch(expr = {	
+		args <- list(...)
+	}, error = function(e) {
+		stop(simpleError(paste0(C_EXCEPTION_TYPE_MISSING_ARGUMENT, e$message), call = e$call))
+	})
+	
 	if (.allArgumentsAreNotNull(...)) {
 		return(TRUE)
 	}
 	
-	args <- list(...)
 	args <- args[args != "warningOnlyEnabled" & !is.null(args)]
 	argNames <- names(args)
 	if (sum(argNames == "") > 0) {
@@ -1157,9 +1164,9 @@
 
 	if (is.na(pi1) && !is.null(stageResults) && !is.null(stage)) {
 		if (stageResults$isOneSampleDataset()) {
-			pi1 <- stageResults$overallEvents[stage]/stageResults$overallSampleSizes[stage]
+			pi1 <- stageResults$overallEvents[stage] / stageResults$overallSampleSizes[stage]
 		} else {
-			pi1 <- stageResults$overallEvents1[stage]/stageResults$overallSampleSizes1[stage]
+			pi1 <- stageResults$overallEvents1[stage] / stageResults$overallSampleSizes1[stage]
 		}
 	}
 	.assertIsInClosedInterval(pi1, "pi1", lower = 0, upper = 1)
@@ -1258,8 +1265,34 @@
 	invisible(assumedStDev)
 }
 
+.assertIsValidPiTreatmentsForMultiArm <- function(piTreatments, stageResults = NULL, stage = NULL) {
+	
+	if (is.na(piTreatments) && !is.null(stageResults) && !is.null(stage)) {
+		piTreatments <- stageResults$piTreatments[, stage]
+	}
+
+	.assertIsNumericVector(piTreatments, "piTreatments", naAllowed  = TRUE)
+
+	.assertIsInClosedInterval(piTreatments, "piTreatments", lower = 0, upper = 1, naAllowed  = TRUE)
+	
+	invisible(piTreatments)
+}
+
+.assertIsValidPiControlForMultiArm <- function(piControl, stageResults = NULL, stage = NULL) {
+	
+	if (is.na(piControl) && !is.null(stageResults) && !is.null(stage)) {
+		piControl <- stageResults$piControl[,stage]
+	}
+	
+	.assertIsNumericVector(piControl, "piControl", naAllowed  = TRUE)
+	
+	.assertIsInClosedInterval(piControl, "piControl", lower = 0, upper = 1)
+	
+	invisible(piControl)
+}
 
 .isValidValueOrVector <- function(x) {
+	
 	if (is.null(x) || length(x) == 0) {
 		return(FALSE)
 	}
@@ -1283,7 +1316,9 @@
 
 
 .assertIsValidHazardRatioVector <- function(hazardRatio) {
+	
 	.assertIsNumericVector(hazardRatio, "hazardRatio")
+	
 	if (any(hazardRatio <= 0)) {
 		if (length(hazardRatio) == 1) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'hazardRatio' (", hazardRatio ,") must be > 0")
@@ -1294,6 +1329,7 @@
 		}
 	}
 }
+
 
 .assertIsValidDirectionUpper <- function(directionUpper, sided, objectType = c("power", "sampleSize")) {
 

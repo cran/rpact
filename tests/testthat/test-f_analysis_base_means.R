@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 08 November 2019, 09:36:03                                                   #
+# Date: 25 November 2019, 11:23:25                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -42,19 +42,44 @@ test_that("'getAnalysisResults' for group sequential design and a dataset of one
 	# @refFS[Formula]{fs:conditionalPowerOneMeanEffect}
 	result1 <- getAnalysisResults(design = design1, dataInput = dataExample1, 
 		nPlanned = 130, thetaH1 = 50, assumedStDev = 100, thetaH0 = 10)
+	result1
+	result1$.design$alphaSpent
+	#plot(result1, thetaRange = c(0, 100))
+	
+	dataExample1b <- rpact::getDataset(
+		n = c(120, 130, 130),
+		means = c(0.45, 0.51, 0.45) * 100,
+		stDevs = c(1.3, 1.4, 1.2) * 100
+	)
+	
+	design1b <- rpact::getDesignGroupSequential(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
+		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
+	
+	# @refFS[Formula]{fs:testStatisticOneMean}
+	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
+	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:definitionRCIInverseNormal}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:orderingPValueUpper}
+	# @refFS[Formula]{fs:finalCIOneMean}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
+	# @refFS[Formula]{fs:conditionalPowerOneMeanEffect}
+	result1b <- rpact::getAnalysisResults(design = design1b, dataInput = dataExample1b, 
+		nPlanned = 130, thetaH1 = 50, assumedStDev = 100, thetaH0 = 10)
 
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'result1' with expected results
 	##
-	expect_equal(result1$stages, c(1, 2, 3, 4))
-	expect_equal(result1$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result1$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
-	expect_equal(result1$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
-	expect_equal(result1$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
-	expect_equal(result1$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
-	expect_equal(result1$effectSizes, c(45, 48.12, 47.052632, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$testStatistics, c(2.9492753, 3.3390852, 3.3255117, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$pValues, c(0.0019178249, 0.00054956317, 0.00057478599, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result1$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result1$.design$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
+	expect_equal(result1$.design$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
+	expect_equal(result1$.design$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
+	expect_equal(result1$.design$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$effectSizes, c(45, 48.12, 47.052632, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$testStatistics, c(2.9492753, 3.3390852, 3.3255117, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$pValues, c(0.0019178249, 0.00054956317, 0.00057478599, NA_real_), tolerance = 1e-07)
 	expect_equal(result1$testActions, c("reject and stop", "reject and stop", "reject and stop", NA_character_))
 	expect_equal(result1$thetaH0, 10)
 	expect_equal(result1$thetaH1, 50)
@@ -191,15 +216,15 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	##
 	## Comparison of the results of AnalysisResultsInverseNormal object 'result2' with expected results
 	##
-	expect_equal(result2$stages, c(1, 2, 3, 4))
-	expect_equal(result2$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result2$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
-	expect_equal(result2$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
-	expect_equal(result2$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
-	expect_equal(result2$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
-	expect_equal(result2$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result2$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result2$.design$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
+	expect_equal(result2$.design$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
+	expect_equal(result2$.design$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
+	expect_equal(result2$.design$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
 	expect_equal(result2$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(result2$thetaH0, 10)
 	expect_equal(result2$thetaH1, 50)
@@ -249,20 +274,20 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	# @refFS[Formula]{fs:finalPValueFisherCombinationTest}
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	result3 <- getAnalysisResults(design = design3, dataInput = dataExample1, thetaH0 = 10, 
-		nPlanned = 30, thetaH1 = 50, assumedStDev = 100)
+		nPlanned = 30, thetaH1 = 50, assumedStDev = 100, seed = 123456789)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'result3' with expected results
 	##
-	expect_equal(result3$stages, c(1, 2, 3, 4))
-	expect_equal(result3$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result3$criticalValues, c(0.013928445, 0.0019196833, 0.00034092609, 6.8425459e-05), tolerance = 1e-07)
-	expect_equal(result3$futilityBounds, c(0.4, 0.4, 0.4), tolerance = 1e-07)
-	expect_equal(result3$alphaSpent, c(0.013928445, 0.020373842, 0.0235151, 0.025), tolerance = 1e-07)
-	expect_equal(result3$stageLevels, c(0.013928445, 0.013928445, 0.013928445, 0.013928445), tolerance = 1e-07)
-	expect_equal(result3$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result3$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result3$.design$criticalValues, c(0.013928445, 0.0019196833, 0.00034092609, 6.8425459e-05), tolerance = 1e-07)
+	expect_equal(result3$.design$alpha0Vec, c(0.4, 0.4, 0.4), tolerance = 1e-07)
+	expect_equal(result3$.design$alphaSpent, c(0.013928445, 0.020373842, 0.0235151, 0.025), tolerance = 1e-07)
+	expect_equal(result3$.design$stageLevels, c(0.013928445, 0.013928445, 0.013928445, 0.013928445), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
 	expect_equal(result3$testActions, c("continue", "continue", "continue", NA_character_))
 	expect_equal(result3$thetaH0, 10)
 	expect_equal(result3$thetaH1, 50)
@@ -341,15 +366,15 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'result1' with expected results
 	##
-	expect_equal(result1$stages, c(1, 2, 3, 4))
-	expect_equal(result1$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result1$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result1$futilityBounds, c(-6, -6, -6))
-	expect_equal(result1$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result1$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result1$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result1$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result1$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result1$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result1$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result1$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
 	expect_equal(result1$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(result1$thetaH0, 10)
 	expect_equal(result1$thetaH1, 47.25, tolerance = 1e-07)
@@ -426,15 +451,15 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	##
 	## Comparison of the results of AnalysisResultsInverseNormal object 'result2' with expected results
 	##
-	expect_equal(result2$stages, c(1, 2, 3, 4))
-	expect_equal(result2$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result2$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result2$futilityBounds, c(-6, -6, -6))
-	expect_equal(result2$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result2$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result2$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result2$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result2$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result2$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result2$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result2$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$effectSizes, c(45, 48.6, 47.25, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$testStatistics, c(1.2040366, 1.6040446, 1.5975241, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$pValues, c(0.12168078, 0.059770605, 0.060494785, NA_real_), tolerance = 1e-07)
 	expect_equal(result2$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(result2$thetaH0, 10)
 	expect_equal(result2$thetaH1, 47.25, tolerance = 1e-07)
@@ -497,15 +522,15 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'result3' with expected results
 	##
-	expect_equal(result3$stages, c(1, 2, 3, 4))
-	expect_equal(result3$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result3$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(result3$futilityBounds, c(1, 1, 1))
-	expect_equal(result3$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(result3$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(result3$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$testStatistics, c(1.2040366, 1.6040446, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$pValues, c(0.12168078, 0.059770605, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result3$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result3$.design$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
+	expect_equal(result3$.design$alpha0Vec, c(1, 1, 1))
+	expect_equal(result3$.design$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
+	expect_equal(result3$.design$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$effectSizes, c(45, 48.6, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$testStatistics, c(1.2040366, 1.6040446, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$pValues, c(0.12168078, 0.059770605, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(result3$thetaH0, 10)
 	expect_equal(result3$thetaH1, 50)
@@ -564,20 +589,21 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:finalPValueFisherCombinationTest}
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
-	result <- getAnalysisResults(design = design7, dataInput = dataExample3, equalVariances = TRUE, directionUpper = TRUE)
+	result <- getAnalysisResults(design = design7, dataInput = dataExample3, equalVariances = TRUE, 
+		directionUpper = TRUE, seed = 123456789)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'result' with expected results
 	##
-	expect_equal(result$stages, c(1, 2, 3, 4))
-	expect_equal(result$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(result$futilityBounds, c(1, 1, 1))
-	expect_equal(result$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(result$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(result$effectSizes, c(170, 123.33333, 197.37931, 188.47418), tolerance = 1e-07)
-	expect_equal(result$testStatistics, c(4.552582, 0.42245245, 4.9350374, 2.8165036), tolerance = 1e-07)
-	expect_equal(result$pValues, c(2.1583718e-05, 0.33839752, 6.5708867e-06, 0.0050256902), tolerance = 1e-07)
+	expect_equal(result$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result$.design$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
+	expect_equal(result$.design$alpha0Vec, c(1, 1, 1))
+	expect_equal(result$.design$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
+	expect_equal(result$.design$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
+	expect_equal(result$.stageResults$effectSizes, c(170, 123.33333, 197.37931, 188.47418), tolerance = 1e-07)
+	expect_equal(result$.stageResults$testStatistics, c(4.552582, 0.42245245, 4.9350374, 2.8165036), tolerance = 1e-07)
+	expect_equal(result$.stageResults$pValues, c(2.1583718e-05, 0.33839752, 6.5708867e-06, 0.0050256902), tolerance = 1e-07)
 	expect_equal(result$testActions, c("reject and stop", "reject and stop", "reject and stop", "reject"))
 	expect_equal(result$thetaH0, 0)
 	expect_equal(result$thetaH1, 188.47418, tolerance = 1e-07)
@@ -640,15 +666,15 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'result1' with expected results
 	##
-	expect_equal(result1$stages, c(1, 2, 3, 4))
-	expect_equal(result1$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result1$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result1$futilityBounds, c(-6, -6, -6))
-	expect_equal(result1$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result1$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result1$effectSizes, c(70, 59.444444), tolerance = 1e-07)
-	expect_equal(result1$testStatistics, c(1.8745926, 0.42245245, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$pValues, c(0.033826026, 0.33839752, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result1$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result1$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result1$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result1$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result1$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$effectSizes, c(70, 59.444444), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$testStatistics, c(1.8745926, 0.42245245, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$pValues, c(0.033826026, 0.33839752, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(result1$thetaH0, 0)
 	expect_equal(result1$thetaH1, 130)
@@ -688,15 +714,15 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'result4' with expected results
 	##
-	expect_equal(result4$stages, c(1, 2, 3, 4))
-	expect_equal(result4$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result4$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result4$futilityBounds, c(-6, -6, -6))
-	expect_equal(result4$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result4$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result4$effectSizes, c(70, 59.444444, 55.310345), tolerance = 1e-07)
-	expect_equal(result4$testStatistics, c(1.8745926, 0.42245245, 0.7710996, NA_real_), tolerance = 1e-07)
-	expect_equal(result4$pValues, c(0.033826026, 0.33839752, 0.22248223, NA_real_), tolerance = 1e-07)
+	expect_equal(result4$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result4$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result4$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result4$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result4$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result4$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result4$.stageResults$effectSizes, c(70, 59.444444, 55.310345), tolerance = 1e-07)
+	expect_equal(result4$.stageResults$testStatistics, c(1.8745926, 0.42245245, 0.7710996, NA_real_), tolerance = 1e-07)
+	expect_equal(result4$.stageResults$pValues, c(0.033826026, 0.33839752, 0.22248223, NA_real_), tolerance = 1e-07)
 	expect_equal(result4$testActions, c("continue", "continue", "continue", NA_character_))
 	expect_equal(result4$thetaH0, 0)
 	expect_equal(result4$thetaH1, 130)
@@ -736,15 +762,15 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'result7' with expected results
 	##
-	expect_equal(result7$stages, c(1, 2, 3, 4))
-	expect_equal(result7$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result7$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result7$futilityBounds, c(-6, -6, -6))
-	expect_equal(result7$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result7$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result7$effectSizes, c(70, 59.444444, 55.310345, 72.41784), tolerance = 1e-07)
-	expect_equal(result7$testStatistics, c(1.8745926, 0.42245245, 0.7710996, 2.8165036), tolerance = 1e-07)
-	expect_equal(result7$pValues, c(0.033826026, 0.33839752, 0.22248223, 0.0050256902), tolerance = 1e-07)
+	expect_equal(result7$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result7$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result7$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result7$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result7$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result7$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result7$.stageResults$effectSizes, c(70, 59.444444, 55.310345, 72.41784), tolerance = 1e-07)
+	expect_equal(result7$.stageResults$testStatistics, c(1.8745926, 0.42245245, 0.7710996, 2.8165036), tolerance = 1e-07)
+	expect_equal(result7$.stageResults$pValues, c(0.033826026, 0.33839752, 0.22248223, 0.0050256902), tolerance = 1e-07)
 	expect_equal(result7$testActions, c("continue", "continue", "continue", "reject"))
 	expect_equal(result7$thetaH0, 0)
 	expect_equal(result7$thetaH1, 130)
@@ -807,15 +833,15 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	##
 	## Comparison of the results of AnalysisResultsInverseNormal object 'result2' with expected results
 	##
-	expect_equal(result2$stages, c(1, 2, 3, 4))
-	expect_equal(result2$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result2$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result2$futilityBounds, c(-6, -6, -6))
-	expect_equal(result2$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result2$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result2$effectSizes, c(70, 59.444444), tolerance = 1e-07)
-	expect_equal(result2$testStatistics, c(1.8780002, 0.42565792, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$pValues, c(0.033590771, 0.33726198, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result2$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result2$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result2$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result2$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result2$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$effectSizes, c(70, 59.444444), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$testStatistics, c(1.8780002, 0.42565792, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$pValues, c(0.033590771, 0.33726198, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result2$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(result2$thetaH0, 0)
 	expect_equal(result2$thetaH1, 130)
@@ -854,15 +880,15 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	##
 	## Comparison of the results of AnalysisResultsInverseNormal object 'result5' with expected results
 	##
-	expect_equal(result5$stages, c(1, 2, 3, 4))
-	expect_equal(result5$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result5$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result5$futilityBounds, c(-6, -6, -6))
-	expect_equal(result5$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result5$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result5$effectSizes, c(70, 59.444444, 55.310345), tolerance = 1e-07)
-	expect_equal(result5$testStatistics, c(1.8780002, 0.42565792, 0.7710996, NA_real_), tolerance = 1e-07)
-	expect_equal(result5$pValues, c(0.033590771, 0.33726198, 0.22248687, NA_real_), tolerance = 1e-07)
+	expect_equal(result5$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result5$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result5$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result5$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result5$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result5$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result5$.stageResults$effectSizes, c(70, 59.444444, 55.310345), tolerance = 1e-07)
+	expect_equal(result5$.stageResults$testStatistics, c(1.8780002, 0.42565792, 0.7710996, NA_real_), tolerance = 1e-07)
+	expect_equal(result5$.stageResults$pValues, c(0.033590771, 0.33726198, 0.22248687, NA_real_), tolerance = 1e-07)
 	expect_equal(result5$testActions, c("continue", "continue", "continue", NA_character_))
 	expect_equal(result5$thetaH0, 0)
 	expect_equal(result5$thetaH1, 130)
@@ -898,15 +924,15 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	##
 	## Comparison of the results of AnalysisResultsInverseNormal object 'result8' with expected results
 	##
-	expect_equal(result8$stages, c(1, 2, 3, 4))
-	expect_equal(result8$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result8$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(result8$futilityBounds, c(-6, -6, -6))
-	expect_equal(result8$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
-	expect_equal(result8$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	expect_equal(result8$effectSizes, c(70, 59.444444, 55.310345, 72.41784), tolerance = 1e-07)
-	expect_equal(result8$testStatistics, c(1.8780002, 0.42565792, 0.7710996, 2.8165036), tolerance = 1e-07)
-	expect_equal(result8$pValues, c(0.033590771, 0.33726198, 0.22248687, 0.0051181248), tolerance = 1e-07)
+	expect_equal(result8$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result8$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result8$.design$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
+	expect_equal(result8$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result8$.design$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.025), tolerance = 1e-07)
+	expect_equal(result8$.design$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
+	expect_equal(result8$.stageResults$effectSizes, c(70, 59.444444, 55.310345, 72.41784), tolerance = 1e-07)
+	expect_equal(result8$.stageResults$testStatistics, c(1.8780002, 0.42565792, 0.7710996, 2.8165036), tolerance = 1e-07)
+	expect_equal(result8$.stageResults$pValues, c(0.033590771, 0.33726198, 0.22248687, 0.0051181248), tolerance = 1e-07)
 	expect_equal(result8$testActions, c("continue", "continue", "continue", "reject"))
 	expect_equal(result8$thetaH0, 0)
 	expect_equal(result8$thetaH1, 130)
@@ -956,20 +982,20 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 
 	result3 <- getAnalysisResults(design = design10, dataInput = dataExample6, equalVariances = TRUE,
 		stage = 2, nPlanned = c(15, 15), thetaH0 = 0, thetaH1 = 130, 
-		assumedStDev = 100, allocationRatioPlanned = 2)
+		assumedStDev = 100, allocationRatioPlanned = 2, seed = 123456789)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'result3' with expected results
 	##
-	expect_equal(result3$stages, c(1, 2, 3, 4))
-	expect_equal(result3$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result3$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(result3$futilityBounds, c(1, 1, 1))
-	expect_equal(result3$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(result3$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(result3$effectSizes, c(70, 59.444444), tolerance = 1e-07)
-	expect_equal(result3$testStatistics, c(1.8745926, 0.42245245, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$pValues, c(0.033826026, 0.33839752, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result3$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result3$.design$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
+	expect_equal(result3$.design$alpha0Vec, c(1, 1, 1))
+	expect_equal(result3$.design$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
+	expect_equal(result3$.design$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$effectSizes, c(70, 59.444444), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$testStatistics, c(1.8745926, 0.42245245, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$pValues, c(0.033826026, 0.33839752, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(result3$thetaH0, 0)
 	expect_equal(result3$thetaH1, 130)
@@ -988,25 +1014,25 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	expect_equal(result3$normalApproximation, FALSE)
 	expect_equal(result3$equalVariances, TRUE)
 	expect_equal(result3$directionUpper, TRUE)
-	expect_equal(result3$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.629, 0.911), tolerance = 1e-07)
+	expect_equal(result3$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.599, 0.917), tolerance = 1e-07)
 	expect_equal(result3$combinationTestStatistics, c(0.033826026, 0.011446643, NA_real_, NA_real_), tolerance = 1e-07)
 
 	result6 <- getAnalysisResults(design = design10, dataInput = dataExample6, equalVariances = TRUE,
 		stage = 3, nPlanned = 15, thetaH0 = 0, thetaH1 = 130, 
-		assumedStDev = 100, allocationRatioPlanned = 2)
+		assumedStDev = 100, allocationRatioPlanned = 2, seed = 123456789)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'result6' with expected results
 	##
-	expect_equal(result6$stages, c(1, 2, 3, 4))
-	expect_equal(result6$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result6$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(result6$futilityBounds, c(1, 1, 1))
-	expect_equal(result6$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(result6$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(result6$effectSizes, c(70, 59.444444, 55.310345), tolerance = 1e-07)
-	expect_equal(result6$testStatistics, c(1.8745926, 0.42245245, 0.7710996, NA_real_), tolerance = 1e-07)
-	expect_equal(result6$pValues, c(0.033826026, 0.33839752, 0.22248223, NA_real_), tolerance = 1e-07)
+	expect_equal(result6$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result6$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result6$.design$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
+	expect_equal(result6$.design$alpha0Vec, c(1, 1, 1))
+	expect_equal(result6$.design$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
+	expect_equal(result6$.design$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
+	expect_equal(result6$.stageResults$effectSizes, c(70, 59.444444, 55.310345), tolerance = 1e-07)
+	expect_equal(result6$.stageResults$testStatistics, c(1.8745926, 0.42245245, 0.7710996, NA_real_), tolerance = 1e-07)
+	expect_equal(result6$.stageResults$pValues, c(0.033826026, 0.33839752, 0.22248223, NA_real_), tolerance = 1e-07)
 	expect_equal(result6$testActions, c("continue", "continue", "continue", NA_character_))
 	expect_equal(result6$thetaH0, 0)
 	expect_equal(result6$thetaH1, 130)
@@ -1030,20 +1056,20 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 
 	result9 <- getAnalysisResults(design = design10, dataInput = dataExample6, equalVariances = TRUE,
 		stage = 4, nPlanned = numeric(0), thetaH0 = 0, thetaH1 = 130, 
-		assumedStDev = 100, allocationRatioPlanned = 2)
+		assumedStDev = 100, allocationRatioPlanned = 2, seed = 123456789)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'result9' with expected results
 	##
-	expect_equal(result9$stages, c(1, 2, 3, 4))
-	expect_equal(result9$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
-	expect_equal(result9$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(result9$futilityBounds, c(1, 1, 1))
-	expect_equal(result9$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(result9$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(result9$effectSizes, c(70, 59.444444, 55.310345, 72.41784), tolerance = 1e-07)
-	expect_equal(result9$testStatistics, c(1.8745926, 0.42245245, 0.7710996, 2.8165036), tolerance = 1e-07)
-	expect_equal(result9$pValues, c(0.033826026, 0.33839752, 0.22248223, 0.0050256902), tolerance = 1e-07)
+	expect_equal(result9$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result9$.design$informationRates, c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
+	expect_equal(result9$.design$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
+	expect_equal(result9$.design$alpha0Vec, c(1, 1, 1))
+	expect_equal(result9$.design$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
+	expect_equal(result9$.design$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
+	expect_equal(result9$.stageResults$effectSizes, c(70, 59.444444, 55.310345, 72.41784), tolerance = 1e-07)
+	expect_equal(result9$.stageResults$testStatistics, c(1.8745926, 0.42245245, 0.7710996, 2.8165036), tolerance = 1e-07)
+	expect_equal(result9$.stageResults$pValues, c(0.033826026, 0.33839752, 0.22248223, 0.0050256902), tolerance = 1e-07)
 	expect_equal(result9$testActions, c("continue", "continue", "continue", "reject"))
 	expect_equal(result9$thetaH0, 0)
 	expect_equal(result9$thetaH1, 130)
@@ -1099,15 +1125,15 @@ test_that("Check that the conditional power is as expected for different designs
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'result1' with expected results
 	##
-	expect_equal(result1$stages, c(1, 2, 3, 4))
-	expect_equal(result1$informationRates, c(0.2, 0.5, 0.8, 1), tolerance = 1e-07)
-	expect_equal(result1$criticalValues, c(2.4058832, 2.2981456, 2.2447684, 2.2198623), tolerance = 1e-07)
-	expect_equal(result1$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
-	expect_equal(result1$alphaSpent, c(0.008066711, 0.01611168, 0.021671928, 0.025), tolerance = 1e-07)
-	expect_equal(result1$stageLevels, c(0.008066711, 0.010776752, 0.012391502, 0.013214058), tolerance = 1e-07)
-	expect_equal(result1$effectSizes, c(-0.4, -0.39619048), tolerance = 1e-07)
-	expect_equal(result1$testStatistics, c(-1.9899749, -0.73229093, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result1$pValues, c(0.026564837, 0.23586057, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result1$.design$informationRates, c(0.2, 0.5, 0.8, 1), tolerance = 1e-07)
+	expect_equal(result1$.design$criticalValues, c(2.4058832, 2.2981456, 2.2447684, 2.2198623), tolerance = 1e-07)
+	expect_equal(result1$.design$futilityBounds, c(0.5244, 0.5244, 0.5244), tolerance = 1e-07)
+	expect_equal(result1$.design$alphaSpent, c(0.008066711, 0.01611168, 0.021671928, 0.025), tolerance = 1e-07)
+	expect_equal(result1$.design$stageLevels, c(0.008066711, 0.010776752, 0.012391502, 0.013214058), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$effectSizes, c(-0.4, -0.39619048), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$testStatistics, c(-1.9899749, -0.73229093, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result1$.stageResults$pValues, c(0.026564837, 0.23586057, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(result1$thetaH0, 0.2, tolerance = 1e-07)
 	expect_equal(result1$thetaH1, -0.2, tolerance = 1e-07)
@@ -1190,15 +1216,15 @@ test_that("Check that the conditional power is as expected for different designs
 	##
 	## Comparison of the results of AnalysisResultsInverseNormal object 'result2' with expected results
 	##
-	expect_equal(result2$stages, c(1, 2, 3, 4))
-	expect_equal(result2$informationRates, c(0.2, 0.5, 0.8, 1), tolerance = 1e-07)
-	expect_equal(result2$criticalValues, c(2.484114, 2.3728731, 2.3177603, 2.2920443), tolerance = 1e-07)
-	expect_equal(result2$futilityBounds, c(-6, -6, -6))
-	expect_equal(result2$alphaSpent, c(0.0064937119, 0.013848609, 0.020340933, 0.025), tolerance = 1e-07)
-	expect_equal(result2$stageLevels, c(0.0064937119, 0.0088251631, 0.010231176, 0.010951542), tolerance = 1e-07)
-	expect_equal(result2$effectSizes, c(-0.4, -0.39619048), tolerance = 1e-07)
-	expect_equal(result2$testStatistics, c(-1.9899749, -0.73229093, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$pValues, c(0.026564837, 0.23586057, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result2$.design$informationRates, c(0.2, 0.5, 0.8, 1), tolerance = 1e-07)
+	expect_equal(result2$.design$criticalValues, c(2.484114, 2.3728731, 2.3177603, 2.2920443), tolerance = 1e-07)
+	expect_equal(result2$.design$futilityBounds, c(-6, -6, -6))
+	expect_equal(result2$.design$alphaSpent, c(0.0064937119, 0.013848609, 0.020340933, 0.025), tolerance = 1e-07)
+	expect_equal(result2$.design$stageLevels, c(0.0064937119, 0.0088251631, 0.010231176, 0.010951542), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$effectSizes, c(-0.4, -0.39619048), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$testStatistics, c(-1.9899749, -0.73229093, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$.stageResults$pValues, c(0.026564837, 0.23586057, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result2$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(result2$thetaH0, 0.2, tolerance = 1e-07)
 	expect_equal(result2$thetaH1, -0.2, tolerance = 1e-07)
@@ -1238,15 +1264,15 @@ test_that("Check that the conditional power is as expected for different designs
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'result3' with expected results
 	##
-	expect_equal(result3$stages, c(1, 2, 3, 4))
-	expect_equal(result3$informationRates, c(0.2, 0.5, 0.8, 1), tolerance = 1e-07)
-	expect_equal(result3$criticalValues, c(0.0099747046, 0.00059134153, 6.046221e-05, 1.3203687e-05), tolerance = 1e-07)
-	expect_equal(result3$futilityBounds, c(1, 1, 1))
-	expect_equal(result3$alphaSpent, c(0.0099747046, 0.017168497, 0.022142404, 0.025), tolerance = 1e-07)
-	expect_equal(result3$stageLevels, c(0.0099747046, 0.0099747046, 0.0099747046, 0.0099747046), tolerance = 1e-07)
-	expect_equal(result3$effectSizes, c(-0.4, -0.39619048), tolerance = 1e-07)
-	expect_equal(result3$testStatistics, c(-1.3266499, -0.48819395, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$pValues, c(0.095896458, 0.31512146, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.design$stages, c(1, 2, 3, 4))
+	expect_equal(result3$.design$informationRates, c(0.2, 0.5, 0.8, 1), tolerance = 1e-07)
+	expect_equal(result3$.design$criticalValues, c(0.0099747046, 0.00059134153, 6.046221e-05, 1.3203687e-05), tolerance = 1e-07)
+	expect_equal(result3$.design$alpha0Vec, c(1, 1, 1))
+	expect_equal(result3$.design$alphaSpent, c(0.0099747046, 0.017168497, 0.022142404, 0.025), tolerance = 1e-07)
+	expect_equal(result3$.design$stageLevels, c(0.0099747046, 0.0099747046, 0.0099747046, 0.0099747046), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$effectSizes, c(-0.4, -0.39619048), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$testStatistics, c(-1.3266499, -0.48819395, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$.stageResults$pValues, c(0.095896458, 0.31512146, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(result3$thetaH0, 0)
 	expect_equal(result3$thetaH1, -0.4, tolerance = 1e-07)
@@ -1285,7 +1311,7 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 		means = c(2, 3),
 		stDevs = c(1, 1.5))
 
-	stageResults1 <- getStageResultsMeans(design = designInverseNormal, dataInput = dataExample8, stage = 2,
+	stageResults1 <- getStageResults(design = designInverseNormal, dataInput = dataExample8, stage = 2,
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
@@ -1314,7 +1340,7 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 		stDevs2 = c(1, 2, 2, 1.3)
 	)
 
-	stageResults2 <- getStageResultsMeans(design = designInverseNormal, dataInput = dataExample9, stage = 2,
+	stageResults2 <- getStageResults(design = designInverseNormal, dataInput = dataExample9, stage = 2,
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
@@ -1352,7 +1378,7 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 		means = c(2, 3),
 		stDevs = c(1, 1.5))
 
-	stageResults3 <- getStageResultsMeans(design = designFisher, dataInput = dataExample10, stage = 2,
+	stageResults3 <- getStageResults(design = designFisher, dataInput = dataExample10, stage = 2,
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
@@ -1381,7 +1407,7 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 		stDevs2 = c(1, 2, 2, 1.3)
 	)
 
-	stageResults4 <- getStageResultsMeans(design = designFisher, dataInput = dataExample11, stage = 2,
+	stageResults4 <- getStageResults(design = designFisher, dataInput = dataExample11, stage = 2,
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
@@ -1403,6 +1429,5 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 	expect_equal(stageResults4$effectSizes, c(-0.4, -0.40380952), tolerance = 1e-07)
 	expect_equal(stageResults4$combFisher, c(0.90410354, 0.61920111), tolerance = 1e-07)
 	expect_equal(stageResults4$weightsFisher, c(1, 1))
-
 })
 

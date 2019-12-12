@@ -4,11 +4,22 @@
 \alias{plot.AnalysisResults}
 \title{Analysis Results Plotting}
 \usage{
-\method{plot}{AnalysisResults}(x, y, ..., type = 1L,
-  nPlanned = NA_real_, stage = x$getNumberOfStages(),
-  allocationRatioPlanned = NA_real_, main = NA_character_,
-  xlab = NA_character_, ylab = NA_character_, legendTitle = "",
-  palette = "Set1", legendPosition = NA_integer_, showSource = FALSE)
+\method{plot}{AnalysisResults}(
+  x,
+  y,
+  ...,
+  type = 1L,
+  nPlanned = NA_real_,
+  stage = x$getNumberOfStages(),
+  allocationRatioPlanned = NA_real_,
+  main = NA_character_,
+  xlab = NA_character_,
+  ylab = NA_character_,
+  legendTitle = "",
+  palette = "Set1",
+  legendPosition = NA_integer_,
+  showSource = FALSE
+)
 }
 \arguments{
 \item{x}{The analysis results at given stage, obtained from \code{\link{getAnalysisResults}}.}
@@ -33,9 +44,10 @@
 
 \item{type}{The plot type (default = 1). Note that at the moment only one type (the conditional power plot) is available.}
 
-\item{nPlanned}{The sample size planned for the subsequent stages. 
-It should be a vector with length equal to the remaining stages and is the 
-overall sample size in the two treatment groups if two groups are considered.}
+\item{nPlanned}{The additional (i.e. "new" and not cumulative) sample size planned for each of the subsequent stages. 
+The argument should be a vector with length equal to the number of remaining stages and contain 
+the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
+it should contain the planned number of additional events.}
 
 \item{stage}{The stage number (optional). Default: total number of existing stages in the data input
 used to create the analysis results.}
@@ -69,6 +81,9 @@ Choose one of the following values to specify the position manually:
 \item{showSource}{If \code{TRUE}, the parameter names of the object will 
 be printed which were used to create the plot; that may be, e.g., 
 useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
+}
+\value{
+A \code{ggplot2} object.
 }
 \description{
 Plots the conditional power together with the likelihood function.

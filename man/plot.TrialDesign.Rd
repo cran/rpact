@@ -4,11 +4,21 @@
 \alias{plot.TrialDesign}
 \title{Trial Design Plotting}
 \usage{
-\method{plot}{TrialDesign}(x, y, main = NA_character_,
-  xlab = NA_character_, ylab = NA_character_, type = 1,
-  palette = "Set1", theta = seq(-1, 1, 0.01), nMax = NA_integer_,
-  plotPointsEnabled = NA, legendPosition = NA_integer_,
-  showSource = FALSE, ...)
+\method{plot}{TrialDesign}(
+  x,
+  y,
+  main = NA_character_,
+  xlab = NA_character_,
+  ylab = NA_character_,
+  type = 1,
+  palette = "Set1",
+  theta = seq(-1, 1, 0.01),
+  nMax = NA_integer_,
+  plotPointsEnabled = NA,
+  legendPosition = NA_integer_,
+  showSource = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{The trial design, obtained from \cr
@@ -65,13 +75,14 @@ useful to check the values or to create own plots with \code{\link[graphics]{plo
 
 \item{...}{Optional \code{ggplot2} arguments.}
 }
+\value{
+A \code{ggplot2} object.
+}
 \description{
 Plots a trial design.
 }
 \details{
 Generic function to plot a trial design.
-
-
 
 Generic function to plot a trial design.
 }

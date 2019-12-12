@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 06 November 2019, 17:11:57                                                   #
+# Date: 26 November 2019, 10:08:38                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -32,7 +32,7 @@ test_that("'getAnalysisResults' for a group sequential design and survival data"
 	)
 
 	x1 <- getAnalysisResults(design1, dataExample1, directionUpper = TRUE)
-
+	
 	##
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x1' with expected results
 	##
@@ -80,8 +80,8 @@ test_that("'getAnalysisResults' for a group sequential design and survival data"
 	expect_equal(x2$alphaSpent, c(0.0064253267, 0.012720859, 0.01826361, 0.025), tolerance = 1e-07)
 	expect_equal(x2$stageLevels, c(0.0064253267, 0.0081275893, 0.0092636882, 0.010851653), tolerance = 1e-07)
 	expect_equal(x2$effectSizes, c(2.9294137, 2.0393455, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$testStatistics, c(1.52, 0.3951648, 2.9, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$pValues, c(0.064255488, 0.34636063, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$testStatistics, c(1.52, 0.3951648, 2.7453772, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$pValues, c(0.064255488, 0.34636063, 0.003022069, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x2$thetaH0, 1)
 	expect_equal(x2$thetaH1, 2)
@@ -128,8 +128,8 @@ test_that("'getAnalysisResults' for a group sequential design and survival data"
 	expect_equal(x3$alphaSpent, c(0.0064253267, 0.012720859, 0.01826361, 0.025), tolerance = 1e-07)
 	expect_equal(x3$stageLevels, c(0.0064253267, 0.0081275893, 0.0092636882, 0.010851653), tolerance = 1e-07)
 	expect_equal(x3$effectSizes, c(2.9294137, 2.0393455, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$testStatistics, c(1.52, 0.3951648, 2.9, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$pValues, c(0.055631748, 0.32167521, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$testStatistics, c(1.5925397, 0.46301945, 2.8413382, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$pValues, c(0.055631748, 0.32167521, 0.0022462323, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x3$thetaH0, 0.95, tolerance = 1e-07)
 	expect_equal(x3$thetaH1, 2)
@@ -226,8 +226,8 @@ test_that("'getAnalysisResults' for a group sequential design and survival data 
 	expect_equal(x2$alphaSpent, c(0.0064253267, 0.012720859, 0.01826361, 0.025), tolerance = 1e-07)
 	expect_equal(x2$stageLevels, c(0.0064253267, 0.0081275893, 0.0092636882, 0.010851653), tolerance = 1e-07)
 	expect_equal(x2$effectSizes, c(0.34136523, 0.49035339, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$testStatistics, c(-1.52, -0.3951648, -2.9, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$pValues, c(0.048983658, 0.3010969, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$testStatistics, c(-1.6547889, -0.52124832, -2.9236862, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$pValues, c(0.048983658, 0.3010969, 0.0017295662, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x2$thetaH0, 1.1, tolerance = 1e-07)
 	expect_equal(x2$thetaH1, 0.5, tolerance = 1e-07)
@@ -323,8 +323,8 @@ test_that("'getAnalysisResults' for an inverse normal design and survival data",
 	expect_equal(x2$alphaSpent, c(0.0064253267, 0.012720859, 0.01826361, 0.025), tolerance = 1e-07)
 	expect_equal(x2$stageLevels, c(0.0064253267, 0.0081275893, 0.0092636882, 0.010851653), tolerance = 1e-07)
 	expect_equal(x2$effectSizes, c(2.9294137, 2.0393455, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$testStatistics, c(1.52, 0.3951648, 2.9, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$pValues, c(0.064255488, 0.34636063, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$testStatistics, c(1.52, 0.3951648, 2.7453772, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$pValues, c(0.064255488, 0.34636063, 0.003022069, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x2$thetaH0, 1)
 	expect_equal(x2$thetaH1, 2)
@@ -370,8 +370,8 @@ test_that("'getAnalysisResults' for an inverse normal design and survival data",
 	expect_equal(x3$alphaSpent, c(0.0064253267, 0.012720859, 0.01826361, 0.025), tolerance = 1e-07)
 	expect_equal(x3$stageLevels, c(0.0064253267, 0.0081275893, 0.0092636882, 0.010851653), tolerance = 1e-07)
 	expect_equal(x3$effectSizes, c(2.9294137, 2.0393455, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$testStatistics, c(1.52, 0.3951648, 2.9, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$pValues, c(0.055631748, 0.32167521, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$testStatistics, c(1.5925397, 0.46301945, 2.8413382, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$pValues, c(0.055631748, 0.32167521, 0.0022462323, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x3$thetaH0, 0.95, tolerance = 1e-07)
 	expect_equal(x3$thetaH1, 2)
@@ -466,8 +466,8 @@ test_that("'getAnalysisResults' for an inverse normal design and survival data (
 	expect_equal(x2$alphaSpent, c(0.0064253267, 0.012720859, 0.01826361, 0.025), tolerance = 1e-07)
 	expect_equal(x2$stageLevels, c(0.0064253267, 0.0081275893, 0.0092636882, 0.010851653), tolerance = 1e-07)
 	expect_equal(x2$effectSizes, c(0.34136523, 0.49035339, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$testStatistics, c(-1.52, -0.3951648, -2.9, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$pValues, c(0.048983658, 0.3010969, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$testStatistics, c(-1.6547889, -0.52124832, -2.9236862, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$pValues, c(0.048983658, 0.3010969, 0.0017295662, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x2$thetaH0, 1.1, tolerance = 1e-07)
 	expect_equal(x2$thetaH1, 0.5, tolerance = 1e-07)
@@ -518,7 +518,7 @@ test_that("'getAnalysisResults' for a Fisher design and 'bindingFutility = TRUE'
 	)
 
 	x1 <- getAnalysisResults(design5, dataExample5, thetaH1 = 2, allocationRatioPlanned = 2, 
-		nPlanned = 50, directionUpper = TRUE)
+		nPlanned = 50, directionUpper = TRUE, seed = 123456789)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'x1' with expected results
@@ -567,7 +567,7 @@ test_that("'getAnalysisResults' for a Fisher design and 'bindingFutility = TRUE'
 	)
 
 	x1 <- getAnalysisResults(design6, dataExample6, thetaH1 = 0.5, allocationRatioPlanned = 0.5, 
-		nPlanned = 50, directionUpper = FALSE)
+		nPlanned = 50, directionUpper = FALSE, seed = 123456789)
 
 	##
 	## Comparison of the results of AnalysisResultsFisher object 'x1' with expected results

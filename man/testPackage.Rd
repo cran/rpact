@@ -4,8 +4,13 @@
 \alias{testPackage}
 \title{Test Package}
 \usage{
-testPackage(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
-  types = "tests", sourceDirectory = NULL)
+testPackage(
+  outDir = ".",
+  ...,
+  completeUnitTestSetEnabled = TRUE,
+  types = "tests",
+  sourceDirectory = NULL
+)
 }
 \arguments{
 \item{outDir}{The output directory where all test results shall be saved.

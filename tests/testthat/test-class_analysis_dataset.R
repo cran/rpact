@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 06 November 2019, 17:08:54                                                   #
+# Date: 26 November 2019, 10:07:41                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -29,6 +29,40 @@ test_that("Usage of 'getDataset'", {
 		stDevs1 = c(1, 2, 2, 1.3),
 		stDevs2 = c(1, 2, 2, 1.3)
 	)
+
+	##
+	## Comparison of the results of DatasetMeans object 'datasetOfMeans1' with expected results
+	##
+	expect_equal(datasetOfMeans1$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfMeans1$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans1$sampleSizes, c(22, 22, 11, 13, 22, 22, 11, 13))
+	expect_equal(datasetOfMeans1$means, c(1, 1.4, 1.1, 1.5, 1, 3, 1, 2.5), tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$stDevs, c(1, 1, 2, 2, 2, 2, 1.3, 1.3), tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$overallSampleSizes, c(22, 22, 33, 35, 55, 57, 66, 70))
+	expect_equal(datasetOfMeans1$overallMeans, c(1, 1.4, 1.0333333, 1.4371429, 1.02, 2.0403509, 1.0166667, 2.1257143), tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$overallStDevs, c(1, 1, 1.3814998, 1.4254175, 1.6391506, 1.8228568, 1.5786638, 1.7387056), tolerance = 1e-07)
+
+	##
+	## Comparison of the results of data.frame object 'datasetOfMeans1$.data' with expected results
+	##
+	expect_equal(datasetOfMeans1$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfMeans1$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans1$.data$sampleSize, c(22, 22, 11, 13, 22, 22, 11, 13))
+	expect_equal(datasetOfMeans1$.data$mean, c(1, 1.4, 1.1, 1.5, 1, 3, 1, 2.5), tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$.data$stDev, c(1, 1, 2, 2, 2, 2, 1.3, 1.3), tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$.data$overallSampleSize, c(22, 22, 33, 35, 55, 57, 66, 70))
+	expect_equal(datasetOfMeans1$.data$overallMean, c(1, 1.4, 1.0333333, 1.4371429, 1.02, 2.0403509, 1.0166667, 2.1257143), tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$.data$overallStDev, c(1, 1, 1.3814998, 1.4254175, 1.6391506, 1.8228568, 1.5786638, 1.7387056), tolerance = 1e-07)
+
+	expect_equal(datasetOfMeans1$stages, datasetOfMeans1$.data$stage, tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$groups, datasetOfMeans1$.data$group, tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$sampleSizes, datasetOfMeans1$.data$sampleSize, tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$means, datasetOfMeans1$.data$mean, tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$stDevs, datasetOfMeans1$.data$stDev, tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$overallSampleSizes, datasetOfMeans1$.data$overallSampleSize, tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$overallMeans, datasetOfMeans1$.data$overallMean, tolerance = 1e-07)
+	expect_equal(datasetOfMeans1$overallStDevs, datasetOfMeans1$.data$overallStDev, tolerance = 1e-07)
+
 	x <- getMultipleStageResultsForDataset(datasetOfMeans1)
 
 	##
@@ -148,6 +182,31 @@ test_that("Usage of 'getDataset'", {
 		overallStDevs1 = c(1, 1.381500, 1.639151, 1.578664),
 		overallStDevs2 = c(1, 1.425418, 1.822857, 1.738706)
 	)
+
+	##
+	## Comparison of the results of DatasetMeans object 'datasetOfMeans3' with expected results
+	##
+	expect_equal(datasetOfMeans3$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfMeans3$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans3$sampleSizes, c(22, 22, 11, 13, 22, 22, 11, 13))
+	expect_equal(datasetOfMeans3$means, c(1, 1.4, 1.099999, 1.5000004, 1.0000005, 3.0000001, 1.000002, 2.4999979), tolerance = 1e-07)
+	expect_equal(datasetOfMeans3$stDevs, c(1, 1, 2.0000005, 2.0000009, 2.0000005, 1.9999999, 1.2999989, 1.3000023), tolerance = 1e-07)
+	expect_equal(datasetOfMeans3$overallSampleSizes, c(22, 22, 33, 35, 55, 57, 66, 70))
+	expect_equal(datasetOfMeans3$overallMeans, c(1, 1.4, 1.033333, 1.437143, 1.02, 2.040351, 1.016667, 2.125714), tolerance = 1e-07)
+	expect_equal(datasetOfMeans3$overallStDevs, c(1, 1, 1.3815, 1.425418, 1.639151, 1.822857, 1.578664, 1.738706), tolerance = 1e-07)
+
+	##
+	## Comparison of the results of data.frame object 'datasetOfMeans3$.data' with expected results
+	##
+	expect_equal(datasetOfMeans3$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfMeans3$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans3$.data$sampleSize, c(22, 22, 11, 13, 22, 22, 11, 13))
+	expect_equal(datasetOfMeans3$.data$mean, c(1, 1.4, 1.099999, 1.5000004, 1.0000005, 3.0000001, 1.000002, 2.4999979), tolerance = 1e-07)
+	expect_equal(datasetOfMeans3$.data$stDev, c(1, 1, 2.0000005, 2.0000009, 2.0000005, 1.9999999, 1.2999989, 1.3000023), tolerance = 1e-07)
+	expect_equal(datasetOfMeans3$.data$overallSampleSize, c(22, 22, 33, 35, 55, 57, 66, 70))
+	expect_equal(datasetOfMeans3$.data$overallMean, c(1, 1.4, 1.033333, 1.437143, 1.02, 2.040351, 1.016667, 2.125714), tolerance = 1e-07)
+	expect_equal(datasetOfMeans3$.data$overallStDev, c(1, 1, 1.3815, 1.425418, 1.639151, 1.822857, 1.578664, 1.738706), tolerance = 1e-07)
+
 	x <- getMultipleStageResultsForDataset(datasetOfMeans3)
 
 	##
@@ -208,6 +267,31 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 		means = c(1, 1.1, 1, 1),
 		stDevs = c(1, 2, 2, 1.3)
 	)
+
+	##
+	## Comparison of the results of DatasetMeans object 'datasetOfMeans4' with expected results
+	##
+	expect_equal(datasetOfMeans4$stages, c(1, 2, 3, 4))
+	expect_equal(datasetOfMeans4$groups, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans4$sampleSizes, c(22, 11, 22, 11))
+	expect_equal(datasetOfMeans4$means, c(1, 1.1, 1, 1), tolerance = 1e-07)
+	expect_equal(datasetOfMeans4$stDevs, c(1, 2, 2, 1.3), tolerance = 1e-07)
+	expect_equal(datasetOfMeans4$overallSampleSizes, c(22, 33, 55, 66))
+	expect_equal(datasetOfMeans4$overallMeans, c(1, 1.0333333, 1.02, 1.0166667), tolerance = 1e-07)
+	expect_equal(datasetOfMeans4$overallStDevs, c(1, 1.3814998, 1.6391506, 1.5786638), tolerance = 1e-07)
+
+	##
+	## Comparison of the results of data.frame object 'datasetOfMeans4$.data' with expected results
+	##
+	expect_equal(datasetOfMeans4$.data$stage, c(1, 2, 3, 4))
+	expect_equal(datasetOfMeans4$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans4$.data$sampleSize, c(22, 11, 22, 11))
+	expect_equal(datasetOfMeans4$.data$mean, c(1, 1.1, 1, 1), tolerance = 1e-07)
+	expect_equal(datasetOfMeans4$.data$stDev, c(1, 2, 2, 1.3), tolerance = 1e-07)
+	expect_equal(datasetOfMeans4$.data$overallSampleSize, c(22, 33, 55, 66))
+	expect_equal(datasetOfMeans4$.data$overallMean, c(1, 1.0333333, 1.02, 1.0166667), tolerance = 1e-07)
+	expect_equal(datasetOfMeans4$.data$overallStDev, c(1, 1.3814998, 1.6391506, 1.5786638), tolerance = 1e-07)
+
 	x <- getMultipleStageResultsForDataset(datasetOfMeans4)
 
 	##
@@ -259,6 +343,31 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 		overallMeans = c(1.000, 1.033, 1.020, 1.017 ),
 		overallStDevs = c(1.00, 1.38, 1.64, 1.58)
 	)
+
+	##
+	## Comparison of the results of DatasetMeans object 'datasetOfMeans5' with expected results
+	##
+	expect_equal(datasetOfMeans5$stages, c(1, 2, 3, 4))
+	expect_equal(datasetOfMeans5$groups, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans5$sampleSizes, c(22, 11, 22, 11))
+	expect_equal(datasetOfMeans5$means, c(1, 1.099, 1.0005, 1.002), tolerance = 1e-07)
+	expect_equal(datasetOfMeans5$stDevs, c(1, 1.9967205, 2.003374, 1.3047847), tolerance = 1e-07)
+	expect_equal(datasetOfMeans5$overallSampleSizes, c(22, 33, 55, 66))
+	expect_equal(datasetOfMeans5$overallMeans, c(1, 1.033, 1.02, 1.017), tolerance = 1e-07)
+	expect_equal(datasetOfMeans5$overallStDevs, c(1, 1.38, 1.64, 1.58), tolerance = 1e-07)
+
+	##
+	## Comparison of the results of data.frame object 'datasetOfMeans5$.data' with expected results
+	##
+	expect_equal(datasetOfMeans5$.data$stage, c(1, 2, 3, 4))
+	expect_equal(datasetOfMeans5$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans5$.data$sampleSize, c(22, 11, 22, 11))
+	expect_equal(datasetOfMeans5$.data$mean, c(1, 1.099, 1.0005, 1.002), tolerance = 1e-07)
+	expect_equal(datasetOfMeans5$.data$stDev, c(1, 1.9967205, 2.003374, 1.3047847), tolerance = 1e-07)
+	expect_equal(datasetOfMeans5$.data$overallSampleSize, c(22, 33, 55, 66))
+	expect_equal(datasetOfMeans5$.data$overallMean, c(1, 1.033, 1.02, 1.017), tolerance = 1e-07)
+	expect_equal(datasetOfMeans5$.data$overallStDev, c(1, 1.38, 1.64, 1.58), tolerance = 1e-07)
+
 	x <- getMultipleStageResultsForDataset(datasetOfMeans5)
 
 	##
@@ -309,6 +418,27 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 		n = c(8, 10, 9, 11), 
 		events = c(4, 5, 5, 6)
 	)
+
+	##
+	## Comparison of the results of DatasetRates object 'datasetOfRates1' with expected results
+	##
+	expect_equal(datasetOfRates1$stages, c(1, 2, 3, 4))
+	expect_equal(datasetOfRates1$groups, c(1, 1, 1, 1))
+	expect_equal(datasetOfRates1$sampleSizes, c(8, 10, 9, 11))
+	expect_equal(datasetOfRates1$events, c(4, 5, 5, 6))
+	expect_equal(datasetOfRates1$overallSampleSizes, c(8, 18, 27, 38))
+	expect_equal(datasetOfRates1$overallEvents, c(4, 9, 14, 20))
+
+	##
+	## Comparison of the results of data.frame object 'datasetOfRates1$.data' with expected results
+	##
+	expect_equal(datasetOfRates1$.data$stage, c(1, 2, 3, 4))
+	expect_equal(datasetOfRates1$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetOfRates1$.data$sampleSize, c(8, 10, 9, 11))
+	expect_equal(datasetOfRates1$.data$event, c(4, 5, 5, 6))
+	expect_equal(datasetOfRates1$.data$overallSampleSize, c(8, 18, 27, 38))
+	expect_equal(datasetOfRates1$.data$overallEvent, c(4, 9, 14, 20))
+
 	x <- getMultipleStageResultsForDataset(datasetOfRates1, thetaH0 = 0.99)
 
 	##
@@ -358,6 +488,27 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 		events2 = c(3, 5, 5, 6),
 		events1 = c(10, 10, 12, 12)
 	)
+
+	##
+	## Comparison of the results of DatasetRates object 'datasetOfRates2' with expected results
+	##
+	expect_equal(datasetOfRates2$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfRates2$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates2$sampleSizes, c(11, 8, 13, 10, 12, 9, 13, 11))
+	expect_equal(datasetOfRates2$events, c(10, 3, 10, 5, 12, 5, 12, 6))
+	expect_equal(datasetOfRates2$overallSampleSizes, c(11, 8, 24, 18, 36, 27, 49, 38))
+	expect_equal(datasetOfRates2$overallEvents, c(10, 3, 20, 8, 32, 13, 44, 19))
+
+	##
+	## Comparison of the results of data.frame object 'datasetOfRates2$.data' with expected results
+	##
+	expect_equal(datasetOfRates2$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfRates2$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates2$.data$sampleSize, c(11, 8, 13, 10, 12, 9, 13, 11))
+	expect_equal(datasetOfRates2$.data$event, c(10, 3, 10, 5, 12, 5, 12, 6))
+	expect_equal(datasetOfRates2$.data$overallSampleSize, c(11, 8, 24, 18, 36, 27, 49, 38))
+	expect_equal(datasetOfRates2$.data$overallEvent, c(10, 3, 20, 8, 32, 13, 44, 19))
+
 	x <- getMultipleStageResultsForDataset(datasetOfRates2, thetaH0 = 0.99)
 
 	##
@@ -426,6 +577,16 @@ test_that("Creation of a dataset of rates using stage wise data (three groups)",
 	expect_equal(datasetOfRates3$overallSampleSizes, c(11, 8, 7, 24, 18, 17, 36, 27, 25, 49, 38, 34))
 	expect_equal(datasetOfRates3$overallEvents, c(10, 3, 2, 20, 8, 6, 32, 13, 9, 44, 19, 14))
 
+	##
+	## Comparison of the results of data.frame object 'datasetOfRates3$.data' with expected results
+	##
+	expect_equal(datasetOfRates3$.data$stage, c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4))
+	expect_equal(datasetOfRates3$.data$group, c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3))
+	expect_equal(datasetOfRates3$.data$sampleSize, c(11, 8, 7, 13, 10, 10, 12, 9, 8, 13, 11, 9))
+	expect_equal(datasetOfRates3$.data$event, c(10, 3, 2, 10, 5, 4, 12, 5, 3, 12, 6, 5))
+	expect_equal(datasetOfRates3$.data$overallSampleSize, c(11, 8, 7, 24, 18, 17, 36, 27, 25, 49, 38, 34))
+	expect_equal(datasetOfRates3$.data$overallEvent, c(10, 3, 2, 20, 8, 6, 32, 13, 9, 44, 19, 14))
+
 })
 
 test_that("Creation of a dataset of rates using overall data (two groups)", {
@@ -436,6 +597,27 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 		overallEvents1 = c(10, 20, 32, 44),
 		overallEvents2 = c(3, 8, 13, 19)
 	)
+
+	##
+	## Comparison of the results of DatasetRates object 'datasetOfRates4' with expected results
+	##
+	expect_equal(datasetOfRates4$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfRates4$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates4$sampleSizes, c(11, 8, 13, 10, 12, 9, 13, 11))
+	expect_equal(datasetOfRates4$events, c(10, 3, 10, 5, 12, 5, 12, 6))
+	expect_equal(datasetOfRates4$overallSampleSizes, c(11, 8, 24, 18, 36, 27, 49, 38))
+	expect_equal(datasetOfRates4$overallEvents, c(10, 3, 20, 8, 32, 13, 44, 19))
+
+	##
+	## Comparison of the results of data.frame object 'datasetOfRates4$.data' with expected results
+	##
+	expect_equal(datasetOfRates4$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
+	expect_equal(datasetOfRates4$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates4$.data$sampleSize, c(11, 8, 13, 10, 12, 9, 13, 11))
+	expect_equal(datasetOfRates4$.data$event, c(10, 3, 10, 5, 12, 5, 12, 6))
+	expect_equal(datasetOfRates4$.data$overallSampleSize, c(11, 8, 24, 18, 36, 27, 49, 38))
+	expect_equal(datasetOfRates4$.data$overallEvent, c(10, 3, 20, 8, 32, 13, 44, 19))
+
 	x <- getMultipleStageResultsForDataset(datasetOfRates4, thetaH0 = 0.99)
 
 	##
@@ -504,6 +686,16 @@ test_that("Creation of a dataset of rates using overall data (three groups)", {
 	expect_equal(datasetOfRates5$overallSampleSizes, c(11, 8, 8, 24, 18, 18, 36, 27, 27, 49, 38, 38))
 	expect_equal(datasetOfRates5$overallEvents, c(10, 3, 3, 20, 8, 7, 32, 13, 12, 44, 19, 20))
 
+	##
+	## Comparison of the results of data.frame object 'datasetOfRates5$.data' with expected results
+	##
+	expect_equal(datasetOfRates5$.data$stage, c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4))
+	expect_equal(datasetOfRates5$.data$group, c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3))
+	expect_equal(datasetOfRates5$.data$sampleSize, c(11, 8, 8, 13, 10, 10, 12, 9, 9, 13, 11, 11))
+	expect_equal(datasetOfRates5$.data$event, c(10, 3, 3, 10, 5, 4, 12, 5, 5, 12, 6, 8))
+	expect_equal(datasetOfRates5$.data$overallSampleSize, c(11, 8, 8, 24, 18, 18, 36, 27, 27, 49, 38, 38))
+	expect_equal(datasetOfRates5$.data$overallEvent, c(10, 3, 3, 20, 8, 7, 32, 13, 12, 44, 19, 20))
+
 })
 
 test_that("Creation of a dataset of survival data using stage wise data", {
@@ -513,6 +705,31 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 		allocationRatios = c(1, 1, 1, 3.58333333333333),
 		logRanks = c(1.520, 1.273, 0.503, 0.887)
 	)
+
+	##
+	## Comparison of the results of DatasetSurvival object 'datasetSurvival1' with expected results
+	##
+	expect_equal(datasetSurvival1$stages, c(1, 2, 3, 4))
+	expect_equal(datasetSurvival1$groups, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival1$overallEvents, c(8, 15, 19, 31))
+	expect_equal(datasetSurvival1$overallAllocationRatios, c(1, 1, 1, 2), tolerance = 1e-07)
+	expect_equal(datasetSurvival1$overallLogRanks, c(1.52, 1.9796756, 1.9897802, 2.1096275), tolerance = 1e-07)
+	expect_equal(datasetSurvival1$events, c(8, 7, 4, 12))
+	expect_equal(datasetSurvival1$allocationRatios, c(1, 1, 1, 3.5833333), tolerance = 1e-07)
+	expect_equal(datasetSurvival1$logRanks, c(1.52, 1.273, 0.503, 0.887), tolerance = 1e-07)
+
+	##
+	## Comparison of the results of data.frame object 'datasetSurvival1$.data' with expected results
+	##
+	expect_equal(datasetSurvival1$.data$stage, c(1, 2, 3, 4))
+	expect_equal(datasetSurvival1$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival1$.data$overallEvent, c(8, 15, 19, 31))
+	expect_equal(datasetSurvival1$.data$overallAllocationRatio, c(1, 1, 1, 2), tolerance = 1e-07)
+	expect_equal(datasetSurvival1$.data$overallLogRank, c(1.52, 1.9796756, 1.9897802, 2.1096275), tolerance = 1e-07)
+	expect_equal(datasetSurvival1$.data$event, c(8, 7, 4, 12))
+	expect_equal(datasetSurvival1$.data$allocationRatio, c(1, 1, 1, 3.5833333), tolerance = 1e-07)
+	expect_equal(datasetSurvival1$.data$logRanks, c(1.52, 1.273, 0.503, 0.887), tolerance = 1e-07)
+
 	x <- getMultipleStageResultsForDataset(datasetSurvival1)
 
 	##
@@ -524,7 +741,7 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	expect_equal(x$stageResults1$overallAllocationRatios, c(1, 1, 1, 2, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults1$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults1$logRanks, c(1.52, 1.273, 0.503, 0.887, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults1$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$effectSizes, c(2.9294137, 2.7795807, 2.4917213, 2.2339445, NA_real_), tolerance = 1e-07)
@@ -538,7 +755,7 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	expect_equal(x$stageResults2$overallAllocationRatios, c(1, 1, 1, 2, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults2$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$logRanks, c(1.52, 1.273, 0.503, 0.887, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults2$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(2.9294137, 2.7795807, 2.4917213, 2.2339445, NA_real_), tolerance = 1e-07)
@@ -554,12 +771,21 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	expect_equal(x$stageResults3$overallAllocationRatios, c(1, 1, 1, 2, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults3$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults3$logRanks, c(1.52, 1.273, 0.503, 0.887, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults3$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$effectSizes, c(2.9294137, 2.7795807, 2.4917213, 2.2339445, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$combFisher, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$weightsFisher, c(1, 1, 1, 1, 1), tolerance = 1e-07)
+
+	expect_equal(datasetSurvival1$stages, datasetSurvival1$.data$stage, tolerance = 1e-07)
+	expect_equal(datasetSurvival1$groups, datasetSurvival1$.data$group, tolerance = 1e-07)
+	expect_equal(datasetSurvival1$events, datasetSurvival1$.data$event, tolerance = 1e-07)
+	expect_equal(datasetSurvival1$allocationRatios, datasetSurvival1$.data$allocationRatio, tolerance = 1e-07)
+	expect_equal(datasetSurvival1$logRanks, datasetSurvival1$.data$logRank, tolerance = 1e-07)
+	expect_equal(datasetSurvival1$overallEvents, datasetSurvival1$.data$overallEvent, tolerance = 1e-07)
+	expect_equal(datasetSurvival1$overallAllocationRatios, datasetSurvival1$.data$overallAllocationRatio, tolerance = 1e-07)
+	expect_equal(datasetSurvival1$overallLogRanks, datasetSurvival1$.data$overallLogRank, tolerance = 1e-07)
 
 })
 
@@ -570,6 +796,31 @@ test_that("Creation of a dataset of survival data using overall data", {
 		overallAllocationRatios = c(1, 1, 1, 2),
 		overallLogRanks = c(1.52, 1.98, 1.99, 2.11)
 	)
+
+	##
+	## Comparison of the results of DatasetSurvival object 'datasetSurvival2' with expected results
+	##
+	expect_equal(datasetSurvival2$stages, c(1, 2, 3, 4))
+	expect_equal(datasetSurvival2$groups, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival2$overallEvents, c(8, 15, 19, 31))
+	expect_equal(datasetSurvival2$overallAllocationRatios, c(1, 1, 1, 2))
+	expect_equal(datasetSurvival2$overallLogRanks, c(1.52, 1.98, 1.99, 2.11), tolerance = 1e-07)
+	expect_equal(datasetSurvival2$events, c(8, 7, 4, 12))
+	expect_equal(datasetSurvival2$allocationRatios, c(1, 1, 1, 3.5833333), tolerance = 1e-07)
+	expect_equal(datasetSurvival2$logRanks, c(1.52, 1.2734749, 0.50285094, 0.8873221), tolerance = 1e-07)
+
+	##
+	## Comparison of the results of data.frame object 'datasetSurvival2$.data' with expected results
+	##
+	expect_equal(datasetSurvival2$.data$stage, c(1, 2, 3, 4))
+	expect_equal(datasetSurvival2$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival2$.data$overallEvent, c(8, 15, 19, 31))
+	expect_equal(datasetSurvival2$.data$overallAllocationRatio, c(1, 1, 1, 2))
+	expect_equal(datasetSurvival2$.data$overallLogRank, c(1.52, 1.98, 1.99, 2.11), tolerance = 1e-07)
+	expect_equal(datasetSurvival2$.data$event, c(8, 7, 4, 12))
+	expect_equal(datasetSurvival2$.data$allocationRatio, c(1, 1, 1, 3.5833333), tolerance = 1e-07)
+	expect_equal(datasetSurvival2$.data$logRanks, c(1.52, 1.2734749, 0.50285094, 0.8873221), tolerance = 1e-07)
+
 	x <- getMultipleStageResultsForDataset(datasetSurvival2)
 
 	##
@@ -581,7 +832,7 @@ test_that("Creation of a dataset of survival data using overall data", {
 	expect_equal(x$stageResults1$overallAllocationRatios, c(1, 1, 1, 2, NA_real_))
 	expect_equal(x$stageResults1$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults1$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults1$logRanks, c(1.52, 1.2734749, 0.50285094, 0.8873221, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults1$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$effectSizes, c(2.9294137, 2.7800464, 2.4919726, 2.2342616, NA_real_), tolerance = 1e-07)
@@ -595,7 +846,7 @@ test_that("Creation of a dataset of survival data using overall data", {
 	expect_equal(x$stageResults2$overallAllocationRatios, c(1, 1, 1, 2, NA_real_))
 	expect_equal(x$stageResults2$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults2$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$logRanks, c(1.52, 1.2734749, 0.50285094, 0.8873221, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults2$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(2.9294137, 2.7800464, 2.4919726, 2.2342616, NA_real_), tolerance = 1e-07)
@@ -611,7 +862,7 @@ test_that("Creation of a dataset of survival data using overall data", {
 	expect_equal(x$stageResults3$overallAllocationRatios, c(1, 1, 1, 2, NA_real_))
 	expect_equal(x$stageResults3$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults3$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults3$logRanks, c(1.52, 1.2734749, 0.50285094, 0.8873221, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults3$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$effectSizes, c(2.9294137, 2.7800464, 2.4919726, 2.2342616, NA_real_), tolerance = 1e-07)

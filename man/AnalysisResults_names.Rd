@@ -7,6 +7,9 @@
 \usage{
 \method{names}{AnalysisResults}(x)
 }
+\value{
+A character vector containing the names of the \code{\link{AnalysisResults}} object.
+}
 \description{
 Function to get the names of a \code{\link{AnalysisResults}} object.
 }

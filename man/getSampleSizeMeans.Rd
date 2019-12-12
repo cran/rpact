@@ -4,11 +4,17 @@
 \alias{getSampleSizeMeans}
 \title{Get Sample Size Means}
 \usage{
-getSampleSizeMeans(design = NULL, ..., groups = 2,
-  normalApproximation = FALSE, meanRatio = FALSE,
+getSampleSizeMeans(
+  design = NULL,
+  ...,
+  groups = 2,
+  normalApproximation = FALSE,
+  meanRatio = FALSE,
   thetaH0 = ifelse(meanRatio, 1, 0),
-  alternative = C_ALTERNATIVE_DEFAULT, stDev = C_STDEV_DEFAULT,
-  allocationRatioPlanned = NA_real_)
+  alternative = C_ALTERNATIVE_DEFAULT,
+  stDev = C_STDEV_DEFAULT,
+  allocationRatioPlanned = NA_real_
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

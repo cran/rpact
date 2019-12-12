@@ -4,8 +4,9 @@
 \alias{setLogLevel}
 \title{Set Log Level}
 \usage{
-setLogLevel(logLevel = c("PROGRESS", "ERROR", "WARN", "INFO", "DEBUG",
-  "TRACE", "DISABLED"))
+setLogLevel(
+  logLevel = c("PROGRESS", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "DISABLED")
+)
 }
 \arguments{
 \item{logLevel}{The new log level to set. Can be one of

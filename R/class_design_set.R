@@ -653,7 +653,7 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 #' Is, e.g., useful to compare different designs or design parameters visual.
 #' 
 #' @return 
-#' Returns a \code{ggplot2} object.
+#' A \code{ggplot2} object.
 #'  
 #' @export
 #' 

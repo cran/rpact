@@ -4,8 +4,11 @@
 \alias{getAvailablePlotTypes}
 \title{Get Available Plot Types}
 \usage{
-getAvailablePlotTypes(obj, output = c("numeric", "caption", "numcap",
-  "capnum"), numberInCaptionEnabled = FALSE)
+getAvailablePlotTypes(
+  obj,
+  output = c("numeric", "caption", "numcap", "capnum"),
+  numberInCaptionEnabled = FALSE
+)
 }
 \arguments{
 \item{obj}{The object for which the plot types shall be identified, e.g. produced by

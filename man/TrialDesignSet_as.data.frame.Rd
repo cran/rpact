@@ -5,10 +5,17 @@
 \alias{as.data.frame.TrialDesignSet}
 \title{Coerce Trial Design Set to a Data Frame}
 \usage{
-\method{as.data.frame}{TrialDesignSet}(x, row.names = NULL,
-  optional = FALSE, niceColumnNamesEnabled = FALSE,
-  includeAllParameters = FALSE, addPowerAndAverageSampleNumber = FALSE,
-  theta = seq(-1, 1, 0.02), nMax = NA_integer_, ...)
+\method{as.data.frame}{TrialDesignSet}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  niceColumnNamesEnabled = FALSE,
+  includeAllParameters = FALSE,
+  addPowerAndAverageSampleNumber = FALSE,
+  theta = seq(-1, 1, 0.02),
+  nMax = NA_integer_,
+  ...
+)
 }
 \description{
 Returns the \code{TrialDesignSet} as data frame.

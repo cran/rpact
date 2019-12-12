@@ -45,7 +45,7 @@ The different dataset types \code{DatasetMeans}, of \code{DatasetRates}, or
     are vectors with stagewise sample sizes 
     and events  for the two treatment groups of length given by the number of available stages.
   \item An element of \code{\link{DatasetSurvival}} is created by \cr
-    \code{getDataset(events=, logRanks =, allocationRatios =)} where 
+    \code{getDataset(events =, logRanks =, allocationRatios =)} where 
     \code{events}, \code{logRanks}, and \code{allocation ratios} are the stagewise events, 
     (one-sided) logrank statistics, and allocation ratios. 
 }

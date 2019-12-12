@@ -4,11 +4,21 @@
 \alias{plot.TrialDesignSet}
 \title{Trial Design Set Plotting}
 \usage{
-\method{plot}{TrialDesignSet}(x, y, type = 1L, main = NA_character_,
-  xlab = NA_character_, ylab = NA_character_, palette = "Set1",
-  theta = seq(-1, 1, 0.02), nMax = NA_integer_,
-  plotPointsEnabled = NA, legendPosition = NA_integer_,
-  showSource = FALSE, ...)
+\method{plot}{TrialDesignSet}(
+  x,
+  y,
+  type = 1L,
+  main = NA_character_,
+  xlab = NA_character_,
+  ylab = NA_character_,
+  palette = "Set1",
+  theta = seq(-1, 1, 0.02),
+  nMax = NA_integer_,
+  plotPointsEnabled = NA,
+  legendPosition = NA_integer_,
+  showSource = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{The trial design set, obtained from \code{\link{getDesignSet}}.}
@@ -63,7 +73,7 @@ useful to check the values or to create own plots with \code{\link[graphics]{plo
 \item{...}{Optional \code{ggplot2} arguments.}
 }
 \value{
-Returns a \code{ggplot2} object.
+A \code{ggplot2} object.
 }
 \description{
 Plots a trial design set.

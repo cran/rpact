@@ -84,7 +84,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 		directionUpper = "logical"
 	),
 	methods = list(
-	
+		
 		initialize = function(design, dataInput, ...) {
 			callSuper(.design = design, .dataInput = dataInput, ...)
 			
@@ -101,14 +101,23 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			}
 			
 			informationRates <<- design$informationRates
+			.setParameterType("informationRates", C_PARAM_DERIVED)
+			
 			criticalValues <<- design$criticalValues
+			.setParameterType("criticalValues", C_PARAM_DERIVED)
+			
 			if (.isTrialDesignFisher(design)) {
 				futilityBounds <<- design$alpha0Vec
-			} else {
+			} else if (.isTrialDesignInverseNormalOrGroupSequential(design)) {
 				futilityBounds <<- design$futilityBounds
 			}
+			.setParameterType("futilityBounds", C_PARAM_DERIVED)
+			
 			alphaSpent <<- design$alphaSpent
+			.setParameterType("alphaSpent", C_PARAM_DERIVED)
+			
 			stageLevels <<- design$stageLevels
+			.setParameterType("stageLevels", C_PARAM_DERIVED)
 		},
 		
 		getPlotSettings = function() {
@@ -154,7 +163,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 		},
 		
 		.getParametersToShow = function() {
-	
+			
 			parametersToShow <- c(
 				"stages",
 				"informationRates",
@@ -175,7 +184,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				parametersToShow <- c(parametersToShow, 
 					"combinationTestStatistics")
 			}
-
+			
 			parametersToShow <- c(parametersToShow, 
 				"testActions",
 				"thetaH0",
@@ -198,7 +207,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			}
 			
 			if (.isTrialDesignFisher(.design) && length(conditionalPowerSimulated) > 0 &&
-					(length(conditionalPowerSimulated) != 1 || conditionalPowerSimulated != -1)) {
+				(length(conditionalPowerSimulated) != 1 || conditionalPowerSimulated != -1)) {
 				parametersToShow <- c(parametersToShow, "conditionalPowerSimulated")
 			} else {
 				parametersToShow <- c(parametersToShow, "conditionalPower")
@@ -242,6 +251,9 @@ AnalysisResults <- setRefClass("AnalysisResults",
 #' @details
 #' Coerces the analysis results to a data frame.
 #' 
+#' @return 
+#' A data frame
+#' 
 #' @export
 #' 
 #' @keywords internal
@@ -250,7 +262,7 @@ as.data.frame.AnalysisResults <- function(x, row.names = NULL, optional = FALSE,
 	parametersToShow <- x$.getParametersToShow()
 	parametersToShow <- parametersToShow[!(parametersToShow %in% c(
 					"finalStage", "allocationRatioPlanned", "thetaH0", "thetaH1", "pi1", "pi2"
-	))]
+				))]
 	return(x$.getAsDataFrame(parameterNames = parametersToShow, 
 			tableColumnNames = .getTableColumnNames(design = x$.design)))
 }
@@ -266,6 +278,9 @@ as.data.frame.AnalysisResults <- function(x, row.names = NULL, optional = FALSE,
 #' 
 #' @details
 #' Returns the names of a analysis results that can be accessed by the user.
+#' 
+#' @return 
+#' A character vector containing the names of the \code{\link{AnalysisResults}} object.
 #'
 #' @export
 #' 
@@ -374,8 +389,8 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 )
 
 .getAnalysisResultsPlotArguments <- function(x, nPlanned = NA_real_,
-		stage = x$getNumberOfStages(), allocationRatioPlanned = NA_real_) {
-		
+	stage = x$getNumberOfStages(), allocationRatioPlanned = NA_real_) {
+	
 	if (all(is.na(nPlanned))) {
 		nPlanned <- stats::na.omit(x$nPlanned)
 		stage <- x$.design$kMax - length(nPlanned)
@@ -389,11 +404,11 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 	}
 	
 	return(list(
-		stageResults = x$.stageResults,
-		nPlanned = nPlanned,
-		stage = stage,
-		allocationRatioPlanned = allocationRatioPlanned
-	))
+			stageResults = x$.stageResults,
+			nPlanned = nPlanned,
+			stage = stage,
+			allocationRatioPlanned = allocationRatioPlanned
+		))
 }
 
 #'
@@ -405,9 +420,10 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 #' 
 #' @param x The analysis results at given stage, obtained from \code{\link{getAnalysisResults}}.
 #' @param y Not available for this kind of plot (is only defined to be compatible to the generic plot function).
-#' @param nPlanned The sample size planned for the subsequent stages. 
-#'        It should be a vector with length equal to the remaining stages and is the 
-#'        overall sample size in the two treatment groups if two groups are considered.
+#' @param nPlanned The additional (i.e. "new" and not cumulative) sample size planned for each of the subsequent stages. 
+#'        The argument should be a vector with length equal to the number of remaining stages and contain 
+#'        the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
+#'        it should contain the planned number of additional events.
 #' @param stage The stage number (optional). Default: total number of existing stages in the data input
 #'        used to create the analysis results.
 #' @param allocationRatioPlanned The allocation ratio n1/n2 for two treatment groups planned for 
@@ -452,6 +468,9 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 #' @details
 #' The conditional power is calculated only if effect size and sample size is specified. 
 #' 
+#' @return 
+#' A \code{ggplot2} object.
+#' 
 #' @export
 #' 
 #' @examples 
@@ -471,12 +490,12 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 #' if (require(ggplot2)) plot(result, thetaRange = c(0, 100))
 #'
 plot.AnalysisResults <- function(x, y, ..., type = 1L,
-		nPlanned = NA_real_, stage = x$getNumberOfStages(),
-		allocationRatioPlanned = NA_real_,
-		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-		legendTitle = "", palette = "Set1", legendPosition = NA_integer_, 
-		showSource = FALSE) {
-		
+	nPlanned = NA_real_, stage = x$getNumberOfStages(),
+	allocationRatioPlanned = NA_real_,
+	main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+	legendTitle = "", palette = "Set1", legendPosition = NA_integer_, 
+	showSource = FALSE) {
+	
 	if (showSource) {
 		warning("'showSource' = TRUE is not implemented yet for class ", class(x))
 	}
@@ -493,10 +512,10 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		if (is.null(assumedStDev)) {
 			assumedStDev <- x$assumedStDev
 			return(plot.StageResults(x = x$.stageResults, y = y, 
-				nPlanned = nPlanned, stage = stage, main = main, xlab = xlab, ylab = ylab,
-				legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, 
-				type = type, assumedStDev = assumedStDev, 
-				allocationRatioPlanned = allocationRatioPlanned, ...))
+					nPlanned = nPlanned, stage = stage, main = main, xlab = xlab, ylab = ylab,
+					legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, 
+					type = type, assumedStDev = assumedStDev, 
+					allocationRatioPlanned = allocationRatioPlanned, ...))
 		}
 	}
 	else if (x$getDataInput()$isDatasetRates()) {
@@ -504,12 +523,12 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		if (is.null(pi2)) {
 			pi2 <- x$pi2
 			return(plot.StageResults(x = x$.stageResults, y = y, 
-				nPlanned = nPlanned, stage = stage, main = main, xlab = xlab, ylab = ylab,
-				legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, 
-				type = type, pi2 = pi2, allocationRatioPlanned = allocationRatioPlanned, ...))
+					nPlanned = nPlanned, stage = stage, main = main, xlab = xlab, ylab = ylab,
+					legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, 
+					type = type, pi2 = pi2, allocationRatioPlanned = allocationRatioPlanned, ...))
 		}
 	}
-
+	
 	plot.StageResults(x = x$.stageResults, y = y, 
 		nPlanned = nPlanned, stage = stage, allocationRatioPlanned = allocationRatioPlanned, 
 		main = main, xlab = xlab, ylab = ylab,

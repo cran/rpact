@@ -5,8 +5,7 @@
 \alias{summary.TrialDesignPlanSurvival}
 \title{Trial Design Plan Survival Set Summary}
 \usage{
-\method{summary}{TrialDesignPlanSurvival}(object, ..., type = 1,
-  digits = NA_integer_)
+\method{summary}{TrialDesignPlanSurvival}(object, ..., type = 1, digits = NA_integer_)
 }
 \description{
 Displays a summary of \code{TrialDesignPlanSurvival} object.

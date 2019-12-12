@@ -20,7 +20,7 @@
 context("Testing the output format functions")
 
 
-	# @refFS[Sec.]{fs:sec:outputFormats}
+# @refFS[Sec.]{fs:sec:outputFormats}
 test_that("'formatPValues'", {
 	x <- formatPValues(0.0000234)
 

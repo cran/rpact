@@ -5,9 +5,14 @@
 \alias{as.data.frame.TrialDesignPlan}
 \title{Coerce Trial Design Plan to a Data Frame}
 \usage{
-\method{as.data.frame}{TrialDesignPlan}(x, row.names = NULL,
-  optional = FALSE, niceColumnNamesEnabled = FALSE,
-  includeAllParameters = FALSE, ...)
+\method{as.data.frame}{TrialDesignPlan}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  niceColumnNamesEnabled = FALSE,
+  includeAllParameters = FALSE,
+  ...
+)
 }
 \description{
 Returns the \code{TrialDesignPlan} as data frame.

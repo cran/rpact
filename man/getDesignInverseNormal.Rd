@@ -4,17 +4,27 @@
 \alias{getDesignInverseNormal}
 \title{Get Design Inverse Normal}
 \usage{
-getDesignInverseNormal(..., kMax = NA_integer_, alpha = NA_real_,
-  beta = NA_real_, sided = 1, informationRates = NA_real_,
-  futilityBounds = NA_real_, typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN,
+getDesignInverseNormal(
+  ...,
+  kMax = NA_integer_,
+  alpha = NA_real_,
+  beta = NA_real_,
+  sided = 1,
+  informationRates = NA_real_,
+  futilityBounds = NA_real_,
+  typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN,
   deltaWT = 0,
-  optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, gammaA = 1,
+  optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT,
+  gammaA = 1,
   typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE,
-  userAlphaSpending = NA_real_, userBetaSpending = NA_real_,
-  gammaB = 1, bindingFutility = NA,
+  userAlphaSpending = NA_real_,
+  userBetaSpending = NA_real_,
+  gammaB = 1,
+  bindingFutility = NA,
   constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
   twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
-  tolerance = C_DESIGN_TOLERANCE_DEFAULT)
+  tolerance = C_DESIGN_TOLERANCE_DEFAULT
+)
 }
 \arguments{
 \item{...}{Ensures that all arguments are be named and 

@@ -44,10 +44,10 @@ SummaryItem <- setRefClass("SummaryItem",
 SummaryFactory <- setRefClass("SummaryFactory",
 	contains = "ParameterSet",
 	fields = list(
-			object = "ParameterSet",
-			summaryItems = "list",
-			intervalFormat = "character",
-			justify = "character"
+		object = "ParameterSet",
+		summaryItems = "list",
+		intervalFormat = "character",
+		justify = "character"
 	),
 	
 	methods = list(
@@ -89,12 +89,14 @@ SummaryFactory <- setRefClass("SummaryFactory",
 			}
 			summaryItemNames <- paste0(format(summaryItemNames), " ")
 			
+			tableColumns <- 0
 			maxValueWidth <- 1
 			for (i in 1:length(summaryItems)) {
 				validValues <- na.omit(summaryItems[[i]]$values)
 				if (length(validValues) > 0) {
 					w <- max(nchar(validValues))
 					maxValueWidth <- max(maxValueWidth, w)
+					tableColumns <- max(tableColumns, 1 + length(validValues))
 				}
 			}
 			spaceString <- paste0(rep(" ", maxValueWidth + 1), collapse = "")
@@ -105,7 +107,11 @@ SummaryFactory <- setRefClass("SummaryFactory",
 				indices <- !grepl("(\\])$", values)
 				values[indices] <- paste0(values[indices], " ")
 				values <- format(c(spaceString, values), justify = justify)[2:(length(values) + 1)]
-				cat(summaryItemName, values, "\n")
+				.cat(summaryItemName, values, "\n", tableColumns = tableColumns, consoleOutputEnabled = consoleOutputEnabled)
+				if (!consoleOutputEnabled && trimws(summaryItemName) == "Stage") {
+					.cat(rep("----- ", tableColumns), "\n", tableColumns = tableColumns, 
+						consoleOutputEnabled = consoleOutputEnabled)
+				}
 			}
 			
 			if (length(legendEntries) > 0) {
@@ -123,17 +129,17 @@ SummaryFactory <- setRefClass("SummaryFactory",
 				values <- as.character(values)
 			}
 			tryCatch({
-						addSummaryItem(SummaryItem(title = title, values = values, legendEntry = legendEntry))
-					}, error = function(e) {
-						stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to add summary item '", title, 
-								"' = ", .arrayToString(values), " (class: ", class(values), "): ", e$message)
-					})
+				addSummaryItem(SummaryItem(title = title, values = values, legendEntry = legendEntry))
+			}, error = function(e) {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to add summary item '", title, 
+						"' = ", .arrayToString(values), " (class: ", class(values), "): ", e$message)
+			})
 		},
 		
 		addSummaryItem = function(summaryItem) {
 			if (!inherits(summaryItem, "SummaryItem")) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-						"'summaryItem' must be an instance of class 'SummaryItem' (was '", class(summaryItem), "')")
+					"'summaryItem' must be an instance of class 'SummaryItem' (was '", class(summaryItem), "')")
 			}
 			summaryItems <<- c(summaryItems, summaryItem)
 		},
@@ -584,10 +590,10 @@ SummaryFactory <- setRefClass("SummaryFactory",
 
 .createSummary <- function(object, digits = NA_integer_) {
 	if (.isTrialDesign(object) || .isTrialDesignPlan(object) || inherits(object, "SimulationResults")) {
-		.createDesignPlanSummary(object, digits = digits)
-	} else {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'summary' not implemented yet for class ", class(object))
-	}
+		return(.createDesignPlanSummary(object, digits = digits))
+	} 
+	
+	stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'summary' not implemented yet for class ", class(object))
 }
 
 .createDesignPlanSummary <- function(object, digits = NA_integer_) {
@@ -662,6 +668,8 @@ SummaryFactory <- setRefClass("SummaryFactory",
 	if (design$kMax > 1) {
 		summaryFactory$addItem("Stage", c(1:design$kMax))
 		summaryFactory$addItem("Information rate", paste0(round(100 * design$informationRates, 1), "%"))
+	} else {
+		summaryFactory$addItem("Stage", "Fixed")
 	}
 	
 	summaryFactory$addParameter(design, parameterName = "criticalValues", 
@@ -837,7 +845,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 					roundDigits = digitsProbabilities)
 		}
 	}
-	summaryFactory$show()
+	return(summaryFactory)
 }
 
 

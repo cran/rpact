@@ -5,8 +5,10 @@
 \alias{as.data.frame.AnalysisResults}
 \title{Coerce AnalysisResults to a Data Frame}
 \usage{
-\method{as.data.frame}{AnalysisResults}(x, row.names = NULL,
-  optional = FALSE, ...)
+\method{as.data.frame}{AnalysisResults}(x, row.names = NULL, optional = FALSE, ...)
+}
+\value{
+A data frame
 }
 \description{
 Returns the \code{\link{AnalysisResults}} object as data frame.

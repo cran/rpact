@@ -82,11 +82,8 @@ SimulationResults <- setRefClass("SimulationResults",
 			'Method for automatically printing simulation result objects'	
 			.resetCat()
 			if (showType == 3) {
-				parameterList <- .createSummary(.self, digits = digits)
-				for (parameterName in names(parameterList)) {
-					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
-						consoleOutputEnabled = consoleOutputEnabled)
-				}
+				.createSummary(.self, digits = digits)$.show(showType = 1, 
+					digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			}
 			else if (showType == 2) {
 				.cat("Technical summary of the simulation results object of class ",
@@ -903,6 +900,9 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 #' 
 #' @details
 #' Generic function to plot all kinds of simulation results.
+#' 
+#' @return 
+#' A \code{ggplot2} object.
 #' 
 #' @export
 #'

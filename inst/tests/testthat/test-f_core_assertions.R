@@ -19,6 +19,41 @@
 
 context("Testing assertion functions")
 
+test_that("Testing '.assertIsInClosedInterval'", {
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = 0, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = 1, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = 0.0001, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = 0.9999, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = NA_real_, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = NA_real_, xName = "x", lower = 0, upper = 1, naAllowed = TRUE), NA)))
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = c(1, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = TRUE), NA)))
+	invisible(capture.output(expect_error(.assertIsInClosedInterval(x = c(NA_real_, 0, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = TRUE), NA)))
+	
+	expect_error(.assertIsInClosedInterval(x = -0.0001, xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInClosedInterval(x = -0.0001, xName = "x", lower = 0, upper = NA_real_, naAllowed = FALSE))
+	expect_error(.assertIsInClosedInterval(x = 1.0001, xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInClosedInterval(x = c(1, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInClosedInterval(x = c(-1, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = TRUE))
+	expect_error(.assertIsInClosedInterval(x = c(NA_real_, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInClosedInterval(x = c(0, -1, 1, 2), xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+})
+
+test_that("Testing '.assertIsInOpenInterval'", {
+	invisible(capture.output(expect_error(.assertIsInOpenInterval(x = 0.0001, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInOpenInterval(x = 0.9999, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInOpenInterval(x = NA_real_, xName = "x", lower = 0, upper = 1, naAllowed = FALSE), NA)))
+	invisible(capture.output(expect_error(.assertIsInOpenInterval(x = NA_real_, xName = "x", lower = 0, upper = 1, naAllowed = TRUE), NA)))
+	invisible(capture.output(expect_error(.assertIsInOpenInterval(x = c(0.9999, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = TRUE), NA)))
+	invisible(capture.output(expect_error(.assertIsInOpenInterval(x = c(NA_real_, 0.0001, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = TRUE), NA)))
+	
+	expect_error(.assertIsInOpenInterval(x = 0, xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInOpenInterval(x = 0, xName = "x", lower = 0, upper = NA_real_, naAllowed = FALSE))
+	expect_error(.assertIsInOpenInterval(x = 1, xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInOpenInterval(x = c(1.0001, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInOpenInterval(x = c(-1, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = TRUE))
+	expect_error(.assertIsInOpenInterval(x = c(NA_real_, NA_real_), xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+	expect_error(.assertIsInOpenInterval(x = c(0, -1, 1, 2), xName = "x", lower = 0, upper = 1, naAllowed = FALSE))
+})
 
 test_that("Testing '.assertDesignParameterExists'", {
 	expect_error(.assertDesignParameterExists(), 

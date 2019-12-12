@@ -4,16 +4,26 @@
 \alias{getSimulationRates}
 \title{Get Simulation Rates}
 \usage{
-getSimulationRates(design = NULL, ..., groups = 2L,
-  riskRatio = FALSE, thetaH0 = ifelse(riskRatio, 1, 0),
-  pi1 = C_PI_1_DEFAULT, pi2 = NA_real_, plannedSubjects = NA_real_,
+getSimulationRates(
+  design = NULL,
+  ...,
+  groups = 2L,
+  riskRatio = FALSE,
+  thetaH0 = ifelse(riskRatio, 1, 0),
+  pi1 = C_PI_1_DEFAULT,
+  pi2 = NA_real_,
+  plannedSubjects = NA_real_,
   directionUpper = C_DIRECTION_UPPER_DEFAULT,
   allocationRatioPlanned = NA_real_,
   minNumberOfSubjectsPerStage = NA_real_,
-  maxNumberOfSubjectsPerStage = NA_real_, conditionalPower = NA_real_,
-  pi1H1 = NA_real_, pi2H1 = 0.2,
+  maxNumberOfSubjectsPerStage = NA_real_,
+  conditionalPower = NA_real_,
+  pi1H1 = NA_real_,
+  pi2H1 = 0.2,
   maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT,
-  seed = NA_real_, calcSubjectsFunction = NULL)
+  seed = NA_real_,
+  calcSubjectsFunction = NULL
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

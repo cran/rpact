@@ -4,12 +4,20 @@
 \alias{getDesignFisher}
 \title{Get Design Fisher}
 \usage{
-getDesignFisher(..., kMax = NA_integer_, alpha = NA_real_,
-  method = C_FISHER_METHOD_DEFAULT, userAlphaSpending = NA_real_,
-  alpha0Vec = NA_real_, informationRates = NA_real_, sided = 1,
+getDesignFisher(
+  ...,
+  kMax = NA_integer_,
+  alpha = NA_real_,
+  method = C_FISHER_METHOD_DEFAULT,
+  userAlphaSpending = NA_real_,
+  alpha0Vec = NA_real_,
+  informationRates = NA_real_,
+  sided = 1,
   bindingFutility = NA,
-  tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, iterations = 0,
-  seed = NA_real_)
+  tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT,
+  iterations = 0,
+  seed = NA_real_
+)
 }
 \arguments{
 \item{...}{Ensures that all arguments are be named and 

@@ -1,4 +1,15 @@
 
+# rpact 2.06
+
+* Boundaries on effect scale for testing means now accounts for the unknown variance case
+* getAnalysisSurvival: calculation of stage wise results not more in getStageResults
+* getStageResults: the calculation of 'effectSizes' for survival data and thetaH0 != 1 was corrected 
+* getDataset of survival data: issue with the internal storage of log ranks fixed 
+* Sample size plot: issue for kMax = 1 fixed
+* getSampleSizeSurvival with piecewise survival time: issue with calculation of 'maxNumberOfSubjects' for given 'followUpTime' fixed 
+* Internal Shiny app interface improved
+* Minor improvements
+
 # rpact 2.05
 
 * Assumed median survival time: get[SampleSize/Power/Simulation]Survival now support direct input of arguments 'median1' and 'median2'

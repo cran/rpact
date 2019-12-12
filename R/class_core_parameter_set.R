@@ -212,7 +212,7 @@ FieldSet <- setRefClass("FieldSet",
 		},
 		
 		.cat = function(..., file = "", sep = "", fill = FALSE, labels = NULL, 
-				append = FALSE, heading = 0, consoleOutputEnabled = TRUE) {
+				append = FALSE, heading = 0, tableColumns = 0, consoleOutputEnabled = TRUE) {
 			
 			if (consoleOutputEnabled) {
 				cat(..., file = file, sep = sep, fill = fill, labels = labels, append = append)
@@ -222,25 +222,42 @@ FieldSet <- setRefClass("FieldSet",
 			args <- list(...)
 			line <- ""
 			if (length(args) > 0) {
-				line <- paste0(args, collapse = sep)
-				listItemEnabled <- grepl("^  ", line)
-				if (heading > 0) {
-					headingCmd <- paste0(rep("#", heading + 1), collapse = "")
-					line <- paste0(headingCmd, " ", sub(": *", "", line))
+				if (tableColumns > 0) {
+					values <- unlist(args, use.names = FALSE)
+					values <- values[values != "\n"]
+					for (i in 1:length(values)) {
+						values[i] <- gsub("\n", "", values[i])
+					}
+					line <- paste0(values, collapse = "| ")
+					if (trimws(line) != "" && !grepl("\\| *$", line)) {
+						line <- paste0(line, "|")
+					}
+					line <- paste0("| ", line)
+					extraCells <- tableColumns - length(values)
+					if (extraCells > 0 && trimws(line) != "") {
+						line <- paste0(line, paste0(rep(" |", extraCells), collapse = ""))
+					}
+					line <- paste0(line, "\n")
 				} else {
-					parts <- strsplit(line, " *: ")[[1]]
-					if (length(parts) == 2) {
-						line <- paste0("*", trimws(parts[1]), "*: ", parts[2])
-					}
-				}
-				if (listItemEnabled) {
-					if (grepl("^  ", line)) {
-						line <- sub("^  ", "* ", line)
+					line <- paste0(args, collapse = sep)
+					listItemEnabled <- grepl("^  ", line)
+					if (heading > 0) {
+						headingCmd <- paste0(rep("#", heading + 1), collapse = "")
+						line <- paste0(headingCmd, " ", sub(": *", "", line))
 					} else {
-						line <- paste0("* ", line)
+						parts <- strsplit(line, " *: ")[[1]]
+						if (length(parts) == 2) {
+							line <- paste0("*", trimws(parts[1]), "*: ", parts[2])
+						}
+					}
+					if (listItemEnabled) {
+						if (grepl("^  ", line)) {
+							line <- sub("^  ", "* ", line)
+						} else {
+							line <- paste0("* ", line)
+						}
 					}
 				}
-				
 			}
 			if (length(.catLines) == 0) {
 				.catLines <<- line
@@ -539,15 +556,25 @@ ParameterSet <- setRefClass("ParameterSet",
 			invisible(output)
 		},
 		
+		.extractParameterNameAndValue = function(parameterName) {
+			d <- regexpr(paste0("\\..+\\$"), parameterName)
+			if (d[1] != 1) {
+				return(list(parameterName = parameterName, paramValue = get(parameterName)))
+			}
+			
+			index <- attr(d, "match.length")
+			objectName <- substr(parameterName, 1, index - 1)
+			parameterName <- substr(parameterName, index + 1, nchar(parameterName))	
+			paramValue <- get(objectName)[[parameterName]]
+			return(list(parameterName = parameterName, paramValue = paramValue))
+		},
+		
 		.getParameterValueFormatted = function(parameterName) {
-			tryCatch({					
-				d <- regexpr("\\.design\\$", parameterName)
-				if (d[1] == 1) {
-					parameterName <- substr(parameterName, attr(d, "match.length") + 1, nchar(parameterName))	
-					paramValue <- get(".design")[[parameterName]]
-				} else {
-					paramValue <- get(parameterName)
-				}
+			tryCatch({
+					
+				result <- .extractParameterNameAndValue(parameterName)
+				parameterName <- result$parameterName
+				paramValue <- result$paramValue
 
 				if (isS4(paramValue)) {
 					return(NULL)
@@ -617,7 +644,11 @@ ParameterSet <- setRefClass("ParameterSet",
 				paramCaption <- paste0("%", paramName, "%")
 			}
 			if (!is.na(matrixRow)) {
-				paramCaption <- paste0(paramCaption, " [", matrixRow, "]")
+				if (inherits(.self, "AnalysisResultsMultiArm")) {
+					paramCaption <- paste0(paramCaption, " (", matrixRow, ")")
+				} else {
+					paramCaption <- paste0(paramCaption, " [", matrixRow, "]")
+				}
 			}
 			if (is.null(paramValueFormatted) || length(paramValueFormatted) == 0 || 
 					is.na(paramValueFormatted)) {
@@ -1167,8 +1198,7 @@ summary.ParameterSet <- function(object, ..., type = 1, digits = NA_integer_) {
 	
 	if (type == 1 && (inherits(object, "TrialDesign") || inherits(object, "TrialDesignPlan") || 
 			inherits(object, "SimulationResults"))) {
-		object$show(showType = 3, digits = digits)
-		return(invisible(object))
+		return(.createSummary(object, digits = digits))	
 	}
 	
 	object$.cat("This output summarizes the ", object$.toString(), " specification.\n\n", heading = 1)

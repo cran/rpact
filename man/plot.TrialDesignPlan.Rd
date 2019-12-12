@@ -4,11 +4,20 @@
 \alias{plot.TrialDesignPlan}
 \title{Trial Design Plan Plotting}
 \usage{
-\method{plot}{TrialDesignPlan}(x, y, main = NA_character_,
-  xlab = NA_character_, ylab = NA_character_,
-  type = ifelse(x$.design$kMax == 1, 5, 1), palette = "Set1",
-  theta = seq(-1, 1, 0.01), plotPointsEnabled = NA,
-  legendPosition = NA_integer_, showSource = FALSE, ...)
+\method{plot}{TrialDesignPlan}(
+  x,
+  y,
+  main = NA_character_,
+  xlab = NA_character_,
+  ylab = NA_character_,
+  type = ifelse(x$.design$kMax == 1, 5, 1),
+  palette = "Set1",
+  theta = seq(-1, 1, 0.01),
+  plotPointsEnabled = NA,
+  legendPosition = NA_integer_,
+  showSource = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{The trial design plan, obtained from \cr
@@ -71,6 +80,9 @@ be printed which were used to create the plot; that may be, e.g.,
 useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
 
 \item{...}{Optional \code{ggplot2} arguments.}
+}
+\value{
+A \code{ggplot2} object.
 }
 \description{
 Plots a trial design plan.

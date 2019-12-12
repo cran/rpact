@@ -4,9 +4,13 @@
 \alias{getNumberOfSubjects}
 \title{Get Number Of Subjects}
 \usage{
-getNumberOfSubjects(time, ..., accrualTime = C_ACCRUAL_TIME_DEFAULT,
+getNumberOfSubjects(
+  time,
+  ...,
+  accrualTime = C_ACCRUAL_TIME_DEFAULT,
   accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,
-  maxNumberOfSubjects = NA_real_)
+  maxNumberOfSubjects = NA_real_
+)
 }
 \arguments{
 \item{time}{A numeric vector with time values.}

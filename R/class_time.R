@@ -240,7 +240,7 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 		delayedResponseAllowed = FALSE) {
 		
 	.warnInCaseOfUnknownArguments(functionName = "getPiecewiseSurvivalTime", ..., 
-		ignore = c(".pi1Default"))
+		ignore = c(".pi1Default", ".silent"))
 	
 	if (inherits(piecewiseSurvivalTime, "PiecewiseSurvivalTime") ||
 			inherits(piecewiseSurvivalTime, "TrialDesignPlanSurvival")) {
@@ -616,6 +616,7 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 	contains = "TimeDefinition",
 	fields = list(
 		.pi1Default = "numeric",
+		.silent = "logical",
 		piecewiseSurvivalTime = "numeric",
 		lambda1 = "numeric",
 		lambda2 = "numeric",
@@ -691,6 +692,11 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			args <- list(...)
 			if (!is.null(args[[".pi1Default"]])) {
 				.pi1Default <<- args[[".pi1Default"]]
+			}
+			if (!is.null(args[[".silent"]])) {
+				.silent <<- args[[".silent"]]
+			} else {
+				.silent <<- FALSE
 			}
 			
 			piecewiseSurvivalEnabled <<- FALSE
@@ -1210,8 +1216,10 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 					return(invisible())
 				}
 				
-				warning("'hazardRatio' (", .arrayToString(hazardRatio), 
-					") will be ignored because it will be calculated", call. = FALSE)
+				if (!.silent) {
+					warning("'hazardRatio' (", .arrayToString(hazardRatio), 
+						") will be ignored because it will be calculated", call. = FALSE)
+				}
 			}
 			
 			if (any(is.na(lambda2))) {

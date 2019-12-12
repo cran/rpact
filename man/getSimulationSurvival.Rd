@@ -4,12 +4,20 @@
 \alias{getSimulationSurvival}
 \title{Get Simulation Survival}
 \usage{
-getSimulationSurvival(design = NULL, ...,
+getSimulationSurvival(
+  design = NULL,
+  ...,
   thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT,
-  directionUpper = C_DIRECTION_UPPER_DEFAULT, pi1 = NA_real_,
-  pi2 = NA_real_, lambda1 = NA_real_, lambda2 = NA_real_,
-  median1 = NA_real_, median2 = NA_real_, hazardRatio = NA_real_,
-  kappa = 1, piecewiseSurvivalTime = NA_real_,
+  directionUpper = C_DIRECTION_UPPER_DEFAULT,
+  pi1 = NA_real_,
+  pi2 = NA_real_,
+  lambda1 = NA_real_,
+  lambda2 = NA_real_,
+  median1 = NA_real_,
+  median2 = NA_real_,
+  hazardRatio = NA_real_,
+  kappa = 1,
+  piecewiseSurvivalTime = NA_real_,
   allocation1 = C_ALLOCATION_1_DEFAULT,
   allocation2 = C_ALLOCATION_2_DEFAULT,
   eventTime = C_EVENT_TIME_DEFAULT,
@@ -18,13 +26,17 @@ getSimulationSurvival(design = NULL, ...,
   dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT,
   dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT,
   dropoutTime = C_DROP_OUT_TIME_DEFAULT,
-  maxNumberOfSubjects = NA_real_, plannedEvents = NA_real_,
+  maxNumberOfSubjects = NA_real_,
+  plannedEvents = NA_real_,
   minNumberOfEventsPerStage = NA_real_,
-  maxNumberOfEventsPerStage = NA_real_, conditionalPower = NA_real_,
+  maxNumberOfEventsPerStage = NA_real_,
+  conditionalPower = NA_real_,
   thetaH1 = NA_real_,
   maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT,
   maxNumberOfRawDatasetsPerStage = 0,
-  longTimeSimulationAllowed = FALSE, seed = NA_real_)
+  longTimeSimulationAllowed = FALSE,
+  seed = NA_real_
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

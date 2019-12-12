@@ -5,7 +5,7 @@
 # This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
 #                                                                                    #
 # File version: 1.0.0                                                                #
-# Date: 06 November 2019, 17:12:36                                                   #
+# Date: 12 December 2019, 12:31:28                                                   #
 # Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
 # Licensed under "GNU Lesser General Public License" version 3                       #
 # License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
@@ -99,7 +99,7 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	##
 	## Comparison of the results of TrialDesignGroupSequential object 'designGS1pretest' with expected results
 	##
-	expect_equal(designGS1pretest$alphaSpent, c(0.0020595603, 0.0098772988, 0.025), tolerance = 1e-07)
+	expect_equal(designGS1pretest$alphaSpent, c(0.0020595603, 0.0098772988, 0.024999999), tolerance = 1e-07)
 	expect_equal(designGS1pretest$criticalValues, c(2.8688923, 2.3885055, 2.0793148), tolerance = 1e-07)
 	expect_equal(designGS1pretest$stageLevels, c(0.0020595603, 0.0084585282, 0.018794214), tolerance = 1e-07)
 
@@ -127,9 +127,9 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.40937259, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.40683579, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.49316421, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 1.0768757, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 0.80375554, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 0.68698347, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 1.090771, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 0.80583608, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 0.68748891, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.0020595603, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.0084585282, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.018794214, tolerance = 1e-07)
@@ -185,9 +185,9 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.40937259, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.40683579, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.49316421, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.4806259, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.3061807, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 0.80404854, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.8110917, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.3500437, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 0.81436669, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.0020595603, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.0084585282, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.018794214, tolerance = 1e-07)
@@ -251,9 +251,9 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.40937259, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.40683579, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.49316421, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.486728, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.3093938, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 0.80602642, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.7228801, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.3419598, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 0.81376184, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.0020595603, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.0084585282, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.018794214, tolerance = 1e-07)
@@ -317,9 +317,9 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.40937259, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.40683579, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.49316421, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 3.5375594, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 2.0994357, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.4845681, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 4.222748, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 2.1829515, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.5038177, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.0020595603, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.0084585282, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.018794214, tolerance = 1e-07)
@@ -383,9 +383,9 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.40937259, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.40683579, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.49316421, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 3.5459553, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 2.1038565, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.4872895, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 4.0734522, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 2.1712593, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.5029983, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.0020595603, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.0084585282, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.018794214, tolerance = 1e-07)
@@ -449,9 +449,9 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.40937259, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.40683579, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.49316421, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.8214632, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.911752, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.5228064, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.8861856, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.9212807, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.5251098, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.0020595603, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.0084585282, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.018794214, tolerance = 1e-07)
@@ -515,9 +515,9 @@ test_that("'getSampleSizeMeans': sample size calculation of means for one sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.40937259, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.40683579, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.49316421, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.8225934, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.9123471, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.5231727, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[1, ], 2.8732837, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[2, ], 1.9198713, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScale[3, ], 1.5249957, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.0020595603, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.0084585282, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.018794214, tolerance = 1e-07)
@@ -637,12 +637,12 @@ test_that("'getSampleSizeMeans': sample size calculation of means for two sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.3601177, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.23711559, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.66288441, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[1, ], 0.049575518, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[2, ], 0.26282769, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[3, ], 0.35400332, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[1, ], 0.95042448, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[2, ], 0.73717231, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[3, ], 0.64599668, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[1, ], 0.041134725, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[2, ], 0.26146972, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[3, ], 0.3536511, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[1, ], 0.95886527, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[2, ], 0.73853028, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[3, ], 0.6463489, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.12265406, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.19870972, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.26319851, tolerance = 1e-07)
@@ -701,12 +701,12 @@ test_that("'getSampleSizeMeans': sample size calculation of means for two sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.3601177, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.23711559, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.66288441, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[1, ], -1.9450661, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[2, ], -1.0241802, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[3, ], -0.63045684, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[1, ], 1.9450661, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[2, ], 1.0241802, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[3, ], 0.63045684, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[1, ], -2.1720469, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[2, ], -1.0543228, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[3, ], -0.63787834, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[1, ], 2.1720469, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[2, ], 1.0543228, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[3, ], 0.63787834, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.12265406, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.19870972, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.26319851, tolerance = 1e-07)
@@ -773,12 +773,12 @@ test_that("'getSampleSizeMeans': sample size calculation of means for two sided 
 	expect_equal(sampleSizeResult$rejectPerStage[2, ], 0.3601177, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$rejectPerStage[3, ], 0.23711559, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$earlyStop, 0.66288441, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[1, ], -1.9472707, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[2, ], -1.025341, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[3, ], -0.63117143, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[1, ], 1.9472707, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[2, ], 1.025341, tolerance = 1e-07)
-	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[3, ], 0.63117143, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[1, ], -2.1030977, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[2, ], -1.0473776, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleLower[3, ], -0.63668307, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[1, ], 2.1030977, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[2, ], 1.0473776, tolerance = 1e-07)
+	expect_equal(sampleSizeResult$criticalValuesEffectScaleUpper[3, ], 0.63668307, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[1, ], 0.12265406, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[2, ], 0.19870972, tolerance = 1e-07)
 	expect_equal(sampleSizeResult$criticalValuesPValueScale[3, ], 0.26319851, tolerance = 1e-07)
@@ -5055,5 +5055,153 @@ test_that("'getNumberOfSubjects': check the number of recruited subjects at give
 	expect_equal(numberOfSubjects2$time, c(1, 2, 3))
 	expect_equal(numberOfSubjects2$maxNumberOfSubjects, 264)
 	expect_equal(numberOfSubjects2$numberOfSubjects, c(12, 24, 36))
+
+})
+
+test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects' for given 'followUpTime'", {
+
+	sampleSizeSurvival1 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
+		piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.6, 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival1' with expected results
+	##
+	expect_equal(sampleSizeSurvival1$directionUpper, FALSE)
+	expect_equal(sampleSizeSurvival1$lambda1, c(0.012, 0.018), tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$maxNumberOfSubjects, 484.65038, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$maxNumberOfEvents, 120.3157, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$accrualTime, 16.155013, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeSurvival1$nFixed, 484.65038, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$nFixed1, 242.32519, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$nFixed2, 242.32519, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$analysisTime[1, ], 24.155014, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$studyDuration, 24.155014, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$criticalValuesEffectScale[1, ], 0.6995143, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival1$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeSurvival2 <- getSampleSizeSurvival(piecewiseSurvivalTime = list(
+			"<12"  = 0.02,
+			">=12" = 0.03), hazardRatio = 0.6, 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival2' with expected results
+	##
+	expect_equal(sampleSizeSurvival2$directionUpper, FALSE)
+	expect_equal(sampleSizeSurvival2$lambda1, c(0.012, 0.018), tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$maxNumberOfSubjects, 484.65038, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$maxNumberOfEvents, 120.3157, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$accrualTime, 16.155013, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeSurvival2$nFixed, 484.65038, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$nFixed1, 242.32519, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$nFixed2, 242.32519, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$analysisTime[1, ], 24.155014, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$studyDuration, 24.155014, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$criticalValuesEffectScale[1, ], 0.6995143, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival2$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeSurvival3 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
+		piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.6, 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival3' with expected results
+	##
+	expect_equal(sampleSizeSurvival3$directionUpper, FALSE)
+	expect_equal(sampleSizeSurvival3$lambda1, c(0.012, 0.018), tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$maxNumberOfSubjects, 484.65038, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$maxNumberOfEvents, 120.3157, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$accrualTime, 16.155013, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeSurvival3$nFixed, 484.65038, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$nFixed1, 242.32519, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$nFixed2, 242.32519, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$analysisTime[1, ], 24.155014, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$studyDuration, 24.155014, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$criticalValuesEffectScale[1, ], 0.6995143, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival3$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeSurvival4 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
+		piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.8, 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival4' with expected results
+	##
+	expect_equal(sampleSizeSurvival4$directionUpper, FALSE)
+	expect_equal(sampleSizeSurvival4$lambda1, c(0.016, 0.024), tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$maxNumberOfSubjects, 1325.4661, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$maxNumberOfEvents, 630.52017, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$accrualTime, 44.182203, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeSurvival4$nFixed, 1325.4661, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$nFixed1, 662.73305, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$nFixed2, 662.73305, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$analysisTime[1, ], 52.182201, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$studyDuration, 52.182201, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$criticalValuesEffectScale[1, ], 0.85546574, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival4$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeSurvival5 <- getSampleSizeSurvival(lambda1 = 0.03, lambda2 = 0.2, hazardRatio = 0.6, 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival5' with expected results
+	##
+	expect_equal(sampleSizeSurvival5$directionUpper, FALSE)
+	expect_equal(sampleSizeSurvival5$pi1, 0.30232367, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$pi2, 0.90928205, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$median1, 23.104906, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$median2, 3.4657359, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$hazardRatio, 0.15, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$maxNumberOfSubjects, 16.953283, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$maxNumberOfEvents, 8.723245, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$accrualTime, 0.56510944, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeSurvival5$nFixed, 16.953283, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$nFixed1, 8.4766417, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$nFixed2, 8.4766417, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$analysisTime[1, ], 8.5650223, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$studyDuration, 8.5650223, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$criticalValuesEffectScale[1, ], 0.26521666, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival5$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	sampleSizeSurvival6 <- getSampleSizeSurvival(lambda1 = 0.03, lambda2 = 0.2, hazardRatio = c(0.6, 0.7), 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+
+	##
+	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival6' with expected results
+	##
+	expect_equal(sampleSizeSurvival6$directionUpper, FALSE)
+	expect_equal(sampleSizeSurvival6$pi1, 0.30232367, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$pi2, 0.90928205, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$median1, 23.104906, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$median2, 3.4657359, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$hazardRatio, 0.15, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$maxNumberOfSubjects, 16.953283, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$maxNumberOfEvents, 8.723245, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$accrualTime, 0.56510944, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$calculateFollowUpTime, TRUE)
+	expect_equal(sampleSizeSurvival6$nFixed, 16.953283, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$nFixed1, 8.4766417, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$nFixed2, 8.4766417, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$analysisTime[1, ], 8.5650223, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$studyDuration, 8.5650223, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$criticalValuesEffectScale[1, ], 0.26521666, tolerance = 1e-07)
+	expect_equal(sampleSizeSurvival6$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+
+	expect_error(getSampleSizeSurvival(lambda2 = 0.2, hazardRatio = c(0.6, 0.7), 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0))
+
+	expect_error(getSampleSizeSurvival(lambda1 = c(0.02, 0.03), lambda2 = 0.2, hazardRatio = 0.6, 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0))
+
+	expect_error(getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
+		piecewiseSurvivalTime = c(0, 12), hazardRatio = c(0.6, 0.8), 
+		followUpTime = 8, accrualIntensity = 30, accrualTime = 0)) 
+
 })
 

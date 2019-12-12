@@ -66,7 +66,6 @@ TrialDesign <- setRefClass("TrialDesign",
 	
 	methods = list(
 		initialize = function(...,
-				kMax = NA_integer_, 
 				alpha = NA_real_, 
 				informationRates = NA_real_, 
 				userAlphaSpending = NA_real_, 
@@ -77,7 +76,6 @@ TrialDesign <- setRefClass("TrialDesign",
 				tolerance = 1e-06 # C_ANALYSIS_TOLERANCE_DEFAULT
 				) {
 			callSuper(..., 
-				kMax = kMax, 
 				alpha = alpha, 
 				informationRates = informationRates, 
 				userAlphaSpending = userAlphaSpending,
@@ -105,6 +103,7 @@ TrialDesign <- setRefClass("TrialDesign",
 			}
 			
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
+			.initStages()
 		},
 		
 		show = function(showType = 1, digits = NA_integer_) {
@@ -114,13 +113,9 @@ TrialDesign <- setRefClass("TrialDesign",
 		.show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing trial design objects'
 			.resetCat()
-			.initStages()
 			if (showType == 3) {
-				parameterList <- .createSummary(.self, digits = digits)
-				for (parameterName in names(parameterList)) {
-					.cat(parameterName, ":", parameterList[[parameterName]], "\n",
-						consoleOutputEnabled = consoleOutputEnabled)
-				}
+				.createSummary(.self, digits = digits)$.show(showType = 1, 
+					digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			}
 			else if (showType == 2) {
 				.cat("Technical summary of the trial design object of class ",
@@ -161,7 +156,7 @@ TrialDesign <- setRefClass("TrialDesign",
 		},
 		
 		.initStages = function() {
-			if (!is.na(kMax) && kMax > 0) {
+			if (length(kMax) == 1 && !is.na(kMax) && kMax > 0) {
 				stages <<- c(1L:kMax)
 				if (kMax == C_KMAX_DEFAULT) {
 					.setParameterType("stages", C_PARAM_DEFAULT_VALUE)
@@ -244,7 +239,6 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 		.show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing trial design characteristics objects'
 			.resetCat()
-			.initStages()		
 			if (showType == 2) {
 				.cat("Technical summary of the design characteristics object of class ",
 					methods::classLabel(class(.self)), ":\n", heading = 1,
@@ -303,8 +297,11 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 as.data.frame.TrialDesignCharacteristics <- function(x, row.names = NULL, 
 		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {
 	
-	x$.initStages()
-	parameterNamesToBeExcluded = c("nFixed", "shift")
+	if (x$.design$kMax > 1) {
+		parameterNamesToBeExcluded = c("nFixed", "shift")
+	} else {
+		parameterNamesToBeExcluded = c("inflationFactor")
+	}
 	return(x$.getAsDataFrame(parameterNames = parameterNamesToBeExcluded, 
 			niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters,
 			handleParameterNamesAsToBeExcluded = TRUE,
@@ -718,7 +715,8 @@ TrialDesignConditionalDunnett <- setRefClass(
 	
 	fields = list(
 		informationAtInterim = "numeric",
-		secondStageConditioning = "logical"
+		secondStageConditioning = "logical",
+		sided = "integer"
 	),
 	
 	methods = list(
@@ -745,7 +743,9 @@ TrialDesignConditionalDunnett <- setRefClass(
 					identical(informationAtInterim, 0.5), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("secondStageConditioning", ifelse(
 					identical(secondStageConditioning, TRUE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
-	
+			
+			kMax <<- 2L
+			sided <<- 1L
 		},
 		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial design objects'
@@ -820,6 +820,9 @@ getDesignConditionalDunnett <- function(alpha = C_ALPHA_DEFAULT,
 #' Generic function to plot a trial design.
 #' 
 #' @seealso \code{\link{plot.TrialDesignSet}} to compare different designs or design parameters visual.
+#' 
+#' @return 
+#' A \code{ggplot2} object.
 #'
 #' @export
 #' 
@@ -883,15 +886,14 @@ as.data.frame.TrialDesign <- function(x, row.names = NULL,
 		
 	.assertIsTrialDesign(x)
 	
-	x$.initStages()
 	if (includeAllParameters) {
 		parameterNames <- NULL
 	} else {
 		parameterNames <- x$.getParametersToShow()
 	}
 	return(x$.getAsDataFrame(parameterNames = parameterNames, 
-			niceColumnNamesEnabled = niceColumnNamesEnabled,
-			includeAllParameters = includeAllParameters,
-			tableColumnNames = .getTableColumnNames(design = x)))
+		niceColumnNamesEnabled = niceColumnNamesEnabled,
+		includeAllParameters = includeAllParameters,
+		tableColumnNames = .getTableColumnNames(design = x)))
 }
 

@@ -4,17 +4,25 @@
 \alias{getSimulationMeans}
 \title{Get Simulation Means}
 \usage{
-getSimulationMeans(design = NULL, ..., groups = 2L,
-  meanRatio = FALSE, thetaH0 = ifelse(meanRatio, 1, 0),
+getSimulationMeans(
+  design = NULL,
+  ...,
+  groups = 2L,
+  meanRatio = FALSE,
+  thetaH0 = ifelse(meanRatio, 1, 0),
   alternative = C_ALTERNATIVE_POWER_SIMULATION_DEFAULT,
-  stDev = C_STDEV_DEFAULT, plannedSubjects = NA_real_,
+  stDev = C_STDEV_DEFAULT,
+  plannedSubjects = NA_real_,
   directionUpper = C_DIRECTION_UPPER_DEFAULT,
   allocationRatioPlanned = NA_real_,
   minNumberOfSubjectsPerStage = NA_real_,
-  maxNumberOfSubjectsPerStage = NA_real_, conditionalPower = NA_real_,
+  maxNumberOfSubjectsPerStage = NA_real_,
+  conditionalPower = NA_real_,
   thetaH1 = NA_real_,
   maxNumberOfIterations = C_MAX_SIMULATION_ITERATIONS_DEFAULT,
-  seed = NA_real_, calcSubjectsFunction = NULL)
+  seed = NA_real_,
+  calcSubjectsFunction = NULL
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

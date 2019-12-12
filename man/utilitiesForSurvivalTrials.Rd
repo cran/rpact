@@ -15,8 +15,7 @@ getLambdaByPi(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
 
 getLambdaByMedian(median, kappa = 1)
 
-getHazardRatioByPi(pi1, pi2, eventTime = C_EVENT_TIME_DEFAULT,
-  kappa = 1)
+getHazardRatioByPi(pi1, pi2, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
 
 getPiByLambda(lambda, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
 

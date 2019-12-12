@@ -4,10 +4,18 @@
 \alias{getPowerRates}
 \title{Get Power Rates}
 \usage{
-getPowerRates(design = NULL, ..., groups = 2, riskRatio = FALSE,
-  thetaH0 = ifelse(riskRatio, 1, 0), pi1 = C_PI_1_DEFAULT, pi2 = 0.2,
-  directionUpper = NA, maxNumberOfSubjects = NA_real_,
-  allocationRatioPlanned = NA_real_)
+getPowerRates(
+  design = NULL,
+  ...,
+  groups = 2,
+  riskRatio = FALSE,
+  thetaH0 = ifelse(riskRatio, 1, 0),
+  pi1 = C_PI_1_DEFAULT,
+  pi2 = 0.2,
+  directionUpper = NA,
+  maxNumberOfSubjects = NA_real_,
+  allocationRatioPlanned = NA_real_
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

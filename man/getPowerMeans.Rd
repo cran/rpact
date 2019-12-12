@@ -4,12 +4,19 @@
 \alias{getPowerMeans}
 \title{Get Power Means}
 \usage{
-getPowerMeans(design = NULL, ..., groups = 2,
-  normalApproximation = FALSE, meanRatio = FALSE,
+getPowerMeans(
+  design = NULL,
+  ...,
+  groups = 2,
+  normalApproximation = FALSE,
+  meanRatio = FALSE,
   thetaH0 = ifelse(meanRatio, 1, 0),
   alternative = C_ALTERNATIVE_POWER_SIMULATION_DEFAULT,
-  stDev = C_STDEV_DEFAULT, directionUpper = NA,
-  maxNumberOfSubjects = NA_real_, allocationRatioPlanned = NA_real_)
+  stDev = C_STDEV_DEFAULT,
+  directionUpper = NA,
+  maxNumberOfSubjects = NA_real_,
+  allocationRatioPlanned = NA_real_
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

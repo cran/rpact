@@ -4,14 +4,22 @@
 \alias{getEventProbabilities}
 \title{Get Event Probabilities}
 \usage{
-getEventProbabilities(time, ..., accrualTime = C_ACCRUAL_TIME_DEFAULT,
-  accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT, kappa = 1,
-  piecewiseSurvivalTime = NA_real_, lambda2 = NA_real_,
-  lambda1 = NA_real_, allocationRatioPlanned = 1,
-  hazardRatio = NA_real_, dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT,
+getEventProbabilities(
+  time,
+  ...,
+  accrualTime = C_ACCRUAL_TIME_DEFAULT,
+  accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,
+  kappa = 1,
+  piecewiseSurvivalTime = NA_real_,
+  lambda2 = NA_real_,
+  lambda1 = NA_real_,
+  allocationRatioPlanned = 1,
+  hazardRatio = NA_real_,
+  dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT,
   dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT,
   dropoutTime = C_DROP_OUT_TIME_DEFAULT,
-  maxNumberOfSubjects = NA_real_)
+  maxNumberOfSubjects = NA_real_
+)
 }
 \arguments{
 \item{time}{A numeric vector with time values.}

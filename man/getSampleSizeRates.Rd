@@ -4,10 +4,17 @@
 \alias{getSampleSizeRates}
 \title{Get Sample Size Rates}
 \usage{
-getSampleSizeRates(design = NULL, ..., groups = 2,
-  normalApproximation = TRUE, riskRatio = FALSE,
-  thetaH0 = ifelse(riskRatio, 1, 0), pi1 = seq(0.4, 0.6, 0.1),
-  pi2 = 0.2, allocationRatioPlanned = NA_real_)
+getSampleSizeRates(
+  design = NULL,
+  ...,
+  groups = 2,
+  normalApproximation = TRUE,
+  riskRatio = FALSE,
+  thetaH0 = ifelse(riskRatio, 1, 0),
+  pi1 = seq(0.4, 0.6, 0.1),
+  pi2 = 0.2,
+  allocationRatioPlanned = NA_real_
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 

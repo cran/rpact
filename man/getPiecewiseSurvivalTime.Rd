@@ -4,11 +4,20 @@
 \alias{getPiecewiseSurvivalTime}
 \title{Get Piecewise Survival Time}
 \usage{
-getPiecewiseSurvivalTime(piecewiseSurvivalTime = NA_real_, ...,
-  lambda1 = NA_real_, lambda2 = NA_real_, hazardRatio = NA_real_,
-  pi1 = NA_real_, pi2 = NA_real_, median1 = NA_real_,
-  median2 = NA_real_, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1,
-  delayedResponseAllowed = FALSE)
+getPiecewiseSurvivalTime(
+  piecewiseSurvivalTime = NA_real_,
+  ...,
+  lambda1 = NA_real_,
+  lambda2 = NA_real_,
+  hazardRatio = NA_real_,
+  pi1 = NA_real_,
+  pi2 = NA_real_,
+  median1 = NA_real_,
+  median2 = NA_real_,
+  eventTime = C_EVENT_TIME_DEFAULT,
+  kappa = 1,
+  delayedResponseAllowed = FALSE
+)
 }
 \arguments{
 \item{piecewiseSurvivalTime}{A vector that specifies the time intervals for the piecewise 

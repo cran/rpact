@@ -4,8 +4,12 @@
 \alias{getAccrualTime}
 \title{Get Accrual Time}
 \usage{
-getAccrualTime(accrualTime = NA_real_, ...,
-  accrualIntensity = NA_real_, maxNumberOfSubjects = NA_real_)
+getAccrualTime(
+  accrualTime = NA_real_,
+  ...,
+  accrualIntensity = NA_real_,
+  maxNumberOfSubjects = NA_real_
+)
 }
 \arguments{
 \item{accrualTime}{The assumed accrual time for the study, default is \code{c(0,12)} (see details).}

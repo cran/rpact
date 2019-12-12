@@ -10,21 +10,33 @@
 \alias{rpwexp}
 \title{The Piecewise Exponential Distribution}
 \usage{
-getPiecewiseExponentialDistribution(time, ...,
-  piecewiseSurvivalTime = NA_real_, piecewiseLambda = NA_real_,
-  kappa = 1)
+getPiecewiseExponentialDistribution(
+  time,
+  ...,
+  piecewiseSurvivalTime = NA_real_,
+  piecewiseLambda = NA_real_,
+  kappa = 1
+)
 
 ppwexp(t, ..., s = NA_real_, lambda = NA_real_, kappa = 1)
 
-getPiecewiseExponentialQuantile(quantile, ...,
-  piecewiseSurvivalTime = NA_real_, piecewiseLambda = NA_real_,
-  kappa = 1)
+getPiecewiseExponentialQuantile(
+  quantile,
+  ...,
+  piecewiseSurvivalTime = NA_real_,
+  piecewiseLambda = NA_real_,
+  kappa = 1
+)
 
 qpwexp(q, ..., s = NA_real_, lambda = NA_real_, kappa = 1)
 
-getPiecewiseExponentialRandomNumbers(n, ...,
-  piecewiseSurvivalTime = NA_real_, piecewiseLambda = NA_real_,
-  kappa = 1)
+getPiecewiseExponentialRandomNumbers(
+  n,
+  ...,
+  piecewiseSurvivalTime = NA_real_,
+  piecewiseLambda = NA_real_,
+  kappa = 1
+)
 
 rpwexp(n, ..., s = NA_real_, lambda = NA_real_, kappa = 1)
 }

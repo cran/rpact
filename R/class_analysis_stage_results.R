@@ -21,9 +21,9 @@
 	return(c("StageResultsMeans", 
 		"StageResultsRates",
 		"StageResultsSurvival",
-		"StageResultsMeansMultiArmed", 
-		"StageResultsRatesMultiArmed",
-		"StageResultsSurvivalMultiArmed"))
+		"StageResultsMultiArmMeans", 
+		"StageResultsMultiArmRates",
+		"StageResultsMultiArmSurvival"))
 }
 
 #' 
@@ -94,7 +94,7 @@ StageResults <- setRefClass("StageResults",
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 			
 			.setParameterType("pValues", ifelse(
-				.isMultiArmed(), C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
+				.isMultiArm(), C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
 			.setParameterType("thetaH0", ifelse(
 				identical(thetaH0, C_THETA_H0_MEANS_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("direction", ifelse(
@@ -137,7 +137,7 @@ StageResults <- setRefClass("StageResults",
 			return(direction == C_DIRECTION_UPPER)
 		},
 		
-		.isMultiArmed = function() {
+		.isMultiArm = function() {
 			return(grepl("multi", tolower(class(.self))))
 		},
 		
@@ -151,7 +151,7 @@ StageResults <- setRefClass("StageResults",
 				return(paste(prefix, "means"))
 			}
 			
-			if (class(.self) == "StageResultsMeansMultiArmed") {
+			if (class(.self) == "StageResultsMultiArmMeans") {
 				return(paste(prefix, "multi-armed means"))
 			}
 			
@@ -159,7 +159,7 @@ StageResults <- setRefClass("StageResults",
 				return(paste(prefix, "rates"))
 			}
 			
-			if (class(.self) == "StageResultsRatesMultiArmed") {
+			if (class(.self) == "StageResultsMultiArmRates") {
 				return(paste(prefix, "multi-armed rates"))
 			}
 			
@@ -167,7 +167,7 @@ StageResults <- setRefClass("StageResults",
 				return(paste(prefix, "survival data"))
 			}
 			
-			if (class(.self) == "StageResultsSurvivalMultiArmed") {
+			if (class(.self) == "StageResultsMultiArmSurvival") {
 				return(paste(prefix, "multi-armed survival"))
 			}
 			
@@ -203,7 +203,7 @@ StageResults <- setRefClass("StageResults",
 		},
 		
 		getNumberOfStages = function() {
-			if (.isMultiArmed()) {
+			if (.isMultiArm()) {
 				return(max(ncol(stats::na.omit(effectSizes)), 
 						ncol(stats::na.omit(separatePValues))))
 			}
@@ -355,7 +355,7 @@ StageResultsMeans <- setRefClass("StageResultsMeans",
 #' 
 #' @importFrom methods new
 #'
-StageResultsMeansMultiArmed <- setRefClass("StageResultsMeansMultiArmed",
+StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 	contains = "StageResults",
 	fields = list(
 		stage = "integer",
@@ -374,7 +374,7 @@ StageResultsMeansMultiArmed <- setRefClass("StageResultsMeansMultiArmed",
 		directionUpper = "logical" 
 	),
 	methods = list(
-		initialize = function(design, dataInput, ..., varianceOption = C_VARIANCES_OPTION_DEFAULT, 
+		initialize = function(design, dataInput, ..., varianceOption = C_VARIANCE_OPTION_DEFAULT, 
 				normalApproximation = FALSE) {
 			callSuper(.design = design, .dataInput = dataInput, ...,  
 				varianceOption = varianceOption, normalApproximation = normalApproximation)
@@ -395,11 +395,11 @@ StageResultsMeansMultiArmed <- setRefClass("StageResultsMeansMultiArmed",
 			}
 			
 			.setParameterType("varianceOption", ifelse(
-					identical(varianceOption, C_VARIANCES_OPTION_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+				identical(varianceOption, C_VARIANCE_OPTION_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("normalApproximation", ifelse(
-					identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+				identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("directionUpper", ifelse(
-					identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+				identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 		},
 		.getParametersToShow = function() {
 			parametersToShow <- c(
@@ -407,9 +407,8 @@ StageResultsMeansMultiArmed <- setRefClass("StageResultsMeansMultiArmed",
 				"thetaH0",
 				"direction",
 				"normalApproximation",
-				"directionUpper",
+				#"directionUpper",
 				"varianceOption",
-				
 				"overallTestStatistics", 
 				"overallPValues",
 				"overallStDevs",
@@ -554,6 +553,91 @@ StageResultsRates <- setRefClass("StageResultsRates",
 	)
 )
 
+#' @include class_core_parameter_set.R
+#' @include class_design.R
+#' @include class_analysis_dataset.R
+#' @include f_core_constants.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#'
+StageResultsMultiArmRates <- setRefClass("StageResultsMultiArmRates",
+		contains = "StageResults",
+		fields = list(
+				stage = "integer",
+				piControl = "matrix",
+				piTreatments = "matrix",
+				combInverseNormal = "matrix", 
+				combFisher = "matrix", 
+				overallTestStatistics = "matrix", 
+				overallPValues = "matrix",
+				testStatistics = "matrix",
+				separatePValues = "matrix",
+				singleStepAdjustedPValues = "matrix",
+				intersectionTest = "character",
+				normalApproximation = "logical",
+				directionUpper = "logical" 
+		),
+		methods = list(
+				initialize = function(design, dataInput, ..., 
+						normalApproximation = FALSE) {
+					callSuper(.design = design, .dataInput = dataInput, ...,  
+							normalApproximation = normalApproximation)
+					init(design = design, dataInput = dataInput)
+					
+					for (param in c("singleStepAdjustedPValues",
+							"weightsFisher", 
+							"weightsInverseNormal", 
+							"combFisher", 
+							"combInverseNormal")) {
+						.setParameterType(param, C_PARAM_NOT_APPLICABLE)
+					}
+					
+					for (param in .getParametersToShow()) {
+						if (.getParameterType(param) == C_PARAM_TYPE_UNKNOWN) {
+							.setParameterType(param, C_PARAM_GENERATED)
+						}
+					}
+					
+					.setParameterType("normalApproximation", ifelse(
+									identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+					.setParameterType("directionUpper", ifelse(
+									identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+				},
+				.getParametersToShow = function() {
+					parametersToShow <- c(
+							"stages",
+							"thetaH0",
+							"direction",
+							"normalApproximation",
+							#"directionUpper",
+							"piControl",
+							"piTreatments",
+							"overallTestStatistics", 
+							"overallPValues",
+							"overallStDevs",
+							"testStatistics", 
+							"separatePValues", 
+							"singleStepAdjustedPValues"
+					)
+					if (.isTrialDesignInverseNormal(.design)) {
+						parametersToShow <- c(parametersToShow,			
+								"combInverseNormal", 
+								"weightsInverseNormal"
+						)
+					}
+					else if (.isTrialDesignFisher(.design)) {
+						parametersToShow <- c(parametersToShow,
+								"combFisher", 
+								"weightsFisher"
+						)
+					}
+					return(parametersToShow)
+				}
+		)
+)
+
 #' 
 #' @name StageResultsSurvival
 #' 
@@ -653,6 +737,85 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 	)
 )
 
+
+#' @include class_core_parameter_set.R
+#' @include class_design.R
+#' @include class_analysis_dataset.R
+#' @include f_core_constants.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#'
+StageResultsMultiArmSurvival <- setRefClass("StageResultsMultiArmSurvival",
+		contains = "StageResults",
+		fields = list(
+			stage = "integer",
+			combInverseNormal = "matrix", 
+			combFisher = "matrix", 
+			overallTestStatistics = "matrix", 
+			overallPValues = "matrix",
+			testStatistics = "matrix",
+			separatePValues = "matrix",
+			effectSizes = "matrix",
+			singleStepAdjustedPValues = "matrix",
+			intersectionTest = "character",
+			directionUpper = "logical" 
+		),
+		methods = list(
+				initialize = function(design, dataInput, ..., 
+						normalApproximation = FALSE) {
+					callSuper(.design = design, .dataInput = dataInput, ...)
+					init(design = design, dataInput = dataInput)
+					
+					for (param in c("singleStepAdjustedPValues",
+							"weightsFisher", 
+							"weightsInverseNormal", 
+							"combFisher", 
+							"combInverseNormal")) {
+						.setParameterType(param, C_PARAM_NOT_APPLICABLE)
+					}
+					
+					for (param in .getParametersToShow()) {
+						if (.getParameterType(param) == C_PARAM_TYPE_UNKNOWN) {
+							.setParameterType(param, C_PARAM_GENERATED)
+						}
+					}
+					
+					.setParameterType("directionUpper", ifelse(
+									identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+				},
+				.getParametersToShow = function() {
+					parametersToShow <- c(
+							"stages",
+							"thetaH0",
+							"direction",
+							#"directionUpper",
+							"overallTestStatistics", 
+							"overallPValues",
+							"testStatistics", 
+							"separatePValues", 
+							"effectSizes",
+							"singleStepAdjustedPValues"
+					)
+					if (.isTrialDesignInverseNormal(.design)) {
+						parametersToShow <- c(parametersToShow,			
+								"combInverseNormal", 
+								"weightsInverseNormal"
+						)
+					}
+					else if (.isTrialDesignFisher(.design)) {
+						parametersToShow <- c(parametersToShow,
+								"combFisher", 
+								"weightsFisher"
+						)
+					}
+					return(parametersToShow)
+				}
+		)
+)
+
+
 #'
 #' @name StageResults_names
 #' 
@@ -737,9 +900,10 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' @param y Not available for this kind of plot (is only defined to be compatible to the generic plot function).
 #' @param stage The stage number (optional). Default: total number of existing stages in the data input
 #'        used to create the stage results.
-#' @param nPlanned The sample size planned for the subsequent stages. 
-#'        It should be a vector with length equal to the remaining stages and is the 
-#'        overall sample size in the two treatment groups if two groups are considered.   
+#' @param nPlanned The additional (i.e. "new" and not cumulative) sample size planned for each of the subsequent stages. 
+#'        The argument should be a vector with length equal to the number of remaining stages and contain 
+#'        the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
+#'        it should contain the planned number of additional events. 
 #' @param allocationRatioPlanned The allocation ratio for two treatment groups planned for 
 #'        the subsequent stages, the default value is 1. 
 #' @param main The main title.
@@ -784,6 +948,9 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' Generic function to plot all kinds of stage results.
 #' The conditional power is calculated only if effect size and sample size is specified. 
 #' 
+#' @return 
+#' A \code{ggplot2} object.
+#' 
 #' @export
 #' 
 #' @examples 
@@ -813,18 +980,13 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	.assertIsStageResults(x)
 	.assertIsValidLegendPosition(legendPosition)
 	
-	if (x$.isMultiArmed()) {
-		plotData <- .getConditionalPowerPlotMeansMultiArmed(stageResults = x, stage = stage, 
-			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
-	} else {
-		plotData <- .getConditionalPowerPlot(stageResults = x, nPlanned = nPlanned, stage = stage,
-			allocationRatioPlanned = allocationRatioPlanned, ...)
-	}
-	
+	plotData <- .getConditionalPowerPlot(stageResults = x, nPlanned = nPlanned, stage = stage,
+		allocationRatioPlanned = allocationRatioPlanned, ...)
+		
 	yParameterName1 <- "Conditional power"
 	yParameterName2 <- "Likelihood"
 	
-	if (x$.isMultiArmed()) {
+	if (x$.isMultiArm()) {
 		numberOfTreatments <- nrow(x$testStatistics)
 		
 		treatmentArmsToShow <- as.integer(list(...)[["treatmentArms"]])

@@ -18,7 +18,7 @@
 ######################################################################################
 
 testGetAnalysisResultsPlotData <- function(x, ..., nPlanned = NA_real_,
-	stage = x$getNumberOfStages(), allocationRatioPlanned = NA_real_) {
+		stage = x$getNumberOfStages(), allocationRatioPlanned = NA_real_) {
 	
 	plotArgs <- .getAnalysisResultsPlotArguments(x = x, nPlanned = nPlanned, 
 		stage = stage, allocationRatioPlanned = allocationRatioPlanned)

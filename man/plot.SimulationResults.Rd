@@ -4,10 +4,20 @@
 \alias{plot.SimulationResults}
 \title{Simulation Results Plotting}
 \usage{
-\method{plot}{SimulationResults}(x, y, main = NA_character_,
-  xlab = NA_character_, ylab = NA_character_, type = 1,
-  palette = "Set1", theta = seq(-1, 1, 0.01), plotPointsEnabled = NA,
-  legendPosition = NA_integer_, showSource = FALSE, ...)
+\method{plot}{SimulationResults}(
+  x,
+  y,
+  main = NA_character_,
+  xlab = NA_character_,
+  ylab = NA_character_,
+  type = 1,
+  palette = "Set1",
+  theta = seq(-1, 1, 0.01),
+  plotPointsEnabled = NA,
+  legendPosition = NA_integer_,
+  showSource = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{The simulation results, obtained from \cr
@@ -65,6 +75,9 @@ be printed which were used to create the plot; that may be, e.g.,
 useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
 
 \item{...}{Optional \code{ggplot2} arguments.}
+}
+\value{
+A \code{ggplot2} object.
 }
 \description{
 Plots simulation results.

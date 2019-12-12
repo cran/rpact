@@ -5,8 +5,7 @@
 \alias{summary.ParameterSet}
 \title{Parameter Set Summary}
 \usage{
-\method{summary}{ParameterSet}(object, ..., type = 1,
-  digits = NA_integer_)
+\method{summary}{ParameterSet}(object, ..., type = 1, digits = NA_integer_)
 }
 \arguments{
 \item{digits}{defines how many digits are to be used for numeric values.}

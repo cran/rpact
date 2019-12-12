@@ -4,9 +4,17 @@
 \alias{plot.Dataset}
 \title{Dataset Plotting}
 \usage{
-\method{plot}{Dataset}(x, y, ..., main = "Dataset", xlab = "Stage",
-  ylab = NA_character_, legendTitle = "Group", palette = "Set1",
-  showSource = FALSE)
+\method{plot}{Dataset}(
+  x,
+  y,
+  ...,
+  main = "Dataset",
+  xlab = "Stage",
+  ylab = NA_character_,
+  legendTitle = "Group",
+  palette = "Set1",
+  showSource = FALSE
+)
 }
 \arguments{
 \item{x}{The \code{\link{Dataset}} object to plot.}
@@ -29,6 +37,9 @@ to the generic plot function).}
 \item{showSource}{If \code{TRUE}, the parameter names of the object will 
 be printed which were used to create the plot; that may be, e.g., 
 useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
+}
+\value{
+A \code{ggplot2} object.
 }
 \description{
 Plots a dataset.

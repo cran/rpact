@@ -29,7 +29,7 @@
 		}
 		boundaries <- .getEffectScaleBoundaryDataMeans(design, designPlan$thetaH0, 
 				designPlan$meanRatio, designPlan$stDev,	designPlan$maxNumberOfSubjects, 
-				designPlan$groups, designPlan$allocationRatioPlanned, designPlan$directionUpper)
+				designPlan$groups, designPlan$allocationRatioPlanned, designPlan$directionUpper, designPlan$normalApproximation)
 		
 	} else if (.isTrialDesignPlanRates(designPlan)) {
 
@@ -87,40 +87,48 @@
 }
 
 .getEffectScaleBoundaryDataMeans <- function(design, thetaH0, meanRatio, stDev, 
-		maxNumberOfSubjects, groups, allocationRatioPlanned, directionUpper) {
+		maxNumberOfSubjects, groups, allocationRatioPlanned, directionUpper, normalApproximation) {
 	
 	futilityBoundsEffectScale <- rep(NA_real_, design$kMax - 1) #  Initialising effect scale matrix
-		
+
+	if (normalApproximation){
+		criticalValues <- design$criticalValues
+		futilityBounds <- design$futilityBounds
+	} else {
+		criticalValues <- stats::qt(1 - design$stageLevels, design$informationRates %*% t(maxNumberOfSubjects) - groups)
+		futilityBounds <- stats::qt(stats::pnorm(design$futilityBounds), design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects) - groups)
+	}
+
 	if (groups == 1) {
-		criticalValuesEffectScaleUpper <- thetaH0 + design$criticalValues * stDev / 
+		criticalValuesEffectScaleUpper <- thetaH0 + criticalValues * stDev / 
 			sqrt(design$informationRates %*% t(maxNumberOfSubjects))
-		criticalValuesEffectScaleLower <- thetaH0 - design$criticalValues * stDev / 
+		criticalValuesEffectScaleLower <- thetaH0 - criticalValues * stDev / 
 			sqrt(design$informationRates %*% t(maxNumberOfSubjects))
-		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(design$futilityBounds > -6)) {
-			futilityBoundsEffectScale <- thetaH0 + design$futilityBounds * stDev / 
+		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(futilityBounds > -6)) {
+			futilityBoundsEffectScale <- thetaH0 + futilityBounds * stDev / 
 				sqrt(design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects))
 		}
 	} else if (!meanRatio) {
-		criticalValuesEffectScaleUpper <- thetaH0 + design$criticalValues * stDev * 
+		criticalValuesEffectScaleUpper <- thetaH0 + criticalValues * stDev * 
 			(1 + allocationRatioPlanned) / (sqrt(allocationRatioPlanned * 
 			design$informationRates %*% t(maxNumberOfSubjects)))
-		criticalValuesEffectScaleLower <- thetaH0 - design$criticalValues * stDev * 
+		criticalValuesEffectScaleLower <- thetaH0 - criticalValues * stDev * 
 			(1 + allocationRatioPlanned) / (sqrt(allocationRatioPlanned * 
 			design$informationRates %*% t(maxNumberOfSubjects)))
-		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(design$futilityBounds > -6)) {
-			futilityBoundsEffectScale <- thetaH0 + design$futilityBounds * stDev * 
+		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(futilityBounds > -6)) {
+			futilityBoundsEffectScale <- thetaH0 + futilityBounds * stDev * 
 				(1 + allocationRatioPlanned) / (sqrt(allocationRatioPlanned * 
 				design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects)))
 		}
 	} else {
-		criticalValuesEffectScaleUpper <- thetaH0 + design$criticalValues * stDev * 
+		criticalValuesEffectScaleUpper <- thetaH0 + criticalValues * stDev * 
 			sqrt(1 + 1 / allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned)) /
 			(sqrt(design$informationRates %*% t(maxNumberOfSubjects)))
-		criticalValuesEffectScaleLower <- thetaH0 - design$criticalValues * stDev * 
+		criticalValuesEffectScaleLower <- thetaH0 - criticalValues * stDev * 
 			sqrt(1 + 1 / allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned)) /
 			(sqrt(design$informationRates %*% t(maxNumberOfSubjects)))
-		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(design$futilityBounds > -6)) {
-			futilityBoundsEffectScale <- thetaH0 + design$futilityBounds * stDev * 
+		if (!.isTrialDesignFisher(design) && design$sided == 1 && any(futilityBounds > -6)) {
+			futilityBoundsEffectScale <- thetaH0 + futilityBounds * stDev * 
 				sqrt(1 + 1 / allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned)) /
 				(sqrt(design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects)))
 		}
@@ -837,7 +845,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			followUpTime <- 1e12
 		}
 		
-		if (!is.na(hazardRatio) && !is.na(thetaH0)) {
+		if (!any(is.na(hazardRatio)) && !is.na(thetaH0)) {
 			.assertIsValidHazardRatio(hazardRatio, thetaH0)
 		}
 		
@@ -846,23 +854,28 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			lambda1 = lambda1, lambda2 = lambda2, 
 			pi1 = pi1, pi2 = pi2, 
 			median1 = median1, median2 = median2,
-			hazardRatio = hazardRatio, eventTime = eventTime, kappa = kappa)
+			hazardRatio = hazardRatio, eventTime = eventTime, kappa = kappa,
+			.silent = TRUE)
 		paramName <- NULL
-		if (pwst$.getParameterType("pi1") == C_PARAM_USER_DEFINED ||
-				pwst$.getParameterType("pi1") == C_PARAM_DEFAULT_VALUE ||
-				pwst$.getParameterType("pi2") == C_PARAM_USER_DEFINED) {
-			paramName <- "pi1"
-		}
-		else if (pwst$.getParameterType("lambda1") == C_PARAM_USER_DEFINED ||
-				pwst$.getParameterType("lambda2") == C_PARAM_USER_DEFINED) {
-			paramName <- "lambda1"
-		}
-		else if (pwst$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
-			paramName <- "hazardRatio"
-		}
-		else if (pwst$.getParameterType("median1") == C_PARAM_USER_DEFINED ||
-				pwst$.getParameterType("median2") == C_PARAM_USER_DEFINED) {
-			paramName <- "median1"
+		if (!pwst$piecewiseSurvivalEnabled) {
+			if (pwst$.getParameterType("pi1") == C_PARAM_USER_DEFINED ||
+					pwst$.getParameterType("pi1") == C_PARAM_DEFAULT_VALUE ||
+					pwst$.getParameterType("pi2") == C_PARAM_USER_DEFINED) {
+				paramName <- "pi1"
+			}
+			else if (pwst$.getParameterType("lambda1") == C_PARAM_USER_DEFINED ||
+					pwst$.getParameterType("lambda2") == C_PARAM_USER_DEFINED) {
+				paramName <- "lambda1"
+			}
+			else if (pwst$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
+				paramName <- "hazardRatio" 
+			}
+			else if (pwst$.getParameterType("median1") == C_PARAM_USER_DEFINED ||
+					pwst$.getParameterType("median2") == C_PARAM_USER_DEFINED) {
+				paramName <- "median1"
+			}
+		} else if (pwst$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
+			paramName <- "hazardRatio" 
 		}
 		if (!is.null(paramName)) {
 			paramValue <- pwst[[paramName]]
@@ -876,10 +889,10 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		}
 		
 		hr <- hazardRatio
-		if (is.na(hazardRatio)) {
+		if (all(is.na(hazardRatio))) {
 			hr <- pwst$hazardRatio
 		}
-		if (is.na(hazardRatio)) {
+		if (all(is.na(hazardRatio))) {
 			.assertIsValidHazardRatio(hr, thetaH0)
 		}
 		
@@ -2110,7 +2123,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	d <- -theta0 * (1 + theta0) * rate1
 	
 	v <- b^3 / (3 * a)^3 - b * c / (6 * a^2) + d / (2 * a)
-	if (v == 0) {
+	if (!is.na(v) && (v == 0)) {
 		u <- sqrt(b^2 / (3 * a)^2 - c / (3 * a))
 		w <- acos(-1) / 2
 	} else {

@@ -21,6 +21,7 @@ context("Testing class 'SummaryFactory'")
 
 
 test_that("Testing 'summary.ParameterSet': no errors occur", {
+		
 	## test designs
 
 	invisible(capture.output(expect_error(summary(getDesignGroupSequential(beta = 0.05, typeOfDesign = "asKD", gammaA = 1, typeBetaSpending = "bsOF")), NA)))
@@ -30,6 +31,8 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	invisible(capture.output(expect_error(summary(getDesignGroupSequential(kMax = 1, sided = 2)), NA)))
 	invisible(capture.output(expect_error(summary(getDesignGroupSequential(futilityBounds = c(-6, 0))), NA)))
 	invisible(capture.output(expect_error(summary(getDesignGroupSequential(futilityBounds = c(-6, 0)), digits = 5), NA)))
+	
+	.skipTestifDisabled()
 
 	invisible(capture.output(expect_error(summary(getDesignInverseNormal(kMax = 1)), NA)))
 	invisible(capture.output(expect_error(summary(getDesignInverseNormal(futilityBounds = c(0, 1))), NA)))
@@ -177,154 +180,160 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 test_that("Testing 'summary.ParameterSet': output will be produced", {
 
 	## test designs
-
-	expect_output(summary(getDesignGroupSequential(beta = 0.05, typeOfDesign = "asKD", gammaA = 1, typeBetaSpending = "bsOF")))
-	expect_output(summary(getDesignGroupSequential(kMax = 1)))
-	expect_output(summary(getDesignGroupSequential(kMax = 4, sided = 2)))
-	expect_output(summary(getDesignGroupSequential(kMax = 4, sided = 2), digits = 0))
-	expect_output(summary(getDesignGroupSequential(kMax = 1, sided = 2)))
-	expect_output(summary(getDesignGroupSequential(futilityBounds = c(-6, 0))))
-	expect_output(summary(getDesignGroupSequential(futilityBounds = c(-6, 0)), digits = 5))
-
-	expect_output(summary(getDesignInverseNormal(kMax = 1)))
-	expect_output(summary(getDesignInverseNormal(futilityBounds = c(0, 1))))
-	expect_output(summary(getDesignInverseNormal(kMax = 1)))
-	expect_output(summary(getDesignInverseNormal(kMax = 4, sided = 2)))
-	expect_output(summary(getDesignInverseNormal(kMax = 4, sided = 2), digits = 0))
-	expect_output(summary(getDesignInverseNormal(kMax = 1, sided = 2)))
-
-	expect_output(summary(getDesignFisher()))
-	expect_output(summary(getDesignFisher(alpha0Vec = c(0.1, 0.2))))
-	expect_output(summary(getDesignFisher(kMax = 1)))
-	expect_output(summary(getDesignFisher(kMax = 4, sided = 2), digits = 5))
-	expect_output(summary(getDesignFisher(kMax = 4, sided = 2), digits = 0))
-	expect_output(summary(getDesignFisher(kMax = 1, sided = 2)))
-
+	
+	expect_output(summary(getDesignGroupSequential(beta = 0.05, typeOfDesign = "asKD", gammaA = 1, typeBetaSpending = "bsOF"))$show())
+	expect_output(summary(getDesignGroupSequential(kMax = 1))$show())
+	expect_output(summary(getDesignGroupSequential(kMax = 4, sided = 2))$show())
+	expect_output(summary(getDesignGroupSequential(kMax = 4, sided = 2), digits = 0)$show())
+	expect_output(summary(getDesignGroupSequential(kMax = 1, sided = 2))$show())
+	expect_output(summary(getDesignGroupSequential(futilityBounds = c(-6, 0)))$show())
+	expect_output(summary(getDesignGroupSequential(futilityBounds = c(-6, 0)), digits = 5)$show())
+	
+	.skipTestifDisabled()
+	
+	expect_output(summary(getDesignInverseNormal(kMax = 1))$show())
+	expect_output(summary(getDesignInverseNormal(futilityBounds = c(0, 1)))$show())
+	expect_output(summary(getDesignInverseNormal(kMax = 1))$show())
+	expect_output(summary(getDesignInverseNormal(kMax = 4, sided = 2))$show())
+	expect_output(summary(getDesignInverseNormal(kMax = 4, sided = 2), digits = 0)$show())
+	expect_output(summary(getDesignInverseNormal(kMax = 1, sided = 2))$show())
+	
+	expect_output(summary(getDesignFisher())$show())
+	expect_output(summary(getDesignFisher(alpha0Vec = c(0.1, 0.2)))$show())
+	expect_output(summary(getDesignFisher(kMax = 1))$show())
+	expect_output(summary(getDesignFisher(kMax = 4, sided = 2), digits = 5)$show())
+	expect_output(summary(getDesignFisher(kMax = 4, sided = 2), digits = 0)$show())
+	expect_output(summary(getDesignFisher(kMax = 1, sided = 2))$show())
+	
 	## test design plans - means
-
-	expect_output(summary(getSampleSizeMeans(sided = 2, alternative = -0.5)))
-	expect_output(summary(getPowerMeans(sided = 1, alternative = c(-0.5,-0.3), maxNumberOfSubjects = 100, directionUpper = FALSE)))
-	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 0.5, sided = 1, stDev = 2.5)))
-	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 0.5, sided = 1, stDev = 1, groups = 1)))
-	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, sided = 2, stDev = 1, groups = 1)))
-
-	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 1.2, sided = 2, stDev = 5)))
-	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 1.2, sided = 2, stDev = 5, allocationRatioPlanned = 0)))
-	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 1.2, sided = 2, stDev = 5, groups = 1)))
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2)))))
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 0))
-	expect_output(summary(getPowerMeans(getDesignGroupSequential(futilityBounds = c(1, 2)), maxNumberOfSubjects = 100, alternative = 1)))
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(kMax = 4, sided = 2))))
-	expect_output(summary(getPowerMeans(getDesignGroupSequential(kMax = 4, sided = 2), maxNumberOfSubjects = 100)))
-	expect_output(summary(getPowerMeans(getDesignGroupSequential(kMax = 1, sided = 2), maxNumberOfSubjects = 100)))
-
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2)))))
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 4))
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 3))
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 2))
-	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = -1))
-
+	
+	expect_output(summary(getSampleSizeMeans(sided = 2, alternative = -0.5))$show())
+	expect_output(summary(getPowerMeans(sided = 1, alternative = c(-0.5,-0.3), maxNumberOfSubjects = 100, directionUpper = FALSE))$show())
+	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 0.5, sided = 1, stDev = 2.5))$show())
+	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 0.5, sided = 1, stDev = 1, groups = 1))$show())
+	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, sided = 2, stDev = 1, groups = 1))$show())
+	
+	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 1.2, sided = 2, stDev = 5))$show())
+	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 1.2, sided = 2, stDev = 5, allocationRatioPlanned = 0))$show())
+	expect_output(summary(getSampleSizeMeans(thetaH0 = 0, alternative = 1.2, sided = 2, stDev = 5, groups = 1))$show())
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))))$show())
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 0)$show())
+	expect_output(summary(getPowerMeans(getDesignGroupSequential(futilityBounds = c(1, 2)), maxNumberOfSubjects = 100, alternative = 1))$show())
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(kMax = 4, sided = 2)))$show())
+	expect_output(summary(getPowerMeans(getDesignGroupSequential(kMax = 4, sided = 2), maxNumberOfSubjects = 100))$show())
+	expect_output(summary(getPowerMeans(getDesignGroupSequential(kMax = 1, sided = 2), maxNumberOfSubjects = 100))$show())
+	
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))))$show())
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 4)$show())
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 3)$show())
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = 2)$show())
+	expect_output(summary(getSampleSizeMeans(getDesignGroupSequential(futilityBounds = c(1, 2))), digits = -1)$show())
+	
 	## test design plans - rates
-
-	expect_output(summary(getSampleSizeRates(pi2 = 0.3)))
-	expect_output(summary(getSampleSizeRates(groups = 1, thetaH0 = 0.3)))
-	expect_output(summary(getSampleSizeRates(groups = 1, thetaH0 = 0.45)))
-	expect_output(summary(getSampleSizeRates(groups = 2, thetaH0 = 0.45, allocationRatioPlanned = 0)))
-	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(futilityBounds = c(1, 2)))))
-	expect_output(summary(getPowerRates(getDesignGroupSequential(futilityBounds = c(1, 2)), maxNumberOfSubjects = 100)))
-	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 4, sided = 2))))
-	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 4, sided = 2), groups = 1, thetaH0 = 0.3)))
-	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 1, sided = 2), groups = 1, thetaH0 = 0.2, pi1 = c(0.4,0.5))))
-	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 1, sided = 2), groups = 1, thetaH0 = 0.2, pi1 = 0.4)))
-	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 1, sided = 2), groups = 2, thetaH0 = 0, pi1 = 0.25)))
-	expect_output(summary(getPowerRates(getDesignGroupSequential(kMax = 4, sided = 2), maxNumberOfSubjects = 100)))
-
+	
+	expect_output(summary(getSampleSizeRates(pi2 = 0.3))$show())
+	expect_output(summary(getSampleSizeRates(groups = 1, thetaH0 = 0.3))$show())
+	expect_output(summary(getSampleSizeRates(groups = 1, thetaH0 = 0.45))$show())
+	expect_output(summary(getSampleSizeRates(groups = 2, thetaH0 = 0.45, allocationRatioPlanned = 0))$show())
+	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(futilityBounds = c(1, 2))))$show())
+	expect_output(summary(getPowerRates(getDesignGroupSequential(futilityBounds = c(1, 2)), maxNumberOfSubjects = 100))$show())
+	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 4, sided = 2)))$show())
+	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 4, sided = 2), groups = 1, thetaH0 = 0.3))$show())
+	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 1, sided = 2), 
+				groups = 1, thetaH0 = 0.2, pi1 = c(0.4,0.5)))$show())
+	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 1, sided = 2), groups = 1, thetaH0 = 0.2, pi1 = 0.4))$show())
+	expect_output(summary(getSampleSizeRates(getDesignGroupSequential(kMax = 1, sided = 2), groups = 2, thetaH0 = 0, pi1 = 0.25))$show())
+	expect_output(summary(getPowerRates(getDesignGroupSequential(kMax = 4, sided = 2), maxNumberOfSubjects = 100))$show())
+	
 	## test design plans - survival
-
-	expect_output(summary(getSampleSizeSurvival()))
-	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.3, hazardRatio = 1.2)))
-	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.3, hazardRatio = c(1.2, 2))))
-	expect_output(summary(getSampleSizeSurvival(pi2 = 0.3, hazardRatio = 1.2)))
-	expect_output(summary(getSampleSizeSurvival(pi1 = 0.1, pi2 = 0.3)))
-
-	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.03, lambda1 = c(0.040))))
+	
+	expect_output(summary(getSampleSizeSurvival())$show())
+	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.3, hazardRatio = 1.2))$show())
+	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.3, hazardRatio = c(1.2, 2)))$show())
+	expect_output(summary(getSampleSizeSurvival(pi2 = 0.3, hazardRatio = 1.2))$show())
+	expect_output(summary(getSampleSizeSurvival(pi1 = 0.1, pi2 = 0.3))$show())
+	
+	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.03, lambda1 = c(0.040)))$show())
 	piecewiseSurvivalTime <- list(
 		"0 - <6"   = 0.025, 
 		"6 - <9"   = 0.04, 
 		"9 - <15"  = 0.015, 
 		"15 - <21" = 0.01, 
 		">=21"     = 0.007)
-	expect_output(summary(getSampleSizeSurvival(piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 1.2))) 
-	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)))))
-	expect_output(summary(getPowerSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)), maxNumberOfSubjects = 100, maxNumberOfEvents = 60)))
-	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(kMax = 4, sided = 2))))
-	expect_output(summary(getPowerSurvival(getDesignGroupSequential(kMax = 4, sided = 2), maxNumberOfSubjects = 100, maxNumberOfEvents = 60)))
-
-	expect_output(summary(getSampleSizeSurvival(sided = 2, lambda2 = log(2)/6, lambda1 = log(2)/8)))
-
-	expect_output(summary(getPowerSurvival(sided = 2, maxNumberOfSubjects = 200, maxNumberOfEvents = 40, lambda2 = log(2)/6, lambda1 = log(2)/8)))
-
+	expect_output(summary(getSampleSizeSurvival(piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 1.2))$show()) 
+	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(futilityBounds = c(1, 2))))$show())
+	expect_output(summary(getPowerSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)), 
+				maxNumberOfSubjects = 100, maxNumberOfEvents = 60))$show())
+	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(kMax = 4, sided = 2)))$show())
+	expect_output(summary(getPowerSurvival(getDesignGroupSequential(kMax = 4, sided = 2), 
+				maxNumberOfSubjects = 100, maxNumberOfEvents = 60))$show())
+	
+	expect_output(summary(getSampleSizeSurvival(sided = 2, lambda2 = log(2)/6, lambda1 = log(2)/8))$show())
+	
+	expect_output(summary(getPowerSurvival(sided = 2, maxNumberOfSubjects = 200, 
+				maxNumberOfEvents = 40, lambda2 = log(2)/6, lambda1 = log(2)/8))$show())
+	
 	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(sided = 2),
 				lambda2 = log(2)/6, hazardRatio = c(0.55),
-				accrualTime = c(0,10), accrualIntensity = 60)))
-
+				accrualTime = c(0,10), accrualIntensity = 60))$show())
+	
 	expect_output(summary(getPowerSurvival(getDesignGroupSequential(kMax = 2), maxNumberOfEvents = 200, maxNumberOfSubjects = 400,
 				lambda2 = log(2) / 60, lambda1 = log(2) / 50,
 				dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
-				accrualTime = 0, accrualIntensity = 30)))
-
+				accrualTime = 0, accrualIntensity = 30))$show())
+	
 	expect_output(summary(getPowerSurvival(getDesignGroupSequential(kMax = 3), maxNumberOfEvents = 200, maxNumberOfSubjects = 400,
 				lambda2 = log(2) / 60, lambda1 = c(log(2) / 50, log(2) / 60),
 				dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
-				accrualTime = 0, accrualIntensity = 30)))
-
+				accrualTime = 0, accrualIntensity = 30))$show())
+	
 	expect_output(summary(getPowerSurvival(getDesignGroupSequential(kMax = 3), maxNumberOfEvents = 200, maxNumberOfSubjects = 400,
 				lambda2 = log(2) / 60, hazardRatio = c(0.7, 0.8),directionUpper = FALSE,
 				dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
-				accrualTime = 0, accrualIntensity = 30)))
-
+				accrualTime = 0, accrualIntensity = 30))$show())
+	
 	design <- getDesignGroupSequential(
 		sided = 2, alpha = 0.05, beta = 0.2,
 		informationRates = c(0.6, 1),
 		typeOfDesign = "asOF", twoSidedPower = FALSE)
-
+	
 	expect_output(summary(getSampleSizeSurvival(
 				design,
 				lambda2 = log(2) / 60, hazardRatio = 0.74,
 				dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 				accrualTime = 0, accrualIntensity = 30,
-				followUpTime = 12)))
-
+				followUpTime = 12))$show())
+	
 	expect_output(summary(getSampleSizeSurvival(
 				design,
 				lambda2 = log(2) / 60, lambda1 = log(2) / 50,
 				dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 				accrualTime = 0, accrualIntensity = 30,
-				followUpTime = 12)))
-
-	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(kMax = 4, sided = 2))))
-
+				followUpTime = 12))$show())
+	
+	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(kMax = 4, sided = 2)))$show())
+	
 	## simulations
-
+	
 	design <- getDesignInverseNormal(alpha = 0.05, kMax = 4, futilityBounds = c(0,0,0), 
 		sided = 1, typeOfDesign = "WT", deltaWT = 0.1)
-
+	
 	expect_output(summary(getSimulationSurvival(design,lambda2 = log(2) / 60, lambda1 = c(log(2) / 80),
-				maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345, directionUpper = FALSE)))
-
+				maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345, directionUpper = FALSE))$show())
+	
 	expect_output(summary(getSimulationSurvival(design,lambda2 = log(2) / 60, hazardRatio = c(1.2, 1.4),
-				maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345)))
-
+				maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345))$show())
+	
 	design <- getDesignGroupSequential(typeOfDesign = "P", futilityBounds = c(1,1))
-
-	expect_output(summary(getSampleSizeMeans(design)))
-
-	expect_output(summary(getSimulationMeans(design, stDev = 4, plannedSubjects = (1:3)*200, alternative = c(1,2))))
-
+	
+	expect_output(summary(getSampleSizeMeans(design))$show())
+	
+	expect_output(summary(getSimulationMeans(design, stDev = 4, plannedSubjects = (1:3)*200, alternative = c(1,2)))$show())
+	
 	expect_output(summary(getSimulationRates(design, plannedSubjects = (1:3)*200, pi1 = c(0.3,0.4), maxNumberOfIterations = 1000, 
-				minNumberOfSubjectsPerStage = c(NA, 40, 40), maxNumberOfSubjectsPerStage = c(NA, 40, 400), conditionalPower = 0.8)))
-
-	expect_output(summary(getSimulationMeans(getDesignGroupSequential(kMax = 1), stDev = 4, plannedSubjects = 200, alternative = c(1))))	
-
+				minNumberOfSubjectsPerStage = c(NA, 40, 40), maxNumberOfSubjectsPerStage = c(NA, 40, 400), conditionalPower = 0.8))$show())
+	
+	expect_output(summary(getSimulationMeans(getDesignGroupSequential(kMax = 1), stDev = 4, plannedSubjects = 200, alternative = 1))$show())	
+	
 })
 

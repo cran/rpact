@@ -4,9 +4,17 @@
 \alias{readDatasets}
 \title{Read Multiple Datasets}
 \usage{
-readDatasets(file, ..., header = TRUE, sep = ",", quote = "\\"",
-  dec = ".", fill = TRUE, comment.char = "",
-  fileEncoding = "UTF-8")
+readDatasets(
+  file,
+  ...,
+  header = TRUE,
+  sep = ",",
+  quote = "\\"",
+  dec = ".",
+  fill = TRUE,
+  comment.char = "",
+  fileEncoding = "UTF-8"
+)
 }
 \arguments{
 \item{file}{A CSV file (see \code{\link[utils]{read.table}}).}

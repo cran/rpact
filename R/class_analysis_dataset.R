@@ -418,7 +418,7 @@ writeDatasets <- function(datasets, file, ..., append = FALSE, quote = TRUE, sep
 #'     are vectors with stagewise sample sizes 
 #'     and events  for the two treatment groups of length given by the number of available stages.
 #'   \item An element of \code{\link{DatasetSurvival}} is created by \cr
-#'     \code{getDataset(events=, logRanks =, allocationRatios =)} where 
+#'     \code{getDataset(events =, logRanks =, allocationRatios =)} where 
 #'     \code{events}, \code{logRanks}, and \code{allocation ratios} are the stagewise events, 
 #'     (one-sided) logrank statistics, and allocation ratios. 
 #' }
@@ -520,6 +520,8 @@ writeDatasets <- function(datasets, file, ..., append = FALSE, quote = TRUE, sep
 #'
 #' @export
 #' 
+#' @name getDataset
+#' 
 getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	
 	args <- list(...)
@@ -527,6 +529,11 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame or data vectors expected")
 	}
 	
+	exampleType <- args[["example"]]
+	if (!is.null(exampleType) && exampleType %in% c("means", "rates", "survival")) {
+		return(.getDatasetExample(exampleType = exampleType))
+	}
+	
 	dataFrame <- .getDataFrameFromArgs(...)
 	
 	if (is.null(dataFrame)) {
@@ -562,48 +569,45 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "failed to identify dataset type")
 }
 
-getDataSet <- function(..., floatingPointNumbersEnabled = FALSE) {
-	
-	args <- list(...)
-	if (length(args) == 0) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame or data vectors expected")
+.getDatasetExample <- function(exampleType) {
+	if (exampleType == "means") {
+		return(getDataset(
+			n1 = c(13, 25), 
+			n2 = c(15, NA), 
+			n3 = c(14, 27), 
+			n4 = c(12, 29), 
+			means1 = c(24.2, 22.2), 
+			means2 = c(18.8, NA),
+			means3 = c(26.7, 27.7), 
+			means4 = c(9.2, 12.2), 
+			stDevs1 = c(24.4, 22.1), 
+			stDevs2 = c(21.2, NA), 
+			stDevs3 = c(25.6, 23.2), 
+			stDevs4 = c(21.5, 22.7)))
+	}
+	else if (exampleType == "rates") {
+		return(getDataset(
+			n1 = c(23, 25),
+			n2 = c(25, NA),	
+			n3 = c(24, 27),	
+			n4 = c(22, 29), 
+			events1 = c(15, 12), 
+			events2 = c(19, NA), 
+			events3 = c(18, 22), 
+			events4 = c(12, 13)))
+	}
+	else if (exampleType == "survival") {
+		return(getDataset(
+			events1   = c(25, 32), 
+			events2   = c(18, NA),
+			events3   = c(22, 36), 
+			logRanks1 = c(2.2,1.8),	
+			logRanks2 = c(1.99, NA), 
+			logRanks3 = c(2.32, 2.11)))
 	}
 	
-	dataFrame <- .getDataFrameFromArgs(...)
-	
-	if (is.null(dataFrame)) {
-		
-		paramNames <- names(args)
-		paramNames <- paramNames[paramNames != ""]
-		if (length(paramNames) != length(args)) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all parameters must be named")
-		}
-		
-		if (length(paramNames) != length(unique(paramNames))) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "the parameter names must be unique")
-		}
-		
-		dataFrame <- .createDataFrame(...)
-	}
-	
-	if (.isDataObjectMeans(...)) {
-		return(DatasetMeans(dataFrame = dataFrame, 
-						floatingPointNumbersEnabled = floatingPointNumbersEnabled))
-	}
-	
-	if (.isDataObjectRates(...)) {
-		return(DatasetRates(dataFrame = dataFrame,
-						floatingPointNumbersEnabled = floatingPointNumbersEnabled))
-	}
-	
-	if (.isDataObjectSurvival(...)) {
-		return(DatasetSurvival(dataFrame = dataFrame,
-						floatingPointNumbersEnabled = floatingPointNumbersEnabled))
-	}
-	
-	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "failed to identify dataset type")
+	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'exampleType' (", exampleType, ") is not allowed")
 }
-
 
 .arraysAreEqual <- function(a1, a2) {
 	if (length(a1) != length(a2)) {
@@ -621,8 +625,6 @@ getDataSet <- function(..., floatingPointNumbersEnabled = FALSE) {
 	
 	return(TRUE)
 }
-
-any(grepl("3", c("name2", "name3")))
 
 .createDataFrame <- function(...) {
 	args <- list(...)
@@ -764,14 +766,19 @@ any(grepl("3", c("name2", "name3")))
 	argNamesLower <- tolower(argNames)
 	dataObjectkeyWords <- tolower(C_KEY_WORDS)
 	
-	multiArmKeywords <- tolower(c(C_KEY_WORDS_EVENTS, 
+	multiArmKeywords <- tolower(c(
+		C_KEY_WORDS_EVENTS, 
 		C_KEY_WORDS_OVERALL_EVENTS, 
 		C_KEY_WORDS_SAMPLE_SIZES, 
-		C_KEY_WORDS_MEANS, 
-		C_KEY_WORDS_ST_DEVS, 
 		C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 
+		C_KEY_WORDS_MEANS, 
 		C_KEY_WORDS_OVERALL_MEANS, 
-		C_KEY_WORDS_OVERALL_ST_DEVS))
+		C_KEY_WORDS_ST_DEVS, 
+		C_KEY_WORDS_OVERALL_ST_DEVS,
+		C_KEY_WORDS_ALLOCATION_RATIOS,
+		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
+		C_KEY_WORDS_LOG_RANKS,
+		C_KEY_WORDS_OVERALL_LOG_RANKS))
 	unknownArgs <- setdiff(argNamesLower, dataObjectkeyWords)
 	unknownArgsChecked <- unknownArgs
 	unknownArgs <- c()
@@ -829,18 +836,26 @@ any(grepl("3", c("name2", "name3")))
 }
 
 .isDataObjectRates <- function(...) {	
-	return(.isDataObject(..., dataObjectkeyWords = 
-		c(C_KEY_WORDS_EVENTS, C_KEY_WORDS_EVENTS_1, C_KEY_WORDS_EVENTS_2, 
-			C_KEY_WORDS_OVERALL_EVENTS, C_KEY_WORDS_OVERALL_EVENTS_1, C_KEY_WORDS_OVERALL_EVENTS_2)) &&
-		!.isDataObject(..., dataObjectkeyWords = 
-				c(C_KEY_WORDS_OVERALL_LOG_RANKS, C_KEY_WORDS_LOG_RANKS, 
-					C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, C_KEY_WORDS_ALLOCATION_RATIOS)))
+	dataObjectkeyWords1 <- c(C_KEY_WORDS_EVENTS, C_KEY_WORDS_OVERALL_EVENTS)
+	dataObjectkeyWords2 <- c(C_KEY_WORDS_OVERALL_LOG_RANKS, 
+		C_KEY_WORDS_LOG_RANKS, 
+		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, 
+		C_KEY_WORDS_ALLOCATION_RATIOS)
+	
+	dataObjectkeyWords1 <- c(dataObjectkeyWords1, paste0(dataObjectkeyWords1, c(1, 2)))
+	dataObjectkeyWords2 <- c(dataObjectkeyWords2, paste0(dataObjectkeyWords2, c(1, 2)))
+	
+	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords1) &&
+		!.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords2))
 }
 
 .isDataObjectSurvival <- function(...) {
-	return(.isDataObject(..., dataObjectkeyWords = 
-		c(C_KEY_WORDS_OVERALL_LOG_RANKS, C_KEY_WORDS_LOG_RANKS,
-			C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, C_KEY_WORDS_ALLOCATION_RATIOS)))
+	dataObjectkeyWords <- c(C_KEY_WORDS_OVERALL_LOG_RANKS, 
+		C_KEY_WORDS_LOG_RANKS, 
+		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, 
+		C_KEY_WORDS_ALLOCATION_RATIOS)
+	dataObjectkeyWords <- c(dataObjectkeyWords, paste0(dataObjectkeyWords, c(1, 2)))
+	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords))
 }
 
 #' 
@@ -1662,6 +1677,9 @@ DatasetMeans <- setRefClass("DatasetMeans",
 #' @details
 #' Generic function to plot all kinds of datasets.
 #' 
+#' @return 
+#' A \code{ggplot2} object.
+#' 
 #' @examples 
 #' 
 #' # Plot a dataset of means
@@ -1944,12 +1962,11 @@ DatasetRates <- setRefClass("DatasetRates",
 				
 				kMax <- length(overallSampleSizes)
 				stageNumber <- length(stats::na.omit(overallSampleSizes))
-				dataInput <- data.frame(
-					overallSampleSizes = overallSampleSizes,
-					overallEvents = overallEvents)
-				dataInput <- .getStageWiseData(dataInput, kMax, stage = stageNumber)
-				sampleSizes <<- .getValidatedSampleSizes(dataInput$sampleSizes)
-				events <<- dataInput$events
+				stageWiseData <- .getStageWiseData(data.frame(
+						overallSampleSizes = overallSampleSizes,
+						overallEvents = overallEvents), kMax, stage = stageNumber)
+				sampleSizes <<- .getValidatedSampleSizes(stageWiseData$sampleSizes)
+				events <<- stageWiseData$events
 				
 				.setParameterType("sampleSizes", C_PARAM_GENERATED)
 				.setParameterType("events", C_PARAM_GENERATED)
@@ -1960,7 +1977,7 @@ DatasetRates <- setRefClass("DatasetRates",
 			
 			# case: two or more rates - stage wise
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 1)) && 
-				.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 2))) {
+					.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 2))) {
 				
 				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)
 				
@@ -2004,63 +2021,6 @@ DatasetRates <- setRefClass("DatasetRates",
 				.setParameterType("overallEvents", C_PARAM_GENERATED)
 			}
 			
-#			# case: two rates - overall
-#			else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1) &&
-#				.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2)) {
-#				
-#				stages <<- c(stages, stages)
-#				
-#				overallSampleSizes1 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
-#						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_1))
-#				.validateValues(overallSampleSizes1, "overallSampleSizes1")
-#				overallSampleSizes2 <- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
-#						C_KEY_WORDS_OVERALL_SAMPLE_SIZES_2))
-#				.validateValues(overallSampleSizes2, "overallSampleSizes2")
-#				overallSampleSizes <<- c(overallSampleSizes1, overallSampleSizes2)
-#				
-#				overallEvents1 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS_1)
-#				.validateValues(overallEvents1, "overallEvents1")
-#				overallEvents2 <- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS_2)
-#				.validateValues(overallEvents2, "overallEvents2")
-#				overallEvents <<- c(overallEvents1, overallEvents2)
-#				
-#				kMax <- length(overallSampleSizes1)
-#				stageNumber <- length(stats::na.omit(overallSampleSizes1))
-#				
-#				dataInput1 <- data.frame(
-#					overallSampleSizes = overallSampleSizes1,
-#					overallEvents = overallEvents1)
-#				dataInput1 <- .getStageWiseData(dataInput1, kMax, stage = stageNumber)
-#				
-#				dataInput2 <- data.frame(
-#					overallSampleSizes = overallSampleSizes2,
-#					overallEvents = overallEvents2)
-#				dataInput2 <- .getStageWiseData(dataInput2, kMax, stage = stageNumber)
-#				
-#				n1 <- .getValidatedSampleSizes(dataInput1$sampleSizes)
-#				n2 <- .getValidatedSampleSizes(dataInput2$sampleSizes)
-#				.validateValues(n1, "n1")
-#				.validateValues(n2, "n2")
-#				sampleSizes <<- c(n1, n2)
-#				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
-#					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
-#				}
-#				
-#				events1 <- dataInput1$events
-#				events2 <- dataInput2$events
-#				.validateValues(events1, "events1")
-#				.validateValues(events2, "events2")
-#				events <<- c(events1, events2)
-#				
-#				groups <<- c(rep(1L, length(n1)), rep(2L, length(n1)))
-#				
-#				.setParameterType("sampleSizes", C_PARAM_GENERATED)
-#				.setParameterType("events", C_PARAM_GENERATED)
-#				
-#				.setParameterType("overallSampleSizes", C_PARAM_USER_DEFINED)
-#				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
-#			}
-			
 			# case: two or more rates - overall
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 1)) &&
 				.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 2))) {
@@ -2089,14 +2049,14 @@ DatasetRates <- setRefClass("DatasetRates",
 					
 					kMax <- length(overallSampleSizesTemp)
 					numberOfValidStages <- length(stats::na.omit(overallSampleSizesTemp))
-					overallData <- .getStageWiseData(data.frame(
+					stageWiseData <- .getStageWiseData(data.frame(
 							overallSampleSizes = overallSampleSizesTemp,
 							overallEvents = overallEventsTemp), kMax, stage = numberOfValidStages)
 					
-					validatedSampleSizes <- .getValidatedSampleSizes(overallData$sampleSizes)
+					validatedSampleSizes <- .getValidatedSampleSizes(stageWiseData$sampleSizes)
 					.validateValues(validatedSampleSizes, paste0("n", group))
 					sampleSizes <<- c(sampleSizes, validatedSampleSizes)
-					events <<- c(events, overallData$events)
+					events <<- c(events, stageWiseData$events)
 					
 					if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
 						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
@@ -2273,93 +2233,132 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 			return(.data$event[.getIndices(stage = stage, group = group)])
 		},
 		
-		getAllocationRatio = function(stage, group = 1) {
-			return(.data$allocationRatio[.getIndices(stage = stage, group = group)])
-		},
+#		getEvents = function(stage = NA_integer_, group = 1) {
+#			return(.data$event[.getIndices(stage = stage, group = group)])
+#		},
 		
-		getLogRank = function(stage, group = 1) {
-			return(.data$logRank[.getIndices(stage = stage, group = group)])
+		getEvents = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$event[.getIndices(stage = stage, group = group)])
 		},
 		
 		getEventsUpTo = function(to, group = 1) {
 			return(.data$event[.getIndices(stage = c(1:to), group = group)])
 		},
 		
+		getAllocationRatio = function(stage, group = 1) {
+			return(.data$allocationRatio[.getIndices(stage = stage, group = group)])
+		},
+		
+#		getAllocationRatios = function(stage = NA_integer_, group = 1) {
+#			return(.data$allocationRatio[.getIndices(stage = stage, group = group)])
+#		},
+		
+		getAllocationRatios = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$allocationRatio[.getIndices(stage = stage, group = group)])
+		},
+		
 		getAllocationRatiosUpTo = function(to, group = 1) {
 			return(.data$allocationRatio[.getIndices(stage = c(1:to), group = group)])
 		},
 		
+		getLogRank = function(stage, group = 1) {
+			return(.data$logRank[.getIndices(stage = stage, group = group)])
+		},
+		
+#		getLogRanks = function(stage = NA_integer_, group = 1) {
+#			return(.data$logRank[.getIndices(stage = stage, group = group)])
+#		},
+		
+		getLogRanks = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$logRank[.getIndices(stage = stage, group = group)])
+		},
+		
 		getLogRanksUpTo = function(to, group = 1) {
 			return(.data$logRank[.getIndices(stage = c(1:to), group = group)])
-		},
-		
-		getEvents = function(stage = NA_integer_, group = 1) {
-			return(.data$event[.getIndices(stage = stage, group = group)])
-		},
-		
-		getAllocationRatios = function(stage = NA_integer_, group = 1) {
-			return(.data$allocationRatio[.getIndices(stage = stage, group = group)])
-		},
-		
-		getLogRanks = function(stage = NA_integer_, group = 1) {
-			return(.data$logRank[.getIndices(stage = stage, group = group)])
 		},
 
 		getOverallEvent = function(stage, group = 1) {
 			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
 		},
 		
-		getOverallAllocationRatio = function(stage, group = 1) {
-			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group)])
-		},
+#		getOverallEvents = function(stage = NA_integer_, group = 1) {
+#			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
+#		},
 		
-		getOverallLogRank = function(stage, group = 1) {
-			return(.data$overallLogRank[.getIndices(stage = stage, group = group)])
+		getOverallEvents = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
 		},
 		
 		getOverallEventsUpTo = function(to, group = 1) {
 			return(.data$overallEvent[.getIndices(stage = c(1:to), group = group)])
 		},
 		
+		getOverallAllocationRatio = function(stage, group = 1) {
+			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group)])
+		},
+		
+#		getOverallAllocationRatios = function(stage = NA_integer_, group = 1) {
+#			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group)])
+#		},
+		
+		getOverallAllocationRatios = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group)])
+		},
+		
 		getOverallAllocationRatiosUpTo = function(to, group = 1) {
 			return(.data$overallAllocationRatio[.getIndices(stage = c(1:to), group = group)])
+		},
+		
+		getOverallLogRank = function(stage, group = 1) {
+			return(.data$overallLogRank[.getIndices(stage = stage, group = group)])
+		},
+		
+#		getOverallLogRanks = function(stage = NA_integer_, group = 1) {
+#			return(.data$overallLogRank[.getIndices(stage = stage, group = group)])
+#		},
+#		
+		getOverallLogRanks = function(..., stage = NA_integer_, group = NA_integer_) {
+			stage <- .getValidatedStage(..., stage = stage, group = group)
+			return(.data$overallLogRank[.getIndices(stage = stage, group = group)])
 		},
 		
 		getOverallLogRanksUpTo = function(to, group = 1) {
 			return(.data$overallLogRank[.getIndices(stage = c(1:to), group = group)])
 		},
 		
-		getOverallEvents = function(stage = NA_integer_, group = 1) {
-			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
-		},
-		
-		getOverallAllocationRatios = function(stage = NA_integer_, group = 1) {
-			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group)])
-		},
-		
-		getOverallLogRanks = function(stage = NA_integer_, group = 1) {
-			return(.data$overallLogRank[.getIndices(stage = stage, group = group)])
-		},
-		
 		.getValidatedEvents = function(n) {
 			return(.getValidatedFloatingPointNumbers(n, type = "Events"))
+		},
+		
+		.getAllocationRatioDefaultValues = function(stages, events, logRanks) {
+			allocationRatioDefaultValues <- rep(C_ALLOCATION_RATIO_DEFAULT, length(stages))
+			indices <- which(is.na(events) | is.na(logRanks))
+			allocationRatioDefaultValues[indices] <- NA_real_
+			return(allocationRatioDefaultValues)
 		},
 		
 		.initByDataFrame = function(dataFrame) {
 			callSuper(dataFrame)	
 						
-			# case: survival - overall
+			# case: survival, two groups - overall
 			if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS)) {
 				
 				overallEvents <<- .getValidatedEvents(
 					.getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS))
 				.validateValues(overallEvents, "overallEvents")
-				overallAllocationRatios <<- .getValuesByParameterName(
-					dataFrame, parameterNameVariants = C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
-					defaultValues = rep(1, length(stages)))
-				.validateValues(overallAllocationRatios, "overallAllocationRatios")
+				
 				overallLogRanks <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS)
 				.validateValues(overallLogRanks, "overallLogRanks")
+				
+				overallAllocationRatios <<- .getValuesByParameterName(
+					dataFrame, parameterNameVariants = C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
+					defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallLogRanks))
+				.validateValues(overallAllocationRatios, "overallAllocationRatios")
 				
 				kMax <- length(overallEvents)
 				stageNumber <- length(stats::na.omit(overallEvents))
@@ -2383,17 +2382,19 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
 			}
 			
-			# case: survival - stage wise
+			# case: survival, two groups - stage wise
 			else if (.paramExists(dataFrame, C_KEY_WORDS_LOG_RANKS)) {
 				
 				events <<- .getValidatedEvents(.getValuesByParameterName(dataFrame, C_KEY_WORDS_EVENTS))
 				.validateValues(events, "events")
-				allocationRatios <<- .getValuesByParameterName(
-					dataFrame, C_KEY_WORDS_ALLOCATION_RATIOS,
-					defaultValues = rep(1, length(stages)))
-				.validateValues(allocationRatios, "allocationRatios")
+
 				logRanks <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_LOG_RANKS)
 				.validateValues(logRanks, "logRanks")
+				
+				allocationRatios <<- .getValuesByParameterName(
+					dataFrame, C_KEY_WORDS_ALLOCATION_RATIOS,
+					defaultValues = .getAllocationRatioDefaultValues(stages, events, logRanks))
+				.validateValues(allocationRatios, "allocationRatios")
 				
 				kMax <- length(events)
 				stageNumber <- length(stats::na.omit(events))
@@ -2417,13 +2418,132 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
 			}
 			
+			# TODO case: survival, three ore more groups - overall
+			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_LOG_RANKS, 1)) &&
+					.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_LOG_RANKS, 2))) {
+				
+				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS)
+				
+				stages <<- rep(stages, numberOfTreatmentGroups)
+				
+				groups <<- integer(0)
+				events <<- numeric(0)
+				allocationRatios <<- numeric(0)
+				logRanks <<- numeric(0)
+				overallEvents <<- numeric(0)
+				overallAllocationRatios <<- numeric(0)
+				overallLogRanks <<- numeric(0)
+				for (group in 1:numberOfTreatmentGroups) {
+					overallEventsTemp <- .getValuesByParameterName(dataFrame, 
+						C_KEY_WORDS_OVERALL_EVENTS, suffix = group)
+					.validateValues(overallEventsTemp, paste0("overallEvents", group))
+					overallEvents <<- c(overallEvents, overallEventsTemp)
+					
+					overallLogRanksTemp <- .getValuesByParameterName(
+							dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS, suffix = group)
+					.validateValues(overallLogRanksTemp, paste0("overallLogRanks", group))
+					overallLogRanks <<- c(overallLogRanks, overallLogRanksTemp)
+					
+					overallAllocationRatiosTemp <- .getValuesByParameterName(
+						dataFrame, C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, suffix = group,
+						defaultValues = .getAllocationRatioDefaultValues(overallEventsTemp, 
+							overallEventsTemp, overallAllocationRatiosTemp))
+					.validateValues(overallAllocationRatiosTemp, paste0("overallAllocationRatios", group))
+					overallAllocationRatios <<- c(overallAllocationRatios, overallAllocationRatiosTemp)
+					
+					groups <<- c(groups, rep(as.integer(group), length(overallLogRanksTemp)))
+					
+					kMax <- length(overallLogRanksTemp)
+					numberOfValidStages <- length(stats::na.omit(overallLogRanksTemp))
+					stageWiseData <- .getStageWiseData(data.frame(
+							overallLogRanks = overallLogRanksTemp,
+							overallAllocationRatios = overallAllocationRatiosTemp,
+							overallEvents = overallEventsTemp), 
+						kMax, stage = numberOfValidStages)
+					
+					validatedLogRanks <- stageWiseData$logRanks
+					.validateValues(validatedLogRanks, paste0("n", group))
+					logRanks <<- c(logRanks, validatedLogRanks)
+					allocationRatios <<- c(allocationRatios, stageWiseData$allocationRatios)
+					events <<- c(events, stageWiseData$events)
+					
+#					if (base::sum(stats::na.omit(logRanks) < 0) > 0) {
+#						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all log ranks must be >= 0")
+#					}
+				}
+				
+				.setParameterType("events", C_PARAM_GENERATED)
+				.setParameterType("allocationRatios", C_PARAM_GENERATED)
+				.setParameterType("logRanks", C_PARAM_GENERATED)
+				
+				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
+				.setParameterType("overallAllocationRatios", C_PARAM_USER_DEFINED)
+				.setParameterType("overallLogRanks", C_PARAM_USER_DEFINED)
+			}
+			
+			# case: survival, three ore more groups - stage wise
+			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_LOG_RANKS, 1)) && 
+					.paramExists(dataFrame, paste0(C_KEY_WORDS_LOG_RANKS, 2))) {
+				
+				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_LOG_RANKS)
+				
+				stages <<- rep(stages, numberOfTreatmentGroups)
+				
+				groups <<- integer(0)
+				events <<- numeric(0)
+				allocationRatios <<- numeric(0)
+				logRanks <<- numeric(0)
+				overallEvents <<- numeric(0)
+				overallAllocationRatios <<- numeric(0)
+				overallLogRanks <<- numeric(0)
+				for (group in 1:numberOfTreatmentGroups) {
+					
+					eventsTemp <- .getValidatedEvents(.getValuesByParameterName(
+						dataFrame, C_KEY_WORDS_EVENTS, suffix = group))
+					events <<- c(events, eventsTemp)
+					
+					logRanksTemp <- .getValuesByParameterName(
+							dataFrame, C_KEY_WORDS_LOG_RANKS, suffix = group)
+					.validateValues(logRanksTemp, paste0("n", group))
+					logRanks <<- c(logRanks, logRanksTemp)
+					
+					allocationRatiosTemp <- .getValuesByParameterName(
+						dataFrame, C_KEY_WORDS_ALLOCATION_RATIOS, suffix = group,
+						defaultValues = .getAllocationRatioDefaultValues(eventsTemp, 
+							eventsTemp, logRanksTemp))
+					.validateValues(allocationRatiosTemp, paste0("allocationRatios", group))
+					allocationRatios <<- c(allocationRatios, allocationRatiosTemp)
+					
+					groups <<- c(groups, rep(as.integer(group), length(eventsTemp)))
+					
+					kMax <- length(eventsTemp)
+					numberOfValidStages <- length(stats::na.omit(eventsTemp))
+					overallData <- .getOverallData(data.frame(
+						events = eventsTemp,
+						allocationRatios = allocationRatiosTemp,
+						logRanks = logRanksTemp), kMax, stage = numberOfValidStages)
+					
+					overallEvents <<- c(overallEvents, overallData$overallEvents)
+					overallAllocationRatios <<- c(overallAllocationRatios, overallData$overallAllocationRatios)
+					overallLogRanks <<- c(overallLogRanks, overallData$overallLogRanks)
+				}
+				
+				.setParameterType("events", C_PARAM_USER_DEFINED)
+				.setParameterType("allocationRatios", C_PARAM_USER_DEFINED)
+				.setParameterType("logRanks", C_PARAM_USER_DEFINED)
+				
+				.setParameterType("overallEvents", C_PARAM_GENERATED)
+				.setParameterType("overallAllocationRatios", C_PARAM_GENERATED)
+				.setParameterType("overallLogRanks", C_PARAM_GENERATED)
+			}
+			
 			.data <<- data.frame(stage = stages, group = groups, 
 				overallEvent = overallEvents, 
 				overallAllocationRatio = overallAllocationRatios, 
 				overallLogRank = overallLogRanks, 
 				event = events,
 				allocationRatio = allocationRatios,
-				overallLogRank = overallLogRanks)
+				logRanks = logRanks)
 			
 			.orderDataByStageAndGroup()	
 			.setDataToVariables()
@@ -2439,7 +2559,7 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 			overallLogRanks <<- .data$overallLogRank
 			events <<- .data$event
 			allocationRatios <<- .data$allocationRatio
-			overallLogRanks <<- .data$overallLogRank
+			logRanks <<- .data$logRanks
 		},
 		
 		.fillWithNAs = function(kMax) {
@@ -2460,7 +2580,7 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				overallLogRank = overallLogRanks,
 				event = events,
 				allocationRatio = allocationRatios,
-				overallLogRank = overallLogRanks)
+				logRanks = logRanks)
 			
 			.orderDataByStageAndGroup()
 			.setDataToVariables()
