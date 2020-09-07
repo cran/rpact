@@ -8,19 +8,23 @@
 Class for a dataset of rates.
 }
 \details{
-This object can not be created directly; better use \code{\link{getDataset}} 
+This object cannot be created directly; better use \code{\link{getDataset}} 
 with suitable arguments to create a dataset of rates.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{group}}{The group numbers.}
+\item{\code{groups}}{The group numbers.}
 
-\item{\code{stage}}{The stage numbers.}
+\item{\code{stages}}{The stage numbers.}
 
-\item{\code{sampleSize}}{The sample sizes.}
+\item{\code{sampleSizes}}{The sample sizes.}
 
-\item{\code{event}}{The events.}
+\item{\code{events}}{The events.}
+
+\item{\code{overallSampleSizes}}{The overall sample sizes.}
+
+\item{\code{overallEvents}}{The overall events.}
 }}
 
 

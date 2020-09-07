@@ -11,4 +11,7 @@ Trial design for conditional Dunnett tests.
 This object should not be created directly.
 }
 
+\seealso{
+\code{\link{getDesignConditionalDunnett}} for creating a conditional Dunnett test design.
+}
 \keyword{internal}

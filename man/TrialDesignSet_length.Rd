@@ -7,10 +7,22 @@
 \usage{
 \method{length}{TrialDesignSet}(x)
 }
+\arguments{
+\item{x}{A \code{\link{TrialDesignSet}} object.}
+}
+\value{
+Returns a non-negative \code{\link[base]{integer}} of length 1 
+representing the number of design in the \code{TrialDesignSet}.
+}
 \description{
 Returns the number of designs in a \code{TrialDesignSet}.
 }
 \details{
 Is helpful for iteration over all designs in a design set with "[index]"-syntax.
+}
+\examples{
+designSet <- getDesignSet(design = getDesignGroupSequential(), alpha = c(0.01, 0.05))
+length(designSet)
+
 }
 \keyword{internal}

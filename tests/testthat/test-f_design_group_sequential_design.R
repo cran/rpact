@@ -1,21 +1,24 @@
-######################################################################################
-#                                                                                    #
-# -- Unit tests --                                                                   #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    #
-# File version: 1.0.0                                                                #
-# Date: 06 November 2019, 17:12:28                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#  
+#:#  *Unit tests*
+#:#  
+#:#  This file is part of the R package rpact:
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:#  
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:#  
+#:#  RPACT company website: https://www.rpact.com
+#:#  RPACT package website: https://www.rpact.org
+#:#  
+#:#  Contact us for information about our services: info@rpact.com
+#:#  
+#:#  File name: test-f_design_group_sequential_design.R
+#:#  Creation date: 05 September 2020, 14:47:59
+#:#  File version: $Revision: 3596 $
+#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:#  
 
 context("Testing the group sequential and inverse normal design functionality")
 
@@ -24,12 +27,16 @@ test_that("'getDesignInverseNormal' with default parameters: parameters and resu
 	# @refFS[Formula]{fs:criticalValuesOBrienFleming}
 	x1 <- getDesignInverseNormal()
 
-	##
 	## Comparison of the results of TrialDesignInverseNormal object 'x1' with expected results
-	##
-	expect_equal(x1$alphaSpent, c(0.00025917372, 0.0071600594, 0.025), tolerance = 1e-07)
+	expect_equal(x1$alphaSpent, c(0.00025917372, 0.0071600594, 0.02499999), tolerance = 1e-07)
 	expect_equal(x1$criticalValues, c(3.4710914, 2.4544323, 2.0040356), tolerance = 1e-07)
 	expect_equal(x1$stageLevels, c(0.00025917372, 0.0070553616, 0.022533125), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x1), NA)))
+	    expect_output(print(x1)$show())
+	    invisible(capture.output(expect_error(summary(x1), NA)))
+	    expect_output(summary(x1)$show())
+	}
 
 })
 
@@ -42,20 +49,22 @@ test_that("'getDesignInverseNormal' and 'getDesignCharacteristics' with kMax = 4
 	x2 <- getDesignInverseNormal(kMax = 4, alpha = 0.07, sided = 1, beta = 0.14, typeOfDesign = "asHSD",gammaA = -1, 
 		typeBetaSpending = C_TYPE_OF_DESIGN_BS_HSD, gammaB = -2)
 
-	##
 	## Comparison of the results of TrialDesignInverseNormal object 'x2' with expected results
-	##
 	expect_equal(x2$power, c(0.18540359, 0.47374657, 0.7208955, 0.86), tolerance = 1e-07)
 	expect_equal(x2$futilityBounds, c(-0.81517021, 0.063469084, 0.84025384), tolerance = 1e-07)
 	expect_equal(x2$alphaSpent, c(0.011570732, 0.026427847, 0.045504759, 0.07), tolerance = 1e-07)
 	expect_equal(x2$betaSpent, c(0.014215085, 0.037651799, 0.076292407, 0.14), tolerance = 1e-07)
 	expect_equal(x2$criticalValues, c(2.2710911, 2.0692301, 1.8645608, 1.6606881), tolerance = 1e-07)
 	expect_equal(x2$stageLevels, c(0.011570732, 0.01926225, 0.031121494, 0.048388055), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x2), NA)))
+	    expect_output(print(x2)$show())
+	    invisible(capture.output(expect_error(summary(x2), NA)))
+	    expect_output(summary(x2)$show())
+	}
 	y1 <- getDesignCharacteristics(x2)
 
-	##
 	## Comparison of the results of TrialDesignCharacteristics object 'y1' with expected results
-	##
 	expect_equal(y1$nFixed, 6.5337002, tolerance = 1e-07)
 	expect_equal(y1$shift, 7.5749205, tolerance = 1e-07)
 	expect_equal(y1$inflationFactor, 1.1593615, tolerance = 1e-07)
@@ -66,6 +75,12 @@ test_that("'getDesignInverseNormal' and 'getDesignCharacteristics' with kMax = 4
 	expect_equal(y1$averageSampleNumber1, 0.72222281, tolerance = 1e-07)
 	expect_equal(y1$averageSampleNumber01, 0.82592961, tolerance = 1e-07)
 	expect_equal(y1$averageSampleNumber0, 0.68240644, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(y1), NA)))
+	    expect_output(print(y1)$show())
+	    invisible(capture.output(expect_error(summary(y1), NA)))
+	    expect_output(summary(y1)$show())
+	}
 
 	# @refFS[Formula]{fs:alphaSpendingConcept}
 	# @refFS[Formula]{fs:alphaSpendingHwangShiDeCani}
@@ -75,23 +90,25 @@ test_that("'getDesignInverseNormal' and 'getDesignCharacteristics' with kMax = 4
 			alpha = 0.07, sided = 1, beta = 0.14, typeOfDesign = "asHSD",gammaA = -1, 
 			typeBetaSpending = C_TYPE_OF_DESIGN_BS_HSD, gammaB = -2)
 
-	##
 	## Comparison of the results of TrialDesignInverseNormal object 'x3' with expected results
-	##
 	expect_equal(x3$power, c(0.12840586, 0.34869365, 0.76424148, 0.86), tolerance = 1e-07)
 	expect_equal(x3$futilityBounds, c(-1.0672796, -0.30464832, 1.028624), tolerance = 1e-07)
-	expect_equal(x3$alphaSpent, c(0.0090195874, 0.020036136, 0.049926539, 0.07), tolerance = 1e-07)
+	expect_equal(x3$alphaSpent, c(0.0090195874, 0.020036136, 0.049926539, 0.06999999), tolerance = 1e-07)
 	expect_equal(x3$betaSpent, c(0.010777094, 0.026854629, 0.086620705, 0.14), tolerance = 1e-07)
 	expect_equal(x3$criticalValues, c(2.364813, 2.1928805, 1.7718975, 1.6682985), tolerance = 1e-07)
 	expect_equal(x3$stageLevels, c(0.0090195874, 0.014157994, 0.038205784, 0.047628242), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x3), NA)))
+	    expect_output(print(x3)$show())
+	    invisible(capture.output(expect_error(summary(x3), NA)))
+	    expect_output(summary(x3)$show())
+	}
 
 	# @refFS[Formula]{fs:inflationFactor}
 	# @refFS[Formula]{fs:expectedReduction}
 	y2 <- getDesignCharacteristics(x3)
 
-	##
 	## Comparison of the results of TrialDesignCharacteristics object 'y2' with expected results
-	##
 	expect_equal(y2$nFixed, 6.5337002, tolerance = 1e-07)
 	expect_equal(y2$shift, 7.5750078, tolerance = 1e-07)
 	expect_equal(y2$inflationFactor, 1.1593749, tolerance = 1e-07)
@@ -102,6 +119,12 @@ test_that("'getDesignInverseNormal' and 'getDesignCharacteristics' with kMax = 4
 	expect_equal(y2$averageSampleNumber1, 0.75564768, tolerance = 1e-07)
 	expect_equal(y2$averageSampleNumber01, 0.85242855, tolerance = 1e-07)
 	expect_equal(y2$averageSampleNumber0, 0.720263, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(y2), NA)))
+	    expect_output(print(y2)$show())
+	    invisible(capture.output(expect_error(summary(y2), NA)))
+	    expect_output(summary(y2)$show())
+	}
 
 })
 
@@ -112,31 +135,43 @@ test_that("'getDesignInverseNormal' with binding futility bounds", {
 	x4 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
 		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
 
-	##
 	## Comparison of the results of TrialDesignInverseNormal object 'x4' with expected results
-	##
-	expect_equal(x4$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
+	expect_equal(x4$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.02499999), tolerance = 1e-07)
 	expect_equal(x4$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
 	expect_equal(x4$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x4), NA)))
+	    expect_output(print(x4)$show())
+	    invisible(capture.output(expect_error(summary(x4), NA)))
+	    expect_output(summary(x4)$show())
+	}
 
 })
 
 test_that("'getDesignGroupSequential' with type of design = 'asUser'", {
 
+	.skipTestIfDisabled()
+
 	# @refFS[Formula]{fs:alphaSpendingConcept}
 	x5 <- getDesignGroupSequential(typeOfDesign = "asUser", 
 		userAlphaSpending = c(0.01, 0.02, 0.03, 0.05))
 
-	##
 	## Comparison of the results of TrialDesignGroupSequential object 'x5' with expected results
-	##
-	expect_equal(x5$alphaSpent, c(0.01, 0.02, 0.03, 0.05), tolerance = 1e-07)
+	expect_equal(x5$alphaSpent, c(0.01, 0.02, 0.03, 0.04999999), tolerance = 1e-07)
 	expect_equal(x5$criticalValues, c(2.3263479, 2.2192994, 2.1201347, 1.8189562), tolerance = 1e-07)
 	expect_equal(x5$stageLevels, c(0.01, 0.01323318, 0.016997342, 0.034459058), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x5), NA)))
+	    expect_output(print(x5)$show())
+	    invisible(capture.output(expect_error(summary(x5), NA)))
+	    expect_output(summary(x5)$show())
+	}
 
 })
 
 test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsUser'", {
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:alphaSpendingConcept}
 	# @refFS[Formula]{fs:alphaSpendingOBrienFleming}
@@ -145,19 +180,25 @@ test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsUser'"
 		typeOfDesign = "asOF", typeBetaSpending = "bsUser",
 		userBetaSpending = c(0.01, 0.05, 0.3))
 
-	##
 	## Comparison of the results of TrialDesignGroupSequential object 'x6' with expected results
-	##
 	expect_equal(x6$power, c(0.014685829, 0.33275272, 0.7), tolerance = 1e-07)
 	expect_equal(x6$futilityBounds, c(-0.92327973, 0.29975473), tolerance = 1e-07)
 	expect_equal(x6$alphaSpent, c(0.00017079385, 0.0078650906, 0.03), tolerance = 1e-07)
 	expect_equal(x6$betaSpent, c(0.01, 0.05, 0.3), tolerance = 1e-07)
 	expect_equal(x6$criticalValues, c(3.5815302, 2.417863, 1.9175839), tolerance = 1e-07)
 	expect_equal(x6$stageLevels, c(0.00017079385, 0.0078059773, 0.027581894), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x6), NA)))
+	    expect_output(print(x6)$show())
+	    invisible(capture.output(expect_error(summary(x6), NA)))
+	    expect_output(summary(x6)$show())
+	}
 
 })
 
 test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsP'", {
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:alphaSpendingConcept}
 	# @refFS[Formula]{fs:alphaSpendingOBrienFleming}
@@ -167,45 +208,61 @@ test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsP'", {
 			typeOfDesign = "asOF", typeBetaSpending = "bsP",
 			userBetaSpending = c(0.01, 0.05, 0.3))
 
-	##
 	## Comparison of the results of TrialDesignGroupSequential object 'x7' with expected results
-	##
 	expect_equal(x7$power, c(0.03410434, 0.52267986, 0.8), tolerance = 1e-07)
 	expect_equal(x7$futilityBounds, c(0.42062972, 1.2539286), tolerance = 1e-07)
 	expect_equal(x7$alphaSpent, c(0.00017079385, 0.0078650906, 0.03), tolerance = 1e-07)
 	expect_equal(x7$betaSpent, c(0.090566485, 0.1526765, 0.2), tolerance = 1e-07)
 	expect_equal(x7$criticalValues, c(3.5815302, 2.417863, 1.9175839), tolerance = 1e-07)
 	expect_equal(x7$stageLevels, c(0.00017079385, 0.0078059773, 0.027581894), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x7), NA)))
+	    expect_output(print(x7)$show())
+	    invisible(capture.output(expect_error(summary(x7), NA)))
+	    expect_output(summary(x7)$show())
+	}
 
 })
 
-test_that("'getDesignGroupSequential'  with binding futility bounds ", {
+test_that("'getDesignGroupSequential' with binding futility bounds ", {
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:criticalValuesWithFutility}
 	# @refFS[Formula]{fs:criticalValuesWangTiatis}
 	x8 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
 		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
 
-	##
 	## Comparison of the results of TrialDesignGroupSequential object 'x8' with expected results
-	##
-	expect_equal(x8$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.025), tolerance = 1e-07)
+	expect_equal(x8$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.02499999), tolerance = 1e-07)
 	expect_equal(x8$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
 	expect_equal(x8$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x8), NA)))
+	    expect_output(print(x8)$show())
+	    invisible(capture.output(expect_error(summary(x8), NA)))
+	    expect_output(summary(x8)$show())
+	}
 
 })
 
-test_that("'getDesignGroupSequential'  with Haybittle Peto boundaries ", {
+test_that("'getDesignGroupSequential' with Haybittle Peto boundaries ", {
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:criticalValuesHaybittlePeto}
 	x9 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, typeOfDesign = "HP")
 
-	##
 	## Comparison of the results of TrialDesignGroupSequential object 'x9' with expected results
-	##
 	expect_equal(x9$alphaSpent, c(0.001349898, 0.0024617416, 0.0033695882, 0.025), tolerance = 1e-07)
 	expect_equal(x9$criticalValues, c(3, 3, 3, 1.9827514), tolerance = 1e-07)
 	expect_equal(x9$stageLevels, c(0.001349898, 0.001349898, 0.001349898, 0.023697604), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x9), NA)))
+	    expect_output(print(x9)$show())
+	    invisible(capture.output(expect_error(summary(x9), NA)))
+	    expect_output(summary(x9)$show())
+	}
 
 })
 
@@ -233,8 +290,8 @@ test_that("'getDesignInverseNormal': illegal arguments throw exceptions as expec
 		"Missing argument: parameter 'deltaWT' must be specified in design", fixed = TRUE)
 
 	expect_error(getDesignInverseNormal(typeOfDesign = C_TYPE_OF_DESIGN_WT_OPTIMUM, 
-			optimizationCriterion = NA_character_), 
-		"Missing argument: parameter 'optimizationCriterion' must be specified in design", fixed = TRUE)
+			optimizationCriterion = "x"), 
+		"Illegal argument: optimization criterion must be one of the following: 'ASNH1', 'ASNIFH1', 'ASNsum'", fixed = TRUE)
 
 	expect_error(getDesignInverseNormal(typeOfDesign = C_TYPE_OF_DESIGN_AS_KD, gammaA = NA_real_), 
 		"Missing argument: parameter 'gammaA' must be specified in design", fixed = TRUE)
@@ -246,8 +303,8 @@ test_that("'getDesignInverseNormal': illegal arguments throw exceptions as expec
 		"Missing argument: parameter 'userAlphaSpending' must be specified in design", fixed = TRUE)
 
 	expect_error(getDesignInverseNormal(typeOfDesign = C_TYPE_OF_DESIGN_AS_USER, 
-			userAlphaSpending = c(0.01, 0.02, 0.025), typeBetaSpending = NA_character_), 
-		"Missing argument: parameter 'typeBetaSpending' must be specified in design", fixed = TRUE)
+			userAlphaSpending = c(0.01, 0.02, 0.025), typeBetaSpending = "x"), 
+		"Illegal argument: type of beta spending must be one of the following: 'none', 'bsP', 'bsOF', 'bsKD', 'bsHSD', 'bsUser'", fixed = TRUE)
 
 	expect_error(getDesignInverseNormal(typeOfDesign = C_TYPE_OF_DESIGN_AS_USER, 
 			userAlphaSpending = c(0.01, 0.02, 0.025), typeBetaSpending = C_TYPE_OF_DESIGN_BS_USER), 
@@ -344,8 +401,8 @@ test_that("'getDesignGroupSequential': illegal arguments throw exceptions as exp
 		"Missing argument: parameter 'deltaWT' must be specified in design", fixed = TRUE)
 
 	expect_error(getDesignGroupSequential(typeOfDesign = C_TYPE_OF_DESIGN_WT_OPTIMUM, 
-			optimizationCriterion = NA_character_), 
-		"Missing argument: parameter 'optimizationCriterion' must be specified in design", fixed = TRUE)
+			optimizationCriterion = "x"), 
+		"Illegal argument: optimization criterion must be one of the following: 'ASNH1', 'ASNIFH1', 'ASNsum'", fixed = TRUE)
 
 	expect_error(getDesignGroupSequential(typeOfDesign = C_TYPE_OF_DESIGN_AS_KD, gammaA = NA_real_), 
 		"Missing argument: parameter 'gammaA' must be specified in design", fixed = TRUE)
@@ -357,8 +414,9 @@ test_that("'getDesignGroupSequential': illegal arguments throw exceptions as exp
 		"Missing argument: parameter 'userAlphaSpending' must be specified in design", fixed = TRUE)
 
 	expect_error(getDesignGroupSequential(typeOfDesign = C_TYPE_OF_DESIGN_AS_USER, 
-			userAlphaSpending = c(0.01, 0.02, 0.025), typeBetaSpending = NA_character_), 
-		"Missing argument: parameter 'typeBetaSpending' must be specified in design", fixed = TRUE)
+			userAlphaSpending = c(0.01, 0.02, 0.025), typeBetaSpending = "x"), 
+		paste0("Illegal argument: type of beta spending must be one of the following: ",
+			"'none', 'bsP', 'bsOF', 'bsKD', 'bsHSD', 'bsUser'"), fixed = TRUE)
 
 	expect_error(getDesignGroupSequential(typeOfDesign = C_TYPE_OF_DESIGN_AS_USER, 
 			userAlphaSpending = c(0.01, 0.02, 0.025), typeBetaSpending = C_TYPE_OF_DESIGN_BS_USER), 

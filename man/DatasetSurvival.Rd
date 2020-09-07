@@ -8,21 +8,25 @@
 Class for a dataset of survival data.
 }
 \details{
-This object can not be created directly; better use \code{\link{getDataset}} 
+This object cannot be created directly; better use \code{\link{getDataset}} 
 with suitable arguments to create a dataset of survival data.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{group}}{The group numbers.}
+\item{\code{groups}}{The group numbers.}
 
-\item{\code{stage}}{The stage numbers.}
+\item{\code{stages}}{The stage numbers.}
 
-\item{\code{overallEvent}}{The overall events.}
+\item{\code{overallEvents}}{The overall events.}
 
-\item{\code{overallAllocationRatio}}{The overall allocations ratios.}
+\item{\code{overallAllocationRatios}}{The overall allocations ratios.}
 
-\item{\code{overallLogRank}}{The overall logrank test statistics.}
+\item{\code{overallLogRanks}}{The overall logrank test statistics.}
+
+\item{\code{allocationRatios}}{The allocation ratios.}
+
+\item{\code{logRanks}}{The logrank test statistics.}
 }}
 
 

@@ -4,12 +4,19 @@
 \alias{[,TrialDesignSet-method}
 \title{Access Trial Design by Index}
 \usage{
-\S4method{[}{TrialDesignSet}(x, i, j = NA_character_)
+\S4method{[}{TrialDesignSet}(x, i, j, ..., drop = TRUE)
 }
 \description{
 Function to the \code{TrialDesign} at position \code{i} in a \code{TrialDesignSet} object.
 }
 \details{
 Can be used to iterate with "[index]"-syntax over all designs in a design set.
+}
+\examples{
+designSet <- getDesignSet(design = getDesignFisher(), alpha = c(0.01, 0.05))
+for (i in 1:length(designSet)) {
+  print(designSet[i]$alpha)
+}
+
 }
 \keyword{internal}

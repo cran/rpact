@@ -17,10 +17,39 @@
   ...
 )
 }
+\arguments{
+\item{x}{A \code{\link{TrialDesignSet}} object.}
+
+\item{niceColumnNamesEnabled}{Logical. If \code{TRUE}, nice looking column 
+names will be used; syntactic names (variable names) otherwise 
+(see \code{\link[base]{make.names}}).}
+
+\item{includeAllParameters}{Logical. If \code{TRUE}, all available 
+parameters will be included in the data frame; 
+a meaningful parameter selection otherwise, default is \code{FALSE}.}
+
+\item{addPowerAndAverageSampleNumber}{If \code{TRUE}, power and average sample size will 
+be added to data frame, default is \code{FALSE}.}
+
+\item{theta}{A vector of standardized effect sizes (theta values), default is a sequence from -1 to 1.}
+
+\item{nMax}{The maximum sample size.}
+
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
+}
+\value{
+Returns a \code{\link[base]{data.frame}}.
+}
 \description{
 Returns the \code{TrialDesignSet} as data frame.
 }
 \details{
 Coerces the design set to a data frame.
+}
+\examples{
+designSet <- getDesignSet(design = getDesignGroupSequential(), alpha = c(0.01, 0.05))
+as.data.frame(designSet)
+
 }
 \keyword{internal}

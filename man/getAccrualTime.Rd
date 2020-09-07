@@ -14,268 +14,125 @@ getAccrualTime(
 \arguments{
 \item{accrualTime}{The assumed accrual time for the study, default is \code{c(0,12)} (see details).}
 
-\item{...}{Ensures that all arguments after \code{accrualTime} are be named and 
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{accrualIntensity}{A vector of accrual intensities, default is the relative 
+\item{accrualIntensity}{A value or vector of accrual intensities, default is the relative 
 intensity \code{0.1} (see details).}
 
 \item{maxNumberOfSubjects}{The maximum number of subjects.}
 }
 \value{
-Returns a \code{\link{AccrualTime}} object.
+Returns an \code{\link{AccrualTime}} object.
+The following generics (R generic functions) are available for this result object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.ParameterSet]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
-Returns a \code{AccrualTime} object that contains the accrual time and the accrual intensity.
+Returns an \code{AccrualTime} object that contains the accrual time and the accrual intensity.
 }
-\details{
-\code{accrualTime} can also be used to define a non-constant accrual over time. 
-For this, \code{accrualTime} needs to be a vector that defines the accrual intervals and
-\code{accrualIntensity} needs to be specified. The first element of \code{accrualTime} must be equal to 0.\cr 
+\section{Piecewise accrual}{
+
+\code{accrualTime} is the time period of subjects' accrual in a study. 
+It can be a value that defines the end of accrual or a vector.
+In this case, \code{accrualTime} can be used to define a non-constant accrual over time. 
+For this, \code{accrualTime} is a vector that defines the accrual intervals. 
+The first element of \code{accrualTime} must be equal to \code{0} and, additionally, 
+\code{accrualIntensity} needs to be specified. 
+\code{accrualIntensity} itself is a value or a vector (depending on the 
+length of \code{accrualtime}) that defines the intensity how subjects 
+enter the trial in the intervals defined through \code{accrualTime}.
+ 
 \code{accrualTime} can also be a list that combines the definition of the accrual time and 
-accrual intensity \code{accrualIntensity} (see below and examples for details). 
-If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
-the same (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to 
-be specified and the end of accrual is calculated.	
+accrual intensity (see below and examples for details).
 
-\code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
 If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
-(i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to be specified 
-and the end of accrual is calculated.	
-In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
+(i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to be specified  
+and the end of accrual is calculated.
+In that case, \code{accrualIntensity} is the number of subjects per time unit, i.e., the absolute accrual intensity.
+
 If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
-(i.e., the end of accrual is defined), \code{maxNumberOfPatients} is calculated. 
-In that case, \code{accrualIntensity} defines the intensity how subjects enter the trial. 
-For example, \code{accrualIntensity = c(1,2)} specifies that in the second accrual interval 
-the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
-is calculated for the calculated  \code{maxNumberOfPatients}.
+(i.e., the end of accrual is defined), \code{maxNumberOfSubjects} is calculated if the absolute accrual intensity is given.
+If all elements in \code{accrualIntensity} are smaller than 1, \code{accrualIntensity} defines 
+the *relative* intensity how subjects enter the trial.
+For example, \code{accrualIntensity = c(0.1, 0.2)} specifies that in the second accrual interval 
+the intensity is doubled as compared to the first accrual interval. The actual (absolute) accrual intensity 
+is calculated for the calculated or given \code{maxNumberOfSubjects}.
+Note that the default is \code{accrualIntensity = 0.1} meaning that the *absolute* accrual intensity 
+will be calculated.
 }
+
+\section{How to get help for generic functions}{
+
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+}
+
 \examples{
+\donttest{
+# Assume that in a trial the accrual after the first 6 months is doubled 
+# and the total accrual time is 30 months.
+# Further assume that a total of 1000 subjects are entered in the trial.
+# The number of subjects to be accrued in the first 6 months and afterwards 
+# is achieved through   
+getAccrualTime(accrualTime = c(0, 6, 30), 
+    accrualIntensity = c(0.1, 0.2), maxNumberOfSubjects = 1000)  
 
-\donttest{ 
+# The same result is obtained via the list based definition
+getAccrualTime(list(
+     "0 - <6"   = 0.1,
+     "6 - <=30" = 0.2), 
+     maxNumberOfSubjects = 1000)
 
-# Case 1
+# Calculate the end of accrual at given absolute intensity:
+getAccrualTime(accrualTime = c(0, 6),
+    accrualIntensity = c(18, 36), maxNumberOfSubjects = 1000)
 
-# > End of accrual, absolute accrual intensity and `maxNumberOfSubjects` are given, 
-# > `followUpTime`** shall be calculated. 
+# Via the list based definition this is
+getAccrualTime(list(
+    "0 - <6" = 18,
+    ">=6" = 36), 
+    maxNumberOfSubjects = 1000)
 
-## Example: vector based definition
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), 
-    accrualIntensity = c(22, 33), maxNumberOfSubjects = 924) 
-accrualTime
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6"   = 22,
-    "6 - <=30" = 33), 
-    maxNumberOfSubjects = 924) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
+# You can use an accrual time object in getSampleSizeSurvival() or 
+# getPowerSurvival().
+# For example, if the maximum number of subjects and the follow up 
+# time needs to be calculated for a given effect size: 
+accrualTime = getAccrualTime(accrualTime = c(0, 6, 30), 
+    accrualIntensity = c(0.1, 0.2))
 getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
 
-
-# Case 2
-
-# > End of accrual, relative accrual intensity and `maxNumberOfSubjects` are given, 
-# > absolute accrual intensity* and `followUpTime`** shall be calculated. 
-
-## Example: vector based definition 
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), 
-    accrualIntensity = c(0.22, 0.33), maxNumberOfSubjects = 1000) 
-accrualTime
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6"   = 0.22,
-    "6 - <=30" = 0.33), 
-    maxNumberOfSubjects = 1000) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
-getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-
-
-# Case 3
-
-# > End of accrual and absolute accrual intensity are given, 
-# > `maxNumberOfSubjects`* and `followUpTime`** shall be calculated. 
-
-## Example: vector based definition 
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(22, 33)) 
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6"   = 22,
-    "6 - <=30" = 33)) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
-getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-
-
-# Case 4
-
-# > End of accrual, relative accrual intensity and `followUpTime` are given, 
-# > absolute accrual intensity** and `maxNumberOfSubjects`** shall be calculated. 
-
-## Example: vector based definition 
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(0.22, 0.33)) 
-accrualTime
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6"   = 0.22,
-    "6 - <=30" = 0.33)) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
-getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-
-
-# Case 5
-
-# > `maxNumberOfSubjects` and absolute accrual intensity are given, 
-# > absolute accrual intensity*, end of accrual* and `followUpTime`** shall be calculated 
-
-## Example: vector based definition 
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6), 
-    accrualIntensity = c(22, 33), maxNumberOfSubjects = 1000) 
-accrualTime
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6" = 22,
-    "6"      = 33), 
-    maxNumberOfSubjects = 1000) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
-getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-
-
-# Case 6 (not possible)
-
-# > `maxNumberOfSubjects` and relative accrual intensity are given, 
-# > absolute accrual intensity[x], end of accrual* and `followUpTime`** shall be calculated 
-
-## Example: vector based definition 
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6), 
-    accrualIntensity = c(0.22, 0.33), maxNumberOfSubjects = 1000) 
-accrualTime
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6" = 0.22,
-    "6"      = 0.33), 
-    maxNumberOfSubjects = 1000) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
-# Case 6 is not allowed and therefore an error will be shown:
-
-tryCatch({	
-    getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-}, error = function(e) {
-    print(e$message)
-})
-
-
-# Case 7
-
-# > `followUpTime` and absolute accrual intensity are given,  
-# > end of accrual** and `maxNumberOfSubjects`** shall be calculated 
-
-## Example: vector based definition 
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(22, 33)) 
-accrualTime
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6" = 22,
-    "6"      = 33)) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
-getSampleSizeSurvival(accrualTime = accrualTime, 
-    pi1 = 0.4, pi2 = 0.2, followUpTime = 6)
-
-
-# Case 8 (not possible)
-
-# > `followUpTime` and relative accrual intensity are given,  
-# > absolute accrual intensity[x], end of accrual and `maxNumberOfSubjects` shall be calculated 
-
-## Example: vector based definition 
-
-accrualTime <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(0.22, 0.33)) 
-accrualTime
-
-
-## Example: list based definition
-
-accrualTime <- getAccrualTime(list(
-    "0 - <6" = 0.22,
-    "6"      = 0.33)) 
-accrualTime
-
-
-## Example: how to use accrual time object
-
-# Case 8 is not allowed and therefore an error will be shown:
-
-tryCatch({	
-    getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2, followUpTime = 6)
-}, error = function(e) {
-    print(e$message)
-})
-
+# Or if the power and follow up time needs to be calculated for given 
+# number of events and subjects:
+accrualTime = getAccrualTime(accrualTime = c(0, 6, 30),
+    accrualIntensity = c(0.1, 0.2), maxNumberOfSubjects = 110)
+getPowerSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2, 
+maxNumberOfEvents = 46)
 
 # How to show accrual time details
 
-# You can use a sample size or power object as argument for function `getAccrualTime`:
-
-sampleSize <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
+# You can use a sample size or power object as argument for the function 
+# getAccrualTime():
+sampleSize <- 
+getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53),  
     lambda2 = 0.05, hazardRatio = 0.8, followUpTime = 6)
 sampleSize
 accrualTime <- getAccrualTime(sampleSize)
 accrualTime
-
 }
 
+}
+\seealso{
+\code{\link{getNumberOfSubjects}} for calculating the number of subjects at given time points.
 }

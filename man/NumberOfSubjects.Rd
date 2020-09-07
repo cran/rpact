@@ -5,10 +5,10 @@
 \alias{NumberOfSubjects}
 \title{Number Of Subjects}
 \description{
-Class for definition of number of subjects results.
+Class for the definition of number of subjects results.
 }
 \details{
-\code{NumberOfSubjects} is a class for definition of number of subjects results.
+\code{NumberOfSubjects} is a class for the definition of number of subjects results.
 }
 
 \keyword{internal}

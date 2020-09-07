@@ -12,25 +12,29 @@ getDesignGroupSequential(
   sided = 1,
   informationRates = NA_real_,
   futilityBounds = NA_real_,
-  typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN,
-  deltaWT = 0,
-  optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT,
-  gammaA = 1,
-  typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE,
+  typeOfDesign = c("OF", "P", "WT", "HP", "WToptimum", "asP", "asOF", "asKD", "asHSD",
+    "asUser"),
+  deltaWT = NA_real_,
+  optimizationCriterion = c("ASNH1", "ASNIFH1", "ASNsum"),
+  gammaA = NA_real_,
+  typeBetaSpending = c("none", "bsP", "bsOF", "bsKD", "bsHSD", "bsUser"),
   userAlphaSpending = NA_real_,
   userBetaSpending = NA_real_,
-  gammaB = 1,
+  gammaB = NA_real_,
   bindingFutility = NA,
-  constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
+  constantBoundsHP = 3,
   twoSidedPower = NA,
-  tolerance = C_DESIGN_TOLERANCE_DEFAULT
+  tolerance = 1e-08
 )
 }
 \arguments{
-\item{...}{Ensures that all arguments are be named and 
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{kMax}{The maximum number of stages K. K = 1, 2, 3,..., 10, default is \code{3}.}
+\item{kMax}{The maximum number of stages \code{K}. 
+\code{K = 1, 2, 3, ...} (default is \code{3}).
+The maximum selectable \code{kMax} is \code{10} for group sequential or inverse normal and
+\code{6} for Fisher combination test designs.}
 
 \item{alpha}{The significance level alpha, default is \code{0.025}.}
 
@@ -38,43 +42,49 @@ that a warning will be displayed if unknown arguments are passed.}
 (e.g., \code{\link{getSampleSizeMeans}}), beta spending function designs, 
 or optimum designs, default is \code{0.20}.}
 
-\item{sided}{One-sided or two-sided, default is \code{1}.}
+\item{sided}{Is the alternative one-sided (\code{1}) or two-sided (\code{2}), default is \code{1}.}
 
-\item{informationRates}{The information rates, default is \code{(1 : kMax)/kMax}.}
+\item{informationRates}{The information rates (that must be fixed prior to the trial), 
+default is \code{(1:kMax) / kMax}.}
 
-\item{futilityBounds}{The futility bounds, defined on the test statistic z scale (vector of length K - 1).}
+\item{futilityBounds}{The futility bounds, defined on the test statistic z scale 
+(numeric vector of length \code{kMax - 1}).}
 
 \item{typeOfDesign}{The type of design. Type of design is one of the following: 
-O'Brien & Fleming ("OF"), Pocock ("P"), Wang & Tsiatis Delta class ("WT"), 
-Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class ("WToptimum"), 
-O'Brien & Fleming type alpha spending ("asOF"), Pocock type alpha spending ("asP"), 
-Kim & DeMets alpha spending ("asKD"), Hwang, Shi & DeCani alpha spending ("asHSD"), 
-user defined alpha spending ("asUser"), default is \code{"OF"}.}
+O'Brien & Fleming (\code{"OF"}), Pocock (\code{"P"}), Wang & Tsiatis Delta class (\code{"WT"}), 
+Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
+O'Brien & Fleming type alpha spending (\code{"asOF"}), Pocock type alpha spending (\code{"asP"}), 
+Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending (\code{"asHSD"}), 
+user defined alpha spending (\code{"asUser"}), default is \code{"OF"}.}
 
 \item{deltaWT}{Delta for Wang & Tsiatis Delta class.}
 
 \item{optimizationCriterion}{Optimization criterion for optimum design within 
-Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is \code{"ASNH1"}.}
+Wang & Tsiatis class (\code{"ASNH1"}, \code{"ASNIFH1"}, 
+\code{"ASNsum"}), default is \code{"ASNH1"}, see details.}
 
-\item{gammaA}{Parameter for alpha spending function, default is \code{1}.}
+\item{gammaA}{Parameter for alpha spending function.}
 
 \item{typeBetaSpending}{Type of beta spending. Type of of beta spending is one of the following: 
 O'Brien & Fleming type beta spending, Pocock type beta spending, 
 Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined 
-beta spending ("bsOF", "bsP",...).}
+beta spending (\code{"bsOF"}, \code{"bsP"}, \code{"bsKD"}, 
+\code{"bsHSD"}, \code{"bsUser"}, default is \code{"none"}).}
 
-\item{userAlphaSpending}{The user defined alpha spending. Vector of length kMax containing the cumulative 
-alpha-spending up to each interim stage.}
+\item{userAlphaSpending}{The user defined alpha spending. 
+Numeric vector of length \code{kMax} containing the cumulative 
+alpha-spending (Type I error rate) up to each interim stage: \code{0 <= alpha_1 <= ... <= alpha_K <= alpha}.}
 
-\item{userBetaSpending}{The user defined beta spending. Vector of length kMax containing the cumulative 
+\item{userBetaSpending}{The user defined beta spending. Vector of length \code{kMax} containing the cumulative 
 beta-spending up to each interim stage.}
 
-\item{gammaB}{Parameter for beta spending function, default is \code{1}.}
+\item{gammaB}{Parameter for beta spending function.}
 
 \item{bindingFutility}{If \code{bindingFutility = TRUE} is specified the calculation of 
-the critical values is affected by the futility bounds (default is \code{FALSE}).}
+the critical values is affected by the futility bounds and the futility threshold is binding in the 
+sense that the study must be stopped if the futility condition was reached (default is \code{FALSE}).}
 
-\item{constantBoundsHP}{The constant bounds up to stage K - 1 for the 
+\item{constantBoundsHP}{The constant bounds up to stage \code{kMax - 1} for the 
 Haybittle & Peto design (default is \code{3}).}
 
 \item{twoSidedPower}{For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
@@ -82,31 +92,64 @@ the sample size calculation is performed by considering both tails of the distri
 Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 should be directed to one part.}
 
-\item{tolerance}{The tolerance, default is \code{1e-08}.}
+\item{tolerance}{The numerical tolerance, default is \code{1e-08}.}
 }
 \value{
-Returns a \code{\link{TrialDesignGroupSequential}} object.
+Returns a \code{\link{TrialDesign}} object.
+The following generics (R generic functions) are available for this result object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.TrialDesign]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.TrialDesign]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Provides adjusted boundaries and defines a group sequential design.
 }
 \details{
 Depending on \code{typeOfDesign} some parameters are specified, others not. 
-For example, only if \code{typeOfDesign} "asHSD" is selected, \code{gammaA} needs to be specified.
+For example, only if \code{typeOfDesign} \code{"asHSD"} is selected, \code{gammaA} needs to be specified.
 
-If an alpha spending approach was specified ("asOF", "asP", "asKD", "asHSD", or "asUser") 
+If an alpha spending approach was specified (\code{"asOF"}, \code{"asP"}, \code{"asKD"}, \code{"asHSD"}, or \code{"asUser"}) 
 additionally a beta spending function can be specified to produce futility bounds.
-}
-\examples{
 
-# Run with default values
-getDesignGroupSequential() 
+For optimum designs, \code{"ASNH1"} minimizes the expected sample size under H1, 
+\code{"ASNIFH1"} minimizes the sum of the maximum sample and the expected sample size under H1, 
+and \code{"ASNsum"}  minimizes the sum of the maximum sample size, the expected sample size under a value midway H0 and H1, 
+and the expected sample size under H1.
+}
+\section{How to get help for generic functions}{
+
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+}
+
+\examples{
+# Calculate two-sided critical values for a four-stage 
+# Wang & Tsiatis design with Delta = 0.25 at level alpha = 0.05
+getDesignGroupSequential(kMax = 4, sided = 2, typeOfDesign = "WT", deltaWT = 0.25) 
 
 # Calculate the Pocock type alpha spending critical values if the second 
-# interim analysis was performed after 70\% of information was observed
+# interim analysis was performed after 70\% of the maximum information was observed
 getDesignGroupSequential(informationRates = c(0.4, 0.7), typeOfDesign = "asP") 
 
 }
 \seealso{
-\code{\link{getDesignSet}} for creating a set of designs to compare.
+\code{\link{getDesignSet}} for creating a set of designs to compare different designs.
+
+Other design functions: 
+\code{\link{getDesignCharacteristics}()},
+\code{\link{getDesignConditionalDunnett}()},
+\code{\link{getDesignFisher}()},
+\code{\link{getDesignInverseNormal}()},
+\code{\link{getPowerAndAverageSampleNumber}()}
 }
+\concept{design functions}

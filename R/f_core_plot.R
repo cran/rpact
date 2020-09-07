@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Plot functions --                                                               #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-02-2019                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Plot functions*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3594 $
+#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 .addNumberToPlotCaption <- function(caption, type, numberInCaptionEnabled = FALSE) {
 	if (!numberInCaptionEnabled) {
@@ -25,12 +26,12 @@
 	return(paste0(caption, " [", type, "]"))
 }
 
-.getPlotCaption <- function(obj, type, numberInCaptionEnabled = FALSE) {
+.getPlotCaption <- function(obj, type, numberInCaptionEnabled = FALSE, ..., stopIfNotFound = FALSE) {
 	if (is.null(obj) || length(type) == 0) {
 		return(NA_character_)
 	}
 	
-	if (inherits(obj, "TrialDesignPlan") || inherits(obj, "SimulationResults")) {
+	if (inherits(obj, "TrialDesignPlan")) {
 		if (type == 1) {
 			if (.isTrialDesignPlanSurvival(obj)) {
 				return(.addNumberToPlotCaption("Boundaries Z Scale", type, numberInCaptionEnabled))
@@ -45,10 +46,31 @@
 			return(.addNumberToPlotCaption("Boundaries p Values Scale", type, numberInCaptionEnabled))
 		} 
 		else if (type == 4) {
-			return(.addNumberToPlotCaption("Type One Error Spending", type, numberInCaptionEnabled))
+			return(.addNumberToPlotCaption("Error Spending", type, numberInCaptionEnabled))
 		} 
-		
-		else if (type == 5) { 
+	}
+	
+	if (.isMultiArmSimulationResults(obj)) {
+		if (type == 1) { # Multi-arm, Overall Success
+			return(.addNumberToPlotCaption("Overall Success", type, numberInCaptionEnabled))
+		}
+		else if (type == 2) { # Multi-arm, Success per Stage
+			return(.addNumberToPlotCaption("Success per Stage", type, numberInCaptionEnabled))
+		}
+		else if (type == 3) { # Multi-arm, Selected Arms per Stage
+			return(.addNumberToPlotCaption("Selected Arms per Stage", type, numberInCaptionEnabled))
+		}
+		else if (type == 4) { # Multi-arm, Rejected Arms per Stage
+			return(.addNumberToPlotCaption(ifelse(obj$.design$kMax > 1, 
+				"Rejected Arms per Stage", "Rejected Arms"), type, numberInCaptionEnabled))
+		}
+	} 
+	else if (inherits(obj, "SimulationResults") && type == 4) {
+		return(.addNumberToPlotCaption("Reject per Stage", type, numberInCaptionEnabled))
+	}
+	
+	if (inherits(obj, "TrialDesignPlan") || inherits(obj, "SimulationResults")) {
+		if (type == 5) { 
 			if (obj$.isSampleSizeObject()) { 
 				return(.addNumberToPlotCaption("Sample Size", type, numberInCaptionEnabled))
 			} else {
@@ -99,7 +121,7 @@
 			return(.addNumberToPlotCaption("Stage Levels", type, numberInCaptionEnabled))
 		} 
 		else if (type == 4) {
-			return(.addNumberToPlotCaption("Type One Error Spending", type, numberInCaptionEnabled))
+			return(.addNumberToPlotCaption("Error Spending", type, numberInCaptionEnabled))
 		}
 		else if (type == 5) {
 			return(.addNumberToPlotCaption('Power and Early Stopping', type, numberInCaptionEnabled))
@@ -118,8 +140,159 @@
 			return(.addNumberToPlotCaption('Average Sample Size', type, numberInCaptionEnabled))
 		}
 	}
+	else if (inherits(obj, "AnalysisResults")) {
+		if (type == 1) {
+			return(.addNumberToPlotCaption(C_PLOT_MAIN_CONDITIONAL_POWER_WITH_LIKELIHOOD, type, numberInCaptionEnabled))
+		}
+		else if (type == 2) {
+			return(.addNumberToPlotCaption("Repeated Confidence Intervals", type, numberInCaptionEnabled))
+		} 
+	}
+	else if (inherits(obj, "StageResults")) {
+		return(.addNumberToPlotCaption(C_PLOT_MAIN_CONDITIONAL_POWER_WITH_LIKELIHOOD, type, numberInCaptionEnabled))
+	}
+	
+	if (stopIfNotFound) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "could not find plot caption for ", class(obj), " and type ", type)
+	}
 	
 	return(NA_character_)
+}
+
+.getPlotTypeNumber <- function(type, x) {
+	if (missing(type) || is.null(type) || length(type) == 0 || all(is.na(type))) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'type' must be defined")
+	}
+	
+	if (!is.numeric(type) && !is.character(type)) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+			"'type' must be an integer or character value or vector (is ", class(type), ")")
+	}
+
+	if (is.numeric(type)) {
+		.assertIsIntegerVector(type, "type", naAllowed = FALSE, validateType = FALSE)
+	}
+	
+	if (is.character(type)) {
+		if (length(type) == 1 && type == "all") {
+			availablePlotTypes <- getAvailablePlotTypes(x)
+			if (is.null(availablePlotTypes)) {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'getAvailablePlotTypes' not implemented for ", class(x))
+			}
+			return(availablePlotTypes)
+		}
+		
+		pmatch("ean", c("mean", "median", "mode"))
+		grep("ian", c("mean", "median", "mode"))
+		
+		types <- getAvailablePlotTypes(x, output = "numeric")
+		captions <- tolower(getAvailablePlotTypes(x, output = "caption"))
+		typeNumbers <- c()
+		for (typeStr in type) {
+			if (grepl("^\\d+$", typeStr)) {
+				typeNumbers <- c(typeNumbers, as.integer(typeStr))
+			} else {
+				index <- pmatch(tolower(typeStr), captions)
+				if (!is.na(index)) {
+					typeNumbers <- c(typeNumbers, types[index])
+				} else {
+					index <- grep(tolower(typeStr), captions)
+					if (length(index) > 0) {
+						for (i in index) {
+							typeNumbers <- c(typeNumbers, types[i])
+						}
+					}
+				}
+			}
+		}
+		
+		if (length(typeNumbers) > 0) {
+			return(unique(typeNumbers))
+		}
+		
+		message("Available plot types: ", .arrayToString(tolower(
+			getAvailablePlotTypes(x, output = "caption")), encapsulate = TRUE))
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", .arrayToString(type), ") could not be identified")
+	}
+	
+	return(type)
+}
+
+.createPlotResultObject <- function(plotList, grid = 1) {
+	.assertIsSingleInteger(grid, "grid", naAllowed = FALSE, validateType = FALSE)
+	.assertIsInClosedInterval(grid, "grid", lower = 0, upper = 100)
+	if (!inherits(plotList[[1]], "ggplot") || grid == 1) {
+		return(plotList)
+	}
+	
+	if (grid == 0) {
+		for (p in plotList) {
+			print(p)
+		}
+		return(invisible(plotList))
+	}
+	
+	if (length(plotList) > grid) {
+		return(plotList)
+	}
+		
+	plotCmd <- NA_character_
+	if (grid > 1) {
+		if ("ggpubr" %in% rownames(installed.packages())) {
+			if (length(plotList) < 8 && length(plotList) %% 2 == 1) {
+				plotCmd <- paste0("ggpubr::ggarrange(plotList[[1]], ",
+					"ggpubr::ggarrange(plotlist = plotList[2:", length(plotList), "]), ncol = 1)")
+			} else if (length(plotList) == 2) {
+				plotCmd <- paste0("ggpubr::ggarrange(plotlist = plotList, ncol = 1)")
+			} else {
+				plotCmd <- paste0("ggpubr::ggarrange(plotlist = plotList)")
+			}
+		}
+		else if ("gridExtra" %in% rownames(installed.packages())) {
+			ncol <- ifelse(length(plotList) == 2, 1, 2)
+			plotCmd <- paste0("gridExtra::grid.arrange(grobs = plotList, ncol = ", ncol, ")")
+		}
+		else if ("cowplot" %in% rownames(installed.packages())) {
+			plotCmd <- "cowplot::plot_grid(plotlist = plotList)"
+		}
+		else {
+			message("Unable to create grid plot because neither 'ggpubr', 'gridExtra', nor 'cowplot' are installed. ",
+				"Install one of these packages to enable grid plots")
+		}
+	}
+	if (!is.na(plotCmd)) {
+		tryCatch({
+			return(eval(parse(text = plotCmd)))
+		}, error = function(e) {
+			warning("Failed to create grid plot using command '", plotCmd, "': ", e$message)
+		})
+	}
+
+	return(plotList)
+}
+
+.printPlotShowSourceSeparator <- function(showSource, typeNumber, typeNumbers) {
+	if (is.logical(showSource) && !showSource) {
+		return(invisible())
+	}
+	
+	if (length(typeNumbers) == 1) {
+		return(invisible())
+	}
+	
+	if (typeNumber == typeNumbers[length(typeNumbers)]) {
+		return(invisible())
+	}
+	
+	cat("--\n")
+}
+
+#' @rdname getAvailablePlotTypes
+#' @export
+plotTypes <- function(obj, output = c("numeric", "caption", "numcap", "capnum"),
+		numberInCaptionEnabled = FALSE) {
+	return(getAvailablePlotTypes(obj = obj, output = output, 
+		numberInCaptionEnabled = numberInCaptionEnabled))
 }
 
 #' 
@@ -136,6 +309,8 @@
 #'        caption, default is \code{FALSE}.
 #' 
 #' @details
+#' \code{plotTypes} and \code{getAvailablePlotTypes} are equivalent, i.e., 
+#' \code{plotTypes} is a short form of \code{getAvailablePlotTypes}.
 #' 
 #' \code{output}:
 #' \enumerate{
@@ -145,12 +320,21 @@
 #'   \item \code{capnum}:  list with caption and number
 #' }
 #' 
-#' @keywords internal
+#' @return Depending on how the \code{output} is specified, 
+#' a numeric vector, a character vector, or a list will be returned. 
+#' 
+#' @examples 
+#' design <- getDesignInverseNormal(kMax = 2)
+#' getAvailablePlotTypes(design, "numeric")
+#' plotTypes(design, "caption")
+#' getAvailablePlotTypes(design, "numcap")
+#' plotTypes(design, "capnum")
 #' 
 #' @export 
 #' 
 getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap", "capnum"),
 		numberInCaptionEnabled = FALSE) {
+		
 	output <- match.arg(output)
 	if (is.null(obj)) {
 		if (output == "numeric") {
@@ -180,7 +364,23 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		}
 	}
 	else if (inherits(obj, "SimulationResults")) {
-		types <- c(types, 5:9)
+		if (grepl("MultiArm", class(obj))) {
+			types <- c(types, 1)
+			if (obj$.design$kMax > 1) {
+				types <- c(types, 2:3)
+			}
+		}
+		types <- c(types, 4)
+		if (!grepl("MultiArm", class(obj)) || obj$.design$kMax > 1) {
+			types <- c(types, 5:6)
+		}
+		types <- c(types, 7)
+		if (obj$.design$kMax > 1) {
+			types <- c(types, 8)
+		}
+		if (!grepl("MultiArm", class(obj)) || obj$.design$kMax > 1) {
+			types <- c(types, 9)
+		}
 		if (inherits(obj, "SimulationResultsSurvival")) {
 			types <- c(types, 10:14)
 		}
@@ -191,6 +391,12 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		} else {
 			types <- c(types, 1, 3:9)
 		}
+	}
+	else if (inherits(obj, "AnalysisResults")) {
+		types <- c(1, 2)
+	}
+	else if (inherits(obj, "StageResults")) {
+		types <- c(1)
 	}
 	
 	if (output == "numeric") {
@@ -230,29 +436,117 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		.getVariedParameterVectorSeqCommand(variedParameter), "' to get all interim values"))
 }
 
-.showPlotSourceInformation <- function(objectName, ..., xParameterName, yParameterNames, 
-		hint = NA_character_, nMax = NA_integer_, showSource = FALSE) {
-	if (!isTRUE(showSource)) {
-		return(invisible())
+.reconstructSequenceCommand <- function(values) {
+	if (length(values) == 0 || all(is.na(values))) {
+		return(NA_character_)
 	}
 	
-	cat("Source data of the plot:\n")
-	if (length(objectName) == 0 || is.na(objectName)) {
-		objectName <- "x"
+	if (length(values) <= 3) {
+		return(.arrayToString(values, vectorLookAndFeelEnabled = (length(values) != 1)))
+	}
+	
+	minValue <- min(values)
+	maxValue <- max(values)
+	by <- (maxValue - minValue) / (length(values) - 1)
+	valuesTemp <- seq(minValue, maxValue, by)
+	if (identical(values, valuesTemp)) {
+		return(paste0("seq(", minValue, ", ", maxValue, ", ", by, ")"))
+	}
+	
+	return(.arrayToString(values, vectorLookAndFeelEnabled = TRUE, maxLength = 10))
+}
+
+.getRexepSaveCharacter <- function(x) {
+	x <- gsub("\\$", "\\\\$", x)
+	x <- gsub("\\.", "\\\\.", x)
+	return(x)
+}
+
+.createValidParameterName <- function(objectName, parameterName) {
+	if (grepl(paste0(.getRexepSaveCharacter(objectName), "\\$"), parameterName) &&
+			!grepl("^\\.design", parameterName)) {
+		return(parameterName)
+	}
+	
+	if (is.null(objectName) || length(objectName) == 0 || is.na(objectName)) {
+		return(parameterName)
+	}
+	
+	if (grepl("^-?\\.?get[A-Z]{1}", parameterName)) {
+		return(parameterName)
+	}
+	
+	return(paste0(objectName, "$", parameterName))
+}
+
+.showPlotSourceInformation <- function(objectName, ..., 
+		xParameterName, yParameterNames, 
+		hint = NA_character_, nMax = NA_integer_, type = NA_integer_, 
+		showSource = FALSE, xValues = NA_real_) {
+		
+	if (is.character(showSource)) {
+		if (length(showSource) != 1 || trimws(showSource) == "") {
+			return(invisible(NULL))
+		}
+		
+		if (!(showSource %in% C_PLOT_SHOW_SOURCE_ARGUMENTS)) {
+			warning("'showSource' (", showSource, ") is not allowed and will be ignored", call. = FALSE)
+			return(invisible())
+		}
+	} else if (!isTRUE(showSource)) {
+		return(invisible(NULL))
+	}
+	
+	.assertIsSingleCharacter(xParameterName, "xParameterName")
+	if (length(yParameterNames) == 0 || !all(is.character(yParameterNames)) || all(is.na(yParameterNames))) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'yParameterNames' (", .arrayToString(yParameterNames), 
+			") must be a valid character vector")
+	}
+	.assertIsSingleCharacter(hint, "hint", naAllowed = TRUE)
+	.assertIsSingleNumber(nMax, "nMax", naAllowed = TRUE)
+	.assertIsNumericVector(xValues, "xValues", naAllowed = TRUE)
+	
+	cat("Source data of the plot", ifelse(!is.na(type), paste0(" (type ", 
+		type, ")"), ""), ":\n", sep = "")
+
+	xAxisCmd <- .reconstructSequenceCommand(xValues)
+	if (is.na(xAxisCmd)) {
+		if (!grepl("\\$", xParameterName) || grepl("^\\.design", xParameterName)) {
+			
+			if (length(objectName) == 0 || is.na(objectName)) {
+				objectName <- "x"
+			}
+			
+			xAxisCmd <- paste0(objectName, "$", xParameterName)
+		} else {
+			xAxisCmd <- xParameterName
+		}
 	}
 	if (!is.na(nMax) && length(yParameterNames) < 3 && 
 			xParameterName == "informationRates") {
-		cat("  x-axis: ", objectName, "$", xParameterName, " * ", nMax, "\n", sep = "")
-	} else {
-		cat("  x-axis: ", objectName, "$", xParameterName, "\n", sep = "")
+		xAxisCmd <- paste0(xAxisCmd, " * ", round(nMax, 1))
+	}
+	cat("  x-axis: ", xAxisCmd, "\n", sep = "")
+	
+	if (identical(yParameterNames, c("futilityBounds", "criticalValues"))) {
+		yParameterNames[1] <- paste0("c(", objectName, "$futilityBounds, ", 
+			objectName, "$criticalValues[length(", objectName, "$criticalValues)])")
 	}
 
+	yAxisCmds <- c()
 	if (length(yParameterNames) == 1) {
-		cat("  y-axis: ", objectName, "$", yParameterNames, "\n", sep = "")
+		yAxisCmds <- .createValidParameterName(objectName, yParameterNames)
+	} else {
+		for (yParameterName in yParameterNames) {
+			yAxisCmds <- c(yAxisCmds, .createValidParameterName(objectName, yParameterName))
+		}
+	}
+	if (length(yAxisCmds) == 1) {
+		cat("  y-axis: ", yAxisCmds, "\n", sep = "")
 	} else {
 		cat("  y-axes:\n")
-		for (i in 1:length(yParameterNames)) {
-			cat("    y", i, ": ", objectName, "$", yParameterNames[i], "\n", sep = "")
+		for (i in 1:length(yAxisCmds)) {
+			cat("    y", i, ": ", yAxisCmds[i], "\n", sep = "")
 		}
 	}
 	
@@ -260,7 +554,59 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		cat(hint, "\n", sep = "")
 	}
 	
-	# Open work: add simple plot command example
+	# add simple plot command examples
+	cat("Simple plot command example", ifelse(length(yAxisCmds) == 1, "", "s"), ":\n", sep = "")
+	plotCmds <- c()
+	for (yAxisCmd in yAxisCmds) {
+		plotCmd <- paste0("plot(", xAxisCmd, ", ", yAxisCmd, ", type = \"l\")")
+		plotCmds <- c(plotCmds, plotCmd)
+		cat("  ", plotCmd, "\n", sep = "")
+	}
+	
+	if (showSource == "commands") {
+		return(invisible(plotCmds))
+	}
+	else if (showSource == "axes") {
+		return(invisible(list(x = xAxisCmd, y = yAxisCmds)))
+	}
+	else if (showSource == "test") {
+		success <- TRUE
+		for (plotCmd in plotCmds) {
+			if (!.testPlotCommand(plotCmd)) {
+				success <- FALSE
+			}
+		}
+		if (success) {
+			cat("All plot commands are valid\n")
+		} else {
+			cat("One ore more plot commands are invalid\n")
+		}
+		return(invisible(plotCmds))
+		
+	}
+	else if (showSource == "validate") {
+		for (plotCmd in plotCmds) {
+			.testPlotCommand(plotCmd, silent = FALSE)
+		}
+		return(invisible(plotCmds))
+	}
+	
+	return(invisible(NULL))
+}
+
+.testPlotCommand <- function(plotCmd, silent = TRUE) {
+	tryCatch({
+		eval(parse(text = plotCmd))
+		return(invisible(TRUE))
+	}, error = function(e) {
+		msg <- paste0("failed to evaluate plot command \"", plotCmd, "\" ",  
+			"('", as.character(e$call), "'): ", e$message)
+		if (!silent) {
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, msg[1])
+		}
+		cat(.firstCharacterToUpperCase(msg), "\n")
+	})
+	return(invisible(FALSE))
 }
 
 .getParameterSetAsDataFrame <- function(parameterSet, designMaster,
@@ -269,7 +615,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	
 	if (.isTrialDesignSet(parameterSet) && parameterSet$getSize() > 1 && 
 		(is.null(parameterSet$variedParameters) || length(parameterSet$variedParameters) == 0)) {
-		stop("'variedParameters' must be not empty; ",
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'variedParameters' must be not empty; ",
 			"use 'DesignSet$addVariedParameters(character)' to add one or more varied parameters")
 	}
 	
@@ -290,7 +636,8 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		for (variedParameter in variedParameters) {
 			column <- data[[variedParameter]]
 			if (length(column) <= 1) {
-				stop("Varied parameter '", variedParameter, "' has length ", length(column))
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+					"varied parameter '", variedParameter, "' has length ", length(column))
 			}
 			
 			valueBefore <- column[1]
@@ -329,12 +676,12 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	return(axisLabel)
 }
 
-.plotParameterSet <- function(parameterSet, designMaster, xParameterName, yParameterNames,
+.plotParameterSet <- function(..., parameterSet, designMaster, xParameterName, yParameterNames,
 		mainTitle = NA_character_, xlab = NA_character_, ylab = NA_character_, 
 		palette = "Set1", theta = seq(-1, 1, 0.02), nMax = NA_integer_, 
 		plotPointsEnabled = NA, legendPosition = NA_integer_, 
 		variedParameters = logical(0), qnormAlphaLineEnabled = TRUE, yAxisScalingEnabled = TRUE, 
-		ratioEnabled = NA, plotSettings = NULL, ...) {
+		ratioEnabled = NA, plotSettings = NULL) {
 	
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
 		parameterNames <- c(xParameterName, yParameterNames)
@@ -344,7 +691,6 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			names(designMaster$getRefClass()$fields()))
 		for (parameterName in parameterNames) {
 			if (!is.na(parameterName) && !(parameterName %in% fieldNames)) {
-				print(fieldNames)
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"'", class(parameterSet), "' and '", class(designMaster), "' ", 
 					"do not contain a field with name '", parameterName, "'")
@@ -372,6 +718,10 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			yParameterNames[1] %in% c("overallReject", "futilityStop", 
 				"earlyStop", "expectedNumberOfSubjects")
 	}
+		
+	if (addPowerAndAverageSampleNumber && .isMultiArmSimulationResults(parameterSet)) {
+		addPowerAndAverageSampleNumber <- FALSE 
+	}
 	
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
 		df <- .getParameterSetAsDataFrame(parameterSet, designMaster,
@@ -379,11 +729,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			theta = theta, nMax = nMax)
 		data <- df$data	
 		variedParameters <- df$variedParameters
-		variedParameters <- variedParameters[!is.na(variedParameters) && variedParameters != "NA"]
+		variedParameters <- na.omit(variedParameters)
+		variedParameters <- variedParameters[variedParameters != "NA"]
 	} else if (is.data.frame(parameterSet)) {
 		data <- parameterSet
 	} else {
-		stop("'parameterSet' (", class(parameterSet), ") must be a data.frame, a 'TrialDesignSet' ", 
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+			"'parameterSet' (", class(parameterSet), ") must be a data.frame, a 'TrialDesignSet' ", 
 			"or an object that inherits from 'ParameterSet'")
 	}
 	
@@ -618,7 +970,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		ratioEnabled = FALSE, plotSettings = NULL, sided = 1, ...) {
 	
 	if (!is.data.frame(data)) {
-		stop("'data' must be a data.frame (is ", class(data), ")")
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'data' must be a data.frame (is ", class(data), ")")
 	}
 	
 	if (is.null(plotSettings)) {
@@ -646,13 +998,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	if (mirrorModeEnabled) {
-		p <- ggplot2::ggplot(data, ggplot2::aes(x = data$xValues, y = data$yValues, 
-				fill = factor(data$categories))) 
+		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 
+				fill = factor(.data[["categories"]]))) 
 	} else if (categoryEnabled) {	
-		p <- ggplot2::ggplot(data, ggplot2::aes(x = data$xValues, y = data$yValues, 
-				colour = factor(data$categories)))
+		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 
+				colour = factor(.data[["categories"]])))
 	} else {
-		p <- ggplot2::ggplot(data, ggplot2::aes(x = data$xValues, y = data$yValues))
+		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]]))
 	}
 	
 	p <- plotSettings$setTheme(p)
@@ -703,7 +1055,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	# plot lines and points
 	plotPointsEnabled <- ifelse(is.na(plotPointsEnabled), 
 		!addPowerAndAverageSampleNumber, plotPointsEnabled) 
-	if (length(data$xValues) > 20) {
+	if (length(unique(data$xValues)) > 20) {
 		plotPointsEnabled <- FALSE
 	}
 	p <- plotSettings$plotValues(p, plotPointsEnabled = plotPointsEnabled, 
@@ -730,7 +1082,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	pointBorder <- 4
-	if (length(data$xValues) / numberOfCategories > 10) {
+	if (length(unique(data$xValues)) / numberOfCategories > 10) {
 		pointBorder <- 1
 		plotSettings$adjustPointSize(-2)
 	}
@@ -828,21 +1180,58 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	return(lambda2[length(lambda2)])
 }
 
-.getLambdaStepFunction <- function(timeValues, piecewiseSurvivalTime, lambda) {
-	if (length(piecewiseSurvivalTime) != length(lambda)) {
+.getLambdaStepFunction <- function(timeValues, piecewiseSurvivalTime, piecewiseLambda) {
+	if (length(piecewiseSurvivalTime) != length(piecewiseLambda)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"length of 'piecewiseSurvivalTime' (", length(piecewiseSurvivalTime), 
-			") must be equal to length of 'lambda' (", length(lambda), ") - 1")
+			") must be equal to length of 'piecewiseLambda' (", length(piecewiseLambda), ") - 1")
 	}
 	
 	piecewiseSurvivalTime <- .getPiecewiseExpStartTimesWithoutLeadingZero(piecewiseSurvivalTime)
 	if (length(piecewiseSurvivalTime) == 0) {
-		return(lambda[1])
+		return(piecewiseLambda[1])
 	}
 	
 	lambdaValues <- c()
 	for (time in timeValues) {
-		lambdaValues <- c(lambdaValues, .getLambdaStepFunctionByTime(time, piecewiseSurvivalTime, lambda))
+		lambdaValues <- c(lambdaValues, .getLambdaStepFunctionByTime(time, piecewiseSurvivalTime, piecewiseLambda))
 	}
 	return(lambdaValues)
 }
+
+#' 
+#' @title
+#' Get Lambda Step Function
+#'
+#' @description
+#' Calculates the lambda step values for a given time vector.
+#' 
+#' @param timeValues A numeric vector that specifies the time values for which the lambda step values shall be calculated.
+#' @param piecewiseSurvivalTime A numeric vector that specifies the time intervals for the piecewise 
+#'        definition of the exponential survival time cumulative distribution function (see details). 
+#' @param piecewiseLambda A numeric vector that specifies the assumed hazard rate in the treatment group.
+#' @inheritParams param_three_dots
+#' 
+#' @details 
+#' The first element of the vector \code{piecewiseSurvivalTime} must be equal to \code{0}. 
+#' This function is used for plotting of sample size survival results 
+#' (cf., \code{\link[=plot.TrialDesignPlan]{plot}}, \code{type = 13} and \code{type = 14}). 
+#' 
+#' @return A numeric vector containing the lambda step values that corresponds to the specified time values.
+#' 
+#' @export 
+#' 
+#' @keywords internal
+#' 
+getLambdaStepFunction <- function(timeValues, ..., piecewiseSurvivalTime, piecewiseLambda) {
+	.assertIsNumericVector(timeValues, "timeValues")
+	.assertIsNumericVector(piecewiseSurvivalTime, "piecewiseSurvivalTime")
+	.assertIsNumericVector(piecewiseLambda, "piecewiseLambda")
+	.warnInCaseOfUnknownArguments(functionName = "getLambdaStepFunction", ...)
+	
+	.getLambdaStepFunction(timeValues = timeValues, 
+		piecewiseSurvivalTime = piecewiseSurvivalTime, 
+		piecewiseLambda = piecewiseLambda)
+}
+
+

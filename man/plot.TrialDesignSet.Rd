@@ -7,6 +7,7 @@
 \method{plot}{TrialDesignSet}(
   x,
   y,
+  ...,
   type = 1L,
   main = NA_character_,
   xlab = NA_character_,
@@ -17,7 +18,7 @@
   plotPointsEnabled = NA,
   legendPosition = NA_integer_,
   showSource = FALSE,
-  ...
+  grid = 1
 )
 }
 \arguments{
@@ -25,16 +26,20 @@
 
 \item{y}{Not available for this kind of plot (is only defined to be compatible to the generic plot function).}
 
+\item{...}{Optional plot arguments. At the moment \code{xlim} and \code{ylim} are implemented 
+for changing x or y axis limits without dropping data observations.}
+
 \item{type}{The plot type (default = \code{1}). The following plot types are available:
 \itemize{
   \item \code{1}: creates a 'Boundaries' plot
   \item \code{3}: creates a 'Stage Levels' plot
-  \item \code{4}: creates a 'Type One Error Spending' plot
+  \item \code{4}: creates a 'Error Spending' plot
   \item \code{5}: creates a 'Power and Early Stopping' plot
   \item \code{6}: creates an 'Average Sample Size and Power / Early Stop' plot
   \item \code{7}: creates an 'Power' plot
   \item \code{8}: creates an 'Early Stopping' plot
   \item \code{9}: creates an 'Average Sample Size' plot
+  \item \code{"all"}: creates all available plots and returns it as a grid plot or list
 }}
 
 \item{main}{The main title.}
@@ -45,7 +50,7 @@
 
 \item{palette}{The palette, default is \code{"Set1"}.}
 
-\item{theta}{A vector of theta values.}
+\item{theta}{A vector of standardized effect sizes (theta values), default is a sequence from -1 to 1.}
 
 \item{nMax}{The maximum sample size.}
 
@@ -68,12 +73,30 @@ Choose one of the following values to specify the position manually:
 
 \item{showSource}{If \code{TRUE}, the parameter names of the object will 
 be printed which were used to create the plot; that may be, e.g., 
-useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
+useful to check the values or to create own plots with the base R \code{plot} function.
+Alternatively \code{showSource} can be defined as one of the following character values: 
+\itemize{
+  \item \code{"commands"}: returns a character vector with plot commands
+  \item \code{"axes"}: returns a list with the axes definitions
+  \item \code{"test"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function does not stop if an error occurs)
+  \item \code{"validate"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function stops if an error occurs)
+}
+Note: no plot object will be returned if \code{showSource} is a character.}
 
-\item{...}{Optional \code{ggplot2} arguments.}
+\item{grid}{An integer value specifying the output of multiple plots. 
+By default (\code{1}) a list of \code{ggplot} objects will be returned. 
+If a \code{grid} value > 1 was specified, a grid plot will be returned 
+if the number of plots is <= specified \code{grid} value; 
+a list of \code{ggplot} objects will be returned otherwise.
+If \code{grid = 0} is specified, all plots will be created using \code{\link[base]{print}} command 
+and a list of \code{ggplot} objects will be returned invisible. 
+Note that one of the following packages must be installed to create a grid plot: 
+'ggpubr', 'gridExtra', or 'cowplot'.}
 }
 \value{
-A \code{ggplot2} object.
+Returns a \code{ggplot2} object.
 }
 \description{
 Plots a trial design set.
@@ -83,7 +106,6 @@ Generic function to plot a trial design set.
 Is, e.g., useful to compare different designs or design parameters visual.
 }
 \examples{
-
 design <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
     typeOfDesign = "asKD", gammaA = 2, 
     informationRates = c(0.2, 0.7, 1), typeBetaSpending = "bsOF")

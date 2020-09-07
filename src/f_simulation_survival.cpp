@@ -2,18 +2,21 @@
  *
  * -- Simulation of survival data with group sequential and combination test --
  *
- * This file is part of the R package RPACT - R Package for Adaptive Clinical Trials.
+ * This file is part of the R package rpact:
+ * Confirmatory Adaptive Clinical Trial Design and Analysis
  *
- * File version: 1.0.1
- * Date: 09-05-2019
  * Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
  * Licensed under "GNU Lesser General Public License" version 3
  * License text can be found here: https://www.r-project.org/Licenses/LGPL-3
  *
  * RPACT company website: https://www.rpact.com
- * RPACT package website: https://www.rpact.org
+ * rpact package website: https://www.rpact.org
  *
  * Contact us for information about our services: info@rpact.com
+ *
+ * File version: $Revision: 3576 $
+ * Last changed: $Date: 2020-09-02 10:59:38 +0200 (Mi, 02 Sep 2020) $
+ * Last changed by: $Author: pahlke $
  *
  */
 
@@ -532,6 +535,7 @@ NumericMatrix getSimulationStepResultsSurvival(
 	NumericVector rejections = NumericVector(kMax, 0.0);
 	NumericVector eventsNotAchieved = NumericVector(kMax, 0.0);
 	NumericVector futilityStops = NumericVector(kMax, 0.0);
+	NumericVector pValuesSeparate = NumericVector(kMax, NA_REAL);
 	NumericVector duration = NumericVector(kMax, 0.0);
 	NumericVector iterations = NumericVector(kMax, 0.0);
 
@@ -597,6 +601,7 @@ NumericMatrix getSimulationStepResultsSurvival(
 
 		int trialStopEventCounter = 0;
 		if (designNumber == 3) { // Fisher design
+			pValuesSeparate[k - 1] = testStatistic[1];
 			if (testStatistic[0] <= criticalValues[k - 1]) {
 				rejections[k - 1]++;
 				trialStopEventCounter++;
@@ -632,7 +637,13 @@ NumericMatrix getSimulationStepResultsSurvival(
 
 		expectedNumberOfEvents1[k - 1] += events1;
 		expectedNumberOfEvents2[k - 1] += events2;
-		expectedNumberOfEvents[k - 1] += events1 + events2;
+
+		double x = events1 + events2;
+		if (k > 1) {
+		  x -= eventsPerStage[k - 2];
+		}
+		expectedNumberOfEvents[k - 1] += x;
+
 		analysisTime[k - 1] += observationTime;
 		iterations[k - 1]++;
 
@@ -641,7 +652,7 @@ NumericMatrix getSimulationStepResultsSurvival(
 		}
 	}
 
-	NumericMatrix result(kMax, 17);
+	NumericMatrix result(kMax, 18);
 	result(_, 0) = analysisTime;
 	result(_, 1) = subjects;
 	result(_, 2) = expectedNumberOfEvents1;
@@ -659,11 +670,12 @@ NumericMatrix getSimulationStepResultsSurvival(
 	result(_, 14) = hazardRatiosEstimate;
 	result(_, 15) = observationTimePerStage;
 	result(_, 16) = conditionalPowerAchieved;
+	result(_, 17) = pValuesSeparate;
 	return result;
 }
 
 /**
- * Weibull:     (-log(1 - runif(0.0, 1.0)))^(1 / kappa) / rate
+ * Weibull: (-log(1 - runif(0.0, 1.0)))^(1 / kappa) / rate
  */
 // [[Rcpp::export]]
 double getRandomSurvivalDistribution(double rate, double kappa) {
@@ -918,6 +930,7 @@ List getSimulationSurvivalCpp(
 	NumericVector rejections = NumericVector(simResultsVectorLength, NA_REAL);
 	NumericVector eventsNotAchieved = NumericVector(simResultsVectorLength, NA_REAL);
 	NumericVector futilityStops = NumericVector(simResultsVectorLength, NA_REAL);
+	NumericVector pValuesSeparate = NumericVector(simResultsVectorLength, NA_REAL);
 	NumericVector testStatistics = NumericVector(simResultsVectorLength, NA_REAL);
 	NumericVector logRankStatistics = NumericVector(simResultsVectorLength, NA_REAL);
 	NumericVector hazardRates1 = NumericVector(simResultsVectorLength, NA_REAL);
@@ -1013,6 +1026,7 @@ List getSimulationSurvivalCpp(
 			vectorSumC(pi1Index, 8, kMax, REAL(durationsSum), stepResults);
 			vectorSumC(pi1Index, 9, kMax, REAL(iterationsSum), stepResults);
 			vectorSumC(pi1Index, 16, kMax, REAL(conditionalPowerAchievedSum), stepResults); // conditionalPowerAchieved
+			// pValuesSeparate
 
 			// get data
 			for (int k = 0; k < kMax; k++) {
@@ -1038,6 +1052,7 @@ List getSimulationSurvivalCpp(
 					hazardRatiosEstimate[index] = stepResults(k, 14);
 
 					conditionalPowerAchieved[index] = stepResults(k, 16);
+					pValuesSeparate[index] = stepResults(k, 17);
 
 					index++;
 				}
@@ -1143,15 +1158,16 @@ List getSimulationSurvivalCpp(
 		Named("hazardRatio") = hazardRatios,
 		Named("analysisTime") = analysisTime,
 		Named("numberOfSubjects") = subjects,
-		Named("eventsPerStage1") = events1,
-		Named("eventsPerStage2") = events2,
+		Named("overallEvents1") = events1,
+		Named("overallEvents2") = events2,
 		Named("eventsPerStage") = events,
 		Named("rejectPerStage") = rejections,
 		Named("eventsNotAchieved") = eventsNotAchieved,
 		Named("futilityPerStage") = futilityStops,
 		Named("testStatistic") = testStatistics,
 		Named("logRankStatistic") = logRankStatistics,
-		Named("conditionalPowerAchieved") = conditionalPowerAchieved
+		Named("conditionalPowerAchieved") = conditionalPowerAchieved,
+		Named("pValuesSeparate") = pValuesSeparate
 	);
 
 	if (maxNumberOfRawDatasetsPerStage > 0) {

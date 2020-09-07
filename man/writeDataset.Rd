@@ -64,6 +64,18 @@ Writes a dataset to a CSV file.
 \code{\link{writeDataset}} is a wrapper function that coerces the dataset to a data frame and uses \cr 
 \code{\link[utils]{write.table}} to write it to a CSV file.
 }
+\examples{
+\dontrun{
+datasetOfRates <- getDataset(
+    n1 = c(11, 13, 12, 13),
+    n2 = c(8, 10, 9, 11),
+    events1 = c(10, 10, 12, 12),
+    events2 = c(3, 5, 5, 6)
+)
+writeDataset(datasetOfRates, "dataset_rates.csv")
+}
+
+}
 \seealso{
 \itemize{
   \item \code{\link{writeDatasets}} for writing multiple datasets,

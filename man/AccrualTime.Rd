@@ -5,10 +5,10 @@
 \alias{AccrualTime}
 \title{Accrual Time}
 \description{
-Class for definition of accrual time and accrual intensity.
+Class for the definition of accrual time and accrual intensity.
 }
 \details{
-\code{AccrualTime} is a class for definition of accrual time and accrual intensity.
+\code{AccrualTime} is a class for the definition of accrual time and accrual intensity.
 }
 
 \keyword{internal}

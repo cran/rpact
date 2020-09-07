@@ -4,14 +4,25 @@
 \alias{getConditionalRejectionProbabilities}
 \title{Get Conditional Rejection Probabilities}
 \usage{
-getConditionalRejectionProbabilities(design, stageResults, ...)
+getConditionalRejectionProbabilities(stageResults, ...)
 }
 \arguments{
-\item{design}{The trial design.}
-
 \item{stageResults}{The results at given stage, obtained from \code{\link{getStageResults}}.}
 
-\item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
+\item{...}{Further (optional) arguments to be passed:
+\describe{
+  \item{\code{iterations}}{Iterations for simulating the conditional 
+      rejection probabilities for Fisher's combination test. 
+      For checking purposes, it can be estimated via simulation with 
+      specified \code{iterations}.}
+  \item{\code{seed}}{Seed for simulating the conditional rejection probabilities 
+      for Fisher's combination test. See above, default is a random seed.}
+}}
+}
+\value{
+Returns a \code{\link[base]{numeric}} vector of length \code{kMax} or in case of multi-arm stage results   
+a \code{\link[base]{matrix}} (each column represents a stage, each row a comparison) 
+containing the conditional rejection probabilities.
 }
 \description{
 Calculates the conditional rejection probabilities (CRP) for given test results.
@@ -28,12 +39,29 @@ The conditional rejection probabilities are provided up to the specified stage.
 For Fisher's combination test, you can check the validity of the CRP calculation via simulation.
 }
 \examples{
-
-x <- getDesignFisher(kMax = 3, informationRates = c(0.1,0.8,1))
-y <- getDataset(n = c(40,40), events = c(20,22))
-getConditionalRejectionProbabilities(x, getStageResults(x, y, thetaH0 = 0.4))
-# provides 
-# [1] 0.0216417 0.1068607        NA
+\donttest{
+# Calculate and check CRP for a Fisher's combination test design with 
+# two remaining stages
+design <- getDesignFisher(kMax = 4, 
+    informationRates = c(0.1, 0.3, 0.8, 1), alpha = 0.01)
+data <- getDataset(n = c(40, 40), events = c(20, 22))
+sr <- getStageResults(design, data, thetaH0 = 0.4)
+getConditionalRejectionProbabilities(sr)
+getConditionalRejectionProbabilities(sr, iterations = 100000)
+}
 
 }
-\keyword{internal}
+\seealso{
+Other analysis functions: 
+\code{\link{getAnalysisResults}()},
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getFinalConfidenceInterval}()},
+\code{\link{getFinalPValue}()},
+\code{\link{getRepeatedConfidenceIntervals}()},
+\code{\link{getRepeatedPValues}()},
+\code{\link{getStageResults}()},
+\code{\link{getTestActions}()}
+}
+\concept{analysis functions}

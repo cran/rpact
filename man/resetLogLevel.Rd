@@ -10,13 +10,20 @@ resetLogLevel()
 Resets the \code{rpact} log level.
 }
 \details{
-This function is intended for debugging purposes only.
+This function resets the log level of the \code{rpact} internal log message 
+system to the default value \code{"PROGRESS"}.
 }
 \examples{
-
 \dontrun{
+# reset log level to default value
 resetLogLevel()
 }
 
+}
+\seealso{
+\itemize{
+  \item \code{\link{getLogLevel}} for getting the current log level,
+  \item \code{\link{setLogLevel}} for setting the log level.
+}
 }
 \keyword{internal}

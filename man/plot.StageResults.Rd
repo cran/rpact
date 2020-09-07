@@ -10,8 +10,7 @@
   ...,
   type = 1L,
   nPlanned,
-  stage = x$getNumberOfStages(),
-  allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
+  allocationRatioPlanned = 1,
   main = NA_character_,
   xlab = NA_character_,
   ylab = NA_character_,
@@ -26,17 +25,17 @@
 
 \item{y}{Not available for this kind of plot (is only defined to be compatible to the generic plot function).}
 
-\item{...}{Optional \code{ggplot2} arguments. Furthermore the following arguments can be defined:
+\item{...}{Optional \link[=param_three_dots_plot]{plot arguments}. Furthermore the following arguments can be defined:
 \itemize{
 \item \code{thetaRange}: A range of assumed effect sizes if testing means or a survival design was specified. 
             Additionally, if testing means was selected, an assumed standard deviation can be specified (default is 1).
-\item \code{piRange}: A range of assumed rates pi1 to calculate the conditional power. 
+\item \code{piTreatmentRange}: A range of assumed rates pi1 to calculate the conditional power. 
           Additionally, if a two-sample comparison was selected, pi2 can be specified (default is the value from 
        \code{getAnalysisResults}). 
-\item \code{directionUpper}: The direction of one-sided testing. 
-       Default is \code{directionUpper = TRUE} which means that larger values of the 
-       test statistics yield smaller p-values.
-\item \code{thetaH0}: The null hypothesis value, default is 0 for the normal and the binary case, 
+\item \code{directionUpper}: Specifies the direction of the alternative, 
+       only applicable for one-sided testing; default is \code{TRUE}
+       which means that larger values of the test statistics yield smaller p-values.
+\item \code{\link[=param_thetaH0]{thetaH0}}: The null hypothesis value, default is 0 for the normal and the binary case, 
        it is 1 for the survival case.      
        For testing a rate in one sample, a value thetaH0 in (0,1) has to be specified for 
        defining the null hypothesis H0: pi = thetaH0.
@@ -45,16 +44,14 @@
 \item{type}{The plot type (default = 1). Note that at the moment only one type 
 (the conditional power plot) is available.}
 
-\item{nPlanned}{The additional (i.e. "new" and not cumulative) sample size planned for each of the subsequent stages. 
-The argument should be a vector with length equal to the number of remaining stages and contain 
+\item{nPlanned}{The additional (i.e., "new" and not cumulative) sample size planned for each of the subsequent stages. 
+The argument must be a vector with length equal to the number of remaining stages and contain 
 the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
-it should contain the planned number of additional events.}
+it should contain the planned number of additional events. 
+For multi-arm designs, it is the per-comparison (combined) sample size.}
 
-\item{stage}{The stage number (optional). Default: total number of existing stages in the data input
-used to create the stage results.}
-
-\item{allocationRatioPlanned}{The allocation ratio for two treatment groups planned for 
-the subsequent stages, the default value is 1.}
+\item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
+design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.}
 
 \item{main}{The main title.}
 
@@ -70,6 +67,8 @@ the subsequent stages, the default value is 1.}
 By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
 Choose one of the following values to specify the position manually:
 \itemize{
+  \item \code{-1}: no legend will be shown
+  \item \code{NA}: the algorithm tries to find a suitable position
   \item \code{0}: legend position outside plot
   \item \code{1}: legend position left top
   \item \code{2}: legend position left center
@@ -81,10 +80,20 @@ Choose one of the following values to specify the position manually:
 
 \item{showSource}{If \code{TRUE}, the parameter names of the object will 
 be printed which were used to create the plot; that may be, e.g., 
-useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
+useful to check the values or to create own plots with the base R \code{plot} function.
+Alternatively \code{showSource} can be defined as one of the following character values: 
+\itemize{
+  \item \code{"commands"}: returns a character vector with plot commands
+  \item \code{"axes"}: returns a list with the axes definitions
+  \item \code{"test"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function does not stop if an error occurs)
+  \item \code{"validate"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function stops if an error occurs)
+}
+Note: no plot object will be returned if \code{showSource} is a character.}
 }
 \value{
-A \code{ggplot2} object.
+Returns a \code{ggplot2} object.
 }
 \description{
 Plots the conditional power together with the likelihood function.
@@ -94,7 +103,6 @@ Generic function to plot all kinds of stage results.
 The conditional power is calculated only if effect size and sample size is specified.
 }
 \examples{
-
 design <- getDesignGroupSequential(kMax = 4, alpha = 0.025, 
     informationRates = c(0.2, 0.5, 0.8, 1), 
     typeOfDesign = "WT", deltaWT = 0.25)

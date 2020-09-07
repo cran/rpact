@@ -5,10 +5,10 @@
 \alias{EventProbabilities}
 \title{Event Probabilities}
 \description{
-Class for definition of event probabilities.
+Class for the definition of event probabilities.
 }
 \details{
-\code{EventProbabilities} is a class for definition of event probabilities.
+\code{EventProbabilities} is a class for the definition of event probabilities.
 }
 
 \keyword{internal}

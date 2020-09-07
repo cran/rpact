@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- RPACT utilities --                                                              #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Core utilities*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3594 $
+#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 #' @include f_core_constants.R
 NULL
@@ -37,20 +38,33 @@ utils::globalVariables(".parallelComputingArguments")
 #' 
 #' @param logLevel The new log level to set. Can be one of
 #'        "PROGRESS", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "DISABLED". 
+#'        Default is "PROGRESS".
 #' 
 #' @details
-#' This function is intended for debugging purposes only.
+#' This function sets the log level of the \code{rpact} internal log message system.
+#' By default only calculation progress messages will be shown on the output console,
+#' particularly \code{\link{getAnalysisResults}} shows this kind of messages.
+#' The output of this messages can be disabled by setting the log level to \code{"DISABLED"}.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{getLogLevel}} for getting the current log level,
+#'   \item \code{\link{resetLogLevel}} for resetting the log level to default.
+#' }
+#'
+#' @examples 
+#' \dontrun{
+#' # show debug messages
+#' setLogLevel("DEBUG")
+#' 
+#' # disable all log messages
+#' setLogLevel("DISABLED")
+#' }
+#' 
+#' @keywords internal
 #'
 #' @export
 #' 
-#' @keywords internal
-#' 
-#' @examples 
-#' 
-#' \dontrun{
-#' setLogLevel("DEBUG")
-#' }
-#'
 setLogLevel <- function(logLevel = c("PROGRESS", "ERROR", "WARN", 
 		"INFO", "DEBUG", "TRACE", "DISABLED")) {
 	
@@ -65,7 +79,7 @@ setLogLevel <- function(logLevel = c("PROGRESS", "ERROR", "WARN",
 			C_LOG_LEVEL_PROGRESS,
 			C_LOG_LEVEL_DISABLED))) {
 		
-		stop("Illegal argument: 'logLevel' must be one of ",
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'logLevel' must be one of ",
 			"c(", paste(paste0("'", c(C_LOG_LEVEL_TRACE, 
 						C_LOG_LEVEL_DEBUG, 
 						C_LOG_LEVEL_INFO, 
@@ -86,18 +100,24 @@ setLogLevel <- function(logLevel = c("PROGRESS", "ERROR", "WARN",
 #' Returns the current \code{rpact} log level. 
 #' 
 #' @details
-#' This function is intended for debugging purposes only.
+#' This function gets the log level of the \code{rpact} internal log message system.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{setLogLevel}} for setting the log level,
+#'   \item \code{\link{resetLogLevel}} for resetting the log level to default.
+#' }
+#' 
+#' @return Returns a \code{\link[base]{character}} of length 1 specifying the current log level.
+#'
+#' @examples 
+#' # show current log level
+#' getLogLevel()
+#'
+#' @keywords internal
 #'
 #' @export
 #' 
-#' @keywords internal
-#' 
-#' @examples 
-#' 
-#' \dontrun{
-#' getLogLevel()
-#' }
-#'
 getLogLevel <- function() {
 	logLevel <- Sys.getenv("RPACT_LOG_LEVEL")
 	if (logLevel == "") {
@@ -115,18 +135,25 @@ getLogLevel <- function() {
 #' Resets the \code{rpact} log level. 
 #' 
 #' @details
-#' This function is intended for debugging purposes only.
+#' This function resets the log level of the \code{rpact} internal log message 
+#' system to the default value \code{"PROGRESS"}.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{getLogLevel}} for getting the current log level,
+#'   \item \code{\link{setLogLevel}} for setting the log level.
+#' }
 #'
-#' @export
-#' 
-#' @keywords internal
-#' 
 #' @examples 
-#' 
 #' \dontrun{
+#' # reset log level to default value
 #' resetLogLevel()
 #' }
 #'
+#' @keywords internal
+#'
+#' @export
+#' 
 resetLogLevel <- function() {
 	setLogLevel(C_LOG_LEVEL_PROGRESS)
 }
@@ -187,20 +214,44 @@ resetLogLevel <- function() {
 	}
 	
 	if (!ignoreBlackList) {
-		if (x %in% c("pi1", "pi2")) {
+		if (x %in% c("pi", "pi1", "pi2", "mu", "mu1", "mu2")) {
 			return(x)
 		}
 	}
 	
 	s <- strsplit(x, " ")[[1]]
 	s <- paste0(toupper(substring(s, 1, 1)), substring(s, 2))
-	wordsToExclude <- c("And", "The", "Of", "Or")
+	wordsToExclude <- c("And", "The", "Of", "Or", "By")
 	s[s %in% wordsToExclude] <- tolower(s[s %in% wordsToExclude])
 	s <- paste(s, collapse = " ")
+	s <- sub("non\\-binding", "Non-Binding", s)
 	return(s)
 }
 
-.firstCharacterToUpperCase <- function(x) {
+.isCapitalized <- function(x) {
+	return(x == toupper(x))
+}
+
+.formatCamelCase <- function(x) {
+	indices <- gregexpr("[A-Z]", x)[[1]]
+	parts <- strsplit(x, "[A-Z]")[[1]]
+	result <- ""
+	for (i in 1:length(indices)) {
+		index <- indices[i]
+		y <- tolower(substring(x, index, index))
+		result <- paste0(result, parts[i], " ", y)
+	}
+	if (length(parts) > length(indices)) {
+		result <- paste0(result, parts[length(parts)])
+	}
+	return(trimws(result))
+}
+
+.firstCharacterToUpperCase <- function(x, ..., sep = "") {
+	args <- list(...)
+	if (length(args) > 0) {
+		x <- paste(x, unlist(args, use.names = FALSE), collapse = sep, sep = sep)
+	}
 	substr(x, 1, 1) <- toupper(substr(x, 1, 1))
 	return(x)
 }
@@ -311,11 +362,14 @@ resetLogLevel <- function() {
 .arrayToString <- function(x, separator = ", ", 
 		vectorLookAndFeelEnabled = FALSE, 
 		encapsulate = FALSE,
-		digits = 3) {
+		digits = 3,
+		maxLength = 80L) {
 		
 	if (digits < 0) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'digits' (", digits, ") must be >= 0")
 	}
+	
+	.assertIsSingleInteger(maxLength, "maxLength", naAllowed = FALSE, validateType = FALSE)
 		
 	if (missing(x) || is.null(x) || length(x) == 0) {
 		return("NULL")
@@ -338,8 +392,28 @@ resetLogLevel <- function() {
 		x[indices] <- round(x[indices], digits)
 	}
 	
+	if (is.matrix(x) && nrow(x) > 1 && ncol(x) > 1) {
+		result <- c()
+		for (i in 1:nrow(x)) {
+			row <- x[i, ]
+			if (encapsulate) {
+				row <- paste0("'", row, "'")
+			}
+			result <- c(result, paste0("(", paste(row, collapse = separator), ")"))
+		}
+		result <- paste(result, collapse = separator)
+		if (vectorLookAndFeelEnabled) {
+			result <- paste0("c(", result, ")")
+		}
+		return(result)
+	}
+	
 	if (encapsulate) {
 		x <- paste0("'", x, "'")
+	}
+	
+	if (length(x) > maxLength) {
+		x <- c(x[1:maxLength], "...")
 	}
 		
 	if (!vectorLookAndFeelEnabled) {
@@ -501,7 +575,8 @@ resetLogLevel <- function() {
 		upper,
 		tolerance = .Machine$double.eps^0.25,
 		acceptResultsOutOfTolerance = FALSE,
-		suppressWarnings = FALSE) {
+		suppressWarnings = FALSE,
+		callingFunctionInformation = NA_character_) {
 	
 	.assertIsSingleNumber(lower, "lower")
 	.assertIsSingleNumber(upper, "upper")
@@ -519,7 +594,8 @@ resetLogLevel <- function() {
 		unirootResult <- stats::uniroot(f = f, lower = lower, upper = upper, 
 			tol = tolerance, trace = 2, extendInt = "no", ...)
 	}, warning = function(w) {
-		.logWarn("uniroot(f, lower = %s, upper = %s, tol = %s) produced a warning: %s", 
+		.logWarn(.getCallingFunctionInformation(callingFunctionInformation), 
+			"uniroot(f, lower = %s, upper = %s, tol = %s) produced a warning: %s", 
 			lower, upper, tolerance, w)
 	}, error = function(e) {
 		msg <- "Failed to run uniroot(f, lower = %s, upper = %s, tol = %s): %s"
@@ -539,13 +615,14 @@ resetLogLevel <- function() {
 		return(.getOneDimensionalRootBisectionMethod(f = f, 
 			lower = lower, upper = upper, tolerance = tolerance, 
 			acceptResultsOutOfTolerance = acceptResultsOutOfTolerance, direction = direction,
-			suppressWarnings = suppressWarnings))
+			suppressWarnings = suppressWarnings, callingFunctionInformation = callingFunctionInformation))
 	}
 	
 	if (is.infinite(unirootResult$f.root) || abs(unirootResult$f.root) > max(tolerance * 100, 1e-07)) {		
 		if (!acceptResultsOutOfTolerance) {
 			if (!suppressWarnings) {
-				warning("NA returned because root search by 'uniroot' produced a function result (", 
+				warning(.getCallingFunctionInformation(callingFunctionInformation), 
+					"NA returned because root search by 'uniroot' produced a function result (", 
 					unirootResult$f.root, ") that differs from target 0 ", 
 					"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
 					", last function argument was ", unirootResult$root, ")", 
@@ -553,7 +630,8 @@ resetLogLevel <- function() {
 			}
 			return(NA_real_)
 		} else if (!suppressWarnings) {
-			warning("Root search by 'uniroot' produced a function result (", unirootResult$f.root, ") ", 
+			warning(.getCallingFunctionInformation(callingFunctionInformation), 
+				"Root search by 'uniroot' produced a function result (", unirootResult$f.root, ") ", 
 				"that differs from target 0 ", 
 				"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
 				", last function argument was ", unirootResult$root, ")", 
@@ -562,6 +640,14 @@ resetLogLevel <- function() {
 	}
 	
 	return(unirootResult$root)
+}
+
+.getCallingFunctionInformation <- function(x) {
+	if (is.na(x)) {
+		return("")
+	}
+	
+	return(paste0(x, ": "))
 }
 
 #
@@ -585,7 +671,8 @@ resetLogLevel <- function() {
 		acceptResultsOutOfTolerance = FALSE,
 		maxSearchIterations = 50,
 		direction = 0,
-		suppressWarnings = FALSE) {
+		suppressWarnings = FALSE,
+		callingFunctionInformation = NA_character_) {
 	
 	lowerStart <- lower
 	upperStart <- upper
@@ -610,7 +697,8 @@ resetLogLevel <- function() {
 		maxSearchIterations <- maxSearchIterations - 1
 		if (maxSearchIterations < 0) {
 			if (!suppressWarnings) {
-				warning("Root search via 'bisection' stopped: maximum number of search iterations reached. ",
+				warning(.getCallingFunctionInformation(callingFunctionInformation),
+					"Root search via 'bisection' stopped: maximum number of search iterations reached. ",
 					"Check if lower and upper search bounds were calculated correctly", 
 					call. = FALSE)	
 			}
@@ -626,14 +714,16 @@ resetLogLevel <- function() {
 	
 		if (!acceptResultsOutOfTolerance) {
 			if (!suppressWarnings) {
-				warning("NA returned because root search via 'bisection' produced a function result (", 
+				warning(.getCallingFunctionInformation(callingFunctionInformation),
+					"NA returned because root search via 'bisection' produced a function result (", 
 					result, ") that differs from target 0 ", 
 					"(tolerance is ", tolerance, ", last function argument was ", argument, ")", 
 					call. = FALSE)
 			}
 			return(NA_real_)
 		} else if (!suppressWarnings) {
-			warning("Root search via 'bisection' produced a function result (", result, ") ",
+			warning(.getCallingFunctionInformation(callingFunctionInformation),
+				"Root search via 'bisection' produced a function result (", result, ") ",
 				"that differs from target 0 ", 
 				"(tolerance is ", tolerance, ", last function argument was ", argument, ")", 
 				call. = FALSE)
@@ -719,6 +809,11 @@ resetLogLevel <- function() {
 saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) {
 	.assertGgplotIsInstalled()
 	
+	if (grepl("\\\\|/", filename)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'filename' seems to be a path. ", 
+			"Please specify 'outputPath' separately")
+	}
+	
 	if (!grepl("\\.png$", filename)) {
 		filename <- paste0(filename, ".png")
 	}
@@ -802,7 +897,7 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 			C_LOG_LEVEL_ERROR, C_LOG_LEVEL_PROGRESS))) {
 		return(invisible())
 	}
-	#return(invisible())
+	
 	time <- Sys.time() - startTime	
 	timeStr <- paste0("[", round(as.numeric(time), 4), " secs]")
 	if (length(list(...)) > 0) {
@@ -810,129 +905,6 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	} else {
 		cat(paste0("[", C_LOG_LEVEL_PROGRESS, "]"), s, timeStr, "\n")
 	}
-}
-
-##
-## -- Design utilities
-##
-
-.getValidatedFutilityBounds <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
-	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
-	return(.getValidatedFutilityBoundsOrAlpha0Vec(design = design, parameterName = "futilityBounds", 
-			defaultValue = C_FUTILITY_BOUNDS_DEFAULT, kMaxLowerBound = kMaxLowerBound,
-			writeToDesign = writeToDesign))
-}
-
-.getValidatedAlpha0Vec <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
-	.assertIsTrialDesignFisher(design)
-	return(.getValidatedFutilityBoundsOrAlpha0Vec(design = design, parameterName = "alpha0Vec", 
-			defaultValue = C_ALPHA_0_VEC_DEFAULT, kMaxLowerBound = kMaxLowerBound,
-			writeToDesign = writeToDesign))
-}
-
-.getValidatedFutilityBoundsOrAlpha0Vec <- function(design, parameterName, defaultValue, 
-		kMaxLowerBound, writeToDesign) {
-	
-	parameterValues <- design[[parameterName]]
-		
-	kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
-	if (.isDefinedArgument(parameterValues) && .isDefinedArgument(design$kMax)) {
-		if (.isTrialDesignFisher(design)) {
-			.assertIsValidAlpha0Vec(parameterValues, kMax = design$kMax, 
-				kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
-		} else {
-			.assertAreValidFutilityBounds(parameterValues, kMax = design$kMax, 
-				kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
-		}
-	}
-	
-	if (design$sided == 2 && .isDefinedArgument(parameterValues) && any(na.omit(parameterValues) != defaultValue)) {
-		warning("'", parameterName, "' (", .arrayToString(parameterValues), 
-			") will be ignored because the design is two-sided", call. = FALSE)
-	}
-	
-	if (writeToDesign) {
-		.setParameterType(design, parameterName, C_PARAM_USER_DEFINED)
-	}
-	
-	if (.isUndefinedArgument(design$informationRates) && .isUndefinedArgument(parameterValues)) { 
-		if (writeToDesign) {
-			if (.setKMaxToDefaultIfUndefined(design, writeToDesign) || design$kMax == C_KMAX_DEFAULT) {
-				.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
-			} else {
-				.setParameterType(design, parameterName, C_PARAM_DERIVED)
-			}
-		}
-		
-		return(rep(defaultValue, design$kMax - 1))
-	}
-	
-	if (.isDefinedArgument(design$informationRates) && .isUndefinedArgument(parameterValues)) {
-		if (writeToDesign) {
-			if (.isUndefinedArgument(design$kMax)) {
-				.setKMax(design, kMax = length(design$informationRates))
-			}
-			.setParameterType(design, parameterName, ifelse(design$kMax == C_KMAX_DEFAULT, 
-					C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
-		}
-		return(rep(defaultValue, design$kMax - 1))
-	}
-	
-	if (.isUndefinedArgument(design$informationRates) && 
-			.isDefinedArgument(parameterValues, argumentExistsValidationEnabled = FALSE)) {	
-		if (writeToDesign) {
-			.setKMax(design, kMax = length(parameterValues) + 1)
-			if (.isDefaultVector(parameterValues, rep(defaultValue, design$kMax - 1))) {
-				.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
-			}
-		}
-		
-		if (.isBetaSpendingDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
-			return(rep(defaultValue, design$kMax - 1))
-		}
-		
-		return(parameterValues)
-	}
-	
-	if (writeToDesign) {
-		.setKMax(design, kMax = length(parameterValues) + 1)
-		if (.isDefaultVector(parameterValues, rep(defaultValue, design$kMax - 1))) {
-			.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
-		}
-	}
-	
-	if (.isTrialDesignFisher(design)) {
-		.assertIsValidAlpha0Vec(parameterValues, kMax = design$kMax, 
-			kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
-	} else {
-		.assertAreValidFutilityBounds(parameterValues, kMax = design$kMax, 
-			kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
-	}
-	
-	if (.isBetaSpendingDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
-		return(rep(defaultValue, design$kMax - 1))
-	}
-	
-	return(parameterValues)
-}
-
-.isBetaSpendingDesignWithDefinedFutilityBounds <- function(design, parameterName, writeToDesign) {
-	if (.isTrialDesignFisher(design) || !.isBetaSpendingDesignType(design$typeBetaSpending)) {
-		return(FALSE)
-	}
-	
-	if (design$.getParameterType(parameterName) == C_PARAM_USER_DEFINED) {
-		warning("'", parameterName, "' (", .arrayToString(design[[parameterName]]), 
-			") will be ignored because it will be calculated", call. = FALSE)
-	}
-	else if (design$.getParameterType(parameterName) == C_PARAM_GENERATED) {
-		return(FALSE)
-	}
-	
-	if (writeToDesign) {
-		.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
-	}
-	return(TRUE)
 }
 
 .setParameterType <- function(parameterSet, parameterName, parameterType) {
@@ -944,8 +916,8 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 }
 
 .setValueAndParameterType <- function(parameterSet, parameterName, value, defaultValue,
-		notApplicableIfNA = FALSE) {
-		
+	notApplicableIfNA = FALSE) {
+	
 	.assertIsParameterSetClass(parameterSet, "parameterSet")
 	
 	if (is.null(parameterSet)) {
@@ -971,237 +943,12 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	}
 }
 
-.setKMax <- function(design, kMax) {
-	design$kMax <- as.integer(kMax)
-	.setParameterType(design, "kMax", C_PARAM_DERIVED)
-	invisible(kMax)
-}
-
-.getValidatedInformationRates <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
-	
-	kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
-	if (.isDefinedArgument(design$informationRates) && .isDefinedArgument(design$kMax)) {
-		.assertAreValidInformationRates(informationRates = design$informationRates, 
-			kMax = design$kMax, kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
-	}
-	
-	.setParameterType(design, "informationRates", C_PARAM_USER_DEFINED)
-	
-	if (.isTrialDesignFisher(design)) {
-		futilityBounds <- design$alpha0Vec
-	} else {
-		futilityBounds <- design$futilityBounds
-	}
-	
-	if (.isUndefinedArgument(design$informationRates) && .isUndefinedArgument(futilityBounds)) { 
-		if (writeToDesign) {
-			if (.setKMaxToDefaultIfUndefined(design, writeToDesign) || design$kMax == C_KMAX_DEFAULT) {
-				.setParameterType(design, "informationRates", C_PARAM_DEFAULT_VALUE)
-			} else {
-				.setParameterType(design, "informationRates", C_PARAM_DERIVED)
-			}
-		}
-		return((1:design$kMax) / design$kMax)
-	}
-	
-	if (.isDefinedArgument(design$informationRates) && .isUndefinedArgument(futilityBounds)) {
-		if (writeToDesign) {
-			.setKMax(design, kMax = length(design$informationRates))
-			if (.isDefaultVector(design$informationRates, (1:design$kMax) / design$kMax)) {
-				.setParameterType(design, "informationRates", C_PARAM_DEFAULT_VALUE)
-			}
-		}
-		.assertAreValidInformationRates(informationRates = design$informationRates, 
-			kMax = design$kMax, kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
-		return(design$informationRates)
-	}
-	
-	if (.isUndefinedArgument(design$informationRates) && 
-			.isDefinedArgument(futilityBounds, argumentExistsValidationEnabled = FALSE)) {
-		if (writeToDesign) {
-			if (.isUndefinedArgument(design$kMax)) {
-				.setKMax(design, kMax = length(futilityBounds) + 1)
-			}
-			.setParameterType(design, "informationRates", ifelse(design$kMax == C_KMAX_DEFAULT, 
-					C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
-		}
-		return((1:design$kMax) / design$kMax)
-	}
-	
-	if (writeToDesign) {
-		.setKMax(design, kMax = length(design$informationRates))
-		if (.isDefaultVector(design$informationRates, (1:design$kMax) / design$kMax)) {
-			.setParameterType(design, "informationRates", C_PARAM_DEFAULT_VALUE)
-		}
-	}
-	
-	.assertAreValidInformationRates(informationRates = design$informationRates, 
-		kMax = design$kMax, kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
-	
-	return(design$informationRates)
-}
-
-.setKMaxToDefaultIfUndefined <- function(design, writeToDesign = TRUE) {
-	if (writeToDesign && .isUndefinedArgument(design$kMax)) {
-		design$kMax <- C_KMAX_DEFAULT
-		design$.setParameterType("kMax", C_PARAM_DEFAULT_VALUE)
-		return(TRUE)
-	}
-	return(FALSE)
-}
-
 .isDefaultVector <- function(x, default) {
 	if (length(x) != length(default)) {
 		return(FALSE)
 	}
 	
 	return(sum(x == default) == length(x))
-}
-
-.validateAlphaAndBeta <- function(design) {
-	.assertDesignParameterExists(design, "alpha", C_ALPHA_DEFAULT)
-	.assertDesignParameterExists(design, "beta", C_BETA_DEFAULT)
-	.assertIsValidAlphaAndBeta(alpha = design$alpha, beta = design$beta)
-}
-
-.validateUserAlphaSpending <- function(design) {
-	.assertIsTrialDesign(design)
-	
-	.assertDesignParameterExists(design, "userAlphaSpending", NA_real_)
-	
-	design$.setParameterType("userAlphaSpending", C_PARAM_USER_DEFINED)
-	
-	if ((design$isUserDefinedParameter("informationRates") || 
-			(design$isDefaultParameter("informationRates") && !design$isUserDefinedParameter("kMax"))) &&
-		length(design$informationRates) != length(design$userAlphaSpending)) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-				"length of 'userAlphaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
-			length(design$userAlphaSpending), length(design$informationRates)))
-	}
-	
-	if (length(design$userAlphaSpending) != design$kMax) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-				"length of 'userAlphaSpending' (%s) must be equal to 'kMax' (%s)"), 
-			length(design$userAlphaSpending), design$kMax))
-	}
-	
-	.validateUserAlphaSpendingLength(design)
-	
-	if (.isUndefinedArgument(design$alpha)) {
-		design$alpha <- design$userAlphaSpending[design$kMax]
-		design$.setParameterType("alpha", ifelse(design$alpha == C_ALPHA_DEFAULT, 
-			C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
-	}
-	
-	.assertIsValidAlpha(design$alpha)
-	
-	if (design$kMax > 1 && (design$userAlphaSpending[1] < 0 || design$userAlphaSpending[design$kMax] > design$alpha ||
-			any(design$userAlphaSpending[2:design$kMax] - design$userAlphaSpending[1:(design$kMax - 1)] < 0))) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-				"'userAlphaSpending' = %s must be a vector that satisfies the following condition: ", 
-				"0 <= alpha_1 <= .. <= alpha_%s <= alpha = %s"), 
-			.arrayToString(design$userAlphaSpending, vectorLookAndFeelEnabled = TRUE), 
-			design$kMax, design$alpha))
-	}
-}
-
-.validateUserBetaSpending <- function(design) {
-	.assertIsTrialDesign(design)
-	
-	.assertDesignParameterExists(design, "userBetaSpending", NA_real_)
-	
-	design$.setParameterType("userBetaSpending", C_PARAM_USER_DEFINED)
-	
-	if ((design$isUserDefinedParameter("informationRates") || 
-			(design$isDefaultParameter("informationRates") && !design$isUserDefinedParameter("kMax"))) &&
-		length(design$informationRates) != length(design$userBetaSpending)) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-				"length of 'userBetaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
-			length(design$userBetaSpending), length(design$informationRates)))
-	}
-	
-	if (length(design$userBetaSpending) != design$kMax) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-				"length of 'userBetaSpending' (%s) must be equal to 'kMax' (%s)"), 
-			length(design$userBetaSpending), design$kMax))
-	}
-	
-	if (length(design$userBetaSpending) < 2 || length(design$userBetaSpending) > C_KMAX_UPPER_BOUND) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_ARGUMENT_LENGTH_OUT_OF_BOUNDS, 
-				"length of 'userBetaSpending' (%s) is out of bounds [2; %s]"), 
-			length(design$userBetaSpending), C_KMAX_UPPER_BOUND))
-	}
-	
-	if (.isUndefinedArgument(design$beta)) {
-		design$beta <- design$userBetaSpending[design$kMax]
-		design$.setParameterType("beta", ifelse(design$beta == C_BETA_DEFAULT, 
-			C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
-	}
-	
-	.assertIsValidBeta(beta = design$beta, alpha = design$alpha)
-	
-	if (design$kMax > 1 && (design$userBetaSpending[1] < 0 || design$userBetaSpending[design$kMax] > design$beta ||
-			any(design$userBetaSpending[2:design$kMax] - design$userBetaSpending[1:(design$kMax - 1)] < 0))) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-				"'userBetaSpending' = %s must be a vector that satisfies the following condition: ", 
-				"0 <= beta_1 <= .. <= beta_%s <= beta = %s"), 
-			.arrayToString(design$userBetaSpending, vectorLookAndFeelEnabled = TRUE), 
-			design$kMax, design$beta))
-	}
-}
-
-.validateUserAlphaSpendingLength <- function(design) {
-	if (length(design$userAlphaSpending) < 1 || length(design$userAlphaSpending) > C_KMAX_UPPER_BOUND) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_ARGUMENT_LENGTH_OUT_OF_BOUNDS, 
-					"length of 'userAlphaSpending' (%s) is out of bounds [1; %s]"), 
-				length(design$userAlphaSpending), C_KMAX_UPPER_BOUND))
-	}
-}
-
-.setKmaxBasedOnAlphaSpendingDefintion <- function(design) {
-	
-	if (.isTrialDesignFisher(design)) {
-		if (design$method != C_FISHER_METHOD_USER_DEFINED_ALPHA) {
-			return(invisible())
-		}
-	} else {
-		if (design$typeOfDesign != C_TYPE_OF_DESIGN_AS_USER) {
-			return(invisible())
-		}
-	}
-	
-	if (.isDefinedArgument(design$kMax)) {
-		return(invisible())
-	}
-	
-	if (.isUndefinedArgument(design$userAlphaSpending)) {
-		return(invisible())
-	}
-	
-	if (.isDefinedArgument(design$informationRates)) {
-		return(invisible())
-	}
-	
-	if (.isTrialDesignFisher(design)) {
-		if (.isDefinedArgument(design$alpha0Vec)) {
-			return(invisible())
-		}
-	} else {
-		if (.isDefinedArgument(design$futilityBounds)) {
-			return(invisible())
-		}
-	}
-	
-	.validateUserAlphaSpendingLength(design)
-	
-	.setKMax(design, kMax = length(design$userAlphaSpending))
-}
-
-.skipTestifDisabled <- function() {
-	if (!isTRUE(.isCompleteUnitTestSetEnabled()) && 
-			base::requireNamespace("testthat", quietly = TRUE)) {
-		testthat::skip("Test is disabled")
-	}
 }
 
 .getNumberOfZeroesDirectlyAfterDecimalSeparator <- function(x) {
@@ -1235,6 +982,40 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	return(values)
 }
 
+# cf. testthat::skip_on_cran()
+.skipTestIfDisabled <- function() {
+	if (!isTRUE(.isCompleteUnitTestSetEnabled()) && 
+			base::requireNamespace("testthat", quietly = TRUE)) {
+		testthat::skip("Test is disabled")
+	}
+}
+
+.skipTestIfNotX64 <- function() {
+	if (!.isMachine64Bit() && base::requireNamespace("testthat", quietly = TRUE)) {
+		testthat::skip("The test is only intended for 64-bit computers (x86-64)")
+	}
+}
+
+.isMachine64Bit <- function() {
+	return(Sys.info()[["machine"]] == "x86-64")
+}
+
+.getTestthatResultLine <- function(fileContent) {
+	indexStart <- regexpr("\\[ OK: \\d", fileContent)[[1]]
+	indexEnd <- regexpr("FAILED: \\d{1,5} \\]", fileContent)
+	indexEnd <- indexEnd[[1]] + attr(indexEnd, "match.length") - 1
+	resultPart <- substr(fileContent, indexStart, indexEnd)
+	return(resultPart)
+}
+
+.getTestthatResultNumberOfFailures <- function(fileContent) {
+	line <- .getTestthatResultLine(fileContent)
+	index <- regexpr("FAILED: \\d{1,5} \\]", line)
+	indexStart <- index[[1]] + attr(index, "match.length") - 4
+	indexEnd <- index[[1]] + attr(index, "match.length") - 3
+	substr(line, indexStart, indexEnd)
+}
+
 #' @title 
 #' Test Package
 # 
@@ -1246,8 +1027,9 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 #' @param completeUnitTestSetEnabled If \code{TRUE} (default) all existing unit tests will
 #'     be executed; a subset of all unit tests will be used otherwise.
 #' @param types The type(s) of tests to be done. Can be one or more of
-#'     \code{c("tests", "examples", "vignettes")}. Default is "tests" only.
+#'     \code{c("tests", "examples", "vignettes")}, default is "tests" only.
 #' @param sourceDirectory An optional directory to look for \code{.save} files.
+#' @inheritParams param_three_dots
 #' 
 #' @details 
 #' This function creates the subdirectory \code{rpact-tests} in the specified output directory
@@ -1258,15 +1040,14 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 #' The test results will be saved to the text file \code{testthat.Rout} that can be found
 #' in the subdirectory \code{rpact-tests}.
 #' 
-#' @keywords internal
-#'
-#' @export 
+#' @return The value of \code{completeUnitTestSetEnabled} will be returned invisible.
 #' 
 #' @examples 
-#' 
 #' \dontrun{
 #' testPackage()
 #' }
+#'
+#' @export
 #' 
 testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE, 
 		types = "tests", sourceDirectory = NULL) {
@@ -1274,7 +1055,8 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 	.assertTestthatIsInstalled()
 		
 	if (!dir.exists(outDir)) {
-		stop("Test output directory '", outDir, "' does not exist")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"test output directory '", outDir, "' does not exist")
 	}
 	
 	startTime <- Sys.time()
@@ -1291,24 +1073,51 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 
 	if (.isCompleteUnitTestSetEnabled()) {
 		cat("Run all tests. Please wait...\n")
-		cat("Have a big coffee - it will take 5 minutes or more.\n")
+		cat("Have a break - it will take 30 minutes or more.\n")
 	} else {
 		cat("Run a subset of all tests. Please wait...\n")
-		cat("Have a little coffee - it will take a minute or more.\n")
+		cat("Have a coffee - it will take 5 minutes or more.\n")
 	}
-	
-	tools::testInstalledPackage(pkg = "rpact", outDir = outDir, types = types, srcdir = sourceDirectory)
 	
 	if (outDir == ".") {
 		outDir <- getwd()
 	}
+	
+	oldResultFiles <- c(
+		file.path(outDir, "rpact-tests", "testthat.Rout"), 
+		file.path(outDir, "rpact-tests", "testthat.Rout.fail"))
+	for (oldResultFile in oldResultFiles) {
+		if (file.exists(oldResultFile)) {
+			file.remove(oldResultFile)
+		}
+	}
+	
+	tools::testInstalledPackage(pkg = "rpact", outDir = outDir, types = types, srcdir = sourceDirectory) 
+	
 	outDir <- file.path(outDir, "rpact-tests")
 	
 	endTime <- Sys.time()
-	timeTotal <- as.numeric(endTime - startTime) * 60
-	cat("Total runtime for testing:", floor(timeTotal / 60), "minutes and", 
-		((round(timeTotal / 60, 2) - floor(timeTotal / 60)) * 60), "seconds\n")
-	cat("Test results were written to directory '", outDir, "' (see file 'testthat.Rout')\n", sep = "")
+	timeTotalSeconds <- as.double(difftime(endTime, startTime, units = c("secs")))
+	cat("Total runtime for testing:", floor(timeTotalSeconds / 60), "minutes and", 
+		round((round(timeTotalSeconds, 2) - floor(timeTotalSeconds)) * 60), "seconds\n")
+	
+	inputFileName <- file.path(outDir, "testthat.Rout")
+	if (file.exists(inputFileName)) {
+		fileContent <- base::readChar(inputFileName, file.info(inputFileName)$size)
+		cat("All unit tests were completed successfully :)\n")
+		cat("Results:\n")
+		cat(.getTestthatResultLine(fileContent), "\n")
+		cat("Test results were written to directory '", outDir, "' (see file 'testthat.Rout')\n", sep = "")
+	} else {
+		inputFileName <- file.path(outDir, "testthat.Rout.fail")
+		if (file.exists(inputFileName)) {
+			fileContent <- base::readChar(inputFileName, file.info(inputFileName)$size)
+			cat(.getTestthatResultNumberOfFailures(fileContent), " unit tests failed :(\n", sep = "")
+			cat("Results:\n")
+			cat(.getTestthatResultLine(fileContent), "\n")
+			cat("Test results were written to directory '", outDir, "' (see file 'testthat.Rout.fail')\n", sep = "")
+		}
+	}
 	
 	invisible(.isCompleteUnitTestSetEnabled())
 }
@@ -1365,6 +1174,13 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 	return(x)
 }
 
+.matchArgument <- function(arg, defaultValue) {
+	if (any(is.na(arg))) {
+		return(defaultValue)
+	}
+	return(ifelse(length(arg) > 0, arg[1], defaultValue))
+}
+
 #' @title 
 #' Print Citation
 # 
@@ -1376,13 +1192,12 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 #' @details 
 #' This function shows how to cite \code{rpact} and \code{R} (\code{inclusiveR = TRUE}) in publications.
 #' 
+#' @examples 
+#' printCitation()
+#' 
 #' @keywords internal
 #'
-#' @export 
-#' 
-#' @examples 
-#' 
-#' printCitation()
+#' @export
 #' 
 printCitation <- function(inclusiveR = TRUE) {
 	if (inclusiveR) {
@@ -1398,3 +1213,39 @@ printCitation <- function(inclusiveR = TRUE) {
 	print(citation("rpact"), bibtex = FALSE)
 }
 
+.writeLinesToFile <- function(lines, fileName) {
+	if (is.null(lines) || length(lines) == 0 || !is.character(lines)) {
+		warning("Empty lines. Stop to write '", fileName, "'")
+		return(invisible(fileName))
+	}
+	
+	fileConn <- base::file(fileName)	
+	tryCatch({	
+			base::writeLines(lines, fileConn)
+		}, finally = {
+			base::close(fileConn)
+		})
+	invisible(fileName)
+}
+
+.readLinesFromFile <- function(inputFileName) {
+	content <- .readContentFromFile(inputFileName)	
+	return(strsplit(content, "\r\n", fixed = TRUE)[[1]])
+}
+
+.readContentFromFile <- function(inputFileName) {
+	return(readChar(inputFileName, file.info(inputFileName)$size))
+}
+
+.integerToWrittenNumber <- function(x) {
+	if (is.null(x) || length(x) != 1 || !is.numeric(x) || is.na(x)) {
+		return(x)
+	}
+	
+	temp <- c('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')
+	if (x >= 1 && x <= length(temp) && as.integer(x) == x) {
+		return(temp[x])
+	}
+	
+	return(as.character(x))
+}

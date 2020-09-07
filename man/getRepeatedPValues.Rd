@@ -4,17 +4,23 @@
 \alias{getRepeatedPValues}
 \title{Get Repeated P Values}
 \usage{
-getRepeatedPValues(design, stageResults, ...)
+getRepeatedPValues(stageResults, ..., tolerance = 1e-06)
 }
 \arguments{
-\item{design}{The trial design.}
-
 \item{stageResults}{The results at given stage, obtained from \code{\link{getStageResults}}.}
 
-\item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
+
+\item{tolerance}{The numerical tolerance, default is \code{1e-06}.}
+}
+\value{
+Returns a \code{\link[base]{numeric}} vector of length \code{kMax} or in case of multi-arm stage results   
+a \code{\link[base]{matrix}} (each column represents a stage, each row a comparison) 
+containing the repeated p values.
 }
 \description{
-Calculates the repeated p-values for given test results.
+Calculates the repeated p-values for a given test results.
 }
 \details{
 The repeated p-value at a given stage of the trial is defined as the smallest 
@@ -23,5 +29,41 @@ obtain rejection of the null hypothesis. It can be calculated at each
 stage of the trial and can thus be used as a monitoring tool. 
 
 The repeated p-values are provided up to the specified stage.
+
+In multi-arm trials, the repeated p-values are defined separately for each 
+treatment comparison within the closed testing procedure.
 }
-\keyword{internal}
+\section{Note on the dependency of \code{mnormt}}{
+
+If \code{intersectionTest = "Dunnett"} or the design is a conditional Dunnett design and
+the dataset is a multi-arm dataset, 
+\code{rpact} uses the R package \href{https://cran.r-project.org/package=mnormt}{mnormt}
+to calculate the analysis results.
+}
+
+\examples{
+\donttest{
+design <- getDesignInverseNormal(kMax = 2)
+data <- getDataset(
+    n      = c( 20,  30),
+    means  = c( 50,  51),
+    stDevs = c(130, 140)
+)
+getRepeatedPValues(getStageResults(design, dataInput = data))
+}
+
+}
+\seealso{
+Other analysis functions: 
+\code{\link{getAnalysisResults}()},
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getConditionalRejectionProbabilities}()},
+\code{\link{getFinalConfidenceInterval}()},
+\code{\link{getFinalPValue}()},
+\code{\link{getRepeatedConfidenceIntervals}()},
+\code{\link{getStageResults}()},
+\code{\link{getTestActions}()}
+}
+\concept{analysis functions}

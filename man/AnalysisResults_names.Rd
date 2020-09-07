@@ -3,17 +3,20 @@
 \name{AnalysisResults_names}
 \alias{AnalysisResults_names}
 \alias{names.AnalysisResults}
-\title{The Names of a Analysis Results object}
+\title{Names of a Analysis Results Object}
 \usage{
 \method{names}{AnalysisResults}(x)
 }
+\arguments{
+\item{x}{An \code{\link{AnalysisResults}} object created by \code{\link{getAnalysisResults}}.}
+}
 \value{
-A character vector containing the names of the \code{\link{AnalysisResults}} object.
+Returns a \code{\link[base]{character}} vector containing the names of the \code{\link{AnalysisResults}} object.
 }
 \description{
-Function to get the names of a \code{\link{AnalysisResults}} object.
+Function to get the names of an \code{\link{AnalysisResults}} object.
 }
 \details{
-Returns the names of a analysis results that can be accessed by the user.
+Returns the names of an analysis results that can be accessed by the user.
 }
 \keyword{internal}

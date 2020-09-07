@@ -1,22 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Plot setting classes --                                                         #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
-
+#:#
+#:#  *Plot setting classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3334 $
+#:#  Last changed: $Date: 2020-06-22 08:39:06 +0200 (Mon, 22 Jun 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 #' 
 #' @name PlotSettings
@@ -208,6 +208,7 @@ PlotSettings <- setRefClass("PlotSettings",
 				p <- p + ggplot2::theme(legend.title = ggplot2::element_text(
 						colour = "black", size = legendFontSize + 1, face = "bold"))
 			} else {
+				p <- p + ggplot2::theme(legend.title = ggplot2::element_blank())
 				p <- p + ggplot2::labs(colour = NULL)
 			}
 			return(p)
@@ -254,7 +255,7 @@ PlotSettings <- setRefClass("PlotSettings",
 		setLegendBorder = function(p) {
 			"Sets the legend border"
 			p <- p + ggplot2::theme(legend.background = 
-					ggplot2::element_rect(fill = "white", colour = "black", size = 0.4))
+				ggplot2::element_rect(fill = "white", colour = "black", size = 0.4))
 			return(p)
 		},
 		
@@ -276,7 +277,8 @@ PlotSettings <- setRefClass("PlotSettings",
 			
 			if (!is.na(subtitle)) {
 				p <- p + ggplot2::ggtitle(mainTitle, subtitle = subtitle)
-				subtitleFontSize <- nchar(subtitle) / 14.5
+				targetWidth = 130
+				subtitleFontSize <- targetWidth / nchar(subtitle) * 8 
 				if (subtitleFontSize > mainTitleFontSize - 2) {
 					subtitleFontSize <- mainTitleFontSize - 2
 				}
@@ -300,7 +302,8 @@ PlotSettings <- setRefClass("PlotSettings",
 				margin = base::rep(margin, 4)
 			}
 			if (!(length(margin) %in% c(1, 4))) {
-				stop("'margin' must be a numeric vector with length 1 or 4")
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'margin' (", .arrayToString(margin), 
+					") must be a numeric vector with length 1 or 4")
 			}
 			p <- p + ggplot2::theme(plot.margin = ggplot2::unit(margin, "cm"))
 			return(p)

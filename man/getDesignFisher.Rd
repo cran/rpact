@@ -8,88 +8,99 @@ getDesignFisher(
   ...,
   kMax = NA_integer_,
   alpha = NA_real_,
-  method = C_FISHER_METHOD_DEFAULT,
+  method = c("equalAlpha", "fullAlpha", "noInteraction", "userDefinedAlpha"),
   userAlphaSpending = NA_real_,
   alpha0Vec = NA_real_,
   informationRates = NA_real_,
   sided = 1,
   bindingFutility = NA,
-  tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT,
-  iterations = 0,
+  tolerance = 1e-14,
+  iterations = 0L,
   seed = NA_real_
 )
 }
 \arguments{
-\item{...}{Ensures that all arguments are be named and 
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{kMax}{The maximum number of stages K. K = 1, 2, 3, ..., 6, default is 3.}
+\item{kMax}{The maximum number of stages \code{K}. 
+\code{K = 1, 2, 3, ...} (default is \code{3}).
+The maximum selectable \code{kMax} is \code{10} for group sequential or inverse normal and
+\code{6} for Fisher combination test designs.}
 
-\item{alpha}{The significance level alpha, default is 0.025.}
+\item{alpha}{The significance level alpha, default is \code{0.025}.}
 
-\item{method}{"equalAlpha", "fullAlpha", "noInteraction", or "userDefinedAlpha", default is "equalAlpha".}
+\item{method}{\code{"equalAlpha"}, \code{"fullAlpha"}, \code{"noInteraction"}, or \code{"userDefinedAlpha"}, 
+default is \code{"equalAlpha"} (for details, see Wassmer, 1999).}
 
-\item{userAlphaSpending}{A vector of levels 0 < alpha_1 < ... < alpha_K < alpha 
-specifying the cumulative Type I error rate.}
+\item{userAlphaSpending}{The user defined alpha spending. 
+Numeric vector of length \code{kMax} containing the cumulative 
+alpha-spending (Type I error rate) up to each interim stage: \code{0 <= alpha_1 <= ... <= alpha_K <= alpha}.}
 
 \item{alpha0Vec}{Stopping for futility bounds for stage-wise p-values.}
 
-\item{informationRates}{Information rates that must be fixed prior to the trial, 
-default is \code{(1 : kMax) / kMax}.}
+\item{informationRates}{The information rates (that must be fixed prior to the trial), 
+default is \code{(1:kMax) / kMax}.}
 
-\item{sided}{Is the alternative one-sided (1) or two-sided (2), default is 1.}
+\item{sided}{Is the alternative one-sided (\code{1}) or two-sided (\code{2}), default is \code{1}.}
 
-\item{bindingFutility}{If \code{bindingFutility = FALSE} is specified the calculation of 
-the critical values is not affected by the futility bounds (default is \code{TRUE}).}
+\item{bindingFutility}{If \code{bindingFutility = TRUE} is specified the calculation of 
+the critical values is affected by the futility bounds (default is \code{TRUE}).}
 
-\item{tolerance}{The tolerance, default is 1E-14.}
+\item{tolerance}{The numerical tolerance, default is \code{1e-14}.}
 
 \item{iterations}{The number of simulation iterations, e.g.,
-getDesignFisher(iterations = 100000) checks the validity of the critical values for the default design. 
+\code{getDesignFisher(iterations = 100000)} checks the validity of the critical values for the default design. 
 The default value of \code{iterations} is 0, i.e., no simulation will be executed.}
 
 \item{seed}{Seed for simulating the power for Fisher's combination test. See above, default is a random seed.}
 }
 \value{
-Returns a \code{\link{TrialDesignFisher}} object
+Returns a \code{\link{TrialDesign}} object.
+The following generics (R generic functions) are available for this result object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.TrialDesign]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.TrialDesign]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Performs Fisher's combination test and returns critical values for this design.
 }
 \details{
-\code{getDesignFisher} calculates the critical values and stage levels for Fisher's combination test as described in Bauer (1989), Bauer and Koehne (1994), 
+\code{getDesignFisher} calculates the critical values and stage levels for 
+Fisher's combination test as described in Bauer (1989), Bauer and Koehne (1994), 
 Bauer and Roehmel (1995), and Wassmer (1999) for equally and unequally sized stages.
 }
-\examples{
-# Run with default values
-getDesignFisher() 
+\section{How to get help for generic functions}{
 
-# The output is:
-#  
-# Design parameters and output of Fisher design:
-# User defined parameters: not available
-# 
-# Derived from user defined parameters: not available
-# 
-# Default parameters:
-#   Method                          : equalAlpha 
-#   Maximum number of stages        : 3 
-#   Stages                          : 1, 2, 3 
-#   Information rates               : 0.333, 0.667, 1.000 
-#   Significance level              : 0.0250 
-#   Alpha_0                         : 1.0000, 1.0000 
-#   Binding futility                : TRUE 
-#   Test                            : one-sided 
-#   Tolerance                       : 1e-14 
-# 
-# Output:
-#   Cumulative alpha spending       : 0.01231, 0.01962, 0.02500 
-#   Critical values                 : 0.0123085, 0.0016636, 0.0002911 
-#   Stage levels                    : 0.01231, 0.01231, 0.01231 
-#   Scale                           : 1, 1 
-#   Non stochastic curtailment      : FALSE 
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+}
+
+\examples{
+# Calculate critical values for a two-stage Fisher's combination test 
+# with full level alpha = 0.05 at the final stage and stopping for 
+# futility bound alpha0 = 0.50, as described in Bauer and Koehne (1994). 
+getDesignFisher(kMax = 2, method = "fullAlpha", alpha = 0.05, alpha0Vec = 0.50) 
 
 }
 \seealso{
 \code{\link{getDesignSet}} for creating a set of designs to compare.
+
+Other design functions: 
+\code{\link{getDesignCharacteristics}()},
+\code{\link{getDesignConditionalDunnett}()},
+\code{\link{getDesignGroupSequential}()},
+\code{\link{getDesignInverseNormal}()},
+\code{\link{getPowerAndAverageSampleNumber}()}
 }
+\concept{design functions}

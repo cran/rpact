@@ -1,5 +1,53 @@
 
-# rpact 2.06
+# rpact 3.0.0
+
+## New features
+
+* Simulation tools for multi-arm design testing means, rates, and hazard ratios 
+* Analysis tools for multi-arm design testing means, rates, and hazard ratios 
+* getSimulationRates: exact versions for testing a rate (one-sample case) and equality of rates (two-sample case) 
+* getDataset: multi-arm datasets for means, rates, and survival data 
+* Analysis of fixed designs 
+* Summary for analysis and simulation result objects newly implemented
+* Summary for most rpact result objects substantially improved and enhanced
+* getEventProbabilities: plot of result object 
+* getNumberOfSubjects: plot of result object 
+* Visual comparison of two designs: plot(design1, design2) 
+* Functions setOutputFormat and getOutputFormat implemented: definition of user defined output formats
+* getSimulationMeans: thetaH1 and stDevH1 can be specified for assessment of sample size recalculation (replaces thetaStandardized) 
+* getSimulationSurvival: separate p-values added to the aggregated simulation data for Fisher designs
+* getSimulationMeans, getSimulationRates: Cumulated number of subjects integrated in getData object.
+* getSimulation[MultiArm][Means/Rates/Survival]: new logical argument 'showStatistics' added  
+* Example datasets (csv files) added to the package
+* plot type "all": plot all available plots of an object in one step using plot(x, type = "all")
+* plot type improved: 'type' now can be a vector, e.g., plot(x, type = c(1, 3))
+* plot(x, grid = 1): new plot argument 'grid' enables the plotting of 2 or more plots in one graphic 
+
+## Improvements, issues and changes
+
+* getAnalysisResults: list output implemented analogous to the output of all other rpact objects
+* getAnalysisResults: the following stage result arguments were removed from result object because they were redundant: effectSizes, testStatistics, and pValues. Please use the '.stageResults' object to access them, e.g., results$.stageResults$effectSizes
+* getAnalysisResults: the following design arguments were removed from result object because they were redundant: stages, informationRates, criticalValues, futilityBounds, alphaSpent, and stageLevels. Please use the '.design' object to access them, e.g., results$.design$informationRates
+* Optional argument 'stage' removed from functions getConditionalPower, getConditionalRejectionProbabilities, getFinalPValue, getRepeatedPValues, and getTestActions
+* Function testPackage improved, e.g., results will be displayed now on screen
+* Help system renewed and approved, e.g., help for corresponding generic functions (e.g., plot) linked where applicable
+* Function getPiecewiseSurvivalTime improved: pi1 and pi2 will not be calculated any longer for lambda- or median-based definitions; eventTime only required for pi-based definitions
+* plot(x, showSource = TRUE) improved for all rpact result objects x
+* Performance of plotting analysis results of Fisher designs improved
+* getSimulationRates: issue for futility stopping for Fisher's combination test fixed
+* getSimulationSurvival: issue for expected number of events fixed
+* getSimulationSurvival: if eventsNotAchieved > 0, rejection/futility rate and analysis time is estimated for valid simulation runs
+* getSimulationSurvival: output improved for lambda1/median1/hazardRatio with length > 1
+* getSampleSizeSurvival: calculation of the maximum number of subjects given the provided argument 'followUpTime' improved 
+* getPiecewiseSurvivalTime: delayed response via list-based piecewiseSurvivalTime definition enabled
+* getAccrualTime/getSimulationSurvival: issue with the calculation of absolute accrual intensity by given relative accrual intensity fixed
+* getRawData: issue for multiple pi1 solved 
+* Implementation of the generic function 'names' improved
+* Test coverage improved: lots of new unit tests added
+* License information in the DESCRIPTION file corrected: changed from GPL-3 to LGPL-3
+* Minor improvements
+
+# rpact 2.0.6
 
 * Boundaries on effect scale for testing means now accounts for the unknown variance case
 * getAnalysisSurvival: calculation of stage wise results not more in getStageResults
@@ -10,7 +58,7 @@
 * Internal Shiny app interface improved
 * Minor improvements
 
-# rpact 2.05
+# rpact 2.0.5
 
 * Assumed median survival time: get[SampleSize/Power/Simulation]Survival now support direct input of arguments 'median1' and 'median2'
 * Output of generic function 'summary' improved
@@ -22,12 +70,12 @@
 * Error in 'summary' for getDesign[...] fixed
 * Other minor improvements
 
-# rpact 2.04
+# rpact 2.0.4
 
 * Incorrect output of function 'summary' fixed for getSampleSize[...] and getPower[...]
 * as.data.frame: default value of argument 'niceColumnNamesEnabled' changed from TRUE to FALSE
 
-# rpact 2.03
+# rpact 2.0.3
 
 ## New features
 
@@ -40,14 +88,14 @@
 * Ouput of getStageResults() improved
 * Improvements for Shiny app compatibility and better Shiny app performance
 * Repeated p-values are no longer calculated for typeOfDesign = "WToptimum"
-* Piecewise suvival time improved for numeric definition: median and pi will not be calculated and displayed any longer
+* Piecewise survival time improved for numeric definition: median and pi will not be calculated and displayed any longer
 * Plot: legend title and tick mark positioning improved; optional arguments xlim and ylim implemented
 * Sample size/power: usage of argument 'twoSidedPower' optimized
 * Performance of function rpwexp/getPiecewiseExponentialRandomNumbers improved (special thanks to Marcel Wolbers for his example code)
 * For group sequential designs a warning will be displayed if information rates from design not according to data information
 * Format for output of standard deviation optimized
 
-# rpact 2.02
+# rpact 2.0.2
 
 * Minor corrections in the inline help
 * Labeling of lower and upper critical values (effect scale) reverted

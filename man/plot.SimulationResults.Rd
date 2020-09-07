@@ -7,16 +7,17 @@
 \method{plot}{SimulationResults}(
   x,
   y,
+  ...,
   main = NA_character_,
   xlab = NA_character_,
   ylab = NA_character_,
-  type = 1,
+  type = 1L,
   palette = "Set1",
   theta = seq(-1, 1, 0.01),
   plotPointsEnabled = NA,
   legendPosition = NA_integer_,
   showSource = FALSE,
-  ...
+  grid = 1
 )
 }
 \arguments{
@@ -24,6 +25,9 @@
 \code{\link{getSimulationSurvival}}.}
 
 \item{y}{Not available for this kind of plot (is only defined to be compatible to the generic plot function).}
+
+\item{...}{Optional plot arguments. At the moment \code{xlim} and \code{ylim} are implemented 
+for changing x or y axis limits without dropping data observations.}
 
 \item{main}{The main title.}
 
@@ -33,25 +37,27 @@
 
 \item{type}{The plot type (default = \code{1}). The following plot types are available:
 \itemize{
-  \item \code{1}: creates a 'Boundaries' plot
-  \item \code{2}: creates a 'Boundaries Effect Scale' plot
-  \item \code{3}: creates a 'Boundaries p Values Scale' plot
-  \item \code{4}: creates a 'Type One Error Spending' plot
-  \item \code{5}: creates a 'Sample Size' or 'Overall Power and Early Stopping' plot
-  \item \code{6}: creates a 'Number of Events' or 'Sample Size' plot
+  \item \code{1}: creates a 'Overall Success' plot (multi-arm only)
+  \item \code{2}: creates a 'Success per Stage' plot (multi-arm only)
+  \item \code{3}: creates a 'Selected Arms per Stage' plot (multi-arm only)
+  \item \code{4}: creates a 'Reject per Stage' or 'Rejected Arms per Stage' plot
+  \item \code{5}: creates a 'Overall Power and Early Stopping' plot
+  \item \code{6}: creates a 'Expected Number of Subjects and Power / Early Stop' or 
+        'Expected Number of Events and Power / Early Stop' plot
   \item \code{7}: creates an 'Overall Power' plot
   \item \code{8}: creates an 'Overall Early Stopping' plot
-  \item \code{9}: creates an 'Expected Number of Events' or 'Expected Sample Size' plot
-  \item \code{10}: creates a 'Study Duration' plot
-  \item \code{11}: creates an 'Expected Number of Subjects' plot
-  \item \code{12}: creates an 'Analysis Times' plot
-  \item \code{13}: creates a 'Cumulative Distribution Function' plot
-  \item \code{14}: creates a 'Survival Function' plot
+  \item \code{9}: creates an 'Expected Sample Size' or 'Expected Number of Events' plot
+  \item \code{10}: creates a 'Study Duration' plot (non-multi-arm survival only)
+  \item \code{11}: creates an 'Expected Number of Subjects' plot (non-multi-arm survival only)
+  \item \code{12}: creates an 'Analysis Times' plot (non-multi-arm survival only)
+  \item \code{13}: creates a 'Cumulative Distribution Function' plot (non-multi-arm survival only)
+  \item \code{14}: creates a 'Survival Function' plot (non-multi-arm survival only)
+  \item \code{"all"}: creates all available plots and returns it as a grid plot or list
 }}
 
 \item{palette}{The palette, default is \code{"Set1"}.}
 
-\item{theta}{A vector of theta values.}
+\item{theta}{A vector of standardized effect sizes (theta values), default is a sequence from -1 to 1.}
 
 \item{plotPointsEnabled}{If \code{TRUE}, additional points will be plotted.}
 
@@ -72,16 +78,42 @@ Choose one of the following values to specify the position manually:
 
 \item{showSource}{If \code{TRUE}, the parameter names of the object will 
 be printed which were used to create the plot; that may be, e.g., 
-useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
+useful to check the values or to create own plots with the base R \code{plot} function.
+Alternatively \code{showSource} can be defined as one of the following character values: 
+\itemize{
+  \item \code{"commands"}: returns a character vector with plot commands
+  \item \code{"axes"}: returns a list with the axes definitions
+  \item \code{"test"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function does not stop if an error occurs)
+  \item \code{"validate"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function stops if an error occurs)
+}
+Note: no plot object will be returned if \code{showSource} is a character.}
 
-\item{...}{Optional \code{ggplot2} arguments.}
+\item{grid}{An integer value specifying the output of multiple plots. 
+By default (\code{1}) a list of \code{ggplot} objects will be returned. 
+If a \code{grid} value > 1 was specified, a grid plot will be returned 
+if the number of plots is <= specified \code{grid} value; 
+a list of \code{ggplot} objects will be returned otherwise.
+If \code{grid = 0} is specified, all plots will be created using \code{\link[base]{print}} command 
+and a list of \code{ggplot} objects will be returned invisible. 
+Note that one of the following packages must be installed to create a grid plot: 
+'ggpubr', 'gridExtra', or 'cowplot'.}
 }
 \value{
-A \code{ggplot2} object.
+Returns a \code{ggplot2} object.
 }
 \description{
 Plots simulation results.
 }
 \details{
 Generic function to plot all kinds of simulation results.
+}
+\examples{
+\donttest{
+results <- getSimulationMeans(alternative = 0:4, stDev = 5, 
+    plannedSubjects = 40, maxNumberOfIterations = 1000)
+plot(results, type = 5)
+}
+
 }

@@ -7,8 +7,14 @@
 \usage{
 \method{as.data.frame}{AnalysisResults}(x, row.names = NULL, optional = FALSE, ...)
 }
+\arguments{
+\item{x}{An \code{\link{AnalysisResults}} object created by \code{\link{getAnalysisResults}}.}
+
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
+}
 \value{
-A data frame
+Returns a \code{\link[base]{data.frame}}.
 }
 \description{
 Returns the \code{\link{AnalysisResults}} object as data frame.

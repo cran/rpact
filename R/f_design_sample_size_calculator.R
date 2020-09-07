@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Sample size calculator --                                                       #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.1.0                                                                #
-# Date: 29-01-2019                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Sample size calculator*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3594 $
+#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 .addEffectScaleBoundaryDataToDesignPlan <- function(designPlan) {
 	
@@ -27,9 +28,8 @@
 		if (design$kMax == 1 && designPlan$.isSampleSizeObject()) {
 			designPlan$maxNumberOfSubjects <- designPlan$nFixed
 		}
-		boundaries <- .getEffectScaleBoundaryDataMeans(design, designPlan$thetaH0, 
-				designPlan$meanRatio, designPlan$stDev,	designPlan$maxNumberOfSubjects, 
-				designPlan$groups, designPlan$allocationRatioPlanned, designPlan$directionUpper, designPlan$normalApproximation)
+		
+		boundaries <- .getEffectScaleBoundaryDataMeans(designPlan)
 		
 	} else if (.isTrialDesignPlanRates(designPlan)) {
 
@@ -49,9 +49,7 @@
 		if (design$kMax == 1 && designPlan$.isSampleSizeObject()) {
 			designPlan$maxNumberOfSubjects <- designPlan$nFixed
 		}
-		boundaries <- .getEffectScaleBoundaryDataRates(design, designPlan$thetaH0, 
-				designPlan$pi2, designPlan$maxNumberOfSubjects, designPlan$groups,  
-				designPlan$riskRatio, designPlan$allocationRatioPlanned, designPlan$directionUpper)
+		boundaries <- .getEffectScaleBoundaryDataRates(designPlan)
 		
 	} else if (.isTrialDesignPlanSurvival(designPlan)) {
 		
@@ -63,8 +61,7 @@
 		if (design$kMax == 1 && designPlan$.isSampleSizeObject()) {
 			designPlan$eventsPerStage <- matrix(designPlan$eventsFixed,nrow = 1)
 		}
-		boundaries <- .getEffectScaleBoundaryDataSurvival(design, designPlan$thetaH0, 
-				designPlan$eventsPerStage, designPlan$allocationRatioPlanned, designPlan$directionUpper)
+		boundaries <- .getEffectScaleBoundaryDataSurvival(designPlan)
 	}
 	
 	if (designPlan$.design$sided == 1) {
@@ -86,20 +83,28 @@
 	designPlan$futilityBoundsEffectScale <- round(boundaries$futilityBoundsEffectScale,8)
 }
 
-.getEffectScaleBoundaryDataMeans <- function(design, thetaH0, meanRatio, stDev, 
-		maxNumberOfSubjects, groups, allocationRatioPlanned, directionUpper, normalApproximation) {
+.getEffectScaleBoundaryDataMeans <- function(designPlan) {
+		
+	design <- designPlan$.design 
+	thetaH0 <- designPlan$thetaH0 
+	stDev <- designPlan$stDev	
+	maxNumberOfSubjects <- designPlan$maxNumberOfSubjects 
+	allocationRatioPlanned <- designPlan$allocationRatioPlanned 
+	directionUpper <- designPlan$directionUpper 
 	
 	futilityBoundsEffectScale <- rep(NA_real_, design$kMax - 1) #  Initialising effect scale matrix
 
-	if (normalApproximation){
+	if (designPlan$normalApproximation) {
 		criticalValues <- design$criticalValues
 		futilityBounds <- design$futilityBounds
 	} else {
-		criticalValues <- stats::qt(1 - design$stageLevels, design$informationRates %*% t(maxNumberOfSubjects) - groups)
-		futilityBounds <- stats::qt(stats::pnorm(design$futilityBounds), design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects) - groups)
+		criticalValues <- stats::qt(1 - design$stageLevels, 
+			design$informationRates %*% t(maxNumberOfSubjects) - designPlan$groups)
+		futilityBounds <- stats::qt(stats::pnorm(design$futilityBounds), 
+			design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects) - designPlan$groups)
 	}
 
-	if (groups == 1) {
+	if (designPlan$groups == 1) {
 		criticalValuesEffectScaleUpper <- thetaH0 + criticalValues * stDev / 
 			sqrt(design$informationRates %*% t(maxNumberOfSubjects))
 		criticalValuesEffectScaleLower <- thetaH0 - criticalValues * stDev / 
@@ -108,7 +113,7 @@
 			futilityBoundsEffectScale <- thetaH0 + futilityBounds * stDev / 
 				sqrt(design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects))
 		}
-	} else if (!meanRatio) {
+	} else if (!designPlan$meanRatio) {
 		criticalValuesEffectScaleUpper <- thetaH0 + criticalValues * stDev * 
 			(1 + allocationRatioPlanned) / (sqrt(allocationRatioPlanned * 
 			design$informationRates %*% t(maxNumberOfSubjects)))
@@ -150,8 +155,14 @@
 	))
 }
 
-.getEffectScaleBoundaryDataRates <- function(design, thetaH0, pi2, maxNumberOfSubjects, 
-		groups, riskRatio, allocationRatioPlanned, directionUpper) {
+.getEffectScaleBoundaryDataRates <- function(designPlan) {
+		
+	design <- designPlan$.design
+	thetaH0 <- designPlan$thetaH0 
+	pi2 <- designPlan$pi2 
+	maxNumberOfSubjects <- designPlan$maxNumberOfSubjects 
+	allocationRatioPlanned <- designPlan$allocationRatioPlanned 
+	directionUpper <- designPlan$directionUpper
 
 	nParameters <- length(maxNumberOfSubjects)
 
@@ -165,7 +176,7 @@
 		allocationRatioPlanned <- rep(allocationRatioPlanned, nParameters)
 	}
 
-	if (groups == 1) {
+	if (designPlan$groups == 1) {
 		n1 <- design$informationRates %*% t(maxNumberOfSubjects) 
 		for (j in (1:nParameters)) {
 			criticalValuesEffectScaleUpper[, j] <- thetaH0 + (2 * directionUpper[j] - 1) * 
@@ -181,7 +192,7 @@
 					sqrt(n1[1:(design$kMax - 1), j])
 			}
 		}
-	} else if (!riskRatio) {
+	} else if (!designPlan$riskRatio) {
 		boundaries <- design$criticalValues
 		
 		# calculate pi1 that solves (pi1 - pi2 - thetaH0) / SE(pi1 - pi2 - thetaH0) 
@@ -195,8 +206,8 @@
 			for (i in (1:length(boundaries))) {				
 				tryCatch({pi1Bound <- uniroot(
 					function(x) {
-						fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
-							allocationRatioPlanned[j], method = "diff")
+						fm <- .getFarringtonManningValues(rate1 = x, rate2 = pi2, theta = thetaH0, 
+							allocation = allocationRatioPlanned[j], method = "diff")
 						(x - pi2 - thetaH0) / sqrt(fm$ml1 * (1 - fm$ml1) / 
 							n1[i] + fm$ml2 * (1 - fm$ml2) / n2[i]) - 
 							(2 * directionUpper[j] - 1) * boundaries[i]
@@ -210,8 +221,8 @@
 				for (i in (1:length(boundaries))) {				
 					tryCatch({pi1Bound <- uniroot(
 						function(x) {
-							fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
-								allocationRatioPlanned[j], method = "diff")
+							fm <- .getFarringtonManningValues(rate1 = x, rate2 = pi2, theta = thetaH0, 
+								allocation = allocationRatioPlanned[j], method = "diff")
 							(x - pi2 - thetaH0) / sqrt(fm$ml1 * (1 - fm$ml1) / 
 								n1[i] + fm$ml2 * (1 - fm$ml2) / n2[i]) + 
 								boundaries[i]
@@ -232,8 +243,8 @@
 				for (i in (1:length(boundaries))) {				
 					tryCatch({pi1Bound <- uniroot(
 						function(x) {
-							fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
-								allocationRatioPlanned[j], method = "diff")
+							fm <- .getFarringtonManningValues(rate1 = x, rate2 = pi2, theta = thetaH0, 
+								allocation = allocationRatioPlanned[j], method = "diff")
 							(x - pi2 - thetaH0) / sqrt(fm$ml1 * (1 - fm$ml1) / n1[i] + 
 								fm$ml2 * (1 - fm$ml2) / n2[i]) - 
 								(2 * directionUpper[j] - 1) * boundaries[i]
@@ -256,8 +267,8 @@
 			for (i in (1:length(boundaries))) {				
 				tryCatch({pi1Bound <- uniroot(
 					function(x) {
-						fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
-							allocationRatioPlanned[j], method = "ratio")
+						fm <- .getFarringtonManningValues(rate1 = x, rate2 = pi2, theta = thetaH0, 
+							allocation = allocationRatioPlanned[j], method = "ratio")
 						(x - thetaH0 * pi2) / sqrt(fm$ml1 * (1 - fm$ml1) / n1[i] + 
 							thetaH0^2 * fm$ml2 * (1 - fm$ml2) / n2[i]) - 
 							(2 * directionUpper[j] - 1) * boundaries[i]
@@ -271,8 +282,8 @@
 				for (i in (1:length(boundaries))) {				
 					tryCatch({pi1Bound <- uniroot(
 						function(x) {
-							fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
-								allocationRatioPlanned[j], method = "ratio")
+							fm <- .getFarringtonManningValues(rate1 = x, rate2 = pi2, theta = thetaH0, 
+								allocation = allocationRatioPlanned[j], method = "ratio")
 							(x - thetaH0 * pi2) / sqrt(fm$ml1 * (1 - fm$ml1) / n1[i] + 
 								thetaH0^2 * fm$ml2 * (1 - fm$ml2) / n2[i]) + 
 								boundaries[i]
@@ -293,8 +304,8 @@
 				for (i in (1:length(boundaries))) {				
 					tryCatch({pi1Bound <- uniroot(
 						function(x) {
-							fm <- .getFarringtonManningValues(x, pi2, thetaH0, 
-								allocationRatioPlanned[j], method = "ratio")
+							fm <- .getFarringtonManningValues(rate1 = x, rate2 = pi2, theta = thetaH0, 
+								allocation = allocationRatioPlanned[j], method = "ratio")
 							(x - thetaH0 * pi2) / sqrt(fm$ml1 * (1 - fm$ml1) / n1[i] + 
 								thetaH0^2 * fm$ml2 * (1 - fm$ml2) / n2[i]) - 
 								(2 * directionUpper[j] - 1) * boundaries[i]
@@ -315,8 +326,13 @@
 	))
 }
 
-.getEffectScaleBoundaryDataSurvival <- function(
-		design, thetaH0, eventsPerStage, allocationRatioPlanned, directionUpper) {
+.getEffectScaleBoundaryDataSurvival <- function(designPlan) {
+		
+	design <- designPlan$.design
+	thetaH0 <- designPlan$thetaH0 
+	eventsPerStage <- designPlan$eventsPerStage 
+	allocationRatioPlanned <- designPlan$allocationRatioPlanned 
+	directionUpper <- designPlan$directionUpper
 
 	if (design$kMax == 1) {
 		nParameters <- length(eventsPerStage)
@@ -369,27 +385,18 @@
 #' @description 
 #' Returns the sample size for testing means in one or two samples.
 #'
-#' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, 
-#'        and \code{sided} can be directly entered as argument.  
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
-#' @param normalApproximation If \code{normalApproximation = TRUE} is specified, the variance is 
-#'        assumed to be known, default is FALSE, i.e., the calculations are performed 
+#' @inheritParams param_design_with_default
+#' @inheritParams param_groups
+#' @param normalApproximation The type of computation of the p-values. If \code{TRUE}, the variance is 
+#'        assumed to be known, default is \code{FALSE}, i.e., the calculations are performed 
 #'        with the t distribution.
-#' @param meanRatio If \code{meanRatio = TRUE} is specified, the sample size for 
-#'        one-sided testing of H0: mu1/mu2 = thetaH0 is calculated, default is \code{FALSE}.
-#' @param thetaH0 The null hypothesis value. For one-sided testing, a value != 0 
-#'        (or a value != 1 for testing the mean ratio) can be specified, default is 
-#'        \code{0} or \code{1} for difference and ratio testing, respectively.
-#' @param alternative The alternative hypothesis value. This can be a vector of assumed 
-#'        alternatives, default is \code{seq(0.2,1,0.2)}. 
-#' @param stDev The standard deviation, default is 1. If \code{meanRatio = TRUE} 
-#'        is specified, stDev defines the coefficient of variation sigma/mu2. 
-#' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups 
-#'        design, default is 1. If \code{allocationRatioPlanned = 0} is entered, 
-#' 		  the optimal allocation ratio yielding the smallest overall sample size is determined.
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @param meanRatio If \code{TRUE}, the sample size for 
+#'        one-sided testing of H0: \code{mu1 / mu2 = thetaH0} is calculated, default is \code{FALSE}.
+#' @inheritParams param_thetaH0
+#' @inheritParams param_alternative
+#' @inheritParams param_stDev
+#' @inheritParams param_allocationRatioPlanned_sampleSize
+#' @inheritParams param_three_dots
 #' 
 #' @details 
 #' At given design the function calculates the stage-wise (non-cumulated) and maximum 
@@ -400,33 +407,29 @@
 #' Critical bounds and stopping for futility bounds are provided at the effect scale 
 #' (mean, mean difference, or mean ratio, respectively) for each sample size calculation separately. 
 #' 
-#' @return Returns a \code{\link{TrialDesignPlanMeans}} object.
+#' @template return_object_trial_design_plan
+#' @template how_to_get_help_for_generics
+#' 
+#' @family sample size functions
 #'
+#' @template examples_get_sample_size_means
+#' 
 #' @export
 #' 
-#' @examples
-#'  
-#' # Calculate sample sizes in a fixed sample size parallel group design 
-#' # with allocation ratio n1/n2 = 2 for a range of alternative values 1,...,5 
-#' # with assumed standard deviation = 3.5; two-sided alpha = 0.05, power 1 - beta = 90%:
-#' getSampleSizeMeans(alpha = 0.05, beta = 0.1, sided = 2, groups = 2, 
-#'     alternative = seq(1, 5, 1), stDev = 3.5, allocationRatioPlanned = 2)
-#'
-#' # Calculate sample sizes in a three-stage Pocock paired comparison design testing 
-#' # H0: mu = 2 for a range of alternative values 3,4,5 with assumed standard 
-#' # deviation = 3.5; one-sided alpha = 0.05, power 1 - beta = 90%:
-#' getSampleSizeMeans(getDesignGroupSequential(typeOfDesign = "P", alpha = 0.05, 
-#'     sided = 1, beta = 0.1), groups = 1, thetaH0 = 2, 
-#'     alternative = seq(3, 5, 1), stDev = 3.5)
-#' 
-getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximation = FALSE, 
-		meanRatio = FALSE, thetaH0 = ifelse(meanRatio, 1, 0), alternative = C_ALTERNATIVE_DEFAULT, 
-		stDev = C_STDEV_DEFAULT, allocationRatioPlanned = NA_real_) {
+getSampleSizeMeans <- function(design = NULL, ..., 
+		groups = 2, 
+		normalApproximation = FALSE, 
+		meanRatio = FALSE, 
+		thetaH0 = ifelse(meanRatio, 1, 0), 
+		alternative = seq(0.2, 1, 0.2),    # C_ALTERNATIVE_DEFAULT
+		stDev = 1,                         # C_STDEV_DEFAULT
+		allocationRatioPlanned = NA_real_  # C_ALLOCATION_RATIO_DEFAULT
+	 ) {
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		design <- .getDefaultDesign(..., type = "sampleSize")
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeMeans", 
-			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeMeans", ...)
@@ -439,43 +442,6 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 		allocationRatioPlanned = allocationRatioPlanned, ...)
 	
 	return(.getSampleSize(designPlan))
-}
-
-.getDefaultDesignForSampleSizeCalculations <- function(..., powerEnabled = FALSE) {
-	ignore = c()
-	alpha <- .getOptionalArgument("alpha", ...)
-	if (is.null(alpha)) {
-		alpha <- NA_real_
-	} else {
-		ignore <- c(ignore, "alpha")
-	}
-	beta <- .getOptionalArgument("beta", ...)
-	if (is.null(beta)) {
-		beta <- NA_real_
-	} else {
-		ignore <- c(ignore, "beta")
-	}
-	sided <- .getOptionalArgument("sided", ...)
-	if (is.null(sided)) {
-		sided <- 1L
-	} else {
-		ignore <- c(ignore, "sided")
-	}
-	twoSidedPower <- .getOptionalArgument("twoSidedPower", ...)
-	if (is.null(twoSidedPower)) {
-		if (powerEnabled && sided == 2) {
-			twoSidedPower <- TRUE
-		} else {
-			twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
-		}
-	} else {
-		ignore <- c(ignore, "twoSidedPower")
-	}
-	.warnInCaseOfUnknownArguments(functionName = 
-		".getDefaultDesignForSampleSizeCalculations", ignore = ignore, ...)
-	design <- getDesignGroupSequential(kMax = 1, alpha = alpha, beta = beta, 
-		sided = sided, twoSidedPower = twoSidedPower)
-	return(design)
 }
 
 .warnInCaseOfTwoSidedPowerArgument <- function(...) {
@@ -497,25 +463,18 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 #' @description 
 #' Returns the sample size for testing rates in one or two samples.
 #' 
-#' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and \code{sided} can be directly entered as argument.  
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}. 
-#' @param normalApproximation If \code{normalApproximation = FALSE} is specified, the sample size 
+#' @inheritParams param_design_with_default
+#' @inheritParams param_groups
+#' @param normalApproximation If \code{FALSE}, the sample size 
 #'        for the case of one treatment group is calculated exactly using the binomial distribution, 
 #'        default is \code{TRUE}.
-#' @param riskRatio If \code{riskRatio = TRUE} is specified, the sample size for one-sided 
-#'        testing of H0: \code{pi1/pi2 = thetaH0} is calculated, default is \code{FALSE}. 
-#' @param thetaH0 The null hypothesis value. For one-sided testing, a value != 0 
-#'        (or != 1 for testing the risk ratio \code{pi1/pi2}) can be specified, default is \code{0} or \code{1} for difference and ratio testing, respectively.
-#' @param pi1 The assumed probability in the active treatment group if two treatment groups 
-#'        are considered, or the alternative probability for a one treatment group design, 
-#'        default is \code{seq(0.4,0.6,0.1)}.
-#' @param pi2 The assumed probability in the reference group if two treatment groups are considered, default is \code{0.2}. 
-#' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups design. \cr
-#'        If \code{allocationRatioPlanned = 0} is entered, the optimal allocation ratio yielding the 
-#'        smallest overall sample size is determined, default is \code{1}.
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @param riskRatio If \code{TRUE}, the sample size for one-sided 
+#'        testing of H0: \code{pi1 / pi2 = thetaH0} is calculated, default is \code{FALSE}. 
+#' @inheritParams param_thetaH0
+#' @inheritParams param_pi1_rates
+#' @inheritParams param_pi2_rates
+#' @inheritParams param_allocationRatioPlanned_sampleSize
+#' @inheritParams param_three_dots
 #' 
 #' @details 
 #' At given design the function calculates the stage-wise (non-cumulated) and maximum sample size for testing rates.
@@ -528,36 +487,29 @@ getSampleSizeMeans <- function(design = NULL, ..., groups = 2, normalApproximati
 #' For the two-sample case, the calculation here is performed at fixed pi2 as given as argument 
 #' in the function.  
 #' 
-#' @return Returns a \code{\link{TrialDesignPlanRates}} object.
+#' @template return_object_trial_design_plan
+#' @template how_to_get_help_for_generics
+#' 
+#' @family sample size functions
 #'
+#' @template examples_get_sample_size_rates
+#' 
 #' @export
 #' 
-#' @examples
-#' 
-#' # Calculate the stage-wise sample sizes, maximum sample sizes, and the optimum 
-#' # allocation ratios for a range of pi1 values when testing 
-#' # H0: pi1 - pi2 = -0.1 within a two-stage O'Brien & Fleming design;
-#' # alpha = 0.05 one-sided, power 1- beta = 90%:
-#' getSampleSizeRates(design = getDesignGroupSequential(kMax = 2, alpha = 0.05, beta = 0.1, 
-#'     sided = 1), groups = 2, thetaH0 = -0.1, pi1 = seq(0.4, 0.55, 0.025), 
-#'     pi2 = 0.4, allocationRatioPlanned = 0)
-#' 
-#' # Calculate the stage-wise sample sizes, maximum sample sizes, and the optimum 
-#' # allocation ratios for a range of pi1 values when testing 
-#' # H0: pi1 / pi2 = 0.80 within a three-stage O'Brien & Fleming design;
-#' # alpha = 0.025 one-sided, power 1- beta = 90%:
-#' getSampleSizeRates(getDesignGroupSequential(kMax = 3, alpha = 0.025, beta = 0.1, 
-#'     sided = 1), groups = 2, riskRatio = TRUE, thetaH0 = 0.80, pi1 = seq(0.3,0.5,0.025), 
-#'     pi2 = 0.3, allocationRatioPlanned = 0)
-#' 
-getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximation = TRUE, 
-		riskRatio = FALSE, thetaH0 = ifelse(riskRatio, 1, 0), pi1 = seq(0.4, 0.6, 0.1), 
-		pi2 = 0.2, allocationRatioPlanned = NA_real_) {
+getSampleSizeRates <- function(design = NULL, ..., 
+		groups = 2, 
+		normalApproximation = TRUE, 
+		riskRatio = FALSE, 
+		thetaH0 = ifelse(riskRatio, 1, 0), 
+		pi1 = c(0.4, 0.5, 0.6),            # C_PI_1_SAMPLE_SIZE_DEFAULT
+		pi2 = 0.2,                         # C_PI_2_DEFAULT
+		allocationRatioPlanned = NA_real_  # C_ALLOCATION_RATIO_DEFAULT
+     ) {
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		design <- .getDefaultDesign(..., type = "sampleSize")
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeRates", 
-			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeRates", ...)
@@ -565,12 +517,22 @@ getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximati
 	}
 	
 	designPlan <- .createDesignPlanRates(objectType = "sampleSize", 
-			design = design, normalApproximation = normalApproximation, riskRatio = riskRatio, 
-			thetaH0 = thetaH0, pi1 = pi1, pi2 = pi2, groups = groups, 
-			allocationRatioPlanned = allocationRatioPlanned, ...)
+		design = design, normalApproximation = normalApproximation, riskRatio = riskRatio, 
+		thetaH0 = thetaH0, pi1 = pi1, pi2 = pi2, groups = groups, 
+		allocationRatioPlanned = allocationRatioPlanned, ...)
 	
 	return(.getSampleSize(designPlan))
 }
+
+# Hidden parameter:
+# @param accountForObservationTimes If \code{accountForObservationTimes = TRUE}, the number of 
+#        subjects is calculated assuming specific accrual and follow-up time, default is \code{TRUE} 
+#        (see details). 
+# If \code{accountForObservationTimes = FALSE}, only the event rates are used for the calculation 
+# of the maximum number of subjects. 
+# \code{accountForObservationTime} can be selected as \code{FALSE}. In this case, 
+# the number of subjects is calculated from the event probabilities only. 
+# This kind of computation does not account for the specific accrual pattern and survival distribution.
 
 #' @title
 #' Get Sample Size Survival 
@@ -578,55 +540,30 @@ getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximati
 #' @description 
 #' Returns the sample size for testing the hazard ratio in a two treatment groups survival design. 
 #'
-#' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, \code{twoSidedPower}, and 
-#'        \code{sided} can be directly entered as argument.  
-#' @param typeOfComputation Three options are available: "Schoenfeld", "Freedman", "HsiehFreedman", 
-#'        the default is "Schoenfeld". For details, see Hsieh (Statistics in Medicine, 1992). 
-#'        For non-inferiority testing (i.e., thetaH0 != 1), only Schoenfelds formula can be used
-#' @param thetaH0 The null hypothesis value. The default value is \code{1}. For one-sided testing, 
-#'        a bound for testing H0: hazard ratio = thetaH0 != 1 can be specified.
-#' @param pi1 The assumed event rate in the active treatment group, default is \code{seq(0.4,0.6,0.1)}.
-#' @param pi2 The assumed event rate in the control group, default is \code{0.2}.
-#' @param lambda1 The assumed hazard rate in the treatment group, there is no default.
-#'        lambda1 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details). 	 
-#' @param lambda2 The assumed hazard rate in the reference group, there is no default.
-#'  	  lambda2 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details).
-#' @param median1 The assumed median survival time in the treatment group, there is no default.
-#' @param median2 The assumed median survival time in the reference group, there is no default.
-#' @param piecewiseSurvivalTime A vector that specifies the time intervals for the piecewise 
-#'        definition of the exponential survival time cumulative distribution function (see details). 
-#' @param hazardRatio The vector of hazard ratios under consideration. 
-#'        If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
-#'        not to be specified as it is calculated. 
-#' @param kappa The shape parameter of the Weibull distribution, default is \code{1}. 
-#'        The Weibull distribution cannot be used for the piecewise definition of the 
-#'        survival time distribution. 
-#'        Note that the parameters \code{shape} and \code{scale} in \code{\link[stats]{Weibull}} 
-#'        are equivalent to \code{kappa} and \code{1 / lambda}, respectively, in rpact.
-#' @param allocationRatioPlanned The planned allocation ratio, default is \code{1}. 
-#'        If \code{allocationRatioPlanned = 0} is entered, the optimal allocation ratio yielding the 
-#'        smallest number of subjects is determined.
-#' @param accountForObservationTimes If \code{accountForObservationTimes = TRUE}, the number of 
-#'        subjects is calculated assuming specific accrual and follow-up time, default is \code{TRUE} 
-#'        (see details). 
-#' @param eventTime The assumed time under which the event rates are calculated, default is \code{12}. 
-#' @param accrualTime The assumed accrual time intervals for the study, default is 
-#'        \code{c(0,12)} (see details).
-#' @param accrualIntensity A vector of accrual intensities, default is the relative 
-#'        intensity \code{0.1} (see details).
+#' @inheritParams param_design_with_default
+#' @inheritParams param_typeOfComputation
+#' @inheritParams param_allocationRatioPlanned_sampleSize
+#' @inheritParams param_thetaH0
+#' @inheritParams param_lambda1	 
+#' @inheritParams param_lambda2	 
+#' @inheritParams param_pi1_survival
+#' @inheritParams param_pi2_survival
+#' @inheritParams param_median1	 
+#' @inheritParams param_median2	 
+#' @inheritParams param_piecewiseSurvivalTime
+#' @inheritParams param_accrualTime
+#' @inheritParams param_accrualIntensity
+#' @inheritParams param_eventTime
+#' @inheritParams param_hazardRatio
+#' @inheritParams param_kappa
+#' @inheritParams param_dropoutRate1 
+#' @inheritParams param_dropoutRate2
+#' @inheritParams param_dropoutTime
 #' @param followUpTime The assumed (additional) follow-up time for the study, default is \code{6}. 
-#'        The total study duration is \code{accrualTime + followUpTime}.  
-#' @param dropoutRate1 The assumed drop-out rate in the treatment group, default is \code{0}. 
-#' @param dropoutRate2 The assumed drop-out rate in the control group, default is \code{0}.
-#' @param dropoutTime The assumed time for drop-out rates in the control and the 
-#'        treatment group, default is \code{12}. 
+#'        The total study duration is \code{accrualTime + followUpTime}. 
 #' @param maxNumberOfSubjects If \code{maxNumberOfSubjects > 0} is specified, 
-#'        the follow-up time for the required number of events is determined.   
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#'        the follow-up time for the required number of events is determined.  
+#' @inheritParams param_three_dots
 #' 
 #' @details 
 #' At given design the function calculates the number of events and an estimate for the 
@@ -634,163 +571,36 @@ getSampleSizeRates <- function(design = NULL, ..., groups = 2, normalApproximati
 #' It also calculates the time when the required events are expected under the given 
 #' assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times 
 #' and constant or non-constant piecewise accrual). 
-#' Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number 
+#' Additionally, an allocation ratio = \code{n1 / n2} can be specified where \code{n1} and \code{n2} are the number 
 #' of subjects in the two treatment groups. 
+#' 
+#' Optional argument \code{accountForObservationTimes}: if \code{accountForObservationTimes = TRUE}, the number of 
+#' subjects is calculated assuming specific accrual and follow-up time, default is \code{TRUE}. 
 #' 
 #' The formula of Kim & Tsiatis (Biometrics, 1990) 
 #' is used to calculate the expected number of events under the alternative 
 #' (see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized 
 #' to piecewise survival times and non-constant piecewise accrual over time.\cr
-#' If \code{accountForObservationTimes = FALSE}, only the event rates are used for the calculation 
-#' of the maximum number of subjects. 
 #' 
-#' \code{piecewiseSurvivalTime} 
-#' The first element of this vector must be equal to \code{0}. \code{piecewiseSurvivalTime} can also 
-#' be a list that combines the definition of the time intervals and hazard rates in the reference group. 
-#' The definition of the survival time in the treatment group is obtained by the specification 
-#' of the hazard ratio (see examples for details).
+#' Optional argument \code{accountForObservationTimes}: if \code{accountForObservationTimes = FALSE}, 
+#' only the event rates are used for the calculation of the maximum number of subjects. 
 #' 
-#' \code{accrualTime} can also be used to define a non-constant accrual over time. 
-#' For this, \code{accrualTime} needs to be a vector that defines the accrual intervals and
-#' \code{accrualIntensity} needs to be specified. The first element of 
-#' \code{accrualTime} must be equal to 0.\cr 
-#' \code{accrualTime} can also be a list that combines the definition of the accrual time and 
-#' accrual intensity \code{accrualIntensity} (see below and examples for details). 
-#' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
-#' the same (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to 
-#' be specified and the end of accrual is calculated.	
+#' @template details_piecewise_survival
 #' 
-#' \code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
-#' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
-#' (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to be specified 
-#' and the end of accrual is calculated.	
-#' In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
-#' If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
-#' (i.e., the end of accrual is defined), \code{maxNumberOfSubjects} is calculated. \cr
-#' If all elements in \code{accrualIntensity} are smaller than 1, \code{accrualIntensity} defines 
-#' the *relative* intensity how subjects enter the trial, and \code{maxNumberOfSubjects} must be
-#' given or can be calculated at given follow-up time.
-#' For example, \code{accrualIntensity = c(0.1, 0.2)} specifies that in the second accrual interval 
-#' the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
-#' is calculated for the given (or calculated) \code{maxNumberOfSubjects}.
-#' Note that the default is \code{accrualIntensity = 0.1} meaning that the *absolute* accrual intensity 
-#' will be calculated.  
+#' @template details_piecewise_accrual
 #' 
-#' \code{accountForObservationTime} can be selected as \code{FALSE}. In this case, 
-#' the number of subjects is calculated from the event probabilities only. 
-#' This kind of computation does not account for the specific accrual pattern and survival distribution.
-#'        
-#' @return Returns a \code{\link{TrialDesignPlanSurvival}} object.
+#' @template return_object_trial_design_plan
+#' @template how_to_get_help_for_generics
+#' 
+#' @family sample size functions
 #'
+#' @template examples_get_sample_size_survival
+#' 
 #' @export
-#' 
-#' @examples
-#' 
-#' # Fixed sample size trial with median survival 20 vs. 30 months in treatment and 
-#' # reference group, respectively, alpha = 0.05 (two-sided), and power 1 - beta = 90%.
-#' # 20 subjects will be recruited per month up to 400 subjects, i.e., accrual time is 20 months.  
-#' getSampleSizeSurvival(alpha = 0.05, sided = 2, beta = 0.1, lambda1 = log(2) / 20, 
-#'     lambda2 = log(2) / 30, accrualTime = c(0,20), accrualIntensity = 20)
-#' 
-#' \donttest{
-#' 
-#' # Fixed sample size with minimum required definitions, pi1 = c(0.4,0.5,0.6) and 
-#' # pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default, 
-#' # only alpha = 0.01 is specified  
-#' getSampleSizeSurvival(alpha = 0.01)
-#' 
-#' # Four stage O'Brien & Fleming group sequential design with minimum required 
-#' # definitions, pi1 = c(0.4,0.5,0.6) and pi2 = 0.2 at event time 12, 
-#' # accrual time 12 and follow-up time 6 as default  
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 4))
-#' 
-#' # For fixed sample design, determine necessary accrual time if 200 subjects and 
-#' # 30 subjects per time unit can be recruited 
-#' getSampleSizeSurvival(accrualTime = c(0), accrualIntensity = c(30), 
-#' 	   maxNumberOfSubjects = 200)
-#' 
-#' # Determine necessary accrual time if 200 subjects and if the first 6 time units 
-#' # 20 subjects per time unit can be recruited, then 30 subjects per time unit 
-#' getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(20, 30), 
-#' 	   maxNumberOfSubjects = 200)
-#' 
-#' # Determine maximum number of Subjects if the first 6 time units 20 subjects 
-#' # per time unit can be recruited, and after 10 time units 30 subjects per time unit
-#' getSampleSizeSurvival(accrualTime = c(0, 6, 10), accrualIntensity = c(20, 30))
-#' 
-#' # Specify accrual time as a list
-#' at <- list(
-#'     "0 - <6"  = 20,
-#'     "6 - Inf" = 30)
-#' getSampleSizeSurvival(accrualTime = at, maxNumberOfSubjects = 200)
-#' 
-#' # Specify accrual time as a list, if maximum number of subjects need to be calculated
-#' at <- list(
-#'     "0 - <6"   = 20,
-#'     "6 - <=10" = 30)
-#' getSampleSizeSurvival(accrualTime = at)
-#' 
-#' # Specify effect size for a two-stage group design with O'Brien & Fleming boundaries
-#' # Effect size is based on event rates at specified event time 
-#' # needs to be specified because it should be shown that hazard ratio < 1
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   pi1 = 0.2, pi2 = 0.3, eventTime = 24)
-#' 
-#' # Effect size is based on event rate at specified event 
-#' # time for the reference group and hazard ratio 
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   hazardRatio = 0.5, pi2 = 0.3, eventTime = 24)
-#' 
-#' # Effect size is based on hazard rate for the reference group and hazard ratio
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   hazardRatio = 0.5, lambda2 = 0.02) 
-#' 
-#' # Specification of piecewise exponential survival time and hazard ratios  
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
-#' 	   hazardRatio = c(1.5, 1.8, 2))
-#' 
-#' # Specification of piecewise exponential survival time as a list and hazard ratios 
-#' pws <- list(
-#'     "0 - <5"  = 0.01,	
-#'     "5 - <10" = 0.02,	
-#'     ">=10"    = 0.04)
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2))
-#' 
-#' # Specification of piecewise exponential survival time for both treatment arms
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
-#' 	   lambda1 = c(0.015, 0.03, 0.06))
-#' 
-#' # Specification of piecewise exponential survival time as a list
-#' pws <- list(
-#'     "0 - <5"  = 0.01,
-#'     "5 - <10" = 0.02,
-#'     ">=10"    = 0.04)
-#' getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2))
-#' 
-#' # Specify effect size based on median survival times
-#' getSampleSizeSurvival(median1 = 5, median2 = 3)
-#' 
-#' # Specify effect size based on median survival times of Weibull distribtion with kappa = 2
-#' getSampleSizeSurvival(median1 = 5, median2 = 3, kappa = 2)
-#' 
-#' # Identify minimal and maximal required subjects to 
-#' # reach the required events in spite of dropouts
-#' getSampleSizeSurvival(accrualTime = c(0, 18), accrualIntensity = c(20, 30), 
-#'     lambda2 = 0.4, lambda1 = 0.3, followUpTime = Inf, dropoutRate1 = 0.001, 
-#'     dropoutRate2 = 0.005)
-#' getSampleSizeSurvival(accrualTime = c(0, 18), accrualIntensity = c(20, 30), 
-#'     lambda2 = 0.4, lambda1 = 0.3, followUpTime = 0, dropoutRate1 = 0.001, 
-#'     dropoutRate2 = 0.005)
-#' 
-#' }
 #' 
 getSampleSizeSurvival <- function(design = NULL, ..., 
 		typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
-		thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT, 
+		thetaH0 = 1,                        # C_THETA_H0_SURVIVAL_DEFAULT
 		pi1 = NA_real_, 
 		pi2 = NA_real_, 
 		lambda1 = NA_real_,	
@@ -800,24 +610,24 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		kappa = 1, 
 		hazardRatio = NA_real_,
 		piecewiseSurvivalTime = NA_real_,		
-		allocationRatioPlanned = NA_real_, 
-		accountForObservationTimes = TRUE, 
-		eventTime = C_EVENT_TIME_DEFAULT, 
-		accrualTime = C_ACCRUAL_TIME_DEFAULT, 
-		accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT, 
+		allocationRatioPlanned = NA_real_,  # C_ALLOCATION_RATIO_DEFAULT
+		eventTime = 12L,                    # C_EVENT_TIME_DEFAULT
+		accrualTime = c(0L, 12L),           # C_ACCRUAL_TIME_DEFAULT
+		accrualIntensity = 0.1,             # C_ACCRUAL_INTENSITY_DEFAULT
 		followUpTime = NA_real_, 
 		maxNumberOfSubjects = NA_real_, 
-		dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT, 
-		dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT, 
-		dropoutTime = C_DROP_OUT_TIME_DEFAULT) {
+		dropoutRate1 = 0,                   # C_DROP_OUT_RATE_1_DEFAULT
+		dropoutRate2 = 0,                   # C_DROP_OUT_RATE_2_DEFAULT
+		dropoutTime = 12L                   # C_DROP_OUT_TIME_DEFAULT
+		) {
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(...)
+		design <- .getDefaultDesign(..., type = "sampleSize", ignore = c("accountForObservationTimes"))
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", 
-			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "accountForObservationTimes"), ...)
 	} else {
 		.assertIsTrialDesign(design)
-		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", ...)
+		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", ..., ignore = c("accountForObservationTimes"))
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}
 	
@@ -831,8 +641,14 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			maxNumberOfSubjects = maxNumberOfSubjects, showWarnings = FALSE)
 	accrualSetup$.validate()
 	
+	accountForObservationTimes <- .getOptionalArgument("accountForObservationTimes", ...)
+	if (is.null(accountForObservationTimes)) {
+		accountForObservationTimes <- TRUE
+	}
+	
 	if (!accrualSetup$maxNumberOfSubjectsCanBeCalculatedDirectly &&
 			accrualSetup$followUpTimeMustBeUserDefined) {
+
 		if (is.na(followUpTime)) {
 			if (accrualSetup$piecewiseAccrualEnabled && !accrualSetup$endOfAccrualIsUserDefined) {
 				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'followUpTime', 'maxNumberOfSubjects' or end of accrual must be defined")
@@ -908,6 +724,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			maxNumberOfSubjectsLowerBefore <- 0
 			sampleSize <- NULL
 			expectionMessage <- NA_character_
+			
 			while (searchAccrualTimeEnabled && maxSearchIterations >= 0 && 
 					(is.na(maxNumberOfSubjectsLower) || 
 						maxNumberOfSubjectsLower < maxNumberOfSubjectsLowerBefore || 
@@ -925,8 +742,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						accountForObservationTimes = accountForObservationTimes, 
 						eventTime = eventTime, accrualTime = accrualSetup$accrualTime, 
 						accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
-						piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
-						median1 = median1, median2 = median2,
+						piecewiseSurvivalTime = piecewiseSurvivalTime, 
+						lambda2 = lambda2, lambda1 = lambda1, median1 = median1, median2 = median2,
 						followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsLower, 
 						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, dropoutTime = dropoutTime, 
 						hazardRatio = hazardRatio)
@@ -936,6 +753,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 				})
 				maxSearchIterations <- maxSearchIterations - 1
 			}
+			
 			if (is.null(sampleSize) || is.na(sampleSize$followUpTime)) {
 				if (!is.na(expectionMessage) && grepl("'allocationRatioPlanned' > 0", expectionMessage)) {
 					stop(expectionMessage, call. = FALSE)
@@ -957,8 +775,13 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			maxSearchIterations <- 50
 			maxNumberOfSubjectsUpper <- NA_real_
 			fut <- sampleSize$followUpTime
-			if (fut <= followUpTime) {
-				fut <- 2 * followUpTime
+			iterations <- 1
+			while (fut <= followUpTime) {
+				fut <- 2 * abs(fut)  
+				iterations <- iterations + 1
+				if (iterations > 50) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "search algorithm failed", call. = FALSE)
+				}
 			}
 			while (!is.na(fut) && fut > followUpTime && maxSearchIterations >= 0) {
 				maxNumberOfSubjectsUpper <- getAccrualTime(
@@ -972,8 +795,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						accountForObservationTimes = accountForObservationTimes, 
 						eventTime = eventTime, accrualTime = accrualSetup$accrualTime, 
 						accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa, 
-						piecewiseSurvivalTime = piecewiseSurvivalTime,	lambda2 = lambda2, lambda1 = lambda1,
-						median1 = median1, median2 = median2,
+						piecewiseSurvivalTime = piecewiseSurvivalTime,	
+						lambda2 = lambda2, lambda1 = lambda1, median1 = median1, median2 = median2,
 						followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsUpper, 
 						dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, dropoutTime = dropoutTime, 
 						hazardRatio = hazardRatio)$followUpTime
@@ -987,6 +810,18 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			
 			# use maxNumberOfSubjectsLower and maxNumberOfSubjectsUpper to find end of accrual 
 			if (dropoutRate1 != 0 || dropoutRate2 != 0) {
+				
+				#  Adjust lower bound for given dropouts assuming exponential distribution
+				if (is.na(allocationRatioPlanned)) {
+					allocationRatioPlanned <- C_ALLOCATION_RATIO_DEFAULT
+				}
+				maxNumberOfSubjectsLower <- maxNumberOfSubjectsLower / 
+					((allocationRatioPlanned * (1 - dropoutRate1)^((accrualSetup$accrualTime[length(accrualSetup$accrualTime)] + 
+					additionalAccrual) / dropoutTime) + 
+					(1 - dropoutRate2)^((accrualSetup$accrualTime[length(accrualSetup$accrualTime)] + 
+					additionalAccrual) / dropoutTime)) /  
+					(allocationRatioPlanned + 1))
+				
 				prec <- 1
 				maxSearchIterations <- 50
 				while (prec > 1e-04 && maxSearchIterations >= 0) {
@@ -1036,7 +871,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 					acceptResultsOutOfTolerance = TRUE,
 					maxSearchIterations = 50,
 					direction = 0,
-					suppressWarnings = FALSE) 
+					suppressWarnings = FALSE,
+					callingFunctionInformation = "getSampleSizeSurvival") 
 			}
 
 		}, warning = function(w) {
@@ -1063,6 +899,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			dropoutTime = dropoutTime, 
 			hazardRatio = hazardRatio)
 		sampleSizeSurvival$.setParameterType("followUpTime", C_PARAM_USER_DEFINED)
+		sampleSizeSurvival$.accrualTime <- accrualSetup
 		
 		if (!is.na(sampleSizeSurvival$followUpTime)) {
 			
@@ -1100,10 +937,11 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		followUpTime = followUpTime, maxNumberOfSubjects = maxNumberOfSubjects, 
 		dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, 
 		dropoutTime = dropoutTime, 
-		hazardRatio = hazardRatio, ...))
+		hazardRatio = hazardRatio))
 }
 
-.getSampleSizeSurvival <- function(design = NULL, ..., 
+.getSampleSizeSurvival <- function(..., 
+		design = NULL, 
 		typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"), 
 		thetaH0 = 1, pi2 = NA_real_, pi1 = NA_real_, 
 		allocationRatioPlanned = NA_real_, accountForObservationTimes = TRUE, 
@@ -1115,7 +953,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		followUpTime = NA_real_, maxNumberOfSubjects = NA_real_, 
 		dropoutRate1 = 0, dropoutRate2 = dropoutRate1, dropoutTime = NA_real_, 
 		hazardRatio = NA_real_) {
-	
+		
 	designPlan <- .createDesignPlanSurvival(objectType = "sampleSize",
 			design = design, 
 			typeOfComputation = typeOfComputation, 
@@ -1143,7 +981,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	return(.getSampleSize(designPlan))
 }
 
-.createDesignPlanSurvival = function(objectType = c("power", "sampleSize"), ...,
+.createDesignPlanSurvival = function(..., objectType = c("power", "sampleSize"), 
 		design, 
 		typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"), 
 		thetaH0, pi2, pi1, 
@@ -1168,7 +1006,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		hazardRatio) {
 	
 	objectType <- match.arg(objectType)
-	typeOfComputation <- match.arg(typeOfComputation)
+	typeOfComputation <- .matchArgument(typeOfComputation, "Schoenfeld")
 	
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	.assertIsValidAlphaAndBeta(design$alpha, design$beta)
@@ -1419,8 +1257,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 
 .isUserDefinedMaxNumberOfSubjects <- function(designPlan) {
 	if (!is.null(designPlan) && length(designPlan$.getParameterType("maxNumberOfSubjects")) > 0) {
-		type <- designPlan$.getParameterType("maxNumberOfSubjects")
-		if (type == C_PARAM_USER_DEFINED) {
+		if (designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_USER_DEFINED) {
 			return(TRUE)
 		}
 	}
@@ -1629,6 +1466,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			designPlan$.setParameterType("expectedNumberOfSubjectsH01", C_PARAM_GENERATED)
 			designPlan$.setParameterType("expectedNumberOfSubjectsH1", C_PARAM_GENERATED)
 			
+			designPlan$.setParameterType("eventsFixed", C_PARAM_NOT_APPLICABLE)
 			designPlan$.setParameterType("nFixed1", C_PARAM_NOT_APPLICABLE)
 			designPlan$.setParameterType("nFixed2", C_PARAM_NOT_APPLICABLE)
 			designPlan$.setParameterType("nFixed", C_PARAM_NOT_APPLICABLE)
@@ -1713,7 +1551,6 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 					accrualIntensity = designPlan$accrualIntensityRelative, 
 					maxNumberOfSubjects = maxNumberOfSubjects)
 				accrualIntensityAbsolute <- c(accrualIntensityAbsolute, accrualSetup$accrualIntensity)
-				designPlan$.accrualTime <- accrualSetup
 			}
 			designPlan$accrualIntensity <- accrualIntensityAbsolute
 			designPlan$.setParameterType("accrualIntensity", C_PARAM_GENERATED)
@@ -1735,7 +1572,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 							"the definition of relative accrual intensities ", 
 							"(all 'accrualIntensity' values < 1) ",
-							"is only available for a single '", paramName, "' ",
+							"is only available for a single value ",
 							"(", paramName, " = ", .arrayToString(
 								paramValue, vectorLookAndFeelEnabled = TRUE), ")")
 					}
@@ -1829,7 +1666,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 							function(n) {
 								return(stats::pt(stats::qt(1 - alpha / sided, max(0.001, n - 1)), 
 												max(0.001, n - 1), sqrt(n) * abs(theta - thetaH0) / stDev) - beta)
-							}, lower = 0.001, upper = up, tolerance = 1e-04
+							}, lower = 0.001, upper = up, tolerance = 1e-04,
+								callingFunctionInformation = ".getSampleSizeFixedMeans"
 					)
 				} else {
 					nFixed[i] <- (stats::qnorm(1 - alpha / sided) + 
@@ -1850,14 +1688,16 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 														sqrt(n) * (theta - thetaH0) / stDev) - 
 												stats::pt(-stats::qt(1 - alpha / 2, max(0.001, n - 1)), 
 														max(0.001, n - 1), sqrt(n) * (theta - thetaH0) / stDev) - beta)
-							}, lower = 0.001, upper = up, tolerance = 1e-04
+							}, lower = 0.001, upper = up, tolerance = 1e-04,
+								callingFunctionInformation = ".getSampleSizeFixedMeans"
 					)
 				} else {
 					nFixed[i] <- .getOneDimensionalRoot(
 							function(n) {
 								return(stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n) * (theta - thetaH0) / stDev) - 
 												stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n) * (theta - thetaH0) / stDev) - beta)
-							}, lower = 0.001, upper = up, tolerance = 1e-04
+							}, lower = 0.001, upper = up, tolerance = 1e-04,
+								callingFunctionInformation = ".getSampleSizeFixedMeans"
 					)
 				}
 			}
@@ -1888,7 +1728,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 									sqrt(x) * sqrt(allocationRatioPlanned / 
 									(1 + allocationRatioPlanned)) * 
 									abs(theta - thetaH0) / stDev) - beta)
-							}, lower = 0.001, upper = up, tolerance = 1e-04
+							}, lower = 0.001, upper = up, tolerance = 1e-04,
+								callingFunctionInformation = ".getSampleSizeFixedMeans"
 						)
 						nFixed[i] <- n2Fixed * (1 + allocationRatioPlanned)
 					} else {
@@ -1920,7 +1761,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 									sqrt(n2 * allocationRatioPlanned / 
 									(1 + allocationRatioPlanned * thetaH0^2)) * 
 									abs(theta - thetaH0) / stDev) - beta)
-							}, lower = 0.001, upper = up, tolerance = 1e-04
+							}, lower = 0.001, upper = up, tolerance = 1e-04,
+								callingFunctionInformation = ".getSampleSizeFixedMeans"
 						)
 						nFixed[i] <- n2Fixed * (1 + allocationRatioPlanned)
 					} else {
@@ -1947,16 +1789,17 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 						up <- 2*up 
 					}
 					n2Fixed <- .getOneDimensionalRoot(
-							function(n2) {
-								return(stats::pt(stats::qt(1 - alpha / 2, max(0.001, n2 * (1 + allocationRatioPlanned) - 2)), 
-									max(0.001, n2*(1 + allocationRatioPlanned) - 2), 
-									sqrt(n2) * sqrt(allocationRatioPlanned / (1 + allocationRatioPlanned)) * 
-										(theta - thetaH0) / stDev) - stats::pt(-stats::qt(1 - alpha / 2, 
-										max(0.001, n2 * (1 + allocationRatioPlanned) - 2)), 
-									max(0.001, n2 * (1 + allocationRatioPlanned) - 2), 
-									sqrt(n2) * sqrt(allocationRatioPlanned/(1 + allocationRatioPlanned)) * 
-										(theta - thetaH0) / stDev) - beta)
-							}, lower = 0.001, upper = up, tolerance = 1e-04
+						function(n2) {
+							return(stats::pt(stats::qt(1 - alpha / 2, max(0.001, n2 * (1 + allocationRatioPlanned) - 2)), 
+								max(0.001, n2*(1 + allocationRatioPlanned) - 2), 
+								sqrt(n2) * sqrt(allocationRatioPlanned / (1 + allocationRatioPlanned)) * 
+									(theta - thetaH0) / stDev) - stats::pt(-stats::qt(1 - alpha / 2, 
+									max(0.001, n2 * (1 + allocationRatioPlanned) - 2)), 
+								max(0.001, n2 * (1 + allocationRatioPlanned) - 2), 
+								sqrt(n2) * sqrt(allocationRatioPlanned/(1 + allocationRatioPlanned)) * 
+									(theta - thetaH0) / stDev) - beta)
+						}, lower = 0.001, upper = up, tolerance = 1e-04,
+							callingFunctionInformation = ".getSampleSizeFixedMeans"
 					)
 					nFixed[i] <- n2Fixed * (1 + allocationRatioPlanned)
 					
@@ -1970,14 +1813,15 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 					}
 					
 					nFixed[i] <- (1 + allocationRatioPlanned)^2 / (4 * allocationRatioPlanned) * 
-							.getOneDimensionalRoot(
-									function(n) {
-										return(stats::pnorm(stats::qnorm(1 - alpha / 2) - 
-																		sqrt(n / 4) * (theta - thetaH0) / stDev) - 
-														stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n / 4) * 
-																		(theta - thetaH0) / stDev) - beta)
-									}, lower = 0.001, upper = up, tolerance = 1e-04
-							)
+						.getOneDimensionalRoot(
+							function(n) {
+								return(stats::pnorm(stats::qnorm(1 - alpha / 2) - 
+									sqrt(n / 4) * (theta - thetaH0) / stDev) - 
+									stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n / 4) * 
+									(theta - thetaH0) / stDev) - beta)
+							}, lower = 0.001, upper = up, tolerance = 1e-04,
+								callingFunctionInformation = ".getSampleSizeFixedMeans"
+						)
 				}
 			}
 		}
@@ -2109,18 +1953,18 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	return(cumsum(x))
 }
 
-.getFarringtonManningValuesDiff <- function(rate1, rate2, theta0, allocation) {
+.getFarringtonManningValuesDiff <- function(..., rate1, rate2, theta, allocation) {
 	
-	if (theta0 == 0) {
+	if (theta == 0) {
 		ml1 <- (allocation * rate1 + rate2) / (1 + allocation)
 		ml2 <- ml1
 		return(c(ml1, ml2))
 	}
 	
 	a <- 1 + 1 / allocation
-	b <- -(1 + 1 / allocation + rate1 + rate2 / allocation + theta0 * (1 / allocation + 2))
-	c <- theta0^2 + theta0 * (2 * rate1 + 1 / allocation + 1) + rate1 + rate2 / allocation
-	d <- -theta0 * (1 + theta0) * rate1
+	b <- -(1 + 1 / allocation + rate1 + rate2 / allocation + theta * (1 / allocation + 2))
+	c <- theta^2 + theta * (2 * rate1 + 1 / allocation + 1) + rate1 + rate2 / allocation
+	d <- -theta * (1 + theta) * rate1
 	
 	v <- b^3 / (3 * a)^3 - b * c / (6 * a^2) + d / (2 * a)
 	if (!is.na(v) && (v == 0)) {
@@ -2131,24 +1975,24 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		w <- 1 / 3 * (acos(-1) + acos(v / u^3))
 	}
 	ml1 <- min(max(0, 2 * u * cos(w) - b / (3 * a)), 1)
-	ml2 <- min(max(0, ml1 - theta0), 1)
+	ml2 <- min(max(0, ml1 - theta), 1)
 	
 	return(c(ml1, ml2))
 }
 
-.getFarringtonManningValuesRatio <- function(rate1, rate2, theta0, allocation) {
+.getFarringtonManningValuesRatio <- function(..., rate1, rate2, theta, allocation) {
 	
-	if (theta0 == 1) {
+	if (theta == 1) {
 		ml1 <- (allocation * rate1 + rate2) / (1 + allocation)
 		ml2 <- ml1
 		return(c(ml1, ml2))
 	}
 	
 	a <- 1 + 1 / allocation
-	b <- -((1 + rate2 / allocation) * theta0  + 1 / allocation + rate1)
-	c <-  (rate1 + rate2 / allocation) * theta0
+	b <- -((1 + rate2 / allocation) * theta  + 1 / allocation + rate1)
+	c <-  (rate1 + rate2 / allocation) * theta
 	ml1 <- (-b - sqrt(b^2 - 4 * a * c)) / (2 * a)
-	ml2 <- ml1 / theta0
+	ml2 <- ml1 / theta
 	
 	return(c(ml1, ml2))
 }
@@ -2161,8 +2005,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 # Calculates and returns the maximum likelihood estimates under H0.
 # 
 # @details 
-# Calculation of maximum likelihood estimates under H0: 
-# pi1 - pi2 = theta0 or H0: pi1 / pi2 = theta0
+# Calculation of maximum likelihood estimates under 
+# H0: pi1 - pi2 = theta or H0: pi1 / pi2 = theta
 # 
 # @references 
 # Farrington & Manning (1990)
@@ -2170,14 +2014,14 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 # 
 # @keywords internal
 # 
-.getFarringtonManningValues <- function(rate1, rate2, theta0, allocation, method = c("diff", "ratio")) {
+.getFarringtonManningValues <- function(rate1, rate2, theta, allocation, method = c("diff", "ratio")) {
 	method <- match.arg(method)
 	if (method == "diff") {
-		ml <- .getFarringtonManningValuesDiff(rate1, rate2, theta0, allocation)
+		ml <- .getFarringtonManningValuesDiff(rate1 = rate1, rate2 = rate2, theta = theta, allocation = allocation)
 	} else {
-		ml <- .getFarringtonManningValuesRatio(rate1, rate2, theta0, allocation)
+		ml <- .getFarringtonManningValuesRatio(rate1 = rate1, rate2 = rate2, theta = theta, allocation = allocation)
 	}
-	return(list(theta0 = theta0, method = method, ml1 = ml[1], ml2 = ml[2]))
+	return(list(theta = theta, method = method, ml1 = ml[1], ml2 = ml[2]))
 }
 
 .getSampleSizeFixedRates <- function(..., alpha = 0.025, beta = 0.2, sided = 1, 
@@ -2275,51 +2119,52 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 				# allocationRatioPlanned = 0 provides optimum sample size
 				if (allocationRatioPlanned == 0) {
 					allocationRatioPlannedVec[i] <- stats::optimize(function(x) { 
-								fm <- .getFarringtonManningValues(pi1[i], pi2, thetaH0, x, method = "diff")
-								n1 <- (stats::qnorm(1 - alpha / sided) * sqrt(fm$ml1 * (1 - fm$ml1) + fm$ml2 * (1 - fm$ml2) * x) + 
-											stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2*(1 - pi2) * x))^2 /
-										(pi1[i] - pi2 - thetaH0)^2
-								return((1 + x) / x * n1)	
-							}, interval = c(0, 5), tol = 0.0001)$minimum
-					fm <- .getFarringtonManningValues(pi1[i], pi2, thetaH0, 
-							allocationRatioPlannedVec[i], method = "diff")
+						fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2, 
+							theta = thetaH0, allocation = x, method = "diff")
+						n1 <- (stats::qnorm(1 - alpha / sided) * sqrt(fm$ml1 * (1 - fm$ml1) + fm$ml2 * (1 - fm$ml2) * x) + 
+							stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2*(1 - pi2) * x))^2 /
+							(pi1[i] - pi2 - thetaH0)^2
+						return((1 + x) / x * n1)	
+					}, interval = c(0, 5), tol = 0.0001)$minimum
+					fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2, theta = thetaH0, 
+						allocation = allocationRatioPlannedVec[i], method = "diff")
 					n1Fixed[i] <- (stats::qnorm(1 - alpha / sided)*sqrt(fm$ml1 * (1 - fm$ml1) + 
-												fm$ml2*(1 - fm$ml2) * allocationRatioPlannedVec[i]) + 
-								stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * (1 - pi2) * 
-												allocationRatioPlannedVec[i]))^2 /
-							(pi1[i] - pi2 - thetaH0)^2
+						fm$ml2 * (1 - fm$ml2) * allocationRatioPlannedVec[i]) + 
+						stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * (1 - pi2) * 
+						allocationRatioPlannedVec[i]))^2 / (pi1[i] - pi2 - thetaH0)^2
 				} else {
-					fm <- .getFarringtonManningValues(pi1[i], pi2, thetaH0, allocationRatioPlanned, method = "diff")
+					fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2, 
+						theta = thetaH0, allocation = allocationRatioPlanned, method = "diff")
 					n1Fixed[i] <- (stats::qnorm(1 - alpha / sided) * sqrt(fm$ml1 * (1 - fm$ml1) + 
-												fm$ml2*(1 - fm$ml2) * allocationRatioPlanned) + 
-								stats::qnorm(1 - beta) * sqrt(pi1[i]*(1 - pi1[i]) + pi2 * (1 - pi2) * allocationRatioPlanned))^2 /
-							(pi1[i] - pi2 - thetaH0)^2
+						fm$ml2 * (1 - fm$ml2) * allocationRatioPlanned) + 
+						stats::qnorm(1 - beta) * sqrt(pi1[i]*(1 - pi1[i]) + pi2 * (1 - pi2) * 
+						allocationRatioPlanned))^2 / (pi1[i] - pi2 - thetaH0)^2
 				}	
 			} else {	
 				if (allocationRatioPlanned == 0) {
 					# allocationRatioPlanned = 0 provides optimum sample size					
 					allocationRatioPlannedVec[i] <- stats::optimize(function(x) { 
-								fm <- .getFarringtonManningValues(pi1[i], pi2 , thetaH0, x, method = "ratio")
-								n1 <- (stats::qnorm(1 - alpha / sided) * sqrt(fm$ml1 * (1 - fm$ml1) + 
-															fm$ml2 * (1 - fm$ml2) * x * thetaH0^2) + 
-											stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * (1 - pi2)*x*thetaH0^2))^2 /
-										(pi1[i] - thetaH0 * pi2)^2
-								return((1 + x) / x * n1)	
-							}, interval = c(0, 5), tol = 0.0001)$minimum
-					fm <- .getFarringtonManningValues(pi1[i], pi2, thetaH0, 
-							allocationRatioPlannedVec[i], method = "ratio")
+						fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2 , 
+							theta = thetaH0, allocation = x, method = "ratio")
+						n1 <- (stats::qnorm(1 - alpha / sided) * sqrt(fm$ml1 * (1 - fm$ml1) + 
+							fm$ml2 * (1 - fm$ml2) * x * thetaH0^2) + 
+							stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * 
+							(1 - pi2) * x * thetaH0^2))^2 / (pi1[i] - thetaH0 * pi2)^2
+						return((1 + x) / x * n1)	
+					}, interval = c(0, 5), tol = 0.0001)$minimum
+					fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2, theta = thetaH0, 
+						allocation = allocationRatioPlannedVec[i], method = "ratio")
 					n1Fixed[i] <- (stats::qnorm(1 - alpha / sided)*sqrt(fm$ml1 * (1 - fm$ml1) + 
-												fm$ml2 * (1 - fm$ml2) * allocationRatioPlannedVec[i] * thetaH0^2) + 
-								stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * (1 - pi2) * 
-												allocationRatioPlannedVec[i] * thetaH0^2))^2 /
-							(pi1[i] - thetaH0 * pi2)^2
+						fm$ml2 * (1 - fm$ml2) * allocationRatioPlannedVec[i] * thetaH0^2) + 
+						stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * (1 - pi2) * 
+						allocationRatioPlannedVec[i] * thetaH0^2))^2 / (pi1[i] - thetaH0 * pi2)^2
 				} else {
-					fm <- .getFarringtonManningValues(pi1[i], pi2, thetaH0, allocationRatioPlanned, method = "ratio")
+					fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2, 
+						theta = thetaH0, allocation = allocationRatioPlanned, method = "ratio")
 					n1Fixed[i] <- (stats::qnorm(1 - alpha / sided) * sqrt(fm$ml1 * (1 - fm$ml1) + 
-												fm$ml2 * (1 - fm$ml2) * allocationRatioPlanned * thetaH0^2) + 
-								stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * (1 - pi2) * 
-												allocationRatioPlanned * thetaH0^2))^2 /
-							(pi1[i] - thetaH0 * pi2)^2
+						fm$ml2 * (1 - fm$ml2) * allocationRatioPlanned * thetaH0^2) + 
+						stats::qnorm(1 - beta) * sqrt(pi1[i] * (1 - pi1[i]) + pi2 * (1 - pi2) * 
+						allocationRatioPlanned * thetaH0^2))^2 / (pi1[i] - thetaH0 * pi2)^2
 				}	
 			}
 		}
@@ -2449,21 +2294,21 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	return(piecewiseSurvivalTime[2:length(piecewiseSurvivalTime)])
 }
 
-.getEventProbabilityFunction <- function(time, piecewiseLambda, piecewiseSurvivalTime = NA_real_, phi, kappa) {
-	
+.getEventProbabilityFunction <- function(..., time, piecewiseLambda, piecewiseSurvivalTime, phi, kappa) {
 	if (length(piecewiseLambda) == 1) {
-		if ((kappa != 1) && (phi > 0)) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-					"Weibull distribution cannot be used together with specified dropout rate (use simulation instead)", call. = FALSE)
+		if (kappa != 1 && phi > 0) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Weibull distribution cannot ",
+				"be used together with specified dropout rate (use simulation instead)", call. = FALSE)
 		}
+		
 		return(piecewiseLambda / (piecewiseLambda + phi) * 
-						pweibull(time, shape = kappa, scale = 1 / (piecewiseLambda + phi), lower.tail = TRUE, log.p = FALSE))
+			pweibull(time, shape = kappa, scale = 1 / (piecewiseLambda + phi), lower.tail = TRUE, log.p = FALSE))
 	} 
 	
 	if (length(piecewiseSurvivalTime) != length(piecewiseLambda)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"length of 'piecewiseSurvivalTime' (", .arrayToString(piecewiseSurvivalTime), 
-				") must be equal to length of 'piecewiseLambda' (", .arrayToString(piecewiseLambda), ")")
+			"length of 'piecewiseSurvivalTime' (", .arrayToString(piecewiseSurvivalTime), 
+			") must be equal to length of 'piecewiseLambda' (", .arrayToString(piecewiseLambda), ")")
 	}
 	
 	piecewiseSurvivalTime <- .getPiecewiseExpStartTimesWithoutLeadingZero(piecewiseSurvivalTime)
@@ -2477,57 +2322,65 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		if (i == 1) {
 			if (time <= piecewiseSurvivalTime[1]) {
 				return(piecewiseLambda[1] / (piecewiseLambda[1] + phi) * 
-								(1 - exp(-((piecewiseLambda[1] + phi) * time))))
+					(1 - exp(-((piecewiseLambda[1] + phi) * time))))
 			}
 		} 
-		if (i == 2) {
+		else if (i == 2) {
 			cdfPart <- piecewiseLambda[1] / (piecewiseLambda[1] + phi) * 
-					(1 - exp(-((piecewiseLambda[1] + phi) * piecewiseSurvivalTime[1])))
+				(1 - exp(-((piecewiseLambda[1] + phi) * piecewiseSurvivalTime[1])))
 			if (time <= piecewiseSurvivalTime[2]) {
 				cdfFactor <- piecewiseLambda[1] * piecewiseSurvivalTime[1]
 				cdf <- cdfPart + piecewiseLambda[2] / (piecewiseLambda[2] + phi) * exp(-cdfFactor) * (
-							exp(-phi*piecewiseSurvivalTime[1]) - exp(-piecewiseLambda[2] * 	(time - piecewiseSurvivalTime[1]) - phi*time))
+					exp(-phi*piecewiseSurvivalTime[1]) - exp(-piecewiseLambda[2] * 
+					(time - piecewiseSurvivalTime[1]) - phi*time))
 				return(cdf)
 			}
 		}	
-		if (i == 3) {
-			cdfPart <- cdfPart + piecewiseLambda[2] / (piecewiseLambda[2] + phi) * exp(-piecewiseLambda[1] * piecewiseSurvivalTime[1]) * (
-						exp(-phi*piecewiseSurvivalTime[1]) - exp(-piecewiseLambda[2] * (piecewiseSurvivalTime[2] - piecewiseSurvivalTime[1]) - phi*piecewiseSurvivalTime[2]))
+		else if (i == 3) {
+			cdfPart <- cdfPart + piecewiseLambda[2] / (piecewiseLambda[2] + phi) * 
+				exp(-piecewiseLambda[1] * piecewiseSurvivalTime[1]) * (
+				exp(-phi*piecewiseSurvivalTime[1]) - exp(-piecewiseLambda[2] * 
+				(piecewiseSurvivalTime[2] - piecewiseSurvivalTime[1]) - phi * piecewiseSurvivalTime[2]))
 			if (time <= piecewiseSurvivalTime[3]) {
 				cdfFactor <- piecewiseLambda[1] * piecewiseSurvivalTime[1] +
-						piecewiseLambda[2] * (piecewiseSurvivalTime[2] - piecewiseSurvivalTime[1])
+					piecewiseLambda[2] * (piecewiseSurvivalTime[2] - piecewiseSurvivalTime[1])
 				cdf <- cdfPart + piecewiseLambda[3] / (piecewiseLambda[3] + phi) * exp(-cdfFactor) * (
-							exp(-phi*piecewiseSurvivalTime[2]) - exp(-piecewiseLambda[3] * (time - piecewiseSurvivalTime[2]) - phi*time))
+					exp(-phi*piecewiseSurvivalTime[2]) - exp(-piecewiseLambda[3] * 
+					(time - piecewiseSurvivalTime[2]) - phi*time))
 				return(cdf)
 			}
 		}	
-		if (i > 3) {
+		else if (i > 3) {
 			cdfFactor <- piecewiseLambda[1] * piecewiseSurvivalTime[1] +
-					sum(piecewiseLambda[2:(i - 2)] * (piecewiseSurvivalTime[2:(i - 2)] - piecewiseSurvivalTime[1:(i - 3)]))
+				sum(piecewiseLambda[2:(i - 2)] * (piecewiseSurvivalTime[2:(i - 2)] - piecewiseSurvivalTime[1:(i - 3)]))
 			cdfPart <- cdfPart + piecewiseLambda[i - 1] / (piecewiseLambda[i - 1] + phi) * exp(-cdfFactor) * (
-						exp(-phi*piecewiseSurvivalTime[i - 2]) - exp(-piecewiseLambda[i - 1] * 
-										(piecewiseSurvivalTime[i - 1] - piecewiseSurvivalTime[i - 2]) - phi*piecewiseSurvivalTime[i - 1]))
+				exp(-phi*piecewiseSurvivalTime[i - 2]) - exp(-piecewiseLambda[i - 1] * 
+				(piecewiseSurvivalTime[i - 1] - piecewiseSurvivalTime[i - 2]) - phi*piecewiseSurvivalTime[i - 1]))
 			if (time <= piecewiseSurvivalTime[i]) {
 				cdfFactor <- piecewiseLambda[1] * piecewiseSurvivalTime[1] +
-						sum(piecewiseLambda[2:(i - 1)] * (piecewiseSurvivalTime[2:(i - 1)] - piecewiseSurvivalTime[1:(i - 2)]))
+					sum(piecewiseLambda[2:(i - 1)] * (piecewiseSurvivalTime[2:(i - 1)] - piecewiseSurvivalTime[1:(i - 2)]))
 				cdf <- cdfPart + piecewiseLambda[i] / (piecewiseLambda[i] + phi) * exp(-cdfFactor) * (
-							exp(-phi*piecewiseSurvivalTime[i - 1]) - exp(-piecewiseLambda[i] * (time - piecewiseSurvivalTime[i - 1]) - phi*time))
+					exp(-phi*piecewiseSurvivalTime[i - 1]) - exp(-piecewiseLambda[i] * 
+					(time - piecewiseSurvivalTime[i - 1]) - phi*time))
 				return(cdf)
 			}
 		}
 	}
 	
 	if (len == 1) {
-		cdfPart <- piecewiseLambda[1] / (piecewiseLambda[1] + phi) * (1 - exp(-((piecewiseLambda[1] + phi) * piecewiseSurvivalTime[1])))
+		cdfPart <- piecewiseLambda[1] / (piecewiseLambda[1] + phi) * 
+			(1 - exp(-((piecewiseLambda[1] + phi) * piecewiseSurvivalTime[1])))
 	} else if (len == 2) {
 		cdfFactor <- piecewiseLambda[1] * piecewiseSurvivalTime[1]
 		cdfPart <- cdfPart + piecewiseLambda[len] / (piecewiseLambda[len] + phi) * exp(-cdfFactor) * (
-					exp(-phi*piecewiseSurvivalTime[len - 1]) - exp(-piecewiseLambda[len] * (piecewiseSurvivalTime[len] - piecewiseSurvivalTime[len - 1]) - phi*piecewiseSurvivalTime[len]))
+			exp(-phi*piecewiseSurvivalTime[len - 1]) - exp(-piecewiseLambda[len] * 
+			(piecewiseSurvivalTime[len] - piecewiseSurvivalTime[len - 1]) - phi*piecewiseSurvivalTime[len]))
 	} else {
 		cdfFactor <- piecewiseLambda[1] * piecewiseSurvivalTime[1] +
-				sum(piecewiseLambda[2:(len - 1)] * (piecewiseSurvivalTime[2:(len - 1)] - piecewiseSurvivalTime[1:(len - 2)])) 
+			sum(piecewiseLambda[2:(len - 1)] * (piecewiseSurvivalTime[2:(len - 1)] - piecewiseSurvivalTime[1:(len - 2)])) 
 		cdfPart <- cdfPart + piecewiseLambda[len] / (piecewiseLambda[len] + phi) * exp(-cdfFactor) * (
-					exp(-phi*piecewiseSurvivalTime[len - 1]) - exp(-piecewiseLambda[len] * (piecewiseSurvivalTime[len] - piecewiseSurvivalTime[len - 1]) - phi*piecewiseSurvivalTime[len]))
+			exp(-phi*piecewiseSurvivalTime[len - 1]) - exp(-piecewiseLambda[len] * 
+			(piecewiseSurvivalTime[len] - piecewiseSurvivalTime[len - 1]) - phi*piecewiseSurvivalTime[len]))
 	}
 	
 	if (len == 1) {
@@ -2537,19 +2390,20 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	} 
 	
 	cdf <- cdfPart + piecewiseLambda[len + 1] / (piecewiseLambda[len + 1] + phi) * exp(-cdfFactor) * (
-				exp(-phi*piecewiseSurvivalTime[len]) - exp(-piecewiseLambda[len + 1] * (time - piecewiseSurvivalTime[len]) - phi*time))
+		exp(-phi*piecewiseSurvivalTime[len]) - exp(-piecewiseLambda[len + 1] * 
+		(time - piecewiseSurvivalTime[len]) - phi*time))
 	
 	return(cdf)
 } 
 
-.getEventProbabilityFunctionVec <- function(x, piecewiseLambda, piecewiseSurvivalTime, phi, kappa) {
+.getEventProbabilityFunctionVec <- function(..., timeVector, piecewiseLambda, piecewiseSurvivalTime, phi, kappa) {
 	result <- c()
-	for (time in x) {
-		result <- c(result, .getEventProbabilityFunction(time, piecewiseLambda, piecewiseSurvivalTime, phi, kappa))
+	for (time in timeVector) {
+		result <- c(result, .getEventProbabilityFunction(time = time, piecewiseLambda = piecewiseLambda, 
+			piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi, kappa = kappa))
 	}
 	return(result)
 }
-
 
 #' @title
 #' Get Event Probabilities
@@ -2558,61 +2412,64 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 #' Returns the event probabilities for specified parameters at given time vector. 
 #'
 #' @param time A numeric vector with time values.
-#' @param lambda1 The assumed hazard rate in the treatment group, there is no default.
-#'        lambda1 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details). 	 
-#' @param lambda2 The assumed hazard rate in the reference group, there is no default.
-#'  	  lambda2 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details).
-#' @param piecewiseSurvivalTime A vector that specifies the time intervals for the piecewise 
-#'        definition of the exponential survival time cumulative distribution function (see details). 
-#' @param hazardRatio The vector of hazard ratios under consideration. 
-#'        If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
-#'        not to be specified as it is calculated. 
-#' @param kappa The shape parameter of the Weibull distribution, default is \code{1}. 
-#'        The Weibull distribution cannot be used for the piecewise definition of the 
-#'        survival time distribution. 
-#'        Note that the parameters \code{shape} and \code{scale} in \code{\link[stats]{Weibull}} 
-#'        are equivalent to \code{kappa} and \code{1 / lambda}, respectively, in rpact.
-#' @param allocationRatioPlanned The planned allocation ratio, default is \code{1}. 
-#'        If \code{allocationRatioPlanned = 0} is entered, the optimal allocation ratio yielding the 
-#'        smallest number of subjects is determined.
-#' @param accrualTime The assumed accrual time intervals for the study, default is 
-#'        \code{c(0, 12)} (see details).
-#' @param accrualIntensity A vector of accrual intensities, default is the relative 
-#'        intensity \code{0.1} (see details).
-#' @param dropoutRate1 The assumed drop-out rate in the treatment group, default is \code{0}. 
-#' @param dropoutRate2 The assumed drop-out rate in the control group, default is \code{0}.
-#' @param dropoutTime The assumed time for drop-out rates in the control and the 
-#'        treatment group, default is \code{12}. 
+#' @inheritParams param_lambda1	 
+#' @inheritParams param_lambda2
+#' @inheritParams param_piecewiseSurvivalTime
+#' @inheritParams param_hazardRatio
+#' @inheritParams param_kappa
+#' @inheritParams param_allocationRatioPlanned_sampleSize
+#' @inheritParams param_accrualTime
+#' @inheritParams param_accrualIntensity
+#' @inheritParams param_dropoutRate1 
+#' @inheritParams param_dropoutRate2
+#' @inheritParams param_dropoutTime
 #' @param maxNumberOfSubjects If \code{maxNumberOfSubjects > 0} is specified, 
-#'        the end of accrual at specified \code{accrualIntensity} for the specified number of subjects is determined or
-#' 		  \code{accrualIntensity} is calculated at fixed end of accrual.	      
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#'        the end of accrual at specified \code{accrualIntensity} for the specified 
+#'        number of subjects is determined or \code{accrualIntensity} is calculated 
+#'        at fixed end of accrual.	      
+#' @inheritParams param_three_dots
 #' 
-#' @details 
-#' 
+#' @details
+#' The function computes the overall event probabilities in a two treatment groups design. 
 #' For details of the parameters see \code{\link{getSampleSizeSurvival}}.
-#'        
-#' @return Returns a \code{\link{EventProbabilities}} object.
-#'
-#' @keywords internal
 #' 
+#' @return Returns a \code{\link{EventProbabilities}} object.
+#' The following generics (R generic functions) are available for this result object:
+#' \itemize{
+#'   \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+#'   \item \code{\link[=print.FieldSet]{print}} to print the object,
+#'   \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+#'   \item \code{\link[=plot.EventProbabilities]{plot}} to plot the object,
+#'   \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+#'   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+#' }
+#' @template how_to_get_help_for_generics
+#' 
+#' @template examples_get_event_probabilities
+#'
 #' @export
 #' 
 getEventProbabilities <- function(time, ..., 
-		accrualTime = C_ACCRUAL_TIME_DEFAULT, 
-		accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT, kappa = 1, 
-		piecewiseSurvivalTime = NA_real_, lambda2 = NA_real_, lambda1 = NA_real_,
-		allocationRatioPlanned = 1, hazardRatio = NA_real_,
-		dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT, dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT, 
-		dropoutTime = C_DROP_OUT_TIME_DEFAULT,
-		maxNumberOfSubjects = NA_real_) {
+		accrualTime = c(0L, 12L), # C_ACCRUAL_TIME_DEFAULT 
+		accrualIntensity = 0.1,   # C_ACCRUAL_INTENSITY_DEFAULT
+		kappa = 1, 
+		piecewiseSurvivalTime = NA_real_, 
+		lambda2 = NA_real_, 
+		lambda1 = NA_real_,
+		allocationRatioPlanned = 1, 
+		hazardRatio = NA_real_,
+		dropoutRate1 = 0,  # C_DROP_OUT_RATE_1_DEFAULT
+		dropoutRate2 = 0,  # C_DROP_OUT_RATE_2_DEFAULT
+		dropoutTime = 12L, # C_DROP_OUT_TIME_DEFAULT
+		maxNumberOfSubjects = NA_real_) { 
+	
+	.warnInCaseOfUnknownArguments(functionName = "getEventProbabilities", ...)
 	
 	.assertIsNumericVector(time, "time")
+	.assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects, naAllowed = TRUE)
 	.assertIsValidAllocationRatioPlannedSampleSize(allocationRatioPlanned, maxNumberOfSubjects)
 	.assertIsValidKappa(kappa)
+	.assertIsSingleNumber(hazardRatio, "hazardRatio", naAllowed = TRUE)
 	
 	if (!is.na(dropoutTime) && dropoutTime <= 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dropoutTime' (", dropoutTime, ") must be > 0", call. = FALSE)
@@ -2632,16 +2489,28 @@ getEventProbabilities <- function(time, ...,
 			accrualIntensity = accrualIntensity, maxNumberOfSubjects = maxNumberOfSubjects)
 	accrualTime <- accrualSetup$.getAccrualTimeWithoutLeadingZero()
 	accrualIntensity <- accrualSetup$accrualIntensity
+	maxNumberOfSubjects <- accrualSetup$maxNumberOfSubjects
 	
 	setting <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = piecewiseSurvivalTime, 
 			lambda2 = lambda2, lambda1 = lambda1, 
-			hazardRatio = hazardRatio, kappa = kappa)
-	#if (setting$.isLambdaBased()) {
-		piecewiseSurvivalTime <- setting$piecewiseSurvivalTime
-		lambda2 <- setting$lambda2
-		lambda1 <- setting$lambda1
-		hazardRatio <- setting$hazardRatio
-	#}
+			hazardRatio = hazardRatio, kappa = kappa,
+			delayedResponseAllowed = TRUE,
+			.lambdaBased = TRUE)
+		
+	if (!setting$delayedResponseEnabled && length(setting$lambda1) > 1 && 
+			setting$.getParameterType("lambda1") == C_PARAM_USER_DEFINED) {
+		warning("Only the first 'lambda1' (", lambda1[1], ") was used to calculate event probabilities", call. = FALSE)
+		setting <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = piecewiseSurvivalTime, 
+			lambda2 = lambda2, lambda1 = lambda1[1], 
+			hazardRatio = hazardRatio, kappa = kappa,
+			delayedResponseAllowed = TRUE,
+			.lambdaBased = TRUE)
+	}
+		
+	piecewiseSurvivalTime <- setting$piecewiseSurvivalTime
+	lambda2 <- setting$lambda2
+	lambda1 <- setting$lambda1
+	hazardRatio <- setting$hazardRatio
 	
 	phi <- -log(1 - c(dropoutRate1, dropoutRate2)) / dropoutTime
 	
@@ -2713,9 +2582,11 @@ getEventProbabilities <- function(time, ...,
 	eventProbabilities$eventProbabilities2 <- numeric(0)
 	
 	for (timeValue in time) {
-		eventProbs <- .getEventProbabilitiesGroupwise(timeValue, 
-			accrualSetup$.getAccrualTimeWithoutLeadingZero(), accrualSetup$accrualIntensity, lambda2, 
-			lambda1, piecewiseSurvivalTime, phi, kappa, allocationRatioPlanned, hazardRatio)
+		eventProbs <- .getEventProbabilitiesGroupwise(time = timeValue, 
+			accrualTimeVector = accrualSetup$.getAccrualTimeWithoutLeadingZero(), 
+			accrualIntensity = accrualSetup$accrualIntensity, lambda2 = lambda2, 
+			lambda1 = lambda1, piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi, 
+			kappa = kappa, allocationRatioPlanned = allocationRatioPlanned, hazardRatio = hazardRatio)
 		
 		eventProbabilities$overallEventProbabilities <- c(eventProbabilities$overallEventProbabilities,
 			.getEventProbabilitiesOverall(eventProbs, allocationRatioPlanned))
@@ -2740,31 +2611,43 @@ getEventProbabilities <- function(time, ...,
 #' Returns the number of recruited subjects at given time vector.
 #'
 #' @param time A numeric vector with time values.
-#' @param accrualTime The assumed accrual time intervals for the study, default is 
-#'        \code{c(0,12)} (see details).
-#' @param accrualIntensity A vector of accrual intensities, default is the relative 
-#'        intensity \code{0.1} (see details).
+#' @inheritParams param_accrualTime
+#' @inheritParams param_accrualIntensity
 #' @param maxNumberOfSubjects If \code{maxNumberOfSubjects > 0} is specified, 
-#'        the end of accrual at specified \code{accrualIntensity} for the specified number of subjects is determined or
-#' 		  \code{accrualIntensity} is calculated at fixed end of accrual.	   
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#'        the end of accrual at specified \code{accrualIntensity} for the specified number of 
+#'        subjects is determined or \code{accrualIntensity} is calculated at fixed end of accrual.	   
+#' @inheritParams param_three_dots
 #' 
 #' @details 
-#' 
-#' For details of the parameters \code{accrualTime} and \code{accrualIntensity} 
-#' see \code{\link{getSampleSizeSurvival}}.
+#' Calculate number of subjects over time range at given accrual time vector
+#' and accrual intensity. Intensity can either be defined in absolute or
+#' relative terms (for the latter, \code{maxNumberOfSubjects} needs to be defined)\cr 
+#' The function is used by \code{\link{getSampleSizeSurvival}}.
 #'        
 #' @return Returns a \code{\link{NumberOfSubjects}} object.
-#'
-#' @keywords internal
+#' The following generics (R generic functions) are available for this result object:
+#' \itemize{
+#'   \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+#'   \item \code{\link[=print.FieldSet]{print}} to print the object,
+#'   \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+#'   \item \code{\link[=plot.NumberOfSubjects]{plot}} to plot the object,
+#'   \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+#'   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+#' }
+#' @template how_to_get_help_for_generics
+#' 
+#' @seealso \code{\link{AccrualTime}} for defining the accrual time.
+#' 
+#' @template examples_get_number_of_subjects
 #' 
 #' @export
 #' 
 getNumberOfSubjects <- function(time, ..., 
-		accrualTime = C_ACCRUAL_TIME_DEFAULT, 
-		accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,
+		accrualTime = c(0L, 12L), # C_ACCRUAL_TIME_DEFAULT 
+		accrualIntensity = 0.1,   # C_ACCRUAL_INTENSITY_DEFAULT
 		maxNumberOfSubjects = NA_real_) {
+	
+	.warnInCaseOfUnknownArguments(functionName = "getNumberOfSubjects", ...)
 	
 	.assertIsNumericVector(time, "time")
 	
@@ -2792,7 +2675,8 @@ getNumberOfSubjects <- function(time, ...,
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all values of 'accrualTime' must be > 0")
 	}
 
-	numberOfSubjects <- .getNumberOfSubjects(time, accrualTime, accrualIntensity, maxNumberOfSubjects)
+	numberOfSubjects <- .getNumberOfSubjects(time = time, accrualTime = accrualTime, 
+		accrualIntensity = accrualIntensity, maxNumberOfSubjects = maxNumberOfSubjects)
 	
 	result <- NumberOfSubjects(
 		.accrualTime = accrualSetup,
@@ -2813,18 +2697,18 @@ getNumberOfSubjects <- function(time, ...,
 }
 
 
-.getLambda <- function(groupNumber, time, piecewiseSurvivalTime, lambda2, lambda1, hazardRatio, kappa) {
+.getLambda <- function(..., groupNumber, lambda2, lambda1, hazardRatio, kappa) {
 	if (groupNumber == 1) {
 		if (!any(is.na(lambda1))) {
 			return(lambda1)
 		}
 		
-		lambda2 <- lambda2 * hazardRatio^(1/kappa)
+		lambda2 <- lambda2 * hazardRatio^(1 / kappa)
 	}
 	return(lambda2)
 }
 
-.getEventProbabilitiesGroupwise <- function(time, accrualTimeVector, accrualIntensity, lambda2, 
+.getEventProbabilitiesGroupwise <- function(..., time, accrualTimeVector, accrualIntensity, lambda2, 
 		lambda1, piecewiseSurvivalTime, phi, kappa, allocationRatioPlanned, hazardRatio) {
 		
 	.assertIsSingleNumber(time, "time")
@@ -2843,7 +2727,7 @@ getNumberOfSubjects <- function(time, ...,
 	
 	if (length(densityIntervals) > 1 && length(accrualIntensity) > 1 && 
 			length(densityIntervals) != length(accrualIntensity)) {
-		stop("'densityIntervals' (", .arrayToString(densityIntervals), 
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'densityIntervals' (", .arrayToString(densityIntervals), 
 			") and 'accrualIntensity' (", .arrayToString(accrualIntensity), ") must have same length")
 	}
 	
@@ -2856,12 +2740,16 @@ getNumberOfSubjects <- function(time, ...,
 			
 			for (groupNumber in c(1, 2)) {  # two groups: 1 = treatment, 2 = control
 				
-				lambdaTemp <- .getLambda(groupNumber, time, piecewiseSurvivalTime, 
-						lambda2, lambda1, hazardRatio, kappa)
+				lambdaTemp <- .getLambda(
+					groupNumber           = groupNumber, 
+					lambda2               = lambda2, 
+					lambda1               = lambda1, 
+					hazardRatio           = hazardRatio, 
+					kappa                 = kappa)
 				
 				inner <- function(x) {
-					.getEventProbabilityFunctionVec(x, piecewiseLambda = lambdaTemp, 
-							piecewiseSurvivalTime, phi[groupNumber], kappa)
+					.getEventProbabilityFunctionVec(timeVector = x, piecewiseLambda = lambdaTemp, 
+						piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi[groupNumber], kappa = kappa)
 				}
 				timeValue1 <- 0
 				if (k > 1) {
@@ -2889,12 +2777,16 @@ getNumberOfSubjects <- function(time, ...,
 	
 	for (groupNumber in c(1, 2)) {
 		
-		lambdaTemp <- .getLambda(groupNumber, time, piecewiseSurvivalTime, 
-				lambda2, lambda1, hazardRatio, kappa)
+		lambdaTemp <- .getLambda(
+			groupNumber           = groupNumber, 
+			lambda2               = lambda2, 
+			lambda1               = lambda1, 
+			hazardRatio           = hazardRatio, 
+			kappa                 = kappa)
 		
 		inner <- function(x) {
-			.getEventProbabilityFunctionVec(x, piecewiseLambda = lambdaTemp, 
-					piecewiseSurvivalTime, phi[groupNumber], kappa)
+			.getEventProbabilityFunctionVec(timeVector = x, piecewiseLambda = lambdaTemp, 
+				piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi[groupNumber], kappa = kappa)
 		}
 		
 		eventProbs[groupNumber] <- densityVector[1] * 
@@ -2902,8 +2794,8 @@ getNumberOfSubjects <- function(time, ...,
 		if (accrualTimeVectorLength > 1) {
 			for (j in (2:accrualTimeVectorLength)) {
 				eventProbs[groupNumber] <- eventProbs[groupNumber] + 
-						densityVector[j] * integrate(inner, time - accrualTimeVector[j], 
-								time - accrualTimeVector[j - 1])$value
+					densityVector[j] * integrate(inner, time - accrualTimeVector[j], 
+					time - accrualTimeVector[j - 1])$value
 			}	
 		}
 	}
@@ -2915,17 +2807,19 @@ getNumberOfSubjects <- function(time, ...,
 	return((allocationRatioPlanned * eventProbs[1] + eventProbs[2]) / (1 + allocationRatioPlanned))
 }
 
-.getEventProbabilities <- function(time, accrualTimeVector, accrualIntensity, lambda2, 
+.getEventProbabilities <- function(..., time, accrualTimeVector, accrualIntensity, lambda2, 
 		lambda1, piecewiseSurvivalTime, phi, kappa, allocationRatioPlanned, hazardRatio) {
 		
-	eventProbs <- .getEventProbabilitiesGroupwise(time, accrualTimeVector, accrualIntensity, lambda2, 
-		lambda1, piecewiseSurvivalTime, phi, kappa, allocationRatioPlanned, hazardRatio)
+	eventProbs <- .getEventProbabilitiesGroupwise(time = time, accrualTimeVector = accrualTimeVector, 
+		accrualIntensity = accrualIntensity, lambda2 = lambda2, 
+		lambda1 = lambda1, piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi, 
+		kappa = kappa, allocationRatioPlanned = allocationRatioPlanned, hazardRatio = hazardRatio)
 		
 	return(.getEventProbabilitiesOverall(eventProbs, allocationRatioPlanned))
 }
 
-.getEventsFixed <- function(typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"), twoSidedPower,
-		alpha, beta, sided, hazardRatio, thetaH0, allocationRatioPlanned) {
+.getEventsFixed <- function(..., typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"), 
+		twoSidedPower, alpha, beta, sided, hazardRatio, thetaH0, allocationRatioPlanned) {
 	
 	typeOfComputation <- match.arg(typeOfComputation)
 	
@@ -2936,14 +2830,15 @@ getNumberOfSubjects <- function(time, ...,
 		if (twoSidedPower && (sided == 2)) {
 			up <- 2*eventsFixed
 			eventsFixed <- .getOneDimensionalRoot(
-					function(n) {
-						return(stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n) * 
-							(log(hazardRatio) - log(thetaH0)) * sqrt(allocationRatioPlanned) / 
-							(1 + allocationRatioPlanned)) - 
-							stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n) * 
-							(log(hazardRatio) - log(thetaH0)) *  sqrt(allocationRatioPlanned) / 
-							(1 + allocationRatioPlanned)) - beta)
-					}, lower = 0.001, upper = up, tolerance = 1e-04
+				function(n) {
+					return(stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n) * 
+						(log(hazardRatio) - log(thetaH0)) * sqrt(allocationRatioPlanned) / 
+						(1 + allocationRatioPlanned)) - 
+						stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n) * 
+						(log(hazardRatio) - log(thetaH0)) *  sqrt(allocationRatioPlanned) / 
+						(1 + allocationRatioPlanned)) - beta)
+				}, lower = 0.001, upper = up, tolerance = 1e-04,
+				callingFunctionInformation = ".getEventsFixed"
 			)
 		}
 		return(eventsFixed)	
@@ -2956,14 +2851,15 @@ getNumberOfSubjects <- function(time, ...,
 			if (twoSidedPower && (sided == 2)) {
 			up <- 2*eventsFixed
 			eventsFixed <- .getOneDimensionalRoot(
-					function(n) {
-						return(stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n) * 
-							sqrt(allocationRatioPlanned) * (1 - hazardRatio) / 
-							(1 + allocationRatioPlanned*hazardRatio)) - 
-							stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n) * 
-							sqrt(allocationRatioPlanned) * (1 - hazardRatio) / 
-							(1 + allocationRatioPlanned*hazardRatio)) - beta)
-					}, lower = 0.001, upper = up, tolerance = 1e-04
+				function(n) {
+					return(stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n) * 
+						sqrt(allocationRatioPlanned) * (1 - hazardRatio) / 
+						(1 + allocationRatioPlanned*hazardRatio)) - 
+						stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n) * 
+						sqrt(allocationRatioPlanned) * (1 - hazardRatio) / 
+						(1 + allocationRatioPlanned*hazardRatio)) - beta)
+				}, lower = 0.001, upper = up, tolerance = 1e-04,
+				callingFunctionInformation = ".getEventsFixed"
 			)
 		}
 		return(eventsFixed)	
@@ -2983,7 +2879,8 @@ getNumberOfSubjects <- function(time, ...,
 						stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n) * 
 						2 * sqrt(allocationRatioPlanned)/(1 + allocationRatioPlanned) * 
 						(1 - hazardRatio) /(1 + hazardRatio)) - beta)
-				}, lower = 0.001, upper = up, tolerance = 1e-04
+				}, lower = 0.001, upper = up, tolerance = 1e-04,
+				callingFunctionInformation = ".getEventsFixed"
 			)
 		}
 		return(eventsFixed)	
@@ -3036,10 +2933,10 @@ getNumberOfSubjects <- function(time, ...,
 	}
 	
 	if (userDefinedMaxNumberOfSubjects) {
-		timeVec <- rep(NA_real_, numberOfResults) 
+		timeVector <- rep(NA_real_, numberOfResults) 
 	}
 	
-	designPlan$calculateFollowUpTime <- FALSE
+	designPlan$.calculateFollowUpTime <- FALSE
 	
 	lambda1 <- designPlan$lambda1
 	if (designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
@@ -3088,7 +2985,7 @@ getNumberOfSubjects <- function(time, ...,
 					(1 + allocationRatioPlanned)
 			} else {
 				designPlan$omega[i] <- .getEventProbabilities(
-					accrualTime[length(accrualTime)] + designPlan$followUpTime, 
+					time = accrualTime[length(accrualTime)] + designPlan$followUpTime, 
 					accrualTimeVector = accrualTime, 
 					accrualIntensity = designPlan$accrualIntensity, 
 					lambda2 = designPlan$lambda2,
@@ -3108,7 +3005,7 @@ getNumberOfSubjects <- function(time, ...,
 					.arrayToString(maxNumberOfSubjects), ") must be 1")
 			}
 			
-			designPlan$calculateFollowUpTime <- TRUE
+			designPlan$.calculateFollowUpTime <- TRUE
 			
 			designPlan$eventsFixed[i] <- .getEventsFixed(
 				typeOfComputation = typeOfComputation, twoSidedPower = twoSidedPower,
@@ -3133,7 +3030,7 @@ getNumberOfSubjects <- function(time, ...,
 			up <- 2
 			iterate <- 1
 			while (designPlan$eventsFixed[i] / .getEventProbabilities(
-					up, accrualTimeVector = accrualTime, accrualIntensity = designPlan$accrualIntensity, 
+					time = up, accrualTimeVector = accrualTime, accrualIntensity = designPlan$accrualIntensity, 
 					lambda2 = designPlan$lambda2, lambda1 = lambda1[i],
 					piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi, kappa = kappa, 
 					allocationRatioPlanned = allocationRatioPlanned, 
@@ -3143,21 +3040,21 @@ getNumberOfSubjects <- function(time, ...,
 				if (iterate > 50) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 						"the number of subjects is too small to reach maximum number of events ", 
-						"(presumably due to drop-out rates)")
+						"(presumably due to drop-out rates), search algorithm failed")
 				}	
 			}
 			
-			timeVec[i] <- .getOneDimensionalRoot(function(x) {
-				designPlan$eventsFixed[i] / .getEventProbabilities(x, accrualTimeVector = accrualTime, 
+			timeVector[i] <- .getOneDimensionalRoot(function(x) {
+				designPlan$eventsFixed[i] / .getEventProbabilities(time = x, accrualTimeVector = accrualTime, 
 					accrualIntensity = designPlan$accrualIntensity, lambda2 = designPlan$lambda2, 
 					lambda1 = lambda1[i], 
 					piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi, kappa = kappa, 
 					allocationRatioPlanned = allocationRatioPlanned, 
 						hazardRatio = hazardRatio[i]) - maxNumberOfSubjects
-			}, lower = 0, upper = up, tolerance = 1E-6)
+			}, lower = 0, upper = up, tolerance = 1E-6, callingFunctionInformation = ".getSampleSizeFixedSurvival")
 			
-			if (!is.na(timeVec[i])) {
-				designPlan$omega[i] <- .getEventProbabilities(timeVec[i], 
+			if (!is.na(timeVector[i])) {
+				designPlan$omega[i] <- .getEventProbabilities(time = timeVector[i], 
 					accrualTimeVector = accrualTime,	
 					accrualIntensity = designPlan$accrualIntensity, lambda2 = designPlan$lambda2, 
 					lambda1 = lambda1[i], 
@@ -3175,12 +3072,18 @@ getNumberOfSubjects <- function(time, ...,
 	}
 	
 	if (userDefinedMaxNumberOfSubjects) { 
-		designPlan$followUpTime <- timeVec - accrualTime[length(accrualTime)]
+		designPlan$followUpTime <- timeVector - accrualTime[length(accrualTime)]
 		designPlan$.setParameterType("followUpTime", C_PARAM_GENERATED)
 	}
 	
 	designPlan$nFixed2 <- designPlan$nFixed / (1 + allocationRatioPlanned)
 	designPlan$nFixed1 <- designPlan$nFixed2 * allocationRatioPlanned
+	
+	if (designPlan$.design$kMax == 1 && 
+			designPlan$.accrualTime$.isRelativeAccrualIntensity(designPlan$accrualIntensity)) {
+		designPlan$accrualIntensity <- designPlan$nFixed / designPlan$accrualTime
+		designPlan$.setParameterType("accrualIntensity", C_PARAM_GENERATED)
+	}
 	
 	designPlan$numberOfSubjects1 <- matrix(designPlan$nFixed1, nrow = 1)
 	designPlan$numberOfSubjects2 <- matrix(designPlan$nFixed2, nrow = 1)
@@ -3197,8 +3100,7 @@ getNumberOfSubjects <- function(time, ...,
 	designPlan$maxNumberOfSubjects <- designPlan$nFixed
 	designPlan$numberOfSubjects <- matrix(designPlan$nFixed, nrow = 1)
 	
-	designPlan$.setParameterType("calculateFollowUpTime", C_PARAM_GENERATED)
-	designPlan$.setParameterType("eventsFixed", C_PARAM_NOT_APPLICABLE)
+	designPlan$.setParameterType("eventsFixed", C_PARAM_GENERATED)
 	designPlan$.setParameterType("nFixed1", C_PARAM_GENERATED)
 	designPlan$.setParameterType("nFixed2", C_PARAM_GENERATED)
 	designPlan$.setParameterType("nFixed", C_PARAM_GENERATED)
@@ -3238,7 +3140,7 @@ getNumberOfSubjects <- function(time, ...,
 		lambda1 <- rep(NA_real_, numberOfResults)
 	}
 	
-	if (designPlan$accountForObservationTimes && designPlan$calculateFollowUpTime) {
+	if (designPlan$accountForObservationTimes && designPlan$.calculateFollowUpTime) {
 		designPlan$followUpTime <- rep(NA_real_, numberOfResults)
 	}
 	
@@ -3261,8 +3163,8 @@ getNumberOfSubjects <- function(time, ...,
 			
 			phi <- -c(log(1 - designPlan$dropoutRate1), log(1 - designPlan$dropoutRate2)) / 
 					designPlan$dropoutTime
-			
-			if (designPlan$calculateFollowUpTime) {
+				
+			if (designPlan$.calculateFollowUpTime) {
 				
 				if (designPlan$eventsPerStage[kMax, i] > designPlan$maxNumberOfSubjects[i]) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -3274,7 +3176,7 @@ getNumberOfSubjects <- function(time, ...,
 				
 				up <- 2
 				iterate <- 1
-				while (designPlan$eventsPerStage[kMax, i] / .getEventProbabilities(up, 
+				while (designPlan$eventsPerStage[kMax, i] / .getEventProbabilities(time = up, 
 						accrualTimeVector = designPlan$accrualTime, 
 						accrualIntensity = designPlan$accrualIntensity, 
 						lambda2 = designPlan$lambda2, 
@@ -3294,7 +3196,7 @@ getNumberOfSubjects <- function(time, ...,
 				
 				totalTime <- .getOneDimensionalRoot(function(x) {
 					designPlan$eventsPerStage[kMax, i] / designPlan$maxNumberOfSubjects[i] - 
-						.getEventProbabilities(x, accrualTimeVector = designPlan$accrualTime, 
+						.getEventProbabilities(time = x, accrualTimeVector = designPlan$accrualTime, 
 							accrualIntensity = designPlan$accrualIntensity, 
 							lambda2 = designPlan$lambda2,
 							lambda1 = lambda1[i], 
@@ -3302,13 +3204,14 @@ getNumberOfSubjects <- function(time, ...,
 							phi = phi, kappa = designPlan$kappa, 
 							allocationRatioPlanned = designPlan$allocationRatioPlanned, 
 							hazardRatio = designPlan$hazardRatio[i])
-				}, lower = 0, upper = up, tolerance = 1E-6)
+				}, lower = 0, upper = up, tolerance = 1E-6,
+				callingFunctionInformation = ".getSampleSizeSequentialSurvival")
 
 				# analysis times
 				for (j in 1:kMax) {          
 					analysisTime[j, i] <- .getOneDimensionalRoot(function(x) {
 						designPlan$eventsPerStage[j, i] / designPlan$maxNumberOfSubjects[i] - 
-							.getEventProbabilities(x, accrualTimeVector = designPlan$accrualTime, 
+							.getEventProbabilities(time = x, accrualTimeVector = designPlan$accrualTime, 
 								accrualIntensity = designPlan$accrualIntensity, 
 								lambda2 = designPlan$lambda2,
 								lambda1 = lambda1[i], 
@@ -3316,15 +3219,19 @@ getNumberOfSubjects <- function(time, ...,
 								phi = phi, kappa = designPlan$kappa, 
 								allocationRatioPlanned = designPlan$allocationRatioPlanned, 
 								hazardRatio = designPlan$hazardRatio[i])
-					}, lower = 0, upper = totalTime, tolerance = 1E-6, acceptResultsOutOfTolerance = TRUE)
+					}, lower = 0, upper = totalTime, tolerance = 1E-6, acceptResultsOutOfTolerance = TRUE,
+					callingFunctionInformation = ".getSampleSizeSequentialSurvival")
 				}
 				analysisTime[kMax, i] <- totalTime
 				
 				designPlan$followUpTime[i] <- totalTime - 
 					designPlan$accrualTime[length(designPlan$accrualTime)]
 				
-				numberOfSubjects[, i] <- .getNumberOfSubjects(analysisTime[, i], designPlan$accrualTime, 
-					designPlan$accrualIntensity, designPlan$maxNumberOfSubjects[i])
+				numberOfSubjects[, i] <- .getNumberOfSubjects(
+					time = analysisTime[, i], 
+					accrualTime = designPlan$accrualTime, 
+					accrualIntensity = designPlan$accrualIntensity, 
+					maxNumberOfSubjects = designPlan$maxNumberOfSubjects[i])
 				
 			} else {
 				
@@ -3336,12 +3243,11 @@ getNumberOfSubjects <- function(time, ...,
 				
 				if (is.na(designPlan$followUpTime)) {
 					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-						"'followUpTime' must be defined because 'calculateFollowUpTime' = ", 
-						designPlan$calculateFollowUpTime)
+						"'followUpTime' must be defined because 'designPlan$.calculateFollowUpTime' = FALSE")
 				}
 				
 				designPlan$omega[i] <- .getEventProbabilities(
-					designPlan$accrualTime[length(designPlan$accrualTime)] + designPlan$followUpTime, 
+					time = designPlan$accrualTime[length(designPlan$accrualTime)] + designPlan$followUpTime, 
 					accrualTimeVector = designPlan$accrualTime, 
 					accrualIntensity = designPlan$accrualIntensity, 
 					lambda2 = designPlan$lambda2,
@@ -3358,7 +3264,7 @@ getNumberOfSubjects <- function(time, ...,
 					analysisTime[j, i] <- .getOneDimensionalRoot(function(x) {
 						designPlan$eventsPerStage[j, i] / numberOfSubjects[kMax, i] - 
 							.getEventProbabilities(
-								x, accrualTimeVector = designPlan$accrualTime, 
+								time = x, accrualTimeVector = designPlan$accrualTime, 
 								accrualIntensity = designPlan$accrualIntensity, 
 								lambda2 = designPlan$lambda2, 
 								lambda1 = lambda1[i], 
@@ -3367,13 +3273,15 @@ getNumberOfSubjects <- function(time, ...,
 								allocationRatioPlanned = allocationRatioPlanned, 
 								hazardRatio = designPlan$hazardRatio[i])
 					}, lower = 0, upper = designPlan$accrualTime[length(designPlan$accrualTime)] + 
-							designPlan$followUpTime, tolerance = 1E-6)
+						designPlan$followUpTime, tolerance = 1E-6,
+						callingFunctionInformation = ".getSampleSizeSequentialSurvival")
 				}
 				analysisTime[kMax, i] <- designPlan$accrualTime[length(designPlan$accrualTime)] + 
 					designPlan$followUpTime
 				
-				numberOfSubjects[, i] <- .getNumberOfSubjects(analysisTime[, i] , 
-					designPlan$accrualTime, designPlan$accrualIntensity, numberOfSubjects[kMax, i])			
+				numberOfSubjects[, i] <- .getNumberOfSubjects(time = analysisTime[, i] , 
+					accrualTime = designPlan$accrualTime, accrualIntensity = designPlan$accrualIntensity, 
+					maxNumberOfSubjects = numberOfSubjects[kMax, i])			
 				
 			}
 			
@@ -3439,7 +3347,8 @@ getNumberOfSubjects <- function(time, ...,
 	}
 
 	designPlan$maxNumberOfSubjects <- designPlan$numberOfSubjects[kMax, ]
-	if (designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_NOT_APPLICABLE) {
+	if (designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_NOT_APPLICABLE ||
+			length(designPlan$maxNumberOfSubjects) > 1) {
 		designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
 	}
 	
@@ -3464,6 +3373,7 @@ getNumberOfSubjects <- function(time, ...,
 		designPlan$.setParameterType("studyDurationH1", C_PARAM_GENERATED)
 	}
 	
+	designPlan$.setParameterType("eventsFixed", C_PARAM_NOT_APPLICABLE)
 	designPlan$.setParameterType("nFixed1", C_PARAM_NOT_APPLICABLE)
 	designPlan$.setParameterType("nFixed2", C_PARAM_NOT_APPLICABLE)
 	designPlan$.setParameterType("nFixed", C_PARAM_NOT_APPLICABLE)
@@ -3473,14 +3383,16 @@ getNumberOfSubjects <- function(time, ...,
 		designPlan$.setParameterType("numberOfSubjects2", C_PARAM_NOT_APPLICABLE)
 	}
 	
+	designPlan$.calculateFollowUpTime <- NA
+	
 	return(designPlan)
 }
 
 # Note that 'directionUpper' and 'maxNumberOfSubjects' are only applicable 
 # for 'objectType' = "sampleSize"
-.createDesignPlanMeans <- function(objectType = c("power", "sampleSize"), ..., 
+.createDesignPlanMeans <- function(..., objectType = c("power", "sampleSize"), 
 		design, normalApproximation = FALSE, meanRatio = FALSE, 
-		thetaH0 = ifelse(meanRatio, 1, 0), alternative = C_ALTERNATIVE_DEFAULT, 
+		thetaH0 = ifelse(meanRatio, 1, 0), alternative = NA_real_, 
 		stDev = C_STDEV_DEFAULT, directionUpper = NA, 
 		maxNumberOfSubjects = NA_real_, groups = 2, allocationRatioPlanned = NA_real_) {
 	
@@ -3495,6 +3407,13 @@ getNumberOfSubjects <- function(time, ...,
 	.assertIsSingleLogical(meanRatio, "meanRatio")
 	.assertIsValidThetaH0(thetaH0, endpoint = "means", groups = groups, ratioEnabled = meanRatio)
 	.assertIsSingleLogical(normalApproximation, "normalApproximation")
+	
+	if (meanRatio) {
+		if (identical(alternative, C_ALTERNATIVE_POWER_SIMULATION_DEFAULT)) {
+			alternative = C_ALTERNATIVE_POWER_SIMULATION_MEAN_RATIO_DEFAULT 
+		}
+		.assertIsInOpenInterval(alternative, "alternative", 0, NULL, naAllowed = TRUE)
+	}
 	
 	directionUpper <- .assertIsValidDirectionUpper(directionUpper, design$sided, objectType)
 	
@@ -3547,7 +3466,7 @@ getNumberOfSubjects <- function(time, ...,
 		if (meanRatio && thetaH0 <= 0) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"null hypothesis mean ratio is not allowed be negative or zero, ", 
-					"i.e. 'thetaH0' must be > 0 if 'meanRatio' = TRUE")
+					"i.e., 'thetaH0' must be > 0 if 'meanRatio' = TRUE")
 		}
 	}
 	
@@ -3586,7 +3505,7 @@ getNumberOfSubjects <- function(time, ...,
 }
 
 # Note that 'directionUpper' and 'maxNumberOfSubjects' are only applicable for 'objectType' = "sampleSize"
-.createDesignPlanRates <- function(objectType = c("power", "sampleSize"), ..., 
+.createDesignPlanRates <- function(..., objectType = c("power", "sampleSize"), 
 		design, normalApproximation = TRUE, riskRatio = FALSE, 
 		thetaH0 = ifelse(riskRatio, 1, 0), pi1 = C_PI_1_SAMPLE_SIZE_DEFAULT, 
 		pi2 = C_PI_2_DEFAULT, directionUpper = NA, 
@@ -3669,7 +3588,7 @@ getNumberOfSubjects <- function(time, ...,
 		if (riskRatio && thetaH0 <= 0) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"null hypothesis risk ratio is not allowed be negative or zero, ", 
-					"i.e. 'thetaH0' must be > 0 if 'riskRatio' = TRUE")			
+					"i.e., 'thetaH0' must be > 0 if 'riskRatio' = TRUE")			
 		}
 	}
 	
@@ -3734,67 +3653,62 @@ getNumberOfSubjects <- function(time, ...,
 #' Get Power Means
 #' 
 #' @description 
-#' Returns the power, stopping probabilities, and expected sample size for testing means in one or two samples at given sample size.
+#' Returns the power, stopping probabilities, and expected sample size for 
+#' testing means in one or two samples at given sample size.
 #'
-#' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument.  
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
-#' @param normalApproximation If \code{normalApproximation = TRUE} is specified, the variance is 
-#'        assumed to be known, default is FALSE, i.e., the calculations are performed with the t distribution.
-#' @param meanRatio If \code{meanRatio = TRUE} is specified, the power for 
-#'        one-sided testing of H0: mu1/mu2 = thetaH0 is calculated, default is \code{FALSE}.
-#' @param thetaH0 The null hypothesis value. For one-sided testing, a value != 0 
-#'        (or a value != 1 for testing the mean ratio) can be specified, default is \code{0} or \code{1} for difference and ratio testing, respectively.
-#' @param alternative The alternative hypothesis value. This can be a vector of assumed 
-#'        alternatives, default is \code{seq(0,1,0.2)}. 
-#' @param stDev The standard deviation, default is 1. If \code{meanRatio = TRUE} 
-#'        is specified, stDev defines the coefficient of variation sigma/mu2. 
-#' @param directionUpper Specifies the direction of the alternative, 
-#'        only applicable for one-sided testing, default is \code{TRUE}.  
-#' @param maxNumberOfSubjects \code{maxNumberOfSubjects > 0} needs to be specified for power calculations.
-#' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups 
-#'        design, default is \code{1}. 
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @inheritParams param_design_with_default
+#' @inheritParams param_groups
+#' @param normalApproximation The type of computation of the p-values. If \code{TRUE}, the variance is 
+#'        assumed to be known, default is \code{FALSE}, i.e., the calculations are performed 
+#'        with the t distribution.
+#' @param meanRatio If \code{TRUE}, the sample size for 
+#'        one-sided testing of H0: \code{mu1 / mu2 = thetaH0} is calculated, default is \code{FALSE}.
+#' @inheritParams param_thetaH0
+#' @inheritParams param_alternative
+#' @inheritParams param_stDev
+#' @inheritParams param_allocationRatioPlanned
+#' @inheritParams param_directionUpper 
+#' @inheritParams param_maxNumberOfSubjects
+#' @inheritParams param_three_dots
 #' 
 #' @details 
-#' At given design the function calculates the power, stopping probabilities, and expected sample size, for testing means at given sample size.
-#' In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
-#' A null hypothesis value thetaH0 != 0 for testing the difference of two means or  
-#' thetaH0 != 1 for testing the ratio of two means can be specified.
-#' For the specified sample size, critical bounds and stopping for futility bounds are provided at the effect scale (mean, mean difference, or mean ratio, respectively) 
+#' At given design the function calculates the power, stopping probabilities, 
+#' and expected sample size, for testing means at given sample size.
+#' In a two treatment groups design, additionally, an 
+#' allocation ratio = \code{n1 / n2} can be specified. 
+#' A null hypothesis value thetaH0 != 0 for testing the difference of two means 
+#' or \code{thetaH0 != 1} for testing the ratio of two means can be specified.
+#' For the specified sample size, critical bounds and stopping for futility 
+#' bounds are provided at the effect scale (mean, mean difference, or 
+#' mean ratio, respectively) 
 #' 
+#' @template return_object_trial_design_plan
+#' @template how_to_get_help_for_generics
 #' 
-#' @return Returns a \code{\link{TrialDesignPlanMeans}} object.
-#'
+#' @family power functions
+#' 
+#' @template examples_get_power_means
+#' 
 #' @export
 #' 
-#' @examples
-#' 
-#' # Calculate the power, stopping probabilities, and expected sample size for testing H0: 
-#' # mu1 - mu2 = 0 in a two-armed design 
-#' # against a range of alternatives H1: mu1 - m2 = delta, delta = (0, 1, 2, 3, 4, 5), 
-#' # standard deviation sigma = 8, maximum sample size N = 80 (both treatment arms), 
-#' # and an allocation ratio n1/n2 = 2. The design is a three stage O'Brien & Fleming design 
-#' # with non-binding futility bounds (-0.5, 0.5) for the two interims. 
-#' # The computation takes into account that the t test is used (normalApproximation = FALSE). 
-#' getPowerMeans(getDesignGroupSequential(alpha = 0.025, 
-#'     sided = 1, futilityBounds = c(-0.5, 0.5)), 
-#'     groups = 2, alternative = c(0:5), stDev = 8,
-#'     normalApproximation = FALSE, maxNumberOfSubjects = 80, 
-#'     allocationRatioPlanned = 2)
-#' 
-getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = FALSE, meanRatio = FALSE, 
-		thetaH0 = ifelse(meanRatio, 1, 0), alternative = C_ALTERNATIVE_POWER_SIMULATION_DEFAULT, 
-		stDev = C_STDEV_DEFAULT, directionUpper = NA, 
-		maxNumberOfSubjects = NA_real_, allocationRatioPlanned = NA_real_) {
+getPowerMeans <- function(design = NULL, ..., 
+		groups = 2, 
+		normalApproximation = FALSE, 
+		meanRatio = FALSE, 
+		thetaH0 = ifelse(meanRatio, 1, 0), 
+		alternative = seq(0, 1, 0.2),       # C_ALTERNATIVE_POWER_SIMULATION_DEFAULT 
+		stDev = 1,                          # C_STDEV_DEFAULT
+		directionUpper = NA, 
+		maxNumberOfSubjects = NA_real_, 
+		allocationRatioPlanned = NA_real_  # C_ALLOCATION_RATIO_DEFAULT
+	) {
 	
 	.assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects)
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(..., powerEnabled = TRUE)
+		design <- .getDefaultDesign(..., type = "power")
 		.warnInCaseOfUnknownArguments(functionName = "getPowerMeans", 
-			ignore = c("alpha", "beta", "sided"), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
 	} else {
 		.warnInCaseOfUnknownArguments(functionName = "getPowerMeans", ...)
 		.assertIsTrialDesign(design)
@@ -3885,22 +3799,17 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' @description 
 #' Returns the power, stopping probabilities, and expected sample size for testing rates in one or two samples at given sample sizes.
 #' 
-#' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument  
-#' @param groups The number of treatment groups (1 or 2), default is \code{2}.
-#' @param riskRatio If \code{riskRatio = TRUE} is specified, the power for one-sided 
-#'        testing of H0: \code{pi1/pi2 = thetaH0} is calculated, default is \code{FALSE}. 
-#' @param thetaH0 The null hypothesis value. For one-sided testing, a value != 0 
-#'        (or != 1 for testing the risk ratio \code{pi1/pi2}) can be specified, default is \code{0} or \code{1} for difference and ratio testing, respectively.
-#' @param pi1 The assumed probability in the active treatment group if two treatment groups 
-#'        are considered, or the alternative probability for a one treatment group design, 
-#'        default is \code{seq(0.2,0.5,0.1)}.
-#' @param pi2 The assumed probability in the reference group if two treatment groups are considered, default is \code{0.2}. 
-#' @param directionUpper Specifies the direction of the alternative, only applicable for one-sided testing, default is \code{TRUE}.  
-#' @param maxNumberOfSubjects \code{maxNumberOfSubjects > 0} needs to be specified.
-#' @param allocationRatioPlanned The planned allocation ratio for a two treatment groups design, default is \code{1}.
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @inheritParams param_design_with_default  
+#' @inheritParams param_groups
+#' @param riskRatio If \code{TRUE}, the power for one-sided 
+#'        testing of H0: \code{pi1 / pi2 = thetaH0} is calculated, default is \code{FALSE}. 
+#' @inheritParams param_thetaH0
+#' @inheritParams param_pi1_rates
+#' @inheritParams param_pi2_rates
+#' @inheritParams param_directionUpper 
+#' @inheritParams param_maxNumberOfSubjects
+#' @inheritParams param_allocationRatioPlanned
+#' @inheritParams param_three_dots
 #' 
 #' @details 
 #' At given design the function calculates the power, stopping probabilities, and expected sample size, 
@@ -3908,46 +3817,36 @@ getPowerMeans <- function(design = NULL, ..., groups = 2, normalApproximation = 
 #' The sample sizes over the stages are calculated according to the specified information rate in the design. 
 #' In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
 #' If a null hypothesis value thetaH0 != 0 for testing the difference of two rates 
-#' or thetaH0 != 1 for testing the risk ratio is specified, the  
+#' or \code{thetaH0 != 1} for testing the risk ratio is specified, the  
 #' formulas according to Farrington & Manning (Statistics in Medicine, 1990) are used (only one-sided testing).
 #' Critical bounds and stopping for futility bounds are provided at the effect scale (rate, rate difference, or rate ratio, respectively). 
 #' For the two-sample case, the calculation here is performed at fixed pi2 as given as argument in the function.  
 #' Note that the power calculation for rates is always based on the normal approximation.
 #' 
-#' @return Returns a \code{\link{TrialDesignPlanRates}} object.
+#' @template return_object_trial_design_plan
+#' @template how_to_get_help_for_generics
+#' 
+#' @family power functions
 #'
+#' @template examples_get_power_rates
+#' 
 #' @export
 #' 
-#' @examples
-#' 
-#' # Calculate the power, stopping probabilities, and expected sample size in a two-armed 
-#' # design at given maximum sample size N = 200 
-#' # in a three-stage O'Brien & Fleming design with information rate vector (0.2,0.5,1), 
-#' # non-binding futility boundaries (0,0), i.e.,
-#' # the study stops for futility if the p-value exceeds 0.5 at interm, and 
-#' # allocation ratio = 2 for a range of pi1 values when testing H0: pi1 - pi2 = -0.1:
-#' getPowerRates(getDesignGroupSequential(informationRates = c(0.2,0.5,1), 
-#'     futilityBounds = c(0,0)), groups = 2, thetaH0 = -0.1, 
-#'     pi1 = seq(0.3, 0.6, 0.1), directionUpper = FALSE, 
-#'     pi2 = 0.7, allocationRatioPlanned = 2, maxNumberOfSubjects = 200)
-#' 
-#' # Calculate the power, stopping probabilities, and expected sample size in a single 
-#' # arm design at given maximum sample size N = 60 in a three-stage two-sided 
-#' # O'Brien & Fleming design with information rate vector (0.2,0.5,1) 
-#' # for a range of pi1 values when testing H0: pi = 0.3:
-#' getPowerRates(getDesignGroupSequential(informationRates = c(0.2,0.5,1), 
-#'     sided = 2), groups = 1, thetaH0 = 0.3, pi1 = seq(0.3, 0.5, 0.05),  
-#'     maxNumberOfSubjects = 60)
-#' 
-getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE, 
-		thetaH0 = ifelse(riskRatio, 1, 0), pi1 = C_PI_1_DEFAULT, pi2 = 0.2, 
-		directionUpper = NA, maxNumberOfSubjects = NA_real_, 
-		allocationRatioPlanned = NA_real_) {
+getPowerRates <- function(design = NULL, ..., 
+		groups = 2, 
+		riskRatio = FALSE, 
+		thetaH0 = ifelse(riskRatio, 1, 0), 
+		pi1 = seq(0.2, 0.5, 0.1),          # C_PI_1_DEFAULT
+		pi2 = 0.2,                         # C_PI_2_DEFAULT
+		directionUpper = NA, 
+		maxNumberOfSubjects = NA_real_, 
+		allocationRatioPlanned = NA_real_  # C_ALLOCATION_RATIO_DEFAULT
+		) {
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(..., powerEnabled = TRUE)
+		design <- .getDefaultDesign(..., type = "power")
 		.warnInCaseOfUnknownArguments(functionName = "getPowerRates", 
-			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
 	} else {
 		.warnInCaseOfUnknownArguments(functionName = "getPowerRates", ...)
 		.assertIsTrialDesign(design)
@@ -3962,7 +3861,7 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 		allocationRatioPlanned = allocationRatioPlanned, ...)
 	
 	if (!is.na(allocationRatioPlanned) && allocationRatioPlanned <= 0) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "allocation ratio must be positive")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "allocation ratio must be > 0")
 	}	
 	
 	allocationRatioPlanned <- designPlan$allocationRatioPlanned
@@ -3977,8 +3876,8 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 		if (!riskRatio) {
 			designPlan$effect <- pi1 - pi2 - thetaH0
 			for (i in (1:length(pi1))) { 
-				fm <- .getFarringtonManningValues(pi1[i], pi2, 
-					thetaH0, allocationRatioPlanned, method = "diff")
+				fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2, 
+					theta = thetaH0, allocation = allocationRatioPlanned, method = "diff")
 				theta[i] <- sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned) * (
 					(pi1[i] - pi2 - thetaH0)*sqrt(1 + allocationRatioPlanned)/
 					sqrt(pi1[i] * (1 - pi1[i]) + allocationRatioPlanned * pi2 * (1 - pi2)) + 
@@ -3990,8 +3889,8 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 		} else {
 			designPlan$effect <- pi1 / pi2 - thetaH0 
 			for (i in (1:length(pi1))) { 
-				fm <- .getFarringtonManningValues(pi1[i], pi2, 
-					thetaH0, allocationRatioPlanned, method = "ratio")
+				fm <- .getFarringtonManningValues(rate1 = pi1[i], rate2 = pi2, 
+					theta = thetaH0, allocation = allocationRatioPlanned, method = "ratio")
 				theta[i] <- sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned) * (
 					(pi1[i] - thetaH0 * pi2) * sqrt(1 + allocationRatioPlanned) /
 					sqrt(pi1[i]*(1 - pi1[i]) + allocationRatioPlanned*thetaH0^2 * pi2 * (1 - pi2)) + 
@@ -4037,7 +3936,7 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 	return(designPlan)
 }
 
-.getNumberOfSubjectsInner <- function(timeValue, accrualTime, accrualIntensity, maxNumberOfSubjects) {
+.getNumberOfSubjectsInner <- function(..., timeValue, accrualTime, accrualIntensity, maxNumberOfSubjects) {
 	.assertIsSingleNumber(timeValue, "timeValue")
 	if (length(accrualTime) != length(accrualIntensity)) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "length of 'accrualTime' (", length(accrualIntensity), ") ",
@@ -4063,7 +3962,7 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 	return(maxNumberOfSubjects)
 }
 
-.getNumberOfSubjects <- function(time, accrualTime, accrualIntensity, maxNumberOfSubjects) {
+.getNumberOfSubjects <- function(..., time, accrualTime, accrualIntensity, maxNumberOfSubjects) {
 	subjectNumbers <- c()
 	for (timeValue in time) {
 		if (is.na(timeValue)) {
@@ -4071,7 +3970,8 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 		}
 		
 		subjectNumbers <- c(subjectNumbers, 
-			.getNumberOfSubjectsInner(timeValue, accrualTime, accrualIntensity, maxNumberOfSubjects))
+			.getNumberOfSubjectsInner(timeValue = timeValue, accrualTime = accrualTime, 
+				accrualIntensity = accrualIntensity, maxNumberOfSubjects = maxNumberOfSubjects))
 	}  
 	return(subjectNumbers)
 }
@@ -4080,50 +3980,33 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 #' Get Power Survival 
 #' 
 #' @description 
-#' Returns the power, stopping probabilities, and expected sample size for testing the hazard ratio in a two treatment groups survival design. 
+#' Returns the power, stopping probabilities, and expected sample size for testing 
+#' the hazard ratio in a two treatment groups survival design. 
 #'
-#' @param design The trial design. If no trial design is specified, a fixed sample size design is used. 
-#' 		  In this case, \code{alpha}, \code{beta}, and \code{sided} can be directly entered as argument.  
-#' @param typeOfComputation Three options are available: "Schoenfeld", "Freedman", "HsiehFreedman", 
-#'        the default is "Schoenfeld". For details, see Hsieh 
-#'        (Statistics in Medicine, 1992). For non-inferiority testing (i.e., thetaH0 != 1),
-#' 		  only Schoenfelds formula can be used
-#' @param thetaH0 The null hypothesis value. The default value is 1. For one-sided testing, 
-#'        a bound for testing H0: hazard ratio = thetaH0 != 1 can be specified.
-#' @param directionUpper Specifies the direction of the alternative, only applicable for one-sided testing, default is TRUE. 
-#' @param pi1 The assumed event rate in the treatment group, default is \code{seq(0.2,0.5,0.1)}.
-#' @param pi2 The assumed event rate in the control group, default is 0.2.
-#' @param lambda1 The assumed hazard rate in the treatment group, there is no default.
-#'        lambda1 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details). 	 
-#' @param lambda2 The assumed hazard rate in the reference group, there is no default.
-#'  	  lambda2 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details).
-#' @param median1 The assumed median survival time in the treatment group, there is no default.
-#' @param median2 The assumed median survival time in the reference group, there is no default.
-#' @param piecewiseSurvivalTime A vector that specifies the time intervals for the piecewise 
-#'        definition of the exponential survival time cumulative distribution function (see details). 
-#' @param hazardRatio The vector of hazard ratios under consideration. 
-#'        If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
-#'        not to be specified as it is calculated. 
-#' @param kappa The shape parameter of the Weibull distribution, default is \code{1}. 
-#'        The Weibull distribution cannot be used for the piecewise definition of the survival time distribution. 
-#'        Note that the parameters \code{shape} and \code{scale} in \code{\link[stats]{Weibull}} 
-#'        are equivalent to \code{kappa} and \code{1 / lambda}, respectively, in rpact.
-#' @param allocationRatioPlanned The planned allocation ratio, default is \code{1}. 
-#' @param eventTime The assumed time under which the event rates are calculated, default is \code{12}. 
-#' @param accrualTime The assumed accrual time intervals for the study, default is \code{c(0,12)}  (see details).
-#' @param accrualIntensity A vector of accrual intensities, default is \code{1} (see details).
-#' @param dropoutRate1 The assumed drop-out rate in the treatment group, default is \code{0}. 
-#' @param dropoutRate2 The assumed drop-out rate in the control group, default is \code{0}.
-#' @param dropoutTime The assumed time for drop-out rates in the control and the 
-#'        treatment group, default is \code{12}. 
-#' @param maxNumberOfEvents \code{maxNumberOfEvents > 0} is the maximum number of events, determines 
-#' 			the power of the test and needs to be specified. 
-#' @param maxNumberOfSubjects \code{maxNumberOfSubjects > 0} needs to be specified.
-#' 		  If accrual time and accrual intensity is specified, this will be calculated.   
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @inheritParams param_design_with_default
+#' @inheritParams param_typeOfComputation
+#' @inheritParams param_allocationRatioPlanned
+#' @inheritParams param_thetaH0
+#' @inheritParams param_lambda1	 
+#' @inheritParams param_lambda2	 
+#' @inheritParams param_pi1_survival
+#' @inheritParams param_pi2_survival
+#' @inheritParams param_median1
+#' @inheritParams param_median2
+#' @inheritParams param_piecewiseSurvivalTime
+#' @inheritParams param_directionUpper
+#' @inheritParams param_accrualTime
+#' @inheritParams param_accrualIntensity
+#' @inheritParams param_eventTime
+#' @inheritParams param_hazardRatio
+#' @inheritParams param_kappa
+#' @inheritParams param_dropoutRate1 
+#' @inheritParams param_dropoutRate2
+#' @inheritParams param_dropoutTime
+#' @param maxNumberOfEvents \code{maxNumberOfEvents > 0} is the maximum number of events, it determines 
+#'        the power of the test and needs to be specified. 
+#' @inheritParams param_maxNumberOfSubjects_survival  
+#' @inheritParams param_three_dots
 #' 
 #' @details 
 #' At given design the function calculates the power, stopping probabilities, and expected 
@@ -4135,142 +4018,26 @@ getPowerRates <- function(design = NULL, ..., groups = 2, riskRatio = FALSE,
 #' of subjects in the two treatment groups. 
 #'  
 #' The formula of Kim & Tsiatis (Biometrics, 1990) 
-#' is used to calculated the expected number of events under the alternative 
+#' is used to calculate the expected number of events under the alternative 
 #' (see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized to piecewise survival times and 
 #' non-constant piecewise accrual over time.\cr
 #' 
-#' \code{piecewiseSurvivalTime} 
-#' The first element of this vector must be equal to \code{0}. \code{piecewiseSurvivalTime} can also 
-#' be a list that combines the definition of the time intervals and hazard rates in the reference group. 
-#' The definition of the survival time in the treatment group is obtained by the specification 
-#' of the hazard ratio (see examples for details).
+#' @template details_piecewise_survival
 #' 
-#' \code{accrualTime} can also be used to define a non-constant accrual over time. 
-#' For this, \code{accrualTime} needs to be a vector that defines the accrual intervals and
-#' \code{accrualIntensity} needs to be specified. The first element of \code{accrualTime} must be equal to 0.\cr 
-#' \code{accrualTime} can also be a list that combines the definition of the accrual time and 
-#' accrual intensity \code{accrualIntensity} (see below and examples for details). 
-#' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
-#' the same (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to 
-#' be specified and the end of accrual is calculated.	
+#' @template details_piecewise_accrual
 #' 
-#' \code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
-#' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
-#' (i.e., the end of accrual is undefined), \code{maxNumberOfSubjects > 0} needs to be specified 
-#' and the end of accrual is calculated.	
-#' In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
-#' If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
-#' (i.e., the end of accrual is defined), \code{maxNumberOfSubjects} is calculated.\cr 
-#' If all elements in \code{accrualIntensity} are smaller than 1, \code{accrualIntensity} defines 
-#' the *relative* intensity how subjects enter the trial.
-#' For example, \code{accrualIntensity = c(0.1, 0.2)} specifies that in the second accrual interval 
-#' the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
-#' is calculated for the given \code{maxNumberOfSubjects}.
-#' Note that the default is \code{accrualIntensity = 0.1} meaning that the *absolute* accrual intensity 
-#' will be calculated.  
+#' @template return_object_trial_design_plan
+#' @template how_to_get_help_for_generics
 #' 
-#' @return Returns a \code{\link{TrialDesignPlanSurvival}} object.
+#' @family power functions
 #'
+#' @template examples_get_power_survival
+#' 
 #' @export
-#' 
-#' @examples
-#' 
-#' # Fixed sample size with minimum required definitions, pi1 = c(0.4,0.5,0.5) and 
-#' # pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default 
-#' getPowerSurvival(maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
-#' 
-#' \donttest{
-#' 
-#' # Four stage O'Brien & Fleming group sequential design with minimum required 
-#' # definitions, pi1 = c(0.4,0.5,0.5) and pi2 = 0.2 at event time 12, 
-#' # accrual time 12 and follow-up time 6 as default  
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 4), 
-#'     maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
-#' 
-#' # For fixed sample design, determine necessary accrual time if 200 subjects and 
-#' # 30 subjects per time unit can be recruited 
-#' getPowerSurvival(maxNumberOfEvents = 40, accrualTime = c(0), 
-#'     accrualIntensity = 30, maxNumberOfSubjects = 200)
-#' 
-#' # Determine necessary accrual time if 200 subjects and if the first 6 time units 
-#' # 20 subjects per time unit can be recruited, then 30 subjects per time unit 
-#' getPowerSurvival(maxNumberOfEvents = 40, accrualTime = c(0, 6), 
-#'     accrualIntensity = c(20, 30), maxNumberOfSubjects = 200)
-#' 
-#' # Determine maximum number of Subjects if the first 6 time units 20 subjects per 
-#' # time unit can be recruited, and after 10 time units 30 subjects per time unit
-#' getPowerSurvival(maxNumberOfEvents = 40, accrualTime = c(0, 6, 10), accrualIntensity = c(20, 30))
-#' 
-#' # Specify accrual time as a list
-#' at <- list(
-#'     "0 - <6"  = 20,
-#'     "6 - Inf" = 30)
-#' getPowerSurvival(maxNumberOfEvents = 40, accrualTime = at, maxNumberOfSubjects = 200)
-#' 
-#' # Specify accrual time as a list, if maximum number of subjects need to be calculated
-#' at <- list(
-#'     "0 - <6"   = 20,
-#'     "6 - <=10" = 30) 
-#' getPowerSurvival(maxNumberOfEvents = 40, accrualTime = at)
-#' 
-#' # Specify effect size for a two-stage group design with O'Brien & Fleming boundaries
-#' # Effect size is based on event rates at specified event time, directionUpper = FALSE 
-#' # needs to be specified because it should be shown that hazard ratio < 1
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 2), pi1 = 0.2, pi2 = 0.3, 
-#'     eventTime = 24, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
-#' 
-#' # Effect size is based on event rate at specified event time for the reference group 
-#' # and hazard ratio, directionUpper = FALSE needs to be specified 
-#' # because it should be shown that hazard ratio < 1
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5, pi2 = 0.3, 
-#'     eventTime = 24, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
-#' 
-#' # Effect size is based on hazard rate for the reference group and hazard ratio, 
-#' # directionUpper = FALSE needs to be specified because it should be shown that hazard ratio < 1
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5, 
-#'     lambda2 = 0.02, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE) 
-#' 
-#' # Specification of piecewise exponential survival time and hazard ratios  
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
-#'     piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01,0.02,0.04), 
-#'     hazardRatio = c(1.5, 1.8, 2),  maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
-#' 
-#' # Specification of piecewise exponential survival time as list and hazard ratios 
-#' pws <- list(
-#'     "0 - <5"  = 0.01,	
-#' 	   "5 - <10" = 0.02,	
-#' 	   ">=10"    = 0.04)
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2), 
-#' 	   maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
-#' 
-#' # Specification of piecewise exponential survival time for both treatment arms  
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
-#' 	   lambda1 = c(0.015,0.03,0.06),  maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
-#' 
-#' # Specification of piecewise exponential survival time as a list
-#' pws <- list(
-#'     "0 - <5"  = 0.01,
-#' 	   "5 - <10" = 0.02,
-#' 	   ">=10"    = 0.04)
-#' getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
-#' 	   piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2), 
-#' 	   maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
-#' 
-#' # Specify effect size based on median survival times
-#' getPowerSurvival(median1 = 5, median2 = 3, 
-#' 	   maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
-#' 
-#' # Specify effect size based on median survival times of Weibull distribtion with kappa = 2
-#' getPowerSurvival(median1 = 5, median2 = 3, kappa = 2, 
-#' 	   maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
-#' 
-#' }
 #' 
 getPowerSurvival <- function(design = NULL, ..., 
 		typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"), 
-		thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT, 
+		thetaH0 = 1,                # C_THETA_H0_SURVIVAL_DEFAULT
 		directionUpper = NA, 
 		pi1 = NA_real_, 
 		pi2 = NA_real_, 
@@ -4281,22 +4048,21 @@ getPowerSurvival <- function(design = NULL, ...,
 		kappa = 1, 
 		hazardRatio = NA_real_,
 		piecewiseSurvivalTime = NA_real_,		
-		allocationRatioPlanned = 1, 
-		eventTime = C_EVENT_TIME_DEFAULT, 
-		accrualTime = C_ACCRUAL_TIME_DEFAULT, 
-		accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,  
-		maxNumberOfSubjects = NA_real_, 
+		allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT 
+		eventTime = 12L,            # C_EVENT_TIME_DEFAULT
+		accrualTime = c(0L, 12L),   # C_ACCRUAL_TIME_DEFAULT
+		accrualIntensity = 0.1,     # C_ACCRUAL_INTENSITY_DEFAULT
+		maxNumberOfSubjects = NA_real_,
 		maxNumberOfEvents = NA_real_,
-		dropoutRate1 = C_DROP_OUT_RATE_1_DEFAULT, 
-		dropoutRate2 = C_DROP_OUT_RATE_2_DEFAULT, 
-		dropoutTime = C_DROP_OUT_TIME_DEFAULT) {
-	
-	typeOfComputation <- match.arg(typeOfComputation)
+		dropoutRate1 = 0,           # C_DROP_OUT_RATE_1_DEFAULT
+		dropoutRate2 = 0,           # C_DROP_OUT_RATE_2_DEFAULT
+		dropoutTime = 12L           # C_DROP_OUT_TIME_DEFAULT
+		) {
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesignForSampleSizeCalculations(..., powerEnabled = TRUE)
+		design <- .getDefaultDesign(..., type = "power")
 		.warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", 
-			ignore = c("alpha", "beta", "sided", "twoSidedPower"), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", ...)
@@ -4328,20 +4094,19 @@ getPowerSurvival <- function(design = NULL, ...,
 		dropoutRate2 = dropoutRate2, 
 		dropoutTime = dropoutTime, 
 		hazardRatio = hazardRatio)
-		
-	if (!is.na(allocationRatioPlanned) && allocationRatioPlanned <= 0) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "allocation ratio must be positive", call. = FALSE)
-	}	
 	
-	if (typeOfComputation == "Schoenfeld") { 
+	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
+	.assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+	
+	if (designPlan$typeOfComputation == "Schoenfeld") { 
 		theta <- sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned) * 
 				(log(designPlan$hazardRatio / thetaH0))
 	} 
-	if (typeOfComputation == "Freedman") { 
+	else if (designPlan$typeOfComputation == "Freedman") { 
 		theta <- sqrt(allocationRatioPlanned) * (designPlan$hazardRatio - 1) / 
 				(allocationRatioPlanned * designPlan$hazardRatio + 1)
 	}
-	if (typeOfComputation == "HsiehFreedman") {
+	else if (designPlan$typeOfComputation == "HsiehFreedman") {
 		theta <- sqrt(4 * allocationRatioPlanned) / (1 + allocationRatioPlanned) * 
 				(designPlan$hazardRatio - 1) / (designPlan$hazardRatio + 1)
 	}
@@ -4388,7 +4153,8 @@ getPowerSurvival <- function(design = NULL, ...,
 		up <- 2
 		iterate <- 1
 		while (eventsPerStage[kMax] / designPlan$maxNumberOfSubjects > .getEventProbabilities(
-				up, accrualTimeVector = designPlan$accrualTime, accrualIntensity = designPlan$accrualIntensity, 
+				time = up, accrualTimeVector = designPlan$accrualTime, 
+				accrualIntensity = designPlan$accrualIntensity, 
 				lambda2 = designPlan$lambda2, 
 				lambda1 = lambda1[i], phi = phi, 
 				piecewiseSurvivalTime = designPlan$piecewiseSurvivalTime,
@@ -4406,14 +4172,16 @@ getPowerSurvival <- function(design = NULL, ...,
 		for (j in 1:kMax) {          
 			designPlan$analysisTime[j, i] <- .getOneDimensionalRoot(function(x) {
 				eventsPerStage[j] / designPlan$maxNumberOfSubjects - 
-					.getEventProbabilities(x, accrualTimeVector = designPlan$accrualTime, 
+					.getEventProbabilities(time = x, 
+						accrualTimeVector = designPlan$accrualTime, 
 						accrualIntensity = designPlan$accrualIntensity, 
 						lambda2 = designPlan$lambda2, 
 						lambda1 = lambda1[i], phi = phi, 
 						piecewiseSurvivalTime = designPlan$piecewiseSurvivalTime,
 						kappa = kappa, allocationRatioPlanned = allocationRatioPlanned, 
 						hazardRatio = designPlan$hazardRatio[i])
-			}, lower = 0, upper = up, tolerance = 1e-06) # , acceptResultsOutOfTolerance = TRUE
+			}, lower = 0, upper = up, tolerance = 1e-06,
+				callingFunctionInformation = "getPowerSurvival") # , acceptResultsOutOfTolerance = TRUE
 			if (is.na(designPlan$analysisTime[j, i])) {
 				warning("Cannot calculate analysis time at stage ", j, ": ",
 					"'maxNumberOfSubjects' (", designPlan$maxNumberOfSubjects, ") is too ", 
@@ -4422,12 +4190,17 @@ getPowerSurvival <- function(design = NULL, ...,
 		}
 		if (kMax > 1) {
 			designPlan$numberOfSubjects[, i] <- .getNumberOfSubjects(
-					designPlan$analysisTime[, i], designPlan$accrualTime, 
-					designPlan$accrualIntensity, designPlan$maxNumberOfSubjects)
+				time = designPlan$analysisTime[, i], 
+				accrualTime = designPlan$accrualTime, 
+				accrualIntensity = designPlan$accrualIntensity, 
+				maxNumberOfSubjects = designPlan$maxNumberOfSubjects)
+
 			powerAndAverageSampleNumber$futilityPerStage[is.na(
-					powerAndAverageSampleNumber$futilityPerStage[,i]), i] <- 0			
+				powerAndAverageSampleNumber$futilityPerStage[,i]), i] <- 0		
+		
 			stoppingProbs[, i] <- powerAndAverageSampleNumber$rejectPerStage[, i] + 
-					c(powerAndAverageSampleNumber$futilityPerStage[, i], 0) 
+				c(powerAndAverageSampleNumber$futilityPerStage[, i], 0) 
+			
 			stoppingProbs[kMax, i] <- 1 - sum(stoppingProbs[1:(kMax - 1), i])
 			designPlan$studyDuration[i] <- designPlan$analysisTime[, i] %*% stoppingProbs[, i]  
 			designPlan$.setParameterType("studyDuration", C_PARAM_GENERATED)
@@ -4438,8 +4211,11 @@ getPowerSurvival <- function(design = NULL, ...,
 	
 	if (kMax == 1) {
 		designPlan$expectedNumberOfSubjects <- .getNumberOfSubjects(
-			designPlan$analysisTime[1, ], designPlan$accrualTime, 
-			designPlan$accrualIntensity, designPlan$maxNumberOfSubjects)
+			time = designPlan$analysisTime[1, ], 
+			accrualTime = designPlan$accrualTime, 
+			accrualIntensity = designPlan$accrualIntensity, 
+			maxNumberOfSubjects = designPlan$maxNumberOfSubjects)
+		
 		designPlan$numberOfSubjects <- matrix(designPlan$expectedNumberOfSubjects, nrow = 1)
 	}
 	

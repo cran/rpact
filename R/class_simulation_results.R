@@ -1,21 +1,52 @@
-######################################################################################
-#                                                                                    #
-# -- Simulation result classes --                                                    #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.1.0                                                                #
-# Date: 13-05-2019                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+
+#:#
+#:#  *Simulation result classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3581 $
+#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
+
+#'
+#' @name SimulationResults_names
+#' 
+#' @title
+#' Names of a Simulation Results Object
+#'
+#' @description
+#' Function to get the names of a \code{\link{SimulationResults}} object.
+#' 
+#' @param x A \code{\link{SimulationResults}} object created by \code{getSimulationResults[MultiArm][Means/Rates/Survival]}.
+#' 
+#' @details
+#' Returns the names of a simulation results that can be accessed by the user.
+#' 
+#' @template return_names
+#'
+#' @export
+#' 
+#' @keywords internal
+#' 
+names.SimulationResults <- function(x) {
+	namesToShow <- c(".design", ".data", ".rawData")
+	if (inherits(x, "SimulationResultsSurvival")) {
+		namesToShow <- c(namesToShow, ".piecewiseSurvivalTime", ".accrualTime")
+	}
+	namesToShow <- c(namesToShow, x$.getVisibleFieldNames())
+	return(namesToShow)
+}
 
 #' 
 #' @name SimulationResults
@@ -30,8 +61,11 @@
 #' \code{SimulationResults} is the basic class for 
 #' \itemize{
 #'   \item \code{\link{SimulationResultsMeans}}, 
-#'   \item \code{\link{SimulationResultsRates}}, and 
-#'   \item \code{\link{SimulationResultsSurvival}}.
+#'   \item \code{\link{SimulationResultsRates}},  
+#'   \item \code{\link{SimulationResultsSurvival}},
+#'   \item \code{\link{SimulationResultsMultiArmMeans}}, 
+#'   \item \code{\link{SimulationResultsMultiArmRates}}, and 
+#'   \item \code{\link{SimulationResultsMultiArmSurvival}}.
 #' }
 #' 
 #' @include class_core_parameter_set.R
@@ -39,7 +73,7 @@
 #' @include class_design.R
 #' @include f_core_constants.R
 #' @include class_time.R
-#' @include f_simulation_survival.R
+#' @include f_simulation_base_survival.R
 #' 
 #' @keywords internal
 #' 
@@ -52,14 +86,23 @@ SimulationResults <- setRefClass("SimulationResults",
 		.design = "TrialDesign",
 		.data = "data.frame",
 		.rawData = "data.frame",
-		.showStatistics = "logical"
+		.showStatistics = "logical",
+		
+		allocationRatioPlanned = "numeric",	
+		conditionalPower = "numeric",
+		maxNumberOfIterations = "integer",
+		seed = "numeric",
+		
+		iterations = "matrix",
+		futilityPerStage = "matrix",
+		futilityStop = "numeric", 
+		earlyStop = "numeric"
 	),
 	methods = list(
 		
-		initialize = function(design, ...) {
-			callSuper(.design = design, ...)
+		initialize = function(design, ..., showStatistics = FALSE) {
+			callSuper(.design = design, .showStatistics = showStatistics, ...)
 			
-			.showStatistics <<- TRUE
 			.plotSettings <<- PlotSettings()
 			.parameterNames <<- .getParameterNames(design, .self)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
@@ -74,61 +117,90 @@ SimulationResults <- setRefClass("SimulationResults",
 			.showStatistics <<- showStatistics
 		},
 		
-		show = function(showType = 1, digits = NA_integer_, showStatistics = TRUE) {
+		show = function(showType = 1, digits = NA_integer_, showStatistics = FALSE) {
 			.show(showType = showType, digits = digits, showStatistics = showStatistics, consoleOutputEnabled = TRUE)
 		},
 		
-		.show = function(showType = 1, digits = NA_integer_, showStatistics = TRUE, consoleOutputEnabled = TRUE) {
+		.show = function(showType = 1, digits = NA_integer_, showStatistics = FALSE, consoleOutputEnabled = TRUE) {
 			'Method for automatically printing simulation result objects'	
 			.resetCat()
 			if (showType == 3) {
 				.createSummary(.self, digits = digits)$.show(showType = 1, 
-					digits = digits, consoleOutputEnabled = consoleOutputEnabled)
+						digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			}
 			else if (showType == 2) {
-				.cat("Technical summary of the simulation results object of class ",
-					methods::classLabel(class(.self)), ":\n", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.cat(.toString(startWithUpperCase = TRUE), ":\n\n", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
-					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+						consoleOutputEnabled = consoleOutputEnabled)
+				userDefinedParameters <- .getUserDefinedParameters()
+				if (inherits(.self, "SimulationResultsSurvival") && .self$.piecewiseSurvivalTime$delayedResponseEnabled) {
+					userDefinedParameters <- c(userDefinedParameters, ".piecewiseSurvivalTime$delayedResponseEnabled")
+				}
+				.showParametersOfOneGroup(userDefinedParameters, "User defined parameters",
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
-					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getGeneratedParameters(), "Results",
-					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
 				## statistics of simulated data
 				if (showStatistics && .showStatistics) {
 					
 					.cat("Simulated data:\n", consoleOutputEnabled = consoleOutputEnabled)
+					params <- c()
 					if (inherits(.self, "SimulationResultsMeans")) {
 						params <- c(
-							"numberOfSubjects",
-							"testStatistic")
+								"effectEstimate",
+								"numberOfSubjects",
+								"testStatistic")
 					}
 					else if (inherits(.self, "SimulationResultsRates")) {
 						params <- c(
-							"numberOfSubjects",
-							"testStatistic")
+								"effectEstimate",
+								"numberOfSubjects",
+								"testStatistic")
 					}
 					else if (inherits(.self, "SimulationResultsSurvival")) {
 						params <- c(
-							"analysisTime",
-							"numberOfSubjects",
-							"eventsPerStage1",
-							"eventsPerStage2",
-							"eventsPerStage",
-							"testStatistic",
-							"logRankStatistic",
-							"hazardRatioEstimateLR")
+								"effectEstimate",
+								"analysisTime",
+								"numberOfSubjects",
+								"eventsPerStage1",
+								"eventsPerStage2",
+								"eventsPerStage",
+								"testStatistic",
+								"logRankStatistic",
+								"hazardRatioEstimateLR")
+					}
+					else if (inherits(.self, "SimulationResultsMultiArmMeans") || 
+							inherits(.self, "SimulationResultsMultiArmRates")) {
+						params <- c(
+								"effectEstimate",
+								#"subjectsControlArm",
+								"subjectsActiveArm",
+								"testStatistic",
+								"conditionalCriticalValue",
+								"rejectPerStage",
+								"successStop",
+								"futilityPerStage"
+						)
+					}
+					else if (inherits(.self, "SimulationResultsMultiArmSurvival")) {
+						params <- c(
+								"effectEstimate",
+								"numberOfEvents",
+								"testStatistic",
+								"conditionalCriticalValue",
+								"rejectPerStage",
+								"successStop",
+								"futilityPerStage"
+						)
 					}
 					
-					if (!all(is.na(conditionalPowerAchieved)) && 
+					if (!is.null(.self[["conditionalPowerAchieved"]]) && 
+							!all(is.na(conditionalPowerAchieved)) && 
 							any(!is.na(conditionalPowerAchieved)) && 
 							any(na.omit(conditionalPowerAchieved) != 0)) {
 						params <- c(params, "conditionalPowerAchieved")
@@ -136,18 +208,27 @@ SimulationResults <- setRefClass("SimulationResults",
 					
 					stages <- sort(unique(.self$.data$stageNumber))
 					
+					variedParameterName1 <- NA_character_
+					variedParameterName2 <- NA_character_
 					if (inherits(.self, "SimulationResultsMeans")) {
-						levelName <- "alternative"
-					} else  {
-						levelName <- "pi1"
+						variedParameterName1 <- "alternative"
+					} else if (inherits(.self, "SimulationResultsRates") || inherits(.self, "SimulationResultsSurvival")) {
+						variedParameterName1 <- "pi1"
+					} else if (grepl("MultiArm", class(.self))) {
+						if (inherits(.self, "SimulationResultsMultiArmMeans")) {
+							variedParameterName1 <- "muMax"
+						}
+						else if (inherits(.self, "SimulationResultsMultiArmRates")) {
+							variedParameterName1 <- "piMax"
+						}
+						else if (inherits(.self, "SimulationResultsMultiArmSurvival")) {
+							variedParameterName1 <- "omegaMax"
+						}
+						variedParameterName2 <- "armNumber"
 					}
 					
-					levels <- unique(.self$.data[[levelName]])
-					if (length(levels) > 1 && !any(is.na(levels))) {
-						levels <- sort(levels)
-					} else {
-						levels <- NA_real_
-					}
+					parameterValues1 <- .getVariedParameterValues(variedParameterName1)
+					parameterValues2 <- .getVariedParameterValues(variedParameterName2)
 					
 					for (parameterName in params) {
 						paramCaption <- .parameterNames[[parameterName]]
@@ -155,11 +236,44 @@ SimulationResults <- setRefClass("SimulationResults",
 							paramCaption <- paste0("%", parameterName, "%")
 						}
 						
-						for (stage in stages) {
-							for (levelValue in levels) {
-								.catStatisticsLine(stage, parameterName, paramCaption,
-									levelValue = levelValue, levelName = levelName, 
-									consoleOutputEnabled = consoleOutputEnabled)
+						for (parameterValue1 in parameterValues1) {
+							for (parameterValue2 in parameterValues2) {
+								for (stage in stages) {
+									if (length(parameterValues1) > 1) {
+										.catStatisticsLine(stage = stage, 
+											parameterName = parameterName, 
+											paramCaption = paramCaption,
+											parameterValue1 = parameterValue1, 
+											variedParameterName1 = variedParameterName1, 
+											parameterValue2 = parameterValue2, 
+											variedParameterName2 = variedParameterName2, 
+											consoleOutputEnabled = consoleOutputEnabled)
+									} else {
+										.catStatisticsLine(stage = stage,
+											parameterName = parameterName, 
+											paramCaption = paramCaption,
+											parameterValue1 = parameterValue2, 
+											variedParameterName1 = variedParameterName2, 
+											consoleOutputEnabled = consoleOutputEnabled)
+									}
+								}
+							}
+							if (parameterName == "subjectsActiveArm" && variedParameterName2 == "armNumber") {
+								parameterName2 <- "subjectsControlArm"
+								paramCaption2 <- .parameterNames[[parameterName2]]
+								if (is.null(paramCaption2)) {
+									paramCaption2 <- paste0("%", parameterName2, "%")
+								}
+								for (stage in stages) {
+									.catStatisticsLine(stage = stage, 
+											parameterName = parameterName2, 
+											paramCaption = paramCaption2,
+											parameterValue1 = parameterValue1, 
+											variedParameterName1 = variedParameterName1, 
+											parameterValue2 = unique(parameterValues2), 
+											variedParameterName2 = variedParameterName2, 
+											consoleOutputEnabled = consoleOutputEnabled)
+								}
 							}
 						}
 					}
@@ -167,9 +281,13 @@ SimulationResults <- setRefClass("SimulationResults",
 				}
 				
 				twoGroupsEnabled <- !inherits(.self, "SimulationResultsMeans")
-				if (.design$kMax > 1 || twoGroupsEnabled) {
+				multiArmSurvivalEnabled <- inherits(.self, "SimulationResultsMultiArmSurvival")
+				if (.design$kMax > 1 || twoGroupsEnabled || multiArmSurvivalEnabled) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
-					if (twoGroupsEnabled) {
+					if (multiArmSurvivalEnabled) {
+						.cat("  (i): values of treatment arm i compared to control\n", consoleOutputEnabled = consoleOutputEnabled)
+					}
+					else if (twoGroupsEnabled) {
 						.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
 					}
 					if (.design$kMax > 1) {
@@ -180,54 +298,91 @@ SimulationResults <- setRefClass("SimulationResults",
 			}
 		},
 		
-		.catStatisticsLine = function(stage, parameterName, paramCaption,
-				levelValue, levelName, consoleOutputEnabled) {
-				
+		.getVariedParameterValues = function(variedParameterName) {
+			if (is.na(variedParameterName)) {
+				return(NA_real_)
+			}
+			
+			parameterValues <- .self$.data[[variedParameterName]]
+			if (is.null(parameterValues)) {
+				return(NA_real_)
+			}
+			
+			parameterValues <- unique(parameterValues)
+			if (length(parameterValues) > 1 && !any(is.na(parameterValues))) {
+				parameterValues <- sort(parameterValues)
+			}
+			return(parameterValues)
+		},
+		
+		.getVariedParameterValueString = function(variedParameterName, parameterValue) {
+			if (variedParameterName %in% c("armNumber")) {
+				return(paste0(" (", parameterValue[1], ")"))
+			} 
+			variedParameterName <- sub("Max$", "_max", variedParameterName)
+			return(paste0(", ", variedParameterName, " = ", round(parameterValue[1], 4)))
+		},
+		
+		.catStatisticsLine = function(..., stage, parameterName, paramCaption,
+				parameterValue1, variedParameterName1, parameterValue2 = NA_real_, 
+				variedParameterName2 = NA_character_, consoleOutputEnabled = TRUE) {
+			
 			if (stage == 1 && parameterName == "conditionalPowerAchieved") {
 				return(invisible())
 			}
-				
-			postfix <- paste0("[", stage, "]")
-			if (!is.na(levelValue)) {
-				if (inherits(.self, "SimulationResultsMeans")) {
-					levelName <- "alternative"
-				} else  {
-					levelName <- "pi1"
+			
+			postfix <- ""
+			if (!is.na(parameterValue1)) {
+				if (!all(is.na(parameterValue2))) {
+					postfix <- paste0(postfix, .getVariedParameterValueString(variedParameterName1, parameterValue1))
+					if (parameterName != "subjectsControlArm") {
+						postfix <- paste0(postfix, .getVariedParameterValueString(variedParameterName2, parameterValue2))
+					}
+					paramValue <- .self$.data[[parameterName]][
+							.self$.data$stageNumber == stage & .self$.data[[variedParameterName1]] == parameterValue1 & 
+									.self$.data[[variedParameterName2]] %in% parameterValue2]
+				} else {
+					postfix <- paste0(postfix, .getVariedParameterValueString(variedParameterName1, parameterValue1))
+					paramValue <- .self$.data[[parameterName]][
+							.self$.data$stageNumber == stage & .self$.data[[variedParameterName1]] == parameterValue1]
 				}
-				postfix <- paste0(postfix, ", ", levelName, " = ", round(levelValue, 4))
-				paramValue <- .self$.data[[parameterName]][
-					.self$.data$stageNumber == stage & .self$.data[[levelName]] == levelValue]
 			} else {
 				paramValue <- .self$.data[[parameterName]][
-					.self$.data$stageNumber == stage]
+						.self$.data$stageNumber == stage]
+			}
+			if (.design$kMax > 1) {
+				postfix <- paste0(postfix, " [", stage, "]")
 			}
 			
-			variableNameFormatted <- formatVariableName(name = paramCaption, 
-				n = .getNChar(), prefix = "", postfix = postfix)
+			variableNameFormatted <- .getFormattedVariableName(name = paramCaption, 
+					n = .getNChar(), prefix = "", postfix = postfix)
 			
-			if (!is.null(paramValue) && length(paramValue) > 0 && is.numeric(paramValue)) {
-				paramValueFormatted <- paste0("median [range]: ", round(stats::median(paramValue), 3), 
-					" [", paste(round(base::range(paramValue), 3), collapse = " - "), "]; ", 
-					"mean +/-sd: ", round(base::mean(paramValue), 3), " +/-", round(stats::sd(paramValue), 3))
-			} else {
-				paramValueFormatted <- "median [range]: NA [NA - NA]; mean +/sd: NA +/-NA"
-			}
-			output <- paste(variableNameFormatted, paramValueFormatted, "\n")
-			if (!grepl(": median \\[range\\]: NA \\[NA - NA\\]", output)) {
-				.cat(output, consoleOutputEnabled = consoleOutputEnabled)
+			if (!is.null(paramValue)) {
+				paramValue <- stats::na.omit(paramValue)
+				if (length(paramValue) > 0 && is.numeric(paramValue)) {
+					paramValueFormatted <- paste0("median [range]: ", round(stats::median(paramValue), 3), 
+							" [", paste(round(base::range(paramValue), 3), collapse = " - "), "]; ", 
+							"mean +/-sd: ", round(base::mean(paramValue), 3), " +/-", round(stats::sd(paramValue), 3))
+				} else {
+					paramValueFormatted <- "median [range]: NA [NA - NA]; mean +/sd: NA +/-NA"
+				}
+				output <- paste(variableNameFormatted, paramValueFormatted, "\n")
+				if (!grepl(": median \\[range\\]: NA \\[NA - NA\\]", output)) {
+					.cat(output, consoleOutputEnabled = consoleOutputEnabled)
+				}
 			}
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
 			s <- "simulation"
 			
-			if (inherits(.self, "SimulationResultsMeans")) {
+			if (inherits(.self, "SimulationResultsBaseMeans")) {
 				s <- paste(s, "of means")
 			}
-			else if (inherits(.self, "SimulationResultsRates")) {
+			else if (inherits(.self, "SimulationResultsBaseRates")) {
 				s <- paste(s, "of rates")
 			}
-			else if (inherits(.self, "SimulationResultsSurvival")) {
+			else if (inherits(.self, "SimulationResultsBaseSurvival")) {
 				s <- paste(s, "of survival data")
 			} 
 			else {
@@ -238,15 +393,335 @@ SimulationResults <- setRefClass("SimulationResults",
 				s <- paste(s, "(group sequential design)")
 			}
 			else if (.isTrialDesignInverseNormal(.design)) {
-				s <- paste(s, "(inverse normal design)")
+				s <- paste(s, "(inverse normal combination test design)")
 			}
 			else if (.isTrialDesignFisher(.design)) {
-				s <- paste(s, "(Fisher design)")
+				s <- paste(s, "(Fisher's combination test design)")
 			}
 			else {
 				s <- paste("unknown", s)
 			}
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
+		},
+		
+		.getParametersToShow = function() {
+			parametersToShow <- .getVisibleFieldNames()
+			y <- c("iterations",
+					"selectedArms", 
+					"numberOfActiveArms",
+					"rejectedArmsPerStage",
+					"rejectAtLeastOne",
+					"rejectPerStage", # base
+					"overallReject", # base
+					"futilityPerStage",
+					"futilityStop",
+					"earlyStop",
+					"successPerStage",
+					"expectedNumberOfSubjects",
+					"expectedNumberOfEvents",
+					"sampleSizes",
+					"eventsPerStage",
+					"conditionalPowerAchieved" # base
+			)
+			parametersToShow <- c(parametersToShow[!(parametersToShow %in% y)], y[y %in% parametersToShow])
+			return(parametersToShow)
+		},
+		
+		.isSampleSizeObject = function() {
+			return(FALSE)
+		}
+	)
+)
+
+SimulationResultsBaseMeans <- setRefClass("SimulationResultsBaseMeans",
+	contains = "SimulationResults",
+	fields = list(
+		stDev = "numeric",
+		plannedSubjects = "numeric",
+		minNumberOfSubjectsPerStage = "numeric",
+		maxNumberOfSubjectsPerStage = "numeric",
+		thetaH1 = "numeric",
+		stDevH1 = "numeric",
+		calcSubjectsFunction = "function",
+		
+		expectedNumberOfSubjects = "numeric"
+	),
+	methods = list(
+		initialize = function(design, ...) {
+			callSuper(design = design, ...)
+			
+			for (generatedParam in c(
+					"iterations", 
+					"sampleSizes", 
+					"rejectPerStage", 
+					"overallReject", 
+					"futilityPerStage", 
+					"futilityStop", 
+					"earlyStop",
+					"expectedNumberOfSubjects")) {
+				.setParameterType(generatedParam, C_PARAM_GENERATED)
+			}
+		}
+	)
+)
+
+
+#' 
+#' @name SimulationResultsMultiArmMeans
+#' 
+#' @title
+#' Class for Simulation Results Multi-Arm Means
+#' 
+#' @description
+#' A class for simulation results means in multi-arm designs.
+#' 
+#' @details 
+#' Use \code{\link{getSimulationMultiArmMeans}} to create an object of this type.
+#' 
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include class_design.R
+#' @include f_core_constants.R
+#' @include class_time.R
+#' @include f_simulation_base_survival.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#'
+SimulationResultsMultiArmMeans <- setRefClass("SimulationResultsMultiArmMeans",
+	contains = "SimulationResultsBaseMeans",
+	fields = list(
+		activeArms = "integer", 
+		effectMatrix = "matrix",
+		typeOfShape = "character",
+		muMaxVector = "numeric", 
+		gED50 = "numeric",
+		slope = "numeric",
+		intersectionTest = "character", 
+		adaptations = "logical",
+		typeOfSelection = "character", 
+		effectMeasure = "character",
+		successCriterion = "character",
+		epsilonValue = "numeric", 
+		rValue = "numeric",
+		threshold = "numeric",		
+		selectArmsFunction = "function",
+		
+		selectedArms = "array",
+		numberOfActiveArms = "matrix",
+		rejectAtLeastOne = "numeric",
+		rejectedArmsPerStage = "array",
+		successPerStage = "matrix",
+		sampleSizes = "array",
+		conditionalPowerAchieved = "matrix"
+	),
+	methods = list(
+		initialize = function(design, ...) {
+			callSuper(design = design, ...)
+			
+			for (generatedParam in c(
+					"rejectAtLeastOne",
+					"selectedArms", 
+					"numberOfActiveArms",
+					"rejectedArmsPerStage", 
+					"successPerStage")) {
+				.setParameterType(generatedParam, C_PARAM_GENERATED)
+			}
+		}
+	)
+)
+
+SimulationResultsBaseRates <- setRefClass("SimulationResultsBaseRates",
+	contains = "SimulationResults",
+	fields = list(
+		directionUpper = "logical",
+		plannedSubjects = "numeric", 
+		minNumberOfSubjectsPerStage = "numeric",
+		maxNumberOfSubjectsPerStage = "numeric",
+		calcSubjectsFunction = "function",
+		
+		expectedNumberOfSubjects = "numeric"
+	),
+	methods = list(
+		initialize = function(design, ...) {
+			callSuper(design = design, ...)
+			
+			for (generatedParam in c(
+					"iterations", 
+					"sampleSizes", 
+					"rejectPerStage", 
+					"overallReject", 
+					"futilityPerStage", 
+					"futilityStop", 
+					"earlyStop",
+					"expectedNumberOfSubjects")) {
+				.setParameterType(generatedParam, C_PARAM_GENERATED)
+			}
+		}
+	)
+)
+
+
+#' 
+#' @name SimulationResultsMultiArmRates
+#' 
+#' @title
+#' Class for Simulation Results Multi-Arm Rates
+#' 
+#' @description
+#' A class for simulation results rates in multi-arm designs.
+#' 
+#' @details 
+#' Use \code{\link{getSimulationMultiArmRates}} to create an object of this type.
+#' 
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include class_design.R
+#' @include f_core_constants.R
+#' @include class_time.R
+#' @include f_simulation_base_survival.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#'
+SimulationResultsMultiArmRates <- setRefClass("SimulationResultsMultiArmRates",
+	contains = "SimulationResultsBaseRates",
+	fields = list(
+		activeArms = "integer", 
+		effectMatrix = "matrix", 
+		typeOfShape = "character",
+		piMaxVector = "numeric", 
+		piControl = "numeric", 
+		piH1 = "numeric", 
+		piControlH1 = "numeric", 
+		gED50 = "numeric",
+		slope = "numeric",
+		intersectionTest = "character", 
+		adaptations = "logical",
+		typeOfSelection = "character", 
+		effectMeasure = "character",
+		successCriterion = "character",
+		epsilonValue = "numeric", 
+		rValue = "numeric",
+		threshold = "numeric",		
+		selectArmsFunction = "function",
+		
+		selectedArms = "array",
+		numberOfActiveArms = "matrix",
+		rejectAtLeastOne = "numeric",
+		rejectedArmsPerStage = "array",
+		successPerStage = "matrix",
+		sampleSizes = "array",
+		conditionalPowerAchieved = "matrix"
+	),
+	methods = list(
+		initialize = function(design, ...) {
+			callSuper(design = design, ...)
+			
+			for (generatedParam in c(
+					"rejectAtLeastOne",
+					"selectedArms", 
+					"numberOfActiveArms", 
+					"rejectedArmsPerStage", 
+					"successPerStage")) {
+				.setParameterType(generatedParam, C_PARAM_GENERATED)
+			}
+		}
+	)
+)
+
+SimulationResultsBaseSurvival <- setRefClass("SimulationResultsBaseSurvival",
+	contains = "SimulationResults",
+	fields = list(
+		directionUpper = "logical",
+		plannedEvents = "numeric", 
+		minNumberOfEventsPerStage = "numeric",
+		maxNumberOfEventsPerStage = "numeric", 
+		thetaH1 = "numeric",
+		calcEventsFunction = "function", 
+		
+		expectedNumberOfEvents = "numeric"
+	),
+	methods = list(
+		initialize = function(design, ...) {
+			callSuper(design = design, ...)
+			for (generatedParam in c(
+					"iterations", 
+					"eventsPerStage", 
+					"expectedNumberOfEvents", 
+					"futilityPerStage", 
+					"futilityStop", 
+					"earlyStop")) {
+				.setParameterType(generatedParam, C_PARAM_GENERATED)
+			}
+		}
+	)
+)
+
+#' 
+#' @name SimulationResultsMultiArmSurvival
+#' 
+#' @title
+#' Class for Simulation Results Multi-Arm Survival
+#' 
+#' @description
+#' A class for simulation results survival in multi-arm designs.
+#' 
+#' @details 
+#' Use \code{\link{getSimulationMultiArmSurvival}} to create an object of this type.
+#' 
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include class_design.R
+#' @include f_core_constants.R
+#' @include class_time.R
+#' @include f_simulation_base_survival.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#'
+SimulationResultsMultiArmSurvival <- setRefClass("SimulationResultsMultiArmSurvival",
+	contains = "SimulationResultsBaseSurvival",
+	fields = list(
+		activeArms = "integer", 
+		effectMatrix = "matrix", 
+		typeOfShape = "character",
+		omegaMaxVector = "numeric", 
+		gED50 = "numeric",
+		slope = "numeric",
+		intersectionTest = "character", 
+		adaptations = "logical",
+		typeOfSelection = "character", 
+		effectMeasure = "character",
+		successCriterion = "character",
+		epsilonValue = "numeric", 
+		rValue = "numeric",
+		threshold = "numeric",		
+		selectArmsFunction = "function",
+		
+		selectedArms = "array",
+		numberOfActiveArms = "matrix",
+		rejectAtLeastOne = "numeric",
+		rejectedArmsPerStage = "array",
+		successPerStage = "matrix",
+		eventsPerStage = "array",
+		conditionalPowerAchieved = "matrix"
+	),
+	methods = list(
+		initialize = function(design, ...) {
+			callSuper(design = design, ...)
+			
+			for (generatedParam in c(
+					"rejectAtLeastOne",
+					"selectedArms", 
+					"numberOfActiveArms", 
+					"rejectedArmsPerStage", 
+					"successPerStage")) {
+				.setParameterType(generatedParam, C_PARAM_GENERATED)
+			}
 		}
 	)
 )
@@ -268,68 +743,30 @@ SimulationResults <- setRefClass("SimulationResults",
 #' @include class_design.R
 #' @include f_core_constants.R
 #' @include class_time.R
-#' @include f_simulation_survival.R
+#' @include f_simulation_base_survival.R
 #' 
 #' @keywords internal
 #' 
 #' @importFrom methods new
 #'
 SimulationResultsMeans <- setRefClass("SimulationResultsMeans",
-	contains = "SimulationResults",
+	contains = "SimulationResultsBaseMeans",
 	fields = list(
-		.plotSettings = "PlotSettings",
-		.design = "TrialDesign",
-		.data = "data.frame",
-		.rawData = "data.frame",
-		.showStatistics = "logical",
-		
 		alternative = "numeric",
-		effect = "numeric",
-		stDev = "numeric",
 		groups = "integer",
-		allocationRatioPlanned = "numeric",		
 		directionUpper = "logical",
 		thetaH0 = "numeric", 
 		meanRatio = "logical",
 		
-		iterations = "matrix",  
-		sampleSizes = "matrix", 
-		rejectPerStage = "matrix", 
-		overallReject = "numeric", 
-		futilityPerStage = "matrix", 
-		futilityStop = "numeric",
-		earlyStop = "numeric",
-		expectedNumberOfSubjects = "numeric", 
-		plannedSubjects = "numeric", 
-		minNumberOfSubjectsPerStage = "numeric",
-		maxNumberOfSubjectsPerStage = "numeric", 
-		conditionalPower = "numeric", 
-		thetaH1 = "numeric", 
-		maxNumberOfIterations = "integer", 
-		conditionalPowerAchieved = "matrix", 
-		
-		seed = "numeric"
+		effect = "numeric",
+		overallReject = "numeric", # = rejectedArmsPerStage in multi-arm
+		sampleSizes = "matrix",
+		rejectPerStage = "matrix",
+		conditionalPowerAchieved = "matrix"
 	),
 	methods = list(
-		
 		initialize = function(design, ...) {
 			callSuper(design = design, ...)
-			
-			for (generatedParam in c(
-				"effect",
-				"iterations", 
-				"sampleSizes", 
-				"eventsNotAchieved", 
-				"expectedNumberOfSubjects", 
-				"rejectPerStage", 
-				"overallReject", 
-				"futilityPerStage", 
-				"futilityStop", 
-				"earlyStop",
-				"analysisTime", 
-				"studyDuration")) {
-				.setParameterType(generatedParam, C_PARAM_GENERATED)
-			}
 		}
 	)
 )
@@ -351,68 +788,48 @@ SimulationResultsMeans <- setRefClass("SimulationResultsMeans",
 #' @include class_design.R
 #' @include f_core_constants.R
 #' @include class_time.R
-#' @include f_simulation_survival.R
+#' @include f_simulation_base_survival.R
 #' 
 #' @keywords internal
 #' 
 #' @importFrom methods new
 #'
 SimulationResultsRates <- setRefClass("SimulationResultsRates",
-	contains = "SimulationResults",
-	fields = list(
-		.plotSettings = "PlotSettings",
-		.design = "TrialDesign",
-		.data = "data.frame",
-		.rawData = "data.frame",
-		.showStatistics = "logical",
-		
+	contains = "SimulationResultsBaseRates",
+	fields = list(	
 		pi1 = "numeric",
 		pi2 = "numeric",
 		effect = "numeric",		
 		groups = "integer",
-		allocationRatioPlanned = "numeric",		
 		directionUpper = "logical",
 		thetaH0 = "numeric", 
 		riskRatio = "logical",
 		pi1H1 = "numeric",
 		pi2H1 = "numeric",
 		
-		iterations = "matrix",  
 		sampleSizes = "matrix", 
-		rejectPerStage = "matrix", 
 		overallReject = "numeric", 
-		futilityPerStage = "matrix", 
-		futilityStop = "numeric", 
-		earlyStop = "numeric",		
-		expectedNumberOfSubjects = "numeric", 
-		plannedSubjects = "numeric", 
-		minNumberOfSubjectsPerStage = "numeric",
-		maxNumberOfSubjectsPerStage = "numeric", 
-		conditionalPower = "numeric", 
 		thetaH1 = "numeric", 
-		maxNumberOfIterations = "integer", 
-		conditionalPowerAchieved = "matrix", 
-		
-		seed = "numeric"
+		rejectPerStage = "matrix",
+		conditionalPowerAchieved = "matrix" 
 	),
 	methods = list(
-		
 		initialize = function(design, ...) {
 			callSuper(design = design, ...)
 			
 			for (generatedParam in c(
-				"effect",					
-				"iterations", 
-				"sampleSizes",
-				"eventsNotAchieved", 
-				"expectedNumberOfSubjects", 
-				"rejectPerStage", 
-				"overallReject", 
-				"futilityPerStage", 
-				"futilityStop", 
-				"earlyStop",
-				"analysisTime", 
-				"studyDuration")) {
+					"effect",					
+					"iterations", 
+					"sampleSizes",
+					"eventsNotAchieved", 
+					"expectedNumberOfSubjects", 
+					"rejectPerStage", 
+					"overallReject", 
+					"futilityPerStage", 
+					"futilityStop", 
+					"earlyStop",
+					"analysisTime", 
+					"studyDuration")) {
 				.setParameterType(generatedParam, C_PARAM_GENERATED)
 			}
 		}
@@ -436,28 +853,25 @@ SimulationResultsRates <- setRefClass("SimulationResultsRates",
 #' @include class_design.R
 #' @include f_core_constants.R
 #' @include class_time.R
-#' @include f_simulation_survival.R
+#' @include f_simulation_base_survival.R
 #' 
 #' @keywords internal
 #' 
 #' @importFrom methods new
 #'
 SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
-	contains = "SimulationResults",
+	contains = "SimulationResultsBaseSurvival",
 	fields = list(
 		.piecewiseSurvivalTime = "PiecewiseSurvivalTime",
 		.accrualTime = "AccrualTime",
 		
-		maxNumberOfSubjects = "numeric",
-		accrualTime = "numeric", 
-		accrualIntensity = "numeric",
-		plannedEvents = "numeric", 
 		pi1 = "numeric",
 		pi2 = "numeric",
 		median1 = "numeric", 
 		median2 = "numeric", 
-		allocationRatioPlanned = "numeric",	
-		directionUpper = "logical",
+		maxNumberOfSubjects = "numeric",
+		accrualTime = "numeric", 
+		accrualIntensity = "numeric",
 		dropoutRate1 = "numeric",
 		dropoutRate2 = "numeric",
 		dropoutTime = "numeric",
@@ -465,41 +879,27 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		thetaH0 = "numeric", 
 		allocation1 = "numeric",
 		allocation2 = "numeric",
-		minNumberOfEventsPerStage = "numeric",
-		maxNumberOfEventsPerStage = "numeric", 
-		conditionalPower = "numeric", 
-		thetaH1 = "numeric", 
-		maxNumberOfIterations = "integer", 
 		kappa = "numeric",
 		piecewiseSurvivalTime = "numeric", 
 		lambda1 = "numeric",
 		lambda2 = "numeric",
 		
 		hazardRatio = "numeric",
-		iterations = "matrix", 
 		analysisTime = "matrix",
 		studyDuration = "numeric",
-		eventsPerStage = "matrix", 
-		expectedNumberOfEvents = "numeric", 
 		eventsNotAchieved = "matrix",
 		numberOfSubjects = "matrix", 
 		numberOfSubjects1 = "matrix",
 		numberOfSubjects2 = "matrix",
+		eventsPerStage = "matrix", 
 		expectedNumberOfSubjects = "numeric", 
 		rejectPerStage = "matrix",
 		overallReject = "numeric",		
-		futilityPerStage = "matrix",
-		futilityStop = "numeric", 
-		earlyStop = "numeric",
-		conditionalPowerAchieved = "matrix", 
-		
-		seed = "numeric"
+		conditionalPowerAchieved = "matrix"
 	),
 	methods = list(
-		
 		initialize = function(design, ...) {
 			callSuper(design = design, ...)
-						
 			for (generatedParam in c(
 					"hazardRatio", 
 					"iterations", 
@@ -529,32 +929,65 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 .assertIsValidVariedParameterVectorForSimulationResultsPlotting <- function(simulationResults, plotType) {
 	if (inherits(simulationResults, "SimulationResultsMeans")) {
 		if (is.null(simulationResults$alternative) || 
-				is.na(simulationResults$alternative) || 
+				any(is.na(simulationResults$alternative)) || 
 				length(simulationResults$alternative) <= 1) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
-				" is only available if 'alternative' with length > 1 is defined")
+					" is only available if 'alternative' with length > 1 is defined")
 		}
 	}
 	else if (inherits(simulationResults, "SimulationResultsRates")) {
 		if (is.null(simulationResults$pi1) || 
-				is.na(simulationResults$pi1) || 
+				any(is.na(simulationResults$pi1)) || 
 				length(simulationResults$pi1) <= 1) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
-				" is only available if 'pi1' with length > 1 is defined")
+					" is only available if 'pi1' with length > 1 is defined")
 		}
 	}
 	else if (inherits(simulationResults, "SimulationResultsSurvival")) {
 		if (is.null(simulationResults$hazardRatio) || 
-				is.na(simulationResults$hazardRatio) || 
+				any(is.na(simulationResults$hazardRatio)) || 
 				length(simulationResults$hazardRatio) <= 1) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
-				" is only available if 'hazardRatio' with length > 1 is defined or derived")
+					" is only available if 'hazardRatio' with length > 1 is defined or derived")
 		}
 		if (length(simulationResults$hazardRatio) != length(simulationResults$overallReject)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
-				" is not available for piecewise survival (only type 13 and 14)")
+					" is not available for piecewise survival (only type 13 and 14)")
 		}
 	}
+}
+
+.getSimulationPlotXAxisParameterName <- function(simulationResults, showSource = FALSE) {
+	survivalEnabled <- grepl("Survival", class(simulationResults))
+	meansEnabled <- grepl("Means", class(simulationResults))
+	if (grepl("MultiArm", class(simulationResults))) {
+		if (showSource) {
+			gMax <- nrow(simulationResults$effectMatrix)
+			return(paste0("effectMatrix[", gMax, ", ]"))
+		}
+		
+		return("effectMatrix")
+	}
+	
+	if (grepl("Survival", class(simulationResults))) {
+		return("hazardRatio")
+	}
+	
+	return("effect")
+}
+
+.getSimulationPlotXAxisLabel <- function(simulationResults, xlab = NULL) {
+	multiArmEnabled <- grepl("MultiArm", class(simulationResults))
+	userDefinedEffectMatrix <- multiArmEnabled && simulationResults$.getParameterType("effectMatrix") == C_PARAM_USER_DEFINED
+	if (!is.null(xlab) && !is.na(xlab)) {
+		return(xlab)
+	}
+	
+	if (!multiArmEnabled) {
+		return("Effect")
+	}
+	
+	return(ifelse(userDefinedEffectMatrix, "Effect Matrix Row", "Maximum Effect"))
 }
 
 .plotSimulationResults <- function(simulationResults, designMaster, type = 5L, main = NA_character_, 
@@ -565,10 +998,15 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 	.assertGgplotIsInstalled()
 	.assertIsSimulationResults(simulationResults) 
 	.assertIsValidLegendPosition(legendPosition)
+	.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 	theta <- .assertIsValidThetaRange(thetaRange = theta)
 	
-	survivalEnabled <- inherits(simulationResults, "SimulationResultsSurvival")
-	meansEnabled <- inherits(simulationResults, "SimulationResultsMeans")
+	survivalEnabled <- grepl("Survival", class(simulationResults))
+	meansEnabled <- grepl("Means", class(simulationResults))
+	multiArmEnabled <- grepl("MultiArm", class(simulationResults)) # .isMultiArmSimulationResults(simulationResults)
+	userDefinedEffectMatrix <- multiArmEnabled && simulationResults$.getParameterType("effectMatrix") == C_PARAM_USER_DEFINED
+	
+	gMax <- ifelse(multiArmEnabled, simulationResults$activeArms, NA_integer_)
 	
 	if (survivalEnabled) {
 		nMax <- simulationResults$expectedNumberOfEvents[1] # use first value for plotting
@@ -576,48 +1014,356 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		nMax <- simulationResults$expectedNumberOfSubjects[1] # use first value for plotting
 	}
 	
-	if (type %in% c(1:4)) {
+	if (type %in% c(1:3) && !multiArmEnabled) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, 
-			") is not available for simulation results (type must be > 4)")
+			") is not available for non-multi-arm simulation results (type must be > 3)")
 	}
 	
 	if (!survivalEnabled && type %in% c(10:14)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, 
-			") is only available for survival simulation results")
+		if (multiArmEnabled) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, 
+				") is only available for non-multi-arm survival simulation results")
+		} else {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, 
+				") is only available for survival simulation results")
+		}
 	}
 	
 	variedParameters <- logical(0)
 	
 	if (is.na(plotPointsEnabled)) { 
-		plotPointsEnabled <- FALSE
+		plotPointsEnabled <- userDefinedEffectMatrix
 	}
 	
 	showSourceHint <- ""
 	
-	if (type == 5) { # Power and Stopping Probabilities 
-		
+	srcCmd <- NULL
+	if (type == 1) { # Multi-arm, Overall Success
 		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
-
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Overall Power and Early Stopping")
+			items <- PlotSubTitleItems(title = "Overall Success")
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
 		
-		if (survivalEnabled) {
+		data <- data.frame(
+			xValues = simulationResults$effectMatrix[gMax, ],
+			yValues = colSums(simulationResults$successPerStage)
+		)
+		if (userDefinedEffectMatrix) {
+			data$xValues <- 1:nrow(data)
+		}
+		
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_CENTER, legendPosition)
+		
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = paste0(simulationResultsName, "$effectMatrix[", gMax, ", ]"), 
+			yParameterNames = paste0("colSums(", simulationResultsName, "$successPerStage)"), 
+			hint = showSourceHint, nMax = nMax,
+			type = type, showSource = showSource)
+		if (!is.null(srcCmd)) {
+			if (.isSpecialPlotShowSourceArgument(showSource)) {
+				return(invisible(srcCmd))
+			}
+			return(srcCmd)
+		}
+		
+		return(.plotDataFrame(data, mainTitle = main, 
+				xlab = NA_character_, ylab = NA_character_, 
+				xAxisLabel = .getSimulationPlotXAxisLabel(simulationResults),
+				yAxisLabel1 = "Overall Success", 
+				yAxisLabel2 = NA_character_, 
+				plotPointsEnabled = plotPointsEnabled, legendTitle = NA_character_,
+				legendPosition = legendPosition, sided = designMaster$sided,
+				palette = palette))
+	}
+	else if (type == 2) { # Multi-arm, Success per Stage
+		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
+		if (is.na(main)) {
+			items <- PlotSubTitleItems(title = "Success per Stage")
+			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
+			main <- items$toQuote()
+		}
+		
+		yParameterNamesSrc <- c()
+		data <- NULL
+		if (designMaster$kMax > 1) {
+			for (k in 1:designMaster$kMax) {
+				part <- data.frame(
+					categories = rep(k, ncol(simulationResults$effectMatrix)),
+					xValues = simulationResults$effectMatrix[gMax, ],
+					yValues = simulationResults$successPerStage[k, ]
+				)
+				if (userDefinedEffectMatrix) {
+					part$xValues <- 1:nrow(part)
+				}
+				if (is.null(data)) {
+					data <- part
+				} else {
+					data <- rbind(data, part)
+				}
+				yParameterNamesSrc <- c(yParameterNamesSrc, paste0("successPerStage[", k, ", ]"))
+			}
+		} else {
+			data <- data.frame(
+				xValues = simulationResults$effectMatrix[gMax, ],
+				yValues = simulationResults$successPerStage[1, ]
+			)
+			if (userDefinedEffectMatrix) {
+				data$xValues <- 1:nrow(data)
+			}
+			yParameterNamesSrc <- c(yParameterNamesSrc, "successPerStage[1, ]")
+		}
+		
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_TOP, legendPosition)
+		
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = paste0("effectMatrix[", gMax, ", ]"), 
+			yParameterNames = yParameterNamesSrc, 
+			hint = showSourceHint, nMax = nMax,
+			type = type, showSource = showSource)
+		if (!is.null(srcCmd)) {
+			if (.isSpecialPlotShowSourceArgument(showSource)) {
+				return(invisible(srcCmd))
+			}
+			return(srcCmd)
+		}
+		
+		return(.plotDataFrame(data, mainTitle = main, 
+				xlab = NA_character_, ylab = NA_character_, 
+				xAxisLabel = .getSimulationPlotXAxisLabel(simulationResults),
+				yAxisLabel1 = "Success", 
+				yAxisLabel2 = NA_character_, 
+				plotPointsEnabled = plotPointsEnabled, legendTitle = "Stage",
+				legendPosition = legendPosition, sided = designMaster$sided,
+				palette = palette))
+	}
+	else if (type == 3) { # Multi-arm, Selected Arms per Stage
+			
+		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
+		if (is.na(main)) {
+			items <- PlotSubTitleItems(title = "Selected Arms per Stage")
+			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
+			main <- items$toQuote()
+		}
+		
+		yParameterNamesSrc <- c()	
+		data <- NULL
+		if (designMaster$kMax > 1) {
+			for (g in 1:gMax) {
+				for (k in 2:designMaster$kMax) {
+					stages <- rep(k, ncol(simulationResults$effectMatrix))
+					part <- data.frame(
+						categories = paste0(g, ", ", stages),
+						xValues = simulationResults$effectMatrix[gMax, ],
+						yValues = simulationResults$selectedArms[k, , g]
+					)
+					if (userDefinedEffectMatrix) {
+						part$xValues <- 1:nrow(part)
+					}
+					if (is.null(data)) {
+						data <- part
+					} else {
+						data <- rbind(data, part)
+					}
+					yParameterNamesSrc <- c(yParameterNamesSrc, paste0("selectedArms[", k, ", , ", g, "]"))
+				}
+			}
+		} else {
+			for (g in 1:gMax) {
+				part <- data.frame(
+					categories = g,
+					xValues = simulationResults$effectMatrix[gMax, ],
+					yValues = simulationResults$selectedArms[1, , g]
+				)
+				if (userDefinedEffectMatrix) {
+					data$xValues <- 1:nrow(data)
+				}
+				if (is.null(data)) {
+					data <- part
+				} else {
+					data <- rbind(data, part)
+				}
+				yParameterNamesSrc <- c(yParameterNamesSrc, paste0("selectedArms[1, , ", g, "]"))
+			}
+		}
+		
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_TOP, legendPosition)
+		
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = paste0("effectMatrix[", gMax, ", ]"), 
+			yParameterNames = yParameterNamesSrc, 
+			hint = showSourceHint, nMax = nMax,
+			type = type, showSource = showSource)
+		if (!is.null(srcCmd)) {
+			if (.isSpecialPlotShowSourceArgument(showSource)) {
+				return(invisible(srcCmd))
+			}
+			return(srcCmd)
+		}
+		
+		return(.plotDataFrame(data, mainTitle = main, 
+				xlab = NA_character_, ylab = NA_character_, 
+				xAxisLabel = .getSimulationPlotXAxisLabel(simulationResults),
+				yAxisLabel1 = "Selected Arms", 
+				yAxisLabel2 = NA_character_, 
+				plotPointsEnabled = plotPointsEnabled, 
+				legendTitle = ifelse(designMaster$kMax > 1, "Arm, Stage", "Arm"),
+				legendPosition = legendPosition, sided = designMaster$sided,
+				palette = palette))
+	}
+	else if (type == 4) { # Multi-arm, Rejected Arms per Stage
+		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
+		if (is.na(main)) {
+			items <- PlotSubTitleItems(title = ifelse(!multiArmEnabled, 
+				"Reject per Stage", 
+				ifelse(designMaster$kMax > 1, "Rejected Arms per Stage", "Rejected Arms")))
+			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
+			main <- items$toQuote()
+		}
+		
+		.getSimulationPlotXAxisParameterName(simulationResults)
+		
+		if (multiArmEnabled) {
+			xParameterName <- "effectMatrix"
+		} else if (survivalEnabled) {
 			xParameterName <- "hazardRatio"
 		} else {
 			xParameterName <- "effect"
 		} 
 		
-		yParameterNames <- c("overallReject", "earlyStop", "futilityStop")
-
-		if (is.na(legendPosition)) {
-			legendPosition <- C_POSITION_LEFT_TOP
+		yParameterNamesSrc <- c()	
+		data <- NULL
+		if (multiArmEnabled) {
+			if (designMaster$kMax > 1) {
+				for (g in 1:gMax) {
+					for (k in 1:designMaster$kMax) {
+						stages <- rep(k, ncol(simulationResults$effectMatrix))
+						part <- data.frame(
+							categories = paste0(g, ", ", stages),
+							xValues = simulationResults$effectMatrix[gMax, ],
+							yValues = simulationResults$rejectedArmsPerStage[k, , g]
+						)
+						if (userDefinedEffectMatrix) {
+							part$xValues <- 1:nrow(part)
+						}
+						if (is.null(data)) {
+							data <- part
+						} else {
+							data <- rbind(data, part)
+						}
+						yParameterNamesSrc <- c(yParameterNamesSrc, paste0("rejectedArmsPerStage[", k, ", , ", g, "]"))
+					}
+				}
+			} else {
+				for (g in 1:gMax) {
+					part <- data.frame(
+						categories = g,
+						xValues = simulationResults$effectMatrix[gMax, ],
+						yValues = simulationResults$rejectedArmsPerStage[1, , g]
+					)
+					if (userDefinedEffectMatrix) {
+						part$xValues <- 1:nrow(part)
+					}
+					if (is.null(data)) {
+						data <- part
+					} else {
+						data <- rbind(data, part)
+					}
+					yParameterNamesSrc <- c(yParameterNamesSrc, paste0("rejectedArmsPerStage[1, , ", g, "]"))
+				}
+			}
+		} else {
+			xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
+			if (designMaster$kMax > 1) {
+				for (k in 1:designMaster$kMax) {
+					part <- data.frame(
+						categories = k,
+						xValues = simulationResults[[xParameterName]],
+						yValues = simulationResults$rejectPerStage[k, ]
+					)
+					if (userDefinedEffectMatrix) {
+						part$xValues <- 1:nrow(part)
+					}
+					if (is.null(data)) {
+						data <- part
+					} else {
+						data <- rbind(data, part)
+					}
+					yParameterNamesSrc <- c(yParameterNamesSrc, paste0("rejectPerStage[", k, ", ]"))
+				}
+			} else {
+				data <- data.frame(
+					xValues = simulationResults[[xParameterName]],
+					yValues = simulationResults$rejectPerStage[1, ]
+				)
+				if (userDefinedEffectMatrix) {
+					data$xValues <- 1:nrow(data)
+				}
+				yParameterNamesSrc <- c(yParameterNamesSrc, "rejectPerStage[1, ]")
+			}
 		}
 		
-		if (is.na(ylab)) {
-			ylab <- ""
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_TOP, legendPosition)
+		
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = .getSimulationPlotXAxisParameterName(simulationResults, TRUE), 
+			yParameterNames = yParameterNamesSrc, 
+			hint = showSourceHint, nMax = nMax,
+			type = type, showSource = showSource)
+		if (!is.null(srcCmd)) {
+			if (.isSpecialPlotShowSourceArgument(showSource)) {
+				return(invisible(srcCmd))
+			}
+			return(srcCmd)
+		}
+		
+		palette <- NULL
+		
+		return(.plotDataFrame(data, mainTitle = main, 
+				xlab = NA_character_, ylab = NA_character_, 
+				xAxisLabel = .getSimulationPlotXAxisLabel(simulationResults),
+				yAxisLabel1 = "Rejected Arms", 
+				yAxisLabel2 = NA_character_, 
+				plotPointsEnabled = plotPointsEnabled, 
+				legendTitle = ifelse(multiArmEnabled, ifelse(designMaster$kMax > 1, "Arm, Stage", "Arm"), "Stage"),
+				legendPosition = legendPosition, sided = designMaster$sided,
+				palette = palette))
+	}
+	else if (type == 5) { # Power and Stopping Probabilities 
+		
+		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
+		
+		if (is.na(main)) {
+			items <- PlotSubTitleItems(title = ifelse(designMaster$kMax == 1, 
+					"Overall Power", "Overall Power and Early Stopping"))
+			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
+			main <- items$toQuote()
+		}
+		
+		xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
+		yParameterNames <- "overallReject"
+		if (designMaster$kMax > 1) {
+			yParameterNames <- c(yParameterNames, "earlyStop", "futilityStop")
+		}
+		if (multiArmEnabled) {
+			yParameterNames[1] <- "rejectAtLeastOne"
+		}
+		
+		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
+		ylab <- ifelse(is.na(ylab), "", ylab)
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_TOP, legendPosition)
+		
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = .getSimulationPlotXAxisParameterName(simulationResults, TRUE), 
+			yParameterNames = yParameterNames, 
+			hint = showSourceHint, nMax = nMax,
+			type = type, showSource = showSource)
+		if (!is.null(srcCmd)) {
+			if (.isSpecialPlotShowSourceArgument(showSource)) {
+				return(invisible(srcCmd))
+			}
+			return(srcCmd)
 		}
 		
 		if (is.null(list(...)[["ylim"]])) {
@@ -636,12 +1382,6 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 				legendPosition = legendPosition, variedParameters = variedParameters, 
 				qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
 		}
-		
-		.showPlotSourceInformation(objectName = simulationResultsName, 
-			xParameterName = xParameterName, 
-			yParameterNames = yParameterNames, 
-			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
 	} 
 	
 	else if (type == 6) { # Average Sample Size / Average Event Number
@@ -649,36 +1389,29 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		
 		if (is.na(main)) {
 			titlePart <- ifelse(survivalEnabled, "Number of Events", "Number of Subjects")
-			items <- PlotSubTitleItems(title = paste0("Expected ", titlePart, " and Power / Early Stop"))
+			items <- PlotSubTitleItems(title = paste0("Expected ", titlePart, 
+					ifelse(designMaster$kMax == 1, "", " and Power / Early Stop")))
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
 		
-		if (survivalEnabled) {
-			xParameterName <- "hazardRatio"
-		} else {
-			xParameterName <- "effect"
-		} 
-		
-		if (survivalEnabled) {
-			yParameterNames <- "expectedNumberOfEvents"
-			expectedNumberOfEvents <- simulationResults[["expectedNumberOfEvents"]]
-			if (is.null(expectedNumberOfEvents) || length(expectedNumberOfEvents) == 0) {
-				yParameterNames <- "observedEventsH1" 
+		xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
+		yParameterNames <- ifelse(survivalEnabled, "expectedNumberOfEvents", "expectedNumberOfSubjects")
+		if (designMaster$kMax > 1) {
+			if (multiArmEnabled) {
+				yParameterNames <- c(yParameterNames, "rejectAtLeastOne") 
+			} else {
+				yParameterNames <- c(yParameterNames, "overallReject") 
 			}
-		} else {
-			yParameterNames <- "expectedNumberOfSubjects"
+			yParameterNames <- c(yParameterNames, "earlyStop")
 		}
-		yParameterNames <- c(yParameterNames, "overallReject", "earlyStop") 
-		if (is.na(legendPosition)) {
-			legendPosition <- C_POSITION_LEFT_CENTER
-		}
-
-		.showPlotSourceInformation(objectName = simulationResultsName, 
-			xParameterName = xParameterName, 
+		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_CENTER, legendPosition)
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = .getSimulationPlotXAxisParameterName(simulationResults, TRUE), 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 7) {
@@ -688,45 +1421,39 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
-		if (survivalEnabled) {
-			xParameterName <- "hazardRatio"
-		} else {
-			xParameterName <- "effect"
-		}
 		
-		yParameterNames <- "overallReject"
-		if (is.na(legendPosition)) {
-			legendPosition <- C_POSITION_RIGHT_CENTER
-		}
-		.showPlotSourceInformation(objectName = simulationResultsName, 
-			xParameterName = xParameterName, 
-			yParameterNames = yParameterNames, 
-			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+		xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
+		yParameterNames <- ifelse(multiArmEnabled, "rejectAtLeastOne", "overallReject")
+		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_RIGHT_CENTER, legendPosition)
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+				xParameterName = .getSimulationPlotXAxisParameterName(simulationResults, TRUE), 
+				yParameterNames = yParameterNames, 
+				hint = showSourceHint, nMax = nMax,
+				type = type, showSource = showSource)
 	}
 	
 	else if (type == 8) {
+		if (designMaster$kMax == 1) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type 8 (Overall Early Stopping) is not available for 'kMax' = 1")
+		}
+		
 		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type) 
 		if (is.na(main)) {
 			items <- PlotSubTitleItems(title = "Overall Early Stopping")
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
-		if (survivalEnabled) {
-			xParameterName <- "hazardRatio"
-		} else {
-			xParameterName <- "effect"
-		}
 		
+		xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
 		yParameterNames <- c("earlyStop", "futilityStop")
-		if (is.na(legendPosition)) {
-			legendPosition <- C_POSITION_LEFT_CENTER
-		}
-		.showPlotSourceInformation(objectName = simulationResultsName, 
-			xParameterName = xParameterName, 
+		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
+		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_CENTER, legendPosition)
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = .getSimulationPlotXAxisParameterName(simulationResults, TRUE), 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 9) {
@@ -734,26 +1461,19 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		
 		if (is.na(main)) {
 			items <- PlotSubTitleItems(title = ifelse(survivalEnabled,
-					"Expected Number of Events", "Expected Number of Subjects"))
+				"Expected Number of Events", "Expected Number of Subjects"))
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
-		if (survivalEnabled) {
-			xParameterName <- "hazardRatio"
-		} else {
-			xParameterName <- "effect"
-		}
 		
-		if (survivalEnabled) {
-			yParameterNames <- "expectedNumberOfEvents"
-		} else {
-			yParameterNames <- "expectedNumberOfSubjects"
-		}
-		.showPlotSourceInformation(objectName = simulationResultsName, 
-			xParameterName = xParameterName, 
+		xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
+		yParameterNames <- ifelse(survivalEnabled, "expectedNumberOfEvents", "expectedNumberOfSubjects")
+		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
+			xParameterName = .getSimulationPlotXAxisParameterName(simulationResults, TRUE), 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 10) { # Study Duration
@@ -765,11 +1485,11 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		}
 		xParameterName <- "hazardRatio"
 		yParameterNames <- "studyDuration"
-		.showPlotSourceInformation(objectName = simulationResultsName, 
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
 			xParameterName = xParameterName, 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 11) {
@@ -781,11 +1501,11 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		}
 		xParameterName <- "hazardRatio"
 		yParameterNames <- "expectedNumberOfSubjects" 
-		.showPlotSourceInformation(objectName = simulationResultsName, 
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
 			xParameterName = xParameterName, 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 12) { # Analysis Time
@@ -798,13 +1518,17 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		
 		xParameterName <- "hazardRatio"
 		yParameterNames <- "analysisTime"
+		yParameterNamesSrc <- c()
+		for (i in 1:nrow(simulationResults[["analysisTime"]])) {
+			yParameterNamesSrc <- c(yParameterNamesSrc, paste0("analysisTime[", i, ", ]"))				
+		}
 		
 		data <- NULL
 		for (k in 1:designMaster$kMax) {
 			part <- data.frame(
-				categories = rep(k, length(simulationResults$hazardRatio)),
-				xValues = simulationResults$hazardRatio,
-				yValues = simulationResults$analysisTime[k, ]
+					categories = rep(k, length(simulationResults$hazardRatio)),
+					xValues = simulationResults$hazardRatio,
+					yValues = simulationResults$analysisTime[k, ]
 			)
 			if (is.null(data)) {
 				data <- part
@@ -817,11 +1541,17 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			legendPosition <- C_POSITION_LEFT_CENTER
 		}
 		
-		.showPlotSourceInformation(objectName = simulationResultsName, 
+		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
 			xParameterName = xParameterName, 
-			yParameterNames = yParameterNames, 
+			yParameterNames = yParameterNamesSrc, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
+		if (!is.null(srcCmd)) {
+			if (.isSpecialPlotShowSourceArgument(showSource)) {
+				return(invisible(srcCmd))
+			}
+			return(srcCmd)
+		}
 		
 		return(.plotDataFrame(data, mainTitle = main, 
 			xlab = NA_character_, ylab = NA_character_, xAxisLabel = "Hazard Ratio",
@@ -833,9 +1563,17 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 	else if (type == 13 || type == 14) { # Cumulative Distribution Function / Survival function
 		return(.plotSurvivalFunction(simulationResults, designMaster = designMaster, type = type, main = main, 
 			xlab = xlab, ylab = ylab, palette = palette,
-			legendPosition = legendPosition, showSource = showSource))
+			legendPosition = legendPosition, designPlanName = simulationResultsName, 
+			showSource = showSource))
 	} else {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 5, 6,..., 14")	
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 5, 6, ..., 14")	
+	}
+	
+	if (!is.null(srcCmd)) {
+		if (.isSpecialPlotShowSourceArgument(showSource)) {
+			return(invisible(srcCmd))
+		}
+		return(srcCmd)
 	}
 	
 	return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
@@ -856,44 +1594,32 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 #' @param main The main title.
 #' @param xlab The x-axis label.
 #' @param ylab The y-axis label.
-#' @param palette The palette, default is \code{"Set1"}.
-#' @param theta A vector of theta values.
-#' @param plotPointsEnabled If \code{TRUE}, additional points will be plotted.
-#' @param showSource If \code{TRUE}, the parameter names of the object will 
-#'        be printed which were used to create the plot; that may be, e.g., 
-#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
-#' @param legendPosition The position of the legend. 
-#' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
-#' Choose one of the following values to specify the position manually:
-#' \itemize{
-#'   \item \code{-1}: no legend will be shown
-#'   \item \code{NA}: the algorithm tries to find a suitable position
-#'   \item \code{0}: legend position outside plot
-#'   \item \code{1}: legend position left top
-#'   \item \code{2}: legend position left center
-#'   \item \code{3}: legend position left bottom
-#'   \item \code{4}: legend position right top
-#'   \item \code{5}: legend position right center
-#'   \item \code{6}: legend position right bottom
-#' }
+#' @inheritParams param_palette
+#' @inheritParams param_theta
+#' @inheritParams param_plotPointsEnabled
+#' @inheritParams param_showSource
+#' @inheritParams param_legendPosition
+#' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
 #' \itemize{
-#'   \item \code{1}: creates a 'Boundaries' plot
-#'   \item \code{2}: creates a 'Boundaries Effect Scale' plot
-#'   \item \code{3}: creates a 'Boundaries p Values Scale' plot
-#'   \item \code{4}: creates a 'Type One Error Spending' plot
-#'   \item \code{5}: creates a 'Sample Size' or 'Overall Power and Early Stopping' plot
-#'   \item \code{6}: creates a 'Number of Events' or 'Sample Size' plot
+#'   \item \code{1}: creates a 'Overall Success' plot (multi-arm only)
+#'   \item \code{2}: creates a 'Success per Stage' plot (multi-arm only)
+#'   \item \code{3}: creates a 'Selected Arms per Stage' plot (multi-arm only)
+#'   \item \code{4}: creates a 'Reject per Stage' or 'Rejected Arms per Stage' plot
+#'   \item \code{5}: creates a 'Overall Power and Early Stopping' plot
+#'   \item \code{6}: creates a 'Expected Number of Subjects and Power / Early Stop' or 
+#'         'Expected Number of Events and Power / Early Stop' plot
 #'   \item \code{7}: creates an 'Overall Power' plot
 #'   \item \code{8}: creates an 'Overall Early Stopping' plot
-#'   \item \code{9}: creates an 'Expected Number of Events' or 'Expected Sample Size' plot
-#'   \item \code{10}: creates a 'Study Duration' plot
-#'   \item \code{11}: creates an 'Expected Number of Subjects' plot
-#'   \item \code{12}: creates an 'Analysis Times' plot
-#'   \item \code{13}: creates a 'Cumulative Distribution Function' plot
-#'   \item \code{14}: creates a 'Survival Function' plot
+#'   \item \code{9}: creates an 'Expected Sample Size' or 'Expected Number of Events' plot
+#'   \item \code{10}: creates a 'Study Duration' plot (non-multi-arm survival only)
+#'   \item \code{11}: creates an 'Expected Number of Subjects' plot (non-multi-arm survival only)
+#'   \item \code{12}: creates an 'Analysis Times' plot (non-multi-arm survival only)
+#'   \item \code{13}: creates a 'Cumulative Distribution Function' plot (non-multi-arm survival only)
+#'   \item \code{14}: creates a 'Survival Function' plot (non-multi-arm survival only)
+#'   \item \code{"all"}: creates all available plots and returns it as a grid plot or list
 #' }
-#' @param ... Optional \code{ggplot2} arguments.
+#' @inheritParams param_three_dots_plot
 #' 
 #' @description
 #' Plots simulation results.
@@ -901,24 +1627,45 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 #' @details
 #' Generic function to plot all kinds of simulation results.
 #' 
-#' @return 
-#' A \code{ggplot2} object.
+#' @template return_object_ggplot
+#' 
+#' @examples 
+#' \donttest{
+#' results <- getSimulationMeans(alternative = 0:4, stDev = 5, 
+#'     plannedSubjects = 40, maxNumberOfIterations = 1000)
+#' plot(results, type = 5)
+#' }
 #' 
 #' @export
 #'
-plot.SimulationResults = function(x, y, main = NA_character_,
-		xlab = NA_character_, ylab = NA_character_, type = 1, palette = "Set1",
+plot.SimulationResults = function(x, y, ..., main = NA_character_,
+		xlab = NA_character_, ylab = NA_character_, type = 1L, palette = "Set1",
 		theta = seq(-1, 1, 0.01), plotPointsEnabled = NA, 
-		legendPosition = NA_integer_, showSource = FALSE, ...) {
-	
+		legendPosition = NA_integer_, showSource = FALSE, 
+		grid = 1) {
+		
 	fCall = match.call(expand.dots = FALSE)
-	simulationResultsName <- as.character(fCall$x)[1]
+	simulationResultsName <- deparse(fCall$x)
+	typeNumbers <- .getPlotTypeNumber(type, x)
+	p <- NULL
+	plotList <- list()
+	for (typeNumber in typeNumbers) {
+		p <- .plotSimulationResults(simulationResults = x, designMaster = x$.design, 
+			main = main, xlab = xlab, ylab = ylab, type = typeNumber,
+			palette = palette, theta = theta, plotPointsEnabled = plotPointsEnabled, 
+			legendPosition = legendPosition, showSource = showSource,
+			simulationResultsName = simulationResultsName, ...)
+		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
+		if (length(typeNumbers) > 1) {
+			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
+			plotList[[caption]] <- p
+		}
+	}
+	if (length(typeNumbers) == 1) {
+		return(p)
+	} 
 	
-	.plotSimulationResults(simulationResults = x, designMaster = x$.design, 
-		main = main, xlab = xlab, ylab = ylab, type = type,
-		palette = palette, theta = theta, plotPointsEnabled = plotPointsEnabled, 
-		legendPosition = legendPosition, showSource = showSource,
-		simulationResultsName = simulationResultsName, ...)
+	return(.createPlotResultObject(plotList, grid))
 }
 
 #'
@@ -928,51 +1675,135 @@ plot.SimulationResults = function(x, y, main = NA_character_,
 #' @description
 #' Returns the aggregated simulation data.
 #' 
-#' @param x An \code{SimulationResults} object created by \code{\link{getSimulationMeans}}, 
-#'  \code{\link{getSimulationRates}}, or \code{\link{getSimulationSurvival}}.
+#' @param x A \code{\link{SimulationResults}} object created by \code{\link{getSimulationMeans}},\cr 
+#'  \code{\link{getSimulationRates}}, \code{\link{getSimulationSurvival}}, \code{\link{getSimulationMultiArmMeans}},\cr 
+#'  \code{\link{getSimulationMultiArmRates}}, or \code{\link{getSimulationMultiArmSurvival}}.
 #'
 #' @details
-#' This data are the base for creation of the small statistics in the simulation results output.
-#'  
-#' @keywords internal
+#' This function can be used to get the aggregated simulated data from an simulation results  
+#' object, for example, obtained by \code{\link{getSimulationSurvival}}.
+#' In this case, the data frame contains the following columns:
+#' \enumerate{
+#'   \item \code{iterationNumber}: The number of the simulation iteration.
+#'   \item \code{stageNumber}: The stage.
+#'   \item \code{pi1}: The assumed or derived event rate in the treatment group.
+#'   \item \code{pi2}: The assumed or derived event rate in the control group.
+#'   \item \code{hazardRatio}: The hazard ratio under consideration (if available).
+#'   \item \code{analysisTime}: The analysis time.
+#'   \item \code{numberOfSubjects}: The number of subjects under consideration when the 
+#'         (interim) analysis takes place.
+#'   \item \code{eventsPerStage1}: The observed number of events per stage 
+#'         in treatment group 1.
+#'   \item \code{eventsPerStage2}: The observed number of events per stage 
+#'         in treatment group 2.
+#'   \item \code{eventsPerStage}: The observed number of events per stage 
+#'         in both treatment groups.
+#'   \item \code{rejectPerStage}: 1 if null hypothesis can be rejected, 0 otherwise. 
+#'   \item \code{eventsNotAchieved}: 1 if number of events could not be reached with 
+#'         observed number of subjects, 0 otherwise.
+#'   \item \code{futilityPerStage}: 1 if study should be stopped for futility, 0 otherwise.
+#'   \item \code{testStatistic}: The test statistic that is used for the test decision, 
+#'         depends on which design was chosen (group sequential, inverse normal, 
+#'         or Fisher combination test)'  
+#'   \item \code{logRankStatistic}: Z-score statistic which corresponds to a one-sided 
+#'         log-rank test at considered stage. 
+#'   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
+#' 			selected sample size and effect. The effect is either estimated from the data or can be
+#' 			user defined with \code{thetaH1} or \code{pi1H1} and \code{pi2H1}.
+#'   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
+#'   \item \code{hazardRatioEstimateLR}: The estimated hazard ratio, derived from the 
+#'         log-rank statistic.
+
+#' }
+#' A subset of variables is provided for \code{\link{getSimulationMeans}}, \code{\link{getSimulationRates}}, \code{\link{getSimulationMultiArmMeans}},\cr 
+#'  \code{\link{getSimulationMultiArmRates}}, or \code{\link{getSimulationMultiArmSurvival}}.
 #' 
+#' @template return_dataframe
+#' 
+#' @examples 
+#' results <- getSimulationSurvival(pi1 = seq(0.3,0.6,0.1), pi2 = 0.3, eventTime = 12, 
+#'     accrualTime = 24, plannedEvents = 40, maxNumberOfSubjects = 200, 
+#'     maxNumberOfIterations = 50)
+#' data <- getData(results)
+#' head(data)
+#' dim(data)
+#'  
 #' @export
 #' 
 getData <- function(x) {
 	if (!inherits(x, "SimulationResults")) { #  or 'Dataset'
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"'x' must be a 'SimulationResults' object; for example, use getSimulationSurvival() to create one")
+				"'x' must be a 'SimulationResults' object; for example, use getSimulationMeans() to create one")
 	}
 	
 	return(x$.data)
 }
 
-.getAggregatedDataByIterationNumber <- function(rawData, iterationNumber) {
-	subData <- rawData[rawData$iterationNumber == iterationNumber, ]
+.getAggregatedDataByIterationNumber <- function(rawData, iterationNumber, pi1 = NA_real_) {
+	if (!is.na(pi1)) {
+		if (is.null(rawData[["pi1"]])) {
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'rawData' does not contains a 'pi1' column")
+		}
+		subData <- rawData[rawData$iterationNumber == iterationNumber & rawData$pi1 == pi1, ]
+		if (nrow(subData) == 0) {
+			return(NULL)
+		}
+	} else {
+		subData <- rawData[rawData$iterationNumber == iterationNumber, ]
+	}
 	
 	eventsPerStage1 <- sum(subData$event[subData$treatmentGroup == 1])
 	eventsPerStage2 <- sum(subData$event[subData$treatmentGroup == 2])
 	
-	return(data.frame(
-		iterationNumber = iterationNumber,
-		stageNumber = subData$stopStage[1],
-		analysisTime = max(subData$observationTime),
-		numberOfSubjects = nrow(subData),
-		eventsPerStage1 = eventsPerStage1,
-		eventsPerStage2 = eventsPerStage2,
-		eventsPerStage = eventsPerStage1 + eventsPerStage2
-	))
+	result <- data.frame(
+			iterationNumber = iterationNumber,
+			pi1 = pi1,
+			stageNumber = subData$stopStage[1],
+			analysisTime = max(subData$observationTime),
+			numberOfSubjects = nrow(subData),
+			eventsPerStage1 = eventsPerStage1,
+			eventsPerStage2 = eventsPerStage2,
+			eventsPerStage = eventsPerStage1 + eventsPerStage2
+	)
+	
+	if (is.na(pi1)) {
+		result <- result[, colnames(result) != "pi1"]
+	}
+	
+	return(result)
 }
 
 .getAggregatedData <- function(rawData) {
 	iterationNumbers <- sort(unique(rawData$iterationNumber))
+	pi1Vec <- rawData[["pi1"]]
+	if (!is.null(pi1Vec)) {
+		pi1Vec <- sort(unique(na.omit(rawData$pi1)))
+	}
+	
 	data <- NULL
-	for (iterationNumber in iterationNumbers) {
-		row <- .getAggregatedDataByIterationNumber(rawData, iterationNumber)
-		if (is.null(data)) {
-			data <- row
-		} else {
-			data <- rbind(data, row)
+	if (!is.null(pi1Vec) && length(pi1Vec) > 0) {
+		for (iterationNumber in iterationNumbers) {
+			for (pi1 in pi1Vec) {
+				row <- .getAggregatedDataByIterationNumber(rawData, iterationNumber, pi1)
+				if (!is.null(row)) {
+					if (is.null(data)) {
+						data <- row
+					} else {
+						data <- rbind(data, row)
+					}
+				}
+			}
+		}
+	} else {
+		for (iterationNumber in iterationNumbers) {
+			row <- .getAggregatedDataByIterationNumber(rawData, iterationNumber)
+			if (!is.null(row)) {
+				if (is.null(data)) {
+					data <- row
+				} else {
+					data <- rbind(data, row)
+				}
+			}
 		}
 	}
 	return(data)
@@ -980,34 +1811,70 @@ getData <- function(x) {
 
 #'
 #' @title
-#' Get Simulation Raw Data
+#' Get Simulation Raw Data for Survival
 #' 
 #' @description
-#' Returns the raw data which was generated randomly for simulation.
+#' Returns the raw survival data which was generated for simulation.
 #' 
-#' @param x An \code{SimulationResults} object created by \code{\link{getSimulationSurvival}}.
-#' @param aggregate If \code{TRUE} the raw data will be aggregated similar to
+#' @param x An \code{\link{SimulationResults}} object created by \code{\link{getSimulationSurvival}}.
+#' @param aggregate Logical. If \code{TRUE} the raw data will be aggregated similar to
 #'        the result of \code{\link{getData}}, default is \code{FALSE}.
 #'
 #' @details
-#' This function works only if \code{\link{getSimulationSurvival}} was called
-#' with a \code{maxNumberOfRawDatasetsPerStage > 0} (default is \code{0}).
-#'  
-#' @keywords internal
+#' This function works only if \code{\link{getSimulationSurvival}} was called with a \cr
+#' \code{maxNumberOfRawDatasetsPerStage} > 0 (default is \code{0}).
 #' 
+#' This function can be used to get the simulated raw data from a simulation results  
+#' object obtained by \code{\link{getSimulationSurvival}}. Note that \code{\link{getSimulationSurvival}} 
+#' must called before with \code{maxNumberOfRawDatasetsPerStage} > 0.
+#' The data frame contains the following columns: 
+#' \enumerate{
+#'   \item \code{iterationNumber}: The number of the simulation iteration.
+#'   \item \code{stopStage}: The stage of stopping.
+#'   \item \code{subjectId}: The subject id (increasing number 1, 2, 3, ...)
+#'   \item \code{accrualTime}: The accrual time, i.e., the time when the subject entered the trial.
+#'   \item \code{treatmentGroup}: The treatment group number (1 or 2).
+#'   \item \code{survivalTime}: The survival time of the subject.
+#'   \item \code{dropoutTime}: The dropout time of the subject (may be \code{NA}).
+#'   \item \code{observationTime}: The specific observation time.
+#'   \item \code{timeUnderObservation}: The time under observation is defined as follows:\cr
+#'         if (event == TRUE) {\cr
+#'             timeUnderObservation <- survivalTime;\cr
+#'         } else if (dropoutEvent == TRUE) {\cr
+#'             timeUnderObservation <- dropoutTime;\cr
+#'         } else {\cr
+#'             timeUnderObservation <- observationTime - accrualTime;\cr
+#'         }
+#'   \item \code{event}: \code{TRUE} if an event occurred; \code{FALSE} otherwise.
+#'   \item \code{dropoutEvent}: \code{TRUE} if an dropout event occurred; \code{FALSE} otherwise. 
+#' }
+#' 
+#' @template return_dataframe
+#' 
+#' @examples 
+#' \donttest{
+#' results <- getSimulationSurvival(pi1 = seq(0.3,0.6,0.1), pi2 = 0.3, eventTime = 12, 
+#'     accrualTime = 24, plannedEvents = 40, maxNumberOfSubjects = 200, 
+#'     maxNumberOfIterations = 50, maxNumberOfRawDatasetsPerStage = 5)
+#' rawData <- getRawData(results)
+#' head(rawData)
+#' dim(rawData)
+#' }
+#'  
 #' @export
 #' 
 getRawData <- function(x, aggregate = FALSE) {
 	if (!inherits(x, "SimulationResultsSurvival")) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"'x' must be a 'SimulationResultsSurvival' object; use getSimulationSurvival() to create one")
+				"'x' must be a 'SimulationResultsSurvival' object; use getSimulationSurvival() to create one")
 	}
 	
 	rawData <- x$.rawData
 	if (is.null(rawData) || ncol(rawData) == 0 || nrow(rawData) == 0) {
-		stop("Simulation results contain no raw data; ",
-			"choose a 'maxNumberOfRawDatasetsPerStage' > 0, e.g., ", 
-			"getSimulationSurvival(..., maxNumberOfRawDatasetsPerStage = 1)")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				"simulation results contain no raw data; ",
+				"choose a 'maxNumberOfRawDatasetsPerStage' > 0, e.g., ", 
+				"getSimulationSurvival(..., maxNumberOfRawDatasetsPerStage = 1)")
 	}
 	
 	if (!aggregate) {

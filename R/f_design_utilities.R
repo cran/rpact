@@ -1,24 +1,416 @@
-######################################################################################
-#                                                                                    #
-# -- RPACT design utilities --                                                       #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 26-02-2019                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *RPACT design utilities*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3579 $
+#:#  Last changed: $Date: 2020-09-02 15:13:26 +0200 (Mi, 02 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 #' @include f_core_assertions.R
 NULL
+
+.getDefaultDesign <- function(..., 
+		type = c("sampleSize", "power", "simulation", "analysis"), 
+		ignore = c(), multiArmEnabled = FALSE) {
+		
+	type <- match.arg(type)
+	
+	alpha <- .getOptionalArgument("alpha", ...)
+	if (is.null(alpha)) {
+		alpha <- NA_real_
+	} else {
+		ignore <- c(ignore, "alpha")
+	}
+	beta <- .getOptionalArgument("beta", ...)
+	if (is.null(beta)) {
+		beta <- NA_real_
+	} else {
+		ignore <- c(ignore, "beta")
+	}
+	if (!multiArmEnabled) {
+		sided <- .getOptionalArgument("sided", ...)
+		if (is.null(sided)) {
+			sided <- 1L
+		} else {
+			ignore <- c(ignore, "sided")
+		}
+	} else {
+		sided <- 1L
+	}
+	twoSidedPower <- .getOptionalArgument("twoSidedPower", ...)
+	if (is.null(twoSidedPower)) {
+		if (type %in% c("power", "simulation") && sided == 2) {
+			twoSidedPower <- TRUE
+		} else {
+			twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
+		}
+	} else {
+		ignore <- c(ignore, "twoSidedPower")
+	}
+	if (type == "analysis" || multiArmEnabled) {
+		design <- getDesignInverseNormal(kMax = 1, alpha = alpha, beta = beta, 
+			sided = sided, twoSidedPower = twoSidedPower)
+	} else {
+		design <- getDesignGroupSequential(kMax = 1, alpha = alpha, beta = beta, 
+			sided = sided, twoSidedPower = twoSidedPower)
+	}
+	return(design)
+}
+
+.getDesignArgumentsToIgnoreAtUnknownArgumentCheck <- function(design, multiArmEnabled = FALSE) {
+	if (design$kMax > 1) {
+		return(character(0))
+	}
+	
+	if (multiArmEnabled) {
+		return(c("alpha", "beta", "twoSidedPower"))
+	}
+	
+	return(c("alpha", "beta", "sided", "twoSidedPower"))
+}
+
+.getValidatedFutilityBounds <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
+	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
+	return(.getValidatedFutilityBoundsOrAlpha0Vec(design = design, parameterName = "futilityBounds", 
+		defaultValue = C_FUTILITY_BOUNDS_DEFAULT, kMaxLowerBound = kMaxLowerBound,
+		writeToDesign = writeToDesign))
+}
+
+.getValidatedAlpha0Vec <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
+	.assertIsTrialDesignFisher(design)
+	return(.getValidatedFutilityBoundsOrAlpha0Vec(design = design, parameterName = "alpha0Vec", 
+		defaultValue = C_ALPHA_0_VEC_DEFAULT, kMaxLowerBound = kMaxLowerBound,
+		writeToDesign = writeToDesign))
+}
+
+.getValidatedFutilityBoundsOrAlpha0Vec <- function(design, parameterName, defaultValue, 
+	kMaxLowerBound, writeToDesign) {
+	
+	parameterValues <- design[[parameterName]]
+	
+	kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
+	if (.isDefinedArgument(parameterValues) && .isDefinedArgument(design$kMax)) {
+		if (.isTrialDesignFisher(design)) {
+			.assertIsValidAlpha0Vec(parameterValues, kMax = design$kMax, 
+				kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
+		} else {
+			.assertAreValidFutilityBounds(parameterValues, kMax = design$kMax, 
+				kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
+		}
+	}
+	
+	if (design$sided == 2 && .isDefinedArgument(parameterValues) && any(na.omit(parameterValues) != defaultValue)) {
+		warning("'", parameterName, "' (", .arrayToString(parameterValues), 
+			") will be ignored because the design is two-sided", call. = FALSE)
+	}
+	
+	if (writeToDesign) {
+		.setParameterType(design, parameterName, C_PARAM_USER_DEFINED)
+	}
+	
+	if (.isUndefinedArgument(design$informationRates) && .isUndefinedArgument(parameterValues)) { 
+		if (writeToDesign) {
+			if (.setKMaxToDefaultIfUndefined(design, writeToDesign) || design$kMax == C_KMAX_DEFAULT) {
+				.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
+			} else {
+				.setParameterType(design, parameterName, C_PARAM_DERIVED)
+			}
+		}
+		
+		return(rep(defaultValue, design$kMax - 1))
+	}
+	
+	if (.isDefinedArgument(design$informationRates) && .isUndefinedArgument(parameterValues)) {
+		if (writeToDesign) {
+			if (.isUndefinedArgument(design$kMax)) {
+				.setKMax(design, kMax = length(design$informationRates))
+			}
+			.setParameterType(design, parameterName, ifelse(design$kMax == C_KMAX_DEFAULT, 
+					C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
+		}
+		return(rep(defaultValue, design$kMax - 1))
+	}
+	
+	if (.isUndefinedArgument(design$informationRates) && 
+		.isDefinedArgument(parameterValues, argumentExistsValidationEnabled = FALSE)) {	
+		if (writeToDesign) {
+			.setKMax(design, kMax = length(parameterValues) + 1)
+			if (.isDefaultVector(parameterValues, rep(defaultValue, design$kMax - 1))) {
+				.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
+			}
+		}
+		
+		if (.isBetaSpendingDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
+			return(rep(defaultValue, design$kMax - 1))
+		}
+		
+		return(parameterValues)
+	}
+	
+	if (writeToDesign) {
+		.setKMax(design, kMax = length(parameterValues) + 1)
+		if (.isDefaultVector(parameterValues, rep(defaultValue, design$kMax - 1))) {
+			.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
+		}
+	}
+	
+	if (.isTrialDesignFisher(design)) {
+		.assertIsValidAlpha0Vec(parameterValues, kMax = design$kMax, 
+			kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
+	} else {
+		.assertAreValidFutilityBounds(parameterValues, kMax = design$kMax, 
+			kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
+	}
+	
+	if (.isBetaSpendingDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
+		return(rep(defaultValue, design$kMax - 1))
+	}
+	
+	return(parameterValues)
+}
+
+.isBetaSpendingDesignWithDefinedFutilityBounds <- function(design, parameterName, writeToDesign) {
+	if (.isTrialDesignFisher(design) || !.isBetaSpendingDesignType(design$typeBetaSpending)) {
+		return(FALSE)
+	}
+	
+	if (design$.getParameterType(parameterName) == C_PARAM_USER_DEFINED) {
+		warning("'", parameterName, "' (", .arrayToString(design[[parameterName]]), 
+			") will be ignored because it will be calculated", call. = FALSE)
+	}
+	else if (design$.getParameterType(parameterName) == C_PARAM_GENERATED) {
+		return(FALSE)
+	}
+	
+	if (writeToDesign) {
+		.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
+	}
+	return(TRUE)
+}
+
+.setKMax <- function(design, kMax) {
+	design$kMax <- as.integer(kMax)
+	.setParameterType(design, "kMax", C_PARAM_DERIVED)
+	invisible(kMax)
+}
+
+.getValidatedInformationRates <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
+	
+	kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
+	if (.isDefinedArgument(design$informationRates) && .isDefinedArgument(design$kMax)) {
+		.assertAreValidInformationRates(informationRates = design$informationRates, 
+			kMax = design$kMax, kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
+	}
+	
+	.setParameterType(design, "informationRates", C_PARAM_USER_DEFINED)
+	
+	if (.isTrialDesignFisher(design)) {
+		futilityBounds <- design$alpha0Vec
+	} else {
+		futilityBounds <- design$futilityBounds
+	}
+	
+	if (.isUndefinedArgument(design$informationRates) && .isUndefinedArgument(futilityBounds)) { 
+		if (writeToDesign) {
+			if (.setKMaxToDefaultIfUndefined(design, writeToDesign) || design$kMax == C_KMAX_DEFAULT) {
+				.setParameterType(design, "informationRates", C_PARAM_DEFAULT_VALUE)
+			} else {
+				.setParameterType(design, "informationRates", C_PARAM_DERIVED)
+			}
+		}
+		return((1:design$kMax) / design$kMax)
+	}
+	
+	if (.isDefinedArgument(design$informationRates) && .isUndefinedArgument(futilityBounds)) {
+		if (writeToDesign) {
+			.setKMax(design, kMax = length(design$informationRates))
+			if (.isDefaultVector(design$informationRates, (1:design$kMax) / design$kMax)) {
+				.setParameterType(design, "informationRates", C_PARAM_DEFAULT_VALUE)
+			}
+		}
+		.assertAreValidInformationRates(informationRates = design$informationRates, 
+			kMax = design$kMax, kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
+		return(design$informationRates)
+	}
+	
+	if (.isUndefinedArgument(design$informationRates) && 
+		.isDefinedArgument(futilityBounds, argumentExistsValidationEnabled = FALSE)) {
+		if (writeToDesign) {
+			if (.isUndefinedArgument(design$kMax)) {
+				.setKMax(design, kMax = length(futilityBounds) + 1)
+			}
+			.setParameterType(design, "informationRates", ifelse(design$kMax == C_KMAX_DEFAULT, 
+					C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
+		}
+		return((1:design$kMax) / design$kMax)
+	}
+	
+	if (writeToDesign) {
+		.setKMax(design, kMax = length(design$informationRates))
+		if (.isDefaultVector(design$informationRates, (1:design$kMax) / design$kMax)) {
+			.setParameterType(design, "informationRates", C_PARAM_DEFAULT_VALUE)
+		}
+	}
+	
+	.assertAreValidInformationRates(informationRates = design$informationRates, 
+		kMax = design$kMax, kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
+	
+	return(design$informationRates)
+}
+
+.setKMaxToDefaultIfUndefined <- function(design, writeToDesign = TRUE) {
+	if (writeToDesign && .isUndefinedArgument(design$kMax)) {
+		design$kMax <- C_KMAX_DEFAULT
+		design$.setParameterType("kMax", C_PARAM_DEFAULT_VALUE)
+		return(TRUE)
+	}
+	return(FALSE)
+}
+
+.validateAlphaAndBeta <- function(design) {
+	.assertDesignParameterExists(design, "alpha", C_ALPHA_DEFAULT)
+	.assertDesignParameterExists(design, "beta", C_BETA_DEFAULT)
+	.assertIsValidAlphaAndBeta(alpha = design$alpha, beta = design$beta)
+}
+
+.validateUserAlphaSpending <- function(design) {
+	.assertIsTrialDesign(design)
+	.assertDesignParameterExists(design, "userAlphaSpending", NA_real_)
+	
+	if ((design$isUserDefinedParameter("informationRates") || 
+			(design$isDefaultParameter("informationRates") && !design$isUserDefinedParameter("kMax"))) &&
+		length(design$informationRates) != length(design$userAlphaSpending)) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+					"length of 'userAlphaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
+				length(design$userAlphaSpending), length(design$informationRates)))
+	}
+	
+	if (length(design$userAlphaSpending) != design$kMax) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+					"length of 'userAlphaSpending' (%s) must be equal to 'kMax' (%s)"), 
+				length(design$userAlphaSpending), design$kMax))
+	}
+	
+	.validateUserAlphaSpendingLength(design)
+	
+	if (.isUndefinedArgument(design$alpha)) {
+		design$alpha <- design$userAlphaSpending[design$kMax]
+		design$.setParameterType("alpha", ifelse(design$alpha == C_ALPHA_DEFAULT, 
+				C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
+	}
+	
+	.assertIsValidAlpha(design$alpha)
+	
+	if (design$kMax > 1 && (design$userAlphaSpending[1] < 0 || design$userAlphaSpending[design$kMax] > design$alpha ||
+			any(design$userAlphaSpending[2:design$kMax] - design$userAlphaSpending[1:(design$kMax - 1)] < 0))) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+			"'userAlphaSpending' = %s must be a vector that satisfies the following condition: ", 
+			"0 <= alpha_1 <= .. <= alpha_%s <= alpha = %s"), 
+			.arrayToString(design$userAlphaSpending, vectorLookAndFeelEnabled = TRUE), 
+			design$kMax, design$alpha))
+	}
+}
+
+.validateUserBetaSpending <- function(design) {
+	.assertIsTrialDesign(design)
+	.assertDesignParameterExists(design, "userBetaSpending", NA_real_)
+	
+	if ((design$isUserDefinedParameter("informationRates") || 
+			(design$isDefaultParameter("informationRates") && !design$isUserDefinedParameter("kMax"))) &&
+		length(design$informationRates) != length(design$userBetaSpending)) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+					"length of 'userBetaSpending' (%s) must be equal to length of 'informationRates' (%s)"), 
+				length(design$userBetaSpending), length(design$informationRates)))
+	}
+	
+	if (length(design$userBetaSpending) != design$kMax) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+					"length of 'userBetaSpending' (%s) must be equal to 'kMax' (%s)"), 
+				length(design$userBetaSpending), design$kMax))
+	}
+	
+	if (length(design$userBetaSpending) < 2 || length(design$userBetaSpending) > C_KMAX_UPPER_BOUND) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_ARGUMENT_LENGTH_OUT_OF_BOUNDS, 
+					"length of 'userBetaSpending' (%s) is out of bounds [2; %s]"), 
+				length(design$userBetaSpending), C_KMAX_UPPER_BOUND))
+	}
+	
+	if (.isUndefinedArgument(design$beta)) {
+		design$beta <- design$userBetaSpending[design$kMax]
+		design$.setParameterType("beta", ifelse(design$beta == C_BETA_DEFAULT, 
+				C_PARAM_DEFAULT_VALUE, C_PARAM_DERIVED))
+	}
+	
+	.assertIsValidBeta(beta = design$beta, alpha = design$alpha)
+	
+	if (design$kMax > 1 && (design$userBetaSpending[1] < 0 || design$userBetaSpending[design$kMax] > design$beta ||
+			any(design$userBetaSpending[2:design$kMax] - design$userBetaSpending[1:(design$kMax - 1)] < 0))) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+			"'userBetaSpending' = %s must be a vector that satisfies the following condition: ", 
+			"0 <= beta_1 <= .. <= beta_%s <= beta = %s"), 
+			.arrayToString(design$userBetaSpending, vectorLookAndFeelEnabled = TRUE), 
+			design$kMax, design$beta))
+	}
+}
+
+.validateUserAlphaSpendingLength <- function(design) {
+	if (length(design$userAlphaSpending) < 1 || length(design$userAlphaSpending) > C_KMAX_UPPER_BOUND) {
+		stop(sprintf(paste0(C_EXCEPTION_TYPE_ARGUMENT_LENGTH_OUT_OF_BOUNDS, 
+			"length of 'userAlphaSpending' (%s) is out of bounds [1; %s]"), 
+			length(design$userAlphaSpending), C_KMAX_UPPER_BOUND))
+	}
+}
+
+.setKmaxBasedOnAlphaSpendingDefintion <- function(design) {
+	
+	if (.isTrialDesignFisher(design)) {
+		if (design$method != C_FISHER_METHOD_USER_DEFINED_ALPHA) {
+			return(invisible())
+		}
+	} else {
+		if (design$typeOfDesign != C_TYPE_OF_DESIGN_AS_USER) {
+			return(invisible())
+		}
+	}
+	
+	if (.isDefinedArgument(design$kMax)) {
+		return(invisible())
+	}
+	
+	if (.isUndefinedArgument(design$userAlphaSpending)) {
+		return(invisible())
+	}
+	
+	if (.isDefinedArgument(design$informationRates)) {
+		return(invisible())
+	}
+	
+	if (.isTrialDesignFisher(design)) {
+		if (.isDefinedArgument(design$alpha0Vec)) {
+			return(invisible())
+		}
+	} else {
+		if (.isDefinedArgument(design$futilityBounds)) {
+			return(invisible())
+		}
+	}
+	
+	.validateUserAlphaSpendingLength(design)
+	
+	.setKMax(design, kMax = length(design$userAlphaSpending))
+}
 
 # This function generates the piecewise exponential survival function or (if kappa != 1) a Weibull cdf 
 .getPiecewiseExponentialDistributionSingleTime <- function(
@@ -146,7 +538,8 @@ NULL
 		piecewiseLambda = NA_real_, kappa = 1) {
 	
 	if (!all(is.na(piecewiseLambda)) && is.list(piecewiseSurvivalTime)) {
-		stop("'piecewiseSurvivalTime' needs to be a numeric vector and not a list ", 
+		stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+			"'piecewiseSurvivalTime' needs to be a numeric vector and not a list ", 
 			"because 'piecewiseLambda' (", piecewiseLambda, ") is defined separately")
 	}
 	
@@ -183,19 +576,10 @@ NULL
 #' @param n Number of observations.
 #' @param s,piecewiseSurvivalTime Vector of start times defining the "time pieces".
 #' @param lambda,piecewiseLambda Vector of lambda values (hazard rates) corresponding to the start times.
-#' @param kappa The kappa value. Is needed for the specification of the Weibull distribution. 
-#'        In this case, no piecewise definition is possible, i.e., 
-#'        only lambda and kappa need to be specified.
-#'        This function is equivalent to pweibull(t, kappa, 1 / lambda) of the R core system, i.e., 
-#'        the scale parameter is 1 / 'hazard rate'.
-#'        For example, getPiecewiseExponentialDistribution(time = 130, 
-#'        piecewiseLambda = 0.01, kappa = 4.2) and 
-#'        pweibull(q = 130, shape = 4.2, scale = 1 /0.01) provide the sample result. 
-#' @param ... Ensures that all arguments after \code{time} are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @inheritParams param_kappa
+#' @inheritParams param_three_dots
 #' 
 #' @details
-#' 
 #' \code{getPiecewiseExponentialDistribution} (short: \code{ppwexp}), 
 #' \code{getPiecewiseExponentialQuantile} (short: \code{qpwexp}), and 
 #' \code{getPiecewiseExponentialRandomNumbers} (short: \code{rpwexp}) provide 
@@ -205,8 +589,7 @@ NULL
 #' starting times (\code{piecewiseSurvivalTime}) and a vector of hazard rates (\code{piecewiseLambda}).
 #' You can also use a list that defines the starting times and piecewise 
 #' lambdas together and define piecewiseSurvivalTime as this list.
-#' The list needs to have the form, for example, 
-#' piecewiseSurvivalTime <- list(
+#' The list needs to have the form, e.g., #' piecewiseSurvivalTime <- list(
 #'     "0 - <6"   = 0.025, 
 #'     "6 - <9"   = 0.04, 
 #'     "9 - <15"  = 0.015, 
@@ -216,8 +599,9 @@ NULL
 #' In this case, no piecewise definition is possible, i.e., only piecewiseLambda and 
 #' kappa need to be specified. 
 #' 
-#' @examples
+#' @return Returns a \code{\link[base]{numeric}} value or vector will be returned.
 #' 
+#' @examples
 #' # Calculate probabilties for a range of time values for a 
 #' # piecewise exponential distribution with hazard rates 
 #' # 0.025, 0.04, 0.015, and 0.007 in the intervals 
@@ -313,10 +697,7 @@ getPiecewiseExponentialRandomNumbers <- function(n, ...,
 		
 	.warnInCaseOfUnknownArguments(functionName = "getPiecewiseExponentialRandomNumbers", ...)
 	.assertIsSingleInteger(n, "n", validateType = FALSE)
-	if (n <= 0)  {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-				"n needs to be a positive integer.")
-	}
+	.assertIsInClosedInterval(n, "n", lower = 1, upper = NULL)
 	
 	settings <- .getPiecewiseExponentialSettings(piecewiseSurvivalTime = piecewiseSurvivalTime,
 		piecewiseLambda = piecewiseLambda, kappa = kappa)
@@ -352,15 +733,14 @@ rpwexp <- function(n, ..., s = NA_real_, lambda = NA_real_, kappa = 1) {
 #' Functions to convert pi, lambda and median values into each other. 
 #' 
 #' @param piValue,pi1,pi2,lambda,median Value that shall be converted.
-#' @param eventTime The assumed time under which the event rates 
-#'        are calculated, default is \code{12}.
-#' @param kappa The scale parameter of the Weibull distribution, default is \code{1}. 
-#'        The Weibull distribution cannot be used for the piecewise
-#' 		  definition of the survival time distribution.
+#' @inheritParams param_eventTime
+#' @inheritParams param_kappa
 #' 
 #' @details
 #' Can be used, e.g., to convert median values into pi or lambda values for usage in
 #' \code{\link{getSampleSizeSurvival}} or \code{\link{getPowerSurvival}}.
+#' 
+#' @return Returns a \code{\link[base]{numeric}} value or vector will be returned.
 #' 
 #' @name utilitiesForSurvivalTrials
 #' 
@@ -368,12 +748,14 @@ NULL
 
 #' @rdname utilitiesForSurvivalTrials
 #' @export
-getLambdaByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) {
+getLambdaByPi <- function(piValue, 
+		eventTime = 12L, # C_EVENT_TIME_DEFAULT
+		kappa = 1) {
 	.assertIsValidPi(piValue, "pi")
 	.assertIsValidKappa(kappa)
 	for (value in piValue) {
-		if (value > 1 - 1e-15 && value < 1 + 1e-15) {
-			stop("'pi' must be != 1")
+		if (value > 1 - 1e-16 && value < 1 + 1e-16) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'pi' must be != 1")
 		}
 	}
 	return((-log(1 - piValue))^(1 / kappa) / eventTime)
@@ -388,7 +770,9 @@ getLambdaByMedian <- function(median, kappa = 1) {
 
 #' @rdname utilitiesForSurvivalTrials
 #' @export
-getHazardRatioByPi <- function(pi1, pi2, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) {
+getHazardRatioByPi <- function(pi1, pi2, 
+		eventTime = 12L, # C_EVENT_TIME_DEFAULT 
+		kappa = 1) {
 	.assertIsValidPi(pi1, "pi1")
 	.assertIsValidPi(pi2, "pi2")
 	.assertIsValidKappa(kappa)
@@ -397,16 +781,25 @@ getHazardRatioByPi <- function(pi1, pi2, eventTime = C_EVENT_TIME_DEFAULT, kappa
 
 #' @rdname utilitiesForSurvivalTrials
 #' @export
-getPiByLambda <- function(lambda, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) {
+getPiByLambda <- function(lambda, 
+		eventTime = 12L, # C_EVENT_TIME_DEFAULT 
+		kappa = 1) {
 	.assertIsValidLambda(lambda)
 	.assertIsValidKappa(kappa)
-	return(1 - exp(-(lambda * eventTime)^kappa))
+	x <- exp(-(lambda * eventTime)^kappa)
+	if (any(x < 1e-15)) {
+		warning("Calculation of pi (1) by lambda (", .arrayToString(round(lambda, 4)), 
+			") results in a possible loss of precision because pi = 1 was returned but pi is not exactly 1", call. = FALSE)
+	}
+	return(1 - x)
 }
 
 # alternative: return(1 - exp(-(log(2)^(1 / kappa) / median * eventTime)^kappa))
 #' @rdname utilitiesForSurvivalTrials
 #' @export
-getPiByMedian <- function(median, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) {
+getPiByMedian <- function(median, 
+		eventTime = 12L, # C_EVENT_TIME_DEFAULT 
+		kappa = 1) {
 	.assertIsValidKappa(kappa)
 	return(1 - 2^(-(eventTime / median)^kappa))
 }
@@ -421,10 +814,32 @@ getMedianByLambda <- function(lambda, kappa = 1) {
 
 #' @rdname utilitiesForSurvivalTrials
 #' @export
-getMedianByPi <- function(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1) {
+getMedianByPi <- function(piValue, 
+		eventTime = 12L, # C_EVENT_TIME_DEFAULT 
+		kappa = 1) {
 	.assertIsValidPi(piValue, "piValue")
 	getMedianByLambda(getLambdaByPi(piValue, eventTime, kappa), kappa)
 }
 
+.convertStageWiseToOverallValuesInner <- function(valuesPerStage) {
+	eventsOverStages <- matrix(valuesPerStage, nrow = nrow(as.matrix(valuesPerStage)))
+	eventsOverStages[is.na(eventsOverStages)] <- 0
+	for (i in 1:ncol(as.matrix(valuesPerStage))) {
+		eventsOverStages[, i] <- cumsum(eventsOverStages[, i])	
+	}
+	return(eventsOverStages)
+}
+
+.convertStageWiseToOverallValues <- function(valuesPerStage) {
+	if (is.array(valuesPerStage) && length(dim(valuesPerStage)) == 3) {
+		eventsOverStages <- array(dim = dim(valuesPerStage))
+		for (g in 1:dim(valuesPerStage)[3]) {
+			eventsOverStages[, , g] <- .convertStageWiseToOverallValuesInner(valuesPerStage[, , g])
+		}
+		return(eventsOverStages)
+	}
+	
+	return(.convertStageWiseToOverallValuesInner(valuesPerStage))
+}
 
 

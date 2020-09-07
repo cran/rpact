@@ -1,26 +1,45 @@
-######################################################################################
-#                                                                                    #
-# -- Unit tests --                                                                   #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    #
-# File version: 1.0.0                                                                #
-# Date: 06 November 2019, 17:12:24                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#  
+#:#  *Unit tests*
+#:#  
+#:#  This file is part of the R package rpact:
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:#  
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:#  
+#:#  RPACT company website: https://www.rpact.com
+#:#  RPACT package website: https://www.rpact.org
+#:#  
+#:#  Contact us for information about our services: info@rpact.com
+#:#  
+#:#  File name: test-f_core_utilities.R
+#:#  Creation date: 05 September 2020, 14:47:53
+#:#  File version: $Revision: 3596 $
+#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:#  
+
+context("Testing result object print output")
+
+
+test_that("The output does not contain any issues", {
+	expect_equal(sum(grepl("ISSUES", capture.output(getDesignGroupSequential()$show()))), 0)
+	expect_equal(sum(grepl("ISSUES", capture.output(getDesignInverseNormal(kMax = 4)$show()))), 0)
+	expect_equal(sum(grepl("ISSUES", capture.output(getDesignFisher()$show()))), 0)
+
+	expect_equal(sum(grepl("ISSUES", capture.output(getSampleSizeMeans(getDesignGroupSequential())$show()))), 0)
+	expect_equal(sum(grepl("ISSUES", capture.output(getSampleSizeRates()$show()))), 0)
+	expect_equal(sum(grepl("ISSUES", capture.output(getSampleSizeSurvival(getDesignInverseNormal(kMax = 2))$show()))), 0)
+
+})
 
 context("Testing core utility functions")
 
 
 test_that("'getValidatedInformationRates': 'informationRates' must be generated correctly based on specified 'kMax'", {
+	.skipTestIfDisabled()
+
 	design1 <- getTestDesign(kMax = 1L, designClass = "TrialDesignGroupSequential")
 	expect_equal(.getValidatedInformationRates(design1), 1, tolerance = 1e-08)
 
@@ -81,6 +100,8 @@ test_that("'getValidatedInformationRates': 'informationRates' must be generated 
 })
 
 test_that("'getValidatedInformationRates': 'informationRates' must be set correctly based on specified 'informationRates'", {
+
+	.skipTestIfDisabled()
 
 	design19 <- getTestDesign(informationRates = 1, designClass = "TrialDesignGroupSequential")
 	expect_equal(.getValidatedInformationRates(design19), 1, tolerance = 1e-07)
@@ -169,19 +190,19 @@ test_that("'getValidatedInformationRates': 'informationRates' must be set correc
 	design46 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
 	expect_equal(.getValidatedInformationRates(design46), c(0.16666667, 0.33333333, 0.5, 0.66666667, 0.83333333, 1), tolerance = 1e-07)
 
-	design47 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignFisher")
+	design47 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
 	expect_equal(.getValidatedInformationRates(design47), c(0.5, 1), tolerance = 1e-07)
 
-	design48 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignFisher")
+	design48 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(.getValidatedInformationRates(design48), c(0.33333333, 0.66666667, 1), tolerance = 1e-07)
 
-	design49 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignFisher")
+	design49 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(.getValidatedInformationRates(design49), c(0.25, 0.5, 0.75, 1), tolerance = 1e-07)
 
-	design50 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignFisher")
+	design50 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(.getValidatedInformationRates(design50), c(0.2, 0.4, 0.6, 0.8, 1), tolerance = 1e-07)
 
-	design51 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignFisher")
+	design51 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(.getValidatedInformationRates(design51), c(0.16666667, 0.33333333, 0.5, 0.66666667, 0.83333333, 1), tolerance = 1e-07)
 
 
@@ -191,139 +212,108 @@ test_that("'getValidatedInformationRates': 'informationRates' must be set correc
 
 test_that("'getValidatedInformationRates': 'kMax' must be set correctly based on specified 'informationRates'", {
 
+	.skipTestIfDisabled()
+
 	design52 <- getTestDesign(informationRates = 1, designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design52)
 	expect_equal(design52$kMax, 1, tolerance = 1e-07)
 
 	design53 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design53)
 	expect_equal(design53$kMax, 2, tolerance = 1e-07)
 
 	design54 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design54)
 	expect_equal(design54$kMax, 3, tolerance = 1e-07)
 
 	design55 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design55)
 	expect_equal(design55$kMax, 4, tolerance = 1e-07)
 
 	design56 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design56)
 	expect_equal(design56$kMax, 5, tolerance = 1e-07)
 
 	design57 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design57)
 	expect_equal(design57$kMax, 6, tolerance = 1e-07)
 
 	design58 <- getTestDesign(informationRates = 1, designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design58)
 	expect_equal(design58$kMax, 1, tolerance = 1e-07)
 
 	design59 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design59)
 	expect_equal(design59$kMax, 2, tolerance = 1e-07)
 
 	design60 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design60)
 	expect_equal(design60$kMax, 3, tolerance = 1e-07)
 
 	design61 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design61)
 	expect_equal(design61$kMax, 4, tolerance = 1e-07)
 
 	design62 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design62)
 	expect_equal(design62$kMax, 5, tolerance = 1e-07)
 
 	design63 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design63)
 	expect_equal(design63$kMax, 6, tolerance = 1e-07)
 
 	design64 <- getTestDesign(informationRates = 1, designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design64)
 	expect_equal(design64$kMax, 1, tolerance = 1e-07)
 
 	design65 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design65)
 	expect_equal(design65$kMax, 2, tolerance = 1e-07)
 
 	design66 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design66)
 	expect_equal(design66$kMax, 3, tolerance = 1e-07)
 
 	design67 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design67)
 	expect_equal(design67$kMax, 4, tolerance = 1e-07)
 
 	design68 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design68)
 	expect_equal(design68$kMax, 5, tolerance = 1e-07)
 
 	design69 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design69)
 	expect_equal(design69$kMax, 6, tolerance = 1e-07)
 
 
 
 
 	design70 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design70)
 	expect_equal(design70$kMax, 2, tolerance = 1e-07)
 
 	design71 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design71)
 	expect_equal(design71$kMax, 3, tolerance = 1e-07)
 
 	design72 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design72)
 	expect_equal(design72$kMax, 4, tolerance = 1e-07)
 
 	design73 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design73)
 	expect_equal(design73$kMax, 5, tolerance = 1e-07)
 
 	design74 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedInformationRates(design74)
 	expect_equal(design74$kMax, 6, tolerance = 1e-07)
 
 	design75 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design75)
 	expect_equal(design75$kMax, 2, tolerance = 1e-07)
 
 	design76 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design76)
 	expect_equal(design76$kMax, 3, tolerance = 1e-07)
 
 	design77 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design77)
 	expect_equal(design77$kMax, 4, tolerance = 1e-07)
 
 	design78 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design78)
 	expect_equal(design78$kMax, 5, tolerance = 1e-07)
 
 	design79 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedInformationRates(design79)
 	expect_equal(design79$kMax, 6, tolerance = 1e-07)
 
-	design80 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design80)
+	design80 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
 	expect_equal(design80$kMax, 2, tolerance = 1e-07)
 
-	design81 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design81)
+	design81 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(design81$kMax, 3, tolerance = 1e-07)
 
-	design82 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design82)
+	design82 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(design82$kMax, 4, tolerance = 1e-07)
 
-	design83 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design83)
+	design83 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(design83$kMax, 5, tolerance = 1e-07)
 
-	design84 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignFisher")
-	.getValidatedInformationRates(design84)
+	design84 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	expect_equal(design84$kMax, 6, tolerance = 1e-07)
 
 
@@ -332,6 +322,8 @@ test_that("'getValidatedInformationRates': 'kMax' must be set correctly based on
 })
 
 test_that("'getValidatedInformationRates': 'futilityBounds' must be generated correctly based on specified 'kMax'", {
+
+	.skipTestIfDisabled()
 
 	design85 <- getTestDesign(kMax = 1L, designClass = "TrialDesignGroupSequential")
 	expect_equal(.getValidatedFutilityBounds(design85), numeric(0), tolerance = 1e-08)
@@ -420,6 +412,8 @@ test_that("'getValidatedInformationRates': 'futilityBounds' must be generated co
 
 test_that("'getValidatedInformationRates': 'futilityBounds' must be set correctly based on specified 'futilityBounds'", {
 
+	.skipTestIfDisabled()
+
 	design111 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignGroupSequential")
 	expect_equal(.getValidatedFutilityBounds(design111), 2, tolerance = 1e-07)
 
@@ -477,20 +471,20 @@ test_that("'getValidatedInformationRates': 'futilityBounds' must be set correctl
 
 
 
-	design129 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design129), 2, tolerance = 1e-07)
+	design129 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design129), 0.5, tolerance = 1e-07)
 
-	design130 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design130), c(1, 2), tolerance = 1e-07)
+	design130 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design130), c(0.5, 1), tolerance = 1e-07)
 
-	design131 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design131), c(0, 1, 2), tolerance = 1e-07)
+	design131 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design131), c(0.01, 0.5, 1), tolerance = 1e-07)
 
-	design132 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design132), c(0, 0, 1, 2), tolerance = 1e-07)
+	design132 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design132), c(0.01, 0.01, 0.5, 1), tolerance = 1e-07)
 
-	design133 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design133), c(0, 0, 0, 1, 2), tolerance = 1e-07)
+	design133 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design133), c(0.01, 0.01, 0.01, 0.5, 1), tolerance = 1e-07)
 
 
 
@@ -572,6 +566,8 @@ test_that("'getValidatedInformationRates': 'futilityBounds' must be set correctl
 
 test_that("'getValidatedInformationRates': 'kMax' must be set correctly based on specified 'futilityBounds'", {
 
+	.skipTestIfDisabled()
+
 	design157 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignGroupSequential")
 	.getValidatedFutilityBounds(design157)
 	expect_equal(design157$kMax, 2, tolerance = 1e-07)
@@ -647,23 +643,23 @@ test_that("'getValidatedInformationRates': 'kMax' must be set correctly based on
 
 
 
-	design175 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignFisher")
+	design175 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
 	.getValidatedAlpha0Vec(design175)
 	expect_equal(design175$kMax, 2, tolerance = 1e-07)
 
-	design176 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignFisher")
+	design176 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
 	.getValidatedAlpha0Vec(design176)
 	expect_equal(design176$kMax, 3, tolerance = 1e-07)
 
-	design177 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignFisher")
+	design177 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	.getValidatedAlpha0Vec(design177)
 	expect_equal(design177$kMax, 4, tolerance = 1e-07)
 
-	design178 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignFisher")
+	design178 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	.getValidatedAlpha0Vec(design178)
 	expect_equal(design178$kMax, 5, tolerance = 1e-07)
 
-	design179 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignFisher")
+	design179 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
 	.getValidatedAlpha0Vec(design179)
 	expect_equal(design179$kMax, 6, tolerance = 1e-07)
 
@@ -824,7 +820,8 @@ test_that("Testing 'isUndefinedArgument' and 'isValidArgument'", {
 	expect_error(.isDefinedArgument(notExistingTestVariable, argumentExistsValidationEnabled = FALSE),
 		"object 'notExistingTestVariable' not found", fixed = TRUE)
 	expect_error(.isDefinedArgument(notExistingTestVariable),
-		"Missing argument: the object 'notExistingTestVariable' has not been defined anywhere. Please define it first, e.g., run 'notExistingTestVariable <- 1'", fixed = TRUE)
+		paste0("Missing argument: the object 'notExistingTestVariable' has not been defined anywhere. ",
+		"Please define it first, e.g., run 'notExistingTestVariable <- 1'"), fixed = TRUE)
 
 })
 
@@ -908,10 +905,12 @@ test_that("Testing '.getInputProducingZeroOutput'", {
 
 test_that("Testing '.getOneDimensionalRoot'", {
 
+	.skipTestIfDisabled()
+
 	tolerance <- 1e-08	
 
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
+	expect_warning(expect_equal(.getOneDimensionalRoot(f = function(x) {x - 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_))
+	expect_warning(expect_equal(.getOneDimensionalRoot(f = function(x) {x + 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_))
 
 	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 1 - tolerance}, lower = -1, upper = 1, tolerance = tolerance), 1)
 	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 1 + tolerance}, lower = -1, upper = 1, tolerance = tolerance), -1)
@@ -940,9 +939,7 @@ test_that("Testing '.getOneDimensionalRoot'", {
 	design1 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, typeOfDesign = "WT", deltaWT = 0.25)
 	result1 <- getRepeatedConfidenceIntervals(design1, dataExample1, stage = 3) 
 
-	##
-	## Comparison of the results of matrix object 'result1' with expected results
-	##
+	## Comparison of the results of matrixarray object 'result1' with expected results
 	expect_equal(result1[1, ], c(0.54923831, 0.77922365, 1.0261298), tolerance = 1e-07)
 	expect_equal(result1[2, ], c(3.7041718, 2.7014099, 2.5669073), tolerance = 1e-07)
 
@@ -956,9 +953,7 @@ test_that("Testing '.getOneDimensionalRoot'", {
 	result2 <- getRepeatedConfidenceIntervals(design = design2, dataInput = dataExample2, 
 		stage = 3, normalApproximation = T, directionUpper = TRUE)
 
-	##
-	## Comparison of the results of matrix object 'result2' with expected results
-	##
+	## Comparison of the results of matrixarray object 'result2' with expected results
 	expect_equal(result2[1, ], c(-0.17491836, -0.048575353, 0.018957992), tolerance = 1e-07)
 	expect_equal(result2[2, ], c(0.41834422, 0.29168781, 0.31353692), tolerance = 1e-07)
 
@@ -972,9 +967,7 @@ test_that("Testing '.getOneDimensionalRoot'", {
 	) 
 	result3 <- getRepeatedConfidenceIntervals(design3, dataExample3)
 
-	##
-	## Comparison of the results of matrix object 'result3' with expected results
-	##
+	## Comparison of the results of matrixarray object 'result3' with expected results
 	expect_equal(result3[1, ], c(-0.26729325, -0.071745801), tolerance = 1e-07)
 	expect_equal(result3[2, ], c(0.26729325, 0.071745801), tolerance = 1e-07)
 
@@ -987,9 +980,7 @@ test_that("Testing '.getOneDimensionalRoot'", {
 		n2 = c(30,300))
 	result4 <- getRepeatedConfidenceIntervals(design4, dataExample4)
 
-	##
-	## Comparison of the results of matrix object 'result4' with expected results
-	##
+	## Comparison of the results of matrixarray object 'result4' with expected results
 	expect_equal(result4[1, ], c(-0.23589449, -0.043528513), tolerance = 1e-07)
 	expect_equal(result4[2, ], c(0.23589449, 0.088471324), tolerance = 1e-07)
 

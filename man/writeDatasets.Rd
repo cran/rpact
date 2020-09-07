@@ -63,6 +63,25 @@ Writes a list of datasets to a CSV file.
 \details{
 The format of the CSV file is optimized for usage of \code{\link{readDatasets}}.
 }
+\examples{
+\dontrun{
+d1 <- getDataset(
+    n1 = c(11, 13, 12, 13),
+    n2 = c(8, 10, 9, 11),
+    events1 = c(10, 10, 12, 12),
+    events2 = c(3, 5, 5, 6)
+)
+d2 <- getDataset(
+    n1 = c(9, 13, 12, 13),
+    n2 = c(6, 10, 9, 11),
+    events1 = c(10, 10, 12, 12),
+    events2 = c(4, 5, 5, 6)
+)
+datasets <- list(d1, d2)
+writeDatasets(datasets, "datasets_rates.csv")
+}
+
+}
 \seealso{
 \itemize{
   \item \code{\link{writeDataset}} for writing a single dataset,

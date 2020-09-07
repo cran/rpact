@@ -16,13 +16,19 @@ testPackage(
 \item{outDir}{The output directory where all test results shall be saved.
 By default the current working directory is used.}
 
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
+
 \item{completeUnitTestSetEnabled}{If \code{TRUE} (default) all existing unit tests will
 be executed; a subset of all unit tests will be used otherwise.}
 
 \item{types}{The type(s) of tests to be done. Can be one or more of
-\code{c("tests", "examples", "vignettes")}. Default is "tests" only.}
+\code{c("tests", "examples", "vignettes")}, default is "tests" only.}
 
 \item{sourceDirectory}{An optional directory to look for \code{.save} files.}
+}
+\value{
+The value of \code{completeUnitTestSetEnabled} will be returned invisible.
 }
 \description{
 This function allows the installed package \code{rpact} to be tested.
@@ -37,10 +43,8 @@ The test results will be saved to the text file \code{testthat.Rout} that can be
 in the subdirectory \code{rpact-tests}.
 }
 \examples{
-
 \dontrun{
 testPackage()
 }
 
 }
-\keyword{internal}

@@ -44,13 +44,21 @@ or an empty string. Use "" to turn off the interpretation of comments altogether
 See the 'Encoding' section of the help for file, the 'R Data Import/Export Manual' and 'Note'.}
 }
 \value{
-Returns a list of \code{\link{Dataset}} objects.
+Returns a \code{\link[base]{list}} of \code{\link{Dataset}} objects.
 }
 \description{
 Reads a data file and returns it as a list of dataset objects.
 }
 \details{
 Reads a file that was written by \code{\link{writeDatasets}} before.
+}
+\examples{
+dataFile <- system.file("extdata", "datasets_rates.csv", package = "rpact")
+if (dataFile != "") {
+    datasets <- readDatasets(dataFile)
+    datasets
+}
+
 }
 \seealso{
 \itemize{

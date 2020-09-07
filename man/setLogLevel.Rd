@@ -10,19 +10,32 @@ setLogLevel(
 }
 \arguments{
 \item{logLevel}{The new log level to set. Can be one of
-"PROGRESS", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "DISABLED".}
+"PROGRESS", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "DISABLED". 
+Default is "PROGRESS".}
 }
 \description{
 Sets the \code{rpact} log level.
 }
 \details{
-This function is intended for debugging purposes only.
+This function sets the log level of the \code{rpact} internal log message system.
+By default only calculation progress messages will be shown on the output console,
+particularly \code{\link{getAnalysisResults}} shows this kind of messages.
+The output of this messages can be disabled by setting the log level to \code{"DISABLED"}.
 }
 \examples{
-
 \dontrun{
+# show debug messages
 setLogLevel("DEBUG")
+
+# disable all log messages
+setLogLevel("DISABLED")
 }
 
+}
+\seealso{
+\itemize{
+  \item \code{\link{getLogLevel}} for getting the current log level,
+  \item \code{\link{resetLogLevel}} for resetting the log level to default.
+}
 }
 \keyword{internal}

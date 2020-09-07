@@ -45,6 +45,15 @@ See the 'Encoding' section of the help for file, the 'R Data Import/Export Manua
 }
 \value{
 Returns a \code{\link{Dataset}} object.
+The following generics (R generic functions) are available for this result object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.Dataset]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Reads a data file and returns it as dataset object.
@@ -53,6 +62,36 @@ Reads a data file and returns it as dataset object.
 \code{readDataset} is a wrapper function that uses \code{\link[utils]{read.table}} to read the
 CSV file into a data frame, transfers it from long to wide format with \code{\link[stats]{reshape}} 
 and puts the data to \code{\link{getDataset}}.
+}
+\examples{
+dataFileRates <- system.file("extdata", 
+    "dataset_rates.csv", package = "rpact")
+if (dataFileRates != "") {
+    datasetRates <- readDataset(dataFileRates)
+    datasetRates
+}
+
+dataFileMeansMultiArm <- system.file("extdata", 
+    "dataset_means_multi-arm.csv", package = "rpact")
+if (dataFileMeansMultiArm != "") {
+    datasetMeansMultiArm <- readDataset(dataFileMeansMultiArm)
+    datasetMeansMultiArm
+}
+
+dataFileRatesMultiArm <- system.file("extdata", 
+    "dataset_rates_multi-arm.csv", package = "rpact")
+if (dataFileRatesMultiArm != "") {
+    datasetRatesMultiArm <- readDataset(dataFileRatesMultiArm)
+    datasetRatesMultiArm
+}
+
+dataFileSurvivalMultiArm <- system.file("extdata", 
+    "dataset_survival_multi-arm.csv", package = "rpact")
+if (dataFileSurvivalMultiArm != "") {
+    datasetSurvivalMultiArm <- readDataset(dataFileSurvivalMultiArm)
+    datasetSurvivalMultiArm
+}
+
 }
 \seealso{
 \itemize{

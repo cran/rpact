@@ -6,17 +6,24 @@
 \usage{
 getLogLevel()
 }
+\value{
+Returns a \code{\link[base]{character}} of length 1 specifying the current log level.
+}
 \description{
 Returns the current \code{rpact} log level.
 }
 \details{
-This function is intended for debugging purposes only.
+This function gets the log level of the \code{rpact} internal log message system.
 }
 \examples{
-
-\dontrun{
+# show current log level
 getLogLevel()
-}
 
+}
+\seealso{
+\itemize{
+  \item \code{\link{setLogLevel}} for setting the log level,
+  \item \code{\link{resetLogLevel}} for resetting the log level to default.
+}
 }
 \keyword{internal}

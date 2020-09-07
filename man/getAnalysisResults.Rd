@@ -8,61 +8,95 @@ getAnalysisResults(
   design,
   dataInput,
   ...,
-  directionUpper = C_DIRECTION_UPPER_DEFAULT,
+  directionUpper = TRUE,
   thetaH0 = NA_real_,
-  nPlanned = NA_real_
+  nPlanned = NA_real_,
+  allocationRatioPlanned = 1,
+  stage = NA_integer_
 )
 }
 \arguments{
 \item{design}{The trial design.}
 
 \item{dataInput}{The summary data used for calculating the test results. 
-This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival}.
-For more information see \code{details} below.}
+This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
+and should be created with the function \code{\link{getDataset}}.
+For more information see \code{\link{getDataset}}.}
 
-\item{...}{Further arguments to be passed to methods (cp. separate functions in See Also), e.g.,
+\item{...}{Further arguments to be passed to methods (cf. separate functions in "See Also" below), e.g.,
 \describe{
-  \item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
-  \item{allocationRatioPlanned}{The allocation ratio n1/n2 for two treatment groups planned for 
-      the subsequent stages, the default value is 1.} 
-  \item{thetaH1 and assumedStDev or pi1, pi2}{The assumed effect size or assumed rates to calculate the 
-      conditional power. Depending on the type of dataset, either thetaH1 (means and survival) 
-      or pi1, pi2 (rates) can be specified. Additionally, if testing means is specified, 
-      an assumed standard deviation can be specified, default is 1.}
-  \item{normalApproximation}{The type of computation of the p-values. Default is FALSE for 
-      testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio. 
-      For testing rates, if \cr
-      \code{normalApproximation = FALSE} is specified, the binomial test 
-      (one sample) or the test of Fisher (two samples) is used for calculating the p-values.
-      In the survival setting, \cr
-      \code{normalApproximation = FALSE} has no effect.}  
-  \item{equalVariances}{The type of t test. For testing means in two treatment groups, either 
+  \item{\code{thetaH1} and \code{assumedStDev} or \code{pi1}, \code{pi2}}{The 
+      assumed effect size or assumed rates to calculate the 
+      conditional power. Depending on the type of dataset, either \code{thetaH1} (means and survival) 
+      or \code{pi1}, \code{pi2} (rates) can be specified.
+      For testing means, an assumed standard deviation can be specified, default is \code{1}.}
+  \item{\code{normalApproximation}}{The type of computation of the p-values. Default is \code{FALSE} for 
+      testing means (i.e., the t test is used) and \code{TRUE} for testing rates and the hazard ratio. 
+      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
+      (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
+      In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
+  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
       the t test assuming that the variances are equal or the t test without assuming this, 
-      i.e., the test of Welch-Satterthwaite is calculated, default is \code{equalVariances = TRUE}.}
-  \item{iterations}{Iterations for simulating the power for Fisher's combination test. 
+      i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
+  \item{\code{iterations}}{Iterations for simulating the power for Fisher's combination test. 
       If the power for more than one remaining stages is to be determined for 
-      Fisher's combination test, it is estimated via simulation with specified \cr 
-      \code{iterations}, the default value is 10000.}
-  \item{seed}{Seed for simulating the power for Fisher's combination test. 
+      Fisher's combination test, it is estimated via simulation with specified \cr
+      \code{iterations}, the default is \code{1000}.}
+  \item{\code{seed}}{Seed for simulating the power for Fisher's combination test. 
       See above, default is a random seed.}
+  \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
+      hypotheses in the closed system of hypotheses when testing multiple treatment arms. 
+      Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+      \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
+  \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
+      for testing means. Three options are available: \code{"overallPooled"}, 
+       \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.}
+  \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The 
+      assumed effect size or assumed rates to calculate the conditional power in multi-arm trials.
+      You can specify a value or a vector with elements referring to the treatment arms.}
 }}
 
-\item{directionUpper}{The direction of one-sided testing. 
-Default is \code{directionUpper = TRUE} which means that larger values of the 
-test statistics yield smaller p-values.}
+\item{directionUpper}{Specifies the direction of the alternative, 
+only applicable for one-sided testing; default is \code{TRUE}
+which means that larger values of the test statistics yield smaller p-values.}
 
-\item{thetaH0}{The null hypothesis value, default is 0 for the normal and the binary case, 
-it is 1 for the survival case.      
-For testing a rate in one sample, a value thetaH0 in (0, 1) has to be specified for 
-defining the null hypothesis H0: pi = thetaH0.\cr
-   For non-inferiority designs, this is the non-inferiority bound.}
+\item{thetaH0}{The null hypothesis value, 
+default is \code{0} for the normal and the binary case (testing means and rates, respectively), 
+it is \code{1} for the survival case (testing the hazard ratio).\cr\cr 
+For non-inferiority designs, \code{thetaH0} is the non-inferiority bound.
+That is, in case of (one-sided) testing of
+\itemize{
+  \item \emph{means}: a value \code{!= 0} 
+    (or a value \code{!= 1} for testing the mean ratio) can be specified.
+  \item \emph{rates}: a value \code{!= 0} 
+    (or a value \code{!= 1} for testing the risk ratio \code{pi1 / pi2}) can be specified.
+  \item \emph{survival data}: a bound for testing H0: \code{hazard ratio = thetaH0 != 1} can be specified.
+}
+For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be specified for 
+defining the null hypothesis H0: \code{pi = thetaH0}.}
 
-\item{nPlanned}{The sample size planned for the subsequent stages. 
-It should be a vector with length equal to the remaining stages and is the 
-overall sample size in the two treatment groups if two groups are considered.}
+\item{nPlanned}{The additional (i.e., "new" and not cumulative) sample size planned for each of the subsequent stages. 
+The argument must be a vector with length equal to the number of remaining stages and contain 
+the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
+it should contain the planned number of additional events. 
+For multi-arm designs, it is the per-comparison (combined) sample size.}
+
+\item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
+design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.}
+
+\item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
 }
 \value{
 Returns an \code{\link{AnalysisResults}} object.
+The following generics (R generic functions) are available for this result object:
+\itemize{
+  \item \code{\link[=names.AnalysisResults]{names}} to obtain the field names,
+  \item \code{\link[=print.ParameterSet]{print}} to print the object,
+  \item \code{\link[=summary.AnalysisResults]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.AnalysisResults]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.AnalysisResults]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Calculates and returns the analysis results for the specified design and data.
@@ -72,45 +106,114 @@ Given a design and a dataset, at given stage the function calculates the test re
 (effect sizes, stage-wise test statistics and p-values, overall p-values and test statistics, 
 conditional rejection probability (CRP), conditional power, Repeated Confidence Intervals (RCIs), 
 repeated overall p-values, and final stage p-values, median unbiased effect estimates, 
-and final confidence intervals. \cr
+and final confidence intervals. 
 
-\code{dataInput} is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of 
-\code{DatasetSurvival} and should be created with the function \code{\link{getDataset}}.
-}
-\section{Note}{
-
+For designs with more than two treatments arms (multi-arm designs) a closed combination test is performed.
+That is, additionally the statistics to be used in a closed testing procedure are provided.
+ 
 The conditional power is calculated only if effect size and sample size 
 is specified. Median unbiased effect estimates and confidence intervals are calculated if 
 a group sequential design or an inverse normal combination test design was chosen, i.e., it is not applicable 
 for Fisher's p-value combination test design. 
+For the inverse normal combination test design with more than two stages, a warning informs that the validity 
+of the confidence interval is theoretically shown only if no sample size change was performed.  
 
 A final stage p-value for Fisher's combination test is calculated only if a two-stage design was chosen.
-For Fisher's combination test, the conditional power for more than one remaining stages is estimated via simulation.
+For Fisher's combination test, the conditional power for more than one remaining stages is estimated via simulation.     
+
+Final stage p-values, median unbiased effect estimates, and final confidence intervals are not calculated
+for multi-arm designs.
+}
+\section{How to get help for generic functions}{
+
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+}
+
+\section{Note on the dependency of \code{mnormt}}{
+
+If \code{intersectionTest = "Dunnett"} or the design is a conditional Dunnett design and
+the dataset is a multi-arm dataset, 
+\code{rpact} uses the R package \href{https://cran.r-project.org/package=mnormt}{mnormt}
+to calculate the analysis results.
 }
 
 \examples{
-
 \donttest{
-
-design <- getDesignGroupSequential()
+# Example 1
+# Perform an analysis within a three-stage group sequential design with 
+# O'Brien & Fleming boundaries and one-sample data with a continuous outcome 
+# where H0: mu = 1.2 is to be tested
+ 
+dsnGS <- getDesignGroupSequential()
 dataMeans <- getDataset(
-    n = c(10,10),
+    n = c(30,30),
     means = c(1.96,1.76),
     stDevs = c(1.92,2.01))
-getAnalysisResults(design, dataMeans)
+getAnalysisResults(design = dsnGS, dataInput = dataMeans, thetaH0 = 1.2)
 
+# You can obtain the results when performing an inverse normal combination test 
+# with these data by using the commands
+
+dsnIN <- getDesignInverseNormal()
+getAnalysisResults(design = dsnIN, dataInput = dataMeans, thetaH0 = 1.2)
+
+# Example 2
+# In a four-stage combination test design with O'Brien & Fleming boundaries 
+# at the first stage the second treatment arm was dropped. With the Bonferroni 
+# intersection test, the results together with the CRP, conditional power 
+# (assuming a total of 40 subjects for each comparison and effect sizes 0.5 
+# and 0.8 for treatment arm 1 and 3, respectively, and standard deviation 1.2),
+# and repeated RCIs and p-values of a closed adaptive test procedure are 
+# obtained as follows with the given data (treatment arm 4 refers to the 
+# reference group (displayed with summary and plot commands):
+   
+data <- getDataset(
+    n1 = c(22, 23),
+    n2 = c(21, NA),
+    n3 = c(20, 25),
+    n4 = c(25, 27),
+    means1 = c(1.63, 1.51),
+    means2 = c(1.4, NA),
+    means3 = c(0.91, 0.95),
+    means4 = c(0.83, 0.75),
+    stds1 = c(1.2, 1.4),
+    stds2 = c(1.3, NA),
+    stds3 = c(1.1, 1.14),      
+    stds4 = c(1.02, 1.18))
+
+design <- getDesignInverseNormal(kMax = 4)
+x <- getAnalysisResults(design, dataInput = data, intersectionTest = "Bonferroni", 
+    nPlanned = c(40, 40), thetaH1 = c(0.5, NA, 0.8), assumedStDevs = 1.2)  
+summary(x)
+plot(x, thetaRange = c(0,0.8))
+
+design <- getDesignConditionalDunnett(secondStageConditioning = FALSE)
+y <- getAnalysisResults(design, dataInput = data, 
+    nPlanned = c(40), thetaH1 = c(0.5, NA, 0.8), assumedStDevs = 1.2,  stage = 1)  
+summary(y)
+plot(y, thetaRange = c(0,0.4))
 }
 
 }
 \seealso{
-Alternatively the analysis results can be calculated separately using one of the following functions:
-\itemize{
-  \item \code{\link{getTestActions}},
-  \item \code{\link{getConditionalPower}},
-  \item \code{\link{getConditionalRejectionProbabilities}},
-  \item \code{\link{getRepeatedConfidenceIntervals}},
-  \item \code{\link{getRepeatedPValues}},
-  \item \code{\link{getFinalConfidenceInterval}},
-  \item \code{\link{getFinalPValue}}.
+
+
+Other analysis functions: 
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getConditionalRejectionProbabilities}()},
+\code{\link{getFinalConfidenceInterval}()},
+\code{\link{getFinalPValue}()},
+\code{\link{getRepeatedConfidenceIntervals}()},
+\code{\link{getRepeatedPValues}()},
+\code{\link{getStageResults}()},
+\code{\link{getTestActions}()}
 }
-}
+\concept{analysis functions}

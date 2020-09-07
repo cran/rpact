@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Fisher combination test --                                                      #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 28-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Fisher combination test*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3334 $
+#:#  Last changed: $Date: 2020-06-22 08:39:06 +0200 (Mon, 22 Jun 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 #' @include f_core_constants.R
 #' @include f_core_utilities.R
@@ -420,71 +421,53 @@ NULL
 #' @description
 #' Performs Fisher's combination test and returns critical values for this design.
 #'
-#' @param kMax The maximum number of stages K. K = 1, 2, 3, ..., 6, default is 3.
-#' @param alpha The significance level alpha, default is 0.025.
-#' @param sided Is the alternative one-sided (1) or two-sided (2), default is 1.
-#' @param method "equalAlpha", "fullAlpha", "noInteraction", or "userDefinedAlpha", default is "equalAlpha".
-#' @param userAlphaSpending A vector of levels 0 < alpha_1 < ... < alpha_K < alpha 
-#'        specifying the cumulative Type I error rate.
+#' @inheritParams param_kMax
+#' @inheritParams param_alpha
+#' @inheritParams param_sided
+#' @param method \code{"equalAlpha"}, \code{"fullAlpha"}, \code{"noInteraction"}, or \code{"userDefinedAlpha"}, 
+#' default is \code{"equalAlpha"} (for details, see Wassmer, 1999).
+#' @inheritParams param_userAlphaSpending
 #' @param alpha0Vec Stopping for futility bounds for stage-wise p-values.
-#' @param bindingFutility If \code{bindingFutility = FALSE} is specified the calculation of 
-#'        the critical values is not affected by the futility bounds (default is \code{TRUE}).
-#' @param informationRates Information rates that must be fixed prior to the trial, 
-#'        default is \code{(1 : kMax) / kMax}.
-#' @param tolerance The tolerance, default is 1E-14.
+#' @param bindingFutility If \code{bindingFutility = TRUE} is specified the calculation of 
+#'   the critical values is affected by the futility bounds (default is \code{TRUE}).
+#' @inheritParams param_informationRates
+#' @param tolerance The numerical tolerance, default is \code{1e-14}.
 #' @param iterations The number of simulation iterations, e.g.,
-#'        getDesignFisher(iterations = 100000) checks the validity of the critical values for the default design. 
+#'        \code{getDesignFisher(iterations = 100000)} checks the validity of the critical values for the default design. 
 #'        The default value of \code{iterations} is 0, i.e., no simulation will be executed.
 #' @param seed Seed for simulating the power for Fisher's combination test. See above, default is a random seed.
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @inheritParams param_three_dots
 #' 
 #' @details 
-#' \code{getDesignFisher} calculates the critical values and stage levels for Fisher's combination test as described in Bauer (1989), Bauer and Koehne (1994), 
+#' \code{getDesignFisher} calculates the critical values and stage levels for 
+#' Fisher's combination test as described in Bauer (1989), Bauer and Koehne (1994), 
 #' Bauer and Roehmel (1995), and Wassmer (1999) for equally and unequally sized stages.
-#' 
-#' @return Returns a \code{\link{TrialDesignFisher}} object
-#'
-#' @export
 #' 
 #' @seealso \code{\link{getDesignSet}} for creating a set of designs to compare.
 #' 
-#' @examples
-#' # Run with default values
-#' getDesignFisher() 
+#' @template return_object_trial_design
+#' @template how_to_get_help_for_generics
 #' 
-#' # The output is:
-#' #  
-#' # Design parameters and output of Fisher design:
-#' # User defined parameters: not available
-#' # 
-#' # Derived from user defined parameters: not available
-#' # 
-#' # Default parameters:
-#' #   Method                          : equalAlpha 
-#' #   Maximum number of stages        : 3 
-#' #   Stages                          : 1, 2, 3 
-#' #   Information rates               : 0.333, 0.667, 1.000 
-#' #   Significance level              : 0.0250 
-#' #   Alpha_0                         : 1.0000, 1.0000 
-#' #   Binding futility                : TRUE 
-#' #   Test                            : one-sided 
-#' #   Tolerance                       : 1e-14 
-#' # 
-#' # Output:
-#' #   Cumulative alpha spending       : 0.01231, 0.01962, 0.02500 
-#' #   Critical values                 : 0.0123085, 0.0016636, 0.0002911 
-#' #   Stage levels                    : 0.01231, 0.01231, 0.01231 
-#' #   Scale                           : 1, 1 
-#' #   Non stochastic curtailment      : FALSE 
+#' @family design functions
 #'
+#' @template examples_get_design_Fisher   
+#'
+#' @export
+#' 
 getDesignFisher <- function(...,
-		kMax = NA_integer_, alpha = NA_real_, method = C_FISHER_METHOD_DEFAULT, 
-		userAlphaSpending = NA_real_, alpha0Vec = NA_real_, informationRates = NA_real_, 
-		sided = 1, bindingFutility = NA, 
-		tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, 
-		iterations = 0, seed = NA_real_) {
+		kMax = NA_integer_, 
+		alpha = NA_real_, 
+		method = c("equalAlpha", "fullAlpha", "noInteraction", "userDefinedAlpha"), # C_FISHER_METHOD_DEFAULT
+		userAlphaSpending = NA_real_, 
+		alpha0Vec = NA_real_, 
+		informationRates = NA_real_, 
+		sided = 1,                         # C_SIDED_DEFAULT
+		bindingFutility = NA, 
+		tolerance = 1e-14, 				   # C_ANALYSIS_TOLERANCE_FISHER_DEFAULT
+		iterations = 0L, 
+		seed = NA_real_) {
 	
+	.assertIsValidTolerance(tolerance)
 	.assertIsValidIterationsAndSeed(iterations, seed)
 	.warnInCaseOfUnknownArguments(functionName = "getDesignFisher", ...)
 	
@@ -543,8 +526,10 @@ getDesignFisher <- function(...,
 		kMax = NA_integer_, alpha = NA_real_, method = C_FISHER_METHOD_DEFAULT, 
 		userAlphaSpending = NA_real_, alpha0Vec = NA_real_, informationRates = NA_real_, 
 		sided = 1, bindingFutility = C_BINDING_FUTILITY_FISHER_DEFAULT, 
-		tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, iterations = 0, seed = NA_real_, 
+		tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, iterations = 0L, seed = NA_real_, 
 		userFunctionCallEnabled = FALSE) {
+		
+	method <- .matchArgument(method, C_FISHER_METHOD_DEFAULT)
 	
 	if (.isDefinedArgument(kMax, argumentExistsValidationEnabled = userFunctionCallEnabled)) {
 		.assertIsValidKMax(kMax, kMaxUpperBound = C_KMAX_UPPER_BOUND_FISHER)
@@ -576,15 +561,15 @@ getDesignFisher <- function(...,
 		informationRates = informationRates, 
 		bindingFutility = bindingFutility,
 		tolerance = tolerance,
-		iterations = iterations,
+		iterations = as.integer(iterations),
 		seed = seed
 	)
 	
-	.assertDesignParameterExists(design, "sided", 1)
+	.assertDesignParameterExists(design, "sided", C_SIDED_DEFAULT)
 	.assertIsValidSidedParameter(design$sided)
 	
 	.assertDesignParameterExists(design, "method", C_FISHER_METHOD_DEFAULT)
-	.assertIsCharacter(design$method, "method")
+	.assertIsSingleCharacter(design$method, "method")
 	if (!.isFisherMethod(design$method)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'method' must be one of the following: ", .printFisherMethods())
@@ -691,7 +676,8 @@ getDesignFisher <- function(...,
 						function(k) .getOneDimensionalRoot(function(c) {
 							.getFisherCombinationSize(k, rep(1, k - 1), rep(c, k), 
 								design$scale, cases = cases) - alpha1
-						}, lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance)
+						}, lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
+						callingFunctionInformation = ".getDesignFisher")
 					) 
 				}
 				else if (design$method == C_FISHER_METHOD_FULL_ALPHA) {			 
@@ -712,7 +698,8 @@ getDesignFisher <- function(...,
 						function(c) {
 							.getFisherCombinationSize(design$kMax, rep(1, design$kMax - 1), 
 								rep(c, design$kMax), design$scale, cases = cases) - design$alpha
-						}, lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance
+						}, lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
+						callingFunctionInformation = ".getDesignFisher"
 					)
 				}
 				else if (design$method == C_FISHER_METHOD_NO_INTERACTION) {
@@ -720,7 +707,8 @@ getDesignFisher <- function(...,
 						function(c) {
 							.getFisherCombinationSize(design$kMax, rep(1, design$kMax - 1), 
 								rep(c, design$kMax), design$scale, cases = cases) - design$alpha
-						}, lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance
+						}, lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
+						callingFunctionInformation = ".getDesignFisher"
 					)
 					design$criticalValues[1] <- alpha1
 					for (k in ((kMax - 1): 2)) {
@@ -822,6 +810,8 @@ getDesignFisher <- function(...,
 		# design$bindingFutility <- NA
 		design$.setParameterType("bindingFutility", C_PARAM_NOT_APPLICABLE)
 	}
+	
+	design$.initStages()
 	
 	return(design)
 }

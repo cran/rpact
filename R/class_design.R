@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Trial design classes --                                                         #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 28-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Trial design classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3585 $
+#:#  Last changed: $Date: 2020-09-03 15:27:08 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 
 #' @include f_core_constants.R
@@ -103,6 +104,7 @@ TrialDesign <- setRefClass("TrialDesign",
 			}
 			
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
+			
 			.initStages()
 		},
 		
@@ -118,11 +120,7 @@ TrialDesign <- setRefClass("TrialDesign",
 					digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			}
 			else if (showType == 2) {
-				.cat("Technical summary of the trial design object of class ",
-					methods::classLabel(class(.self)), ":\n\n", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.cat("Design parameters and output of ", .toString(), ":\n\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
@@ -144,10 +142,10 @@ TrialDesign <- setRefClass("TrialDesign",
 				s <- "group sequential design"
 			}
 			else if (.isTrialDesignInverseNormal(.self)) {
-				s <- "inverse normal design"
+				s <- "inverse normal combination test design"
 			}
 			else if (.isTrialDesignFisher(.self)) {
-				s <- "Fisher design"
+				s <- "Fisher's combination test design"
 			}
 			else if (.isTrialDesignConditionalDunnett(.self)) {
 				s <- "conditional Dunnett test design"
@@ -161,8 +159,11 @@ TrialDesign <- setRefClass("TrialDesign",
 				if (kMax == C_KMAX_DEFAULT) {
 					.setParameterType("stages", C_PARAM_DEFAULT_VALUE)
 				} else {
-					.setParameterType("stages", C_PARAM_USER_DEFINED)
+					type <- .getParameterType("kMax")
+					.setParameterType("stages", ifelse(type != C_PARAM_TYPE_UNKNOWN, type, C_PARAM_USER_DEFINED))
 				}
+			} else {
+				.setParameterType("stages", C_PARAM_NOT_APPLICABLE)
 			}
 		},
 		
@@ -170,7 +171,8 @@ TrialDesign <- setRefClass("TrialDesign",
 			parameterType <- callSuper(parameterName = parameterName, 
 				parameterType = parameterType)
 			
-			if (parameterName == "futilityBounds" && !bindingFutility) {
+			if (parameterName == "futilityBounds" && !is.null(bindingFutility) && 
+					length(bindingFutility) == 1 && !is.na(bindingFutility) && !bindingFutility) {
 				.parameterNames$futilityBounds <<- C_PARAMETER_NAMES[["futilityBoundsNonBinding"]]
 			}
 			
@@ -230,6 +232,7 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 			callSuper(.design = design, ...)
 			.parameterNames <<- .getParameterNames(design)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
+			.initStages()
 		},
 		
 		show = function(showType = 1, digits = NA_integer_) {
@@ -240,11 +243,7 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 			'Method for automatically printing trial design characteristics objects'
 			.resetCat()
 			if (showType == 2) {
-				.cat("Technical summary of the design characteristics object of class ",
-					methods::classLabel(class(.self)), ":\n", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.showParametersOfOneGroup(.getGeneratedParameters(), title = .toString(startWithUpperCase = TRUE),
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
@@ -260,6 +259,8 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 				} else {
 					.setParameterType("stages", C_PARAM_USER_DEFINED)
 				}
+			} else {
+				.setParameterType("stages", C_PARAM_NOT_APPLICABLE)
 			}
 		},
 		
@@ -282,13 +283,18 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 #' @description
 #' Returns the \code{TrialDesignCharacteristics} as data frame.
 #' 
-#' @param niceColumnNamesEnabled logical. If \code{TRUE}, nice looking names will be used; 
-#'        syntactic names otherwise (see \code{\link[base]{make.names}}).
-#' @param includeAllParameters logical. If \code{TRUE}, all parameters will be included; 
-#'        a meaningful parameter selection otherwise.
+#' @param x A \code{\link{TrialDesignCharacteristics}} object.
+#' @inheritParams param_niceColumnNamesEnabled
+#' @inheritParams param_includeAllParameters
+#' @inheritParams param_three_dots
 #'
 #' @details 
-#' Each element of the \code{TrialDesignCharacteristics} is converted to a column in the data frame. 
+#' Each element of the \code{\link{TrialDesignCharacteristics}} is converted to a column in the data frame. 
+#' 
+#' @template return_dataframe
+#' 
+#' @examples 
+#' as.data.frame(getDesignCharacteristics(getDesignGroupSequential()))
 #' 
 #' @export
 #' 
@@ -319,9 +325,9 @@ as.data.frame.TrialDesignCharacteristics <- function(x, row.names = NULL,
 #' 
 #' @details
 #' This object should not be created directly; use \code{\link{getDesignFisher}} 
-#' with suitable arguments to create a Fisher design.
+#' with suitable arguments to create a Fisher combination test design.
 #' 
-#' @seealso \code{\link{getDesignFisher}} for creating a Fisher design.
+#' @seealso \code{\link{getDesignFisher}} for creating a Fisher combination test design.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
@@ -341,7 +347,7 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 		nonStochasticCurtailment = "logical",
 		sided = "integer",	
 		simAlpha = "numeric",
-		iterations = "numeric",
+		iterations = "integer",
 		seed = "numeric"
 	),
 	
@@ -351,9 +357,9 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 			alpha0Vec = NA_real_, 
 			scale = NA_real_, 
 			nonStochasticCurtailment = FALSE,
-			sided = as.integer(1), 
+			sided = as.integer(C_SIDED_DEFAULT), 
 			simAlpha = NA_real_, 
-			iterations = 0, 
+			iterations = 0L, 
 			seed = NA_real_,
 			tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT) {
 			callSuper(..., 
@@ -378,9 +384,10 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 				"simAlpha"
 			)))
 			
-			.parameterFormatFunctions$criticalValues <<- "formatFisherCriticalValues"
+			.parameterFormatFunctions$criticalValues <<- ".formatCriticalValuesFisher"
 			
 			.initParameterTypes()
+			.initStages()
 		},
 		
 		hasChanged = function(kMax, alpha, sided, method, informationRates, alpha0Vec, userAlphaSpending, bindingFutility) {
@@ -478,13 +485,13 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 		initialize = function(..., 
 			beta = C_BETA_DEFAULT, 
 			betaSpent = NA_real_,
-			sided = 1L, 
+			sided = C_SIDED_DEFAULT, 
 			futilityBounds = NA_real_,
 			typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN,
-			deltaWT = 0.0,
+			deltaWT = NA_real_,
 			optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT,
-			gammaA = 1.0,
-			gammaB = 1.0,
+			gammaA = NA_real_,
+			gammaB = NA_real_,
 			typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE,
 			userBetaSpending = NA_real_, 
 			power = NA_real_,
@@ -526,10 +533,10 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 				"constantBoundsHP"
 			)))
 			
-			.parameterFormatFunctions$criticalValues <<- "formatGroupSequentialCriticalValues"
+			.parameterFormatFunctions$criticalValues <<- ".formatCriticalValues"
 			
 			.initParameterTypes()
-			
+			.initStages()
 		},
 		
 		.pasteComparisonResult = function(name, newValue, oldValue) {
@@ -568,49 +575,49 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 			if (!identical(alpha, .self$alpha)) return(.pasteComparisonResult("alpha", alpha, .self$alpha))
 			if (!identical(beta, .self$beta)) return(.pasteComparisonResult("beta", beta, .self$beta))
 			if (!identical(sided, .self$sided)) return(.pasteComparisonResult("sided", sided, .self$sided))
-			if (!identical(typeOfDesign, .self$typeOfDesign)) {
-				return(.pasteComparisonResult("typeOfDesign", typeOfDesign, .self$typeOfDesign))
-			}
-			if (typeOfDesign == C_TYPE_OF_DESIGN_WT) {
-				if (!identical(deltaWT, .self$deltaWT)) {
-					return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
+			if (kMax > 1) {
+				if (!identical(typeOfDesign, .self$typeOfDesign)) {
+					return(.pasteComparisonResult("typeOfDesign", typeOfDesign, .self$typeOfDesign))
 				}
-			}
-			if (!identical(informationRatesTemp, .self$informationRates)) {
-				return(.pasteComparisonResult("informationRates", informationRatesTemp, .self$informationRates))
-			}
-			if (!grepl("^as.*", typeOfDesign)) {
-				if (!identical(futilityBoundsTemp, .self$futilityBounds)) {
+				if (typeOfDesign == C_TYPE_OF_DESIGN_WT) {
+					if (!identical(deltaWT, .self$deltaWT)) {
+						return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
+					}
+				}
+				if (!identical(informationRatesTemp, .self$informationRates)) {
+					return(.pasteComparisonResult("informationRates", informationRatesTemp, .self$informationRates))
+				}
+				if (typeBetaSpending == C_TYPE_OF_DESIGN_BS_NONE && !identical(futilityBoundsTemp, .self$futilityBounds)) {
 					return(.pasteComparisonResult("futilityBounds", futilityBoundsTemp, .self$futilityBounds))
 				}
-			}
-			if (!identical(optimizationCriterion, .self$optimizationCriterion)) {
-				return(.pasteComparisonResult("optimizationCriterion", optimizationCriterion, .self$optimizationCriterion))
-			}
-			if (!identical(typeBetaSpending, .self$typeBetaSpending)) {
-				return(.pasteComparisonResult("typeBetaSpending", typeBetaSpending, .self$typeBetaSpending))
-			}
-			if (!identical(gammaA, .self$gammaA)) {
-				return(.pasteComparisonResult("gammaA", gammaA, .self$gammaA))
-			}
-			if (!identical(gammaB, .self$gammaB)) {
-				return(.pasteComparisonResult("gammaB", gammaB, .self$gammaB))
-			}
-			if (any(na.omit(futilityBounds) > -6) && !identical(bindingFutility, .self$bindingFutility)) {
-				return(.pasteComparisonResult("bindingFutility", bindingFutility, .self$bindingFutility))
-			}
-			if (!identical(userAlphaSpending, .self$userAlphaSpending)) {
-				return(.pasteComparisonResult("userAlphaSpending", userAlphaSpending, .self$userAlphaSpending))
-			}
-			if (!identical(userBetaSpending, .self$userBetaSpending)) {
-				return(.pasteComparisonResult("userBetaSpending", userBetaSpending, .self$userBetaSpending))
-			}
-			if (!identical(twoSidedPower, .self$twoSidedPower)) {
-				return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
-			}
-			if (typeOfDesign == C_TYPE_OF_DESIGN_HP) {
-				if (!identical(constantBoundsHP, .self$constantBoundsHP)) {
-					return(.pasteComparisonResult("constantBoundsHP", constantBoundsHP, .self$constantBoundsHP))
+				if (!identical(optimizationCriterion, .self$optimizationCriterion)) {
+					return(.pasteComparisonResult("optimizationCriterion", optimizationCriterion, .self$optimizationCriterion))
+				}
+				if (!identical(typeBetaSpending, .self$typeBetaSpending)) {
+					return(.pasteComparisonResult("typeBetaSpending", typeBetaSpending, .self$typeBetaSpending))
+				}
+				if (!identical(gammaA, .self$gammaA)) {
+					return(.pasteComparisonResult("gammaA", gammaA, .self$gammaA))
+				}
+				if (!identical(gammaB, .self$gammaB)) {
+					return(.pasteComparisonResult("gammaB", gammaB, .self$gammaB))
+				}
+				if (any(na.omit(futilityBounds) > -6) && !identical(bindingFutility, .self$bindingFutility)) {
+					return(.pasteComparisonResult("bindingFutility", bindingFutility, .self$bindingFutility))
+				}
+				if (!identical(userAlphaSpending, .self$userAlphaSpending)) {
+					return(.pasteComparisonResult("userAlphaSpending", userAlphaSpending, .self$userAlphaSpending))
+				}
+				if (!identical(userBetaSpending, .self$userBetaSpending)) {
+					return(.pasteComparisonResult("userBetaSpending", userBetaSpending, .self$userBetaSpending))
+				}
+				if (!identical(twoSidedPower, .self$twoSidedPower)) {
+					return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
+				}
+				if (typeOfDesign == C_TYPE_OF_DESIGN_HP) {
+					if (!identical(constantBoundsHP, .self$constantBoundsHP)) {
+						return(.pasteComparisonResult("constantBoundsHP", constantBoundsHP, .self$constantBoundsHP))
+					}
 				}
 			}
 			return(FALSE)
@@ -677,7 +684,8 @@ TrialDesignGroupSequential <- setRefClass(
 	methods = list(
 		initialize = function(...) {
 			callSuper(...)
-			.parameterFormatFunctions$criticalValues <<- "formatGroupSequentialCriticalValues"
+			.parameterFormatFunctions$criticalValues <<- ".formatCriticalValues"
+			.initStages()
 		},
 		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial design objects'
@@ -708,7 +716,8 @@ TrialDesignGroupSequential <- setRefClass(
 #' 
 #' @importFrom methods new
 #' 
-# @seealso \code{\link{getDesignConditionalDunnett}} for creating a conditional Dunnett test design.
+#' @seealso \code{\link{getDesignConditionalDunnett}} for creating a conditional Dunnett test design.
+
 TrialDesignConditionalDunnett <- setRefClass(
 	C_CLASS_NAME_TRIAL_DESIGN_CONDITIONAL_DUNNETT,	
 	contains = "TrialDesign",
@@ -746,6 +755,8 @@ TrialDesignConditionalDunnett <- setRefClass(
 			
 			kMax <<- 2L
 			sided <<- 1L
+			
+			.initStages()
 		},
 		show = function(showType = 1, digits = NA_integer_) {
 			'Method for automatically printing trial design objects'
@@ -754,9 +765,36 @@ TrialDesignConditionalDunnett <- setRefClass(
 	)
 )
 
-getDesignConditionalDunnett <- function(alpha = C_ALPHA_DEFAULT, 
+#' 
+#' @title 
+#' Get Design Conditional Dunnett Test 
+#' 
+#' @description
+#' Defines the design to perform an analysis with the conditional Dunnett test. 
+#'  
+#' @inheritParams param_alpha
+#' @param informationAtInterim The information to be expected at interim, default is \code{informationAtInterim = 0.5}.   
+#' @param secondStageConditioning The way the second stage p-values are calculated within the closed system of hypotheses.
+#' 		If \code{secondStageConditioning = FALSE} is specified, the unconditional adjusted p-values are used, otherwise 
+#'  	conditional adjusted p-values are calculated, default is \code{secondStageConditioning = TRUE} 
+#'      (for details, see König et al., 2008).
+#'
+#' @details 
+#' For performing the conditional Dunnett test the design must be defined through this function. 
+#' You can define the information fraction and the way of how to compute the second stage 
+#' p-values only in the design definition, and not in the analysis call.\cr 
+#' See \code{\link{getClosedConditionalDunnettTestResults}} for an example and König et al. (2008) and
+#' Wassmer & Brannath (2016), chapter 11 for details of the test procedure.
+#' 
+#' @template return_object_trial_design
+#' @template how_to_get_help_for_generics
+#' 
+#' @family design functions
+#' 
+#' @export
+#'  
+getDesignConditionalDunnett <- function(alpha = 0.025, # C_ALPHA_DEFAULT
 		informationAtInterim = 0.5, secondStageConditioning = TRUE) {
-		
 	.assertIsValidAlpha(alpha)
 	.assertIsNumericVector(informationAtInterim, "informationAtInterim")
 	return(TrialDesignConditionalDunnett(alpha = alpha, 
@@ -782,77 +820,120 @@ getDesignConditionalDunnett <- function(alpha = C_ALPHA_DEFAULT,
 #' @param main The main title.
 #' @param xlab The x-axis label.
 #' @param ylab The y-axis label.
-#' @param palette The palette, default is \code{"Set1"}.
-#' @param theta A vector of theta values.
-#' @param nMax The maximum sample size.
-#' @param plotPointsEnabled If \code{TRUE}, additional points will be plotted.
-#' @param showSource If \code{TRUE}, the parameter names of the object will 
-#'        be printed which were used to create the plot; that may be, e.g., 
-#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
-#' @param legendPosition The position of the legend. 
-#' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
-#' Choose one of the following values to specify the position manually:
-#' \itemize{
-#'   \item \code{-1}: no legend will be shown
-#'   \item \code{NA}: the algorithm tries to find a suitable position
-#'   \item \code{0}: legend position outside plot
-#'   \item \code{1}: legend position left top
-#'   \item \code{2}: legend position left center
-#'   \item \code{3}: legend position left bottom
-#'   \item \code{4}: legend position right top
-#'   \item \code{5}: legend position right center
-#'   \item \code{6}: legend position right bottom
-#' }
+#' @inheritParams param_palette
+#' @inheritParams param_theta
+#' @inheritParams param_nMax
+#' @inheritParams param_plotPointsEnabled
+#' @inheritParams param_showSource
+#' @inheritParams param_legendPosition
+#' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
 #' \itemize{
 #'   \item \code{1}: creates a 'Boundaries' plot
 #'   \item \code{3}: creates a 'Stage Levels' plot
-#'   \item \code{4}: creates a 'Type One Error Spending' plot
+#'   \item \code{4}: creates a 'Error Spending' plot
 #'   \item \code{5}: creates a 'Power and Early Stopping' plot
 #'   \item \code{6}: creates an 'Average Sample Size and Power / Early Stop' plot
 #'   \item \code{7}: creates an 'Power' plot
 #'   \item \code{8}: creates an 'Early Stopping' plot
 #'   \item \code{9}: creates an 'Average Sample Size' plot
+#'   \item \code{"all"}: creates all available plots and returns it as a grid plot or list
 #' }
-#' @param ... Optional \code{ggplot2} arguments.
+#' @inheritParams param_three_dots_plot
 #' 
 #' @details
 #' Generic function to plot a trial design.
 #' 
+#' Note that \code{\link[=param_nMax]{nMax}} is not an argument that it passed to \code{ggplot2}. 
+#' Rather, the underlying calculations (e.g. power for different theta's or average sample size) are based 
+#' on calls to function \code{\link{getPowerAndAverageSampleNumber}} which has argument \code{\link[=param_nMax]{nMax}}. 
+#' I.e. \code{\link[=param_nMax]{nMax}} is not an argument to ggplot2 but to \code{\link{getPowerAndAverageSampleNumber}} 
+#' which is called prior to plotting.
+#' 
 #' @seealso \code{\link{plot.TrialDesignSet}} to compare different designs or design parameters visual.
 #' 
-#' @return 
-#' A \code{ggplot2} object.
+#' @template return_object_ggplot
 #'
-#' @export
-#' 
 #' @examples 
-#' 
+#' \donttest{
 #' design <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
 #'     typeOfDesign = "asKD", gammaA = 2, 
 #'     informationRates = c(0.2, 0.7, 1), 
 #'     typeBetaSpending = "bsOF")
-#' 
 #' if (require(ggplot2)) {
 #'     plot(design) # default: type = 1
 #' }
+#' }
 #' 
-plot.TrialDesign = function(x, y, main = NA_character_,
-		xlab = NA_character_, ylab = NA_character_, type = 1, palette = "Set1",
+#' @export
+#' 
+plot.TrialDesign = function(x, y, ..., main = NA_character_,
+		xlab = NA_character_, ylab = NA_character_, type = 1L, palette = "Set1",
 		theta = seq(-1, 1, 0.01), nMax = NA_integer_, plotPointsEnabled = NA, 
-		legendPosition = NA_integer_, showSource = FALSE, ...) {
+		legendPosition = NA_integer_, showSource = FALSE, 
+		grid = 1) {
 		
 	fCall = match.call(expand.dots = FALSE)
-	designName <- as.character(fCall$x)[1]
+	designName <- deparse(fCall$x)
+	typeNumbers <- .getPlotTypeNumber(type, x)
+	p <- NULL
+	plotList <- list()
+	for (typeNumber in typeNumbers) {
+		p <- .plotTrialDesign(x = x, y = y, main = main,
+			xlab = xlab, ylab = ylab, type = typeNumber, palette = palette,
+			theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled, 
+			legendPosition = legendPosition, showSource = showSource, 
+			designName = designName, ...)
+		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
+		if (length(typeNumbers) > 1) {
+			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
+			plotList[[caption]] <- p
+		}
+	}
+	if (length(typeNumbers) == 1) {
+		return(p)
+	} 
+	
+	return(.createPlotResultObject(plotList, grid))
+}
+
+.plotTrialDesign = function(..., x, y, main,
+		xlab, ylab, type, palette,
+		theta, nMax, plotPointsEnabled, 
+		legendPosition, showSource, designName) {
 		
 	.assertGgplotIsInstalled()
 	
-	if (.isTrialDesignFisher(x) && !(type %in% c(1, 3, 4))) {
+	.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
+	if (any(.isTrialDesignFisher(x)) && !(type %in% c(1, 3, 4))) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"'type' (", type, ") is not allowed; must be 1, 3 or 4")
+			"'type' (", type, ") is not allowed for Fisher designs; must be 1, 3 or 4")
 	}
-		
-	designSet <- TrialDesignSet(design = x, singleDesign = TRUE)
+	
+	.warnInCaseOfUnknownArguments(functionName = "plot", 
+		ignore = c("xlim", "ylim", "companyAnnotationEnabled", "variedParameters"), ...)
+	
+	if ((type < 5 || type > 9) && !identical(theta, seq(-1, 1, 0.01))) {
+		warning("'theta' (", .reconstructSequenceCommand(theta), ") will be ignored for plot type ", type, call. = FALSE)
+	}
+
+	if (!missing(y) && !is.null(y) && length(y) == 1 && inherits(y, "TrialDesign")) {
+		args <- list(...)
+		variedParameters <- args[["variedParameters"]]
+		if (is.null(variedParameters)) {
+			if (.isTrialDesignInverseNormalOrGroupSequential(x) && 
+					.isTrialDesignInverseNormalOrGroupSequential(y) && 
+					x$typeOfDesign != y$typeOfDesign) {
+				variedParameters <- "typeOfDesign"
+			} else {
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"'variedParameters' needs to be specified, e.g., variedParameters = \"typeOfDesign\"")
+			}
+		}
+		designSet <- getDesignSet(designs = c(x, y), variedParameters = variedParameters)
+	} else {
+		designSet <- TrialDesignSet(design = x, singleDesign = TRUE)
+	}
 	
 	.plotTrialDesignSet(x = designSet, y = y, main = main, xlab = xlab, ylab = ylab, type = type,
 		palette = palette, theta = theta, nMax = nMax, 
@@ -869,13 +950,18 @@ plot.TrialDesign = function(x, y, main = NA_character_,
 #' @description
 #' Returns the \code{TrialDesign} as data frame.
 #' 
-#' @param niceColumnNamesEnabled logical. If \code{TRUE}, nice looking names will be used; 
-#'        syntactic names otherwise (see \code{\link[base]{make.names}}).
-#' @param includeAllParameters logical. If \code{TRUE}, all parameters will be included; 
-#'        a meaningful parameter selection otherwise.
+#' @param x A \code{\link{TrialDesign}} object.
+#' @inheritParams param_niceColumnNamesEnabled
+#' @inheritParams param_includeAllParameters
+#' @inheritParams param_three_dots
 #'
 #' @details 
-#' Each element of the \code{TrialDesign} is converted to a column in the data frame. 
+#' Each element of the \code{\link{TrialDesign}} is converted to a column in the data frame. 
+#' 
+#' @template return_dataframe
+#' 
+#' @examples 
+#' as.data.frame(getDesignGroupSequential())
 #' 
 #' @export
 #' 

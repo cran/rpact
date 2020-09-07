@@ -16,7 +16,6 @@ How to cite \code{rpact} and \code{R} in publications.
 This function shows how to cite \code{rpact} and \code{R} (\code{inclusiveR = TRUE}) in publications.
 }
 \examples{
-
 printCitation()
 
 }

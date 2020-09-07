@@ -22,7 +22,8 @@
 \item{y}{Not available for this kind of plot (is only defined to be compatible 
 to the generic plot function).}
 
-\item{...}{Optional \code{ggplot2} arguments.}
+\item{...}{Optional plot arguments. At the moment \code{xlim} and \code{ylim} are implemented 
+for changing x or y axis limits without dropping data observations.}
 
 \item{main}{The main title, default is \code{"Dataset"}.}
 
@@ -36,10 +37,20 @@ to the generic plot function).}
 
 \item{showSource}{If \code{TRUE}, the parameter names of the object will 
 be printed which were used to create the plot; that may be, e.g., 
-useful to check the values or to create own plots with \code{\link[graphics]{plot}}.}
+useful to check the values or to create own plots with the base R \code{plot} function.
+Alternatively \code{showSource} can be defined as one of the following character values: 
+\itemize{
+  \item \code{"commands"}: returns a character vector with plot commands
+  \item \code{"axes"}: returns a list with the axes definitions
+  \item \code{"test"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function does not stop if an error occurs)
+  \item \code{"validate"}: all plot commands will be validated with \code{eval(parse())} and 
+        returned as character vector (function stops if an error occurs)
+}
+Note: no plot object will be returned if \code{showSource} is a character.}
 }
 \value{
-A \code{ggplot2} object.
+Returns a \code{ggplot2} object.
 }
 \description{
 Plots a dataset.
@@ -48,7 +59,6 @@ Plots a dataset.
 Generic function to plot all kinds of datasets.
 }
 \examples{
-
 # Plot a dataset of means
 dataExample <- getDataset(
     n1 = c(22, 11, 22, 11),
@@ -57,8 +67,9 @@ dataExample <- getDataset(
     means2 = c(1.4, 1.5, 3, 2.5),
     stDevs1 = c(1, 2, 2, 1.3),
     stDevs2 = c(1, 2, 2, 1.3))
-
-if (require(ggplot2)) plot(dataExample, main = "Comparison of means")
+\donttest{
+if (require(ggplot2)) plot(dataExample, main = "Comparison of Means")
+}
 
 # Plot a dataset of rates
 dataExample <- getDataset(
@@ -67,7 +78,8 @@ dataExample <- getDataset(
     events1 = c(3, 5, 5, 6),
     events2 = c(8, 10, 12, 12)
 )
-
-if (require(ggplot2)) plot(dataExample, main = "Comparison of rates")
+\donttest{
+if (require(ggplot2)) plot(dataExample, main = "Comparison of Rates")
+}
 
 }

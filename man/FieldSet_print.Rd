@@ -7,8 +7,14 @@
 \usage{
 \method{print}{FieldSet}(x, ...)
 }
+\arguments{
+\item{x}{A \code{\link{FieldSet}} object.}
+
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
+}
 \description{
-\code{print} prints its \code{FieldSet} argument and returns it invisibly (via \code{invisible(x)}).
+\code{print} prints its \code{\link{FieldSet}} argument and returns it invisibly (via \code{invisible(x)}).
 }
 \details{
 Prints the field set.

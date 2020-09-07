@@ -8,7 +8,10 @@
 \method{print}{ParameterSet}(x, ..., markdown = FALSE)
 }
 \arguments{
-\item{x}{The object to print.}
+\item{x}{The \code{\link{ParameterSet}} object to print.}
+
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
 
 \item{markdown}{If \code{TRUE}, the object \code{x} will be printed using markdown syntax; 
 normal representation will be used otherwise (default is \code{FALSE})}

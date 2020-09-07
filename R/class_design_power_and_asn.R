@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Power and average sample number result classes --                               #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Power and average sample number result classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3581 $
+#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 
 #' 
@@ -28,7 +29,7 @@
 #' Class for power and average sample number (ASN) results.
 #' 
 #' @details 
-#' This object can not be created directly; use \code{getPowerAndAverageSampleNumber} 
+#' This object cannot be created directly; use \code{getPowerAndAverageSampleNumber} 
 #' with suitable arguments to create it.
 #' 
 #' @include class_core_parameter_set.R
@@ -74,10 +75,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			'Method for automatically printing a power and average sample size (ASN) result'
 			.resetCat()
 			if (showType == 2) {
-				.cat("Technical summary of the power and average sample size (ASN) object:\n", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.cat("Power and average sample size (ASN):\n\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
@@ -245,10 +243,22 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 #' Coerce Power And Average Sample Number Result to a Data Frame
 #'
 #' @description
-#' Returns the \code{PowerAndAverageSampleNumberResult} as data frame.
+#' Returns the \code{\link{PowerAndAverageSampleNumberResult}} as data frame.
+#' 
+#' @param x A \code{\link{PowerAndAverageSampleNumberResult}} object.
+#' @inheritParams param_niceColumnNamesEnabled
+#' @inheritParams param_includeAllParameters
+#' @inheritParams param_three_dots
 #' 
 #' @details
-#' Coerces the object to a data frame.
+#' Coerces the \code{\link{PowerAndAverageSampleNumberResult}} object to a data frame.
+#' 
+#' @template return_dataframe
+#' 
+#' @examples 
+#' data <- as.data.frame(getPowerAndAverageSampleNumber(getDesignGroupSequential()))
+#' head(data)
+#' dim(data)
 #' 
 #' @export
 #' 

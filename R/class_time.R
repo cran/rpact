@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Time classes --                                                                 #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 19-02-2019                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Time classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3581 $
+#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 C_REGEXP_GREATER_OR_EQUAL <- ">= ?"
 C_REGEXP_SMALLER <- "< ?"
@@ -81,15 +82,21 @@ TimeDefinition <- setRefClass("TimeDefinition",
 		
 		.validateTimePeriod = function(timePeriod, i, n, accrualTimeMode = FALSE) {
 			endOfAccrualIsUndefined = FALSE
-			if (i == 1) {
+			if (i == 1 && (n > 1 || !accrualTimeMode)) {
 				if (!grepl(.getRegexpOr(.getRegexpSmallerThan(), .getRegexpDecimalRangeStart()), 
-					timePeriod, perl = TRUE)) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-						"the name of the first region must have the format ", 
-						"\"<time\" or \"0 - <time\", e.g., \"<5\" or \"0 - <5\"")
+						timePeriod, perl = TRUE)) {
+					if (!accrualTimeMode && n == 1 && !grepl("(0 *- ?)?<?\\?|x|\\.", timePeriod)) {
+						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+							"the name of the first region must have the format ", 
+							"\"<time\" or \"0 - <time\", e.g., \"<5\" or \"0 - <5\"")
+					}
 				}
 				if (grepl(.getRegexpSmallerThan(), timePeriod, perl = TRUE)) {
 					timePeriod <- sub("^ *< *", "0 - <", timePeriod)
+				}
+				if (!accrualTimeMode && n == 1 && !grepl("(0 *- ?)?<?\\?|x|\\.", timePeriod)) {
+					warning("Defined time period \"", timePeriod, "\" will be ignored ", 
+						"because 'piecewiseSurvivalTime' list has only 1 entry", call. = FALSE)
 				}
 			}
 			else if (i == n) {
@@ -139,93 +146,41 @@ TimeDefinition <- setRefClass("TimeDefinition",
 #' @description 
 #' Returns a \code{PiecewiseSurvivalTime} object that contains the all relevant parameters 
 #' of an exponential survival time cumulative distribution function.
+#' Use \code{\link[base]{names}} to obtain the field names.
 #' 
 #' @param piecewiseSurvivalTime A vector that specifies the time intervals for the piecewise 
 #'        definition of the exponential survival time cumulative distribution function (see details). 
-#' @param lambda1 The assumed hazard rate in the treatment group, there is no default.
-#'        lambda1 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details). 	 
-#' @param lambda2 The assumed hazard rate in the reference group, there is no default.
-#'  	  lambda2 can also be used to define piecewise exponentially distributed survival times 
-#'        (see details).
-#' @param median1 The assumed median survival time in the treatment group, there is no default.
-#' @param median2 The assumed median survival time in the reference group, there is no default.
-#' @param pi1 The assumed event rate in the treatment group, default is \code{seq(0.4, 0.6, 0.1)}.
-#' @param pi2 The assumed event rate in the control group, default is 0.2.
-#' @param hazardRatio The vector of hazard ratios under consideration. 
-#'        If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
-#'        not to be specified as it is calculated. 
-#' @param eventTime The assumed time under which the event rates are calculated, default is \code{12}. 
-#' @param kappa The shape parameter of the Weibull distribution, default is \code{1}. 
-#'        The Weibull distribution cannot be used for the piecewise definition of 
-#'        the survival time distribution. 
-#'        Note that the parameters \code{shape} and \code{scale} in \code{\link[stats]{Weibull}} 
-#'        are equivalent to \code{kappa} and \code{1 / lambda}, respectively, in rpact.
+#' @inheritParams param_lambda1 	 
+#' @inheritParams param_lambda2
+#' @inheritParams param_median1
+#' @inheritParams param_median2
+#' @inheritParams param_pi1_survival
+#' @inheritParams param_pi2_survival
+#' @inheritParams param_hazardRatio
+#' @inheritParams param_eventTime 
+#' @inheritParams param_kappa
 #' @param delayedResponseAllowed If \code{TRUE}, delayed response is allowed;
-#'        otherwise it will be validatet that the definition is not delayed, default is \code{FALSE}.
-#' @param ... Ensures that all arguments after \code{piecewiseSurvivalTime} are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#'        otherwise it will be validated that the response is not delayed, default is \code{FALSE}.
+#' @inheritParams param_three_dots
 #' 
-#' @details 
-#' 
-#' \code{piecewiseSurvivalTime} 
-#' The first element of this vector must be equal to \code{0}. \code{piecewiseSurvivalTime} can also 
-#' be a list that combines the definition of the time intervals and hazard rates in the reference group. 
-#' The definition of the survival time in the treatment group is obtained by the specification 
-#' of the hazard ratio (see examples for details).
+#' @template details_piecewise_survival
 #' 
 #' @return Returns a \code{\link{PiecewiseSurvivalTime}} object.
+#' The following generics (R generic functions) are available for this result object:
+#' \itemize{
+#'   \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+#'   \item \code{\link[=print.FieldSet]{print}} to print the object,
+#'   \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+#'   \item \code{\link[=plot.ParameterSet]{plot}} to plot the object,
+#'   \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+#'   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+#' }
+#' @template how_to_get_help_for_generics
+#' 
+#' @template examples_get_piecewise_survival_time 
 #' 
 #' @export
 #' 
-#' @examples 
-#' 
-#' pwst <- getPiecewiseSurvivalTime(lambda2 = 0.5, hazardRatio = 0.8)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(lambda2 = 0.5, lambda1 = 0.4)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(pi2 = 0.5, hazardRatio = 0.8)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(pi2 = 0.5, pi1 = 0.4)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(pi1 = 0.3)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), lambda2 = 0.4)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
-#'     lambda2 = c(0.025, 0.04, 0.015), hazardRatio = 0.8)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
-#'     lambda2 = c(0.025, 0.04, 0.015), 
-#'     lambda1 = c(0.025, 0.04, 0.015) * 0.8)
-#' pwst
-#' 
-#' pwst <- getPiecewiseSurvivalTime(list(
-#'     "0 - <6"   = 0.025, 
-#'     "6 - <9"   = 0.04, 
-#'     "9 - <15"  = 0.015, 
-#'     "15 - <21" = 0.01, 
-#'     ">=21"     = 0.007), hazardRatio = 0.75)
-#' pwst
-#' 
-#' \donttest{
-#' 
-#' # The object created by getPiecewiseSurvivalTime() can be used directly in getSampleSizeSurvival():
-#' getSampleSizeSurvival(piecewiseSurvivalTime = pwst)
-#' 
-#' # The object created by getPiecewiseSurvivalTime() can be used directly in getPowerSurvival():
-#' getPowerSurvival(piecewiseSurvivalTime = pwst, 
-#'     maxNumberOfEvents = 40, maxNumberOfSubjects = 100)
-#' 
-#' }
-#'  
 getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_, 
 		...,
 		lambda1 = NA_real_, 
@@ -235,15 +190,24 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 		pi2 = NA_real_,
 		median1 = NA_real_,
 		median2 = NA_real_,
-		eventTime = C_EVENT_TIME_DEFAULT,
+		eventTime = 12L, # C_EVENT_TIME_DEFAULT
 		kappa = 1,
 		delayedResponseAllowed = FALSE) {
 		
 	.warnInCaseOfUnknownArguments(functionName = "getPiecewiseSurvivalTime", ..., 
-		ignore = c(".pi1Default", ".silent"))
+		ignore = c(".pi1Default", ".lambdaBased", ".silent"))
 	
-	if (inherits(piecewiseSurvivalTime, "PiecewiseSurvivalTime") ||
-			inherits(piecewiseSurvivalTime, "TrialDesignPlanSurvival")) {
+	if (inherits(piecewiseSurvivalTime, "TrialDesignPlanSurvival")) {
+		piecewiseSurvivalTime <- piecewiseSurvivalTime$.piecewiseSurvivalTime
+	}
+	
+	if (inherits(piecewiseSurvivalTime, "PiecewiseSurvivalTime")) {
+		lambdaBased <- .getOptionalArgument(".lambdaBased", ...)
+		if (!is.null(lambdaBased) && isTRUE(lambdaBased) && !piecewiseSurvivalTime$.isLambdaBased()) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'piecewiseSurvivalTime' must be lambda or median based; ",
+				"pi based defintion is not allowed")
+		}
+		
 		.warnInCaseOfUnusedArgument(lambda1, "lambda1", NA_real_, "getPiecewiseSurvivalTime")
 		.warnInCaseOfUnusedArgument(lambda2, "lambda2", NA_real_, "getPiecewiseSurvivalTime")
 		.warnInCaseOfUnusedArgument(hazardRatio, "hazardRatio", NA_real_, "getPiecewiseSurvivalTime")
@@ -251,15 +215,8 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 		.warnInCaseOfUnusedArgument(pi2, "pi2", NA_real_, "getPiecewiseSurvivalTime")
 		.warnInCaseOfUnusedArgument(eventTime, "eventTime", C_EVENT_TIME_DEFAULT, "getPiecewiseSurvivalTime")
 		.warnInCaseOfUnusedArgument(kappa, "kappa", 1, "getPiecewiseSurvivalTime")
-		.warnInCaseOfUnusedArgument(delayedResponseAllowed, "delayedResponseAllowed", FALSE, "getPiecewiseSurvivalTime")
-	}
-	
-	if (inherits(piecewiseSurvivalTime, "PiecewiseSurvivalTime")) {
+		
 		return(piecewiseSurvivalTime)
-	}
-	
-	if (inherits(piecewiseSurvivalTime, "TrialDesignPlanSurvival")) {
-		return(piecewiseSurvivalTime$.piecewiseSurvivalTime)
 	}
 	
 	.assertIsValidLambda(lambda1, 1)
@@ -274,293 +231,58 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 	.assertIsSingleLogical(delayedResponseAllowed, "delayedResponseAllowed")
 	
 	return(PiecewiseSurvivalTime(piecewiseSurvivalTime = piecewiseSurvivalTime, 
-			lambda1 = lambda1, 
-			lambda2 = lambda2,
-			hazardRatio = hazardRatio,
-			pi1 = pi1,
-			pi2 = pi2,
-			median1 = median1,
-			median2 = median2,
-			eventTime = eventTime,
-			kappa = kappa,
-			delayedResponseAllowed = delayedResponseAllowed,
-			...))
+		lambda1 = lambda1, 
+		lambda2 = lambda2,
+		hazardRatio = hazardRatio,
+		pi1 = pi1,
+		pi2 = pi2,
+		median1 = median1,
+		median2 = median2,
+		eventTime = eventTime,
+		kappa = kappa,
+		delayedResponseAllowed = delayedResponseAllowed,
+		...))
 }
 
 #' @title
 #' Get Accrual Time
 #' 
 #' @description 
-#' Returns a \code{AccrualTime} object that contains the accrual time and the accrual intensity.
+#' Returns an \code{AccrualTime} object that contains the accrual time and the accrual intensity.
 #' 
 #' @param accrualTime The assumed accrual time for the study, default is \code{c(0,12)} (see details).
-#' @param accrualIntensity A vector of accrual intensities, default is the relative 
+#' @param accrualIntensity A value or vector of accrual intensities, default is the relative 
 #'        intensity \code{0.1} (see details).
 #' @param maxNumberOfSubjects The maximum number of subjects.
-#' @param ... Ensures that all arguments after \code{accrualTime} are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @inheritParams param_three_dots
 #' 
-#' @details 
+#' @template details_piecewise_accrual 
 #' 
-#' \code{accrualTime} can also be used to define a non-constant accrual over time. 
-#' For this, \code{accrualTime} needs to be a vector that defines the accrual intervals and
-#' \code{accrualIntensity} needs to be specified. The first element of \code{accrualTime} must be equal to 0.\cr 
-#' \code{accrualTime} can also be a list that combines the definition of the accrual time and 
-#' accrual intensity \code{accrualIntensity} (see below and examples for details). 
-#' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are 
-#' the same (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to 
-#' be specified and the end of accrual is calculated.	
+#' @seealso \code{\link{getNumberOfSubjects}} for calculating the number of subjects at given time points. 
 #' 
-#' \code{accrualIntensity} needs to be defined if a vector of \code{accrualTime} is specified.\cr
-#' If the length of \code{accrualTime} and the length of \code{accrualIntensity} are the same 
-#' (i.e., the end of accrual is undefined), \code{maxNumberOfPatients > 0} needs to be specified 
-#' and the end of accrual is calculated.	
-#' In that case, \code{accrualIntensity} is given by the number of subjects per time unit.\cr
-#' If the length of \code{accrualTime} equals the length of \code{accrualIntensity - 1}   
-#' (i.e., the end of accrual is defined), \code{maxNumberOfPatients} is calculated. 
-#' In that case, \code{accrualIntensity} defines the intensity how subjects enter the trial. 
-#' For example, \code{accrualIntensity = c(1,2)} specifies that in the second accrual interval 
-#' the intensity is doubled as compared to the first accrual interval. The actual accrual intensity 
-#' is calculated for the calculated  \code{maxNumberOfPatients}.
-#' 
-#' @return Returns a \code{\link{AccrualTime}} object.
+#' @return Returns an \code{\link{AccrualTime}} object.
+#' The following generics (R generic functions) are available for this result object:
+#' \itemize{
+#'   \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+#'   \item \code{\link[=print.FieldSet]{print}} to print the object,
+#'   \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+#'   \item \code{\link[=plot.ParameterSet]{plot}} to plot the object,
+#'   \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+#'   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+#' }
+#' @template how_to_get_help_for_generics
+#'
+#' @template examples_get_accrual_time
 #' 
 #' @export
-#' 
-#' @examples 
-#' 
-#' \donttest{ 
-#' 
-#' # Case 1
-#' 
-#' # > End of accrual, absolute accrual intensity and `maxNumberOfSubjects` are given, 
-#' # > `followUpTime`** shall be calculated. 
-#' 
-#' ## Example: vector based definition
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), 
-#'     accrualIntensity = c(22, 33), maxNumberOfSubjects = 924) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6"   = 22,
-#'     "6 - <=30" = 33), 
-#'     maxNumberOfSubjects = 924) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-#' 
-#' 
-#' # Case 2
-#' 
-#' # > End of accrual, relative accrual intensity and `maxNumberOfSubjects` are given, 
-#' # > absolute accrual intensity* and `followUpTime`** shall be calculated. 
-#' 
-#' ## Example: vector based definition 
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), 
-#'     accrualIntensity = c(0.22, 0.33), maxNumberOfSubjects = 1000) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6"   = 0.22,
-#'     "6 - <=30" = 0.33), 
-#'     maxNumberOfSubjects = 1000) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-#' 
-#' 
-#' # Case 3
-#' 
-#' # > End of accrual and absolute accrual intensity are given, 
-#' # > `maxNumberOfSubjects`* and `followUpTime`** shall be calculated. 
-#' 
-#' ## Example: vector based definition 
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(22, 33)) 
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6"   = 22,
-#'     "6 - <=30" = 33)) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-#' 
-#' 
-#' # Case 4
-#' 
-#' # > End of accrual, relative accrual intensity and `followUpTime` are given, 
-#' # > absolute accrual intensity** and `maxNumberOfSubjects`** shall be calculated. 
-#' 
-#' ## Example: vector based definition 
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(0.22, 0.33)) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6"   = 0.22,
-#'     "6 - <=30" = 0.33)) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-#' 
-#' 
-#' # Case 5
-#' 
-#' # > `maxNumberOfSubjects` and absolute accrual intensity are given, 
-#' # > absolute accrual intensity*, end of accrual* and `followUpTime`** shall be calculated 
-#' 
-#' ## Example: vector based definition 
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6), 
-#'     accrualIntensity = c(22, 33), maxNumberOfSubjects = 1000) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6" = 22,
-#'     "6"      = 33), 
-#'     maxNumberOfSubjects = 1000) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-#' 
-#' 
-#' # Case 6 (not possible)
-#' 
-#' # > `maxNumberOfSubjects` and relative accrual intensity are given, 
-#' # > absolute accrual intensity[x], end of accrual* and `followUpTime`** shall be calculated 
-#' 
-#' ## Example: vector based definition 
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6), 
-#'     accrualIntensity = c(0.22, 0.33), maxNumberOfSubjects = 1000) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6" = 0.22,
-#'     "6"      = 0.33), 
-#'     maxNumberOfSubjects = 1000) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' # Case 6 is not allowed and therefore an error will be shown:
-#' 
-#' tryCatch({	
-#'     getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2)
-#' }, error = function(e) {
-#'     print(e$message)
-#' })
-#' 
-#' 
-#' # Case 7
-#' 
-#' # > `followUpTime` and absolute accrual intensity are given,  
-#' # > end of accrual** and `maxNumberOfSubjects`** shall be calculated 
-#' 
-#' ## Example: vector based definition 
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(22, 33)) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6" = 22,
-#'     "6"      = 33)) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' getSampleSizeSurvival(accrualTime = accrualTime, 
-#'     pi1 = 0.4, pi2 = 0.2, followUpTime = 6)
-#' 
-#' 
-#' # Case 8 (not possible)
-#' 
-#' # > `followUpTime` and relative accrual intensity are given,  
-#' # > absolute accrual intensity[x], end of accrual and `maxNumberOfSubjects` shall be calculated 
-#' 
-#' ## Example: vector based definition 
-#' 
-#' accrualTime <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(0.22, 0.33)) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: list based definition
-#' 
-#' accrualTime <- getAccrualTime(list(
-#'     "0 - <6" = 0.22,
-#'     "6"      = 0.33)) 
-#' accrualTime
-#' 
-#' 
-#' ## Example: how to use accrual time object
-#' 
-#' # Case 8 is not allowed and therefore an error will be shown:
-#' 
-#' tryCatch({	
-#'     getSampleSizeSurvival(accrualTime = accrualTime, pi1 = 0.4, pi2 = 0.2, followUpTime = 6)
-#' }, error = function(e) {
-#'     print(e$message)
-#' })
-#' 
-#' 
-#' # How to show accrual time details
-#' 
-#' # You can use a sample size or power object as argument for function `getAccrualTime`:
-#' 
-#' sampleSize <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
-#'     lambda2 = 0.05, hazardRatio = 0.8, followUpTime = 6)
-#' sampleSize
-#' accrualTime <- getAccrualTime(sampleSize)
-#' accrualTime
-#' 
-#' }
 #' 
 getAccrualTime <- function(accrualTime = NA_real_, 
 		...,
 		accrualIntensity = NA_real_, 
 		maxNumberOfSubjects = NA_real_) {
 	
-	.warnInCaseOfUnknownArguments(functionName = "getAccrualTime", ..., ignore = "showWarnings")
+	.warnInCaseOfUnknownArguments(functionName = "getAccrualTime", ..., 
+		ignore = c("showWarnings"))
 	
 	if (inherits(accrualTime, "AccrualTime") ||
 			inherits(accrualTime, "TrialDesignPlanSurvival")) {
@@ -579,7 +301,7 @@ getAccrualTime <- function(accrualTime = NA_real_,
 	}
 	
 	.assertIsNumericVector(accrualIntensity, "accrualIntensity", naAllowed = TRUE)
-	.assertIsSingleNumber(maxNumberOfSubjects, "maxNumberOfSubjects", naAllowed = TRUE)
+	.assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects, naAllowed = TRUE)
 	
 	args <- list(...)
 	showWarnings <- args[["showWarnings"]]
@@ -588,9 +310,9 @@ getAccrualTime <- function(accrualTime = NA_real_,
 	}
 	
 	return(AccrualTime(accrualTime = accrualTime, 
-			accrualIntensity = accrualIntensity, 
-			maxNumberOfSubjects = maxNumberOfSubjects, 
-			showWarnings = showWarnings))
+		accrualIntensity = accrualIntensity, 
+		maxNumberOfSubjects = maxNumberOfSubjects, 
+		showWarnings = showWarnings))
 }
 
 #' 
@@ -600,10 +322,10 @@ getAccrualTime <- function(accrualTime = NA_real_,
 #' Piecewise Exponential Survival Time
 #' 
 #' @description 
-#' Class for definition of piecewise survival times.
+#' Class for the definition of piecewise survival times.
 #' 
 #' @details
-#' \code{PiecewiseSurvivalTime} is a class for definition of piecewise survival times.
+#' \code{PiecewiseSurvivalTime} is a class for the definition of piecewise survival times.
 #' 
 #' @include f_core_constants.R
 #' @include class_core_parameter_set.R
@@ -616,6 +338,7 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 	contains = "TimeDefinition",
 	fields = list(
 		.pi1Default = "numeric",
+		.lambdaBased = "logical",
 		.silent = "logical",
 		piecewiseSurvivalTime = "numeric",
 		lambda1 = "numeric",
@@ -663,13 +386,16 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			}
 			
 			.stopInCaseOfConflictingArguments(lambda1, "lambda1", median1, "median1")
-			#.stopInCaseOfConflictingArguments(lambda2, "lambda2", median1, "median1")
-			#.stopInCaseOfConflictingArguments(lambda1, "lambda1", median2, "median2")
 			.stopInCaseOfConflictingArguments(lambda2, "lambda2", median2, "median2")
+
 			.stopInCaseOfConflictingArguments(pi1, "pi1", median1, "median1")
-			#.stopInCaseOfConflictingArguments(pi2, "pi2", median1, "median1")
-			#.stopInCaseOfConflictingArguments(pi1, "pi1", median2, "median2")
+			.stopInCaseOfConflictingArguments(pi1, "pi1", median2, "median2")
+			.stopInCaseOfConflictingArguments(pi1, "pi1", lambda1, "lambda1")
+			.stopInCaseOfConflictingArguments(pi1, "pi1", lambda2, "lambda2")
+			.stopInCaseOfConflictingArguments(pi2, "pi2", median1, "median1")
 			.stopInCaseOfConflictingArguments(pi2, "pi2", median2, "median2")
+			.stopInCaseOfConflictingArguments(pi2, "pi2", lambda1, "lambda1")
+			.stopInCaseOfConflictingArguments(pi2, "pi2", lambda2, "lambda2")
 			
 			if (length(median1) > 0 && !all(is.na(median1))) {
 				.self$lambda1 <<- getLambdaByMedian(median1, kappa = kappa)
@@ -692,6 +418,9 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			args <- list(...)
 			if (!is.null(args[[".pi1Default"]])) {
 				.pi1Default <<- args[[".pi1Default"]]
+			}
+			if (!is.null(args[[".lambdaBased"]])) {
+				.lambdaBased <<- args[[".lambdaBased"]]
 			}
 			if (!is.null(args[[".silent"]])) {
 				.silent <<- args[[".silent"]]
@@ -728,6 +457,18 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				.setParameterType("lambda2", C_PARAM_GENERATED)
 			}
 			
+			if (!is.na(eventTime) && 
+					.getParameterType("pi1") != C_PARAM_USER_DEFINED &&
+					.getParameterType("pi1") != C_PARAM_DEFAULT_VALUE &&
+					.getParameterType("pi2") != C_PARAM_USER_DEFINED &&
+					.getParameterType("pi2") != C_PARAM_DEFAULT_VALUE) {
+				if (.getParameterType("eventTime") == C_PARAM_USER_DEFINED) {
+					warning("'eventTime' (", round(eventTime, 3), ") will be ignored", call. = FALSE)
+				}
+				.setParameterType("eventTime", C_PARAM_NOT_APPLICABLE)
+				eventTime <<- NA_real_
+			}
+			
 			.validateCalculatedArguments()
 		},
 		
@@ -737,7 +478,9 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'lambda1' must be ", 
 						round(getLambdaByMedian(median1, kappa = kappa), 5), ", but is ", round(lambda1, 5))
 				}
-				if (!isTRUE(all.equal(getPiByMedian(median1, eventTime = eventTime, kappa = kappa), pi1, tolerance = 1e-05))) {
+				if (!any(is.na(pi1)) && 
+						!isTRUE(all.equal(getPiByMedian(median1, eventTime = eventTime, kappa = kappa), 
+							pi1, tolerance = 1e-05))) {
 					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'pi1' must be ", 
 						round(getPiByMedian(median1, eventTime = eventTime, kappa = kappa), 5), ", but is ", round(pi1, 5))
 				}
@@ -748,17 +491,51 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'lambda2' must be ", 
 						round(getLambdaByMedian(median2, kappa = kappa), 5), ", but is ", round(lambda2, 5))
 				}
-				if (!isTRUE(all.equal(getPiByMedian(median2, eventTime = eventTime, kappa = kappa), pi2, tolerance = 1e-05))) {
+				if (!is.na(pi2) && 
+						!isTRUE(all.equal(getPiByMedian(median2, eventTime = eventTime, kappa = kappa), 
+							pi2, tolerance = 1e-05))) {
 					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'pi2' must be ", 
 						round(getPiByMedian(median2, eventTime = eventTime, kappa = kappa), 5), ", but is ", round(pi2, 5))
 				}
+			}
+			
+			if (.getParameterType("lambda1") == C_PARAM_USER_DEFINED || 
+					.getParameterType("median1") == C_PARAM_USER_DEFINED ||
+					.getParameterType("lambda2") == C_PARAM_USER_DEFINED || 
+					.getParameterType("median2") == C_PARAM_USER_DEFINED) {
+				if (!any(is.na(pi1))) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'pi1' (", pi1, ") must be NA_real_")
+				}
+				if (.getParameterType("pi1") != C_PARAM_NOT_APPLICABLE) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "parameter type of 'pi1' (", 
+						.getParameterType("pi1") , ") must be C_PARAM_NOT_APPLICABLE")
+				}
+				if (!any(is.na(pi1))) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'pi2' (", pi2, ") must be NA_real_")
+				}
+				if (.getParameterType("pi2") != C_PARAM_NOT_APPLICABLE) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "parameter type of 'pi2' (", 
+						.getParameterType("pi2") , ") must be C_PARAM_NOT_APPLICABLE")
+				}
+				if (!any(is.na(eventTime))) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'eventTime' (", eventTime, ") must be NA_real_")
+				}
+				if (.getParameterType("eventTime") != C_PARAM_NOT_APPLICABLE) {
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "parameter type of 'eventTime' (", 
+						.getParameterType("eventTime") , ") must be C_PARAM_NOT_APPLICABLE")
+				}
+			}
+			
+			if (.getParameterType("hazardRatio") == C_PARAM_TYPE_UNKNOWN) {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "parameter type of 'hazardRatio' (", 
+					hazardRatio, ") must be != C_PARAM_TYPE_UNKNOWN")
 			}
 		},
 		
 		.stopInCaseOfConflictingArguments = function(arg1, argName1, arg2, argName2) {
 			if (length(arg1) > 0 && !all(is.na(arg1)) && length(arg2) > 0 && !all(is.na(arg2))) {
 				stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-					"it is not allowed to specifiy '", argName1, "' (", .arrayToString(arg1), ")", 
+					"it is not allowed to specify '", argName1, "' (", .arrayToString(arg1), ")", 
 					" and '", argName2, "' (", .arrayToString(arg2), ") concurrently")
 			}
 		},
@@ -781,6 +558,7 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 		},
 		
 		.isLambdaBased = function(minNumberOfLambdas = 2) {
+		
 			if (.getParameterType("lambda2") == C_PARAM_USER_DEFINED ||
 					.getParameterType("median2") == C_PARAM_USER_DEFINED) {
 				if (length(lambda2) >= minNumberOfLambdas && !any(is.na(lambda2))) {
@@ -799,11 +577,7 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			'Method for automatically printing piecewise survival time objects'
 			.resetCat()
 			if (showType == 2) {
-				.cat("Technical summary of the piecewise survival time object of class",
-					methods::classLabel(class(.self)), ":\n\n", sep = "", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.cat("Piecewise exponential survival times:\n", sep = "", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
@@ -911,11 +685,15 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				lambda1 <<- pwSurvLambda2 * hazardRatio^(1 / kappa)
 				.setParameterType("lambda1", C_PARAM_GENERATED)
 			} else if (length(hazardRatio) > 1 && delayedResponseAllowed) {
-				warning("Only the first 'hazardRatio' (", hazardRatio[1], 
-					") was used for piecewise survival time definition ",
-					"(use a loop over the function to simulate different hazard ratios)", 
-					call. = FALSE)
-				hazardRatio <<- hazardRatio[1]
+				if (length(hazardRatio) != length(pwSurvLambda2)) {
+					warning("Only the first 'hazardRatio' (", round(hazardRatio[1], 4), 
+						") was used for piecewise survival time definition ",
+						"(use a loop over the function to simulate different hazard ratios)", 
+						call. = FALSE)
+					hazardRatio <<- hazardRatio[1]
+				} else {
+					delayedResponseEnabled <<- TRUE
+				}
 				lambda1 <<- pwSurvLambda2 * hazardRatio^(1 / kappa)
 				.setParameterType("lambda1", C_PARAM_GENERATED)
 			} else {
@@ -931,18 +709,22 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 		
 		.init = function(pwSurvTime) {
 			
-			.logDebug("pwSurvTime %s, %s", pwSurvTime, class(pwSurvTime))
+			.logDebug("pwSurvTime %s, %s", ifelse(is.numeric(pwSurvTime), 
+					.arrayToString(pwSurvTime), pwSurvTime), class(pwSurvTime[1]))
 			.logDebug("lambda1 %s, %s", lambda1, .getParameterType("lambda1"))
 			.logDebug("lambda2 %s, %s", lambda2, .getParameterType("lambda2"))
 			
-			# case 1: lambda1 and lambda2 = NA
+			# case 1: lambda1 and lambda2 = NA or generated
 			if (length(pwSurvTime) == 1 && (is.na(pwSurvTime) || is.numeric(pwSurvTime)) && 
-					#length(lambda1) == 1 && 
 					(all(is.na(lambda1)) || .getParameterType("lambda1") == C_PARAM_GENERATED) && 
 					length(lambda2) == 1 && (is.na(lambda2) || .getParameterType("lambda2") == C_PARAM_GENERATED)
 					) {
 					
 				.logDebug(".init, case 1: lambda1 and lambda2 = NA")
+				
+				if (!is.null(.lambdaBased) && isTRUE(.lambdaBased)) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'lambda1' and 'lambda2' must be specified")
+				}
 					
 				if (!any(is.na(hazardRatio))) {
 					.setParameterType("hazardRatio", C_PARAM_USER_DEFINED)
@@ -953,10 +735,9 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				}
 				
 				if (is.na(pi2)) {
-					if (!is.na(median2)) {
-						.logDebug(".init: calculate pi2 by median2")
-						pi2 <<- getPiByMedian(median2, eventTime, kappa = kappa) 
-						.setParameterType("pi2", C_PARAM_GENERATED)
+					if (!is.na(median2) || !any(is.na(median1))) {
+						.logDebug(".init: set pi2 to 'not applicable'")
+						.setParameterType("pi2", C_PARAM_NOT_APPLICABLE)
 					} else {
 						.logDebug(".init: set pi2 to default")
 						pi2 <<- C_PI_2_DEFAULT
@@ -971,7 +752,6 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 						median2 <<- NA_real_
 					}
 				}
-
 				
 				hazardRatioCalculationEnabled <- TRUE
 				if (all(is.na(pi1))) {
@@ -981,15 +761,55 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 					}
 					
 					if (!any(is.na(median1))) {
-						.logDebug(".init: calculate pi1 by median1")
-						pi1 <<- getPiByMedian(median1, eventTime, kappa = kappa) 
-						.setParameterType("pi1", C_PARAM_GENERATED)
+						.logDebug(".init: set pi1 to 'not applicable'")
+						.setParameterType("pi1", C_PARAM_NOT_APPLICABLE)
+						
+						if (is.na(median2)) {
+							if (any(is.na(hazardRatio))) {
+								stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+									"'hazardRatio', 'lambda2', or 'median2' must be specified")
+							}
+							
+							if (length(hazardRatio) != length(median1)) {
+								stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+									"length of 'hazardRatio' (", .arrayToString(hazardRatio), ") must be ",
+									"equal to length of 'median1' (", .arrayToString(median1), ")")
+							}
+							
+							.logDebug(".init: calculate lambda2 and median2 by median1")
+							
+							lambda2 <<- getLambdaByMedian(median1, kappa) / hazardRatio^(1 / kappa)
+							
+							if (!delayedResponseAllowed && length(unique(round(lambda2, 8))) > 1) {
+								stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+									"'lambda2' can only be calculated if 'unique(lambda1 / hazardRatio^(1 / kappa))' ",
+									"result in a single value; current result = ", 
+									.arrayToString(round(lambda2, 4), vectorLookAndFeelEnabled = TRUE), 
+									" (delayed response is not allowed)")
+							}
+							
+							median2 <<- getMedianByLambda(lambda2, kappa)
+							.setParameterType("lambda2", C_PARAM_GENERATED)
+							.setParameterType("median2", C_PARAM_GENERATED)
+						}
+
 					} else if (length(hazardRatio) > 0 && !all(is.na(hazardRatio))) {
-						.logDebug(".init: calculate pi1 by pi2 and hazardRatio")
-						pi1 <<- getPiByLambda(
-							getLambdaByPi(pi2, eventTime, kappa = kappa) * 
-							hazardRatio^(1 / kappa), eventTime, kappa = kappa)
-						.setParameterType("pi1", C_PARAM_GENERATED)
+						.setParameterType("pi1", C_PARAM_NOT_APPLICABLE)
+						
+						if (!any(is.na(lambda1))) {
+							.logDebug(".init: calculate median1 by lambda1")
+							median1 <<- getMedianByLambda(lambda1, kappa)
+							.setParameterType("median1", C_PARAM_GENERATED)
+						}
+						
+						else if (!is.na(median2)) {
+							.logDebug(".init: calculate lambda1 and median1 by median2")
+							lambda1 <<- getLambdaByMedian(median2, kappa) * hazardRatio^(1 / kappa)
+							median1 <<- getMedianByLambda(lambda1, kappa)	
+							.setParameterType("lambda1", C_PARAM_GENERATED)
+							.setParameterType("median1", C_PARAM_GENERATED)
+						}
+
 					} else {
 						.logDebug(".init: set pi1 to default")
 						if (!is.null(.pi1Default) && is.numeric(.pi1Default) &&
@@ -1014,10 +834,17 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 						warning("'hazardRatio' (", .arrayToString(hazardRatio), 
 							") will be ignored because it will be calculated", call. = FALSE)
 					}
-
-					.logDebug(".init: calculate hazardRatio by pi1 and pi2")
-					hazardRatio <<- getHazardRatioByPi(pi1, pi2, eventTime, kappa = kappa)
-					.setParameterType("hazardRatio", C_PARAM_GENERATED)
+					
+					if (!any(is.na(lambda1)) && !is.na(lambda2)) {
+						.logDebug(".init: calculate hazardRatio by lambda1 and lambda2")
+						hazardRatio <<- (lambda1 / lambda2)^kappa
+						.setParameterType("hazardRatio", C_PARAM_GENERATED)
+					}
+					else if (!any(is.na(pi1)) && !is.na(pi2)) {
+						.logDebug(".init: calculate hazardRatio by pi1 and pi2")
+						hazardRatio <<- getHazardRatioByPi(pi1, pi2, eventTime, kappa = kappa)
+						.setParameterType("hazardRatio", C_PARAM_GENERATED)
+					}
 				}
 				
 				if (length(pi1) > 0 && !any(is.na(pi1))) {
@@ -1070,29 +897,37 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				}
 			}
 			else if (delayedResponseAllowed && length(lambda2) == 1 && 
-					!is.na(lambda2) && length(hazardRatio) > 0) {
+					!is.na(lambda2) && length(hazardRatio) > 0 &&
+					(all(is.na(pwSurvTime)) || identical(pwSurvTime, 0))) {
 					
 				.logDebug(".init, case 2: delayedResponseAllowed") 
 					
 				piecewiseSurvivalEnabled <<- FALSE
+				
+				if (!all(is.na(pwSurvTime)) && !identical(pwSurvTime, 0)) {
+					warning("'piecewiseSurvivalTime' (", .arrayToString(pwSurvTime), ") will be ignored")
+				}
 				piecewiseSurvivalTime <<- 0
+				
 				.initPi()
 				.initHazardRatio()
 				.initMedian()
 			}
 			else if (!is.numeric(pwSurvTime)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"'piecewiseSurvivalTime' must be a list or a numeric vector")
+					"'piecewiseSurvivalTime' must be a list, a numeric value, or vector")
 			} 
 			else {
 				piecewiseSurvivalTime <<- pwSurvTime
 				if ((all(is.na(piecewiseSurvivalTime)) || identical(piecewiseSurvivalTime, 0)) && 
 						length(lambda2) == 1 && !is.na(lambda2)) {
 					.logDebug(".init, case 3: piecewise survival is disabled") 
+					if (!all(is.na(piecewiseSurvivalTime)) && !identical(piecewiseSurvivalTime, 0)) {
+						warning("'piecewiseSurvivalTime' (", .arrayToString(piecewiseSurvivalTime), ") will be ignored")
+					}
 					piecewiseSurvivalTime <<- 0
 					.setParameterType("piecewiseSurvivalTime", C_PARAM_DEFAULT_VALUE)
 					piecewiseSurvivalEnabled <<- FALSE
-					#piecewiseSurvivalTime <<- 0
 					.initHazardRatio()
 					.initPi()
 					.initMedian()
@@ -1103,6 +938,13 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 							stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
 								"'median1' (", .arrayToString(median1), ") with length > 1 can only ",
 								"defined together with a single 'median2', 'lambda2' or 'pi2'")
+						}
+						
+						if (delayedResponseAllowed && length(lambda1 > 0) && !all(is.na(lambda1)) &&
+								length(lambda1) != length(lambda2) && delayedResponseAllowed) {
+							stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+								"length of 'lambda1' (", length(lambda1), "), 'lambda2' (", length(lambda2), "), and ",
+								"'piecewiseSurvivalTime' (", length(piecewiseSurvivalTime), ") must be equal")
 						}
 						
 						stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
@@ -1116,6 +958,17 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			}
 			
 			if (piecewiseSurvivalEnabled) {
+				for (param in c("pi", "median")) {
+					for (group in 1:2) {
+						paramName <- paste0(param, group)
+						if (.getParameterType(paramName) == C_PARAM_USER_DEFINED) {
+							warning("'", paramName, "' (", .arrayToString(.self[[paramName]]), ") ", 
+								"was converted to 'lambda", group, "' ",
+								"and is not available in output because piecewise ",
+								"exponential survival time is enabled")
+						}
+					}
+				}
 				pi1 <<- NA_real_
 				pi2 <<- NA_real_
 				median1 <<- NA_real_
@@ -1125,7 +978,7 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				.setParameterType("median1", C_PARAM_NOT_APPLICABLE)
 				.setParameterType("median2", C_PARAM_NOT_APPLICABLE)
 				.setParameterType("eventTime", C_PARAM_NOT_APPLICABLE)
-				if (eventTime != C_EVENT_TIME_DEFAULT) {
+				if (!is.na(eventTime) && eventTime != C_EVENT_TIME_DEFAULT) {
 					warning("Event time (", eventTime, ") will be ignored because it is not ", 
 						"applicable for piecewise exponential survival time", call. = FALSE)
 					eventTime <<- C_EVENT_TIME_DEFAULT
@@ -1158,12 +1011,25 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 		},
 		
 		.initPi = function() {
-			.logDebug(".initPi: lambda2 is defined")
+			.logDebug(".initPi: set pi1, pi2, and eventTime to NA")
 			
-			if (length(eventTime) != 1 || is.na(eventTime)) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"'eventTime' must be specified to calculate 'pi2' by 'lambda2'")
+			if (!is.na(eventTime) && .getParameterType("eventTime") == C_PARAM_USER_DEFINED) {
+				warning("'eventTime' (", round(eventTime, 3), ") will be ignored", call. = FALSE)
+
 			}
+			if (!is.na(pi1) && !identical(pi2, C_PI_1_DEFAULT) && !identical(pi2, C_PI_1_SAMPLE_SIZE_DEFAULT)) {
+				warning("'pi1' (", .arrayToString(pi1), ") will be ignored", call. = FALSE)
+			}
+			if (!is.na(pi2) && pi2 != C_PI_2_DEFAULT) {
+				warning("'pi2' (", pi2, ") will be ignored", call. = FALSE)
+			}
+			
+			.setParameterType("eventTime", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("pi1", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("pi2", C_PARAM_NOT_APPLICABLE)
+			eventTime <<- NA_real_
+			pi1 <<- NA_real_
+			pi2 <<- NA_real_
 			
 			if (length(lambda2) == 0 || any(is.na(lambda2))) {
 				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
@@ -1176,13 +1042,6 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				return(invisible())
 			}
 			
-			pi2Calulated <- getPiByLambda(lambda2, eventTime, kappa = kappa)
-			if (!is.na(pi2) && !isTRUE(all.equal(pi2, pi2Calulated))) {
-				warning("'pi2' (", pi2, ") will be ignored", call. = FALSE)
-			}
-			pi2 <<- pi2Calulated
-			.setParameterType("pi2", C_PARAM_GENERATED)
-			
 			if (length(lambda1) == 0 || any(is.na(lambda1))) {
 				if (length(hazardRatio) > 0 && !any(is.na(hazardRatio))) {
 					.logDebug(".initPi: calculate lambda1 by hazardRatio")
@@ -1193,16 +1052,6 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 				} else if (delayedResponseAllowed) {
 					.setParameterType("lambda1", C_PARAM_USER_DEFINED)
 				}
-			}
-			
-			if (length(lambda1) > 0 && !all(is.na(lambda1))) {
-				.logDebug(".initPi: calculate p1 by lambda1")
-				pi1Calulated <- getPiByLambda(lambda1, eventTime, kappa = kappa)
-				if (!all(is.na(pi1)) && !isTRUE(all.equal(pi1, pi1Calulated))) {
-					warning("'pi1' (", .arrayToString(pi1), ") will be ignored", call. = FALSE)
-				}
-				pi1 <<- pi1Calulated
-				.setParameterType("pi1", C_PARAM_GENERATED)
 			}
 		},
 		
@@ -1227,6 +1076,10 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			}
 			
 			if (any(is.na(lambda1))) {
+				if (delayedResponseAllowed && any(is.na(hazardRatio) && 
+						!any(is.na(piecewiseSurvivalTime)) && length(lambda2) == length(piecewiseSurvivalTime))) {
+					stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'hazardRatio' must be specified")
+				}
 				if (any(is.na(hazardRatio))) {
 					stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
 						"'hazardRatio', 'lambda1' or 'median1' must be specified")
@@ -1264,7 +1117,7 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 		.validateInitialization = function() {
 			if (length(piecewiseSurvivalTime) == 0) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"'piecewiseSurvivalTime' must contain at least one urvival start time")
+					"'piecewiseSurvivalTime' must contain at least one survival start time")
 			}
 			
 			if (any(is.na(piecewiseSurvivalTime))) {
@@ -1280,23 +1133,31 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 			if (length(piecewiseSurvivalTime) != length(lambda2)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"length of 'piecewiseSurvivalTime' (", length(piecewiseSurvivalTime), 
-					") must be equal to length of 'lambda2' (", 
-					length(lambda2), ")")
+					") and length of 'lambda2' (", length(lambda2), ") must be equal")
 			}
 			
 			.assertValuesAreStrictlyIncreasing(piecewiseSurvivalTime, "piecewiseSurvivalTime")
 			
 			if ((length(lambda1) != 1 || is.na(lambda1)) && 
-					.getParameterType("lambda1") != C_PARAM_GENERATED) {
+					!(.getParameterType("lambda1") %in% c(C_PARAM_GENERATED, C_PARAM_USER_DEFINED))) {
 				if (length(hazardRatio) == 1 && !is.na(hazardRatio)) {
 					lambda1 <<- lambda2 * hazardRatio^(1 / kappa)
 					.setParameterType("lambda1", C_PARAM_GENERATED)
 				} else if (length(hazardRatio) > 1 && delayedResponseAllowed && 
 						!is.na(hazardRatio[1])) {
 					if (!delayedResponseEnabled && .isLambdaBased()) {
-						warning("Only the first 'hazardRatio' (", hazardRatio[1], 
-							") was used for piecewise survival time definition", call. = FALSE)
-						hazardRatio <<- hazardRatio[1]
+						if (delayedResponseAllowed) {
+							if (length(hazardRatio) != length(lambda2)) {
+								stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+									"length of 'hazardRatio' (", length(hazardRatio), 
+									") and length of 'lambda2' (", length(lambda2), ") must be equal")
+							}
+							delayedResponseEnabled <<- TRUE
+						} else {
+							warning("Only the first 'hazardRatio' (", round(hazardRatio[1], 4), 
+								") was used for piecewise survival time definition", call. = FALSE)
+							hazardRatio <<- hazardRatio[1]
+						}
 						lambda1 <<- lambda2 * hazardRatio^(1 / kappa)
 						.setParameterType("lambda1", C_PARAM_GENERATED)
 					}
@@ -1325,9 +1186,9 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 					length(piecewiseSurvivalTime) != length(lambda1)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"length of 'piecewiseSurvivalTime' (", length(piecewiseSurvivalTime), 
-					") must be equal to length of 'lambda1' (", 
-					length(lambda1), ")")
+					") and length of 'lambda1' (", length(lambda1), ") must be equal")
 			}
+
 		}
 	)
 )
@@ -1339,10 +1200,10 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 #' Accrual Time
 #' 
 #' @description 
-#' Class for definition of accrual time and accrual intensity.
+#' Class for the definition of accrual time and accrual intensity.
 #' 
 #' @details
-#' \code{AccrualTime} is a class for definition of accrual time and accrual intensity.
+#' \code{AccrualTime} is a class for the definition of accrual time and accrual intensity.
 #' 
 #' @include f_core_constants.R
 #' @include f_core_utilities.R
@@ -1371,10 +1232,12 @@ AccrualTime <- setRefClass("AccrualTime",
 	),
 	methods = list(
 		initialize = function(accrualTime = NA_real_, 
-			...,
-			accrualIntensity = NA_real_, 
-			maxNumberOfSubjects = NA_real_,
-			showWarnings = TRUE) {
+				...,
+				accrualIntensity = NA_real_, 
+				maxNumberOfSubjects = NA_real_,
+				showWarnings = TRUE, 
+				silent = FALSE) {
+				
 			callSuper(accrualTime = NA_real_,
 				accrualIntensity = accrualIntensity,
 				maxNumberOfSubjects = maxNumberOfSubjects, 
@@ -1444,11 +1307,7 @@ AccrualTime <- setRefClass("AccrualTime",
 			'Method for automatically printing accrual time objects'
 			.resetCat()
 			if (showType == 2) {
-				.cat("Technical summary of the accrual time object of class",
-					methods::classLabel(class(.self)), ":\n\n", sep = "", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.cat("Accrual time and intensity:\n", sep = "", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
@@ -1549,7 +1408,7 @@ AccrualTime <- setRefClass("AccrualTime",
 				caseIsAllowed <- FALSE
 			}
 			if (!caseIsAllowed) {
-				warning("The specified accrual time and intensity can not be ",
+				warning("The specified accrual time and intensity cannot be ",
 					"supplemented automatically with the missing information; ",
 					"therefore further calculations are not possible", call. = FALSE)
 			}
@@ -1704,8 +1563,46 @@ AccrualTime <- setRefClass("AccrualTime",
 			.cat(prefix, "(*) Can be calculated directly.\n", 
 				consoleOutputEnabled = consoleOutputEnabled)
 			.cat(prefix, "(**) Cannot be calculated directly but with ",
-				"'getSampleSizeSurvival' or 'getPowerSurvival'.\n", 
+				"'getSampleSizeSurvival()' or 'getPowerSurvival()'.\n", 
 				consoleOutputEnabled = consoleOutputEnabled)
+		},
+		
+		.followUpTimeShallBeCalculated = function() {
+			
+			# Case 1: 'followUpTime'** shall be calculated
+			if (endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined && 
+					absoluteAccrualIntensityEnabled) {
+				return(TRUE)
+			}
+			
+			# Case 2: 'followUpTime'** shall be calculated
+			else if (endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined && 
+					!absoluteAccrualIntensityEnabled) {
+				return(TRUE)
+			}
+			
+			# Case 3: 'followUpTime'** shall be calculated
+			else if (endOfAccrualIsUserDefined && !maxNumberOfSubjectsIsUserDefined &&
+					absoluteAccrualIntensityEnabled) {
+				return(TRUE)
+			}
+			
+			
+			# Case 5: 'followUpTime'** shall be calculated
+			else if (!endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined &&
+					absoluteAccrualIntensityEnabled) {
+				return(TRUE)
+			}
+			
+			# Case 6: 'followUpTime'** shall be calculated
+			else if (!endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined &&
+					!absoluteAccrualIntensityEnabled) {
+				return(TRUE)
+			}
+			
+			# (**) Cannot be calculated directly but with 'getSampleSizeSurvival()' or 'getPowerSurvival()'
+			
+			return(FALSE)
 		},
 		
 		.validate = function() {
@@ -1826,19 +1723,40 @@ AccrualTime <- setRefClass("AccrualTime",
 						!isTRUE(all.equal(accrualIntensityAbsolute, 0, tolerance = 1e-06))) {
 					
 					.validateAccrualTimeAndIntensity()
-						
+
 					if (.isAbsoluteAccrualIntensity(accrualIntensity) && 
 							.getParameterType("maxNumberOfSubjects") == C_PARAM_USER_DEFINED) {
-						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-							"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") disagrees with ",
-							"the defined accrual time and intensity: ",
-							.getFormula(), " = ", .getSampleSize())
-					}
 						
-					accrualIntensityRelative <<- accrualIntensity
-					accrualIntensity <<- accrualIntensityAbsolute
-					.setParameterType("accrualIntensity", C_PARAM_GENERATED)
-					.setParameterType("accrualIntensityRelative", C_PARAM_USER_DEFINED)
+						if (.getParameterType("accrualTime") == C_PARAM_DEFAULT_VALUE) {
+							accrualTime <<- maxNumberOfSubjects / accrualIntensity
+							.setParameterType("accrualTime", C_PARAM_GENERATED)
+							remainingTime <<- accrualTime
+							accrualTime <<- c(0, accrualTime)
+						} else {
+							stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+								"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") disagrees with ",
+								"the defined accrual time (", .arrayToString(accrualTime), ") and intensity: ",
+								.getFormula(), " = ", .getSampleSize())
+						}
+					} else {
+						if (.isRelativeAccrualIntensity(accrualIntensity) && 
+								.getParameterType("accrualIntensity") == C_PARAM_USER_DEFINED &&
+								.getParameterType("accrualTime") == C_PARAM_DEFAULT_VALUE &&
+								.getParameterType("maxNumberOfSubjects") == C_PARAM_USER_DEFINED) {
+							if (.showWarnings) {
+								warning("'accrualIntensity' (", accrualIntensity, ") will be ignored", call. = FALSE)
+							}
+							accrualIntensityRelative <<- C_ACCRUAL_INTENSITY_DEFAULT
+							accrualIntensity <<- accrualIntensityAbsolute
+							.setParameterType("accrualIntensity", C_PARAM_GENERATED)
+							.setParameterType("remainingTime", C_PARAM_NOT_APPLICABLE)
+						} else {
+							accrualIntensityRelative <<- accrualIntensity
+							accrualIntensity <<- accrualIntensityAbsolute
+							.setParameterType("accrualIntensity", C_PARAM_GENERATED)
+							.setParameterType("accrualIntensityRelative", C_PARAM_USER_DEFINED)
+						}
+					}
 				}
 			}
 		},
@@ -2155,7 +2073,7 @@ AccrualTime <- setRefClass("AccrualTime",
 					sum(.isRelativeAccrualIntensity(accrualIntensity)) > 0) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
 					"the values of 'accrualIntensity' (", .arrayToString(accrualIntensity), ") ", 
-					"must exclusive absolute or relative, i.e. all (= 0 || >= 1) or all (< 1)")
+					"must exclusive absolute or relative, i.e., all (= 0 || >= 1) or all (< 1)")
 			}
 		},
 		

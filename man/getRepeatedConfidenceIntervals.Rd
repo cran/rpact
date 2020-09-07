@@ -4,24 +4,89 @@
 \alias{getRepeatedConfidenceIntervals}
 \title{Get Repeated Confidence Intervals}
 \usage{
-getRepeatedConfidenceIntervals(design, dataInput, ...)
+getRepeatedConfidenceIntervals(
+  design,
+  dataInput,
+  ...,
+  directionUpper = TRUE,
+  tolerance = 1e-06,
+  stage = NA_integer_
+)
 }
 \arguments{
 \item{design}{The trial design.}
 
 \item{dataInput}{The summary data used for calculating the test results. 
-This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival}. 
-See \code{\link{getDataset}}.}
+This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
+and should be created with the function \code{\link{getDataset}}.
+For more information see \code{\link{getDataset}}.}
+
+\item{...}{Further arguments to be passed to methods (cf. separate functions in "See Also" below), e.g.,
+\describe{
+  \item{\code{normalApproximation}}{The 
+      type of computation of the p-values. Default is \code{FALSE} for 
+      testing means (i.e., the t test is used) and \code{TRUE} for testing rates and the hazard ratio. 
+      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
+      (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
+      In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
+  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
+      the t test assuming that the variances are equal or the t test without assuming this, 
+      i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
+     \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
+      hypotheses in the closed system of hypotheses when testing multiple treatment arms. 
+      Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+      \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
+     \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple samples  
+          for testing means. Three options are available: \code{"overallPooled"}, 
+       \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.}
+}}
+
+\item{directionUpper}{Specifies the direction of the alternative, 
+only applicable for one-sided testing; default is \code{TRUE}
+which means that larger values of the test statistics yield smaller p-values.}
+
+\item{tolerance}{The numerical tolerance, default is \code{1e-06}.}
 
 \item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
+}
+\value{
+Returns a \code{\link[base]{matrix}} with \code{2} rows 
+and \code{kMax} columns containing the lower RCI limits in the first row and
+the upper RCI limits in the second row, where each column represents a stage.
 }
 \description{
 Calculates and returns the lower and upper limit of the repeated confidence intervals of the trial.
 }
 \details{
-The repeated confidence interval at a given stage of the trial contains the parameter values that are not rejected using the specified sequential design.
+The repeated confidence interval at a given stage of the trial contains the 
+parameter values that are not rejected using the specified sequential design.
 It can be calculated at each stage of the trial and can thus be used as a monitoring tool. 
 
 The repeated confidence intervals are provided up to the specified stage.
 }
-\keyword{internal}
+\examples{
+\donttest{
+design <- getDesignInverseNormal(kMax = 2)
+data <- getDataset(
+    n      = c( 20,  30),
+    means  = c( 50,  51),
+    stDevs = c(130, 140)
+)
+getRepeatedConfidenceIntervals(design, dataInput = data)
+}
+
+}
+\seealso{
+Other analysis functions: 
+\code{\link{getAnalysisResults}()},
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getConditionalRejectionProbabilities}()},
+\code{\link{getFinalConfidenceInterval}()},
+\code{\link{getFinalPValue}()},
+\code{\link{getRepeatedPValues}()},
+\code{\link{getStageResults}()},
+\code{\link{getTestActions}()}
+}
+\concept{analysis functions}

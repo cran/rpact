@@ -11,12 +11,21 @@ getDataset(..., floatingPointNumbersEnabled = FALSE)
 
 \item{floatingPointNumbersEnabled}{If \code{TRUE}, 
 sample sizes can be specified as floating-point numbers 
-(in general this only make sense for simulation purposes); \cr
+(this make sense, e.g., for theoretical comparisons); \cr
 by default \code{floatingPointNumbersEnabled = FALSE}, i.e., 
 samples sizes defined as floating-point numbers will be truncated.}
 }
 \value{
 Returns a \code{\link{Dataset}} object.
+The following generics (R generic functions) are available for this result object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.Dataset]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Creates a dataset object and returns it.
@@ -48,6 +57,10 @@ The different dataset types \code{DatasetMeans}, of \code{DatasetRates}, or
     \code{getDataset(events =, logRanks =, allocationRatios =)} where 
     \code{events}, \code{logRanks}, and \code{allocation ratios} are the stagewise events, 
     (one-sided) logrank statistics, and allocation ratios. 
+	  \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}} 
+	  for more than one comparison is created by adding subsequent digits to the variable names. 
+	  The system can analyze these data in a multi-arm many-to-one comparison setting where the
+	  group with the highest index represents the control group.		  		
 }
 Prefix \code{overall[Capital case of first letter of variable name]...} for the variable 
 names enables entering the overall results and calculates stagewise statistics.
@@ -58,89 +71,131 @@ in the output, so \cr
 is the usual command for entering survival data. Note also that for \code{overallLogranks} also the
 z scores from a Cox regression can be used.
 
+For multi-arm designs the index refers to the considered comparison. For example,\cr
+\code{
+	getDataset(events1=c(13, 33), logRanks1 = c(1.23, 1.55), events2 = c(16, NA), logRanks2 = c(1.55, NA))
+} \cr
+refers to the case where one active arm (1) is considered at both stages whereas active arm 2  
+was dropped at interim. Number of events and logrank statistics are entered for the corresponding
+comparison to control (see Examples). 
+
 \code{n} can be used in place of \code{samplesizes}.
 }
 \examples{
-
 # Create a Dataset of Means (one group):
-
 datasetOfMeans <- getDataset(
-	   n = c(22, 11, 22, 11),
-	   means = c(1, 1.1, 1, 1),
-	   stDevs = c(1, 2, 2, 1.3)
+    n      = c(22, 11, 22, 11),
+    means  = c(1, 1.1, 1, 1),
+    stDevs = c(1, 2, 2, 1.3)
 )
 datasetOfMeans
 datasetOfMeans$show(showType = 2)
-
+\donttest{
 datasetOfMeans <- getDataset(
-	   overallSampleSizes = c(22, 33, 55, 66),
-	   overallMeans = c(1.000, 1.033, 1.020, 1.017 ),
-	   overallStDevs = c(1.00, 1.38, 1.64, 1.58)
+    overallSampleSizes = c(22, 33, 55, 66),
+    overallMeans = c(1.000, 1.033, 1.020, 1.017),
+    overallStDevs = c(1.00, 1.38, 1.64, 1.58)
 )
 datasetOfMeans
 datasetOfMeans$show(showType = 2)
 as.data.frame(datasetOfMeans)
 
 # Create a Dataset of Means (two groups):
-
 datasetOfMeans <- getDataset(
-	   n1 = c(22, 11, 22, 11),
-	   n2 = c(22, 13, 22, 13),
-	   means1 = c(1, 1.1, 1, 1),
-	   means2 = c(1.4, 1.5, 3, 2.5),
-	   stDevs1 = c(1, 2, 2, 1.3),
-	   stDevs2 = c(1, 2, 2, 1.3)
+    n1 = c(22, 11, 22, 11),
+    n2 = c(22, 13, 22, 13),
+    means1 = c(1, 1.1, 1, 1),
+    means2 = c(1.4, 1.5, 3, 2.5),
+    stDevs1 = c(1, 2, 2, 1.3),
+    stDevs2 = c(1, 2, 2, 1.3)
 )
 datasetOfMeans
 
 datasetOfMeans <- getDataset(
-	   overallSampleSizes1 = c(22, 33, 55, 66),
-	   overallSampleSizes2 = c(22, 35, 57, 70),
-	   overallMeans1 = c(1, 1.033, 1.020, 1.017),
-	   overallMeans2 = c(1.4, 1.437, 2.040, 2.126),
-	   overallStDevs1 = c(1, 1.38, 1.64, 1.58),
-	   overallStDevs2 = c(1, 1.43, 1.82, 1.74)
+    overallSampleSizes1 = c(22, 33, 55, 66),
+    overallSampleSizes2 = c(22, 35, 57, 70),
+    overallMeans1 = c(1, 1.033, 1.020, 1.017),
+    overallMeans2 = c(1.4, 1.437, 2.040, 2.126),
+    overallStDevs1 = c(1, 1.38, 1.64, 1.58),
+    overallStDevs2 = c(1, 1.43, 1.82, 1.74)
 )
 datasetOfMeans
 
 df <- data.frame(
-	   stages = 1:4,
-	   n1 = c(22, 11, 22, 11),
-	   n2 = c(22, 13, 22, 13),
-	   means1 = c(1, 1.1, 1, 1),
-	   means2 = c(1.4, 1.5, 3, 2.5),
-	   stDevs1 = c(1, 2, 2, 1.3),
-	   stDevs2 = c(1, 2, 2, 1.3)
+    stages = 1:4,
+    n1 = c(22, 11, 22, 11),
+    n2 = c(22, 13, 22, 13),
+    means1 = c(1, 1.1, 1, 1),
+    means2 = c(1.4, 1.5, 3, 2.5),
+    stDevs1 = c(1, 2, 2, 1.3),
+    stDevs2 = c(1, 2, 2, 1.3)
 )
 datasetOfMeans <- getDataset(df)
 datasetOfMeans
 
-## Create a Dataset of Rates (one group):
+# Create a Dataset of Means (three groups) where the comparison of 
+# treatment arm 1 to control is dropped at the second interim stage:
+datasetOfMeans <- getDataset(
+   overallN1 = c(22, 33, NA),
+   overallN2 = c(20, 34, 56),
+   overallN3 = c(22, 31, 52),
+   overallMeans1 = c(1.64, 1.54, NA),
+   overallMeans2 = c(1.7, 1.5, 1.77),
+   overallMeans3 = c(2.5, 2.06, 2.99),
+   overallStDevs1 = c(1.5, 1.9, NA),
+   overallStDevs2 = c(1.3, 1.3, 1.1),
+   overallStDevs3 = c(1, 1.3, 1.8))
+datasetOfMeans
 
+# Create a Dataset of Rates (one group):
 datasetOfRates <- getDataset(
-	   n = c(8, 10, 9, 11), 
-	   events = c(4, 5, 5, 6)
+    n = c(8, 10, 9, 11), 
+    events = c(4, 5, 5, 6)
 )
 datasetOfRates
 
-## Create a Dataset of Rates (two groups):
-
+# Create a Dataset of Rates (two groups):
 datasetOfRates <- getDataset(
-	   n2 = c(8, 10, 9, 11),
-	   n1 = c(11, 13, 12, 13),
-	   events2 = c(3, 5, 5, 6),
-	   events1 = c(10, 10, 12, 12)
+    n2 = c(8, 10, 9, 11),
+    n1 = c(11, 13, 12, 13),
+    events2 = c(3, 5, 5, 6),
+    events1 = c(10, 10, 12, 12)
 )
 datasetOfRates
 
+# Create a Dataset of Rates (three groups) where the comparison of 
+# treatment arm 2 to control is dropped at the first interim stage:
+datasetOfRates <- getDataset(
+    overallN1 = c(22, 33, 44),
+    overallN2 = c(20, NA, NA),
+    overallN3 = c(20, 34, 44),
+    overallEvents1 = c(11, 14, 22),
+    overallEvents2 = c(17, NA, NA),
+    overallEvents3 = c(17, 19, 33))
+datasetOfRates
 
-## Create a Survival Dataset
-
-dataset <- getDataset(
+# Create a Survival Dataset
+datasetSurvival <- getDataset(
     overallEvents = c(8, 15, 19, 31),
-	   overallAllocationRatios = c(1, 1, 1, 2),
-	   overallLogRanks = c(1.52, 1.98, 1.99, 2.11)
+    overallAllocationRatios = c(1, 1, 1, 2),
+    overallLogRanks = c(1.52, 1.98, 1.99, 2.11)
 )
-dataset
+datasetSurvival
+ 
+# Create a Survival Dataset with four comparisons where treatment
+# arm 2 was dropped at the first interim stage, and treatment arm 4
+# at the second.
+datasetSurvival <- getDataset(
+    overallEvents1 = c(18, 45, 56),
+    overallEvents2 = c(22, NA, NA),
+    overallEvents3 = c(12, 41, 56),
+    overallEvents4 = c(27, 56, NA),
+    overallLogRanks1 = c(1.52, 1.98, 1.99),
+    overallLogRanks2 = c(3.43, NA, NA),
+    overallLogRanks3 = c(1.45, 1.67, 1.87),
+    overallLogRanks4 = c(1.12, 1.33, NA)
+)
+datasetSurvival
+}
 
 }

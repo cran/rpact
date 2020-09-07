@@ -14,6 +14,23 @@
   ...
 )
 }
+\arguments{
+\item{x}{A \code{\link{FieldSet}} object.}
+
+\item{niceColumnNamesEnabled}{Logical. If \code{TRUE}, nice looking column 
+names will be used; syntactic names (variable names) otherwise 
+(see \code{\link[base]{make.names}}).}
+
+\item{includeAllParameters}{Logical. If \code{TRUE}, all available 
+parameters will be included in the data frame; 
+a meaningful parameter selection otherwise, default is \code{FALSE}.}
+
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
+}
+\value{
+Returns a \code{\link[base]{data.frame}}.
+}
 \description{
 Returns the \code{ParameterSet} as data frame.
 }

@@ -3,12 +3,18 @@
 \name{StageResults_names}
 \alias{StageResults_names}
 \alias{names.StageResults}
-\title{The Names of a Stage Results object}
+\title{Names of a Stage Results Object}
 \usage{
 \method{names}{StageResults}(x)
 }
+\arguments{
+\item{x}{A \code{\link{StageResults}} object.}
+}
+\value{
+Returns a \code{\link[base]{character}} vector containing the names of the \code{\link{AnalysisResults}} object.
+}
 \description{
-Function to get the names of a \code{StageResults} object.
+Function to get the names of a \code{\link{StageResults}} object.
 }
 \details{
 Returns the names of stage results that can be accessed by the user.

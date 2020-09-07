@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Stage results classes --                                                        #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Stage results classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3581 $
+#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 .getStageResultsClassNames <- function() {
 	return(c("StageResultsMeans", 
@@ -64,6 +65,7 @@ StageResults <- setRefClass("StageResults",
 		.plotSettings = "PlotSettings",
 		.design = "TrialDesign",
 		.dataInput = "Dataset",
+		stage = "integer",
 		stages = "integer",
 		pValues = "numeric", 
 		weightsFisher = "numeric", 
@@ -93,6 +95,8 @@ StageResults <- setRefClass("StageResults",
 			}
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 			
+			.setParameterType("stage", C_PARAM_NOT_APPLICABLE)
+			
 			.setParameterType("pValues", ifelse(
 				.isMultiArm(), C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
 			.setParameterType("thetaH0", ifelse(
@@ -113,18 +117,12 @@ StageResults <- setRefClass("StageResults",
 			'Method for automatically printing stage results'
 			.resetCat()
 			if (showType == 2) {
-				.cat("Technical summary of the stage results object of class ",
-					methods::classLabel(class(.self)), ":\n\n", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {		
 				.cat(.toString(startWithUpperCase = TRUE), ":\n\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
-#				.showParametersOfOneGroup(.getDerivedParameters(), "Derived from user defined parameters",
-#					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getGeneratedParameters(), "Output",
@@ -204,8 +202,12 @@ StageResults <- setRefClass("StageResults",
 		
 		getNumberOfStages = function() {
 			if (.isMultiArm()) {
-				return(max(ncol(stats::na.omit(effectSizes)), 
+				if (inherits(.self, "StageResultsMultiArmRates")) {
+					return(max(ncol(stats::na.omit(testStatistics)), 
 						ncol(stats::na.omit(separatePValues))))
+				}
+				return(max(ncol(stats::na.omit(effectSizes)), 
+					ncol(stats::na.omit(separatePValues))))
 			}
 			return(max(length(stats::na.omit(effectSizes)), 
 				length(stats::na.omit(pValues))))
@@ -223,7 +225,7 @@ StageResults <- setRefClass("StageResults",
 #' Class for stage results of means.
 #' 
 #' @details
-#' This object can not be created directly; use \code{getStageResults} 
+#' This object cannot be created directly; use \code{getStageResults} 
 #' with suitable arguments to create the stage results of a dataset of means.
 #' 
 #' @field testStatistics The stage-wise test statistics.
@@ -408,7 +410,8 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 				"direction",
 				"normalApproximation",
 				#"directionUpper",
-				"varianceOption",
+				"varianceOption", 
+				"intersectionTest",
 				"overallTestStatistics", 
 				"overallPValues",
 				"overallStDevs",
@@ -444,7 +447,7 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 #' Class for stage results of rates.
 #' 
 #' @details
-#' This object can not be created directly; use \code{getStageResults} 
+#' This object cannot be created directly; use \code{getStageResults} 
 #' with suitable arguments to create the stage results of a dataset of rates.
 #' 
 #' @field testStatistics The stage-wise test statistics.
@@ -565,19 +568,19 @@ StageResultsRates <- setRefClass("StageResultsRates",
 StageResultsMultiArmRates <- setRefClass("StageResultsMultiArmRates",
 		contains = "StageResults",
 		fields = list(
-				stage = "integer",
-				piControl = "matrix",
-				piTreatments = "matrix",
-				combInverseNormal = "matrix", 
-				combFisher = "matrix", 
-				overallTestStatistics = "matrix", 
-				overallPValues = "matrix",
-				testStatistics = "matrix",
-				separatePValues = "matrix",
-				singleStepAdjustedPValues = "matrix",
-				intersectionTest = "character",
-				normalApproximation = "logical",
-				directionUpper = "logical" 
+			stage = "integer",
+			piControl = "matrix",
+			piTreatments = "matrix",
+			combInverseNormal = "matrix", 
+			combFisher = "matrix", 
+			overallTestStatistics = "matrix", 
+			overallPValues = "matrix",
+			testStatistics = "matrix",
+			separatePValues = "matrix",
+			singleStepAdjustedPValues = "matrix",
+			intersectionTest = "character",
+			normalApproximation = "logical",
+			directionUpper = "logical" 
 		),
 		methods = list(
 				initialize = function(design, dataInput, ..., 
@@ -601,25 +604,26 @@ StageResultsMultiArmRates <- setRefClass("StageResultsMultiArmRates",
 					}
 					
 					.setParameterType("normalApproximation", ifelse(
-									identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+						identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 					.setParameterType("directionUpper", ifelse(
-									identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+						identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 				},
 				.getParametersToShow = function() {
 					parametersToShow <- c(
-							"stages",
-							"thetaH0",
-							"direction",
-							"normalApproximation",
-							#"directionUpper",
-							"piControl",
-							"piTreatments",
-							"overallTestStatistics", 
-							"overallPValues",
-							"overallStDevs",
-							"testStatistics", 
-							"separatePValues", 
-							"singleStepAdjustedPValues"
+						"stages",
+						"thetaH0",
+						"direction",
+						"normalApproximation",
+						#"directionUpper",
+						"piControl",
+						"piTreatments", 
+						"intersectionTest",
+						"overallTestStatistics", 
+						"overallPValues",
+						"overallStDevs",
+						"testStatistics", 
+						"separatePValues", 
+						"singleStepAdjustedPValues"
 					)
 					if (.isTrialDesignInverseNormal(.design)) {
 						parametersToShow <- c(parametersToShow,			
@@ -648,7 +652,7 @@ StageResultsMultiArmRates <- setRefClass("StageResultsMultiArmRates",
 #' Class for stage results survival data.
 #' 
 #' @details
-#' This object can not be created directly; use \code{getStageResults} 
+#' This object cannot be created directly; use \code{getStageResults} 
 #' with suitable arguments to create the stage results of a dataset of survival data.
 #' 
 #' @field testStatistics The stage-wise test statistics.
@@ -783,20 +787,21 @@ StageResultsMultiArmSurvival <- setRefClass("StageResultsMultiArmSurvival",
 					}
 					
 					.setParameterType("directionUpper", ifelse(
-									identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+						identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 				},
 				.getParametersToShow = function() {
 					parametersToShow <- c(
-							"stages",
-							"thetaH0",
-							"direction",
-							#"directionUpper",
-							"overallTestStatistics", 
-							"overallPValues",
-							"testStatistics", 
-							"separatePValues", 
-							"effectSizes",
-							"singleStepAdjustedPValues"
+						"stages",
+						"thetaH0",
+						"direction",
+						#"directionUpper", 
+						"intersectionTest",
+						"overallTestStatistics", 
+						"overallPValues",
+						"testStatistics", 
+						"separatePValues", 
+						"effectSizes",
+						"singleStepAdjustedPValues"
 					)
 					if (.isTrialDesignInverseNormal(.design)) {
 						parametersToShow <- c(parametersToShow,			
@@ -820,13 +825,17 @@ StageResultsMultiArmSurvival <- setRefClass("StageResultsMultiArmSurvival",
 #' @name StageResults_names
 #' 
 #' @title
-#' The Names of a Stage Results object
+#' Names of a Stage Results Object
 #'
 #' @description
-#' Function to get the names of a \code{StageResults} object.
+#' Function to get the names of a \code{\link{StageResults}} object.
+#' 
+#' @param x A \code{\link{StageResults}} object.
 #' 
 #' @details
 #' Returns the names of stage results that can be accessed by the user.
+#' 
+#' @template return_names
 #'
 #' @export
 #' 
@@ -845,8 +854,15 @@ names.StageResults <- function(x) {
 #' @description
 #' Returns the \code{StageResults} as data frame.
 #' 
+#' @param x A \code{\link{StageResults}} object.
+#' @inheritParams param_niceColumnNamesEnabled
+#' @inheritParams param_includeAllParameters
+#' @inheritParams param_three_dots
+#' 
 #' @details
 #' Coerces the stage results to a data frame.
+#' 
+#' @template return_dataframe
 #' 
 #' @export
 #' 
@@ -889,6 +905,38 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 	return(stageResults)
 }
 
+.getTreatmentArmsToShow <- function(x, ...) {
+	dataInput <- x
+	if (!inherits(dataInput, "Dataset")) {
+		dataInput <- x[[".dataInput"]]
+	}
+	if (is.null(dataInput) || !inherits(dataInput, "Dataset")) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to get 'dataInput' from ", class(x))
+	}
+	
+	numberOfTreatments <- dataInput$getNumberOfGroups()
+	if (numberOfTreatments > 1) {
+		validComparisons <- 1L:as.integer(numberOfTreatments - 1)
+	} else {
+		validComparisons <- 1L
+	}
+	
+	treatmentArmsToShow <- .getOptionalArgument("treatmentArms", ...)
+	if (!is.null(treatmentArmsToShow)) {
+		treatmentArmsToShow <- as.integer(na.omit(treatmentArmsToShow))
+	}
+	if (is.null(treatmentArmsToShow) || length(treatmentArmsToShow) == 0 || 
+		all(is.na(treatmentArmsToShow)) || !is.numeric(treatmentArmsToShow)) {
+		treatmentArmsToShow <- validComparisons
+	} else if (!all(treatmentArmsToShow %in% validComparisons)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'treatmentArms' (", 
+			.arrayToString(treatmentArmsToShow), ") must be a vector ",
+			"containing one or more values of ", .arrayToString(validComparisons))
+	}
+	treatmentArmsToShow <- sort(unique(treatmentArmsToShow))
+	return(treatmentArmsToShow)
+}
+
 #'
 #' @title
 #' Stage Results Plotting
@@ -898,47 +946,29 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' 
 #' @param x The stage results at given stage, obtained from \code{getStageResults} or \code{getAnalysisResults}.
 #' @param y Not available for this kind of plot (is only defined to be compatible to the generic plot function).
-#' @param stage The stage number (optional). Default: total number of existing stages in the data input
-#'        used to create the stage results.
-#' @param nPlanned The additional (i.e. "new" and not cumulative) sample size planned for each of the subsequent stages. 
-#'        The argument should be a vector with length equal to the number of remaining stages and contain 
-#'        the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
-#'        it should contain the planned number of additional events. 
-#' @param allocationRatioPlanned The allocation ratio for two treatment groups planned for 
-#'        the subsequent stages, the default value is 1. 
+#' @inheritParams param_stage
+#' @inheritParams param_nPlanned
+#' @inheritParams param_allocationRatioPlanned
 #' @param main The main title.
 #' @param xlab The x-axis label.
 #' @param ylab The y-axis label.
 #' @param legendTitle The legend title.
-#' @param palette The palette, default is \code{"Set1"}.
-#' @param showSource If \code{TRUE}, the parameter names of the object will 
-#'        be printed which were used to create the plot; that may be, e.g., 
-#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
-#' @param legendPosition The position of the legend. 
-#' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
-#' Choose one of the following values to specify the position manually:
-#' \itemize{
-#'   \item \code{0}: legend position outside plot
-#'   \item \code{1}: legend position left top
-#'   \item \code{2}: legend position left center
-#'   \item \code{3}: legend position left bottom
-#'   \item \code{4}: legend position right top
-#'   \item \code{5}: legend position right center
-#'   \item \code{6}: legend position right bottom
-#' }
+#' @inheritParams param_palette
+#' @inheritParams param_showSource
+#' @inheritParams param_legendPosition
 #' @param type The plot type (default = 1). Note that at the moment only one type 
 #'        (the conditional power plot) is available.
-#' @param ... Optional \code{ggplot2} arguments. Furthermore the following arguments can be defined:
+#' @param ... Optional \link[=param_three_dots_plot]{plot arguments}. Furthermore the following arguments can be defined:
 #' \itemize{
 #' \item \code{thetaRange}: A range of assumed effect sizes if testing means or a survival design was specified. 
 #' 			Additionally, if testing means was selected, an assumed standard deviation can be specified (default is 1).
-#' \item \code{piRange}: A range of assumed rates pi1 to calculate the conditional power. 
+#' \item \code{piTreatmentRange}: A range of assumed rates pi1 to calculate the conditional power. 
 #' 		  Additionally, if a two-sample comparison was selected, pi2 can be specified (default is the value from 
 #'        \code{getAnalysisResults}). 
-#' \item \code{directionUpper}: The direction of one-sided testing. 
-#'        Default is \code{directionUpper = TRUE} which means that larger values of the 
-#'        test statistics yield smaller p-values.
-#' \item \code{thetaH0}: The null hypothesis value, default is 0 for the normal and the binary case, 
+#' \item \code{directionUpper}: Specifies the direction of the alternative, 
+#'        only applicable for one-sided testing; default is \code{TRUE}
+#'        which means that larger values of the test statistics yield smaller p-values.
+#' \item \code{\link[=param_thetaH0]{thetaH0}}: The null hypothesis value, default is 0 for the normal and the binary case, 
 #'        it is 1 for the survival case.      
 #'        For testing a rate in one sample, a value thetaH0 in (0,1) has to be specified for 
 #'        defining the null hypothesis H0: pi = thetaH0.
@@ -948,13 +978,9 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' Generic function to plot all kinds of stage results.
 #' The conditional power is calculated only if effect size and sample size is specified. 
 #' 
-#' @return 
-#' A \code{ggplot2} object.
-#' 
-#' @export
+#' @template return_object_ggplot
 #' 
 #' @examples 
-#' 
 #' design <- getDesignGroupSequential(kMax = 4, alpha = 0.025, 
 #'     informationRates = c(0.2, 0.5, 0.8, 1), 
 #'     typeOfDesign = "WT", deltaWT = 0.25)
@@ -969,31 +995,64 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' 
 #' if (require(ggplot2)) plot(stageResults, nPlanned = c(30), thetaRange = c(0, 100))
 #'
+#' @export
+#' 
 plot.StageResults <- function(x, y, ..., type = 1L,
-		nPlanned, stage = x$getNumberOfStages(),
-		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
+		nPlanned, allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
 		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
 		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
 		showSource = FALSE) {
 	
+	fCall = match.call(expand.dots = FALSE)
+		
 	.assertGgplotIsInstalled()
 	.assertIsStageResults(x)
 	.assertIsValidLegendPosition(legendPosition)
+	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, x$.dataInput$getNumberOfGroups())
+	#.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
+	.stopInCaseOfIllegalStageDefinition2(...)
 	
-	plotData <- .getConditionalPowerPlot(stageResults = x, nPlanned = nPlanned, stage = stage,
-		allocationRatioPlanned = allocationRatioPlanned, ...)
+	if (x$.design$kMax == 1) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "cannot plot stage results of a fixed design")
+	}
+	
+	if (!is.logical(showSource) || isTRUE(showSource)) {
+		stageResultsName <- .getOptionalArgument("stageResultsName", ...)
+		if (is.null(stageResultsName)) {
+			stageResultsName <- deparse(fCall$x)
+		}
+		cat("Source data of the plot:\n")
+		cat("  Use getConditionalPower(..., addPlotData = TRUE) to create the data.\n", sep = "")
+		cat("Simple plot command example:\n", sep = "")
 		
+		cmd <- paste0("condPow <- getConditionalPower(", stageResultsName,
+			", nPlanned = ", .arrayToString(nPlanned, vectorLookAndFeelEnabled = TRUE))
+		if (allocationRatioPlanned != C_ALLOCATION_RATIO_DEFAULT) {
+			cmd <- paste0(cmd, ", allocationRatioPlanned = ", allocationRatioPlanned)
+		}
+		if (grepl("Means|Survival", class(x))) {
+			cmd <- paste0(cmd, ", thetaRange = seq(0, 1, 0.1)")
+		}
+		else if (grepl("Rates", class(x))) {
+			cmd <- paste0(cmd, ", piTreatmentRange <- seq(0, 1, 0.1)")
+		}
+		cmd <- paste0(cmd, ", addPlotData = TRUE)")
+		
+		cat("  ", cmd, "\n", sep = "")
+		cat("  plotData <- condPow$.plotData # get plot data list\n", sep = "")
+		cat("  plotData # show plot data list\n", sep = "")
+		cat("  plot(plotData$xValues, plotData$condPowerValues)\n", sep = "")
+		cat("  plot(plotData$xValues, plotData$likelihoodValues)\n", sep = "")
+	}
+	
+	plotData <- .getConditionalPowerPlot(stageResults = x, nPlanned = nPlanned, 
+		allocationRatioPlanned = allocationRatioPlanned, ...)
+
 	yParameterName1 <- "Conditional power"
 	yParameterName2 <- "Likelihood"
 	
 	if (x$.isMultiArm()) {
-		numberOfTreatments <- nrow(x$testStatistics)
-		
-		treatmentArmsToShow <- as.integer(list(...)[["treatmentArms"]])
-		if (is.null(treatmentArmsToShow) || length(treatmentArmsToShow) == 0 || 
-				is.na(treatmentArmsToShow) || !is.numeric(treatmentArmsToShow)) {
-			treatmentArmsToShow <- 1L:as.integer(numberOfTreatments)
-		}
+		treatmentArmsToShow <- .getTreatmentArmsToShow(x, ...) 
 		data <- data.frame(
 			xValues = numeric(0),
 			yValues = numeric(0),
@@ -1001,36 +1060,74 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 		)
 		for (treatmentArm in treatmentArmsToShow) {
 			legend1 <- ifelse(length(treatmentArmsToShow) == 1, yParameterName1,
-				paste0(yParameterName1, " (", treatmentArm, ")"))
+				paste0(yParameterName1, " (", treatmentArm, " vs control)"))
 			legend2 <- ifelse(length(treatmentArmsToShow) == 1, yParameterName2,
-				paste0(yParameterName2, " (", treatmentArm, ")"))
-			if (all(is.na(plotData$condPowerValues[treatmentArm, ]))) {
-				data <- rbind(data, data.frame(
-					xValues = plotData$xValues,
-					yValues = plotData$likelihoodValues[treatmentArm, ],
-					categories = rep(legend2, length(plotData$xValues))
-				)) 
+				paste0(yParameterName2, " (", treatmentArm, " vs control)"))
+			
+			treatmentArmIndices <- which(plotData$treatmentArms == treatmentArm)
+			
+			if (all(is.na(plotData$condPowerValues[treatmentArmIndices]))) {
+				if (!all(is.na(plotData$likelihoodValues[treatmentArmIndices]))) {
+					data <- rbind(data, data.frame(
+						xValues = plotData$xValues[treatmentArmIndices],
+						yValues = plotData$likelihoodValues[treatmentArmIndices],
+						categories = rep(legend2, length(plotData$xValues[treatmentArmIndices]))
+					)) 
+				}
 			} else {
 				data <- rbind(data, data.frame(
-					xValues = c(plotData$xValues, plotData$xValues),
-					yValues = c(plotData$condPowerValues[treatmentArm, ], 
-						plotData$likelihoodValues[treatmentArm, ]),
-					categories = c(rep(legend1, length(plotData$xValues)), 
-						rep(legend2, length(plotData$xValues)))
+					xValues = c(plotData$xValues[treatmentArmIndices], 
+						plotData$xValues[treatmentArmIndices]),
+					yValues = c(plotData$condPowerValues[treatmentArmIndices], 
+						plotData$likelihoodValues[treatmentArmIndices]),
+					categories = c(rep(legend1, length(plotData$xValues[treatmentArmIndices])), 
+						rep(legend2, length(plotData$xValues[treatmentArmIndices])))
 				)) 
 			}
 		}
 	} else {
-		data <- data.frame(
-			xValues = c(plotData$xValues, plotData$xValues),
-			yValues = c(plotData$condPowerValues, plotData$likelihoodValues),
-			categories = c(rep(yParameterName1, length(plotData$xValues)), 
-				rep(yParameterName2, length(plotData$xValues)))
-		)
+		if (all(is.na(plotData$condPowerValues))) {
+			legendPosition <- -1
+			data <- data.frame(
+				xValues = plotData$xValues,
+				yValues = plotData$likelihoodValues,
+				categories = rep(yParameterName2, length(plotData$xValues))
+			)
+		} else {
+			data <- data.frame(
+				xValues = c(plotData$xValues, plotData$xValues),
+				yValues = c(plotData$condPowerValues, plotData$likelihoodValues),
+				categories = c(rep(yParameterName1, length(plotData$xValues)), 
+					rep(yParameterName2, length(plotData$xValues)))
+			)
+		}
 	}
 	
-	p <- ggplot2::ggplot(data, ggplot2::aes(x = data$xValues, y = data$yValues, 
-		colour = factor(data$categories)))
+	main <- ifelse(is.na(main), C_PLOT_MAIN_CONDITIONAL_POWER_WITH_LIKELIHOOD, main)
+	ylab <- ifelse(is.na(ylab), C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD, ylab)
+	
+	if (is.na(legendTitle)) {
+		legendTitle <- "Parameter"
+	}
+	
+	return(.createPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
+		legendTitle = legendTitle, palette = palette, legendPosition = legendPosition))
+}
+
+.createPlotObject <- function(x, ..., data, plotData,
+		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_) {
+		
+	ciModeEnabled <- !is.null(data[["lower"]]) && !is.null(data[["upper"]])
+	
+	if (!ciModeEnabled) {
+		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 
+				colour = factor(.data[["categories"]]), 
+				linetype = factor(.data[["categories"]])))
+	} else {
+		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]],
+				colour = factor(.data[["categories"]])))
+	}
 	
 	p <- x$getPlotSettings()$setTheme(p)
 	p <- x$getPlotSettings()$hideGridLines(p)
@@ -1054,11 +1151,47 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 		xlab = xlab, ylab = ylab)
 	
 	# plot lines and points
-	p <- x$getPlotSettings()$plotValues(p, plotPointsEnabled = FALSE, pointBorder = 1)
+	if (!ciModeEnabled) {
+		p <- x$getPlotSettings()$plotValues(p, plotPointsEnabled = FALSE, pointBorder = 1)
+		n <- length(unique(data$categories)) / 2
+		if (n > 1) {
+			lineTypeValues <- rep(1:2, n)
+			colorTypes <- sort(rep(1:n, 2))
+			for (i in c(1, 3)) {
+				colorTypes[colorTypes >= i] <- colorTypes[colorTypes >= i] + 1
+			}
+			p <- p + ggplot2::scale_color_manual(name = legendTitle, values = colorTypes) 
+			p <- p + ggplot2::scale_linetype_manual(name = legendTitle, values = lineTypeValues)
+		} else {
+			colorValues = c(2, 4)
+			if (!x$.isMultiArm()) {
+				colorValues = c(2, 2) # use only one color
+			}
+			p <- p + ggplot2::scale_color_manual(name = legendTitle, values = colorValues)
+			p <- p + ggplot2::scale_linetype_manual(name = legendTitle, values = c(1, 2))
+		}
+			
+		p <- x$getPlotSettings()$setAxesAppearance(p)
+		p <- x$getPlotSettings()$enlargeAxisTicks(p)
+	}
 	
-	p <- x$getPlotSettings()$setAxesAppearance(p)
-	p <- x$getPlotSettings()$setColorPalette(p, palette)
-	p <- x$getPlotSettings()$enlargeAxisTicks(p)
+	# plot confidence intervall
+	if (ciModeEnabled) {
+		pd <- ggplot2::position_dodge(0.15)
+	
+		p <- p + ggplot2::geom_errorbar(data = data, 
+			ggplot2::aes(ymin = .data[["lower"]], ymax = .data[["upper"]]), 
+			width = 0.15, position = pd, size = 0.8)
+		p <- p + ggplot2::geom_line(position = pd, linetype = "longdash")
+		p <- p + ggplot2::geom_point(position = pd, size = 2.0)
+		
+		stage <- unique(data$xValues)
+		kMax <- list(...)[["kMax"]]
+		if (length(stage) == 1 && !is.null(kMax)) {
+			stages <- 1:kMax
+			p <- p + ggplot2::scale_x_continuous(breaks = stages)
+		}
+	}
 	
 	companyAnnotationEnabled <- .getOptionalArgument("companyAnnotationEnabled", ...)
 	if (is.null(companyAnnotationEnabled) || !is.logical(companyAnnotationEnabled)) {
@@ -1066,7 +1199,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	}
 	
 	p <- x$getPlotSettings()$addCompanyAnnotation(p, enabled = companyAnnotationEnabled)
-	
+
 	# start plot generation
 	return(p)
 }

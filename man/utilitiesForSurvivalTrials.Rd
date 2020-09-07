@@ -11,29 +11,39 @@
 \alias{getMedianByPi}
 \title{Survival Helper Functions for Conversion of Pi, Lambda, Median}
 \usage{
-getLambdaByPi(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
+getLambdaByPi(piValue, eventTime = 12L, kappa = 1)
 
 getLambdaByMedian(median, kappa = 1)
 
-getHazardRatioByPi(pi1, pi2, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
+getHazardRatioByPi(pi1, pi2, eventTime = 12L, kappa = 1)
 
-getPiByLambda(lambda, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
+getPiByLambda(lambda, eventTime = 12L, kappa = 1)
 
-getPiByMedian(median, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
+getPiByMedian(median, eventTime = 12L, kappa = 1)
 
 getMedianByLambda(lambda, kappa = 1)
 
-getMedianByPi(piValue, eventTime = C_EVENT_TIME_DEFAULT, kappa = 1)
+getMedianByPi(piValue, eventTime = 12L, kappa = 1)
 }
 \arguments{
 \item{piValue, pi1, pi2, lambda, median}{Value that shall be converted.}
 
-\item{eventTime}{The assumed time under which the event rates 
-are calculated, default is \code{12}.}
+\item{eventTime}{The assumed time under which the event rates are calculated, default is \code{12}.}
 
-\item{kappa}{The scale parameter of the Weibull distribution, default is \code{1}. 
-The Weibull distribution cannot be used for the piecewise
-   definition of the survival time distribution.}
+\item{kappa}{A numeric value >= 0. A \code{kappa != 1} will be used for the specification 
+of the shape of the Weibull distribution. 
+Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
+Note that the Weibull distribution cannot be used for the piecewise definition of 
+the survival time distribution, i.e., only \code{lambda} and \code{kappa} need to be specified.
+This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
+of the \code{stats} package, i.e., 
+the scale parameter is \code{1 / 'hazard rate'}.\cr
+For example, \cr
+\code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)} 
+and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
+}
+\value{
+Returns a \code{\link[base]{numeric}} value or vector will be returned.
 }
 \description{
 Functions to convert pi, lambda and median values into each other.

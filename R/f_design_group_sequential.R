@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Group sequential design --                                                      #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Group sequential design*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3454 $
+#:#  Last changed: $Date: 2020-08-03 15:40:13 +0200 (Mo, 03 Aug 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 #' @include f_core_constants.R
 NULL
@@ -47,16 +48,16 @@ NULL
 	}
 	
 	epsilonVec <- informationRates
-	epsilonVec[2 : kMax] <- informationRates[2 : kMax] - informationRates[1 : (kMax - 1)]
+	epsilonVec[2:kMax] <- informationRates[2:kMax] - informationRates[1:(kMax - 1)]
 	
 	informationRatesSqrt <- sqrt(informationRates)
 	epsilonVecSqrt <- sqrt(epsilonVec)
 	
-	for (k in 2 : kMax) {
+	for (k in 2:kMax) {
 		dx <- (decisionMatrix[2, k - 1] - decisionMatrix[1, k - 1]) / (M - 1)
 		w <- c(rep(c(492, 1296, 162, 1632, 162, 1296) * dx / 840, M %/% 6), 246 * dx / 840)
 		w[1] <- 246 * dx / 840
-		x <- rep(decisionMatrix[1, k - 1], M) + (0 : (M - 1)) * dx
+		x <- rep(decisionMatrix[1, k - 1], M) + (0:(M - 1)) * dx
 		
 		dn <- w * .getDnormValues(x, k, informationRates, epsilonVec, x2, dn2)
 		
@@ -75,10 +76,15 @@ NULL
 	return(probs)
 }
 
-
 .getDnormValues <- function(x, k, informationRates, epsilonVec, x2, dn2) {
-	# Old R-based call: return(sapply(x, .getDnormValuesSlow, k = k, informationRates = informationRates, epsilonVec = epsilonVec, x2 = x2, dn2 = dn2))
-	return(.Call("R_getDensityValues", x, as.integer(k), informationRates, epsilonVec, x2, dn2))
+	if (is.loaded("R_getDensityValues", PACKAGE = "rpact", type = "Call")) {
+		return(.Call("R_getDensityValues", x, as.integer(k), informationRates, epsilonVec, x2, dn2))
+	}
+
+	warning("Cannot execute .Call(\"R_getDensityValues\") because C function was not found in lookup table")
+	
+	# Slow R-based call
+	return(sapply(x, .getDnormValuesSlow, k = k, informationRates = informationRates, epsilonVec = epsilonVec, x2 = x2, dn2 = dn2))
 }
 
 .getDnormValuesSlow <- function(x, k, informationRates, epsilonVec, x2, dn2) {
@@ -156,7 +162,7 @@ NULL
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
 			return(sum(probs[3, ] - probs[2, ]) - design$alpha)
 		}									 
-	}, lower = 0, upper = 5, tolerance = design$tolerance)
+	}, lower = 0, upper = 5, tolerance = design$tolerance, callingFunctionInformation = ".getOptimumDesign")
 
 	design$criticalValues <- scale * design$informationRates^(deltaWT - 0.5)
 	designCharacteristics <- .getDesignCharacteristics(design = design)
@@ -190,11 +196,11 @@ NULL
 	
 	if (!(design$typeOfDesign %in% .getDesignTypes())) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"type of design (", design$typeOfDesign, ") must be one of the following :  ", .printDesignTypes())
+			"type of design (", design$typeOfDesign, ") must be one of the following: ", .printDesignTypes())
 	}
 	
 	if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT) {
-		.assertDesignParameterExists(design, "deltaWT", 0)
+		.assertDesignParameterExists(design, "deltaWT", NA_real_) 
 		
 		if (design$deltaWT < -0.5 || design$deltaWT > 1) {
 			stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, "'deltaWT' (", design$deltaWT, ") out of bounds [-0.5; 1]")
@@ -205,7 +211,7 @@ NULL
 		
 		if (!.isOptimizationCriterion(design$optimizationCriterion)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"optimization criterion must be one of the following :  ", .printOptimizationCriterion())
+				"optimization criterion must be one of the following: ", .printOptimizationCriterion())
 		}		
 	}
 	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
@@ -214,22 +220,22 @@ NULL
 		.assertIsInClosedInterval(design$constantBoundsHP, "constantBoundsHP", lower = 2, upper = NULL)
 	}
 	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_KD) {
-		.assertDesignParameterExists(design, "gammaA", 1)
+		.assertDesignParameterExists(design, "gammaA", NA_real_)
 		
 		if (design$gammaA < 0.4 || design$gammaA > 8) {
 			stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, 
 				"parameter 'gammaA' (", design$gammaA, ") for Kim & DeMets alpha ", 
 				"spending function out of bounds [0.4; 8]")
-		}			
+		}	
 	}
 	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_HSD) {
-		.assertDesignParameterExists(design, "gammaA", 1)
+		.assertDesignParameterExists(design, "gammaA", NA_real_)
 		
 		if (design$gammaA < -10 || design$gammaA > 5) {
 			stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, 
 				"Parameter 'gammaA' (", design$gammaA, ") for Hwang, Shih & DeCani ", 
 				"alpha spending function out of bounds [-10; 5]")
-		}			
+		}	
 	}
 	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
 		.validateUserAlphaSpending(design)		
@@ -245,27 +251,27 @@ NULL
 		
 		if (!.isBetaSpendingDesignType(design$typeBetaSpending, noneIncluded = TRUE)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-				"type of beta spending must be one of the following :  ", .printBetaSpendingDesignTypes())
+				"type of beta spending must be one of the following: ", .printBetaSpendingDesignTypes())
 		}
 		
 		if (design$typeBetaSpending == C_TYPE_OF_DESIGN_BS_KD) {
-			.assertDesignParameterExists(design, "gammaB", 1)
+			.assertDesignParameterExists(design, "gammaB", NA_real_)
 			
 			if (design$gammaB < 0.4 || design$gammaB > 8) {
 				stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
 					"Parameter 'gammaB' (", design$gammaB, ") for Kim & DeMets beta ", 
 					"spending function out of bounds [0.4; 8]")
-			}			
+			}
 		}
 		
 		if (design$typeBetaSpending == C_TYPE_OF_DESIGN_BS_HSD) {
-			.assertDesignParameterExists(design, "gammaB", 1)
+			.assertDesignParameterExists(design, "gammaB", NA_real_)
 			
 			if (design$gammaB < -10 || design$gammaB > 5) {
 				stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
 					"Parameter 'gammaB' (", design$gammaB, ") for Hwang, Shih & DeCani ", 
 					"beta spending out of bounds [-10; 5]")
-			}			
+			}	
 		}
 		
 		if (design$typeBetaSpending == C_TYPE_OF_DESIGN_BS_USER) {
@@ -315,7 +321,7 @@ NULL
 		}
 	}
 	
-	.assertDesignParameterExists(design, "sided", 1)
+	.assertDesignParameterExists(design, "sided", C_SIDED_DEFAULT)
 	.assertIsValidSidedParameter(design$sided)
 	
 	.setKmaxBasedOnAlphaSpendingDefintion(design)
@@ -337,17 +343,17 @@ NULL
 		kMax = NA_integer_, 
 		alpha = NA_real_, 
 		beta = NA_real_, 
-		sided = 1, 
+		sided = C_SIDED_DEFAULT, 
 		informationRates = NA_real_, 
 		futilityBounds = NA_real_, 		
 		typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN, 
-		deltaWT = 0, 
+		deltaWT = NA_real_, 
 		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, 
-		gammaA = 1, 
+		gammaA = NA_real_, 
 		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
 		userAlphaSpending = NA_real_, 
 		userBetaSpending = NA_real_, 
-		gammaB = 1, 
+		gammaB = NA_real_, 
 		bindingFutility = C_BINDING_FUTILITY_DEFAULT,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
 		twoSidedPower = NA,
@@ -392,7 +398,7 @@ NULL
 			") will be ignored because it is only applicable for 'typeOfDesign' = \"", C_TYPE_OF_DESIGN_HP, "\"")
 	}
 	if (is.na(twoSidedPower)) {
-		design$twoSidedPower <- FALSE
+		design$twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
 		design$.setParameterType("twoSidedPower", C_PARAM_DEFAULT_VALUE)
 	} else {
 		design$twoSidedPower <- twoSidedPower
@@ -439,7 +445,8 @@ NULL
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
 			return(sum(probs[3, ] - probs[2, ]) - design$alpha)
 		}									 
-	}, lower = 0, upper = 8, tolerance = design$tolerance)
+	}, lower = 0, upper = 8, tolerance = design$tolerance, 
+		callingFunctionInformation = ".getDesignGroupSequentialWangAndTsiatis")
 	design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
 	
 	.calculateAlphaSpent(design)
@@ -498,7 +505,8 @@ NULL
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
 			return(sum(probs[3, ] - probs[2, ]) - design$alpha)
 		}									 
-	}, lower = 0, upper = 8, tolerance = design$tolerance)
+	}, lower = 0, upper = 8, tolerance = design$tolerance, 
+		callingFunctionInformation = ".getDesignGroupSequentialHaybittleAndPeto")
 	
 	design$criticalValues <- c(rep(design$constantBoundsHP, design$kMax - 1), scale)
 	
@@ -548,7 +556,8 @@ NULL
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
 			return(sum(probs[3, ] - probs[2, ]) - design$alpha)
 		}									 
-	}, lower = 0, upper = 5, tolerance = design$tolerance)
+	}, lower = 0, upper = 5, tolerance = design$tolerance,
+		callingFunctionInformation = ".getDesignGroupSequentialWangAndTsiatisOptimum")
 	
 	design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
 	designCharacteristics <- .getDesignCharacteristics(design = design)	
@@ -569,7 +578,7 @@ NULL
 	spendingValue <- .getSpendingValue(design$alpha, design$informationRates[1], design$sided, 
 		design$typeOfDesign, design$gammaA)
 	if (spendingValue < 0) {
-		.logWarn("Cannot calculate alpha spent :  'spendingValue' (%s) is < 0", spendingValue)
+		.logWarn("Cannot calculate alpha spent: 'spendingValue' (%s) is < 0", spendingValue)
 		design$alphaSpent <- NA_real_
 		design$.setParameterType("alphaSpent", C_PARAM_GENERATED)
 		return(.getDesignGroupSequentialBetaSpendingApproaches(design))
@@ -577,12 +586,12 @@ NULL
 	
 	design$criticalValues[1] <- stats::qnorm(1 - spendingValue / design$sided)
 		
-	for (k in 2 : design$kMax) {
+	for (k in 2:design$kMax) {
 		design$criticalValues[k]  <- .getOneDimensionalRoot(function(scale) {
 			design$criticalValues[k] <- scale
 			if (design$sided == 2) {
 				decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
-				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1 : k], design$informationRates[1 : k])
+				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1:k], design$informationRates[1:k])
 				return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - .getSpendingValue(design$alpha, design$informationRates[k], 
 									design$sided, design$typeOfDesign, design$gammaA))
 			} else{
@@ -593,11 +602,12 @@ NULL
 					decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
 						design$criticalValues), nrow = 2, byrow = TRUE)
 				}
-				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1 : k], design$informationRates[1 : k])
+				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1:k], design$informationRates[1:k])
 				return(sum(probs[3, ] - probs[2, ]) - .getSpendingValue(design$alpha, design$informationRates[k], 
 					design$sided, design$typeOfDesign, design$gammaA))
 			}									 
-		}, lower = 0, upper = 8, tolerance = design$tolerance)
+		}, lower = 0, upper = 8, tolerance = design$tolerance,
+			callingFunctionInformation = ".getDesignGroupSequentialAlphaSpending")
 	}
 	
 	.calculateAlphaSpent(design)
@@ -612,13 +622,13 @@ NULL
 	
 	design$criticalValues <- rep(NA_real_, design$kMax)
 	design$criticalValues[1] <- stats::qnorm(1 - design$userAlphaSpending[1] / design$sided)
-	for (k in (2 : design$kMax)) {
+	for (k in (2:design$kMax)) {
 		design$criticalValues[k]  <- .getOneDimensionalRoot(function(scale) {
 			design$criticalValues[k] <- scale
 			if (design$sided == 2) {
 				decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), 
 					nrow = 2, byrow = TRUE)
-				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1 : k], design$informationRates[1 : k])
+				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1:k], design$informationRates[1:k])
 				return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - design$userAlphaSpending[k])
 			} else{
 				if (design$bindingFutility) {
@@ -628,10 +638,11 @@ NULL
 					decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
 						design$criticalValues), nrow = 2, byrow = TRUE)
 				}
-				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1 : k], design$informationRates[1 : k])
+				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1:k], design$informationRates[1:k])
 				return(sum(probs[3, ] - probs[2, ]) - design$userAlphaSpending[k])
 			}									 
-		}, lower = 0, upper = 8, tolerance = design$tolerance)
+		}, lower = 0, upper = 8, tolerance = design$tolerance,
+			callingFunctionInformation = ".getDesignGroupSequentialUserDefinedAlphaSpending")
 	}
 	
 	.calculateAlphaSpent(design)
@@ -685,7 +696,7 @@ NULL
 		futilityBounds <- rep(NA_real_, design$kMax)
 		futilityBounds[1] <- stats::qnorm(.getSpendingValue(design$beta, design$informationRates[1], design$sided, 
 			design$typeBetaSpending, design$gammaB)) + sqrt(design$informationRates[1]) * shift 
-		for (k in 2 : design$kMax) {
+		for (k in 2:design$kMax) {
 			cLower2 <- -6
 			cUpper2 <- 5
 			prec2 <- 1
@@ -694,7 +705,7 @@ NULL
 				futilityBounds[k] <- scale 
 				decisionMatrix <- matrix(c(futilityBounds - sqrt(design$informationRates) * shift, 
 					design$criticalValues - sqrt(design$informationRates) * shift), nrow = 2, byrow = TRUE)
-				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1 : k], design$informationRates[1 : k])
+				probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1:k], design$informationRates[1:k])
 				ifelse(sum(probs[1, ]) < .getSpendingValue(design$beta, design$informationRates[k], design$sided, 
 					design$typeBetaSpending, design$gammaB), cLower2 <- scale, cUpper2 <- scale)
 				ifelse (iteration > 0, prec2 <- cUpper2 - cLower2, prec2 <- 0)
@@ -718,7 +729,7 @@ NULL
 	design$.setParameterType("betaSpent", C_PARAM_GENERATED)
 	design$.setParameterType("power", C_PARAM_GENERATED)	
 
-	design$futilityBounds <- futilityBounds[1 : (design$kMax - 1)]
+	design$futilityBounds <- futilityBounds[1:(design$kMax - 1)]
 	design$.setParameterType("futilityBounds", C_PARAM_GENERATED)
 	
 	invisible(design)
@@ -754,7 +765,7 @@ NULL
 		shift <- (cLower1 + cUpper1)/2
 		futilityBounds <- rep(NA_real_, design$kMax)
 		futilityBounds[1] <- stats::qnorm(design$userBetaSpending[1]) + sqrt(design$informationRates[1]) * shift 
-		for (k in (2 : design$kMax)) {
+		for (k in (2:design$kMax)) {
 			cLower2 <- -6
 			cUpper2 <- 5
 			prec2 <- 1
@@ -763,7 +774,7 @@ NULL
 				futilityBounds[k] <- scale 
 				nDecisionMatrix <- (matrix(c(futilityBounds - sqrt(design$informationRates) * shift, 
 					design$criticalValues - sqrt(design$informationRates) * shift), nrow = 2, byrow = TRUE))
-				probs <- .getGroupSequentialProbabilities(nDecisionMatrix[, 1 : k], design$informationRates[1 : k])
+				probs <- .getGroupSequentialProbabilities(nDecisionMatrix[, 1:k], design$informationRates[1:k])
 				ifelse(sum(probs[1, ]) < design$userBetaSpending[k], cLower2 <- scale, cUpper2 <- scale)
 				ifelse (iteration > 0, prec2 <- cUpper2 - cLower2, prec2 <- 0)
 				iteration <- iteration - 1
@@ -787,7 +798,7 @@ NULL
 	design$.setParameterType("betaSpent", C_PARAM_GENERATED)
 	design$.setParameterType("power", C_PARAM_GENERATED)
 
-	design$futilityBounds <- futilityBounds[1 : (design$kMax - 1)]
+	design$futilityBounds <- futilityBounds[1:(design$kMax - 1)]
 	design$.setParameterType("futilityBounds", C_PARAM_GENERATED)
 	
 	invisible(design)
@@ -801,91 +812,43 @@ NULL
 #' Provides adjusted boundaries and defines a group sequential design for its use in 
 #' the inverse normal combination test.   
 #' 
-#' @param kMax The maximum number of stages K. K = 1, 2, 3,..., 10, default is \code{3}.
-#' @param alpha The significance level alpha, default is \code{0.025}. 
-#' @param beta Type II error rate, necessary for providing sample size calculations \cr
-#'        (e.g., \code{\link{getSampleSizeMeans}}), beta spending function designs, 
-#'        or optimum designs, default is \code{0.20}.
-#' @param sided One-sided or two-sided, default is \code{1}.
-#' @param typeOfDesign The type of design. Type of design is one of the following: 
-#'        O'Brien & Fleming ("OF"), Pocock ("P"), Wang & Tsiatis Delta class ("WT"), 
-#'        Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class ("WToptimum"), 
-#'        O'Brien & Fleming type alpha spending ("asOF"), Pocock type alpha spending ("asP"), 
-#'        Kim & DeMets alpha spending ("asKD"), Hwang, Shi & DeCani alpha spending ("asHSD"), 
-#'        user defined alpha spending ("asUser"), default is \code{"OF"}.
-#' @param informationRates The information rates, default is \code{(1 : kMax)/kMax}.
-#' @param futilityBounds The futility bounds (vector of length K - 1).
-#' @param bindingFutility If \code{bindingFutility = TRUE} is specified the calculation of 
-#'        the critical values is affected by the futility bounds (default is \code{FALSE}).
-#' @param deltaWT Delta for Wang & Tsiatis Delta class.
-#' @param constantBoundsHP The constant bounds up to stage K - 1 for the 
-#'        Haybittle & Peto design (default is \code{3}).
-#' @param optimizationCriterion Optimization criterion for optimum design within 
-#'        Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is \code{"ASNH1"}.
-#' @param typeBetaSpending Type of beta spending. Type of of beta spending is one of the following: 
-#'        O'Brien & Fleming type beta spending, Pocock type beta spending, 
-#'        Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined 
-#'        beta spending ("bsOF", "bsP",...).
-#' @param gammaA Parameter for alpha spending function, default is \code{1}.
-#' @param gammaB Parameter for beta spending function, default is \code{1}.
-#' @param userAlphaSpending The user defined alpha spending. Vector of length kMax containing the cumulative 
-#' 		  alpha-spending up to each interim stage.
-#' @param userBetaSpending The user defined beta spending. Vector of length kMax containing the cumulative 
-#' 		  beta-spending up to each interim stage.
-#' @param twoSidedPower For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
-#'        the sample size calculation is performed by considering both tails of the distribution. 
-#'        Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
-#'        should be directed to one part.
-#' @param tolerance The tolerance, default is \code{1e-08}.
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @inheritParams getDesignGroupSequential
 #' 
-#' @details 
-#' Depending on \code{typeOfDesign} some parameters are specified, others not. 
-#' For example, only if \code{typeOfDesign} "asHSD" is selected, \code{gammaA} needs to be specified.
+#' @template details_group_sequential_design
+#'
+#' @template return_object_trial_design
+#' @template how_to_get_help_for_generics
 #' 
-#' If an alpha spending approach was specified ("asOF", "asP", "asKD", "asHSD", or "asUser") 
-#' additionally a beta spending function can be specified to produce futility bounds.
+#' @family design functions
 #'
-#' @return Returns a \code{\link{TrialDesignInverseNormal}} object.
-#'
+#' @template examples_get_design_inverse_normal
+#'  
 #' @export
-#' 
-#' @seealso \code{\link{getDesignSet}} for creating a set of designs to compare.
-#' 
-#' @examples
-#' 
-#' # Run with default values
-#' getDesignInverseNormal() 
-#' 
-#' # Calculate the Pocock type alpha spending critical values if the second 
-#' # interim analysis was performed after 70% of information was observed
-#' getDesignInverseNormal(informationRates = c(0.4, 0.7), 
-#'     typeOfDesign = "asP") 
 #' 
 getDesignInverseNormal <- function(
 		...,
 		kMax = NA_integer_, 
 		alpha = NA_real_, 
 		beta = NA_real_, 
-		sided = 1, 
+		sided = 1, # C_SIDED_DEFAULT
 		informationRates = NA_real_, 
 		futilityBounds = NA_real_, 		
-		typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN, 
-		deltaWT = 0, 
-		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, 
-		gammaA = 1, 
-		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
+		typeOfDesign = c("OF", "P", "WT", "HP", "WToptimum", "asP", "asOF", "asKD", "asHSD", "asUser"), # C_DEFAULT_TYPE_OF_DESIGN,
+		deltaWT = NA_real_, 
+		optimizationCriterion = c("ASNH1", "ASNIFH1", "ASNsum"), # C_OPTIMIZATION_CRITERION_DEFAULT
+		gammaA = NA_real_, 
+		typeBetaSpending = c("none", "bsP", "bsOF", "bsKD", "bsHSD", "bsUser"), # C_TYPE_OF_DESIGN_BS_NONE
 		userAlphaSpending = NA_real_, 
 		userBetaSpending = NA_real_, 
-		gammaB = 1, 
+		gammaB = NA_real_, 
 		bindingFutility = NA,
-		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
-		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
-		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
-		
+		constantBoundsHP = 3, # C_CONST_BOUND_HP_DEFAULT,
+		twoSidedPower = NA,
+		tolerance = 1e-08 # C_DESIGN_TOLERANCE_DEFAULT	
+		) {
+			
 	.warnInCaseOfUnknownArguments(functionName = "getDesignInverseNormal", ...)
-		
+	
 	return(.getDesignGroupSequential(
 		designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,
 		kMax = kMax, 
@@ -915,46 +878,46 @@ getDesignInverseNormal <- function(
 		kMax = NA_integer_, 
 		alpha = NA_real_, 
 		beta = NA_real_, 
-		sided = 1, 
+		sided = C_SIDED_DEFAULT, 
 		informationRates = NA_real_, 
 		futilityBounds = NA_real_, 		
 		typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN, 
-		deltaWT = 0, 
+		deltaWT = NA_real_, 
 		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, 
-		gammaA = 1, 
+		gammaA = NA_real_, 
 		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
 		userAlphaSpending = NA_real_, 
 		userBetaSpending = NA_real_, 
-		gammaB = 1, 
+		gammaB = NA_real_, 
 		bindingFutility = NA,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
-		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
+		twoSidedPower = NA,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
 	
 	.warnInCaseOfUnknownArguments(functionName = "getDesignInverseNormal", ...)
 	
 	return(.getDesignGroupSequential(
-					designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,
-					kMax = kMax, 
-					alpha = alpha, 
-					beta = beta, 
-					sided = sided, 
-					informationRates = informationRates, 
-					futilityBounds = futilityBounds, 		
-					typeOfDesign = typeOfDesign, 
-					deltaWT = deltaWT, 
-					optimizationCriterion = optimizationCriterion, 
-					gammaA = gammaA, 
-					typeBetaSpending = typeBetaSpending, 
-					userAlphaSpending = userAlphaSpending, 
-					userBetaSpending = userBetaSpending, 
-					gammaB = gammaB, 
-					bindingFutility = bindingFutility,
-					constantBoundsHP = constantBoundsHP,
-					twoSidedPower = twoSidedPower,
-					tolerance = tolerance, 
-					userFunctionCallEnabled = FALSE
-			))
+		designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,
+		kMax = kMax, 
+		alpha = alpha, 
+		beta = beta, 
+		sided = sided, 
+		informationRates = informationRates, 
+		futilityBounds = futilityBounds, 		
+		typeOfDesign = typeOfDesign, 
+		deltaWT = deltaWT, 
+		optimizationCriterion = optimizationCriterion, 
+		gammaA = gammaA, 
+		typeBetaSpending = typeBetaSpending, 
+		userAlphaSpending = userAlphaSpending, 
+		userBetaSpending = userBetaSpending, 
+		gammaB = gammaB, 
+		bindingFutility = bindingFutility,
+		constantBoundsHP = constantBoundsHP,
+		twoSidedPower = twoSidedPower,
+		tolerance = tolerance, 
+		userFunctionCallEnabled = FALSE
+	))
 }
 
 .getDesignGroupSequentialDefaultValues <- function() {
@@ -962,17 +925,17 @@ getDesignInverseNormal <- function(
 		kMax = NA_integer_, 
 		alpha = NA_real_, 
 		beta = NA_real_, 
-		sided = 1, 
+		sided = C_SIDED_DEFAULT,
 		informationRates = NA_real_, 
 		futilityBounds = NA_real_, 		
 		typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN, 
-		deltaWT = 0, 
+		deltaWT = NA_real_, 
 		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, 
-		gammaA = 1, 
+		gammaA = NA_real_, 
 		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
 		userAlphaSpending = NA_real_, 
 		userBetaSpending = NA_real_, 
-		gammaB = 1, 
+		gammaB = NA_real_, 
 		twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT
 	))
@@ -991,26 +954,29 @@ getDesignInverseNormal <- function(
 		kMax = NA_integer_, 
 		alpha = NA_real_, 
 		beta = NA_real_, 
-		sided = 1, 
+		sided = C_SIDED_DEFAULT, 
 		informationRates = NA_real_, 
 		futilityBounds = NA_real_, 		
 		typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN, 
-		deltaWT = 0, 
+		deltaWT = NA_real_, 
 		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, 
-		gammaA = 1, 
+		gammaA = NA_real_, 
 		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
 		userAlphaSpending = NA_real_, 
 		userBetaSpending = NA_real_, 
-		gammaB = 1, 
+		gammaB = NA_real_, 
 		bindingFutility = C_BINDING_FUTILITY_DEFAULT,
 		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
 		twoSidedPower = NA,
 		tolerance = C_DESIGN_TOLERANCE_DEFAULT, 
 		userFunctionCallEnabled = FALSE) {
 	
+	typeOfDesign <- .matchArgument(typeOfDesign, C_DEFAULT_TYPE_OF_DESIGN)
+	optimizationCriterion <- .matchArgument(optimizationCriterion, C_OPTIMIZATION_CRITERION_DEFAULT)
+	typeBetaSpending <- .matchArgument(typeBetaSpending, C_TYPE_OF_DESIGN_BS_NONE)		
+
 	if (.isDefinedArgument(kMax, argumentExistsValidationEnabled = userFunctionCallEnabled)) {
 		.assertIsValidKMax(kMax)
-		
 		if (!is.integer(kMax)) {
 			kMax <- as.integer(kMax)
 		}
@@ -1018,8 +984,8 @@ getDesignInverseNormal <- function(
 	
 	if (is.na(bindingFutility)) {
 		bindingFutility <- C_BINDING_FUTILITY_DEFAULT
-	} else if (userFunctionCallEnabled && 
-			((!is.na(kMax) && kMax == 1) || (!any(is.na(futilityBounds)) &&
+	} 
+	else if (userFunctionCallEnabled && ((!is.na(kMax) && kMax == 1) || (!any(is.na(futilityBounds)) &&
 			all(futilityBounds == C_FUTILITY_BOUNDS_DEFAULT)))) {
 		warning("'bindingFutility' (", bindingFutility, ") will be ignored", call. = FALSE)
 	}
@@ -1048,17 +1014,27 @@ getDesignInverseNormal <- function(
 	if (userFunctionCallEnabled) {
 		.validateBaseParameters(design)
 		.validateTypeOfDesign(design)
-			
+		
+		.assertIsValidTolerance(tolerance)	
 		.assertDesignParameterExists(design, "alpha", C_ALPHA_DEFAULT)
 		.assertDesignParameterExists(design, "beta", C_BETA_DEFAULT)
-		.assertDesignParameterExists(design, "sided", 1)
+		.assertDesignParameterExists(design, "sided", C_SIDED_DEFAULT)
 		.assertDesignParameterExists(design, "typeOfDesign", C_DEFAULT_TYPE_OF_DESIGN)
 		.assertDesignParameterExists(design, "bindingFutility", C_BINDING_FUTILITY_DEFAULT)
-		#.assertDesignParameterExists(design, "twoSidedPower", C_TWO_SIDED_POWER_DEFAULT)
 		.assertDesignParameterExists(design, "tolerance", C_DESIGN_TOLERANCE_DEFAULT)
+		
+		if (typeOfDesign != C_TYPE_OF_DESIGN_WT && !is.na(deltaWT)) {
+			warning("'deltaWT' (", deltaWT, ") will be ignored. ", call. = FALSE)
+		}
+		if ((typeOfDesign != C_TYPE_OF_DESIGN_AS_KD) && 
+				(typeOfDesign != C_TYPE_OF_DESIGN_AS_HSD) && !is.na(gammaA)) {
+			warning("'gammaA' (", gammaA, ") will be ignored. ", call. = FALSE)
+		}
+		if ((typeBetaSpending != C_TYPE_OF_DESIGN_BS_KD) && 
+				(typeBetaSpending != C_TYPE_OF_DESIGN_BS_HSD) && !is.na(gammaB)) {
+			warning("'gammaB' (", gammaB, ") will be ignored. ", call. = FALSE)
+		}
 	}
-	
-	
 	
 	if (design$sided == 2 && design$bindingFutility) {
 		warning("'bindingFutility' will be ignored because the test is defined as two-sided", call. = FALSE)
@@ -1128,93 +1104,86 @@ getDesignInverseNormal <- function(
 	
 	if (length(design$futilityBounds) == 0 ||
 			all(design$futilityBounds == C_FUTILITY_BOUNDS_DEFAULT)) {
-		# design$bindingFutility <- NA
 		design$.setParameterType("bindingFutility", C_PARAM_NOT_APPLICABLE)
 		design$.setParameterType("futilityBounds", C_PARAM_NOT_APPLICABLE)
 	}
 	
+	design$.initStages()
+	
 	return(design)
 }
 
+#'
 #' @title
 #' Get Design Group Sequential
 #' 
 #' @description
 #' Provides adjusted boundaries and defines a group sequential design.   
 #' 
-#' @param kMax The maximum number of stages K. K = 1, 2, 3,..., 10, default is \code{3}.
-#' @param alpha The significance level alpha, default is \code{0.025}. 
-#' @param beta Type II error rate, necessary for providing sample size calculations \cr
-#'        (e.g., \code{\link{getSampleSizeMeans}}), beta spending function designs, 
-#'        or optimum designs, default is \code{0.20}.
-#' @param sided One-sided or two-sided, default is \code{1}.
-#' @param typeOfDesign The type of design. Type of design is one of the following: 
-#'        O'Brien & Fleming ("OF"), Pocock ("P"), Wang & Tsiatis Delta class ("WT"), 
-#'        Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class ("WToptimum"), 
-#'        O'Brien & Fleming type alpha spending ("asOF"), Pocock type alpha spending ("asP"), 
-#'        Kim & DeMets alpha spending ("asKD"), Hwang, Shi & DeCani alpha spending ("asHSD"), 
-#'        user defined alpha spending ("asUser"), default is \code{"OF"}.
-#' @param informationRates The information rates, default is \code{(1 : kMax)/kMax}.
-#' @param futilityBounds The futility bounds, defined on the test statistic z scale (vector of length K - 1).
-#' @param bindingFutility If \code{bindingFutility = TRUE} is specified the calculation of 
-#'        the critical values is affected by the futility bounds (default is \code{FALSE}).
+#' @inheritParams param_kMax
+#' @inheritParams param_alpha 
+#' @inheritParams param_beta 
+#' @inheritParams param_sided
+#' @inheritParams param_typeOfDesign 
+#' @inheritParams param_informationRates
+#' @param futilityBounds The futility bounds, defined on the test statistic z scale 
+#'        (numeric vector of length \code{kMax - 1}).
+#' @inheritParams param_bindingFutility
 #' @param deltaWT Delta for Wang & Tsiatis Delta class.
-#' @param constantBoundsHP The constant bounds up to stage K - 1 for the 
+#' @param constantBoundsHP The constant bounds up to stage \code{kMax - 1} for the 
 #'        Haybittle & Peto design (default is \code{3}).
 #' @param optimizationCriterion Optimization criterion for optimum design within 
-#'        Wang & Tsiatis class ("ASNH1", "ASNIFH1", "ASNsum"), default is \code{"ASNH1"}.
+#'        Wang & Tsiatis class (\code{"ASNH1"}, \code{"ASNIFH1"}, 
+#'        \code{"ASNsum"}), default is \code{"ASNH1"}, see details.
 #' @param typeBetaSpending Type of beta spending. Type of of beta spending is one of the following: 
 #'        O'Brien & Fleming type beta spending, Pocock type beta spending, 
 #'        Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined 
-#'        beta spending ("bsOF", "bsP",...).
-#' @param gammaA Parameter for alpha spending function, default is \code{1}.
-#' @param gammaB Parameter for beta spending function, default is \code{1}.
-#' @param userAlphaSpending The user defined alpha spending. Vector of length kMax containing the cumulative 
-#' 		  alpha-spending up to each interim stage.
-#' @param userBetaSpending The user defined beta spending. Vector of length kMax containing the cumulative 
+#'        beta spending (\code{"bsOF"}, \code{"bsP"}, \code{"bsKD"}, 
+#'        \code{"bsHSD"}, \code{"bsUser"}, default is \code{"none"}).
+#' @param gammaA Parameter for alpha spending function.
+#' @param gammaB Parameter for beta spending function.
+#' @inheritParams param_userAlphaSpending
+#' @param userBetaSpending The user defined beta spending. Vector of length \code{kMax} containing the cumulative 
 #' 		  beta-spending up to each interim stage.
 #' @param twoSidedPower For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
 #'        the sample size calculation is performed by considering both tails of the distribution. 
 #'        Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 #'        should be directed to one part.
-#' @param tolerance The tolerance, default is \code{1e-08}.
-#' @param ... Ensures that all arguments are be named and 
-#'        that a warning will be displayed if unknown arguments are passed.
+#' @param tolerance The numerical tolerance, default is \code{1e-08}.
+#' @inheritParams param_three_dots
 #' 
-#' @details 
-#' Depending on \code{typeOfDesign} some parameters are specified, others not. 
-#' For example, only if \code{typeOfDesign} "asHSD" is selected, \code{gammaA} needs to be specified.
+#' @template details_group_sequential_design
+#'
+#' @template return_object_trial_design
+#' @template how_to_get_help_for_generics
 #' 
-#' If an alpha spending approach was specified ("asOF", "asP", "asKD", "asHSD", or "asUser") 
-#' additionally a beta spending function can be specified to produce futility bounds.
-#'
-#' @return Returns a \code{\link{TrialDesignGroupSequential}} object.
-#'
+#' @family design functions
+#' 
+#' @template examples_get_design_group_sequential
+#' 
 #' @export
 #' 
-#' @seealso \code{\link{getDesignSet}} for creating a set of designs to compare.
-#' 
-#' @examples
-#' 
-#' # Run with default values
-#' getDesignGroupSequential() 
-#' 
-#' # Calculate the Pocock type alpha spending critical values if the second 
-#' # interim analysis was performed after 70% of information was observed
-#' getDesignGroupSequential(informationRates = c(0.4, 0.7), typeOfDesign = "asP") 
-#' 
 getDesignGroupSequential <- function(
-		..., kMax = NA_integer_, alpha = NA_real_, 
-		beta = NA_real_, sided = 1, 
-		informationRates = NA_real_, futilityBounds = NA_real_, 		
-		typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN, deltaWT = 0, 
-		optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT, gammaA = 1, 
-		typeBetaSpending = C_TYPE_OF_DESIGN_BS_NONE, 
-		userAlphaSpending = NA_real_, userBetaSpending = NA_real_, gammaB = 1, 
+		...,
+		kMax = NA_integer_, 
+		alpha = NA_real_, 
+		beta = NA_real_, 
+		sided = 1, # C_SIDED_DEFAULT
+		informationRates = NA_real_, 
+		futilityBounds = NA_real_, 		
+		typeOfDesign = c("OF", "P", "WT", "HP", "WToptimum", "asP", "asOF", "asKD", "asHSD", "asUser"), # C_DEFAULT_TYPE_OF_DESIGN,
+		deltaWT = NA_real_, 
+		optimizationCriterion = c("ASNH1", "ASNIFH1", "ASNsum"), # C_OPTIMIZATION_CRITERION_DEFAULT
+		gammaA = NA_real_, 
+		typeBetaSpending = c("none", "bsP", "bsOF", "bsKD", "bsHSD", "bsUser"), # C_TYPE_OF_DESIGN_BS_NONE
+		userAlphaSpending = NA_real_, 
+		userBetaSpending = NA_real_, 
+		gammaB = NA_real_, 
 		bindingFutility = NA,
-		constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
+		constantBoundsHP = 3, # C_CONST_BOUND_HP_DEFAULT,
 		twoSidedPower = NA,
-		tolerance = C_DESIGN_TOLERANCE_DEFAULT) {
+		tolerance = 1e-08 # C_DESIGN_TOLERANCE_DEFAULT	
+		) {
 		
 	.warnInCaseOfUnknownArguments(functionName = "getDesignGroupSequential", ...)
 	
@@ -1256,7 +1225,7 @@ getDesignGroupSequential <- function(
 			}, 
 			lower = 0, 
 			upper = 2 * (stats::qnorm(1 - alpha / 2) + stats::qnorm(1 - beta))^2, 
-			tolerance = 1e-08)
+			tolerance = 1e-08, callingFunctionInformation = ".getFixedSampleSize")
 	} else {
 		n <- (stats::qnorm(1 - alpha / 2) + stats::qnorm(1 - beta))^2
 	}	
@@ -1270,7 +1239,7 @@ getDesignGroupSequential <- function(
 #' @description  
 #' Calculates the characteristics of a design and returns it.
 #' 
-#' @param design The design.
+#' @inheritParams param_design
 #' 
 #' @details 
 #' Calculates the inflation factor (IF), 
@@ -1279,13 +1248,22 @@ getDesignGroupSequential <- function(
 #' under the prototype case testing H0: mu = 0 against H1: mu = 1.
 #' 
 #' @return Returns a \code{\link{TrialDesignCharacteristics}} object.
+#' The following generics (R generic functions) are available for this result object:
+#' \itemize{
+#'   \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+#'   \item \code{\link[=print.FieldSet]{print}} to print the object,
+#'   \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+#'   \item \code{\link[=plot.ParameterSet]{plot}} to plot the object,
+#'   \item \code{\link[=as.data.frame.TrialDesignCharacteristics]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+#'   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+#' }
+#' @template how_to_get_help_for_generics
+#' 
+#' @family design functions
+#' 
+#' @template examples_get_design_characteristics
 #'
 #' @export
-#' 
-#' @examples
-#' 
-#' # Run with default values
-#' getDesignCharacteristics(getDesignGroupSequential()) 
 #' 
 getDesignCharacteristics <- function(design) {
 	return(.getDesignCharacteristics(design = design, userFunctionCallEnabled = TRUE) )
@@ -1294,7 +1272,7 @@ getDesignCharacteristics <- function(design) {
 .getDesignCharacteristics <- function(..., design, userFunctionCallEnabled = FALSE) {
 
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
-	.assertDesignParameterExists(design, "sided", 1)
+	.assertDesignParameterExists(design, "sided", C_SIDED_DEFAULT)
 	.assertIsValidSidedParameter(design$sided)	
 	
 	if (userFunctionCallEnabled) {
@@ -1350,7 +1328,7 @@ getDesignCharacteristics <- function(design) {
 				return(sum(probs[3, ] - probs[2, ]) - 1 + design$beta)
 			}	
 		} else {
-			shiftedFutilityBounds <- design$futilityBounds - sqrt(shift*informationRates[1 : (design$kMax - 1)])
+			shiftedFutilityBounds <- design$futilityBounds - sqrt(shift*informationRates[1:(design$kMax - 1)])
 			shiftedFutilityBounds[design$futilityBounds <= C_FUTILITY_BOUNDS_DEFAULT] <- 
 					C_FUTILITY_BOUNDS_DEFAULT
 			decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
@@ -1359,13 +1337,13 @@ getDesignCharacteristics <- function(design) {
 			return(sum(probs[3, ] - probs[2, ]) - 1 + design$beta)
 		}
 	}, lower = 0, upper = 4 * (stats::qnorm(1 - design$alpha / design$sided) + stats::qnorm(1 - design$beta))^2, 
-		tolerance = design$tolerance)
+		tolerance = design$tolerance, callingFunctionInformation = ".getDesignCharacteristics")
 	
 	if (design$sided == 2) {
 		decisionMatrix <- matrix(c(-design$criticalValues - sqrt(shift*informationRates), 
 						design$criticalValues - sqrt(shift*informationRates)), nrow = 2, byrow = TRUE)
 	} else {
-		shiftedFutilityBounds <- design$futilityBounds - sqrt(shift*informationRates[1 : (design$kMax - 1)])
+		shiftedFutilityBounds <- design$futilityBounds - sqrt(shift*informationRates[1:(design$kMax - 1)])
 		shiftedFutilityBounds[design$futilityBounds <= C_FUTILITY_BOUNDS_DEFAULT] <- 
 				C_FUTILITY_BOUNDS_DEFAULT
 		decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
@@ -1396,7 +1374,7 @@ getDesignCharacteristics <- function(design) {
 		if (design$sided == 2) {
 			designCharacteristics$futilityProbabilities <- rep(0, design$kMax - 1)
 		} else {
-			designCharacteristics$futilityProbabilities <- probs[1, 1 : (design$kMax - 1)]
+			designCharacteristics$futilityProbabilities <- probs[1, 1:(design$kMax - 1)]
 		}
 		designCharacteristics$.setParameterType("futilityProbabilities", C_PARAM_GENERATED)
 	} 	
@@ -1421,7 +1399,7 @@ getDesignCharacteristics <- function(design) {
 		decisionMatrix <- matrix(c(-design$criticalValues - sqrt(shift * informationRates) / 2, 
 				design$criticalValues - sqrt(shift * informationRates) / 2), nrow = 2, byrow = TRUE)
 	} else {
-		shiftedFutilityBounds <- design$futilityBounds - sqrt(shift * informationRates[1 : (design$kMax - 1)]) / 2
+		shiftedFutilityBounds <- design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]) / 2
 		shiftedFutilityBounds[design$futilityBounds <= C_FUTILITY_BOUNDS_DEFAULT] <- C_FUTILITY_BOUNDS_DEFAULT
 		decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, design$criticalValues - sqrt(shift * informationRates) / 2), nrow = 2, byrow = TRUE)
 	}
@@ -1440,9 +1418,9 @@ getDesignCharacteristics <- function(design) {
 }
 
 .getAverageSampleNumber <- function(kMax, informationRates, probs, shift, nFixed) {
-	return((shift - sum((probs[3, 1 : (kMax - 1)] - 
-		probs[2, 1 : (kMax - 1)] + probs[1, 1 : (kMax - 1)]) * 
-		(informationRates[kMax] - informationRates[1 : (kMax - 1)]) * shift)) / nFixed)
+	return((shift - sum((probs[3, 1:(kMax - 1)] - 
+		probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]) * 
+		(informationRates[kMax] - informationRates[1:(kMax - 1)]) * shift)) / nFixed)
 }
 
 #' 
@@ -1452,26 +1430,37 @@ getDesignCharacteristics <- function(design) {
 #' @description 
 #' Returns the power and average sample number of the specified design.
 #' 
-#' @param design The design.
-#' @param theta A vector of standardized effect sizes.
-#' @param nMax The maximum sample size.
+#' @inheritParams param_design
+#' @inheritParams param_theta
+#' @inheritParams param_nMax
 #' 
 #' @details 
-#' This function returns the power and average sample number (ASN) of the specified design for the prototype case which is testing H0: mu = mu0 in a one-sample design.
-#' theta represents the standardized effect (mu - mu0)/sigma and power and ASN is calculated for maximum sample size nMax.
+#' This function returns the power and average sample number (ASN) of the specified 
+#' design for the prototype case which is testing H0: mu = mu0 in a one-sample design.
+#' \code{theta} represents the standardized effect \code{(mu - mu0) / sigma} and power and ASN 
+#' is calculated for maximum sample size \code{nMax}.
 #' For other designs than the one-sample test of a mean the standardized effect needs to be adjusted accordingly.  
 #' 
 #' @return Returns a \code{\link{PowerAndAverageSampleNumberResult}} object.
+#' The following generics (R generic functions) are available for this result object:
+#' \itemize{
+#'   \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+#'   \item \code{\link[=print.FieldSet]{print}} to print the object,
+#'   \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+#'   \item \code{\link[=plot.ParameterSet]{plot}} to plot the object,
+#'   \item \code{\link[=as.data.frame.PowerAndAverageSampleNumberResult]{as.data.frame}} 
+#'         to coerce the object to a \code{\link[base]{data.frame}},
+#'   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+#' }
+#' @template how_to_get_help_for_generics
+#' 
+#' @family design functions
+#' 
+#' @template examples_get_power_and_average_sample_number
 #' 
 #' @export
 #' 
-#' @examples 
-#' 
-#' getPowerAndAverageSampleNumber(
-#'     getDesignGroupSequential(), 
-#'     theta = seq(-1, 1, 0.5), nMax = 100)
-#' 
-getPowerAndAverageSampleNumber <- function(design, theta = seq(-1, 1, 0.02), nMax = 100) {	
+getPowerAndAverageSampleNumber <- function(design, theta = seq(-1, 1, 0.02), nMax = 100) {
 	.assertIsTrialDesign(design)
 	.assertIsSingleNumber(nMax, "nMax")
 	.assertIsInClosedInterval(nMax, "nMax", lower = 1, upper = NULL)

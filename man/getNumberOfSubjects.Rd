@@ -7,35 +7,67 @@
 getNumberOfSubjects(
   time,
   ...,
-  accrualTime = C_ACCRUAL_TIME_DEFAULT,
-  accrualIntensity = C_ACCRUAL_INTENSITY_DEFAULT,
+  accrualTime = c(0L, 12L),
+  accrualIntensity = 0.1,
   maxNumberOfSubjects = NA_real_
 )
 }
 \arguments{
 \item{time}{A numeric vector with time values.}
 
-\item{...}{Ensures that all arguments are be named and 
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
 \item{accrualTime}{The assumed accrual time intervals for the study, default is 
-\code{c(0,12)} (see details).}
+\code{c(0, 12)} (for details see \code{\link{getAccrualTime}}).}
 
 \item{accrualIntensity}{A vector of accrual intensities, default is the relative 
-intensity \code{0.1} (see details).}
+intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
 
 \item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified, 
-the end of accrual at specified \code{accrualIntensity} for the specified number of subjects is determined or
-   \code{accrualIntensity} is calculated at fixed end of accrual.}
+the end of accrual at specified \code{accrualIntensity} for the specified number of 
+subjects is determined or \code{accrualIntensity} is calculated at fixed end of accrual.}
 }
 \value{
 Returns a \code{\link{NumberOfSubjects}} object.
+The following generics (R generic functions) are available for this result object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.NumberOfSubjects]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Returns the number of recruited subjects at given time vector.
 }
 \details{
-For details of the parameters \code{accrualTime} and \code{accrualIntensity} 
-see \code{\link{getSampleSizeSurvival}}.
+Calculate number of subjects over time range at given accrual time vector
+and accrual intensity. Intensity can either be defined in absolute or
+relative terms (for the latter, \code{maxNumberOfSubjects} needs to be defined)\cr 
+The function is used by \code{\link{getSampleSizeSurvival}}.
 }
-\keyword{internal}
+\section{How to get help for generic functions}{
+
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+}
+
+\examples{
+getNumberOfSubjects(time = seq(10, 70, 10), accrualTime = c(0, 20, 60), 
+    accrualIntensity = c(5, 20))
+
+getNumberOfSubjects(time = seq(10, 70, 10), accrualTime = c(0, 20, 60), 
+    accrualIntensity = c(0.1, 0.4), maxNumberOfSubjects = 900)
+
+}
+\seealso{
+\code{\link{AccrualTime}} for defining the accrual time.
+}

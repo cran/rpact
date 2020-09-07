@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Trial design set classes --                                                     #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Trial design set classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3585 $
+#:#  Last changed: $Date: 2020-09-03 15:27:08 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 #' @include f_core_plot.R
 NULL
@@ -26,37 +27,105 @@ NULL
 #' @description  
 #' Creates a trial design set object and returns it.    
 #' 
-#' @param ... 'designs' OR 'design' and one or more design parameters, e.g., deltaWT = c(0.1, 0.3, 0.4).
+#' @param ... \code{designs} or \code{design} and one or more design parameters, e.g., \code{deltaWT = c(0.1, 0.3, 0.4)}.
 #' \itemize{
 #'   \item \code{design} The master design (optional, you need to specify an 
 #'         additional parameter that shall be varied).
-#'   \item \code{designs} The designs to compare (optional).
+#'   \item \code{designs} The designs to compare (optional, you need to specify the variable \code{variedParameters}).
 #' }
 #' 
 #' @details 
 #' Specify a master design and one or more design parameters or a list of designs.
 #' 
 #' @return Returns a \code{\link{TrialDesignSet}} object.
+#' The following generics (R generic functions) are available for this result object:
+#' \itemize{
+#'   \item \code{\link[=names.TrialDesignSet]{names}} to obtain the field names,
+#'   \item \code{\link[=length.TrialDesignSet]{length}} to obtain the number of design,
+#'   \item \code{\link[=print.FieldSet]{print}} to print the object,
+#'   \item \code{\link[=summary.TrialDesignSet]{summary}} to display a summary of the object,
+#'   \item \code{\link[=plot.TrialDesignSet]{plot}} to plot the object,
+#'   \item \code{\link[=as.data.frame.TrialDesignSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+#'   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+#' }
+#' @template how_to_get_help_for_generics
 #'  
 #' @examples
-#' 
 #' # Example 1
-#'  design <- getDesignGroupSequential(alpha = 0.05, kMax = 6, 
+#' design <- getDesignGroupSequential(alpha = 0.05, kMax = 6, 
 #'     sided = 2, typeOfDesign = "WT", deltaWT = 0.1)
-#'  designSet <- getDesignSet()
-#'  designSet$add(design = design, deltaWT = c(0.3, 0.4))
-#'  if (require(ggplot2)) plot(designSet, type = 1)
+#' designSet <- getDesignSet()
+#' designSet$add(design = design, deltaWT = c(0.3, 0.4))
+#' \donttest{
+#' if (require(ggplot2)) plot(designSet, type = 1)
+#' }
 #' 
 #' # Example 2 (shorter script)
 #' design <- getDesignGroupSequential(alpha = 0.05, kMax = 6, 
 #'     sided = 2, typeOfDesign = "WT", deltaWT = 0.1)
 #' designSet <- getDesignSet(design = design, deltaWT = c(0.3, 0.4))
-#' if (require(ggplot2)) plot(designSet)
-#'
+#' \donttest{
+#' if (require(ggplot2)) plot(designSet, type = 1)
+#' }
+#' 
+#' # Example 3 (use of designs instead of design)
+#' d1 <- getDesignGroupSequential(alpha = 0.05, kMax = 2,
+#'		 sided = 1, beta = 0.2, typeOfDesign = "asHSD",
+#'		 gammaA = 0.5, typeBetaSpending = "bsHSD", gammaB = 0.5)
+#' d2 <- getDesignGroupSequential(alpha = 0.05, kMax = 4,
+#'		 sided = 1, beta = 0.2, typeOfDesign = "asP",
+#'		 typeBetaSpending = "bsP")
+#' designSet <- getDesignSet (designs = c(d1, d2),
+#'		 variedParameters = c("typeOfDesign", "kMax"))
+#' \donttest{
+#' if (require(ggplot2)) plot(designSet, type = 8, nMax = 20)
+#' } 
+#' 
 #' @export
 #' 
 getDesignSet <- function(...) {
 	return(TrialDesignSet(...))
+}
+
+#'
+#' @name Trial_Design_Set_summary
+#' 
+#' @title
+#' Trial Design Set Summary
+#'
+#' @description
+#' Displays a summary of \code{\link{ParameterSet}} object.
+#' 
+#' @param object A \code{\link{ParameterSet}} object.
+#' @inheritParams param_digits
+#' @inheritParams param_three_dots
+#' 
+#' @details
+#' Summarizes the trial designs.
+#' 
+#' @template details_summary
+#' 
+#' @template return_object_summary
+#' @template how_to_get_help_for_generics
+#' 
+#' @export
+#' 
+#' @keywords internal
+#' 
+summary.TrialDesignSet <- function(object, ..., type = 1, digits = NA_integer_) {
+	.warnInCaseOfUnknownArguments(functionName = "summary.TrialDesignSet", ...)
+	
+	.assertIsTrialDesignSet(object)	
+	if (object$isEmpty()) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "cannot create summary because the design set is empty")
+	}
+
+	summaries <- list()
+	for (design in object$designs) {
+		s <- .createSummary(design, digits = digits)
+		summaries <- c(summaries, s)
+	}
+	return(summaries)
 }
 
 #' 
@@ -72,7 +141,7 @@ getDesignSet <- function(...) {
 #' @field design The master design (optional).
 #' 
 #' @details
-#' This object can not be created directly; better use \code{\link{getDesignSet}} 
+#' This object cannot be created directly; better use \code{\link{getDesignSet}} 
 #' with suitable arguments to create a set of designs.
 #' 
 #' @seealso \code{\link{getDesignSet}}
@@ -170,7 +239,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 				variedParameters <<- c(variedParameters, varPar)
 			}
 			
-			args <- args[names(args) != "designs" && names(args) != "variedParameters"]
+			args <- args[!(names(args) %in% c("designs", "variedParameters"))]
 			if (length(args) > 0) {
 				warning("Argument", ifelse(length(args) > 1, "s", ""), " ", 
 					.arrayToString(args, encapsulate = TRUE), " will be ignored ", 
@@ -453,19 +522,25 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 #' 
 #' @details
 #' Can be used to iterate with "[index]"-syntax over all designs in a design set.
+#' 
+#' @examples
+#' designSet <- getDesignSet(design = getDesignFisher(), alpha = c(0.01, 0.05))
+#' for (i in 1:length(designSet)) {
+#'   print(designSet[i]$alpha)
+#' }
 #'
 #' @export
 #' 
 #' @keywords internal
 #' 
 setMethod("[", "TrialDesignSet",
-	function(x, i, j = NA_character_) {
+	function(x, i, j = NA_character_, ...) {
 		if (length(x$designs) == 0) {
 			return(NULL)
 		}
 		
 		design <- x$designs[[i]]
-		if (!is.na(j) && is.character(j)) {
+		if (!missing(j) && !is.na(j) && is.character(j)) {
 			return(design[[j]])
 		}
 		
@@ -477,13 +552,21 @@ setMethod("[", "TrialDesignSet",
 #' @name TrialDesignSet_names
 #' 
 #' @title
-#' The Names of a Trial Design Set object
+#' Names of a Trial Design Set Object
 #'
 #' @description
-#' Function to get the names of a \code{TrialDesignSet} object.
+#' Function to get the names of a \code{\link{TrialDesignSet}} object.
+#' 
+#' @param x A \code{\link{TrialDesignSet}} object.
 #' 
 #' @details
 #' Returns the names of a design set that can be accessed by the user.
+#' 
+#' @template return_names
+#' 
+#' @examples
+#' designSet <- getDesignSet(design = getDesignGroupSequential(), alpha = c(0.01, 0.05))
+#' names(designSet)
 #'
 #' @export
 #' 
@@ -502,8 +585,17 @@ names.TrialDesignSet <- function(x) {
 #' @description
 #' Returns the number of designs in a \code{TrialDesignSet}.
 #' 
+#' @param x A \code{\link{TrialDesignSet}} object.
+#' 
 #' @details
 #' Is helpful for iteration over all designs in a design set with "[index]"-syntax.
+#' 
+#' @return Returns a non-negative \code{\link[base]{integer}} of length 1 
+#' representing the number of design in the \code{TrialDesignSet}.
+#' 
+#' @examples
+#' designSet <- getDesignSet(design = getDesignGroupSequential(), alpha = c(0.01, 0.05))
+#' length(designSet)
 #'
 #' @export
 #' 
@@ -522,8 +614,23 @@ length.TrialDesignSet <- function(x) {
 #' @description
 #' Returns the \code{TrialDesignSet} as data frame.
 #' 
+#' @param x A \code{\link{TrialDesignSet}} object.
+#' @inheritParams param_niceColumnNamesEnabled
+#' @inheritParams param_includeAllParameters
+#' @param addPowerAndAverageSampleNumber If \code{TRUE}, power and average sample size will 
+#'        be added to data frame, default is \code{FALSE}.
+#' @inheritParams param_theta
+#' @inheritParams param_nMax
+#' @inheritParams param_three_dots
+#' 
 #' @details
 #' Coerces the design set to a data frame.
+#' 
+#' @template return_dataframe
+#' 
+#' @examples
+#' designSet <- getDesignSet(design = getDesignGroupSequential(), alpha = c(0.01, 0.05))
+#' as.data.frame(designSet)
 #' 
 #' @export
 #' 
@@ -535,7 +642,7 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 	
 	.assertIsTrialDesignSet(x)	
 	if (x$isEmpty()) {
-		stop("The design set is empty")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "cannot create data.frame because the design set is empty")
 	}
 	
 	fCall = match.call(expand.dots = FALSE)
@@ -551,7 +658,7 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 	dataFrame <- NULL
 	for (design in x$designs) {
 		if (fisherDesignEnabled != .isTrialDesignFisher(design)) {
-			stop("All trial designs must be from the same type ", 
+			stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, "all trial designs must be from the same type ", 
 				"('", class(x$designs[[1]]), "' != '", class(design), ")'")
 		}
 		
@@ -614,51 +721,34 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 #' @param main The main title.
 #' @param xlab The x-axis label.
 #' @param ylab The y-axis label.
-#' @param palette The palette, default is \code{"Set1"}.
-#' @param theta A vector of theta values.
-#' @param nMax The maximum sample size.
-#' @param plotPointsEnabled If \code{TRUE}, additional points will be plotted.
-#' @param showSource If \code{TRUE}, the parameter names of the object will 
-#'        be printed which were used to create the plot; that may be, e.g., 
-#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
-#' @param legendPosition The position of the legend. 
-#' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
-#' Choose one of the following values to specify the position manually:
-#' \itemize{
-#'   \item \code{-1}: no legend will be shown
-#'   \item \code{NA}: the algorithm tries to find a suitable position
-#'   \item \code{0}: legend position outside plot
-#'   \item \code{1}: legend position left top
-#'   \item \code{2}: legend position left center
-#'   \item \code{3}: legend position left bottom
-#'   \item \code{4}: legend position right top
-#'   \item \code{5}: legend position right center
-#'   \item \code{6}: legend position right bottom
-#' }
+#' @inheritParams param_palette
+#' @inheritParams param_theta
+#' @inheritParams param_nMax
+#' @inheritParams param_plotPointsEnabled
+#' @inheritParams param_showSource
+#' @inheritParams param_legendPosition
+#' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
 #' \itemize{
 #'   \item \code{1}: creates a 'Boundaries' plot
 #'   \item \code{3}: creates a 'Stage Levels' plot
-#'   \item \code{4}: creates a 'Type One Error Spending' plot
+#'   \item \code{4}: creates a 'Error Spending' plot
 #'   \item \code{5}: creates a 'Power and Early Stopping' plot
 #'   \item \code{6}: creates an 'Average Sample Size and Power / Early Stop' plot
 #'   \item \code{7}: creates an 'Power' plot
 #'   \item \code{8}: creates an 'Early Stopping' plot
 #'   \item \code{9}: creates an 'Average Sample Size' plot
+#'   \item \code{"all"}: creates all available plots and returns it as a grid plot or list
 #' }
-#' @param ... Optional \code{ggplot2} arguments.
+#' @inheritParams param_three_dots_plot
 #' 
 #' @details
 #' Generic function to plot a trial design set.
 #' Is, e.g., useful to compare different designs or design parameters visual.
 #' 
-#' @return 
-#' A \code{ggplot2} object.
+#' @template return_object_ggplot
 #'  
-#' @export
-#' 
 #' @examples 
-#' 
 #' design <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
 #'     typeOfDesign = "asKD", gammaA = 2, 
 #'     informationRates = c(0.2, 0.7, 1), typeBetaSpending = "bsOF")
@@ -669,30 +759,54 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 #'   
 #' if (require(ggplot2)) plot(designSet, type = 1, legendPosition = 6)
 #'
-plot.TrialDesignSet <- function(x, y, type = 1L, main = NA_character_, 
-		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
-		theta = seq(-1, 1, 0.02), nMax = NA_integer_, plotPointsEnabled = NA, 
-		legendPosition = NA_integer_, showSource = FALSE, ...) {
-	
-	fCall = match.call(expand.dots = FALSE)
-	designSetName <- as.character(fCall$x)[1]	
-	.plotTrialDesignSet(x = x, y = y, type = type, main = main, 
-		xlab = xlab, ylab = ylab, palette = palette,
-		theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled, 
-		legendPosition = legendPosition, showSource = showSource, 
-		designSetName = designSetName, ...)
-}
-
-.plotTrialDesignSet <- function(x, y, type = 1L, main = NA_character_, 
+#' @export
+#' 
+plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_, 
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
 		theta = seq(-1, 1, 0.02), nMax = NA_integer_, plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, 
-		designSetName = NA_character_, ...) {
+		grid = 1) {
+	
+	fCall = match.call(expand.dots = FALSE)
+	designSetName <- deparse(fCall$x)
+	typeNumbers <- .getPlotTypeNumber(type, x)
+	p <- NULL
+	plotList <- list()
+	for (typeNumber in typeNumbers) {
+		p <- .plotTrialDesignSet(x = x, y = y, type = typeNumber, main = main, 
+			xlab = xlab, ylab = ylab, palette = palette,
+			theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled, 
+			legendPosition = legendPosition, showSource = showSource, 
+			designSetName = designSetName, ...)
+		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
+		if (length(typeNumbers) > 1) {
+			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
+			plotList[[caption]] <- p
+		}
+	}
+	if (length(typeNumbers) == 1) {
+		return(p)
+	} 
+	
+	return(.createPlotResultObject(plotList, grid))
+}
+
+.plotTrialDesignSet <- function(..., x, y, type = 1L, main = NA_character_, 
+		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
+		theta = seq(-1, 1, 0.02), nMax = NA_integer_, plotPointsEnabled = NA, 
+		legendPosition = NA_integer_, showSource = FALSE, 
+		designSetName = NA_character_) {
 	
 	.assertGgplotIsInstalled()
-	
-	.assertIsValidLegendPosition(legendPosition)
+	.assertIsSingleCharacter(main, "main", naAllowed = TRUE)
+	.assertIsSingleCharacter(xlab, "xlab", naAllowed = TRUE)
+	.assertIsSingleCharacter(ylab, "ylab", naAllowed = TRUE)
+	.assertIsSingleCharacter(palette, "palette", naAllowed = TRUE)
 	theta <- .assertIsValidThetaRange(thetaRange = theta)
+	.assertIsSingleNumber(nMax, "nMax", naAllowed = TRUE)
+	.assertIsSingleLogical(plotPointsEnabled, "plotPointsEnabled", naAllowed = TRUE)
+	.assertIsValidLegendPosition(legendPosition)
+	.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 	
 	parameterSet <- x
 	designMaster <- parameterSet$getDesignMaster()
@@ -723,7 +837,7 @@ plot.TrialDesignSet <- function(x, y, type = 1L, main = NA_character_,
 	} 
 	
 	else if (type == 4) {
-		main <- ifelse(is.na(main), "Type One Error Spending", main)
+		main <- ifelse(is.na(main), "Error Spending", main)
 		xParameterName <- "informationRates"
 		yParameterNames <- c("alphaSpent")
 		if (!.isTrialDesignFisher(designMaster) && 
@@ -739,7 +853,6 @@ plot.TrialDesignSet <- function(x, y, type = 1L, main = NA_character_,
 			main <- bquote(atop(bold('Power and Early Stopping'), 
 					atop('(N'['max']*'='*.(nMax)*')')))
 		}
-
 		xParameterName <- "theta"
 		yParameterNames <- c("overallEarlyStop", "calculatedPower")
 	}
@@ -782,11 +895,28 @@ plot.TrialDesignSet <- function(x, y, type = 1L, main = NA_character_,
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 1, 2, ..., 9")
 	}
 	
-	.showPlotSourceInformation(objectName = designSetName, 
+	if (type >= 5 && type <= 9) {
+		designSetName <- paste0("getPowerAndAverageSampleNumber(", designSetName, 
+			", theta = ", .reconstructSequenceCommand(theta), ", nMax = ", nMax, ")")
+	}
+	
+	xValues <- NA_real_
+	if (xParameterName == "theta") {
+		xValues <- theta
+	}
+	srcCmd <- .showPlotSourceInformation(objectName = designSetName, 
 		xParameterName = xParameterName, 
 		yParameterNames = yParameterNames, 
 		nMax = nMax,
-		showSource = showSource)
+		type = type,
+		showSource = showSource,
+		xValues = xValues)
+	if (!is.null(srcCmd)) {
+		if (.isSpecialPlotShowSourceArgument(showSource)) {
+			return(invisible(srcCmd))
+		}
+		return(srcCmd)
+	}
 	
 	return(.plotParameterSet(parameterSet = parameterSet, designMaster = designMaster, 
 		xParameterName = xParameterName,

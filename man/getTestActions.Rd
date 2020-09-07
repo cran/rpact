@@ -4,14 +4,16 @@
 \alias{getTestActions}
 \title{Get Test Actions}
 \usage{
-getTestActions(design, stageResults, ...)
+getTestActions(stageResults, ...)
 }
 \arguments{
-\item{design}{The trial design.}
-
 \item{stageResults}{The results at given stage, obtained from \code{\link{getStageResults}}.}
 
-\item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
+\item{...}{Only available for backward compatibility.}
+}
+\value{
+Returns a \code{\link[base]{character}} vector of length \code{kMax} 
+Returns a \code{\link[base]{numeric}} vector of length \code{kMax}containing the test actions of each stage.
 }
 \description{
 Returns test actions.
@@ -19,4 +21,27 @@ Returns test actions.
 \details{
 Returns the test actions of the specified design and stage results at the specified stage.
 }
-\keyword{internal}
+\examples{
+design <- getDesignInverseNormal(kMax = 2)
+data <- getDataset(
+    n      = c( 20,  30),
+    means  = c( 50,  51),
+    stDevs = c(130, 140)
+)
+getTestActions(getStageResults(design, dataInput = data))
+
+}
+\seealso{
+Other analysis functions: 
+\code{\link{getAnalysisResults}()},
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getConditionalRejectionProbabilities}()},
+\code{\link{getFinalConfidenceInterval}()},
+\code{\link{getFinalPValue}()},
+\code{\link{getRepeatedConfidenceIntervals}()},
+\code{\link{getRepeatedPValues}()},
+\code{\link{getStageResults}()}
+}
+\concept{analysis functions}

@@ -1,21 +1,24 @@
-######################################################################################
-#                                                                                    #
-# -- Unit tests --                                                                   #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    #
-# File version: 1.0.0                                                                #
-# Date: 06 November 2019, 17:12:56                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#  
+#:#  *Unit tests*
+#:#  
+#:#  This file is part of the R package rpact:
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:#  
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:#  
+#:#  RPACT company website: https://www.rpact.com
+#:#  RPACT package website: https://www.rpact.org
+#:#  
+#:#  Contact us for information about our services: info@rpact.com
+#:#  
+#:#  File name: test-f_design_utilities.R
+#:#  Creation date: 05 September 2020, 14:48:35
+#:#  File version: $Revision: 3596 $
+#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:#  
 
 context("Testing design utility functions")
 
@@ -1039,6 +1042,48 @@ test_that("'rpwexp': test that mean random numbers are as expected ('piecewiseSu
 test_that("'getPiecewiseExponentialDistribution': test that function call with singel lambda is working", {
 
 	expect_equal(getPiecewiseExponentialDistribution(4, piecewiseLambda = 0.003), 0.01192829, tolerance = 5e-05)
+
+})
+
+test_that("'.convertStageWiseToOverallValues': test that function is working as expected", {
+
+	x1 <- .convertStageWiseToOverallValues(c(1:5))
+
+	## Comparison of the results of matrixarray object 'x1' with expected results
+	expect_equal(x1[1, ], 1)
+	expect_equal(x1[2, ], 3)
+	expect_equal(x1[3, ], 6)
+	expect_equal(x1[4, ], 10)
+	expect_equal(x1[5, ], 15)
+
+	x2 <- .convertStageWiseToOverallValues(matrix(c(1:5), ncol = 1))
+
+	## Comparison of the results of matrixarray object 'x2' with expected results
+	expect_equal(x2[1, ], 1)
+	expect_equal(x2[2, ], 3)
+	expect_equal(x2[3, ], 6)
+	expect_equal(x2[4, ], 10)
+	expect_equal(x2[5, ], 15)
+
+	x3 <- .convertStageWiseToOverallValues(matrix(c(1:5), nrow = 1))
+
+	## Comparison of the results of matrixarray object 'x3' with expected results
+	expect_equal(x3[1, ], c(1, 2, 3, 4, 5))
+
+	x4 <- .convertStageWiseToOverallValues(matrix(c(1:5, 1:5), ncol = 2))
+
+	## Comparison of the results of matrixarray object 'x4' with expected results
+	expect_equal(x4[1, ], c(1, 1))
+	expect_equal(x4[2, ], c(3, 3))
+	expect_equal(x4[3, ], c(6, 6))
+	expect_equal(x4[4, ], c(10, 10))
+	expect_equal(x4[5, ], c(15, 15))
+
+	x5 <- .convertStageWiseToOverallValues(matrix(sort(rep(1:5, 2)), nrow = 2))
+
+	## Comparison of the results of matrixarray object 'x5' with expected results
+	expect_equal(x5[1, ], c(1, 2, 3, 4, 5))
+	expect_equal(x5[2, ], c(2, 4, 6, 8, 10))
 
 })
 

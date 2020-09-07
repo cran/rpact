@@ -4,14 +4,19 @@
 \alias{getFinalPValue}
 \title{Get Final P Value}
 \usage{
-getFinalPValue(design, stageResults, ...)
+getFinalPValue(stageResults, ...)
 }
 \arguments{
-\item{design}{The trial design.}
-
 \item{stageResults}{The results at given stage, obtained from \code{\link{getStageResults}}.}
 
-\item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
+\item{...}{Only available for backward compatibility.}
+}
+\value{
+Returns a \code{\link[base]{list}} containing 
+\itemize{
+  \item \code{finalStage}, 
+  \item \code{pFinal}.
+}
 }
 \description{
 Returns the final p-value for given stage results.
@@ -21,4 +26,29 @@ The calculation of the final p-value is based on the stagewise ordering of the s
 This enables the calculation for both the non-adaptive and the adaptive case.
 For Fisher's combination test, it is available for \code{kMax = 2} only.
 }
-\keyword{internal}
+\examples{
+\donttest{
+design <- getDesignInverseNormal(kMax = 2)
+data <- getDataset(
+    n      = c( 20,  30),
+    means  = c( 50,  51),
+    stDevs = c(130, 140)
+)
+getFinalPValue(getStageResults(design, dataInput = data))
+}
+
+}
+\seealso{
+Other analysis functions: 
+\code{\link{getAnalysisResults}()},
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getConditionalRejectionProbabilities}()},
+\code{\link{getFinalConfidenceInterval}()},
+\code{\link{getRepeatedConfidenceIntervals}()},
+\code{\link{getRepeatedPValues}()},
+\code{\link{getStageResults}()},
+\code{\link{getTestActions}()}
+}
+\concept{analysis functions}

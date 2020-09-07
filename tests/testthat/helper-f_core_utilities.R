@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Unit test helper functions --                                                   #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+##
+#:#  *Unit tests helper functions*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3585 $
+#:#  Last changed: $Date: 2020-09-03 15:27:08 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+##
 
 getTestInformationRatesDefault <- function(kMax) {
 	return((1:kMax) / kMax)
@@ -44,9 +45,13 @@ getTestInformationRates <- function(kMax) {
 	return(c(b, 1))
 }
 
-getTestFutilityBounds <- function(kMax) {
+getTestFutilityBounds <- function(kMax, fisherDesignEnabled = FALSE) {
 	if (kMax < 2) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'kMax' must be >= 2")
+	}
+	
+	if (kMax == 2 && fisherDesignEnabled) {
+		return(0.5)
 	}
 	
 	k <- kMax - 1
@@ -60,38 +65,45 @@ getTestFutilityBounds <- function(kMax) {
 		futilityBounds <- c(rep(0, k), futilityBounds)
 	}
 	
+	if (fisherDesignEnabled) {
+		futilityBounds[futilityBounds > 0] <- futilityBounds[futilityBounds > 0] / max(futilityBounds)
+		futilityBounds[futilityBounds == 0] <- 0.01
+	}
+	
 	return(futilityBounds)
 }
 
 getTestDesign <- function(kMax = NA_real_, informationRates = NA_real_, futilityBounds = NA_real_,
 		designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
-
+	
+	design <- NULL 
+	
+	currentWarningOption <- getOption("warn")
+	options(warn = -1)
 	if (designClass == C_CLASS_NAME_TRIAL_DESIGN_FISHER) {
-		return(TrialDesignFisher(
+		design <- getDesignFisher(
 			kMax = as.integer(kMax), 
-			alpha = C_ALPHA_DEFAULT, 
-			method = C_FISHER_METHOD_DEFAULT, 
 			alpha0Vec = futilityBounds,  
-			informationRates = informationRates, 
-			tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT
-		))
-	}	
-		
-	return(.createDesign(
-		designClass             = designClass,
-		kMax                    = as.integer(kMax), 
-		alpha                   = C_ALPHA_DEFAULT, 
-		beta                    = C_BETA_DEFAULT, 
-		sided                   = 1, 
-		informationRates        = informationRates, 
-		futilityBounds          = futilityBounds, 		
-		typeOfDesign            = C_DEFAULT_TYPE_OF_DESIGN, 
-		deltaWT                 = 0, 
-		optimizationCriterion   = C_OPTIMIZATION_CRITERION_DEFAULT, 
-		gammaA                  = 1, 
-		typeBetaSpending        = C_TYPE_OF_DESIGN_BS_NONE, 
-		userAlphaSpending       = NA_real_, 
-		userBetaSpending        = NA_real_, 
-		gammaB                  = 1, 
-		tolerance               = 1e-06))
+			informationRates = informationRates
+		)
+	}
+	else if (designClass == C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
+		design <- getDesignGroupSequential(
+			kMax                = as.integer(kMax), 
+			informationRates    = informationRates, 
+			futilityBounds      = futilityBounds, 		
+			tolerance           = 1e-06
+		)
+	}
+	else {
+		design <- getDesignInverseNormal(
+			kMax                    = as.integer(kMax), 
+			informationRates        = informationRates, 
+			futilityBounds          = futilityBounds, 		
+			tolerance               = 1e-06
+		)
+	}
+	options(warn = currentWarningOption)
+
+	return(design)
 }

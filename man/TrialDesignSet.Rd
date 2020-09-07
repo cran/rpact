@@ -8,7 +8,7 @@
 \code{TrialDesignSet} is a class for creating a collection of different trial designs.
 }
 \details{
-This object can not be created directly; better use \code{\link{getDesignSet}} 
+This object cannot be created directly; better use \code{\link{getDesignSet}} 
 with suitable arguments to create a set of designs.
 }
 \section{Fields}{

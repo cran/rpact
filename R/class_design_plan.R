@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Trial design plan classes --                                                    #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#
+#:#  *Trial design plan classes*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3585 $
+#:#  Last changed: $Date: 2020-09-03 15:27:08 +0200 (Do, 03 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:# 
 
 #' @include f_core_constants.R
 #' @include f_design_utilities.R
@@ -37,8 +38,8 @@ C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_RATES <- list(
 	normalApproximation = TRUE, 
 	riskRatio = FALSE, 
 	thetaH0 = 0, 
-	pi1 = seq(0.4, 0.6, 0.1), 
-	pi2 = 0.2, 
+	pi1 = C_PI_1_SAMPLE_SIZE_DEFAULT, 
+	pi2 = C_PI_2_DEFAULT, 
 	groups = 2L, 
 	allocationRatioPlanned = 1
 )
@@ -46,8 +47,8 @@ C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_RATES <- list(
 C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_SURVIVAL <- list(
 	typeOfComputation = "Schoenfeld", 
 	thetaH0 = 1, 
-	pi2 = 0.2, 
-	pi1 = seq(0.4, 0.6, 0.1), 
+	pi2 = C_PI_2_DEFAULT, 
+	pi1 = C_PI_1_SAMPLE_SIZE_DEFAULT, 
 	allocationRatioPlanned = 1, 
 	accountForObservationTimes = NA, 
 	eventTime = 12, 
@@ -170,11 +171,7 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 					digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			}
 			else if (showType == 2) {
-				.cat("Technical summary of the design plan object of class ",
-					methods::classLabel(class(.self)), ":\n\n", sep = "", heading = 1,
-					consoleOutputEnabled = consoleOutputEnabled)
-				.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
-				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
+				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				.cat("Design plan parameters and output for ", .toString(), ":\n\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
@@ -264,10 +261,20 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 #' Coerce Trial Design Plan to a Data Frame
 #'
 #' @description
-#' Returns the \code{TrialDesignPlan} as data frame.
+#' Returns the \code{\link{TrialDesignPlan}} as data frame.
+#' 
+#' @param x A \code{\link{TrialDesignPlan}} object.
+#' @inheritParams param_niceColumnNamesEnabled
+#' @inheritParams param_includeAllParameters
+#' @inheritParams param_three_dots
 #' 
 #' @details
 #' Coerces the design plan to a data frame.
+#' 
+#' @template return_dataframe
+#' 
+#' @examples 
+#' as.data.frame(getSampleSizeMeans())
 #' 
 #' @export
 #' 
@@ -289,7 +296,7 @@ as.data.frame.TrialDesignPlan <- function(x, row.names = NULL,
 #' Trial design plan for means.
 #' 
 #' @details
-#' This object can not be created directly; use \code{\link{getSampleSizeMeans}} 
+#' This object cannot be created directly; use \code{\link{getSampleSizeMeans}} 
 #' with suitable arguments to create a design plan for a dataset of means. 
 #' 
 #' @include class_core_parameter_set.R
@@ -430,7 +437,7 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 #' Trial design plan for rates.
 #' 
 #' @details
-#' This object can not be created directly; use \code{\link{getSampleSizeRates}} 
+#' This object cannot be created directly; use \code{\link{getSampleSizeRates}} 
 #' with suitable arguments to create a design plan for a dataset of rates. 
 #' 
 #' @include class_core_parameter_set.R
@@ -569,7 +576,7 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 #' Trial design plan for survival data.
 #' 
 #' @details
-#' This object can not be created directly; use \code{\link{getSampleSizeSurvival}} 
+#' This object cannot be created directly; use \code{\link{getSampleSizeSurvival}} 
 #' with suitable arguments to create a design plan for a dataset of survival data. 
 #' 
 #' @include class_core_parameter_set.R
@@ -587,6 +594,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	fields = list(
 		.piecewiseSurvivalTime = "PiecewiseSurvivalTime",
 		.accrualTime = "AccrualTime",
+		.calculateFollowUpTime = "logical", 
 		typeOfComputation = "character", 
 		thetaH0 = "numeric", 
 		directionUpper = "logical",
@@ -617,7 +625,6 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		dropoutTime = "numeric",
 		
 		omega = "numeric",
-		calculateFollowUpTime = "logical", 
 		eventsFixed = "numeric",
 		nFixed = "numeric",
 		nFixed1 = "numeric", 
@@ -779,54 +786,6 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	)
 )
 
-#'
-#' @name TrialDesignPlanSurvival_summary
-#' 
-#' @title
-#' Trial Design Plan Survival Set Summary
-#'
-#' @description
-#' Displays a summary of \code{TrialDesignPlanSurvival} object.
-#' 
-#' @details
-#' Summarizes the parameters and results of a survival design.
-#' 
-#' @export
-#' 
-#' @keywords internal
-#' 
-summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_integer_) {
-	if (type == 1) {
-		return(summary.ParameterSet(object = object, ..., type = type, digits = digits))
-	} 
-	
-	object$.cat("This output summarizes the ", object$.toString(), " specification.\n\n", heading = 1)
-	
-	object$show()
-	object$.cat("\n")
-	
-	object$.piecewiseSurvivalTime$show()
-	object$.cat("\n")
-	
-	object$.accrualTime$show()
-	object$.cat("\n")
-	
-	object$show(showType = 2)
-	object$.cat("\n")
-	
-	object$.cat(object$.toString(startWithUpperCase = TRUE), " table:\n", heading = 1)
-	parametersToShow <- object$.getParametersToShow()
-	parametersToShow <- parametersToShow[parametersToShow != "stages" & parametersToShow != "stage"]
-	for (parameter in parametersToShow) {
-		if (length(object[[parameter]]) == 1) {
-			parametersToShow <- parametersToShow[parametersToShow != parameter]
-		}
-	}
-	object$.printAsDataFrame(parameterNames = parametersToShow)
-	
-	invisible(object)
-}
-
 .addPlotSubTitleItems <- function(designPlan, designMaster, items, type) {
 	
 	if (type %in% c(1, 3, 4)) {
@@ -871,7 +830,7 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		
 		nMax <- designPlan$maxNumberOfSubjects[1] # use first value for plotting
 		
-		if  (!(type %in% c(5))){
+		if  (!(type %in% c(5))) {
 			items$add("N", round(nMax, 1), "max")
 		}
 		
@@ -916,19 +875,19 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 
 .assertIsValidVariedParameterVectorForPlotting <- function(designPlan, plotType) {
 	if (.isTrialDesignPlanMeans(designPlan)) {
-		if (is.null(designPlan$alternative) || is.na(designPlan$alternative) || 
+		if (is.null(designPlan$alternative) || any(is.na(designPlan$alternative)) || 
 				length(designPlan$alternative) <= 1) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
 				" is only available if 'alternative' with length > 1 is defined")
 		}
 	} else if (.isTrialDesignPlanRates(designPlan)) {
-		if (is.null(designPlan$pi1) || is.na(designPlan$pi1) || 
+		if (is.null(designPlan$pi1) || any(is.na(designPlan$pi1)) || 
 				length(designPlan$pi1) <= 1) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
 				" is only available if 'pi1' with length > 1 is defined")
 		}
 	} else if (.isTrialDesignPlanSurvival(designPlan)) {
-		if (is.null(designPlan$hazardRatio) || is.na(designPlan$hazardRatio) || 
+		if (is.null(designPlan$hazardRatio) || any(is.na(designPlan$hazardRatio)) || 
 				length(designPlan$hazardRatio) <= 1) { 
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType, 
 				" is only available if 'hazardRatio' with length > 1 is defined")
@@ -936,7 +895,7 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 	}
 }
 
-.plotTrialDesignPlan <- function(designPlan, designMaster, type = 1L, main = NA_character_, 
+.plotTrialDesignPlan <- function(designPlan, type = 1L, main = NA_character_, 
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
 		theta = seq(-1, 1, 0.02), plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, designPlanName = NA_character_, ...) {
@@ -944,12 +903,15 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 	.assertGgplotIsInstalled()
 	.assertIsTrialDesignPlan(designPlan) 
 	.assertIsValidLegendPosition(legendPosition)
+	.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 	theta <- .assertIsValidThetaRange(thetaRange = theta)
 	
 	nMax <- ifelse(.isTrialDesignPlanSurvival(designPlan), designPlan$maxNumberOfEvents[1], 
 		designPlan$maxNumberOfSubjects[1]) # use first value for plotting
 	
 	plotSettings <- designPlan$.plotSettings
+	
+	designMaster <- designPlan$.design
 	
 	if (designMaster$kMax == 1 && (type %in% c(1:4))) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, 
@@ -984,7 +946,7 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 	if (type %in% c(5:12)) {
 		if (.isTrialDesignPlanMeans(designPlan) && length(designPlan$alternative) == 2 &&
 				designPlan$.getParameterType("alternative") == C_PARAM_USER_DEFINED) {
-			if (showSource) {
+			if (!is.logical(showSource) || isTRUE(showSource)) {
 				showSourceHint <- .getVariedParameterHint(designPlan$alternative, "alternative")
 			}
 			designPlan <- designPlan$clone(alternative = 
@@ -993,7 +955,7 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		else if ((.isTrialDesignPlanRates(designPlan) || .isTrialDesignPlanSurvival(designPlan)) && 
 				length(designPlan$pi1) == 2 &&
 				designPlan$.getParameterType("pi1") == C_PARAM_USER_DEFINED) {
-			if (showSource) {
+			if (!is.logical(showSource) || isTRUE(showSource)) {
 				showSourceHint <- .getVariedParameterHint(designPlan$pi1, "pi1")
 			}
 			designPlan <- designPlan$clone(pi1 = 
@@ -1001,13 +963,15 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		}
 		else if (.isTrialDesignPlanSurvival(designPlan) && length(designPlan$hazardRatio) == 2 &&
 				designPlan$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
-			if (showSource) {
+			if (!is.logical(showSource) || isTRUE(showSource)) {
 				showSourceHint <- .getVariedParameterHint(designPlan$hazardRatio, "hazardRatio")
 			}
 			designPlan <- designPlan$clone(hazardRatio = 
 				.getVariedParameterVector(designPlan$hazardRatio, "hazardRatio"))
 		}
 	}
+	
+	srcCmd <- NULL
 	
 	if (type == 1) { # Boundary plot
 		if (.isTrialDesignPlanSurvival(designPlan)) {
@@ -1035,26 +999,30 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 				} else {
 					yParameterNames <- "criticalValues"
 				}
+				yParameterNamesSrc <- yParameterNames
 			} else {
 				yParameterNames <- c("criticalValues", "criticalValuesMirrored")
+				yParameterNamesSrc <- c("criticalValues", paste0("-", designPlanName, "$.design$criticalValues"))
 			}
 			
 			if (is.na(legendPosition)) {
 				legendPosition <- C_POSITION_RIGHT_TOP
 			}
 			
-			.showPlotSourceInformation(objectName = designPlanName, 
-				xParameterName = xParameterName, yParameterNames = yParameterNames, 
+			srcCmd <- .showPlotSourceInformation(objectName = paste0(designPlanName, "$.design"), 
+				xParameterName = paste0(designPlanName, "$", xParameterName, "[, 1]"), 
+				yParameterNames = yParameterNamesSrc, 
 				hint = showSourceHint, nMax = nMax,
-				showSource = showSource)
+				type = type, showSource = showSource)
 			
 		} else {
 			designSet <- TrialDesignSet(design = designMaster, singleDesign = TRUE)
+			designPlanName <- paste0(designPlanName, "$.design")
 			return(.plotTrialDesignSet(x = designSet, y = NULL, main = main, 
 					xlab = xlab, ylab = ylab, type = type,
 					palette = palette, theta = theta, nMax = nMax, 
 					plotPointsEnabled = plotPointsEnabled, legendPosition = legendPosition, 
-					designSetName = designPlanName, ...))
+					designSetName = designPlanName, showSource = showSource, ...))
 		}
 	}
 	
@@ -1098,9 +1066,10 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 				criticalValues = designPlan$criticalValuesEffectScale[, 1],
 				futilityBounds = c(designPlan$futilityBoundsEffectScale[, 1], 
 					designPlan$criticalValuesEffectScale[designMaster$kMax, 1])
-			)
-			yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScaleUpper[, 1]")
-			yParameterNamesSrc <- c(yParameterNamesSrc, "futilityBoundsEffectScale[, 1]")
+			)	
+			yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScale[, 1]")
+			yParameterNamesSrc <- c(yParameterNamesSrc, paste0("c(", designPlanName, "$futilityBoundsEffectScale[, 1], ",
+					designPlanName, "$criticalValuesEffectScale[nrow(", designPlanName, "$criticalValuesEffectScale), 1])"))
 		} else {
 			data <- data.frame(
 				criticalValues = designPlan$criticalValuesEffectScaleUpper[, 1],
@@ -1112,9 +1081,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		
 		if (.isTrialDesignPlanSurvival(designPlan)) {
 			xParameterName <- "eventsPerStage"
+			xParameterNameSrc <- paste0(designPlanName, "$", xParameterName, "[, 1]")
 			data <- cbind(data.frame(eventsPerStage = designPlan$eventsPerStage[, 1]), data)
 		} else {
 			xParameterName <- "informationRates"
+			xParameterNameSrc <- paste0(designPlanName, "$.design$", xParameterName)
 			data <- cbind(data.frame(informationRates = designMaster$informationRates), data)
 		}
 		if (designMaster$sided == 1) {
@@ -1137,11 +1108,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		
 		designPlan <- data
 		
-		.showPlotSourceInformation(objectName = designPlanName, 
-			xParameterName = xParameterName, 
+		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
+			xParameterName = xParameterNameSrc, 
 			yParameterNames = yParameterNamesSrc, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	} 
 	
 	else if (type == 3) { # Stage Levels
@@ -1168,16 +1139,16 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			yParameterNamesSrc <- ".design$stageLevels"
 		}
 		
-		.showPlotSourceInformation(objectName = designPlanName, 
+		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 			xParameterName = xParameterNameSrc, 
 			yParameterNames = yParameterNamesSrc, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	} 
 	
 	else if (type == 4) { # Alpha Spending
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Type One Error Spending")
+			items <- PlotSubTitleItems(title = "Error Spending")
 			.addPlotSubTitleItems(designPlan, designMaster, items, type)
 			main <- items$toQuote()
 		}
@@ -1199,11 +1170,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		}
 		plotPointsEnabled <- ifelse(is.na(plotPointsEnabled), FALSE, plotPointsEnabled)
 		
-		.showPlotSourceInformation(objectName = designPlanName, 
+		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 			xParameterName = xParameterNameSrc, 
 			yParameterNames = yParameterNamesSrc, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	} 
 	
 	else if (type == 5) { # Power and Stopping Probabilities 
@@ -1272,11 +1243,17 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 					paste0("eventsPerStage[", designMaster$kMax, ", ]"), "expectedEventsH1")
 			}
 			
-			.showPlotSourceInformation(objectName = designPlanName, 
+			srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 				xParameterName = xParameterName, 
 				yParameterNames = yParameterNamesSrc,
 				hint = showSourceHint, nMax = nMax,
-				showSource = showSource)
+				type = type, showSource = showSource)
+			if (!is.null(srcCmd)) {
+				if (.isSpecialPlotShowSourceArgument(showSource)) {
+					return(invisible(srcCmd))
+				}
+				return(srcCmd)
+			}
 			
 			return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
 					xParameterName = xParameterName,
@@ -1303,6 +1280,19 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			if (is.na(legendPosition)) {
 				legendPosition <- C_POSITION_LEFT_TOP
 			}
+			
+			srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
+				xParameterName = xParameterName, 
+				yParameterNames = yParameterNames, 
+				hint = showSourceHint, nMax = nMax,
+				type = type, showSource = showSource)
+			if (!is.null(srcCmd)) {
+				if (.isSpecialPlotShowSourceArgument(showSource)) {
+					return(invisible(srcCmd))
+				}
+				return(srcCmd)
+			}
+			
 			if (is.null(list(...)[["ylim"]])) {
 				ylim <- c(0, 1)
 				return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
@@ -1319,11 +1309,6 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 					legendPosition = legendPosition, variedParameters = variedParameters, 
 					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
 			}
-			.showPlotSourceInformation(objectName = designPlanName, 
-				xParameterName = xParameterName, 
-				yParameterNames = yParameterNames, 
-				hint = showSourceHint, nMax = nMax,
-				showSource = showSource)
 		}
 	} 
 	
@@ -1352,11 +1337,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			xParameterName <- "effect"
 			yParameterNames <- c("expectedNumberOfSubjects", "overallReject", "earlyStop") # overallReject = power
 		}
-		.showPlotSourceInformation(objectName = designPlanName, 
+		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 			xParameterName = xParameterName, 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 7) {
@@ -1377,11 +1362,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		if (is.na(legendPosition)) {
 			legendPosition <- C_POSITION_RIGHT_CENTER
 		}
-		.showPlotSourceInformation(objectName = designPlanName, 
+		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 			xParameterName = xParameterName, 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 8) {
@@ -1402,11 +1387,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		if (is.na(legendPosition)) {
 			legendPosition <- C_POSITION_RIGHT_CENTER
 		}
-		.showPlotSourceInformation(objectName = designPlanName, 
+		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 			xParameterName = xParameterName, 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (type == 9) {
@@ -1436,11 +1421,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			xParameterName <- "effect"
 			yParameterNames <- "expectedNumberOfSubjects"
 		}
-		.showPlotSourceInformation(objectName = designPlanName, 
+		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 			xParameterName = xParameterName, 
 			yParameterNames = yParameterNames, 
 			hint = showSourceHint, nMax = nMax,
-			showSource = showSource)
+			type = type, showSource = showSource)
 	}
 	
 	else if (.isTrialDesignPlanSurvival(designPlan)) {
@@ -1454,11 +1439,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			}
 			xParameterName <- "hazardRatio"
 			yParameterNames <- "studyDuration"
-			.showPlotSourceInformation(objectName = designPlanName, 
+			srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 				xParameterName = xParameterName, 
 				yParameterNames = yParameterNames, 
 				hint = showSourceHint, nMax = nMax,
-				showSource = showSource)
+				type = type, showSource = showSource)
 		}
 		
 		else if (type == 11) {
@@ -1470,11 +1455,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			}
 			xParameterName <- "hazardRatio"
 			yParameterNames <- "expectedNumberOfSubjects" 
-			.showPlotSourceInformation(objectName = designPlanName, 
+			srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 				xParameterName = xParameterName, 
 				yParameterNames = yParameterNames, 
 				hint = showSourceHint, nMax = nMax,
-				showSource = showSource)
+				type = type, showSource = showSource)
 		}
 		
 		else if (type == 12) { # Analysis Time
@@ -1487,7 +1472,11 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			
 			xParameterName <- "hazardRatio"
 			yParameterNames <- "analysisTime"
-			
+			yParameterNamesSrc <- c()
+			for (i in 1:nrow(designPlan[["analysisTime"]])) {
+				yParameterNamesSrc <- c(yParameterNamesSrc, paste0("analysisTime[", i, ", ]"))				
+			}
+				
 			data <- NULL
 			for (k in 1:designMaster$kMax) {
 				part <- data.frame(
@@ -1502,11 +1491,17 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 				}
 			}
 			
-			.showPlotSourceInformation(objectName = designPlanName, 
+			srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 				xParameterName = xParameterName, 
-				yParameterNames = yParameterNames, 
+				yParameterNames = yParameterNamesSrc, 
 				hint = showSourceHint,
-				showSource = showSource)
+				type = type, showSource = showSource)
+			if (!is.null(srcCmd)) {
+				if (.isSpecialPlotShowSourceArgument(showSource)) {
+					return(invisible(srcCmd))
+				}
+				return(srcCmd)
+			}
 			
 			return(.plotDataFrame(data, mainTitle = main, 
 					xlab = NA_character_, ylab = NA_character_, xAxisLabel = "Hazard Ratio",
@@ -1518,7 +1513,8 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		else if (type == 13 || type == 14) { # Cumulative Distribution Function / Survival function
 			return(.plotSurvivalFunction(designPlan, designMaster = designMaster, type = type, main = main, 
 				xlab = xlab, ylab = ylab, palette = palette,
-				legendPosition = legendPosition, showSource = showSource, ...))
+				legendPosition = legendPosition, showSource = showSource,
+				designPlanName = designPlanName, ...))
 		}
 		
 		else {
@@ -1530,6 +1526,13 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 1, 2, ..., 9")	
 	}
 	
+	if (!is.null(srcCmd)) {
+		if (.isSpecialPlotShowSourceArgument(showSource)) {
+			return(invisible(srcCmd))
+		}
+		return(srcCmd)
+	}
+	
 	return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
 			xParameterName = xParameterName,
 			yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
@@ -1539,10 +1542,37 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 			plotSettings = plotSettings, ...))
 }
 
+.getSurvivalFunctionPlotCommand <- function(functionType = c("pwExpDist", "lambdaStep"), timeValues, lambda, 
+		designPlan, type, piecewiseSurvivalEnabled, multiplyByHazardRatio = FALSE) {
+		
+	functionType <- match.arg(functionType)
+	signPrefix <- ifelse(type == 13, "", "-")
+	if (functionType == "pwExpDist") {
+		functionName <- "getPiecewiseExponentialDistribution"
+	} else {
+		functionName <- "getLambdaStepFunction"
+	}
+	cmd <- paste0(signPrefix, functionName,
+		"(", .reconstructSequenceCommand(timeValues), 
+		", piecewiseLambda = ", .arrayToString(lambda, vectorLookAndFeelEnabled = TRUE))
+	if (piecewiseSurvivalEnabled) {
+		cmd <- paste0(cmd, ", piecewiseSurvivalTime = ", 
+			.arrayToString(designPlan$piecewiseSurvivalTime, vectorLookAndFeelEnabled = TRUE))
+	}
+	if (functionType == "pwExpDist") {
+		cmd <- paste0(cmd, ", kappa = ", designPlan$kappa)
+	}
+	cmd <- paste0(cmd, ")")
+	if (multiplyByHazardRatio) {
+		cmd <- paste0(cmd, " * ", designPlan$hazardRatio[1])
+	}
+	return(cmd)
+}
+
 # Cumulative Distribution Function / Survival function
 .plotSurvivalFunction <- function(designPlan, ..., designMaster, type = 1L, main = NA_character_, 
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
-		legendPosition = NA_integer_, showSource = FALSE) {
+		legendPosition = NA_integer_, showSource = FALSE, designPlanName = NA_character_) {
 		
 	if (is.null(designPlan$piecewiseSurvivalTime) || 
 		length(designPlan$piecewiseSurvivalTime) == 0) {
@@ -1609,34 +1639,73 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		survivalGroup2 = rep(-1, length(timeValues))
 	)
 	
+	signPrefix <- ifelse(type == 13, "", "-")
 	if (piecewiseSurvivalEnabled) {
 		data$survival2 <- .getPiecewiseExponentialDistribution(timeValues, 
 			lambda2, designPlan$piecewiseSurvivalTime, designPlan$kappa)
+
+		yParameterNames <- .getSurvivalFunctionPlotCommand("pwExpDist", 
+			timeValues, lambda2, designPlan, type, piecewiseSurvivalEnabled)
 		
 		if (!is.null(lambda1) && !is.na(lambda1) && 
 				length(lambda1) == length(lambda2)) {
 			data$survival1 <- .getPiecewiseExponentialDistribution(timeValues, 
 				lambda1, designPlan$piecewiseSurvivalTime, designPlan$kappa)
+			yParameterNames <- c(yParameterNames,
+				.getSurvivalFunctionPlotCommand("pwExpDist", 
+					timeValues, lambda1, designPlan, type, piecewiseSurvivalEnabled))
 		} else {
 			.warnInCaseOfUnusedValuesForPlottingSurvival(designPlan$hazardRatio)
 			data$survival1 <- data$survival2 * designPlan$hazardRatio[1]
+			yParameterNames <- c(yParameterNames,
+			.getSurvivalFunctionPlotCommand("pwExpDist", timeValues, lambda2, 
+				designPlan, type, piecewiseSurvivalEnabled, multiplyByHazardRatio = TRUE))
+		}
+		
+		yParameterNames <- c(yParameterNames,
+			.getSurvivalFunctionPlotCommand("lambdaStep", 
+				timeValues, lambda2, designPlan, type, piecewiseSurvivalEnabled))
+		if (!is.null(lambda1) && !is.na(lambda1) && 
+				length(lambda1) == length(lambda2)) {
+			yParameterNames <- c(yParameterNames,
+				.getSurvivalFunctionPlotCommand("lambdaStep", 
+					timeValues, lambda1, designPlan, type, piecewiseSurvivalEnabled))
+		} else {
+			yParameterNames <- c(yParameterNames,
+				.getSurvivalFunctionPlotCommand("lambdaStep", timeValues, lambda2, 
+					designPlan, type, piecewiseSurvivalEnabled, multiplyByHazardRatio = TRUE))
 		}
 	} else {
 		if (designPlan$.piecewiseSurvivalTime$.isLambdaBased(minNumberOfLambdas = 1)) {
 			if (length(designPlan$lambda1) > 1) {
-				warning("Only the first 'lambda1' (", round(designPlan$lambda1[1],4), ") was used for plotting", call. = FALSE)
+				warning("Only the first 'lambda1' (", round(designPlan$lambda1[1], 4), 
+					") was used for plotting", call. = FALSE)
 			}
 		} else {
 			.warnInCaseOfUnusedValuesForPlottingRates(designPlan$pi1)
 		}
 		
-		lambda2 <- (-log(1 - designPlan$pi2))^(1/designPlan$kappa) / designPlan$eventTime
-		lambda1 <- (-log(1 - designPlan$pi1[1]))^(1/designPlan$kappa) / designPlan$eventTime
+		if (!is.na(designPlan$pi1) && !is.na(designPlan$pi2)) {
+			lambda2 <- (-log(1 - designPlan$pi2))^(1 / designPlan$kappa) / designPlan$eventTime
+			lambda1 <- (-log(1 - designPlan$pi1[1]))^(1 / designPlan$kappa) / designPlan$eventTime
+		}
 		
 		data$survival2 <- .getPiecewiseExponentialDistribution(timeValues, 
 			lambda2, 0, designPlan$kappa)
 		data$survival1 <- .getPiecewiseExponentialDistribution(timeValues, 
 			lambda1, 0, designPlan$kappa)
+		
+		yParameterNames <- .getSurvivalFunctionPlotCommand("pwExpDist", 
+			timeValues, lambda2, designPlan, type, piecewiseSurvivalEnabled)
+		yParameterNames <- c(yParameterNames, 
+			.getSurvivalFunctionPlotCommand("pwExpDist", 
+			timeValues, lambda1, designPlan, type, piecewiseSurvivalEnabled))
+		yParameterNames <- c(yParameterNames, 
+			.getSurvivalFunctionPlotCommand("lambdaStep", 
+			timeValues, lambda2, designPlan, type, piecewiseSurvivalEnabled))
+		yParameterNames <- c(yParameterNames, 
+			.getSurvivalFunctionPlotCommand("lambdaStep", timeValues, lambda1, 
+			designPlan, type, piecewiseSurvivalEnabled))
 	}
 	
 	# two groups: 1 = treatment, 2 = control
@@ -1665,7 +1734,10 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 	
 	scalingBaseValues1 <- na.omit(c(data$survival1, data$survival2))
 	scalingBaseValues2 <- na.omit(c(data$lambdaGroup1, data$lambdaGroup2))
-	scalingFactor <- max(scalingBaseValues1) / max(.getNextHigherValue(scalingBaseValues2)) 
+	scalingFactor <- 1
+	if (length(scalingBaseValues1) > 0 && length(scalingBaseValues2) > 0) {
+		scalingFactor <- max(scalingBaseValues1) / max(.getNextHigherValue(scalingBaseValues2))
+	}
 	data2 <- data.frame(
 		categories = c(
 			rep("Treatm. piecew. exp.", nrow(data)),
@@ -1700,8 +1772,16 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 		yAxisLabel1 <- "Survival Function"
 	}
 	
-	if (showSource) {
-		warning("'showSource' = TRUE is not supported yet for plot type ", type, call. = FALSE)
+	srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
+		xParameterName = "time", 
+		yParameterNames = yParameterNames, 
+		showSource = showSource,
+		xValues = timeValues)
+	if (!is.null(srcCmd)) {
+		if (.isSpecialPlotShowSourceArgument(showSource)) {
+			return(invisible(srcCmd))
+		}
+		return(srcCmd)
 	}
 	
 	return(.plotDataFrame(data2, mainTitle = main, 
@@ -1767,32 +1847,18 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 #' @param main The main title.
 #' @param xlab The x-axis label.
 #' @param ylab The y-axis label.
-#' @param palette The palette, default is \code{"Set1"}.
-#' @param theta A vector of theta values.
-#' @param plotPointsEnabled If \code{TRUE}, additional points will be plotted.
-#' @param showSource If \code{TRUE}, the parameter names of the object will 
-#'        be printed which were used to create the plot; that may be, e.g., 
-#'        useful to check the values or to create own plots with \code{\link[graphics]{plot}}.
-#' @param legendPosition The position of the legend. 
-#' By default (\code{NA_integer_}) the algorithm tries to find a suitable position. 
-#' Choose one of the following values to specify the position manually:
-#' \itemize{
-#'   \item \code{-1}: no legend will be shown
-#'   \item \code{NA}: the algorithm tries to find a suitable position
-#'   \item \code{0}: legend position outside plot
-#'   \item \code{1}: legend position left top
-#'   \item \code{2}: legend position left center
-#'   \item \code{3}: legend position left bottom
-#'   \item \code{4}: legend position right top
-#'   \item \code{5}: legend position right center
-#'   \item \code{6}: legend position right bottom
-#' }
+#' @inheritParams param_palette
+#' @inheritParams param_theta
+#' @inheritParams param_plotPointsEnabled
+#' @inheritParams param_showSource
+#' @inheritParams param_legendPosition
+#' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
 #' \itemize{
 #'   \item \code{1}: creates a 'Boundaries' plot
 #'   \item \code{2}: creates a 'Boundaries Effect Scale' plot
 #'   \item \code{3}: creates a 'Boundaries p Values Scale' plot
-#'   \item \code{4}: creates a 'Type One Error Spending' plot
+#'   \item \code{4}: creates a 'Error Spending' plot
 #'   \item \code{5}: creates a 'Sample Size' or 'Overall Power and Early Stopping' plot
 #'   \item \code{6}: creates a 'Number of Events' or 'Sample Size' plot
 #'   \item \code{7}: creates an 'Overall Power' plot
@@ -1803,8 +1869,9 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 #'   \item \code{12}: creates an 'Analysis Times' plot
 #'   \item \code{13}: creates a 'Cumulative Distribution Function' plot
 #'   \item \code{14}: creates a 'Survival Function' plot
+#'   \item \code{"all"}: creates all available plots and returns it as a grid plot or list
 #' }
-#' @param ... Optional \code{ggplot2} arguments.
+#' @inheritParams param_three_dots_plot
 #' 
 #' @description
 #' Plots a trial design plan.
@@ -1812,18 +1879,24 @@ summary.TrialDesignPlanSurvival <- function(object, ..., type = 1, digits = NA_i
 #' @details
 #' Generic function to plot all kinds of trial design plans.
 #' 
-#' @return 
-#' A \code{ggplot2} object.
+#' @examples 
+#' \donttest{
+#' if (require(ggplot2)) plot(getSampleSizeMeans())
+#' }
+#' 
+#' @template return_object_ggplot
 #' 
 #' @export
 #'
-plot.TrialDesignPlan = function(x, y, main = NA_character_,
-		xlab = NA_character_, ylab = NA_character_, type = ifelse(x$.design$kMax == 1, 5, 1), palette = "Set1",
+plot.TrialDesignPlan = function(x, y, ..., main = NA_character_,
+		xlab = NA_character_, ylab = NA_character_, 
+		type = ifelse(x$.design$kMax == 1, 5L, 1L), palette = "Set1",
 		theta = seq(-1, 1, 0.01), plotPointsEnabled = NA, 
-		legendPosition = NA_integer_, showSource = FALSE, ...) {
+		legendPosition = NA_integer_, showSource = FALSE, 
+		grid = 1) {
 		
 	fCall = match.call(expand.dots = FALSE)
-	designPlanName <- as.character(fCall$x)[1]
+	designPlanName <- deparse(fCall$x)
 	
 	nMax <- list(...)[["nMax"]]
 	if (!is.null(nMax)) {
@@ -1831,11 +1904,26 @@ plot.TrialDesignPlan = function(x, y, main = NA_character_,
 			") will be ignored because it will be taken from design plan")
 	}
 	
-	.plotTrialDesignPlan(designPlan = x, designMaster = x$.design, 
-		main = main, xlab = xlab, ylab = ylab, type = type,
-		palette = palette, theta = theta, plotPointsEnabled = plotPointsEnabled, 
-		legendPosition = legendPosition, showSource = showSource,
-		designPlanName = designPlanName, ...)
+	typeNumbers <- .getPlotTypeNumber(type, x)
+	p <- NULL
+	plotList <- list()
+	for (typeNumber in typeNumbers) {
+		p <- .plotTrialDesignPlan(designPlan = x, 
+			main = main, xlab = xlab, ylab = ylab, type = typeNumber,
+			palette = palette, theta = theta, plotPointsEnabled = plotPointsEnabled, 
+			legendPosition = legendPosition, showSource = showSource,
+			designPlanName = designPlanName, ...)
+		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
+		if (length(typeNumbers) > 1) {
+			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
+			plotList[[caption]] <- p
+		}
+	}
+	if (length(typeNumbers) == 1) {
+		return(p)
+	} 
+	
+	return(.createPlotResultObject(plotList, grid))
 }
 
 

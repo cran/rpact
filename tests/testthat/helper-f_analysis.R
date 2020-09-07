@@ -1,21 +1,22 @@
-######################################################################################
-#                                                                                    #
-# -- Unit test helper functions --                                                   #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    # 
-# File version: 1.0.0                                                                #
-# Date: 25-09-2018                                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+##
+#:#  *Unit tests helper functions*
+#:# 
+#:#  This file is part of the R package rpact: 
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:# 
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:# 
+#:#  RPACT company website: https://www.rpact.com
+#:#  rpact package website: https://www.rpact.org
+#:# 
+#:#  Contact us for information about our services: info@rpact.com
+#:# 
+#:#  File version: $Revision: 3334 $
+#:#  Last changed: $Date: 2020-06-22 08:39:06 +0200 (Mon, 22 Jun 2020) $
+#:#  Last changed by: $Author: pahlke $
+##
 
 
 #  Example in book p. 207f, one-treatment case, variance known 
@@ -31,12 +32,12 @@ getTestSettings1 = function() {
 		typeOfDesign = C_TYPE_OF_DESIGN_WT,
 		deltaWT = 0.25,
 		fisherMethod = "equalAlpha",
-		informationRates = (1 : kMax) / kMax,
+		informationRates = (1:kMax) / kMax,
 		futilityBounds = c(stats::qnorm(0.7)),
 		alpha0Vec = c(1),
 		sided = 1,
 		nActual = nActual,
-		dataExample = DatasetMeans(dataFrame = data.frame(stage = (1 : kMax), 
+		dataExample = DatasetMeans(dataFrame = data.frame(stage = (1:kMax), 
 			n1 = c(20, 20), 
 			n2 = nActual, 
 			means1 = c(0.32, 0.35), 
@@ -57,7 +58,7 @@ getTestSettings2 = function() {
 		typeOfDesign = C_TYPE_OF_DESIGN_WT,
 		deltaWT = 0.25,
 		fisherMethod = "equalAlpha",
-		informationRates = (1 : kMax) / kMax,
+		informationRates = (1:kMax) / kMax,
 		sided = 1,
 		futilityBoundsForPower = c(-0.5, 0, 0.5),
 		futilityBounds = rep(C_FUTILITY_BOUNDS_DEFAULT, kMax - 1),
@@ -67,7 +68,7 @@ getTestSettings2 = function() {
 		nPlanned = rep(11, kMax),
 		nActual = rep(11, kMax),
 		
-		dataExample = DatasetMeans(dataFrame = data.frame(stage = (1 : kMax), 
+		dataExample = DatasetMeans(dataFrame = data.frame(stage = (1:kMax), 
 			n1 = c(8, 10, 9, 11), 
 			n2 = c(11, 13, 12, 13), 
 			means1 = c(323, 514, 511, 611), 
@@ -89,7 +90,7 @@ getTestSettings3 = function() {
 		typeOfDesign = C_TYPE_OF_DESIGN_WT_OPTIMUM,
 		deltaWT = 0.25,
 		fisherMethod = "equalAlpha",
-		informationRates = (1 : kMax) / kMax,
+		informationRates = (1:kMax) / kMax,
 		sided = 1,
 		futilityBoundsForPower = c(-0.5, 0, 0.5),
 		futilityBounds = rep(C_FUTILITY_BOUNDS_DEFAULT, kMax - 1),
@@ -99,7 +100,7 @@ getTestSettings3 = function() {
 		nPlanned = rep(11, kMax),
 		nActual = rep(11, kMax),
 		
-		dataExample = DatasetMeans(dataFrame = data.frame(stage = (1 : kMax), 
+		dataExample = DatasetMeans(dataFrame = data.frame(stage = (1:kMax), 
 			n1 = c(8, 10, 9, 11), 
 			n2 = c(11, 13, 12, 13), 
 			means1 = c(323, 514, 511, 611), 

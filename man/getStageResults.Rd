@@ -4,44 +4,66 @@
 \alias{getStageResults}
 \title{Get Stage Results}
 \usage{
-getStageResults(design, dataInput, ...)
+getStageResults(design, dataInput, ..., stage = NA_integer_)
 }
 \arguments{
 \item{design}{The trial design.}
 
 \item{dataInput}{The summary data used for calculating the test results. 
-This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival}. 
-See \code{\link{getDataset}}.}
+This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
+and should be created with the function \code{\link{getDataset}}.
+For more information see \code{\link{getDataset}}.}
 
 \item{...}{Further (optional) arguments to be passed:
 \describe{
-  \item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
-  \item{thetaH0}{The null hypothesis value, default is 0 for the normal and the binary case, 
-      it is 1 for the survival case.      
-      For testing a rate in one sample, a value thetaH0 in (0, 1) has to be specified for 
-      defining the null hypothesis H0: pi = thetaH0. \cr
-         For non-inferiority designs, this is the non-inferiority bound. } 
-  \item{thetaH1 and assumedStDev or pi1, pi2}{The assumed effect size or assumed rates to calculate the 
-      conditional power. Depending on the type of dataset, either thetaH1 (means and survival) 
-      or pi1, pi2 (rates) can be specified. Additionally, if testing means is specified, 
-      an assumed standard deviation can be specified, default is 1.}
-  \item{normalApproximation}{The type of computation of the p-values. Default is FALSE for 
-      testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio. 
-      For testing rates, if \cr 
-      \code{normalApproximation = FALSE} is specified, the binomial test 
-      (one sample) or the test of Fisher (two samples) is used for calculating the p-values.
-      In the survival setting, \cr
-      \code{normalApproximation = FALSE} has no effect.}  
-  \item{equalVariances}{The type of t test. For testing means in two treatment groups, either 
+  \item{\code{thetaH0}}{The null hypothesis value, 
+      default is \code{0} for the normal and the binary case (testing means and rates, respectively), 
+      it is \code{1} for the survival case (testing the hazard ratio).\cr\cr 
+      For non-inferiority designs, \code{thetaH0} is the non-inferiority bound.
+      That is, in case of (one-sided) testing of
+      \itemize{
+        \item \emph{means}: a value \code{!= 0} 
+            (or a value \code{!= 1} for testing the mean ratio) can be specified.
+        \item \emph{rates}: a value \code{!= 0} 
+            (or a value \code{!= 1} for testing the risk ratio \code{pi1 / pi2}) can be specified.
+        \item \emph{survival data}: a bound for testing H0: 
+            \code{hazard ratio = thetaH0 != 1} can be specified.
+      }
+      For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be specified for 
+      defining the null hypothesis H0: \code{pi = thetaH0}.}
+  \item{\code{normalApproximation}}{The 
+      type of computation of the p-values. Default is \code{FALSE} for 
+      testing means (i.e., the t test is used) and \code{TRUE} for testing rates and the hazard ratio. 
+      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
+      (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
+      In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
+  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
       the t test assuming that the variances are equal or the t test without assuming this, 
-      i.e., the test of Welch-Satterthwaite is calculated, default is \code{equalVariances = TRUE}.}
-  \item{directionUpper}{The direction of one-sided testing. 
-      Default is \code{directionUpper = TRUE} which means that larger values of the 
+      i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
+  \item{\code{directionUpper}}{The direction of one-sided testing. 
+      Default is \code{TRUE} which means that larger values of the 
       test statistics yield smaller p-values.}
+     \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
+       hypotheses in the closed system of hypotheses when testing multiple treatment arms. 
+       Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
+     \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
+          for testing means. Three options are available: \code{"overallPooled"}, 
+       \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.}
 }}
+
+\item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
 }
 \value{
 Returns a \code{\link{StageResults}} object.
+\itemize{
+  \item \code{\link[=names.StageResults]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.StageResults]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.StageResults]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Returns summary statistics and p-values for a given data set and a given design.
@@ -49,14 +71,38 @@ Returns summary statistics and p-values for a given data set and a given design.
 \details{
 Calculates and returns the stage results of the specified design and data input at the specified stage.
 }
-\examples{
+\section{How to get help for generic functions}{
 
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+}
+
+\examples{
 design <- getDesignInverseNormal()
 dataRates <- getDataset(
-    n1 = c(10,10),
-    n2 = c(20,20),
-    events1 = c(8,10),
-    events2 = c(10,16))
+    n1      = c(10, 10),
+    n2      = c(20, 20),
+    events1 = c( 8, 10),
+    events2 = c(10, 16))
 getStageResults(design, dataRates)
 
 }
+\seealso{
+Other analysis functions: 
+\code{\link{getAnalysisResults}()},
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getConditionalRejectionProbabilities}()},
+\code{\link{getFinalConfidenceInterval}()},
+\code{\link{getFinalPValue}()},
+\code{\link{getRepeatedConfidenceIntervals}()},
+\code{\link{getRepeatedPValues}()},
+\code{\link{getTestActions}()}
+}
+\concept{analysis functions}

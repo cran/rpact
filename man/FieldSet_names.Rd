@@ -3,12 +3,18 @@
 \name{FieldSet_names}
 \alias{FieldSet_names}
 \alias{names.FieldSet}
-\title{The Names of a Field Set object}
+\title{Names of a Field Set Object}
 \usage{
 \method{names}{FieldSet}(x)
 }
+\arguments{
+\item{x}{A \code{\link{FieldSet}} object.}
+}
+\value{
+Returns a \code{\link[base]{character}} vector containing the names of the \code{\link{AnalysisResults}} object.
+}
 \description{
-Function to get the names of a \code{FieldSet} object.
+Function to get the names of a \code{\link{FieldSet}} object.
 }
 \details{
 Returns the names of a field set that can be accessed by the user.

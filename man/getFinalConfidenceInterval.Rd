@@ -4,37 +4,64 @@
 \alias{getFinalConfidenceInterval}
 \title{Get Final Confidence Interval}
 \usage{
-getFinalConfidenceInterval(design, dataInput, ...)
+getFinalConfidenceInterval(
+  design,
+  dataInput,
+  ...,
+  directionUpper = TRUE,
+  thetaH0 = NA_real_,
+  tolerance = 1e-06,
+  stage = NA_integer_
+)
 }
 \arguments{
 \item{design}{The trial design.}
 
-\item{dataInput}{The data input.}
+\item{dataInput}{The summary data used for calculating the test results. 
+This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
+and should be created with the function \code{\link{getDataset}}.
+For more information see \code{\link{getDataset}}.}
 
-\item{stage}{The stage number.}
+\item{...}{Further (optional) arguments to be passed:
+\describe{
+  \item{\code{normalApproximation}}{
+      The type of computation of the p-values. Default is \code{FALSE} for 
+      testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio. 
+      For testing rates, if \cr 
+      \code{normalApproximation = FALSE} is specified, the binomial test 
+      (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
+      In the survival setting, \cr
+      \code{normalApproximation = FALSE} has no effect.}  
+  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
+      the t test assuming that the variances are equal or the t test without assuming this, 
+      i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
+}}
 
-\item{thetaH0}{The null hypothesis value, default is 0 for the normal and the binary case, 
-it is 1 for the survival case.      
-For testing a rate in one sample, a value \code{thetaH0} in (0,1) has to be specified for 
-defining the null hypothesis H0: pi= thetaH0. \cr
-   For non-inferiority designs, this is the non-inferiority bound.}
+\item{directionUpper}{Specifies the direction of the alternative, 
+only applicable for one-sided testing; default is \code{TRUE}
+which means that larger values of the test statistics yield smaller p-values.}
 
-\item{directionUpper}{The direction of one-sided testing. 
-Default is \code{directionUpper = TRUE} which means that larger values of the 
-test statistics yield smaller p-values.}
+\item{thetaH0}{The null hypothesis value, 
+default is \code{0} for the normal and the binary case (testing means and rates, respectively), 
+it is \code{1} for the survival case (testing the hazard ratio).\cr\cr 
+For non-inferiority designs, \code{thetaH0} is the non-inferiority bound.
+That is, in case of (one-sided) testing of
+\itemize{
+  \item \emph{means}: a value \code{!= 0} 
+    (or a value \code{!= 1} for testing the mean ratio) can be specified.
+  \item \emph{rates}: a value \code{!= 0} 
+    (or a value \code{!= 1} for testing the risk ratio \code{pi1 / pi2}) can be specified.
+  \item \emph{survival data}: a bound for testing H0: \code{hazard ratio = thetaH0 != 1} can be specified.
+}
+For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be specified for 
+defining the null hypothesis H0: \code{pi = thetaH0}.}
 
-\item{normalApproximation}{The type of computation of the p-values. Default is FALSE for 
-testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio. 
-For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
-(one sample) or the test of Fisher (two samples) is used for calculating the p-values.
-In the survival setting \code{normalApproximation = FALSE} has no effect.}
+\item{tolerance}{The numerical tolerance, default is \code{1e-06}.}
 
-\item{equalVariances}{The type of t test. For testing means in two treatment groups, either 
-the t test assuming that the variances are equal or the t test without assuming this, 
-i.e., the test of Welch-Satterthwaite is calculated, default is \code{equalVariances = TRUE}.}
+\item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
 }
 \value{
-Returns a \code{list} containing 
+Returns a \code{\link[base]{list}} containing 
 \itemize{
   \item \code{finalStage}, 
   \item \code{medianUnbiased}, 
@@ -51,11 +78,16 @@ normally distributed variables.
 \details{
 Depending on \code{design} and \code{dataInput} the final confidence interval and median unbiased estimate 
 that is based on the stagewise ordering of the sample space will be calculated and returned.
-Additionally, a non-standardized ("general") version is provided, use the standard deviation to obtain 
+Additionally, a non-standardized ("general") version is provided, 
+the estimated standard deviation must be used to obtain 
 the confidence interval for the parameter of interest.
+  
+For the inverse normal combination test design with more than two 
+stages, a warning informs that the validity of the confidence interval is theoretically shown only if 
+no sample size change was performed.
 }
 \examples{
-
+\donttest{
 design <- getDesignInverseNormal(kMax = 2)
 data <- getDataset(
     n = c(20, 30),
@@ -63,23 +95,20 @@ data <- getDataset(
     stDevs = c(130, 140)
 )
 getFinalConfidenceInterval(design, dataInput = data)
-
-# Results in:
-#
-# $finalStage
-# [1] 2
-# 
-# $medianUnbiasedGeneral
-# [1] 0.3546145
-# 
-# $finalConfidenceIntervalGeneral
-# [1] 0.06967801 0.63468553
-# 
-# $medianUnbiased
-# [1] 47.7787
-# 
-# $finalConfidenceInterval
-# [1]  9.388012 85.513851'
+}
 
 }
-\keyword{internal}
+\seealso{
+Other analysis functions: 
+\code{\link{getAnalysisResults}()},
+\code{\link{getClosedCombinationTestResults}()},
+\code{\link{getClosedConditionalDunnettTestResults}()},
+\code{\link{getConditionalPower}()},
+\code{\link{getConditionalRejectionProbabilities}()},
+\code{\link{getFinalPValue}()},
+\code{\link{getRepeatedConfidenceIntervals}()},
+\code{\link{getRepeatedPValues}()},
+\code{\link{getStageResults}()},
+\code{\link{getTestActions}()}
+}
+\concept{analysis functions}

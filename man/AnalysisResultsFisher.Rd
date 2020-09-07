@@ -5,11 +5,11 @@
 \alias{AnalysisResultsFisher}
 \title{Analysis Results Fisher}
 \description{
-Class for analysis results based on a Fisher design.
+Class for analysis results based on a Fisher combination test design.
 }
 \details{
-This object can not be created directly; use \code{\link{getAnalysisResults}} 
-with suitable arguments to create the analysis results of a Fisher design.
+This object cannot be created directly; use \code{\link{getAnalysisResults}} 
+with suitable arguments to create the analysis results of a Fisher combination test design.
 }
 
 \keyword{internal}

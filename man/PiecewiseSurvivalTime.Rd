@@ -5,10 +5,10 @@
 \alias{PiecewiseSurvivalTime}
 \title{Piecewise Exponential Survival Time}
 \description{
-Class for definition of piecewise survival times.
+Class for the definition of piecewise survival times.
 }
 \details{
-\code{PiecewiseSurvivalTime} is a class for definition of piecewise survival times.
+\code{PiecewiseSurvivalTime} is a class for the definition of piecewise survival times.
 }
 
 \keyword{internal}

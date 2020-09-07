@@ -9,10 +9,10 @@ Trial design for Fisher's combination test.
 }
 \details{
 This object should not be created directly; use \code{\link{getDesignFisher}} 
-with suitable arguments to create a Fisher design.
+with suitable arguments to create a Fisher combination test design.
 }
 
 \seealso{
-\code{\link{getDesignFisher}} for creating a Fisher design.
+\code{\link{getDesignFisher}} for creating a Fisher combination test design.
 }
 \keyword{internal}

@@ -41,17 +41,20 @@ getPiecewiseExponentialRandomNumbers(
 rpwexp(n, ..., s = NA_real_, lambda = NA_real_, kappa = 1)
 }
 \arguments{
-\item{...}{Ensures that all arguments after \code{time} are be named and 
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{kappa}{The kappa value. Is needed for the specification of the Weibull distribution. 
-In this case, no piecewise definition is possible, i.e., 
-only lambda and kappa need to be specified.
-This function is equivalent to pweibull(t, kappa, 1 / lambda) of the R core system, i.e., 
-the scale parameter is 1 / 'hazard rate'.
-For example, getPiecewiseExponentialDistribution(time = 130, 
-piecewiseLambda = 0.01, kappa = 4.2) and 
-pweibull(q = 130, shape = 4.2, scale = 1 /0.01) provide the sample result.}
+\item{kappa}{A numeric value >= 0. A \code{kappa != 1} will be used for the specification 
+of the shape of the Weibull distribution. 
+Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
+Note that the Weibull distribution cannot be used for the piecewise definition of 
+the survival time distribution, i.e., only \code{lambda} and \code{kappa} need to be specified.
+This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
+of the \code{stats} package, i.e., 
+the scale parameter is \code{1 / 'hazard rate'}.\cr
+For example, \cr
+\code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)} 
+and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
 
 \item{t, time}{Vector of time values.}
 
@@ -62,6 +65,9 @@ pweibull(q = 130, shape = 4.2, scale = 1 /0.01) provide the sample result.}
 \item{q, quantile}{Vector of quantiles.}
 
 \item{n}{Number of observations.}
+}
+\value{
+Returns a \code{\link[base]{numeric}} value or vector will be returned.
 }
 \description{
 Distribution function, quantile function and random number generation for the 
@@ -77,8 +83,7 @@ The piecewise definition is performed through a vector of
 starting times (\code{piecewiseSurvivalTime}) and a vector of hazard rates (\code{piecewiseLambda}).
 You can also use a list that defines the starting times and piecewise 
 lambdas together and define piecewiseSurvivalTime as this list.
-The list needs to have the form, for example, 
-piecewiseSurvivalTime <- list(
+The list needs to have the form, e.g., #' piecewiseSurvivalTime <- list(
     "0 - <6"   = 0.025, 
     "6 - <9"   = 0.04, 
     "9 - <15"  = 0.015, 
@@ -89,7 +94,6 @@ In this case, no piecewise definition is possible, i.e., only piecewiseLambda an
 kappa need to be specified.
 }
 \examples{
-
 # Calculate probabilties for a range of time values for a 
 # piecewise exponential distribution with hazard rates 
 # 0.025, 0.04, 0.015, and 0.007 in the intervals 

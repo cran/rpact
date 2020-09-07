@@ -5,7 +5,23 @@
 \alias{as.matrix.FieldSet}
 \title{Coerce Frame Set to a Matrix}
 \usage{
-\method{as.matrix}{FieldSet}(x, rownames.force = NA, ...)
+\method{as.matrix}{FieldSet}(x, ..., enforceRowNames = TRUE, niceColumnNamesEnabled = TRUE)
+}
+\arguments{
+\item{x}{A \code{\link{FieldSet}} object.}
+
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and 
+that a warning will be displayed if unknown arguments are passed.}
+
+\item{enforceRowNames}{If \code{TRUE}, row names will be created 
+depending on the object type, default is \code{TRUE}.}
+
+\item{niceColumnNamesEnabled}{Logical. If \code{TRUE}, nice looking column 
+names will be used; syntactic names (variable names) otherwise 
+(see \code{\link[base]{make.names}}).}
+}
+\value{
+Returns a \code{\link[base]{matrix}}.
 }
 \description{
 Returns the \code{FrameSet} as matrix.

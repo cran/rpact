@@ -3,14 +3,25 @@
 \name{TrialDesignSet_names}
 \alias{TrialDesignSet_names}
 \alias{names.TrialDesignSet}
-\title{The Names of a Trial Design Set object}
+\title{Names of a Trial Design Set Object}
 \usage{
 \method{names}{TrialDesignSet}(x)
 }
+\arguments{
+\item{x}{A \code{\link{TrialDesignSet}} object.}
+}
+\value{
+Returns a \code{\link[base]{character}} vector containing the names of the \code{\link{AnalysisResults}} object.
+}
 \description{
-Function to get the names of a \code{TrialDesignSet} object.
+Function to get the names of a \code{\link{TrialDesignSet}} object.
 }
 \details{
 Returns the names of a design set that can be accessed by the user.
+}
+\examples{
+designSet <- getDesignSet(design = getDesignGroupSequential(), alpha = c(0.01, 0.05))
+names(designSet)
+
 }
 \keyword{internal}

@@ -1,21 +1,24 @@
-######################################################################################
-#                                                                                    #
-# -- Unit tests --                                                                   #
-#                                                                                    #
-# This file is part of the R package RPACT - R Package for Adaptive Clinical Trials. #
-#                                                                                    #
-# File version: 1.0.0                                                                #
-# Date: 12 December 2019, 12:31:23                                                   #
-# Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD                             #
-# Licensed under "GNU Lesser General Public License" version 3                       #
-# License text can be found here: https://www.r-project.org/Licenses/LGPL-3          #
-#                                                                                    #
-# RPACT company website: https://www.rpact.com                                       #
-# RPACT package website: https://www.rpact.org                                       #
-#                                                                                    #
-# Contact us for information about our services: info@rpact.com                      #
-#                                                                                    #
-######################################################################################
+#:#  
+#:#  *Unit tests*
+#:#  
+#:#  This file is part of the R package rpact:
+#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
+#:#  
+#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+#:#  Licensed under "GNU Lesser General Public License" version 3
+#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+#:#  
+#:#  RPACT company website: https://www.rpact.com
+#:#  RPACT package website: https://www.rpact.org
+#:#  
+#:#  Contact us for information about our services: info@rpact.com
+#:#  
+#:#  File name: test-f_design_power_calculator.R
+#:#  Creation date: 05 September 2020, 14:48:03
+#:#  File version: $Revision: 3596 $
+#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
+#:#  Last changed by: $Author: pahlke $
+#:#  
 
 context("Testing the power calculation of means for different designs and arguments")
 
@@ -30,9 +33,7 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 		normalApproximation = FALSE, alternative = c(-1,1.2,1.4),
 		directionUpper = TRUE, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -56,6 +57,14 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.67059547, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleMean}
@@ -63,9 +72,7 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 		normalApproximation = FALSE, alternative = c(-1.2, -1), 
 		directionUpper = FALSE, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -89,15 +96,19 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], -0.67059547, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS1, groups = 1, thetaH0 = 0.5, stDev = 2, 
 		normalApproximation = TRUE, alternative = 1.2, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -121,15 +132,19 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.66903085, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = -0.5, stDev = 2, 
 		normalApproximation = TRUE, alternative = -1.2, directionUpper = FALSE, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -153,8 +168,12 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], -0.8380617, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
-
-	getSampleSizeMeans(groups = 1, thetaH0 = -0.2, allocationRatioPlanned = 1)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -168,9 +187,7 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = 0.5, stDev = 2, 
 		normalApproximation = FALSE, alternative = 1.2, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -190,15 +207,21 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = -0.5, stDev = 2, 
 		normalApproximation = FALSE, alternative = -1.2, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -218,15 +241,19 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = 0.5, stDev = 2, 
 		normalApproximation = TRUE, alternative = 1.2, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -246,15 +273,19 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = -0.5, stDev = 2, 
 		normalApproximation = TRUE, alternative = -1.2, maxNumberOfSubjects = 50)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -274,6 +305,12 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -288,9 +325,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		meanRatio = F, normalApproximation = FALSE, alternative = 1.8,
 		directionUpper = TRUE, maxNumberOfSubjects = 50, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -320,6 +355,14 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.79556274, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanDiff}
@@ -327,9 +370,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		meanRatio = F, normalApproximation = FALSE, alternative = -1.8,
 		directionUpper = FALSE, maxNumberOfSubjects = 50, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -359,6 +400,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], -0.79556274, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
@@ -366,9 +413,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		meanRatio = F, normalApproximation = TRUE, alternative = 1.8,
 		maxNumberOfSubjects = 50, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -398,6 +443,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.79277002, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
@@ -405,9 +456,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		meanRatio = F, normalApproximation = TRUE, alternative = -1.8,
 		directionUpper = FALSE, maxNumberOfSubjects = 50, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -437,6 +486,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], -0.79277002, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanRatio}
@@ -444,9 +499,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		stDev = 1.5, meanRatio = T, normalApproximation = FALSE, alternative = 1.8,
 		directionUpper = TRUE, maxNumberOfSubjects = 50, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -476,6 +529,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 1.0525289, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
@@ -483,9 +542,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		stDev = 1.5, meanRatio = T, normalApproximation = TRUE, alternative = 1.8,
 		maxNumberOfSubjects = 50, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -515,6 +572,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 1.0501428, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -529,9 +592,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		normalApproximation = FALSE, alternative = 1.2,
 		maxNumberOfSubjects = 50, allocationRatioPlanned = 0.7)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -557,6 +618,14 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.1297467, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.23204368, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.27946463, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanDiff}
@@ -564,9 +633,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		normalApproximation = FALSE, alternative = -1.2,
 		maxNumberOfSubjects = 50, allocationRatioPlanned = 0.7)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -592,6 +659,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.1297467, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.23204368, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.27946463, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
@@ -599,9 +672,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		stDev = 2, normalApproximation = TRUE, alternative = 1.2,
 		maxNumberOfSubjects = 50, allocationRatioPlanned = 0.7)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -627,6 +698,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.1297467, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.23204368, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.27946463, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
@@ -634,9 +711,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 		normalApproximation = TRUE, alternative = -1.2,
 		maxNumberOfSubjects = 50, allocationRatioPlanned = 0.7)
 
-	##
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 15)
 	expect_equal(powerResult$numberOfSubjects[2, ], 35)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
@@ -662,6 +737,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.1297467, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.23204368, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.27946463, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -677,9 +758,7 @@ test_that("'getPowerRates': power calculation of rate in one sample for one-side
 	powerResult <- getPowerRates(designGS1, groups = 1, thetaH0 = 0.4, 
 		pi1 = c(0.2,0.3,0.4), directionUpper = FALSE, maxNumberOfSubjects = 40)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 12)
 	expect_equal(powerResult$numberOfSubjects[2, ], 28)
 	expect_equal(powerResult$numberOfSubjects[3, ], 40)
@@ -703,15 +782,21 @@ test_that("'getPowerRates': power calculation of rate in one sample for one-side
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.353709, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleRate}
 	powerResult <- getPowerRates(designGS1, groups = 1, thetaH0 = 0.4, pi1 = c(0.4,0.5,0.6),  
 			directionUpper = , maxNumberOfSubjects = 40)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 12)
 	expect_equal(powerResult$numberOfSubjects[2, ], 28)
 	expect_equal(powerResult$numberOfSubjects[3, ], 40)
@@ -735,6 +820,12 @@ test_that("'getPowerRates': power calculation of rate in one sample for one-side
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.446291, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -748,9 +839,7 @@ test_that("'getPowerRates': power calculation of rate in one sample for two-side
 	powerResult <- getPowerRates(designGS2, groups = 1, thetaH0 = 0.4, 
 		pi1 = seq(0.2,0.6,0.1), maxNumberOfSubjects = 40)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 12)
 	expect_equal(powerResult$numberOfSubjects[2, ], 28)
 	expect_equal(powerResult$numberOfSubjects[3, ], 40)
@@ -770,6 +859,12 @@ test_that("'getPowerRates': power calculation of rate in one sample for two-side
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.1297467, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.23204368, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.27946463, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -788,9 +883,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 		pi2 = 0.4, pi1 = c(0.1,0.2,0.3), directionUpper = FALSE, 
 		maxNumberOfSubjects = 40, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 12)
 	expect_equal(powerResult$numberOfSubjects[2, ], 28)
 	expect_equal(powerResult$numberOfSubjects[3, ], 40)
@@ -820,6 +913,14 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], -0.00361566, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
@@ -828,9 +929,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 		pi2 = 0.4, pi1 = c(0.2, 0.3, 0.4, 0.5), directionUpper = TRUE, 
 		maxNumberOfSubjects = 80, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 24)
 	expect_equal(powerResult$numberOfSubjects[2, ], 56)
 	expect_equal(powerResult$numberOfSubjects[3, ], 80)
@@ -860,6 +959,12 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], -0.02383242, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -875,9 +980,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 		pi2 = 0.5, pi1 = c(0.1,0.2,0.3), riskRatio = T, directionUpper = FALSE, 
 		maxNumberOfSubjects = 40, allocationRatioPlanned = 5)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 12)
 	expect_equal(powerResult$numberOfSubjects[2, ], 28)
 	expect_equal(powerResult$numberOfSubjects[3, ], 40)
@@ -907,6 +1010,14 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.59448494, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
@@ -915,9 +1026,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 		pi2 = 0.4, pi1 = c(0.4, 0.5, 0.6), riskRatio = T, directionUpper = TRUE, 
 		maxNumberOfSubjects = 80, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 24)
 	expect_equal(powerResult$numberOfSubjects[2, ], 56)
 	expect_equal(powerResult$numberOfSubjects[3, ], 80)
@@ -947,6 +1056,12 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.96223105, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -961,9 +1076,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 	powerResult <- getPowerRates(designGS2, groups = 2, pi2 = 0.5, pi1 = c(0.1,0.2,0.3), 
 		riskRatio = F, maxNumberOfSubjects = 40, allocationRatioPlanned = 0.5)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 12)
 	expect_equal(powerResult$numberOfSubjects[2, ], 28)
 	expect_equal(powerResult$numberOfSubjects[3, ], 40)
@@ -989,6 +1102,14 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.1297467, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.23204368, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.27946463, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
@@ -996,9 +1117,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 	powerResult <- getPowerRates(designGS2, groups = 2, pi2 = 0.4, pi1 = c(0.4, 0.5, 0.6), 
 		riskRatio = T, maxNumberOfSubjects = 80, allocationRatioPlanned = 7)
 
-	##
 	## Comparison of the results of TrialDesignPlanRates object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$numberOfSubjects[1, ], 24)
 	expect_equal(powerResult$numberOfSubjects[2, ], 56)
 	expect_equal(powerResult$numberOfSubjects[3, ], 80)
@@ -1024,6 +1143,12 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.1297467, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.23204368, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.27946463, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -1044,9 +1169,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 		dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
 		maxNumberOfSubjects = 80, maxNumberOfEvents = 45, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(32.565971, 24, 18.155299), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 32.565971, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.021284401, 0.028881133, 0.03817878), tolerance = 1e-07)
@@ -1085,6 +1208,14 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 1.2284311, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalFreedman}
@@ -1096,9 +1227,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 		pi2 = 0.4, pi1 = c(0.4, 0.5, 0.6), dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
 		maxNumberOfSubjects = 80, maxNumberOfEvents = 45, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(32.565971, 24, 18.155299), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 32.565971, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.021284401, 0.028881133, 0.03817878), tolerance = 1e-07)
@@ -1137,6 +1266,12 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 1.2284311, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalHsieh}
@@ -1144,13 +1279,11 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFindFollowUpTime}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
-	powerResult <- getPowerSurvival(designGS1, typeOfComputation = "Hsieh", 
+	powerResult <- getPowerSurvival(designGS1, typeOfComputation = "HsiehFreedman", 
 		pi2 = 0.4, pi1 = c(0.4, 0.5, 0.6), dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
 		maxNumberOfSubjects = 80, maxNumberOfEvents = 45, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(32.565971, 24, 18.155299), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 32.565971, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.021284401, 0.028881133, 0.03817878), tolerance = 1e-07)
@@ -1189,6 +1322,12 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 1.2284311, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
@@ -1200,11 +1339,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 		hazardRatio = 0.8, directionUpper = FALSE,
 		maxNumberOfSubjects = 200, maxNumberOfEvents = 65, allocationRatioPlanned = 3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, 0.31886857, tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.38121661, tolerance = 1e-07)
 	expect_equal(powerResult$median1, 21.660849, tolerance = 1e-07)
 	expect_equal(powerResult$median2, 17.32868, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, 0.032, tolerance = 1e-07)
@@ -1241,6 +1376,12 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 1.0533329, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
@@ -1252,11 +1393,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 		hazardRatio = seq(0.8,1.4,0.2), directionUpper = TRUE,
 		maxNumberOfSubjects = 200, maxNumberOfEvents = 65, allocationRatioPlanned = 1)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, c(0.31886857, 0.38121661, 0.43785755, 0.48931382), tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.38121661, tolerance = 1e-07)
 	expect_equal(powerResult$median1, c(21.660849, 17.32868, 14.440566, 12.377628), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 17.32868, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.032, 0.04, 0.048, 0.056), tolerance = 1e-07)
@@ -1293,6 +1430,12 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.92784212, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
@@ -1304,9 +1447,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 		thetaH0 = 0.8, hazardRatio = seq(0.8,1.4,0.2), directionUpper = TRUE,
 		maxNumberOfSubjects = 200, maxNumberOfEvents = 65, allocationRatioPlanned = 1)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$pi1, c(0.33546019, 0.4, 0.45827173, 0.51088413), tolerance = 1e-07)
 	expect_equal(powerResult$median1, c(203.53732, 162.82985, 135.69154, 116.30704), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 162.82985, tolerance = 1e-07)
@@ -1345,6 +1486,12 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	expect_equal(powerResult$futilityBoundsEffectScale[2, ], 0.92784212, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[1, ], 0.69146246, tolerance = 1e-07)
 	expect_equal(powerResult$futilityBoundsPValueScale[2, ], 0.30853754, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -1363,9 +1510,7 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 		dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
 		maxNumberOfSubjects = 180, maxNumberOfEvents = 55, allocationRatioPlanned = 0.3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(74.550809, 32.565971, 18.155299), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 32.565971, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.009297648, 0.021284401, 0.03817878), tolerance = 1e-07)
@@ -1400,6 +1545,14 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025692757, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.055458318, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.072467622, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalFreedman}
@@ -1411,9 +1564,7 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 		pi2 = 0.4, pi1 = c(0.2, 0.4, 0.6), dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
 		maxNumberOfSubjects = 180, maxNumberOfEvents = 55, allocationRatioPlanned = 0.3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(74.550809, 32.565971, 18.155299), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 32.565971, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.009297648, 0.021284401, 0.03817878), tolerance = 1e-07)
@@ -1448,6 +1599,12 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025692757, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.055458318, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.072467622, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalHsieh}
@@ -1455,13 +1612,11 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFindFollowUpTime}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
-	powerResult <- getPowerSurvival(designGS2, typeOfComputation = "Hsieh",
+	powerResult <- getPowerSurvival(designGS2, typeOfComputation = "HsiehFreedman",
 		pi2 = 0.4, pi1 = c(0.2, 0.4, 0.6), dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
 		maxNumberOfSubjects = 180, maxNumberOfEvents = 55, allocationRatioPlanned = 0.3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(74.550809, 32.565971, 18.155299), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 32.565971, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.009297648, 0.021284401, 0.03817878), tolerance = 1e-07)
@@ -1496,6 +1651,12 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025692757, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.055458318, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.072467622, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
@@ -1504,14 +1665,10 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	# @refFS[Formula]{fs:sampleSizeSurvivalFindFollowUpTime}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	powerResult <- getPowerSurvival(designGS2, lambda2 = 0.04, hazardRatio = c(0.4,1,1.8), 
-		dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
+		dropoutRate1 = 0.1, dropoutTime = 12, 
 		maxNumberOfSubjects = 180, maxNumberOfEvents = 55, allocationRatioPlanned = 0.3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, c(0.31886857, 0.61710711, 0.82236067), tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.61710711, tolerance = 1e-07)
 	expect_equal(powerResult$median1, c(43.321699, 17.32868, 9.6270442), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 17.32868, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.016, 0.04, 0.072), tolerance = 1e-07)
@@ -1544,6 +1701,12 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025692757, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.055458318, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.072467622, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalFreedman}
@@ -1552,14 +1715,10 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	# @refFS[Formula]{fs:sampleSizeSurvivalFindFollowUpTime}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	powerResult <- getPowerSurvival(designGS2, typeOfComputation = "Freedman", 
-		lambda2 = 0.04, hazardRatio = c(0.4,1,1.8), dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
+		lambda2 = 0.04, hazardRatio = c(0.4,1,1.8), dropoutRate1 = 0.1, dropoutTime = 12, 
 		maxNumberOfSubjects = 180, maxNumberOfEvents = 55, allocationRatioPlanned = 0.3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, c(0.31886857, 0.61710711, 0.82236067), tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.61710711, tolerance = 1e-07)
 	expect_equal(powerResult$median1, c(43.321699, 17.32868, 9.6270442), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 17.32868, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.016, 0.04, 0.072), tolerance = 1e-07)
@@ -1592,6 +1751,12 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025692757, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.055458318, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.072467622, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalHsieh}
@@ -1599,15 +1764,11 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFindFollowUpTime}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
-	powerResult <- getPowerSurvival(designGS2, typeOfComputation = "Hsieh", 
-		lambda2 = 0.04, hazardRatio = c(0.4,1,1.8),  dropoutRate1 = 0.1, dropoutTime = 12, eventTime = 24,  
+	powerResult <- getPowerSurvival(designGS2, typeOfComputation = "HsiehFreedman", 
+		lambda2 = 0.04, hazardRatio = c(0.4,1,1.8),  dropoutRate1 = 0.1, dropoutTime = 12, 
 		maxNumberOfSubjects = 180, maxNumberOfEvents = 55, allocationRatioPlanned = 0.3)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, c(0.31886857, 0.61710711, 0.82236067), tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.61710711, tolerance = 1e-07)
 	expect_equal(powerResult$median1, c(43.321699, 17.32868, 9.6270442), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 17.32868, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.016, 0.04, 0.072), tolerance = 1e-07)
@@ -1640,6 +1801,12 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025692757, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.055458318, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.072467622, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -1647,11 +1814,11 @@ context("Testing the power calculation of survival data for other parameter vari
 
 
 test_that("'getPowerSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default ", {
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1666,17 +1833,23 @@ test_that("'getPowerSurvival': Fixed sample size with minimum required definitio
 	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Four stage O'Brien and Fleming group sequential design with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default  ", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 4), 
 		maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1714,17 +1887,23 @@ test_that("'getPowerSurvival': Four stage O'Brien and Fleming group sequential d
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.0020996694, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.0097077663, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[4, ], 0.021469878, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': For fixed sample design, determine necessary accrual time if 200 subjects and 30 subjects per time unit can be recruited ", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, 
 		accrualTime = c(0), accrualIntensity = 30, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1739,17 +1918,23 @@ test_that("'getPowerSurvival': For fixed sample design, determine necessary accr
 	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Determine necessary accrual time if 200 subjects and if the first 6 time units 20 subjects per time unit can be recruited, then 30 subjects per time unit ", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, 
 		accrualTime = c(0, 6), accrualIntensity = c(20, 30), maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1765,17 +1950,23 @@ test_that("'getPowerSurvival': Determine necessary accrual time if 200 subjects 
 	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Determine maximum number of Subjects if the first 6 time units 20 subjects per time unit can be recruited, and after 10 time units 30 subjects per time unit", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, 
 		accrualTime = c(0, 6, 10), accrualIntensity = c(20, 30))
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1791,17 +1982,23 @@ test_that("'getPowerSurvival': Determine maximum number of Subjects if the first
 	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specify accrual time as a list", {
 
+	.skipTestIfDisabled()
+
 	at <- list("0 - <6" = 20, "6 - Inf" = 30)
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, accrualTime = at, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1817,17 +2014,23 @@ test_that("'getPowerSurvival': Specify accrual time as a list", {
 	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specify accrual time as a list, if maximum number of subjects need to be calculated", {
 
+	.skipTestIfDisabled()
+
 	at <- list("0 - <6" = 20, "6 - <=10" = 30) 
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, accrualTime = at)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
 	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
@@ -1843,17 +2046,23 @@ test_that("'getPowerSurvival': Specify accrual time as a list, if maximum number
 	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specify effect size for a two-stage group design with O'Brien & Fleming boundaries Effect size is based on event rates at specified event time, directionUpper = FALSE needs to be specified because it should be shown that hazard ratio < 1", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		pi1 = 0.2, pi2 = 0.3, eventTime = 24, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$median1, 74.550809, tolerance = 1e-07)
 	expect_equal(powerResult$median2, 46.640597, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, 0.009297648, tolerance = 1e-07)
@@ -1879,17 +2088,23 @@ test_that("'getPowerSurvival': Specify effect size for a two-stage group design 
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 0.53509093, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.0025828932, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.023996469, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Effect size is based on event rate at specified event time for the reference group and hazard ratio, directionUpper = FALSE needs to be specified because it should be shown that hazard ratio < 1", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		hazardRatio = 0.5, pi2 = 0.3, eventTime = 24, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$pi1, 0.16333997, tolerance = 1e-07)
 	expect_equal(powerResult$median1, 93.281194, tolerance = 1e-07)
 	expect_equal(powerResult$median2, 46.640597, tolerance = 1e-07)
@@ -1915,19 +2130,23 @@ test_that("'getPowerSurvival': Effect size is based on event rate at specified e
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 0.53509093, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.0025828932, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.023996469, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Effect size is based on hazard rate for the reference group and hazard ratio, directionUpper = FALSE needs to be specified because it should be shown that hazard ratio < 1", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		hazardRatio = 0.5, lambda2 = 0.02, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE) 
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, 0.11307956, tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.21337214, tolerance = 1e-07)
 	expect_equal(powerResult$median1, 69.314718, tolerance = 1e-07)
 	expect_equal(powerResult$median2, 34.657359, tolerance = 1e-07)
 	expect_equal(powerResult$lambda1, 0.01, tolerance = 1e-07)
@@ -1951,17 +2170,23 @@ test_that("'getPowerSurvival': Effect size is based on hazard rate for the refer
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 0.53509093, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.0025828932, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.023996469, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specification of piecewise exponential survival time and hazard ratios  ", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01,0.02,0.04), hazardRatio = c(1.5, 1.8, 2),  maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, c(4.2070411, 3.5734432, 3.2068918), tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], c(12.173669, 11.705285, 11.428161), tolerance = 1e-07)
@@ -1982,18 +2207,24 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 1.8688412, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.0025828932, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.023996469, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specification of piecewise exponential survival time as list and hazard ratios ", {
 
+	.skipTestIfDisabled()
+
 	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2), maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, c(4.2070411, 3.5734432, 3.2068918), tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], c(12.173669, 11.705285, 11.428161), tolerance = 1e-07)
@@ -2014,18 +2245,23 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 1.8688412, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.0025828932, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.023996469, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specification of piecewise exponential survival time for both treatment arms  ", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), lambda1 = c(0.015,0.03,0.06),  maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$lambda1, c(0.015, 0.03, 0.06), tolerance = 1e-07)
 	expect_equal(powerResult$hazardRatio, 1.5, tolerance = 1e-07)
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, 4.2070411, tolerance = 1e-07)
@@ -2047,18 +2283,24 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 1.8688412, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.0025828932, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.023996469, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specification of piecewise exponential survival time as a list", {
-	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
 
+	.skipTestIfDisabled()
+
+	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2), maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
 	expect_equal(powerResult$followUpTime, c(4.2070411, 3.5734432, 3.2068918), tolerance = 1e-07)
 	expect_equal(powerResult$analysisTime[1, ], c(12.173669, 11.705285, 11.428161), tolerance = 1e-07)
@@ -2079,20 +2321,24 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 1.8688412, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.0025828932, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.023996469, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specify effect size based on median survival times (median1 = 5, median2 = 3)", {
 
+	.skipTestIfDisabled()
+
 	powerResult <- getPowerSurvival(lambda1 = log(2) / 5, lambda2 = log(2) / 3, 
 		maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, 0.81053543, tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.9375, tolerance = 1e-07)
-	expect_equal(powerResult$median1, 5, tolerance = 1e-07)
+	expect_equal(powerResult$median1, 5)
 	expect_equal(powerResult$median2, 3)
 	expect_equal(powerResult$hazardRatio, 0.6, tolerance = 1e-07)
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -2104,10 +2350,18 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 	expect_equal(powerResult$overallReject, 0.36520074, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 0.53805471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
 test_that("'getPowerSurvival': Specify effect size based on median survival times of Weibull distribtion with kappa = 2 (median1 = 5, median2 = 3)", {
+
+	.skipTestIfDisabled()
 
 	powerResult <- getPowerSurvival(
 		lambda1 = getLambdaByMedian(median = 5, kappa = 2), 
@@ -2115,12 +2369,8 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 		kappa = 2, maxNumberOfEvents = 40, 
 		maxNumberOfSubjects = 200, directionUpper = FALSE)
 
-	##
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	##
-	expect_equal(powerResult$pi1, 0.98154699, tolerance = 1e-07)
-	expect_equal(powerResult$pi2, 0.99998474, tolerance = 1e-07)
-	expect_equal(powerResult$median1, 5, tolerance = 1e-07)
+	expect_equal(powerResult$median1, 5)
 	expect_equal(powerResult$median2, 3)
 	expect_equal(powerResult$hazardRatio, 0.36, tolerance = 1e-07)
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -2132,6 +2382,12 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 	expect_equal(powerResult$overallReject, 0.8980967, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 0.53805471, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
 
 })
 
@@ -2139,6 +2395,8 @@ context("Testing the follow-up time calculation")
 
 
 test_that("'getPowerSurvival': analysis time at last stage equals accrual time + follow-up time", {
+	.skipTestIfDisabled()
+
 	x1 <- getPowerSurvival(getDesignGroupSequential(typeOfDesign = "P"), accrualTime = 12, 
 		lambda2 = 0.005, lambda1 = 0.01, 
 		maxNumberOfSubjects = 766, maxNumberOfEvents = 76)
@@ -2152,13 +2410,13 @@ test_that("'getPowerSurvival': analysis time at last stage equals accrual time +
 
 	expect_equal(x2$analysisTime[3], x2$accrualTime + x2$followUpTime)
 
-	x3 <- getPowerSurvival(getDesignGroupSequential(typeOfDesign = "WT"), 
+	x3 <- getPowerSurvival(getDesignGroupSequential(typeOfDesign = "WT", deltaWT = 0.3), 
 		accrualTime = c(0, 12, 15), accrualIntensity = c(20, 30), 
 		lambda2 = 0.005, lambda1 = 0.01, maxNumberOfEvents = 76)
 
 	expect_equal(x3$analysisTime[length(x3$analysisTime)], x3$accrualTime[length(x3$accrualTime)] + x3$followUpTime)
 
-	x4 <- getPowerSurvival(getDesignGroupSequential(typeOfDesign = "WT"), 
+	x4 <- getPowerSurvival(getDesignGroupSequential(typeOfDesign = "WT", deltaWT = 0.3), 
 		accrualTime = c(0, 12, 15), accrualIntensity = c(40, 60), maxNumberOfEvents = 76, 
 		piecewiseSurvivalTime = c(0, 5), lambda2 = c(0.005, 0.01), hazardRatio = 0.8)
 
