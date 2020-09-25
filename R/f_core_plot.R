@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3688 $
+#:#  Last changed: $Date: 2020-09-24 14:37:04 +0200 (Thu, 24 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -182,9 +182,6 @@
 			return(availablePlotTypes)
 		}
 		
-		pmatch("ean", c("mean", "median", "mode"))
-		grep("ian", c("mean", "median", "mode"))
-		
 		types <- getAvailablePlotTypes(x, output = "numeric")
 		captions <- tolower(getAvailablePlotTypes(x, output = "caption"))
 		typeNumbers <- c()
@@ -295,6 +292,41 @@ plotTypes <- function(obj, output = c("numeric", "caption", "numcap", "capnum"),
 		numberInCaptionEnabled = numberInCaptionEnabled))
 }
 
+.isValidVariedParameterVectorForPlotting <- function(resultObject, plotType) {
+	if (plotType > 12) {
+		return(TRUE)
+	}
+	
+	for (param in c("alternative", "pi1", "hazardRatio")) {
+		if (!is.null(resultObject[[param]]) && 
+				resultObject$.getParameterType(param) != C_PARAM_NOT_APPLICABLE &&
+				(any(is.na(resultObject[[param]])) || 
+				length(resultObject[[param]]) <= 1)) { 
+			return(FALSE)
+		}
+	}
+	
+	if (!is.null(resultObject[["hazardRatio"]]) && !is.null(resultObject[["overallReject"]]) &&
+			resultObject$.getParameterType("hazardRatio") != C_PARAM_NOT_APPLICABLE &&
+			resultObject$.getParameterType("overallReject") != C_PARAM_NOT_APPLICABLE &&
+			length(resultObject$hazardRatio) > 0 &&
+			length(resultObject$hazardRatio) != length(resultObject$overallReject)) {
+		return(FALSE)
+	}
+
+	return(TRUE)
+}
+
+.removeInvalidPlotTypes <- function(resultObject, plotTypes) {
+	validPlotTypes <- c()
+	for (plotType in plotTypes) {
+		if (.isValidVariedParameterVectorForPlotting(resultObject, plotType)) {
+			validPlotTypes <- c(validPlotTypes, plotType)
+		}
+	}
+	return(validPlotTypes)
+}
+
 #' 
 #' @title
 #' Get Available Plot Types
@@ -362,6 +394,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 				types <- c(types, 10:14)
 			}
 		}
+		types <- .removeInvalidPlotTypes(obj, types)
 	}
 	else if (inherits(obj, "SimulationResults")) {
 		if (grepl("MultiArm", class(obj))) {
@@ -384,6 +417,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		if (inherits(obj, "SimulationResultsSurvival")) {
 			types <- c(types, 10:14)
 		}
+		types <- .removeInvalidPlotTypes(obj, types)
 	}
 	else if (inherits(obj, "TrialDesign") || inherits(obj, "TrialDesignSet")) {
 		if (inherits(obj, "TrialDesignFisher")) {

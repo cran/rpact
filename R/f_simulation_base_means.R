@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3576 $
-#:#  Last changed: $Date: 2020-09-02 10:59:38 +0200 (Mi, 02 Sep 2020) $
+#:#  File version: $Revision: 3681 $
+#:#  Last changed: $Date: 2020-09-24 07:28:22 +0200 (Thu, 24 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -462,6 +462,7 @@ getSimulationMeans <- function(
 	.assertIsSingleNumber(seed, "seed", naAllowed = TRUE)
 	.assertIsValidStandardDeviation(stDev)
 	.assertIsSingleLogical(showStatistics, "showStatistics", naAllowed = FALSE)
+	.assertIsSingleLogical(normalApproximation, "normalApproximation", naAllowed = FALSE)
 	
 	if (design$sided == 2) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -476,6 +477,7 @@ getSimulationMeans <- function(
 		if (!is.na(allocationRatioPlanned)) {   
 			warning("'allocationRatioPlanned' (", allocationRatioPlanned, 
 				") will be ignored because it is not applicable for 'groups' = 1", call. = FALSE)
+			allocationRatioPlanned <- NA_real_
 		}	
 	} else if (is.na(allocationRatioPlanned)) {
 		allocationRatioPlanned <- C_ALLOCATION_RATIO_DEFAULT
@@ -506,12 +508,12 @@ getSimulationMeans <- function(
 	
 	if (design$kMax > 1) {
 		if (!normalApproximation) {
-			if (any(minNumberOfSubjectsPerStage < groups * 2)) {
+			if (!all(is.na(minNumberOfSubjectsPerStage)) && (any(minNumberOfSubjectsPerStage < groups * 2))) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 						"minNumberOfSubjectsPerStage not correctly specified")
 			}
 		}
-		if (any(maxNumberOfSubjectsPerStage - minNumberOfSubjectsPerStage < 0)&& 
+		if (any(maxNumberOfSubjectsPerStage - minNumberOfSubjectsPerStage < 0) && 
 				!all(is.na(maxNumberOfSubjectsPerStage - minNumberOfSubjectsPerStage))) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjectsPerStage' (", 
 				.arrayToString(maxNumberOfSubjectsPerStage), 
@@ -572,6 +574,7 @@ getSimulationMeans <- function(
 	simulationResults$effect <- effect
 	simulationResults$.setParameterType("effect", ifelse(thetaH0 == 0, C_PARAM_NOT_APPLICABLE, C_PARAM_DEFAULT_VALUE))
 	
+	.setValueAndParameterType(simulationResults, "normalApproximation", normalApproximation, TRUE)
 	.setValueAndParameterType(simulationResults, "meanRatio", meanRatio, FALSE)
 	.setValueAndParameterType(simulationResults, "thetaH0", thetaH0, ifelse(meanRatio, 1, 0))
 	.setValueAndParameterType(simulationResults, "alternative", alternative, C_ALTERNATIVE_POWER_SIMULATION_DEFAULT)

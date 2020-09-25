@@ -82,6 +82,10 @@
 .onAttach <- function(libname, pkgname) {
 	if (grepl("^\\d\\.\\d\\.\\d\\.\\d{4,4}$", packageVersion("rpact"))) {
 		packageStartupMessage(paste0("rpact developer version ", packageVersion("rpact"), " loaded"))
+		if (!is.loaded("R_getDensityValues", PACKAGE = "rpact", type = "Call")) {
+			warning("Cannot execute .Call(\"R_getDensityValues\") in rpact:::.getDnormValues() ",
+				"because C function was not found in lookup table")
+		}
 	}
 }
 

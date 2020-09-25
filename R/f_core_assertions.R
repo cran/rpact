@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3585 $
-#:#  Last changed: $Date: 2020-09-03 15:27:08 +0200 (Do, 03 Sep 2020) $
+#:#  File version: $Revision: 3694 $
+#:#  Last changed: $Date: 2020-09-25 08:40:37 +0200 (Fr, 25 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1125,8 +1125,16 @@
 			if (isS4(arg) || is.environment(arg)) {
 				arg <- class(arg)
 			}
-			warning("Argument unknown in ", functionName, "(...): '", 
-				argName, "' = ", arg, " will be ignored", call. = FALSE)
+			if (is.function(arg)) {
+				arg <- "function(...)"
+			}
+			argValue <- paste0(" (", class(arg), ")")
+			tryCatch(expr = {	
+				argValue <- .arrayToString(arg, vectorLookAndFeelEnabled = length(arg) > 1, encapsulate = is.character(arg))
+				argValue <- paste0(" = ", argValue)
+			}, error = function(e) {})
+			warning("Argument unknown in ", functionName, "(...): '", argName, "'", 
+				argValue, " will be ignored", call. = FALSE)
 		}
 	}
 }
@@ -1521,9 +1529,14 @@
 	return(directionUpper)
 }
 
-.assertIsValidFunction <- function(fun, ..., funArgName = "fun", 
-		expectedArguments = NULL, expectedFunction = NULL, 
-		identical = FALSE, validateThreeDots = TRUE, showUnusedArgumentsMessage = FALSE) {
+.assertIsValidFunction <- function(fun, ..., 
+		funArgName = "fun", 
+		expectedArguments = NULL, 
+		expectedFunction = NULL, 
+		identical = FALSE, 
+		validateThreeDots = TRUE, 
+		showUnusedArgumentsMessage = FALSE,
+		namedArgumentsExpected = FALSE) {
 	
 	fCall = match.call(expand.dots = FALSE)
 	
@@ -1563,16 +1576,21 @@
 	argNames <- argNames[argNames != "..."]
 	argNamesExpected <- argNamesExpected[argNamesExpected != "..."]
 	
-	if (length(argNamesExpected) <= 1 && length(argNames) == length(argNamesExpected)) {
+	if (length(argNamesExpected) < ifelse(namedArgumentsExpected, 1, 2) && 
+			length(argNames) == length(argNamesExpected)) {
 		return(invisible())
 	}
 	
 	for (argName in argNames) {
 		if (argName != "..." && !(argName %in% argNamesExpected)) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+			msg <- paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
 				"the argument '", argName, "' in '", funArgName, 
-				"' (", functionName, ") is not allowed.\n",
-				"Use one or more than one of the following arguments:\n ", .arrayToString(argNamesExpected))
+				"' (", functionName, ") is not allowed.")
+			if (length(argNamesExpected) == 1) {
+				stop(msg, " Expected: '", argNamesExpected, "'")
+			}
+			stop(msg, "\n", "Use one or more of the following arguments:\n ", 
+				.arrayToString(argNamesExpected, encapsulate = TRUE))
 		}
 	}
 	

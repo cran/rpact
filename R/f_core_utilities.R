@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3694 $
+#:#  Last changed: $Date: 2020-09-25 08:40:37 +0200 (Fr, 25 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -991,13 +991,17 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 }
 
 .skipTestIfNotX64 <- function() {
-	if (!.isMachine64Bit() && base::requireNamespace("testthat", quietly = TRUE)) {
-		testthat::skip("The test is only intended for 64-bit computers (x86-64)")
+	if (!.isMachine64Bit() && !.isMinimumRVersion4() && base::requireNamespace("testthat", quietly = TRUE)) {
+		testthat::skip("The test is only intended for R version 4.x or 64-bit computers (x86-64)")
 	}
 }
 
 .isMachine64Bit <- function() {
 	return(Sys.info()[["machine"]] == "x86-64")
+}
+
+.isMinimumRVersion4 <- function() {
+	return(R.Version()$major >= 4)
 }
 
 .getTestthatResultLine <- function(fileContent) {
@@ -1011,9 +1015,17 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 .getTestthatResultNumberOfFailures <- function(fileContent) {
 	line <- .getTestthatResultLine(fileContent)
 	index <- regexpr("FAILED: \\d{1,5} \\]", line)
-	indexStart <- index[[1]] + attr(index, "match.length") - 4
+	indexStart <- index[[1]] + 8
 	indexEnd <- index[[1]] + attr(index, "match.length") - 3
-	substr(line, indexStart, indexEnd)
+	return(substr(line, indexStart, indexEnd))
+}
+
+.getTestthatResultNumberOfSkippedTests <- function(fileContent) {
+	line <- .getTestthatResultLine(fileContent)
+	index <- regexpr("SKIPPED: \\d{1,5} {1,1}", line)
+	indexStart <- index[[1]] + 9
+	indexEnd   <- index[[1]] + attr(index, "match.length") - 2
+	return(substr(line, indexStart, indexEnd))
 }
 
 #' @title 
@@ -1074,9 +1086,12 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 	if (.isCompleteUnitTestSetEnabled()) {
 		cat("Run all tests. Please wait...\n")
 		cat("Have a break - it will take 30 minutes or more.\n")
+		cat("Exceution of all available unit tests startet at ", 
+			format(startTime, "%H:%M (%d-%B-%Y)"), "\n", sep = "")
 	} else {
 		cat("Run a subset of all tests. Please wait...\n")
-		cat("Have a coffee - it will take 5 minutes or more.\n")
+		cat("This is just a quick test, i.e., all time consuming tests will be skipped.\n")
+		cat("The entire test will take about a minute.\n")
 	}
 	
 	if (outDir == ".") {
@@ -1097,26 +1112,46 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 	outDir <- file.path(outDir, "rpact-tests")
 	
 	endTime <- Sys.time()
+	
+	if (.isCompleteUnitTestSetEnabled()) {
+		cat("Test exceution ended at ", 
+			format(endTime, "%H:%M (%d-%B-%Y)"), "\n", sep = "")
+	}
+	
 	timeTotalSeconds <- as.double(difftime(endTime, startTime, units = c("secs")))
-	cat("Total runtime for testing:", floor(timeTotalSeconds / 60), "minutes and", 
-		round((round(timeTotalSeconds, 2) - floor(timeTotalSeconds)) * 60), "seconds\n")
+	minutes <- floor(timeTotalSeconds / 60)
+	seconds <- round(timeTotalSeconds) %% 60
+	cat("Total runtime for testing: ", ifelse(minutes > 0, paste0(minutes, " minutes and "), ""), 
+		seconds, " seconds.\n", sep = "")
 	
 	inputFileName <- file.path(outDir, "testthat.Rout")
 	if (file.exists(inputFileName)) {
 		fileContent <- base::readChar(inputFileName, file.info(inputFileName)$size)
-		cat("All unit tests were completed successfully :)\n")
+		cat("All unit tests were completed successfully, i.e., the installation qualification was successful.\n")
 		cat("Results:\n")
 		cat(.getTestthatResultLine(fileContent), "\n")
 		cat("Test results were written to directory '", outDir, "' (see file 'testthat.Rout')\n", sep = "")
+		skipped <- .getTestthatResultNumberOfSkippedTests(fileContent)
+		if (skipped > 0) {
+			cat("Note that ", skipped, " tests were skipped; a possible reason may be that expected error messages could not be tested because of local translation.\n", sep = "")
+		}
 	} else {
 		inputFileName <- file.path(outDir, "testthat.Rout.fail")
 		if (file.exists(inputFileName)) {
 			fileContent <- base::readChar(inputFileName, file.info(inputFileName)$size)
-			cat(.getTestthatResultNumberOfFailures(fileContent), " unit tests failed :(\n", sep = "")
+			if (.isCompleteUnitTestSetEnabled()) {
+				cat(.getTestthatResultNumberOfFailures(fileContent), " unit tests failed, i.e., the installation qualification was not successful.\n", sep = "")
+			} else {
+				cat(.getTestthatResultNumberOfFailures(fileContent), " unit tests failed :(\n", sep = "")
+			}
 			cat("Results:\n")
 			cat(.getTestthatResultLine(fileContent), "\n")
 			cat("Test results were written to directory '", outDir, "' (see file 'testthat.Rout.fail')\n", sep = "")
 		}
+	}
+	if (!completeUnitTestSetEnabled) {
+		cat("Note that only a small subset of all available unit tests were executed.\n")
+		cat("Use testPackage(completeUnitTestSetEnabled = TRUE) to perform all unit tests.\n")
 	}
 	
 	invisible(.isCompleteUnitTestSetEnabled())
@@ -1248,4 +1283,50 @@ printCitation <- function(inclusiveR = TRUE) {
 	}
 	
 	return(as.character(x))
+}
+
+.isNullFunction <- function(fun) {
+	if (is.null(fun)) {
+		return(TRUE)
+	}
+	
+	if (!is.function(fun)) {
+		return(FALSE)
+	}
+	
+	s <- capture.output(print(fun))
+	if (length(s) != 3) {
+		return(FALSE)
+	}
+	
+	return(s[2] == "NULL")
+}
+
+.getNumberOfZeroesAfterDecimalPoint <- function(values) {
+	if (is.null(values) || length(values) == 0) {
+		return(integer(0))
+	}
+	
+	values[is.na(values)] <- 0
+	number <- c()
+	for (value in values) {
+		s1 <- sub("^\\d+\\.", "", sub("0*$", "", format(round(value, 15), scientific = FALSE)))
+		s2 <- sub("^0*", "", s1)
+		number <- c(number, nchar(s1) - nchar(s2))
+	}
+	return(number)
+}
+
+.getDecimalPlaces <- function(values) {
+	if (is.null(values) || length(values) == 0) {
+		return(integer(0))
+	}
+	
+	values[is.na(values)] <- 0
+	decimalPlaces <- c()
+	for (value in values) {
+		decimalPlaces <- c(decimalPlaces,
+			nchar(sub("^\\d+\\.", "", sub("0*$", "", format(round(value, 15), scientific = FALSE)))))
+	}
+	return(decimalPlaces)
 }

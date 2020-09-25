@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3591 $
-#:#  Last changed: $Date: 2020-09-04 13:56:40 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3678 $
+#:#  Last changed: $Date: 2020-09-23 14:12:26 +0200 (Wed, 23 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -53,15 +53,13 @@
 			funArgName = "selectArmsFunction",
 			expectedArguments = "effectVector", validateThreeDots = FALSE)
 		selectedArms <- selectArmsFunction(effectVector)
+		msg <- paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'selectArmsFunction' returned an illegal or undefined result (", .arrayToString(selectedArms),"); ")
 		if (length(selectedArms) != gMax) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"'selectArmsFunction' returned an illegal or undefined result (", .arrayToString(selectedArms),"); ", 
-				"the output must be a logical vector of length 'gMax' (", gMax, ")")
+			stop(msg, "the output must be a logical vector of length 'gMax' (", gMax, ")")
 		}
 		if (!is.logical(selectedArms)) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"'selectArmsFunction' returned an illegal or undefined result (", .arrayToString(selectedArms),"); ", 
-				"the output must be a logical vector (is ", class(selectedArms), ")")
+			stop(msg, "the output must be a logical vector (is ", class(selectedArms), ")")
 		}
 	}	
 	if (!survival) {
@@ -103,7 +101,8 @@
 	
 	separatePValues <- stageResults$separatePValues
 	if (intersectionTest == "Dunnett") {
-		subjectsPerStage <- stageResults$subjectsPerStage
+		subjectsPerStage <- stageResults[[ifelse(
+			!is.null(stageResults[["subjectsPerStage"]]), "subjectsPerStage", "eventsPerStage")]]
 		testStatistics <- stageResults$testStatistics
 	} else {
 		subjectsPerStage <- NULL
@@ -111,14 +110,16 @@
 	}
 	
 	for (k in 1:kMax) {
-		allocationRatiosPerStage <- rep(stageResults$allocationRatioPlanned, gMax)
-		allocationRatiosPerStage[is.na(subjectsPerStage[1:gMax, k])] <- NA_real_ 
+		if (intersectionTest == "Dunnett") {
+			allocationRatiosPerStage <- rep(stageResults$allocationRatioPlanned, gMax)
+			allocationRatiosPerStage[is.na(subjectsPerStage[1:gMax, k])] <- NA_real_
+		}
 		for (i in 1:(2^gMax - 1)) {
 			if (!all(is.na(separatePValues[indices[i, ] == 1, k]))) {
 				if (intersectionTest == "Dunnett") {
 					allocationRatiosSelected <- as.numeric(na.omit(allocationRatiosPerStage[indices[i, ] == 1]))
 					sigma <- sqrt(allocationRatiosSelected / (1 + allocationRatiosSelected)) %*% 
-							sqrt(t(allocationRatiosSelected / (1 + allocationRatiosSelected))) 			
+						sqrt(t(allocationRatiosSelected / (1 + allocationRatiosSelected))) 			
 					diag(sigma) <- 1
 					
 					maxTestStatistic <- max(testStatistics[indices[i, ] == 1, k], na.rm = TRUE)
@@ -387,6 +388,11 @@
 	.assertIsTrialDesignInverseNormalOrFisherOrConditionalDunnett(design)
 	
 	.assertIsSinglePositiveInteger(activeArms, "activeArms", naAllowed = FALSE, validateType = FALSE)
+	
+	if (activeArms > 8) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'activeArms' (", activeArms, ") max not exceed 8")
+	}
+	
 
 	.assertIsSingleNumber(gED50, "gED50", naAllowed = TRUE)
 	.assertIsInOpenInterval(gED50, "gED50", 0, NULL, naAllowed = TRUE)
@@ -647,10 +653,6 @@
 			simulationResults$maxNumberOfEventsPerStage <- NA_real_
 		}
 	}
-	
-	simulationResults$.setParameterType("selectArmsFunction",
-		ifelse(design$kMax == 1, C_PARAM_NOT_APPLICABLE,
-			ifelse(!is.null(selectArmsFunction) && design$kMax > 1, C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE)))
 	
 	if (endpoint %in% c("means", "rates")) {
 		simulationResults$.setParameterType("calcSubjectsFunction",

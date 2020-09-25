@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3586 $
-#:#  Last changed: $Date: 2020-09-04 09:00:25 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3672 $
+#:#  Last changed: $Date: 2020-09-23 11:05:20 +0200 (Wed, 23 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -559,7 +559,7 @@ ParameterSet <- setRefClass("ParameterSet",
 				param <- .getParameterValueFormatted(parameterName = parameterName)
 				output <- ""
 				if (!is.null(param)) {
-					if (param$type == "array") {
+					if (param$type == "array" && length(dim(param$paramValue)) == 3) {
 						numberOfEntries <- dim(param$paramValue)[3]
 						numberOfRows <- dim(param$paramValue)[1]
 						index <- 1
@@ -576,10 +576,9 @@ ParameterSet <- setRefClass("ParameterSet",
 								index <- index + 1
 							}
 						}
-					} else if (param$type == "matrix") {
+					} else if (param$type %in% c("matrix", "array")) {
 						n <- length(param$paramValueFormatted)
 						for (i in 1:n) {
-							
 							paramValue <- param$paramValue 
 							if (is.array(paramValue) && 
 								length(dim(paramValue)) == 3 && 
@@ -675,16 +674,13 @@ ParameterSet <- setRefClass("ParameterSet",
 				formatFunctionName <- .parameterFormatFunctions[[parameterName]]
 				if (!is.null(formatFunctionName)) {
 					paramValueFormatted <- eval(call(formatFunctionName, paramValueFormatted))
+					if (.isArray(paramValue) && length(dim(paramValue)) == 2) {
+						paramValueFormatted <- matrix(paramValueFormatted, ncol = ncol(paramValue))
+					}
 				}
 				
 				type <- "vector"
-				if (.isMatrix(paramValue)) {
-					m <- .getMatrixFormatted(paramValueFormatted)
-					paramValueFormatted <- m$paramValueFormatted
-					type <- m$type
-				}
-				
-				else if (.isArray(paramValue)) {
+				if (.isArray(paramValue) && length(dim(paramValue)) == 3) {
 					arrayFormatted <- paramValueFormatted
 					numberOfEntries <- dim(arrayFormatted)[3]
 					m <- .getMatrixFormatted(arrayFormatted[, , 1])
@@ -697,6 +693,12 @@ ParameterSet <- setRefClass("ParameterSet",
 							paramValueFormatted <- c(paramValueFormatted, m$paramValueFormatted)
 						}
 					}
+				}
+				
+				else if (.isMatrix(paramValue) || .isArray(paramValue)) {
+					m <- .getMatrixFormatted(paramValueFormatted)
+					paramValueFormatted <- m$paramValueFormatted
+					type <- m$type
 				}
 				
 				else if (.isVector(paramValue)) {
@@ -852,6 +854,16 @@ ParameterSet <- setRefClass("ParameterSet",
 		},
 		
 		.getMultidimensionalNumberOfVariants = function(parameterNames) {
+			parameterNames <- parameterNames[!(parameterNames %in% c(
+				"accrualTime", "accrualIntensity", 
+				"plannedSubjects", "plannedEvents",
+				"minNumberOfSubjectsPerStage", "maxNumberOfSubjectsPerStage",
+				"minNumberOfEventsPerStage", "maxNumberOfEventsPerStage", 
+				"piecewiseSurvivalTime", "lambda2", "adaptations"))]
+			if (!is.null(.self[[".piecewiseSurvivalTime"]]) && .self$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
+				parameterNames <- parameterNames[!(parameterNames %in% c("lambda1"))]
+			}
+			
 			n <- 1
 			for (parameterName in parameterNames) {
 				parameterValues <- .self[[parameterName]]
@@ -861,12 +873,7 @@ ParameterSet <- setRefClass("ParameterSet",
 							n <- ncol(parameterValues)
 						}
 					}
-					else if (length(parameterValues) > n &&
-						!(parameterName %in% c("accrualTime", "accrualIntensity", 
-							"plannedSubjects", "plannedEvents",
-							"minNumberOfSubjectsPerStage", "maxNumberOfSubjectsPerStage",
-							"minNumberOfEventsPerStage", "maxNumberOfEventsPerStage", 
-							"piecewiseSurvivalTime", "lambda2", "adaptations"))) {
+					else if (length(parameterValues) > n) {
 						n <- length(parameterValues)
 					}
 				}
@@ -1152,6 +1159,10 @@ ParameterSet <- setRefClass("ParameterSet",
 				parameterNames <- .getVisibleFieldNamesOrdered()
 			}
 			parameterNames <- parameterNames[!grepl("^\\.", parameterNames)]
+			
+			if (!is.null(.self[[".piecewiseSurvivalTime"]]) && .self$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
+				parameterNames <- parameterNames[!(parameterNames %in% c("lambda1", "lambda2"))]
+			} 
 			
 			if (.containsMultidimensionalParameters(parameterNames)) {
 				return(.getAsDataFrameMultidimensional(parameterNames, niceColumnNamesEnabled, 

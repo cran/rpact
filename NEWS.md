@@ -1,4 +1,16 @@
 
+# rpact 3.0.1
+
+* Vignette "rpact: Getting Started" included into the package
+* New summary output option "rpact.summary.width" added
+* Generic function summary() improved for several result objects
+* Result output of function testPackage() improved
+* getSimulationMultiArm: stage index corrected for user defined calcSubjectsFunction or calcEventsFunction 
+* getSimulationMultiArmRates: adjustment for identical simulated rates to account for ties 
+* getSimulationMultiArmSurvival: corrected correlation of test statistics  
+* Output formatting improved
+* Minor improvements
+
 # rpact 3.0.0
 
 ## New features
@@ -16,18 +28,18 @@
 * Functions setOutputFormat and getOutputFormat implemented: definition of user defined output formats
 * getSimulationMeans: thetaH1 and stDevH1 can be specified for assessment of sample size recalculation (replaces thetaStandardized) 
 * getSimulationSurvival: separate p-values added to the aggregated simulation data for Fisher designs
-* getSimulationMeans, getSimulationRates: Cumulated number of subjects integrated in getData object.
+* getSimulationMeans, getSimulationRates: Cumulated number of subjects integrated in getData object
 * getSimulation[MultiArm][Means/Rates/Survival]: new logical argument 'showStatistics' added  
 * Example datasets (csv files) added to the package
 * plot type "all": plot all available plots of an object in one step using plot(x, type = "all")
 * plot type improved: 'type' now can be a vector, e.g., plot(x, type = c(1, 3))
 * plot(x, grid = 1): new plot argument 'grid' enables the plotting of 2 or more plots in one graphic 
 
-## Improvements, issues and changes
+## Improvements, issues, and changes
 
 * getAnalysisResults: list output implemented analogous to the output of all other rpact objects
-* getAnalysisResults: the following stage result arguments were removed from result object because they were redundant: effectSizes, testStatistics, and pValues. Please use the '.stageResults' object to access them, e.g., results$.stageResults$effectSizes
-* getAnalysisResults: the following design arguments were removed from result object because they were redundant: stages, informationRates, criticalValues, futilityBounds, alphaSpent, and stageLevels. Please use the '.design' object to access them, e.g., results$.design$informationRates
+* getAnalysisResults: the following stage result arguments were removed from result object because they were redundant: effectSizes, testStatistics, and pValues. Please use the '.stageResults' object to access them, e.g., results\$.stageResults\$effectSizes
+* getAnalysisResults: the following design arguments were removed from result object because they were redundant: stages, informationRates, criticalValues, futilityBounds, alphaSpent, and stageLevels. Please use the '.design' object to access them, e.g., results\$.design\$informationRates
 * Optional argument 'stage' removed from functions getConditionalPower, getConditionalRejectionProbabilities, getFinalPValue, getRepeatedPValues, and getTestActions
 * Function testPackage improved, e.g., results will be displayed now on screen
 * Help system renewed and approved, e.g., help for corresponding generic functions (e.g., plot) linked where applicable
@@ -82,7 +94,7 @@
 * Plot function for Fisher design implemented
 * Generic function 'summary' implemented for getDesign[...], getSampleSize[...], getPower[...], and getSimulation[...] results: a simple boundary summary will be displayed
 
-## Improvements, issues and changes
+## Improvements, issues, and changes
 
 * Generic function as.data.frame improved for getDesign[...], getSampleSize[...], getPower[...], and getSimulation[...] results
 * Ouput of getStageResults() improved
@@ -130,7 +142,7 @@
 * Comprehensive and unified tool for performing sample size calculation for fixed sample size design
 * Enhanced plot functionalities
 
-## Improvements, issues and changes
+## Improvements, issues, and changes
 
 * Fisher design, analysis of means or rates, conditional rejection probabilities (CRP): calculation issue fixed for stage > 2
 * Call of getSampleSize[Means/Rates/Survival] without design argument implemented

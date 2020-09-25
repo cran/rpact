@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3635 $
+#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -3051,7 +3051,7 @@ getNumberOfSubjects <- function(time, ...,
 					piecewiseSurvivalTime = piecewiseSurvivalTime, phi = phi, kappa = kappa, 
 					allocationRatioPlanned = allocationRatioPlanned, 
 						hazardRatio = hazardRatio[i]) - maxNumberOfSubjects
-			}, lower = 0, upper = up, tolerance = 1E-6, callingFunctionInformation = ".getSampleSizeFixedSurvival")
+			}, lower = 0, upper = up, tolerance = 1e-06, callingFunctionInformation = ".getSampleSizeFixedSurvival")
 			
 			if (!is.na(timeVector[i])) {
 				designPlan$omega[i] <- .getEventProbabilities(time = timeVector[i], 
@@ -3204,7 +3204,7 @@ getNumberOfSubjects <- function(time, ...,
 							phi = phi, kappa = designPlan$kappa, 
 							allocationRatioPlanned = designPlan$allocationRatioPlanned, 
 							hazardRatio = designPlan$hazardRatio[i])
-				}, lower = 0, upper = up, tolerance = 1E-6,
+				}, lower = 0, upper = up, tolerance = 1e-06,
 				callingFunctionInformation = ".getSampleSizeSequentialSurvival")
 
 				# analysis times
@@ -3219,7 +3219,7 @@ getNumberOfSubjects <- function(time, ...,
 								phi = phi, kappa = designPlan$kappa, 
 								allocationRatioPlanned = designPlan$allocationRatioPlanned, 
 								hazardRatio = designPlan$hazardRatio[i])
-					}, lower = 0, upper = totalTime, tolerance = 1E-6, acceptResultsOutOfTolerance = TRUE,
+					}, lower = 0, upper = totalTime, tolerance = 1e-06, acceptResultsOutOfTolerance = TRUE,
 					callingFunctionInformation = ".getSampleSizeSequentialSurvival")
 				}
 				analysisTime[kMax, i] <- totalTime
@@ -3273,7 +3273,7 @@ getNumberOfSubjects <- function(time, ...,
 								allocationRatioPlanned = allocationRatioPlanned, 
 								hazardRatio = designPlan$hazardRatio[i])
 					}, lower = 0, upper = designPlan$accrualTime[length(designPlan$accrualTime)] + 
-						designPlan$followUpTime, tolerance = 1E-6,
+						designPlan$followUpTime, tolerance = 1e-06,
 						callingFunctionInformation = ".getSampleSizeSequentialSurvival")
 				}
 				analysisTime[kMax, i] <- designPlan$accrualTime[length(designPlan$accrualTime)] + 

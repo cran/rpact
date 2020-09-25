@@ -80,7 +80,7 @@ place at interim k, default is \code{rep(TRUE, kMax - 1)}.}
 \item{typeOfSelection}{The way the treatment arms are selected at interim. 
 Five options are available: \code{"best"}, \code{"rbest"}, \code{"epsilon"}, \code{"all"}, and \code{"userDefined"},
 default is \code{"best"}.\cr
-For \code{"rbest"} (select the rbest best treatment arms), the parameter \code{rValue} has to be specified,
+For \code{"rbest"} (select the \code{rValue} best treatment arms), the parameter \code{rValue} has to be specified,
 for \code{"epsilon"} (select treatment arm not worse than epsilon compared to the best), the parameter
 \code{epsilonValue} has to be specified.
 If \code{"userDefined"} is selected, \code{"selectArmsFunction"} has to be specified.}
@@ -98,7 +98,7 @@ superior to control at interim, default is \code{"all"}.}
 \item{epsilonValue}{For \code{"epsilon"} (select treatment arm not worse than 
 epsilon compared to the best), the parameter \code{epsilonValue} has to be specified.}
 
-\item{rValue}{For \code{"rbest"} (select the rbest best treatment arms), 
+\item{rValue}{For \code{"rbest"} (select the \code{rValue} best treatment arms), 
 the parameter \code{rValue} has to be specified.}
 
 \item{threshold}{Selection criterion: treatment arm is selected only if \code{effectMeasure} 
@@ -275,8 +275,8 @@ legend("topleft", legend=c("Combination Dunnett", "Conditional Dunnett"),
 # de-selection of all treatment arms.
 designIN <- getDesignInverseNormal(typeOfDesign = "P", kMax = 2)
 
-mySelection <- function(treatmentEffect) {
-    selectedArms <- (treatmentEffect >= c(0, 0.1, 0.3))
+mySelection <- function(effectVector) {
+    selectedArms <- (effectVector >= c(0, 0.1, 0.3))
     return(selectedArms)
 }
 

@@ -4,7 +4,7 @@
 \alias{param_rValue}
 \title{Parameter Description: RValue}
 \arguments{
-\item{rValue}{For \code{"rbest"} (select the rbest best treatment arms), 
+\item{rValue}{For \code{"rbest"} (select the \code{rValue} best treatment arms), 
 the parameter \code{rValue} has to be specified.}
 }
 \description{

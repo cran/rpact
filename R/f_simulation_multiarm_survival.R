@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3666 $
+#:#  Last changed: $Date: 2020-09-22 10:59:11 +0200 (Di, 22 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -35,15 +35,16 @@ NULL
 		minNumberOfEventsPerStage, 
 		maxNumberOfEventsPerStage) {
 	
+	stage <- stage - 1 # to be consistent with non-multiarm situation
 	gMax <- nrow(overallEffects)
+		
 	if (!is.na(conditionalPower)) {
 		if (any(selectedArms[1:gMax, stage + 1], na.rm = TRUE)) {
-			
 			if (is.na(thetaH1)) {
 				if (directionUpper) {
-					thetaStandardized <- log(max(min(overallEffects[selectedArms[1:gMax, stage + 1], stage], na.rm = TRUE), 1 + 1E-7))
+					thetaStandardized <- log(max(min(overallEffects[selectedArms[1:gMax, stage + 1], stage], na.rm = TRUE), 1 + 1e-07))
 				} else {
-					thetaStandardized <- log(min(max(overallEffects[selectedArms[1:gMax, stage + 1], stage], na.rm = TRUE), 1 - 1E-7))
+					thetaStandardized <- log(min(max(overallEffects[selectedArms[1:gMax, stage + 1], stage], na.rm = TRUE), 1 - 1e-07))
 				}	
 			} else {
 				thetaStandardized <- log(thetaH1)
@@ -53,7 +54,7 @@ NULL
 				newEvents <- maxNumberOfEventsPerStage[stage + 1]
 			} else {	
 				newEvents <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned *
-						(max(0, conditionalCriticalValue[stage] + stats::qnorm(conditionalPower), na.rm = TRUE))^2 / thetaStandardized^2
+					(max(0, conditionalCriticalValue[stage] + stats::qnorm(conditionalPower), na.rm = TRUE))^2 / thetaStandardized^2
 				newEvents <- min(max(minNumberOfEventsPerStage[stage + 1], newEvents), maxNumberOfEventsPerStage[stage + 1])
 			}	
 		} else {
@@ -67,7 +68,8 @@ NULL
 
 .getSimulatedStageSurvivalMultiArm <- function(..., 
 		design, 
-		directionUpper, 
+		directionUpper,
+		choleskyDecomposition, 
 		omegaVector, 
 		plannedEvents, 
 		typeOfSelection, 
@@ -81,7 +83,8 @@ NULL
 		maxNumberOfEventsPerStage, 
 		conditionalPower, 
 		thetaH1, 
-		calcEventsFunction, 
+		calcEventsFunction,
+		calcEventsFunctionIsUserDefined,
 		selectArmsFunction) {
 	
 	kMax <- length(plannedEvents)	
@@ -94,7 +97,7 @@ NULL
 	separatePValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 	conditionalCriticalValue <- rep(NA_real_, kMax - 1) 
 	conditionalPowerPerStage <- rep(NA_real_, kMax)
-	selectedArms <- matrix(rep(FALSE, gMax* kMax), gMax, kMax)
+	selectedArms <- matrix(rep(FALSE, gMax * kMax), gMax, kMax)
 	selectedArms[, 1] <- TRUE
 	adjustedPValues <- rep(NA_real_, kMax)
 	
@@ -103,12 +106,11 @@ NULL
 	} else if (.isTrialDesignInverseNormal(design)) {
 		weights <- .getWeightsInverseNormal(design)
 	}	
-	
-	for (k in (1:kMax)) {
-		 
-		for (treatmentArm in (1:gMax)) {
+
+	for (k in 1:kMax) {
+		
+		for (treatmentArm in 1:gMax) {
 			if (selectedArms[treatmentArm, k]) {
-				
 				if (k == 1) {
 					eventsPerStage[treatmentArm, k] <- plannedEvents[k]
 				} else {
@@ -116,41 +118,50 @@ NULL
 				}	
 				
 				if (eventsPerStage[treatmentArm, k] > 0) {
-					testStatistics[treatmentArm, k] <- (2*directionUpper - 1)*rnorm(1, log(omegaVector[treatmentArm]) * sqrt(eventsPerStage[treatmentArm, k]) * 
-								sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned), 1)
+					testStatistics[treatmentArm, k] <- (2 * directionUpper - 1) * 
+						rnorm(1, log(omegaVector[treatmentArm]) * sqrt(eventsPerStage[treatmentArm, k]) * 
+						sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned), 1)
 				}
-
-				overallTestStatistics[treatmentArm, k] <- sqrt(eventsPerStage[treatmentArm, 1:k]) %*% testStatistics[treatmentArm, 1:k] / 
-								sqrt(sum(eventsPerStage[treatmentArm, 1:k]))
-			
-				overallEffects[treatmentArm, k] <- exp((2*directionUpper - 1)*overallTestStatistics[treatmentArm, k] * 
-								(1 + allocationRatioPlanned) / sqrt(allocationRatioPlanned) /
-								sqrt(sum(eventsPerStage[treatmentArm, 1:k])))
-						
-				separatePValues[treatmentArm, k] <- 1 - stats::pnorm(testStatistics[treatmentArm, k])
 				
+				separatePValues[treatmentArm, k] <- 1 - stats::pnorm(testStatistics[treatmentArm, k])
 			}	
 		}
+		
+		testStatistics[!is.na(testStatistics[, k]), k] <- 
+			t(choleskyDecomposition[1:sum(selectedArms[, k]), 1:sum(selectedArms[, k])]) %*% 
+			testStatistics[!is.na(testStatistics[, k]), k]  
+		
+		for (treatmentArm in 1:gMax) {
+			if (selectedArms[treatmentArm, k]) {
+				overallTestStatistics[treatmentArm, k] <- sqrt(eventsPerStage[treatmentArm, 1:k]) %*% 
+					testStatistics[treatmentArm, 1:k] / sqrt(sum(eventsPerStage[treatmentArm, 1:k]))
+			
+				overallEffects[treatmentArm, k] <- exp((2 * directionUpper - 1) * overallTestStatistics[treatmentArm, k] * 
+					(1 + allocationRatioPlanned) / sqrt(allocationRatioPlanned) /
+					sqrt(sum(eventsPerStage[treatmentArm, 1:k])))
+			}	
+		}
+		
 		if (k < kMax) {
 			if (colSums(selectedArms)[k] == 0) {
 				break
 			}
 				
 			# Bonferroni adjustment
-			adjustedPValues[k] <- min(min(separatePValues[, k], na.rm = TRUE)*(colSums(selectedArms)[k]), 1 - 1e-7)   # Bonferroni adjustment
+			adjustedPValues[k] <- min(min(separatePValues[, k], na.rm = TRUE) * (colSums(selectedArms)[k]), 1 - 1e-7)
 
 			# conditional critical value to reject the null hypotheses at the next stage of the trial
 			if (.isTrialDesignConditionalDunnett(design)) {
-				conditionalCriticalValue[k] <- (stats::qnorm(1 - design$alpha) - stats::qnorm(1 - adjustedPValues[k]) * sqrt(design$informationAtInterim)) /
-						sqrt(1 - design$informationAtInterim)
+				conditionalCriticalValue[k] <- (stats::qnorm(1 - design$alpha) - stats::qnorm(1 - adjustedPValues[k]) * 
+					sqrt(design$informationAtInterim)) / sqrt(1 - design$informationAtInterim)
 			} else {
 				if (.isTrialDesignFisher(design)) {
 					conditionalCriticalValue[k] <- stats::qnorm(1 - min((design$criticalValues[k + 1] / 
-												prod(adjustedPValues[1:k]^weights[1:k]))^(1 / weights[k + 1]), 1 - 1e-7))
+						prod(adjustedPValues[1:k]^weights[1:k]))^(1 / weights[k + 1]), 1 - 1e-7))
 				} else {						
 					conditionalCriticalValue[k] <- (design$criticalValues[k + 1] * sqrt(design$informationRates[k + 1]) - 
-							stats::qnorm(1 - adjustedPValues[1:k])%*%weights[1:k]) / 
-							sqrt(design$informationRates[k + 1] - design$informationRates[k])
+						stats::qnorm(1 - adjustedPValues[1:k]) %*% weights[1:k]) / 
+						sqrt(design$informationRates[k + 1] - design$informationRates[k])
 				}
 			}
 			
@@ -158,14 +169,14 @@ NULL
 				
 				if (effectMeasure == "testStatistic") {
 					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k], 
-										typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))				
+						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))				
 				} else if (effectMeasure == "effectDifference") {
 					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffects[, k], 
-										typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))
+						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))
 				}
 				
 				newEvents <- calcEventsFunction(
-					stage = k, 
+					stage = k + 1, # to be consistent with non-multiarm situation, cf. line 38  
 					directionUpper = directionUpper,
 					conditionalPower = conditionalPower, 
 					conditionalCriticalValue = conditionalCriticalValue, 
@@ -179,8 +190,8 @@ NULL
 				
 				if (is.null(newEvents) || length(newEvents) != 1 || !is.numeric(newEvents) || is.na(newEvents)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-							"'calcEventsFunction' returned an illegal or undefined result (", newEvents,"); ", 
-							"the output must be a single numeric value")
+						"'calcEventsFunction' returned an illegal or undefined result (", newEvents,"); ", 
+						"the output must be a single numeric value")
 				}
 				eventsToStage <- eventsPerStage[1, 1]
 				if (k > 1) {
@@ -188,41 +199,42 @@ NULL
 						eventsToStage <- eventsToStage + min(eventsPerStage[, i], na.rm = TRUE) 
 					}
 				}	
-				if (!is.na(conditionalPower) || !is.null(calcEventsFunction)) {
+			
+				if (!is.na(conditionalPower) || calcEventsFunctionIsUserDefined) {
 					plannedEvents[(k + 1):kMax] <- eventsToStage + cumsum(rep(newEvents, kMax - k))
-				}	
-						
+				}
+				
 			} else {
 				selectedArms[, k + 1] <- selectedArms[, k]
 			}
 			
 			if (is.na(thetaH1)) {
 				if (directionUpper) {
-					thetaStandardized <- log(max(min(overallEffects[selectedArms[1:gMax, k], k], na.rm = TRUE), 1 + 1E-7))
+					thetaStandardized <- log(max(min(overallEffects[selectedArms[1:gMax, k], k], na.rm = TRUE), 1 + 1e-07))
 				} else {
-					thetaStandardized <- log(min(max(overallEffects[selectedArms[1:gMax, k], k], na.rm = TRUE), 1 - 1E-7))
+					thetaStandardized <- log(min(max(overallEffects[selectedArms[1:gMax, k], k], na.rm = TRUE), 1 - 1e-07))
 				}	
 			} else {
 				thetaStandardized <- log(thetaH1)
 			}
-			thetaStandardized <- (2*directionUpper - 1)*thetaStandardized
+			thetaStandardized <- (2 * directionUpper - 1) * thetaStandardized
 			
 			conditionalPowerPerStage[k] <- 1 - stats::pnorm(conditionalCriticalValue[k] - 
-							thetaStandardized * sqrt(plannedEvents[k + 1] - plannedEvents[k]) * 
-							sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned))
+				thetaStandardized * sqrt(plannedEvents[k + 1] - plannedEvents[k]) * 
+				sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned))
 		}	
 	}
 	
 	return(list(eventsPerStage = eventsPerStage, 
-					allocationRatioPlanned = allocationRatioPlanned, 
-					overallEffects = overallEffects, 
-					testStatistics = testStatistics, 
-					overallTestStatistics = overallTestStatistics, 
-					separatePValues = separatePValues, 
-					conditionalCriticalValue = conditionalCriticalValue, 
-					conditionalPowerPerStage = conditionalPowerPerStage,
-					selectedArms = selectedArms
-			))
+		allocationRatioPlanned = allocationRatioPlanned, 
+		overallEffects = overallEffects, 
+		testStatistics = testStatistics, 
+		overallTestStatistics = overallTestStatistics, 
+		separatePValues = separatePValues, 
+		conditionalCriticalValue = conditionalCriticalValue, 
+		conditionalPowerPerStage = conditionalPowerPerStage,
+		selectedArms = selectedArms
+	))
 }
 
 #' 
@@ -333,7 +345,9 @@ getSimulationMultiArmSurvival <- function(
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmSurvival", ignore = "showStatistics", ...)
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}	
-		
+	
+	calcEventsFunctionIsUserDefined <- !is.null(calcEventsFunction)
+	
 	simulationResults <- .createSimulationResultsMultiArmObject(
 		design                      = design,  
 		activeArms                  = activeArms,
@@ -396,18 +410,18 @@ getSimulationMultiArmSurvival <- function(
 	
 	if (.isTrialDesignConditionalDunnett(design)) {
 		criticalValuesDunnett <- .getCriticalValuesDunnettForSimulation(alpha = design$alpha, indices = indices, 
-				allocationRatioPlanned = allocationRatioPlanned)
+			allocationRatioPlanned = allocationRatioPlanned)
 	}
 	
 	cols <- length(omegaMaxVector)
 	
 	simulatedSelections <- array(0, dim = c(kMax, cols, gMax))
 	simulatedRejections <- array(0, dim = c(kMax, cols, gMax))
-	simulatedNumberOfActiveArms <- matrix(0, cols*kMax, nrow = kMax, ncol = cols)
+	simulatedNumberOfActiveArms <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
 	simulatedEventsPerStage <- array(0, dim = c(kMax, cols, gMax))
-	simulatedSuccessStopping <- matrix(0, cols*kMax, nrow = kMax, ncol = cols)
+	simulatedSuccessStopping <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
 	simulatedFutilityStopping <- matrix(0, cols*(kMax - 1), nrow = kMax - 1, ncol = cols)
-	simulatedConditionalPower <- matrix(0, cols*kMax, nrow = kMax, ncol = cols)
+	simulatedConditionalPower <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
 	simulatedRejectAtLeastOne <- rep(0, cols)
 	expectedNumberOfEvents <- rep(0, cols)
 	iterations <- matrix(0, kMax, cols)
@@ -430,15 +444,18 @@ getSimulationMultiArmSurvival <- function(
 	dataEffectEstimate <- rep(NA_real_, len)
 	dataPValuesSeparate <- rep(NA_real_, len)
 
+	  
+	covMatrix <- matrix(rep(allocationRatioPlanned / (1 + allocationRatioPlanned), gMax^2), ncol = gMax, nrow = gMax)
+	diag(covMatrix) <- 1
+	choleskyDecomposition <- chol(covMatrix) 
+
 	index <- 1
-	
-	for (i in (1:cols)) {
-		
-		for (j in (1:maxNumberOfIterations)) { 
-			
+	for (i in 1:cols) {
+		for (j in 1:maxNumberOfIterations) { 
 			stageResults <- .getSimulatedStageSurvivalMultiArm(
 				design                    = design, 
 				directionUpper            = directionUpper, 
+				choleskyDecomposition	  = choleskyDecomposition,
 				omegaVector               = effectMatrix[i, ], 
 				plannedEvents             = plannedEvents, 
 				typeOfSelection           = typeOfSelection, 
@@ -453,6 +470,7 @@ getSimulationMultiArmSurvival <- function(
 				conditionalPower          = conditionalPower, 
 				thetaH1                   = thetaH1, 
 				calcEventsFunction        = calcEventsFunction, 
+				calcEventsFunctionIsUserDefined = calcEventsFunctionIsUserDefined,
 				selectArmsFunction        = selectArmsFunction)
 			
 			if (.isTrialDesignConditionalDunnett(design)) {
@@ -469,8 +487,8 @@ getSimulationMultiArmSurvival <- function(
 			rejectedArmsBefore <- rep(FALSE, gMax)
 			
 			for (k in 1:kMax) {
-				
-				simulatedRejections[k, i, ] <- simulatedRejections[k, i, ] + (closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore)
+				simulatedRejections[k, i, ] <- simulatedRejections[k, i, ] + 
+					(closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore)
 				simulatedSelections[k, i, ] <- simulatedSelections[k, i, ] + closedTest$selectedArms[, k]
 				
 				simulatedNumberOfActiveArms[k, i] <- simulatedNumberOfActiveArms[k, i] + sum(closedTest$selectedArms[, k])
@@ -484,16 +502,17 @@ getSimulationMultiArmSurvival <- function(
 						simulatedFutilityStopping[k, i] <- simulatedFutilityStopping[k, i] + closedTest$futilityStop[k]
 					}
 					if (!closedTest$successStop[k] && !closedTest$futilityStop[k]) {
-						simulatedConditionalPower[k + 1, i] <- simulatedConditionalPower[k + 1, i] + stageResults$conditionalPowerPerStage[k]
+						simulatedConditionalPower[k + 1, i] <- simulatedConditionalPower[k + 1, i] + 
+							stageResults$conditionalPowerPerStage[k]
 					}
 				}	
 				
 				iterations[k, i] <- iterations[k, i] + 1
 				
 				for (g in 1:gMax) {
-					
 					if (!is.na(stageResults$eventsPerStage[g, k])) {
-						simulatedEventsPerStage[k, i, g] <- simulatedEventsPerStage[k, i, g] + stageResults$eventsPerStage[g,k]
+						simulatedEventsPerStage[k, i, g] <- simulatedEventsPerStage[k, i, g] + 
+							stageResults$eventsPerStage[g,k]
 					}
 					dataIterationNumber[index] <- j
 					dataStageNumber[index] <- k
@@ -511,7 +530,6 @@ getSimulationMultiArmSurvival <- function(
 					}	
 					dataEffectEstimate[index] <- stageResults$overallEffects[g, k]
 					dataPValuesSeparate[index] <- closedTest$separatePValues[g, k]
-					
 					index <- index + 1
 				}
 				
@@ -521,10 +539,10 @@ getSimulationMultiArmSurvival <- function(
 				}
 				
 				if ((k < kMax) && (closedTest$successStop[k] || closedTest$futilityStop[k])) {
-					#  rejected hypotheses remain rejected also in case of early stopping
+					# rejected hypotheses remain rejected also in case of early stopping
 					simulatedRejections[(k + 1):kMax, i, ] <- simulatedRejections[(k + 1):kMax, i, ] + 
-							matrix((closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore), 
-									kMax - k, gMax, byrow = TRUE)
+						matrix((closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore), 
+						kMax - k, gMax, byrow = TRUE)
 					break
 				} 
 				
@@ -539,15 +557,11 @@ getSimulationMultiArmSurvival <- function(
 		simulatedEventsPerStage[, i, ] <- simulatedEventsPerStage[, i, ] / iterations[, i]
 		
 		if (kMax > 1) {
-			
 			simulatedRejections[2:kMax, i, ] <- simulatedRejections[2:kMax, i, ] - simulatedRejections[1:(kMax - 1), i, ]
-			
-			stopping <- cumsum(simulatedSuccessStopping[1:(kMax - 1), i] + simulatedFutilityStopping[,i])/maxNumberOfIterations
-			
-			expectedNumberOfEvents[i] <- sum(simulatedEventsPerStage[1, i, ] + t(1 - stopping)%*%simulatedEventsPerStage[2:kMax, i, ])
-			
+			stopping <- cumsum(simulatedSuccessStopping[1:(kMax - 1), i] + simulatedFutilityStopping[,i]) / maxNumberOfIterations
+			expectedNumberOfEvents[i] <- sum(simulatedEventsPerStage[1, i, ] + t(1 - stopping) %*% 
+				simulatedEventsPerStage[2:kMax, i, ])
 		} else {
-			
 			expectedNumberOfEvents[i] <- sum(simulatedEventsPerStage[1, i, ])
 		}
 	}
@@ -565,12 +579,15 @@ getSimulationMultiArmSurvival <- function(
 	simulationResults$futilityPerStage <- simulatedFutilityStopping / maxNumberOfIterations
 	simulationResults$futilityStop <- base::colSums(simulatedFutilityStopping / maxNumberOfIterations) 
 	if (kMax > 1) {
-		simulationResults$earlyStop <- colSums(simulationResults$futilityPerStage + simulationResults$successPerStage[1:(kMax - 1), ])
+		simulationResults$earlyStop <- simulationResults$futilityPerStage + 
+			simulationResults$successPerStage[1:(kMax - 1), ]
 		simulationResults$conditionalPowerAchieved <- simulatedConditionalPower	
 	}
 	
 	simulationResults$eventsPerStage <- .convertStageWiseToOverallValues(simulatedEventsPerStage)
-	simulationResults$expectedNumberOfEvents <- expectedNumberOfEvents
+	if (activeArms == 1) {
+		simulationResults$expectedNumberOfEvents <- expectedNumberOfEvents
+	}
 	simulationResults$iterations <- iterations
 	
 	if (!all(is.na(simulationResults$conditionalPowerAchieved))) {

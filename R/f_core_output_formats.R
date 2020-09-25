@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3664 $
+#:#  Last changed: $Date: 2020-09-22 09:19:21 +0200 (Tue, 22 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -49,7 +49,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 )
 
 .getFormattedValue <- function(value, ..., digits, nsmall = NA_integer_, 
-		futilityProbabilityEnabled = FALSE, roundFunction = NA_character_) {
+		futilityProbabilityEnabled = FALSE, roundFunction = NA_character_, scientific = NA) {
 	if (missing(value)) {
 		return("NA")
 	}
@@ -85,9 +85,20 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	}
 	
 	if (is.na(nsmall)) {
-		formattedValue <- format(value, digits = digits, justify = "left", trim = TRUE)
-	} else {
-		formattedValue <- format(value, digits = digits, nsmall = nsmall, justify = "left", trim = TRUE)
+		nsmall <- 0L
+	}
+	
+	formattedValue <- format(value, digits = digits, nsmall = nsmall, 
+		scientific = scientific, justify = "left", trim = TRUE)
+	
+	if ((is.na(scientific) || scientific) && any(grepl("e", formattedValue))) {
+		formattedValueTemp <- c()
+		for (valueTemp in value) {
+			formattedValueTemp <- c(formattedValueTemp, 
+				format(valueTemp, digits = digits, nsmall = nsmall, 
+					scientific = scientific, justify = "left", trim = TRUE))
+		}
+		formattedValue <- formattedValueTemp
 	}
 	
 	if (futilityProbabilityEnabled) {
@@ -460,7 +471,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	if (!is.null(x)) {
 		return(x)
 	}
-	return(.getFormattedValue(value, digits = 4))
+	return(.getFormattedValue(value, digits = 4)) # , scientific = FALSE
 }
 
 # 
@@ -479,7 +490,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	if (!is.null(x)) {
 		return(x)
 	}
-	return(.getFormattedValue(value, digits = 3, nsmall = 3))
+	return(.getFormattedValue(value, digits = 3, nsmall = 3)) # , scientific = FALSE
 }
 
 # 

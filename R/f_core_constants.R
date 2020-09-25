@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3589 $
-#:#  Last changed: $Date: 2020-09-04 10:15:17 +0200 (Fri, 04 Sep 2020) $
+#:#  File version: $Revision: 3635 $
+#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1147,7 +1147,8 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	piTreatments = ".formatRates",
 	
 	adjustedStageWisePValues = ".formatPValues",
-	overallAdjustedTestStatistics = ".formatTestStatistics",
+	overallAdjustedTestStatistics = ".formatTestStatisticsFisher", # will be set in class ClosedCombinationTestResults
+	overallAdjustedTestStatistics = ".formatTestStatistics", 
 	conditionalErrorRate = ".formatProbabilities",
 	secondStagePValues = ".formatPValues",
 	sampleSizes = ".formatSampleSizes",

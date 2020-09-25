@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_simulation_base_rates.R
-#:#  Creation date: 05 September 2020, 14:48:44
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
+#:#  Creation date: 23 September 2020, 11:11:55
+#:#  File version: $Revision: 3674 $
+#:#  Last changed: $Date: 2020-09-23 11:23:26 +0200 (Wed, 23 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -365,6 +365,7 @@ test_that("'getSimulationRates': check several configurations", {
 test_that("'getSimulationRates': comparison with getPowerRates() results", {
 
 	.skipTestIfDisabled()
+	.skipTestIfNotX64()
 
 	design <- getDesignInverseNormal(futilityBounds = c(-1), informationRates = c(0.5, 1), typeOfDesign = "P")
 	x <- getSimulationRates(design, 

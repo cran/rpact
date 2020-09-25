@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3579 $
-#:#  Last changed: $Date: 2020-09-02 15:13:26 +0200 (Mi, 02 Sep 2020) $
+#:#  File version: $Revision: 3688 $
+#:#  Last changed: $Date: 2020-09-24 14:37:04 +0200 (Thu, 24 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -605,7 +605,7 @@ NULL
 #' # Calculate probabilties for a range of time values for a 
 #' # piecewise exponential distribution with hazard rates 
 #' # 0.025, 0.04, 0.015, and 0.007 in the intervals 
-#' # [0, 6), [6, 9), [9, 15), [15,Inf), respectively,
+#' # [0, 6), [6, 9), [9, 15), [15, Inf), respectively,
 #' # and re-return the time values: 
 #' piecewiseSurvivalTime <- list(
 #'     "0 - <6"   = 0.025, 
@@ -834,7 +834,8 @@ getMedianByPi <- function(piValue,
 	if (is.array(valuesPerStage) && length(dim(valuesPerStage)) == 3) {
 		eventsOverStages <- array(dim = dim(valuesPerStage))
 		for (g in 1:dim(valuesPerStage)[3]) {
-			eventsOverStages[, , g] <- .convertStageWiseToOverallValuesInner(valuesPerStage[, , g])
+			eventsTemp <- matrix(valuesPerStage[, , g], nrow = dim(valuesPerStage)[1])
+			eventsOverStages[, , g] <- .convertStageWiseToOverallValuesInner(eventsTemp)
 		}
 		return(eventsOverStages)
 	}

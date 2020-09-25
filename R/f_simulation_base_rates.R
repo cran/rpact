@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3576 $
-#:#  Last changed: $Date: 2020-09-02 10:59:38 +0200 (Mi, 02 Sep 2020) $
+#:#  File version: $Revision: 3681 $
+#:#  Last changed: $Date: 2020-09-24 07:28:22 +0200 (Thu, 24 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -678,15 +678,15 @@ getSimulationRates <- function(design = NULL, ...,
 		if (length(minNumberOfSubjectsPerStage) != 1 || 
 				!is.na(minNumberOfSubjectsPerStage)) {
 			warning("'minNumberOfSubjectsPerStage' (", 
-					.arrayToString(minNumberOfSubjectsPerStage), ") ",
-					"will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)
+				.arrayToString(minNumberOfSubjectsPerStage), ") ",
+				"will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)
 			simulationResults$minNumberOfSubjectsPerStage <- NA_real_
 		}
 		if (length(maxNumberOfSubjectsPerStage) != 1 || 
 				!is.na(maxNumberOfSubjectsPerStage)) {
 			warning("'maxNumberOfSubjectsPerStage' (", 
-					.arrayToString(maxNumberOfSubjectsPerStage), ") ",
-					"will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)
+				.arrayToString(maxNumberOfSubjectsPerStage), ") ",
+				"will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)
 			simulationResults$maxNumberOfSubjectsPerStage <- NA_real_
 		}
 	}
@@ -768,6 +768,7 @@ getSimulationRates <- function(design = NULL, ...,
 	.assertIsInClosedInterval(plannedSubjects, "plannedSubjects", lower = 1, upper = NULL)
 	.assertValuesAreStrictlyIncreasing(plannedSubjects, "plannedSubjects")
 
+	.setValueAndParameterType(simulationResults, "normalApproximation", normalApproximation, TRUE)
 	.setValueAndParameterType(simulationResults, "riskRatio", riskRatio, FALSE)
 	.setValueAndParameterType(simulationResults, "thetaH0", thetaH0, ifelse(riskRatio, 1, 0))
 	.setValueAndParameterType(simulationResults, "pi1", pi1, C_PI_1_DEFAULT)

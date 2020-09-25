@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3519 $
-#:#  Last changed: $Date: 2020-08-21 14:17:44 +0200 (Fr, 21 Aug 2020) $
+#:#  File version: $Revision: 3635 $
+#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -564,13 +564,12 @@
 			return(repeatedConfidenceIntervals)
 		}
 		
-		startTime <- Sys.time()
-		
 		# necessary for adjustment for binding futility boundaries
 		futilityCorr <- rep(NA_real_, design$kMax) 
 		
 		stages <- (1:stage)
 		for (k in stages) {
+			startTime <- Sys.time()
 			for (g in 1:gMax) {
 				if (!is.na(stageResults$testStatistics[g, k])) {
 					

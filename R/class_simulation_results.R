@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3581 $
-#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  File version: $Revision: 3681 $
+#:#  Last changed: $Date: 2020-09-24 07:28:22 +0200 (Thu, 24 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -95,8 +95,7 @@ SimulationResults <- setRefClass("SimulationResults",
 		
 		iterations = "matrix",
 		futilityPerStage = "matrix",
-		futilityStop = "numeric", 
-		earlyStop = "numeric"
+		futilityStop = "numeric"
 	),
 	methods = list(
 		
@@ -412,10 +411,10 @@ SimulationResults <- setRefClass("SimulationResults",
 					"rejectedArmsPerStage",
 					"rejectAtLeastOne",
 					"rejectPerStage", # base
-					"overallReject", # base
+					"overallReject",  # base
 					"futilityPerStage",
 					"futilityStop",
-					"earlyStop",
+					"earlyStop",      # base
 					"successPerStage",
 					"expectedNumberOfSubjects",
 					"expectedNumberOfEvents",
@@ -508,6 +507,7 @@ SimulationResultsMultiArmMeans <- setRefClass("SimulationResultsMultiArmMeans",
 		threshold = "numeric",		
 		selectArmsFunction = "function",
 		
+		earlyStop = "matrix",
 		selectedArms = "array",
 		numberOfActiveArms = "matrix",
 		rejectAtLeastOne = "numeric",
@@ -608,6 +608,7 @@ SimulationResultsMultiArmRates <- setRefClass("SimulationResultsMultiArmRates",
 		threshold = "numeric",		
 		selectArmsFunction = "function",
 		
+		earlyStop = "matrix",
 		selectedArms = "array",
 		numberOfActiveArms = "matrix",
 		rejectAtLeastOne = "numeric",
@@ -702,6 +703,7 @@ SimulationResultsMultiArmSurvival <- setRefClass("SimulationResultsMultiArmSurvi
 		threshold = "numeric",		
 		selectArmsFunction = "function",
 		
+		earlyStop = "matrix",
 		selectedArms = "array",
 		numberOfActiveArms = "matrix",
 		rejectAtLeastOne = "numeric",
@@ -757,9 +759,11 @@ SimulationResultsMeans <- setRefClass("SimulationResultsMeans",
 		directionUpper = "logical",
 		thetaH0 = "numeric", 
 		meanRatio = "logical",
+		normalApproximation = "logical",
 		
+		earlyStop = "numeric",
 		effect = "numeric",
-		overallReject = "numeric", # = rejectedArmsPerStage in multi-arm
+		overallReject = "numeric", # = rejectedArmsPerStage in multi-arm 
 		sampleSizes = "matrix",
 		rejectPerStage = "matrix",
 		conditionalPowerAchieved = "matrix"
@@ -806,7 +810,9 @@ SimulationResultsRates <- setRefClass("SimulationResultsRates",
 		riskRatio = "logical",
 		pi1H1 = "numeric",
 		pi2H1 = "numeric",
+		normalApproximation = "logical",
 		
+		earlyStop = "numeric",
 		sampleSizes = "matrix", 
 		overallReject = "numeric", 
 		thetaH1 = "numeric", 
@@ -884,6 +890,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		lambda1 = "numeric",
 		lambda2 = "numeric",
 		
+		earlyStop = "numeric",
 		hazardRatio = "numeric",
 		analysisTime = "matrix",
 		studyDuration = "numeric",
@@ -1222,16 +1229,6 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			main <- items$toQuote()
 		}
 		
-		.getSimulationPlotXAxisParameterName(simulationResults)
-		
-		if (multiArmEnabled) {
-			xParameterName <- "effectMatrix"
-		} else if (survivalEnabled) {
-			xParameterName <- "hazardRatio"
-		} else {
-			xParameterName <- "effect"
-		} 
-		
 		yParameterNamesSrc <- c()	
 		data <- NULL
 		if (multiArmEnabled) {
@@ -1340,14 +1337,44 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
-		
+
 		xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
-		yParameterNames <- "overallReject"
-		if (designMaster$kMax > 1) {
-			yParameterNames <- c(yParameterNames, "earlyStop", "futilityStop")
-		}
-		if (multiArmEnabled) {
-			yParameterNames[1] <- "rejectAtLeastOne"
+		
+		if (multiArmEnabled && designMaster$kMax > 1) {
+			yParameterNames <- c("rejectAtLeastOne", "futilityStop")
+			yParameterNamesSrc <- yParameterNames
+			data <- NULL
+			for (yParameterName in yParameterNames) {
+				category <- simulationResults$.parameterNames[[yParameterName]]
+				part <- data.frame(
+					categories = rep(category, length(simulationResults[[xParameterName]])),
+					xValues = simulationResults$effectMatrix[gMax, ],
+					yValues = simulationResults[[yParameterName]]
+				)
+				if (is.null(data)) {
+					data <- part
+				} else {
+					data <- rbind(data, part)
+				}
+			}
+			for (k in 1:nrow(simulationResults$earlyStop)) {
+				part <- data.frame(
+					categories = rep(paste0("Early stop, stage ", k), ncol(simulationResults$earlyStop)),
+					xValues = simulationResults$effectMatrix[gMax, ],
+					yValues = simulationResults$earlyStop[k, ]
+				)
+				data <- rbind(data, part)
+				yParameterNamesSrc <- c(yParameterNamesSrc, paste0("earlyStop[", k, ", ]"))
+			}
+		} else {
+			yParameterNames <- ifelse(multiArmEnabled, "rejectAtLeastOne", "overallReject")
+			if (designMaster$kMax > 1) {
+				if (!multiArmEnabled) {
+					yParameterNames <- c(yParameterNames, "earlyStop")
+				}
+				yParameterNames <- c(yParameterNames, "futilityStop")
+			}
+			yParameterNamesSrc <- yParameterNames
 		}
 		
 		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
@@ -1356,7 +1383,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		
 		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 
 			xParameterName = .getSimulationPlotXAxisParameterName(simulationResults, TRUE), 
-			yParameterNames = yParameterNames, 
+			yParameterNames = yParameterNamesSrc, 
 			hint = showSourceHint, nMax = nMax,
 			type = type, showSource = showSource)
 		if (!is.null(srcCmd)) {
@@ -1366,21 +1393,33 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			return(srcCmd)
 		}
 		
-		if (is.null(list(...)[["ylim"]])) {
-			ylim <- c(0, 1)
-			return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
-				xParameterName = xParameterName,
-				yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
-				palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
-				legendPosition = legendPosition, variedParameters = variedParameters, 
-				qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...)) # ratioEnabled = TRUE
+		if (multiArmEnabled && designMaster$kMax > 1) {
+			return(.plotDataFrame(data, mainTitle = main, 
+				xlab = xlab, ylab = ylab, 
+				xAxisLabel = .getSimulationPlotXAxisLabel(simulationResults),
+				yAxisLabel1 = NA_character_, 
+				yAxisLabel2 = NA_character_, 
+				plotPointsEnabled = plotPointsEnabled, 
+				legendTitle = NA_character_,
+				legendPosition = legendPosition, sided = designMaster$sided,
+				palette = palette))
 		} else {
-			return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
-				xParameterName = xParameterName,
-				yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
-				palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
-				legendPosition = legendPosition, variedParameters = variedParameters, 
-				qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+			if (is.null(list(...)[["ylim"]])) {
+				ylim <- c(0, 1)
+				return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
+					xParameterName = xParameterName,
+					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+					legendPosition = legendPosition, variedParameters = variedParameters, 
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...)) # ratioEnabled = TRUE
+			} else {
+				return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
+					xParameterName = xParameterName,
+					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
+					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
+					legendPosition = legendPosition, variedParameters = variedParameters, 
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+			}
 		}
 	} 
 	
@@ -1388,9 +1427,10 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type) 
 		
 		if (is.na(main)) {
-			titlePart <- ifelse(survivalEnabled, "Number of Events", "Number of Subjects")
-			items <- PlotSubTitleItems(title = paste0("Expected ", titlePart, 
-					ifelse(designMaster$kMax == 1, "", " and Power / Early Stop")))
+			titlePart <- paste0("Expected ", ifelse(survivalEnabled, "Number of Events", "Number of Subjects"))
+			items <- PlotSubTitleItems(title = paste0(titlePart, 
+				ifelse(designMaster$kMax == 1, "", paste0(" and Power", 
+					ifelse(multiArmEnabled, "", " / Early Stop")))))
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
@@ -1403,7 +1443,9 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			} else {
 				yParameterNames <- c(yParameterNames, "overallReject") 
 			}
-			yParameterNames <- c(yParameterNames, "earlyStop")
+			if (!multiArmEnabled) {
+				yParameterNames <- c(yParameterNames, "earlyStop")
+			}
 		}
 		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
 		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_CENTER, legendPosition)
@@ -1435,18 +1477,22 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 	
 	else if (type == 8) {
 		if (designMaster$kMax == 1) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type 8 (Overall Early Stopping) is not available for 'kMax' = 1")
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type 8 (Early Stopping) is not available for 'kMax' = 1")
 		}
 		
 		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type) 
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Overall Early Stopping")
+			items <- PlotSubTitleItems(title = ifelse(!multiArmEnabled, "Overall Early Stopping", "Futility Stopping"))
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
 		
 		xParameterName <- .getSimulationPlotXAxisParameterName(simulationResults)
-		yParameterNames <- c("earlyStop", "futilityStop")
+		yParameterNames <- c()
+		if (!multiArmEnabled) {
+			yParameterNames <- c(yParameterNames, "earlyStop")
+		}
+		yParameterNames <- c(yParameterNames, "futilityStop")
 		xlab <- .getSimulationPlotXAxisLabel(simulationResults, xlab)
 		legendPosition <- ifelse(is.na(legendPosition), C_POSITION_LEFT_CENTER, legendPosition)
 		srcCmd <- .showPlotSourceInformation(objectName = simulationResultsName, 

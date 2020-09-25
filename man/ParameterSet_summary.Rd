@@ -38,6 +38,7 @@ The following options can be set globally:
     default is \code{"large"}, i.e., all available details are displayed.
   \item \code{rpact.summary.justify}: one of \code{c("right", "left", "centre")}; 
     shall the values be right-justified (the default), left-justified or centered.
+  \item \code{rpact.summary.width}: defines the maximum number of characters to be used per line (default is \code{83}).
   \item \code{rpact.summary.intervalFormat}: defines how intervals will be displayed in the summary, 
     default is \code{"[\%s; \%s]"}.
   \item \code{rpact.summary.digits}: defines how many digits are to be used for numeric values (default is \code{3}).

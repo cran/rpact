@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3454 $
-#:#  Last changed: $Date: 2020-08-03 15:40:13 +0200 (Mo, 03 Aug 2020) $
+#:#  File version: $Revision: 3688 $
+#:#  Last changed: $Date: 2020-09-24 14:37:04 +0200 (Thu, 24 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -81,9 +81,7 @@ NULL
 		return(.Call("R_getDensityValues", x, as.integer(k), informationRates, epsilonVec, x2, dn2))
 	}
 
-	warning("Cannot execute .Call(\"R_getDensityValues\") because C function was not found in lookup table")
-	
-	# Slow R-based call
+	# slow R-based call
 	return(sapply(x, .getDnormValuesSlow, k = k, informationRates = informationRates, epsilonVec = epsilonVec, x2 = x2, dn2 = dn2))
 }
 
@@ -644,6 +642,8 @@ NULL
 		}, lower = 0, upper = 8, tolerance = design$tolerance,
 			callingFunctionInformation = ".getDesignGroupSequentialUserDefinedAlphaSpending")
 	}
+	
+	design$criticalValues[!is.na(design$criticalValues) & design$criticalValues >= 8] <- Inf
 	
 	.calculateAlphaSpent(design)
 	
@@ -1410,7 +1410,7 @@ getDesignCharacteristics <- function(design) {
 	designCharacteristics$inflationFactor <- shift / nFixed
 	designCharacteristics$.setParameterType("inflationFactor", C_PARAM_GENERATED) 
 	
-	if ((designCharacteristics$inflationFactor > 4) || (designCharacteristics$inflationFactor < 1)) {
+	if ((designCharacteristics$inflationFactor > 4) || (designCharacteristics$inflationFactor < 1 - 1e-08)) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "Inflation factor cannot be calculated")
 	}
 	

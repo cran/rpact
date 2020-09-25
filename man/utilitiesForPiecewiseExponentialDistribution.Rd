@@ -97,7 +97,7 @@ kappa need to be specified.
 # Calculate probabilties for a range of time values for a 
 # piecewise exponential distribution with hazard rates 
 # 0.025, 0.04, 0.015, and 0.007 in the intervals 
-# [0, 6), [6, 9), [9, 15), [15,Inf), respectively,
+# [0, 6), [6, 9), [9, 15), [15, Inf), respectively,
 # and re-return the time values: 
 piecewiseSurvivalTime <- list(
     "0 - <6"   = 0.025, 

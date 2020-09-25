@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3581 $
-#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  File version: $Revision: 3635 $
+#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -394,6 +394,10 @@ ClosedCombinationTestResults <- setRefClass("ClosedCombinationTestResults",
 			}
 			for (param in parametersGenerated) {
 				.setParameterType(param, C_PARAM_GENERATED)
+			}
+			
+			if (!is.null(.design) && inherits(.design, C_CLASS_NAME_TRIAL_DESIGN_FISHER)) {
+				.parameterFormatFunctions$overallAdjustedTestStatistics <<- ".formatTestStatisticsFisher"
 			}
 		},
 		

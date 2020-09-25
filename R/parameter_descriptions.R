@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 3675 $
+#:#  Last changed: $Date: 2020-09-23 11:40:43 +0200 (Wed, 23 Sep 2020) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' Parameter Description: "..."
@@ -627,7 +627,7 @@ NULL
 #' @param typeOfSelection The way the treatment arms are selected at interim. 
 #'   Five options are available: \code{"best"}, \code{"rbest"}, \code{"epsilon"}, \code{"all"}, and \code{"userDefined"},
 #'   default is \code{"best"}.\cr
-#'   For \code{"rbest"} (select the rbest best treatment arms), the parameter \code{rValue} has to be specified,
+#'   For \code{"rbest"} (select the \code{rValue} best treatment arms), the parameter \code{rValue} has to be specified,
 #'   for \code{"epsilon"} (select treatment arm not worse than epsilon compared to the best), the parameter
 #'   \code{epsilonValue} has to be specified.
 #'   If \code{"userDefined"} is selected, \code{"selectArmsFunction"} has to be specified.
@@ -728,7 +728,7 @@ NULL
 NULL
 
 #' Parameter Description: RValue
-#' @param rValue For \code{"rbest"} (select the rbest best treatment arms), 
+#' @param rValue For \code{"rbest"} (select the \code{rValue} best treatment arms), 
 #'   the parameter \code{rValue} has to be specified.
 #' @name param_rValue
 #' @keywords internal

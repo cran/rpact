@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3666 $
+#:#  Last changed: $Date: 2020-09-22 10:59:11 +0200 (Di, 22 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -36,6 +36,7 @@ NULL
 		minNumberOfSubjectsPerStage, 
 		maxNumberOfSubjectsPerStage) {
 	
+	stage <- stage - 1 # to be consistent with non-multiarm situation
 	gMax <- nrow(overallRates)
 	
 	if (!is.na(conditionalPower)) {
@@ -80,7 +81,7 @@ NULL
 		plannedSubjects, typeOfSelection, effectMeasure, adaptations, epsilonValue, rValue, 
 		threshold, allocationRatioPlanned, minNumberOfSubjectsPerStage, 
 		maxNumberOfSubjectsPerStage, conditionalPower, piH1, piControlH1, 
-		calcSubjectsFunction, selectArmsFunction) {	
+		calcSubjectsFunction, calcSubjectsFunctionIsUserDefined, selectArmsFunction) {	
 	
 	kMax <- length(plannedSubjects)	
 	gMax <- length(piVector)	
@@ -124,6 +125,7 @@ NULL
 								
 				simRates[treatmentArm, k] <- rbinom(1, subjectsPerStage[treatmentArm, k], piVector[treatmentArm]) / 
 					subjectsPerStage[treatmentArm, k]
+				
 				rm <-  (subjectsPerStage[treatmentArm, k] * simRates[treatmentArm, k] + 
 					subjectsPerStage[gMax + 1, k] * simRates[gMax + 1, k]) /
 					(subjectsPerStage[treatmentArm, k] + subjectsPerStage[gMax + 1, k])
@@ -192,26 +194,27 @@ NULL
 			if (adaptations[k]) {
 
 				if (effectMeasure == "testStatistic") {
-					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k], 
+					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k] + runif(gMax, -1E-5, 1E-5), 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))				
 				} else if (effectMeasure == "effectDifference") {
-					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffectSizes[, k], 
+					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffectSizes[, k] + runif(gMax, -1E-5, 1E-5),
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))
 				}
 				
-				newSubjects <- calcSubjectsFunction(stage = k, 
-						directionUpper = directionUpper,
-						conditionalPower = conditionalPower, 
-						conditionalCriticalValue = conditionalCriticalValue, 
-						plannedSubjects = plannedSubjects, 
-						allocationRatioPlanned = allocationRatioPlanned,
-						selectedArms = selectedArms,
-						piH1 = piH1,
-						piControlH1 = piControlH1,
-						overallRates = overallRates, 
-						overallRatesControl = overallRatesControl, 						
-						minNumberOfSubjectsPerStage = minNumberOfSubjectsPerStage, 
-						maxNumberOfSubjectsPerStage = maxNumberOfSubjectsPerStage)
+				newSubjects <- calcSubjectsFunction(
+					stage = k + 1, # to be consistent with non-multiarm situation, cf. line 39 
+					directionUpper = directionUpper,
+					conditionalPower = conditionalPower, 
+					conditionalCriticalValue = conditionalCriticalValue, 
+					plannedSubjects = plannedSubjects, 
+					allocationRatioPlanned = allocationRatioPlanned,
+					selectedArms = selectedArms,
+					piH1 = piH1,
+					piControlH1 = piControlH1,
+					overallRates = overallRates, 
+					overallRatesControl = overallRatesControl, 						
+					minNumberOfSubjectsPerStage = minNumberOfSubjectsPerStage, 
+					maxNumberOfSubjectsPerStage = maxNumberOfSubjectsPerStage)
 				
 				if (is.null(newSubjects) || length(newSubjects) != 1 || !is.numeric(newSubjects) || is.na(newSubjects)) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -219,7 +222,7 @@ NULL
 							"the output must be a single numeric value")
 				}
 			
-				if (!is.na(conditionalPower) || !is.null(calcSubjectsFunction)) {
+				if (!is.na(conditionalPower) || calcSubjectsFunctionIsUserDefined) {
 					plannedSubjects[(k + 1):kMax] <- ceiling(sum(subjectsPerStage[gMax + 1, 1:k]) * 
 						allocationRatioPlanned + cumsum(rep(newSubjects, kMax - k)))
 				}
@@ -250,13 +253,12 @@ NULL
 				thetaStandardized <- 0
 			} else {			
 				thetaStandardized <- sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned) * (
-							(piAssumedH1 - piAssumedControlH1) * sqrt(1 + allocationRatioPlanned) /
-							sqrt(piAssumedH1 * (1 - piAssumedH1) + allocationRatioPlanned * piAssumedControlH1 * (1 - piAssumedControlH1)) 
-							+
-								sign(piAssumedH1 - piAssumedControlH1) * conditionalCriticalValue[k] *
-								(1 - sqrt(pim * (1 - pim) + allocationRatioPlanned * pim * (1 - pim)) / 
-								sqrt(piAssumedH1 * (1 - piAssumedH1) + allocationRatioPlanned * piAssumedControlH1 * (1 - piAssumedControlH1))) *
-								sqrt((1 + allocationRatioPlanned) / (plannedSubjects[k + 1] - plannedSubjects[k]))
+					(piAssumedH1 - piAssumedControlH1) * sqrt(1 + allocationRatioPlanned) /
+					sqrt(piAssumedH1 * (1 - piAssumedH1) + allocationRatioPlanned * piAssumedControlH1 * (1 - piAssumedControlH1)) +
+					sign(piAssumedH1 - piAssumedControlH1) * conditionalCriticalValue[k] *
+					(1 - sqrt(pim * (1 - pim) + allocationRatioPlanned * pim * (1 - pim)) / 
+					sqrt(piAssumedH1 * (1 - piAssumedH1) + allocationRatioPlanned * piAssumedControlH1 * (1 - piAssumedControlH1))) *
+					sqrt((1 + allocationRatioPlanned) / (plannedSubjects[k + 1] - plannedSubjects[k]))
 				)
 			}		
 			if (!directionUpper) {
@@ -264,8 +266,8 @@ NULL
 			}
 			
 			conditionalPowerPerStage[k] <- 1 - stats::pnorm(conditionalCriticalValue[k] - 
-							thetaStandardized * sqrt((1 + allocationRatioPlanned) / allocationRatioPlanned) * 
-							sqrt(plannedSubjects[k + 1] - plannedSubjects[k]))
+				thetaStandardized * sqrt((1 + allocationRatioPlanned) / allocationRatioPlanned) * 
+				sqrt(plannedSubjects[k + 1] - plannedSubjects[k]))
 		}	
 	}
 	return(list(subjectsPerStage = subjectsPerStage, 
@@ -291,10 +293,15 @@ NULL
 #' Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
 #' for testing rates in a multi-arm treatment groups testing situation. 
 #'
-#' @param piMaxVector Range of assumed probabilities for the treatment group with highest response for \code{"linear"} and \code{"sigmoidEmax"} model, default is \code{seq(0, 1, 0.2)}.
-#' @param piControl If specified, the assumed probability in the control arm for simulation and under which the sample size recalculation is performed.
-#' @param piH1 If specified, the assumed probability in the active treatment arm(s) under which the sample size recalculation is performed.
-#' @param piControlH1 If specified, the assumed probability in the reference group (if different from \code{piControl}) for which the conditional power was calculated.  
+#' @param piMaxVector Range of assumed probabilities for the treatment group with 
+#'        highest response for \code{"linear"} and \code{"sigmoidEmax"} model, 
+#'        default is \code{seq(0, 1, 0.2)}.
+#' @param piControl If specified, the assumed probability in the control arm 
+#'        for simulation and under which the sample size recalculation is performed.
+#' @param piH1 If specified, the assumed probability in the active treatment arm(s) 
+#'        under which the sample size recalculation is performed.
+#' @param piControlH1 If specified, the assumed probability in the reference group 
+#'        (if different from \code{piControl}) for which the conditional power was calculated.  
 #' @inheritParams param_intersectionTest 
 #' @inheritParams param_typeOfSelection
 #' @inheritParams param_effectMeasure 
@@ -324,17 +331,20 @@ NULL
 #' @inheritParams param_showStatistics
 #' 
 #' @details 
-#' At given design the function simulates the power, stopping probabilities, selection probabilities, and expected 
-#' sample size at given number of subjects, parameter configuration, and treatment arm selection rule in the multi-arm situation. 
-#' An allocation ratio can be specified referring to the ratio of number of subjects in the active treatment groups as compared to the control group.
+#' At given design the function simulates the power, stopping probabilities, 
+#' selection probabilities, and expected sample size at given number of subjects, 
+#' parameter configuration, and treatment arm selection rule in the multi-arm situation. 
+#' An allocation ratio can be specified referring to the ratio of number of 
+#' subjects in the active treatment groups as compared to the control group.
 #'  
 #' The definition of \code{pi1H1} and/or \code{piControl} makes only sense if \code{kMax} > 1
 #' and if \code{conditionalPower}, \code{minNumberOfSubjectsPerStage}, and 
 #' \code{maxNumberOfSubjectsPerStage} (or \code{calcSubjectsFunction}) are defined.
 #'   
 #' \code{calcSubjectsFunction}\cr 
-#' This function returns the number of subjects at given conditional power and conditional critical value for specified 
-#' testing situation. The function might depend on the variables 
+#' This function returns the number of subjects at given conditional power and 
+#' conditional critical value for specified testing situation. 
+#' The function might depend on the variables 
 #' \code{stage},
 #' \code{selectedArms},  
 #' \code{directionUpper}, 
@@ -397,6 +407,8 @@ getSimulationMultiArmRates <- function(
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmRates", ignore = "showStatistics", ...)
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}	
+	
+	calcSubjectsFunctionIsUserDefined <- !is.null(calcSubjectsFunction) 
 	
 	simulationResults <- .createSimulationResultsMultiArmObject(
 		design                      = design,  
@@ -468,11 +480,11 @@ getSimulationMultiArmRates <- function(
 	
 	simulatedSelections <- array(0, dim = c(kMax, cols, gMax + 1))
 	simulatedRejections <- array(0, dim = c(kMax, cols, gMax))
-	simulatedNumberOfActiveArms <- matrix(0, cols*kMax, nrow = kMax, ncol = cols)
+	simulatedNumberOfActiveArms <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
 	simulatedSubjectsPerStage <- array(0, dim = c(kMax, cols, gMax + 1))
-	simulatedSuccessStopping <- matrix(0, cols*kMax, nrow = kMax, ncol = cols)
+	simulatedSuccessStopping <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
 	simulatedFutilityStopping <- matrix(0, cols*(kMax - 1), nrow = kMax - 1, ncol = cols)
-	simulatedConditionalPower <- matrix(0, cols*kMax, nrow = kMax, ncol = cols)	
+	simulatedConditionalPower <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)	
 	simulatedRejectAtLeastOne <- rep(0, cols)
 	expectedNumberOfSubjects <- rep(0, cols)
 	iterations <- matrix(0, kMax, cols)
@@ -501,9 +513,7 @@ getSimulationMultiArmRates <- function(
 	index <- 1
 	
 	for (i in 1:cols) {
-		
 		for (j in 1:maxNumberOfIterations) { 
-					
 			stageResults <- .getSimulatedStageRatesMultiArm(
 					design = design,
 					directionUpper = directionUpper,
@@ -523,6 +533,7 @@ getSimulationMultiArmRates <- function(
 					piH1  = piH1, 
 					piControlH1 = piControlH1,
 					calcSubjectsFunction = calcSubjectsFunction, 
+					calcSubjectsFunctionIsUserDefined = calcSubjectsFunctionIsUserDefined,
 					selectArmsFunction = selectArmsFunction)
 			
 			if (.isTrialDesignConditionalDunnett(design)) {
@@ -540,7 +551,8 @@ getSimulationMultiArmRates <- function(
 			
 			for (k in 1:kMax) {
 				
-				simulatedRejections[k, i, ] <- simulatedRejections[k, i, ] + (closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore)
+				simulatedRejections[k, i, ] <- simulatedRejections[k, i, ] + 
+					(closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore)
 				simulatedSelections[k, i, ] <- simulatedSelections[k, i, ] + closedTest$selectedArms[, k]
 				
 				simulatedNumberOfActiveArms[k, i] <- simulatedNumberOfActiveArms[k, i] + sum(closedTest$selectedArms[, k])
@@ -554,7 +566,8 @@ getSimulationMultiArmRates <- function(
 						simulatedFutilityStopping[k, i] <- simulatedFutilityStopping[k, i] + closedTest$futilityStop[k]
 					}
 					if (!closedTest$successStop[k] && !closedTest$futilityStop[k]) {
-						simulatedConditionalPower[k + 1, i] <- simulatedConditionalPower[k + 1, i] + stageResults$conditionalPowerPerStage[k]
+						simulatedConditionalPower[k + 1, i] <- simulatedConditionalPower[k + 1, i] + 
+							stageResults$conditionalPowerPerStage[k]
 					}
 				}	
 				
@@ -562,7 +575,8 @@ getSimulationMultiArmRates <- function(
 				
 				for (g in (1:(gMax + 1))) {
 					if (!is.na(stageResults$subjectsPerStage[g, k])) {
-						simulatedSubjectsPerStage[k, i, g] <- simulatedSubjectsPerStage[k, i, g] + stageResults$subjectsPerStage[g, k]
+						simulatedSubjectsPerStage[k, i, g] <- simulatedSubjectsPerStage[k, i, g] + 
+							stageResults$subjectsPerStage[g, k]
 					}
 				}	
 				
@@ -596,10 +610,10 @@ getSimulationMultiArmRates <- function(
 				}
 				
 				if ((k < kMax) && (closedTest$successStop[k] || closedTest$futilityStop[k])) {
-					#  rejected hypotheses remain rejected also in case of early stopping
+					# rejected hypotheses remain rejected also in case of early stopping
 					simulatedRejections[(k + 1):kMax, i, ] <- simulatedRejections[(k + 1):kMax, i, ] + 
-							matrix((closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore), 
-									kMax - k, gMax, byrow = TRUE)
+						matrix((closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore), 
+						kMax - k, gMax, byrow = TRUE)
 					break
 				} 
 			
@@ -638,7 +652,8 @@ getSimulationMultiArmRates <- function(
 	simulationResults$futilityPerStage <- simulatedFutilityStopping / maxNumberOfIterations
 	simulationResults$futilityStop <- base::colSums(simulatedFutilityStopping / maxNumberOfIterations) 
 	if (kMax > 1) {
-		simulationResults$earlyStop <- colSums(simulationResults$futilityPerStage + simulationResults$successPerStage[1:(kMax - 1), ])
+		simulationResults$earlyStop <- simulationResults$futilityPerStage + 
+			simulationResults$successPerStage[1:(kMax - 1), ]
 		simulationResults$conditionalPowerAchieved <- simulatedConditionalPower	
 	}
 	simulationResults$sampleSizes <- simulatedSubjectsPerStage

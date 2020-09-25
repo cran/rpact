@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3334 $
-#:#  Last changed: $Date: 2020-06-22 08:39:06 +0200 (Mon, 22 Jun 2020) $
+#:#  File version: $Revision: 3635 $
+#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -141,7 +141,7 @@ NULL
 	
 	##  general case for K = 4
 	else {
-		eps <- 1E-5		
+		eps <- 1e-05		
 		if (.isEqual(t2, 1)) t2 <- t2 + eps
 		if (.isEqual(t3, 1)) t3 <- t3 + eps
 		if (.isEqual(t4, 1)) t4 <- t4 + eps
@@ -200,7 +200,7 @@ NULL
 	
 	##  general case for K = 5
 	else {
-		eps <- 1E-5		
+		eps <- 1e-05		
 		if (.isEqual(t2, 1)) t2 <- t2 + eps
 		if (.isEqual(t3, 1)) t3 <- t3 + eps
 		if (.isEqual(t4, 1)) t4 <- t4 + eps
@@ -272,7 +272,7 @@ NULL
 	
 	##  general case for K = 6
 	else {
-		eps <- 1E-4
+		eps <- 1e-04
 		if (.isEqual(t2, 1)) t2 <- t2 + eps
 		if (.isEqual(t3, 1)) t3 <- t3 + eps
 		if (.isEqual(t4, 1)) t4 <- t4 + eps
