@@ -756,7 +756,7 @@ ParameterSet <- setRefClass("ParameterSet",
 							"adjustedStageWisePValues", "overallAdjustedTestStatistics")) {
 					treatments <- .closedTestResults$.getHypothesisTreatmentArmVariants()[matrixRow]
 					paramCaption <- paste0("Treatment", ifelse(grepl(",", treatments), "s", ""), " ", treatments, " vs. control")
-				} else if (inherits(.self, "AnalysisResultsMultiArm") || 
+				} else if (inherits(.self, "AnalysisResultsMultiArm") || grepl("StageResultsMultiArm", class(.self)) || 
 						(inherits(.self, "SimulationResults") && paramName == "effectMatrix") ||
 						(inherits(.self, "ClosedCombinationTestResults") && paramName %in% c("rejected", "separatePValues"))) {
 					paramCaption <- paste0(paramCaption, " (", matrixRow, ")")

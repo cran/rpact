@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3579 $
-#:#  Last changed: $Date: 2020-09-02 15:13:26 +0200 (Mi, 02 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 3853 $
+#:#  Last changed: $Date: 2020-11-07 18:14:11 +0100 (Sa, 07 Nov 2020) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' @include class_simulation_results.R
@@ -271,6 +271,7 @@ getSimulationSurvival <- function(design = NULL, ...,
 	.assertIsSingleNumber(seed, "seed", naAllowed = TRUE)
 	.assertIsNumericVector(lambda1, "lambda1", naAllowed = TRUE)
 	.assertIsNumericVector(lambda2, "lambda2", naAllowed = TRUE)
+	.assertIsSinglePositiveInteger(maxNumberOfSubjects, "maxNumberOfSubjects", validateType = FALSE, naAllowed = TRUE)
 	.assertIsSinglePositiveInteger(allocation1, "allocation1", validateType = FALSE)
 	.assertIsSinglePositiveInteger(allocation2, "allocation2", validateType = FALSE)
 	.assertIsSingleLogical(longTimeSimulationAllowed, "longTimeSimulationAllowed")

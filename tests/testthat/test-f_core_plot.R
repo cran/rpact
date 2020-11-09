@@ -14,10 +14,10 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_core_plot.R
-#:#  Creation date: 05 September 2020, 14:47:53
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:48:24
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
 context("Testing .reconstructSequenceCommand")

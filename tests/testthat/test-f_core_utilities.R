@@ -14,13 +14,13 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_core_utilities.R
-#:#  Creation date: 05 September 2020, 14:47:53
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:48:24
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing result object print output")
+context("Testing Result Object Print Output")
 
 
 test_that("The output does not contain any issues", {
@@ -34,7 +34,7 @@ test_that("The output does not contain any issues", {
 
 })
 
-context("Testing core utility functions")
+context("Testing Core Utility Functions")
 
 
 test_that("'getValidatedInformationRates': 'informationRates' must be generated correctly based on specified 'kMax'", {
@@ -764,7 +764,7 @@ test_that("'getValidatedInformationRates': 'kMax' must be set correctly based on
 
 })
 
-context("Testing utilities")
+context("Testing Utilities")
 
 
 test_that("Testing '.toCapitalized'", {
@@ -827,7 +827,7 @@ test_that("Testing 'isUndefinedArgument' and 'isValidArgument'", {
 
 test_that("Result of 'setSeed(seed)' is working for different arguments, incl. NULL and NA", {
 
-	# @refFS[Sec.]{fs:subsec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	expect_false(is.null(.setSeed()))
 	expect_false(is.na(.setSeed()))
 	expect_true(is.numeric(.setSeed()))

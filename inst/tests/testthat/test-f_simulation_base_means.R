@@ -14,19 +14,25 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_simulation_base_means.R
-#:#  Creation date: 05 September 2020, 14:48:35
-#:#  File version: $Revision: 3588 $
-#:#  Last changed: $Date: 2020-09-04 09:47:38 +0200 (Fri, 04 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:48:59
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing simulation means function")
+context("Testing Simulation Means Function")
 
 
 test_that("'getSimulationMeans': several configurations", {
-	.skipTestIfDisabled()
-
-	# @refFS[Sec.]{fs:subsec:seed}
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
+	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:testStatisticGroupSequentialWeightedAverage}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	maxNumberOfIterations <- 100
 	seed <- 99123
 	options(width = 180)
@@ -64,6 +70,8 @@ test_that("'getSimulationMeans': several configurations", {
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
 	}
+
+	.skipTestIfDisabled()
 
 	x2 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
 		informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 0.2, 
@@ -320,7 +328,7 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_output(summary(x9)$show())
 	}
 
-	myStageSubjects <- function(..., stage, thetaH0, allocationRatioPlanned,
+	calcSubjectsFunctionSimulationBaseMeans <- function(..., stage, thetaH0, allocationRatioPlanned,
 			minNumberOfSubjectsPerStage, maxNumberOfSubjectsPerStage,
 			sampleSizesPerStage, thetaH1, conditionalPower, conditionalCriticalValue) {
 		mult <- 1
@@ -338,7 +346,7 @@ test_that("'getSimulationMeans': several configurations", {
 	x10 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(0.5,0.5)), groups = 2, meanRatio = TRUE, thetaH0 = 1.6, 
 		plannedSubjects = c(80, 160, 240), maxNumberOfIterations = maxNumberOfIterations, stDev = 1.5, alternative = seq(0.8, 1.6, 0.2),
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA, 40, 40), maxNumberOfSubjectsPerStage = c(NA, 400, 400), 
-		allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed, calcSubjectsFunction = myStageSubjects)
+		allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed, calcSubjectsFunction = calcSubjectsFunctionSimulationBaseMeans)
 
 	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
 	expect_equal(x10$iterations[1, ], c(100, 100, 100, 100, 100))
@@ -368,1103 +376,1133 @@ test_that("'getSimulationMeans': several configurations", {
 
 })
 
-context("Testing simulation means function in a systematic way ")
+context("Testing Simulation Means Function in a Systematic Way ")
 
 
 test_that("'getSimulationMeans': Fisher design with several configurations", {
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
+	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:testStatisticGroupSequentialWeightedAverage}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
+	x1 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
+		stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+
+	## Comparison of the results of SimulationResultsMeans object 'x1' with expected results
+	expect_equal(x1$iterations[1, ], c(100, 100, 100))
+	expect_equal(x1$iterations[2, ], c(100, 91, 53))
+	expect_equal(x1$rejectPerStage[1, ], c(0, 0.09, 0.47), tolerance = 1e-07)
+	expect_equal(x1$rejectPerStage[2, ], c(0.01, 0.58, 0.46), tolerance = 1e-07)
+	expect_equal(x1$overallReject, c(0.01, 0.67, 0.93), tolerance = 1e-07)
+	expect_equal(x1$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x1$futilityStop, c(0, 0, 0))
+	expect_equal(x1$earlyStop, c(0, 0.09, 0.47), tolerance = 1e-07)
+	expect_equal(x1$expectedNumberOfSubjects, c(100.13629, 75.286263, 37.754027), tolerance = 1e-07)
+	expect_equal(x1$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x1$sampleSizes[2, ], c(90.136293, 71.743146, 52.366088), tolerance = 1e-07)
+	expect_equal(x1$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x1$conditionalPowerAchieved[2, ], c(0.20283076, 0.49941507, 0.64819831), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x1), NA)))
+	    expect_output(print(x1)$show())
+	    invisible(capture.output(expect_error(summary(x1), NA)))
+	    expect_output(summary(x1)$show())
+	}
+
 	.skipTestIfDisabled()
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
-
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 91, 53))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.09, 0.47), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.01, 0.58, 0.46), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.01, 0.67, 0.93), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.09, 0.47), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(100.13629, 75.286263, 37.754027), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(90.136293, 71.743146, 52.366088), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.20283076, 0.49941507, 0.64819831), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
-	}
-
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x2 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(38, 94, 97))
-	expect_equal(x$rejectPerStage[1, ], c(0.62, 0.06, 0.03), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.34, 0.68, 0.03), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.96, 0.74, 0.06), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.62, 0.06, 0.03), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(25.921375, 81.226383, 97.518855), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(41.898355, 75.772748, 90.225624), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.66927179, 0.47487279, 0.2338584), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x2' with expected results
+	expect_equal(x2$iterations[1, ], c(100, 100, 100))
+	expect_equal(x2$iterations[2, ], c(38, 94, 97))
+	expect_equal(x2$rejectPerStage[1, ], c(0.62, 0.06, 0.03), tolerance = 1e-07)
+	expect_equal(x2$rejectPerStage[2, ], c(0.34, 0.68, 0.03), tolerance = 1e-07)
+	expect_equal(x2$overallReject, c(0.96, 0.74, 0.06), tolerance = 1e-07)
+	expect_equal(x2$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x2$futilityStop, c(0, 0, 0))
+	expect_equal(x2$earlyStop, c(0.62, 0.06, 0.03), tolerance = 1e-07)
+	expect_equal(x2$expectedNumberOfSubjects, c(25.921375, 81.226383, 97.518855), tolerance = 1e-07)
+	expect_equal(x2$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x2$sampleSizes[2, ], c(41.898355, 75.772748, 90.225624), tolerance = 1e-07)
+	expect_equal(x2$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x2$conditionalPowerAchieved[2, ], c(0.66927179, 0.47487279, 0.2338584), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x2), NA)))
+	    expect_output(print(x2)$show())
+	    invisible(capture.output(expect_error(summary(x2), NA)))
+	    expect_output(summary(x2)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x3 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 92, 64))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.08, 0.36), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0, 0.54, 0.56), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0, 0.62, 0.92), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.08, 0.36), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(101.14709, 82.477228, 37.608934), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(91.147091, 78.779596, 43.13896), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.15986579, 0.45599322, 0.69664803), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x3' with expected results
+	expect_equal(x3$iterations[1, ], c(100, 100, 100))
+	expect_equal(x3$iterations[2, ], c(100, 92, 64))
+	expect_equal(x3$rejectPerStage[1, ], c(0, 0.08, 0.36), tolerance = 1e-07)
+	expect_equal(x3$rejectPerStage[2, ], c(0, 0.54, 0.56), tolerance = 1e-07)
+	expect_equal(x3$overallReject, c(0, 0.62, 0.92), tolerance = 1e-07)
+	expect_equal(x3$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x3$futilityStop, c(0, 0, 0))
+	expect_equal(x3$earlyStop, c(0, 0.08, 0.36), tolerance = 1e-07)
+	expect_equal(x3$expectedNumberOfSubjects, c(101.14709, 82.477228, 37.608934), tolerance = 1e-07)
+	expect_equal(x3$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x3$sampleSizes[2, ], c(91.147091, 78.779596, 43.13896), tolerance = 1e-07)
+	expect_equal(x3$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$conditionalPowerAchieved[2, ], c(0.15986579, 0.45599322, 0.69664803), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x3), NA)))
+	    expect_output(print(x3)$show())
+	    invisible(capture.output(expect_error(summary(x3), NA)))
+	    expect_output(summary(x3)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x4 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(65, 91, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.35, 0.09, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.56, 0.64, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.91, 0.73, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.35, 0.09, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(38.729726, 74.553457, 106.20499), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(44.199579, 70.937865, 96.204991), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.65544931, 0.50900228, 0.13524564), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x4' with expected results
+	expect_equal(x4$iterations[1, ], c(100, 100, 100))
+	expect_equal(x4$iterations[2, ], c(65, 91, 100))
+	expect_equal(x4$rejectPerStage[1, ], c(0.35, 0.09, 0), tolerance = 1e-07)
+	expect_equal(x4$rejectPerStage[2, ], c(0.56, 0.64, 0.01), tolerance = 1e-07)
+	expect_equal(x4$overallReject, c(0.91, 0.73, 0.01), tolerance = 1e-07)
+	expect_equal(x4$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x4$futilityStop, c(0, 0, 0))
+	expect_equal(x4$earlyStop, c(0.35, 0.09, 0), tolerance = 1e-07)
+	expect_equal(x4$expectedNumberOfSubjects, c(38.729726, 74.553457, 106.20499), tolerance = 1e-07)
+	expect_equal(x4$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x4$sampleSizes[2, ], c(44.199579, 70.937865, 96.204991), tolerance = 1e-07)
+	expect_equal(x4$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x4$conditionalPowerAchieved[2, ], c(0.65544931, 0.50900228, 0.13524564), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x4), NA)))
+	    expect_output(print(x4)$show())
+	    invisible(capture.output(expect_error(summary(x4), NA)))
+	    expect_output(summary(x4)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x5 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 94, 85))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.06, 0.15), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.02, 0.24, 0.5), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.02, 0.3, 0.65), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.06, 0.15), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(99.262844, 92.628587, 72.466684), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(89.262844, 87.902752, 73.490217), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.21679818, 0.32589621, 0.46073426), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x5' with expected results
+	expect_equal(x5$iterations[1, ], c(100, 100, 100))
+	expect_equal(x5$iterations[2, ], c(100, 94, 85))
+	expect_equal(x5$rejectPerStage[1, ], c(0, 0.06, 0.15), tolerance = 1e-07)
+	expect_equal(x5$rejectPerStage[2, ], c(0.02, 0.24, 0.5), tolerance = 1e-07)
+	expect_equal(x5$overallReject, c(0.02, 0.3, 0.65), tolerance = 1e-07)
+	expect_equal(x5$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x5$futilityStop, c(0, 0, 0))
+	expect_equal(x5$earlyStop, c(0, 0.06, 0.15), tolerance = 1e-07)
+	expect_equal(x5$expectedNumberOfSubjects, c(99.262844, 92.628587, 72.466684), tolerance = 1e-07)
+	expect_equal(x5$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x5$sampleSizes[2, ], c(89.262844, 87.902752, 73.490217), tolerance = 1e-07)
+	expect_equal(x5$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x5$conditionalPowerAchieved[2, ], c(0.21679818, 0.32589621, 0.46073426), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x5), NA)))
+	    expect_output(print(x5)$show())
+	    invisible(capture.output(expect_error(summary(x5), NA)))
+	    expect_output(summary(x5)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x6 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(85, 94, 97))
-	expect_equal(x$rejectPerStage[1, ], c(0.15, 0.06, 0.03), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.58, 0.14, 0.02), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.73, 0.2, 0.05), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.15, 0.06, 0.03), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(62.256855, 90.679118, 97.117191), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(61.478653, 85.828849, 89.811537), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.5750772, 0.31560556, 0.25161462), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x6' with expected results
+	expect_equal(x6$iterations[1, ], c(100, 100, 100))
+	expect_equal(x6$iterations[2, ], c(85, 94, 97))
+	expect_equal(x6$rejectPerStage[1, ], c(0.15, 0.06, 0.03), tolerance = 1e-07)
+	expect_equal(x6$rejectPerStage[2, ], c(0.58, 0.14, 0.02), tolerance = 1e-07)
+	expect_equal(x6$overallReject, c(0.73, 0.2, 0.05), tolerance = 1e-07)
+	expect_equal(x6$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x6$futilityStop, c(0, 0, 0))
+	expect_equal(x6$earlyStop, c(0.15, 0.06, 0.03), tolerance = 1e-07)
+	expect_equal(x6$expectedNumberOfSubjects, c(62.256855, 90.679118, 97.117191), tolerance = 1e-07)
+	expect_equal(x6$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x6$sampleSizes[2, ], c(61.478653, 85.828849, 89.811537), tolerance = 1e-07)
+	expect_equal(x6$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x6$conditionalPowerAchieved[2, ], c(0.5750772, 0.31560556, 0.25161462), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x6), NA)))
+	    expect_output(print(x6)$show())
+	    invisible(capture.output(expect_error(summary(x6), NA)))
+	    expect_output(summary(x6)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x7 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 98, 89))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.02, 0.11), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0, 0.13, 0.64), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0, 0.15, 0.75), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.02, 0.11), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(99.499784, 89.67646, 74.321885), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(89.499784, 81.30251, 72.27178), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.19464679, 0.38425169, 0.50691811), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
+	expect_equal(x7$iterations[1, ], c(100, 100, 100))
+	expect_equal(x7$iterations[2, ], c(100, 98, 89))
+	expect_equal(x7$rejectPerStage[1, ], c(0, 0.02, 0.11), tolerance = 1e-07)
+	expect_equal(x7$rejectPerStage[2, ], c(0, 0.13, 0.64), tolerance = 1e-07)
+	expect_equal(x7$overallReject, c(0, 0.15, 0.75), tolerance = 1e-07)
+	expect_equal(x7$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x7$futilityStop, c(0, 0, 0))
+	expect_equal(x7$earlyStop, c(0, 0.02, 0.11), tolerance = 1e-07)
+	expect_equal(x7$expectedNumberOfSubjects, c(99.499784, 89.67646, 74.321885), tolerance = 1e-07)
+	expect_equal(x7$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x7$sampleSizes[2, ], c(89.499784, 81.30251, 72.27178), tolerance = 1e-07)
+	expect_equal(x7$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x7$conditionalPowerAchieved[2, ], c(0.19464679, 0.38425169, 0.50691811), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x7), NA)))
+	    expect_output(print(x7)$show())
+	    invisible(capture.output(expect_error(summary(x7), NA)))
+	    expect_output(summary(x7)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x8 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(92, 96, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.08, 0.04, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.52, 0.24, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.6, 0.28, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.08, 0.04, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(75.059866, 89.365281, 105.96832), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(70.717246, 82.672167, 95.968315), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.47813695, 0.33190551, 0.14267564), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x8' with expected results
+	expect_equal(x8$iterations[1, ], c(100, 100, 100))
+	expect_equal(x8$iterations[2, ], c(92, 96, 100))
+	expect_equal(x8$rejectPerStage[1, ], c(0.08, 0.04, 0), tolerance = 1e-07)
+	expect_equal(x8$rejectPerStage[2, ], c(0.52, 0.24, 0.01), tolerance = 1e-07)
+	expect_equal(x8$overallReject, c(0.6, 0.28, 0.01), tolerance = 1e-07)
+	expect_equal(x8$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x8$futilityStop, c(0, 0, 0))
+	expect_equal(x8$earlyStop, c(0.08, 0.04, 0), tolerance = 1e-07)
+	expect_equal(x8$expectedNumberOfSubjects, c(75.059866, 89.365281, 105.96832), tolerance = 1e-07)
+	expect_equal(x8$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x8$sampleSizes[2, ], c(70.717246, 82.672167, 95.968315), tolerance = 1e-07)
+	expect_equal(x8$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x8$conditionalPowerAchieved[2, ], c(0.47813695, 0.33190551, 0.14267564), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x8), NA)))
+	    expect_output(print(x8)$show())
+	    invisible(capture.output(expect_error(summary(x8), NA)))
+	    expect_output(summary(x8)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), normalApproximation = TRUE, 
+	x9 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), normalApproximation = TRUE, 
 		groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(99, 94, 80))
-	expect_equal(x$rejectPerStage[1, ], c(0.01, 0.06, 0.2), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.05, 0.34, 0.66), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.06, 0.4, 0.86), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.01, 0.06, 0.2), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(96.293417, 87.052198, 59.545442), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(87.165067, 81.970424, 61.931803), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.23503536, 0.37772778, 0.53734864), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
+	expect_equal(x9$iterations[1, ], c(100, 100, 100))
+	expect_equal(x9$iterations[2, ], c(99, 94, 80))
+	expect_equal(x9$rejectPerStage[1, ], c(0.01, 0.06, 0.2), tolerance = 1e-07)
+	expect_equal(x9$rejectPerStage[2, ], c(0.05, 0.34, 0.66), tolerance = 1e-07)
+	expect_equal(x9$overallReject, c(0.06, 0.4, 0.86), tolerance = 1e-07)
+	expect_equal(x9$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x9$futilityStop, c(0, 0, 0))
+	expect_equal(x9$earlyStop, c(0.01, 0.06, 0.2), tolerance = 1e-07)
+	expect_equal(x9$expectedNumberOfSubjects, c(96.293417, 87.052198, 59.545442), tolerance = 1e-07)
+	expect_equal(x9$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x9$sampleSizes[2, ], c(87.165067, 81.970424, 61.931803), tolerance = 1e-07)
+	expect_equal(x9$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x9$conditionalPowerAchieved[2, ], c(0.23503536, 0.37772778, 0.53734864), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x9), NA)))
+	    expect_output(print(x9)$show())
+	    invisible(capture.output(expect_error(summary(x9), NA)))
+	    expect_output(summary(x9)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x10 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(89, 93, 98))
-	expect_equal(x$rejectPerStage[1, ], c(0.11, 0.07, 0.02), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.55, 0.24, 0.02), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.66, 0.31, 0.04), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.11, 0.07, 0.02), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(64.458245, 88.745903, 98.117191), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(61.189039, 84.673014, 89.915501), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.53544626, 0.3174792, 0.23558604), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
+	expect_equal(x10$iterations[1, ], c(100, 100, 100))
+	expect_equal(x10$iterations[2, ], c(89, 93, 98))
+	expect_equal(x10$rejectPerStage[1, ], c(0.11, 0.07, 0.02), tolerance = 1e-07)
+	expect_equal(x10$rejectPerStage[2, ], c(0.55, 0.24, 0.02), tolerance = 1e-07)
+	expect_equal(x10$overallReject, c(0.66, 0.31, 0.04), tolerance = 1e-07)
+	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x10$futilityStop, c(0, 0, 0))
+	expect_equal(x10$earlyStop, c(0.11, 0.07, 0.02), tolerance = 1e-07)
+	expect_equal(x10$expectedNumberOfSubjects, c(64.458245, 88.745903, 98.117191), tolerance = 1e-07)
+	expect_equal(x10$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x10$sampleSizes[2, ], c(61.189039, 84.673014, 89.915501), tolerance = 1e-07)
+	expect_equal(x10$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x10$conditionalPowerAchieved[2, ], c(0.53544626, 0.3174792, 0.23558604), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x10), NA)))
+	    expect_output(print(x10)$show())
+	    invisible(capture.output(expect_error(summary(x10), NA)))
+	    expect_output(summary(x10)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x11 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(98, 96, 79))
-	expect_equal(x$rejectPerStage[1, ], c(0.02, 0.04, 0.21), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.01, 0.28, 0.56), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.03, 0.32, 0.77), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.02, 0.04, 0.21), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(96.685833, 88.962444, 54.461927), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(88.454932, 82.252546, 56.28092), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.21899188, 0.34972634, 0.63085287), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x11' with expected results
+	expect_equal(x11$iterations[1, ], c(100, 100, 100))
+	expect_equal(x11$iterations[2, ], c(98, 96, 79))
+	expect_equal(x11$rejectPerStage[1, ], c(0.02, 0.04, 0.21), tolerance = 1e-07)
+	expect_equal(x11$rejectPerStage[2, ], c(0.01, 0.28, 0.56), tolerance = 1e-07)
+	expect_equal(x11$overallReject, c(0.03, 0.32, 0.77), tolerance = 1e-07)
+	expect_equal(x11$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x11$futilityStop, c(0, 0, 0))
+	expect_equal(x11$earlyStop, c(0.02, 0.04, 0.21), tolerance = 1e-07)
+	expect_equal(x11$expectedNumberOfSubjects, c(96.685833, 88.962444, 54.461927), tolerance = 1e-07)
+	expect_equal(x11$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x11$sampleSizes[2, ], c(88.454932, 82.252546, 56.28092), tolerance = 1e-07)
+	expect_equal(x11$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x11$conditionalPowerAchieved[2, ], c(0.21899188, 0.34972634, 0.63085287), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x11), NA)))
+	    expect_output(print(x11)$show())
+	    invisible(capture.output(expect_error(summary(x11), NA)))
+	    expect_output(summary(x11)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
+	x12 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(92, 96, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.08, 0.04, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.52, 0.24, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.6, 0.28, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.08, 0.04, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(75.059866, 89.365281, 105.96832), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(70.717246, 82.672167, 95.968315), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.47813695, 0.33190551, 0.14267564), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x12' with expected results
+	expect_equal(x12$iterations[1, ], c(100, 100, 100))
+	expect_equal(x12$iterations[2, ], c(92, 96, 100))
+	expect_equal(x12$rejectPerStage[1, ], c(0.08, 0.04, 0), tolerance = 1e-07)
+	expect_equal(x12$rejectPerStage[2, ], c(0.52, 0.24, 0.01), tolerance = 1e-07)
+	expect_equal(x12$overallReject, c(0.6, 0.28, 0.01), tolerance = 1e-07)
+	expect_equal(x12$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x12$futilityStop, c(0, 0, 0))
+	expect_equal(x12$earlyStop, c(0.08, 0.04, 0), tolerance = 1e-07)
+	expect_equal(x12$expectedNumberOfSubjects, c(75.059866, 89.365281, 105.96832), tolerance = 1e-07)
+	expect_equal(x12$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x12$sampleSizes[2, ], c(70.717246, 82.672167, 95.968315), tolerance = 1e-07)
+	expect_equal(x12$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x12$conditionalPowerAchieved[2, ], c(0.47813695, 0.33190551, 0.14267564), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x12), NA)))
+	    expect_output(print(x12)$show())
+	    invisible(capture.output(expect_error(summary(x12), NA)))
+	    expect_output(summary(x12)$show())
 	}
 
 })
 
 test_that("'getSimulationMeans': inverse normal design with several configurations", {
 
-	.skipTestIfDisabled()
-
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
+	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
+	x1 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 99, 93))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.01, 0.07), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.01, 0.61, 0.77), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.01, 0.62, 0.84), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.01, 0.07), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(97.726214, 61.386317, 35.456429), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(87.726214, 51.905371, 27.372504), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.21948944, 0.59945542, 0.74761937), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x1' with expected results
+	expect_equal(x1$iterations[1, ], c(100, 100, 100))
+	expect_equal(x1$iterations[2, ], c(100, 99, 93))
+	expect_equal(x1$rejectPerStage[1, ], c(0, 0.01, 0.07), tolerance = 1e-07)
+	expect_equal(x1$rejectPerStage[2, ], c(0.01, 0.61, 0.77), tolerance = 1e-07)
+	expect_equal(x1$overallReject, c(0.01, 0.62, 0.84), tolerance = 1e-07)
+	expect_equal(x1$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x1$futilityStop, c(0, 0, 0))
+	expect_equal(x1$earlyStop, c(0, 0.01, 0.07), tolerance = 1e-07)
+	expect_equal(x1$expectedNumberOfSubjects, c(97.726214, 61.386317, 35.456429), tolerance = 1e-07)
+	expect_equal(x1$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x1$sampleSizes[2, ], c(87.726214, 51.905371, 27.372504), tolerance = 1e-07)
+	expect_equal(x1$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x1$conditionalPowerAchieved[2, ], c(0.21948944, 0.59945542, 0.74761937), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x1), NA)))
+	    expect_output(print(x1)$show())
+	    invisible(capture.output(expect_error(summary(x1), NA)))
+	    expect_output(summary(x1)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	.skipTestIfDisabled()
+
+	x2 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(92, 98, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.08, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.8, 0.68, 0.05), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.88, 0.7, 0.05), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.08, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(30.529806, 74.585778, 94.761842), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(22.315007, 65.903855, 84.761842), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.78002751, 0.51035441, 0.27866093), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x2' with expected results
+	expect_equal(x2$iterations[1, ], c(100, 100, 100))
+	expect_equal(x2$iterations[2, ], c(92, 98, 100))
+	expect_equal(x2$rejectPerStage[1, ], c(0.08, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x2$rejectPerStage[2, ], c(0.8, 0.68, 0.05), tolerance = 1e-07)
+	expect_equal(x2$overallReject, c(0.88, 0.7, 0.05), tolerance = 1e-07)
+	expect_equal(x2$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x2$futilityStop, c(0, 0, 0))
+	expect_equal(x2$earlyStop, c(0.08, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x2$expectedNumberOfSubjects, c(30.529806, 74.585778, 94.761842), tolerance = 1e-07)
+	expect_equal(x2$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x2$sampleSizes[2, ], c(22.315007, 65.903855, 84.761842), tolerance = 1e-07)
+	expect_equal(x2$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x2$conditionalPowerAchieved[2, ], c(0.78002751, 0.51035441, 0.27866093), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x2), NA)))
+	    expect_output(print(x2)$show())
+	    invisible(capture.output(expect_error(summary(x2), NA)))
+	    expect_output(summary(x2)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x3 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 98))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.01, 0.58, 0.84), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.01, 0.58, 0.86), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(99.571933, 69.623473, 35.859349), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(89.571933, 59.623473, 26.38709), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.17531256, 0.54483038, 0.79325539), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x3' with expected results
+	expect_equal(x3$iterations[1, ], c(100, 100, 100))
+	expect_equal(x3$iterations[2, ], c(100, 100, 98))
+	expect_equal(x3$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x3$rejectPerStage[2, ], c(0.01, 0.58, 0.84), tolerance = 1e-07)
+	expect_equal(x3$overallReject, c(0.01, 0.58, 0.86), tolerance = 1e-07)
+	expect_equal(x3$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x3$futilityStop, c(0, 0, 0))
+	expect_equal(x3$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x3$expectedNumberOfSubjects, c(99.571933, 69.623473, 35.859349), tolerance = 1e-07)
+	expect_equal(x3$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x3$sampleSizes[2, ], c(89.571933, 59.623473, 26.38709), tolerance = 1e-07)
+	expect_equal(x3$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$conditionalPowerAchieved[2, ], c(0.17531256, 0.54483038, 0.79325539), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x3), NA)))
+	    expect_output(print(x3)$show())
+	    invisible(capture.output(expect_error(summary(x3), NA)))
+	    expect_output(summary(x3)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x4 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(97, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.03, 0, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.8, 0.69, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.83, 0.69, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.03, 0, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(34.808208, 66.656932, 104.30185), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(25.575472, 56.656932, 94.301853), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.78184392, 0.58902983, 0.17869551), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x4' with expected results
+	expect_equal(x4$iterations[1, ], c(100, 100, 100))
+	expect_equal(x4$iterations[2, ], c(97, 100, 100))
+	expect_equal(x4$rejectPerStage[1, ], c(0.03, 0, 0), tolerance = 1e-07)
+	expect_equal(x4$rejectPerStage[2, ], c(0.8, 0.69, 0.01), tolerance = 1e-07)
+	expect_equal(x4$overallReject, c(0.83, 0.69, 0.01), tolerance = 1e-07)
+	expect_equal(x4$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x4$futilityStop, c(0, 0, 0))
+	expect_equal(x4$earlyStop, c(0.03, 0, 0), tolerance = 1e-07)
+	expect_equal(x4$expectedNumberOfSubjects, c(34.808208, 66.656932, 104.30185), tolerance = 1e-07)
+	expect_equal(x4$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x4$sampleSizes[2, ], c(25.575472, 56.656932, 94.301853), tolerance = 1e-07)
+	expect_equal(x4$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x4$conditionalPowerAchieved[2, ], c(0.78184392, 0.58902983, 0.17869551), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x4), NA)))
+	    expect_output(print(x4)$show())
+	    invisible(capture.output(expect_error(summary(x4), NA)))
+	    expect_output(summary(x4)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x5 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$rejectPerStage[2, ], c(0.02, 0.29, 0.63), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.02, 0.29, 0.63), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0))
-	expect_equal(x$expectedNumberOfSubjects, c(96.372889, 89.619156, 71.907268), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(86.372889, 79.619156, 61.907268), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.23254121, 0.37156759, 0.50696796), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x5' with expected results
+	expect_equal(x5$iterations[1, ], c(100, 100, 100))
+	expect_equal(x5$iterations[2, ], c(100, 100, 100))
+	expect_equal(x5$rejectPerStage[1, ], c(0, 0, 0))
+	expect_equal(x5$rejectPerStage[2, ], c(0.02, 0.29, 0.63), tolerance = 1e-07)
+	expect_equal(x5$overallReject, c(0.02, 0.29, 0.63), tolerance = 1e-07)
+	expect_equal(x5$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x5$futilityStop, c(0, 0, 0))
+	expect_equal(x5$earlyStop, c(0, 0, 0))
+	expect_equal(x5$expectedNumberOfSubjects, c(96.372889, 89.619156, 71.907268), tolerance = 1e-07)
+	expect_equal(x5$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x5$sampleSizes[2, ], c(86.372889, 79.619156, 61.907268), tolerance = 1e-07)
+	expect_equal(x5$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x5$conditionalPowerAchieved[2, ], c(0.23254121, 0.37156759, 0.50696796), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x5), NA)))
+	    expect_output(print(x5)$show())
+	    invisible(capture.output(expect_error(summary(x5), NA)))
+	    expect_output(summary(x5)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x6 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(98, 98, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.69, 0.26, 0.05), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.71, 0.28, 0.05), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(61.262488, 89.754099, 94.761842), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(52.308661, 81.381734, 84.761842), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.57015973, 0.32347024, 0.27139992), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x6' with expected results
+	expect_equal(x6$iterations[1, ], c(100, 100, 100))
+	expect_equal(x6$iterations[2, ], c(98, 98, 100))
+	expect_equal(x6$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x6$rejectPerStage[2, ], c(0.69, 0.26, 0.05), tolerance = 1e-07)
+	expect_equal(x6$overallReject, c(0.71, 0.28, 0.05), tolerance = 1e-07)
+	expect_equal(x6$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x6$futilityStop, c(0, 0, 0))
+	expect_equal(x6$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x6$expectedNumberOfSubjects, c(61.262488, 89.754099, 94.761842), tolerance = 1e-07)
+	expect_equal(x6$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x6$sampleSizes[2, ], c(52.308661, 81.381734, 84.761842), tolerance = 1e-07)
+	expect_equal(x6$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x6$conditionalPowerAchieved[2, ], c(0.57015973, 0.32347024, 0.27139992), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x6), NA)))
+	    expect_output(print(x6)$show())
+	    invisible(capture.output(expect_error(summary(x6), NA)))
+	    expect_output(summary(x6)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x7 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 99))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0.01), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.01, 0.2, 0.69), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.01, 0.2, 0.7), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0.01), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(99.874349, 85.385224, 62.337209), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(89.874349, 75.385224, 52.865867), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.19979349, 0.40152955, 0.59344307), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
+	expect_equal(x7$iterations[1, ], c(100, 100, 100))
+	expect_equal(x7$iterations[2, ], c(100, 100, 99))
+	expect_equal(x7$rejectPerStage[1, ], c(0, 0, 0.01), tolerance = 1e-07)
+	expect_equal(x7$rejectPerStage[2, ], c(0.01, 0.2, 0.69), tolerance = 1e-07)
+	expect_equal(x7$overallReject, c(0.01, 0.2, 0.7), tolerance = 1e-07)
+	expect_equal(x7$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x7$futilityStop, c(0, 0, 0))
+	expect_equal(x7$earlyStop, c(0, 0, 0.01), tolerance = 1e-07)
+	expect_equal(x7$expectedNumberOfSubjects, c(99.874349, 85.385224, 62.337209), tolerance = 1e-07)
+	expect_equal(x7$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x7$sampleSizes[2, ], c(89.874349, 75.385224, 52.865867), tolerance = 1e-07)
+	expect_equal(x7$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x7$conditionalPowerAchieved[2, ], c(0.19979349, 0.40152955, 0.59344307), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x7), NA)))
+	    expect_output(print(x7)$show())
+	    invisible(capture.output(expect_error(summary(x7), NA)))
+	    expect_output(summary(x7)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x8 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(99, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.56, 0.35, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.57, 0.35, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x8' with expected results
+	expect_equal(x8$iterations[1, ], c(100, 100, 100))
+	expect_equal(x8$iterations[2, ], c(99, 100, 100))
+	expect_equal(x8$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x8$rejectPerStage[2, ], c(0.56, 0.35, 0.01), tolerance = 1e-07)
+	expect_equal(x8$overallReject, c(0.57, 0.35, 0.01), tolerance = 1e-07)
+	expect_equal(x8$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x8$futilityStop, c(0, 0, 0))
+	expect_equal(x8$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x8$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
+	expect_equal(x8$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x8$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
+	expect_equal(x8$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x8$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x8), NA)))
+	    expect_output(print(x8)$show())
+	    invisible(capture.output(expect_error(summary(x8), NA)))
+	    expect_output(summary(x8)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x9 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 99, 98))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.01, 0.02), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.04, 0.35, 0.77), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.04, 0.36, 0.79), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.01, 0.02), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(93.166381, 72.993336, 56.443486), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(83.166381, 63.629633, 47.391312), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.26023971, 0.52016331, 0.61018937), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
+	expect_equal(x9$iterations[1, ], c(100, 100, 100))
+	expect_equal(x9$iterations[2, ], c(100, 99, 98))
+	expect_equal(x9$rejectPerStage[1, ], c(0, 0.01, 0.02), tolerance = 1e-07)
+	expect_equal(x9$rejectPerStage[2, ], c(0.04, 0.35, 0.77), tolerance = 1e-07)
+	expect_equal(x9$overallReject, c(0.04, 0.36, 0.79), tolerance = 1e-07)
+	expect_equal(x9$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x9$futilityStop, c(0, 0, 0))
+	expect_equal(x9$earlyStop, c(0, 0.01, 0.02), tolerance = 1e-07)
+	expect_equal(x9$expectedNumberOfSubjects, c(93.166381, 72.993336, 56.443486), tolerance = 1e-07)
+	expect_equal(x9$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x9$sampleSizes[2, ], c(83.166381, 63.629633, 47.391312), tolerance = 1e-07)
+	expect_equal(x9$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x9$conditionalPowerAchieved[2, ], c(0.26023971, 0.52016331, 0.61018937), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x9), NA)))
+	    expect_output(print(x9)$show())
+	    invisible(capture.output(expect_error(summary(x9), NA)))
+	    expect_output(summary(x9)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x10 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(98, 98, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.69, 0.3, 0.05), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.71, 0.32, 0.05), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(62.435526, 88.169977, 94.761842), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(53.505639, 79.765282, 84.761842), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.54108822, 0.32455187, 0.25936079), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
+	expect_equal(x10$iterations[1, ], c(100, 100, 100))
+	expect_equal(x10$iterations[2, ], c(98, 98, 100))
+	expect_equal(x10$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x10$rejectPerStage[2, ], c(0.69, 0.3, 0.05), tolerance = 1e-07)
+	expect_equal(x10$overallReject, c(0.71, 0.32, 0.05), tolerance = 1e-07)
+	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x10$futilityStop, c(0, 0, 0))
+	expect_equal(x10$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x10$expectedNumberOfSubjects, c(62.435526, 88.169977, 94.761842), tolerance = 1e-07)
+	expect_equal(x10$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x10$sampleSizes[2, ], c(53.505639, 79.765282, 84.761842), tolerance = 1e-07)
+	expect_equal(x10$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x10$conditionalPowerAchieved[2, ], c(0.54108822, 0.32455187, 0.25936079), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x10), NA)))
+	    expect_output(print(x10)$show())
+	    invisible(capture.output(expect_error(summary(x10), NA)))
+	    expect_output(summary(x10)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x11 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 98))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.04, 0.33, 0.74), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.04, 0.33, 0.76), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(97.820553, 79.30135, 45.942964), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(87.820553, 69.30135, 36.676494), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.24110629, 0.45389272, 0.70091861), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x11' with expected results
+	expect_equal(x11$iterations[1, ], c(100, 100, 100))
+	expect_equal(x11$iterations[2, ], c(100, 100, 98))
+	expect_equal(x11$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x11$rejectPerStage[2, ], c(0.04, 0.33, 0.74), tolerance = 1e-07)
+	expect_equal(x11$overallReject, c(0.04, 0.33, 0.76), tolerance = 1e-07)
+	expect_equal(x11$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x11$futilityStop, c(0, 0, 0))
+	expect_equal(x11$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x11$expectedNumberOfSubjects, c(97.820553, 79.30135, 45.942964), tolerance = 1e-07)
+	expect_equal(x11$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x11$sampleSizes[2, ], c(87.820553, 69.30135, 36.676494), tolerance = 1e-07)
+	expect_equal(x11$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x11$conditionalPowerAchieved[2, ], c(0.24110629, 0.45389272, 0.70091861), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x11), NA)))
+	    expect_output(print(x11)$show())
+	    invisible(capture.output(expect_error(summary(x11), NA)))
+	    expect_output(summary(x11)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
+	x12 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(99, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.56, 0.35, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.57, 0.35, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x12' with expected results
+	expect_equal(x12$iterations[1, ], c(100, 100, 100))
+	expect_equal(x12$iterations[2, ], c(99, 100, 100))
+	expect_equal(x12$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x12$rejectPerStage[2, ], c(0.56, 0.35, 0.01), tolerance = 1e-07)
+	expect_equal(x12$overallReject, c(0.57, 0.35, 0.01), tolerance = 1e-07)
+	expect_equal(x12$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x12$futilityStop, c(0, 0, 0))
+	expect_equal(x12$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x12$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
+	expect_equal(x12$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x12$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
+	expect_equal(x12$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x12$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x12), NA)))
+	    expect_output(print(x12)$show())
+	    invisible(capture.output(expect_error(summary(x12), NA)))
+	    expect_output(summary(x12)$show())
 	}
 
 })
 
 test_that("'getSimulationMeans': group sequential design with several configurations", {
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
+	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:testStatisticGroupSequentialWeightedAverage}
+	x1 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
+		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
+		stDev = 1.2, directionUpper = TRUE, 
+		maxNumberOfIterations = 100, thetaH0 = 0.05)
+
+	## Comparison of the results of SimulationResultsMeans object 'x1' with expected results
+	expect_equal(x1$iterations[1, ], c(100, 100, 100))
+	expect_equal(x1$iterations[2, ], c(100, 99, 93))
+	expect_equal(x1$rejectPerStage[1, ], c(0, 0.01, 0.07), tolerance = 1e-07)
+	expect_equal(x1$rejectPerStage[2, ], c(0.02, 0.7, 0.86), tolerance = 1e-07)
+	expect_equal(x1$overallReject, c(0.02, 0.71, 0.93), tolerance = 1e-07)
+	expect_equal(x1$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x1$futilityStop, c(0, 0, 0))
+	expect_equal(x1$earlyStop, c(0, 0.01, 0.07), tolerance = 1e-07)
+	expect_equal(x1$expectedNumberOfSubjects, c(97.726214, 61.386317, 35.456429), tolerance = 1e-07)
+	expect_equal(x1$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x1$sampleSizes[2, ], c(87.726214, 51.905371, 27.372504), tolerance = 1e-07)
+	expect_equal(x1$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x1$conditionalPowerAchieved[2, ], c(0.21948944, 0.59945542, 0.74761937), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x1), NA)))
+	    expect_output(print(x1)$show())
+	    invisible(capture.output(expect_error(summary(x1), NA)))
+	    expect_output(summary(x1)$show())
+	}
+
 	.skipTestIfDisabled()
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
-
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 99, 93))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.01, 0.07), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.02, 0.7, 0.86), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.02, 0.71, 0.93), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.01, 0.07), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(97.726214, 61.386317, 35.456429), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(87.726214, 51.905371, 27.372504), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.21948944, 0.59945542, 0.74761937), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
-	}
-
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x2 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(92, 98, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.08, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.86, 0.79, 0.07), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.94, 0.81, 0.07), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.08, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(30.529806, 74.585778, 94.761842), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(22.315007, 65.903855, 84.761842), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.78002751, 0.51035441, 0.27866093), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x2' with expected results
+	expect_equal(x2$iterations[1, ], c(100, 100, 100))
+	expect_equal(x2$iterations[2, ], c(92, 98, 100))
+	expect_equal(x2$rejectPerStage[1, ], c(0.08, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x2$rejectPerStage[2, ], c(0.86, 0.79, 0.07), tolerance = 1e-07)
+	expect_equal(x2$overallReject, c(0.94, 0.81, 0.07), tolerance = 1e-07)
+	expect_equal(x2$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x2$futilityStop, c(0, 0, 0))
+	expect_equal(x2$earlyStop, c(0.08, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x2$expectedNumberOfSubjects, c(30.529806, 74.585778, 94.761842), tolerance = 1e-07)
+	expect_equal(x2$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x2$sampleSizes[2, ], c(22.315007, 65.903855, 84.761842), tolerance = 1e-07)
+	expect_equal(x2$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x2$conditionalPowerAchieved[2, ], c(0.78002751, 0.51035441, 0.27866093), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x2), NA)))
+	    expect_output(print(x2)$show())
+	    invisible(capture.output(expect_error(summary(x2), NA)))
+	    expect_output(summary(x2)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x3 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 98))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.01, 0.68, 0.92), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.01, 0.68, 0.94), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(99.571933, 69.623473, 35.859349), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(89.571933, 59.623473, 26.38709), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.17531256, 0.54483038, 0.79325539), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x3' with expected results
+	expect_equal(x3$iterations[1, ], c(100, 100, 100))
+	expect_equal(x3$iterations[2, ], c(100, 100, 98))
+	expect_equal(x3$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x3$rejectPerStage[2, ], c(0.01, 0.68, 0.92), tolerance = 1e-07)
+	expect_equal(x3$overallReject, c(0.01, 0.68, 0.94), tolerance = 1e-07)
+	expect_equal(x3$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x3$futilityStop, c(0, 0, 0))
+	expect_equal(x3$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x3$expectedNumberOfSubjects, c(99.571933, 69.623473, 35.859349), tolerance = 1e-07)
+	expect_equal(x3$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x3$sampleSizes[2, ], c(89.571933, 59.623473, 26.38709), tolerance = 1e-07)
+	expect_equal(x3$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$conditionalPowerAchieved[2, ], c(0.17531256, 0.54483038, 0.79325539), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x3), NA)))
+	    expect_output(print(x3)$show())
+	    invisible(capture.output(expect_error(summary(x3), NA)))
+	    expect_output(summary(x3)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x4 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(97, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.03, 0, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.89, 0.78, 0.02), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.92, 0.78, 0.02), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.03, 0, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(34.808208, 66.656932, 104.30185), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(25.575472, 56.656932, 94.301853), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.78184392, 0.58902983, 0.17869551), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x4' with expected results
+	expect_equal(x4$iterations[1, ], c(100, 100, 100))
+	expect_equal(x4$iterations[2, ], c(97, 100, 100))
+	expect_equal(x4$rejectPerStage[1, ], c(0.03, 0, 0), tolerance = 1e-07)
+	expect_equal(x4$rejectPerStage[2, ], c(0.89, 0.78, 0.02), tolerance = 1e-07)
+	expect_equal(x4$overallReject, c(0.92, 0.78, 0.02), tolerance = 1e-07)
+	expect_equal(x4$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x4$futilityStop, c(0, 0, 0))
+	expect_equal(x4$earlyStop, c(0.03, 0, 0), tolerance = 1e-07)
+	expect_equal(x4$expectedNumberOfSubjects, c(34.808208, 66.656932, 104.30185), tolerance = 1e-07)
+	expect_equal(x4$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x4$sampleSizes[2, ], c(25.575472, 56.656932, 94.301853), tolerance = 1e-07)
+	expect_equal(x4$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x4$conditionalPowerAchieved[2, ], c(0.78184392, 0.58902983, 0.17869551), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x4), NA)))
+	    expect_output(print(x4)$show())
+	    invisible(capture.output(expect_error(summary(x4), NA)))
+	    expect_output(summary(x4)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x5 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$rejectPerStage[2, ], c(0.03, 0.36, 0.74), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.03, 0.36, 0.74), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0))
-	expect_equal(x$expectedNumberOfSubjects, c(96.372889, 89.619156, 71.907268), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(86.372889, 79.619156, 61.907268), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.23254121, 0.37156759, 0.50696796), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x5' with expected results
+	expect_equal(x5$iterations[1, ], c(100, 100, 100))
+	expect_equal(x5$iterations[2, ], c(100, 100, 100))
+	expect_equal(x5$rejectPerStage[1, ], c(0, 0, 0))
+	expect_equal(x5$rejectPerStage[2, ], c(0.03, 0.36, 0.74), tolerance = 1e-07)
+	expect_equal(x5$overallReject, c(0.03, 0.36, 0.74), tolerance = 1e-07)
+	expect_equal(x5$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x5$futilityStop, c(0, 0, 0))
+	expect_equal(x5$earlyStop, c(0, 0, 0))
+	expect_equal(x5$expectedNumberOfSubjects, c(96.372889, 89.619156, 71.907268), tolerance = 1e-07)
+	expect_equal(x5$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x5$sampleSizes[2, ], c(86.372889, 79.619156, 61.907268), tolerance = 1e-07)
+	expect_equal(x5$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x5$conditionalPowerAchieved[2, ], c(0.23254121, 0.37156759, 0.50696796), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x5), NA)))
+	    expect_output(print(x5)$show())
+	    invisible(capture.output(expect_error(summary(x5), NA)))
+	    expect_output(summary(x5)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x6 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(98, 98, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.77, 0.34, 0.06), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.79, 0.36, 0.06), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(61.262488, 89.754099, 94.761842), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(52.308661, 81.381734, 84.761842), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.57015973, 0.32347024, 0.27139992), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x6' with expected results
+	expect_equal(x6$iterations[1, ], c(100, 100, 100))
+	expect_equal(x6$iterations[2, ], c(98, 98, 100))
+	expect_equal(x6$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x6$rejectPerStage[2, ], c(0.77, 0.34, 0.06), tolerance = 1e-07)
+	expect_equal(x6$overallReject, c(0.79, 0.36, 0.06), tolerance = 1e-07)
+	expect_equal(x6$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x6$futilityStop, c(0, 0, 0))
+	expect_equal(x6$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x6$expectedNumberOfSubjects, c(61.262488, 89.754099, 94.761842), tolerance = 1e-07)
+	expect_equal(x6$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x6$sampleSizes[2, ], c(52.308661, 81.381734, 84.761842), tolerance = 1e-07)
+	expect_equal(x6$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x6$conditionalPowerAchieved[2, ], c(0.57015973, 0.32347024, 0.27139992), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x6), NA)))
+	    expect_output(print(x6)$show())
+	    invisible(capture.output(expect_error(summary(x6), NA)))
+	    expect_output(summary(x6)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x7 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 99))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0.01), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.01, 0.23, 0.82), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.01, 0.23, 0.83), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0.01), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(99.874349, 85.385224, 62.337209), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(89.874349, 75.385224, 52.865867), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.19979349, 0.40152955, 0.59344307), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
+	expect_equal(x7$iterations[1, ], c(100, 100, 100))
+	expect_equal(x7$iterations[2, ], c(100, 100, 99))
+	expect_equal(x7$rejectPerStage[1, ], c(0, 0, 0.01), tolerance = 1e-07)
+	expect_equal(x7$rejectPerStage[2, ], c(0.01, 0.23, 0.82), tolerance = 1e-07)
+	expect_equal(x7$overallReject, c(0.01, 0.23, 0.83), tolerance = 1e-07)
+	expect_equal(x7$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x7$futilityStop, c(0, 0, 0))
+	expect_equal(x7$earlyStop, c(0, 0, 0.01), tolerance = 1e-07)
+	expect_equal(x7$expectedNumberOfSubjects, c(99.874349, 85.385224, 62.337209), tolerance = 1e-07)
+	expect_equal(x7$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x7$sampleSizes[2, ], c(89.874349, 75.385224, 52.865867), tolerance = 1e-07)
+	expect_equal(x7$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x7$conditionalPowerAchieved[2, ], c(0.19979349, 0.40152955, 0.59344307), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x7), NA)))
+	    expect_output(print(x7)$show())
+	    invisible(capture.output(expect_error(summary(x7), NA)))
+	    expect_output(summary(x7)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x8 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(99, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.71, 0.45, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.72, 0.45, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x8' with expected results
+	expect_equal(x8$iterations[1, ], c(100, 100, 100))
+	expect_equal(x8$iterations[2, ], c(99, 100, 100))
+	expect_equal(x8$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x8$rejectPerStage[2, ], c(0.71, 0.45, 0.01), tolerance = 1e-07)
+	expect_equal(x8$overallReject, c(0.72, 0.45, 0.01), tolerance = 1e-07)
+	expect_equal(x8$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x8$futilityStop, c(0, 0, 0))
+	expect_equal(x8$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x8$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
+	expect_equal(x8$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x8$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
+	expect_equal(x8$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x8$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x8), NA)))
+	    expect_output(print(x8)$show())
+	    invisible(capture.output(expect_error(summary(x8), NA)))
+	    expect_output(summary(x8)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x9 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 99, 98))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0.01, 0.02), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.09, 0.43, 0.83), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.09, 0.44, 0.85), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0.01, 0.02), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(93.166381, 72.993336, 56.443486), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(83.166381, 63.629633, 47.391312), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.26023971, 0.52016331, 0.61018937), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
+	expect_equal(x9$iterations[1, ], c(100, 100, 100))
+	expect_equal(x9$iterations[2, ], c(100, 99, 98))
+	expect_equal(x9$rejectPerStage[1, ], c(0, 0.01, 0.02), tolerance = 1e-07)
+	expect_equal(x9$rejectPerStage[2, ], c(0.09, 0.43, 0.83), tolerance = 1e-07)
+	expect_equal(x9$overallReject, c(0.09, 0.44, 0.85), tolerance = 1e-07)
+	expect_equal(x9$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x9$futilityStop, c(0, 0, 0))
+	expect_equal(x9$earlyStop, c(0, 0.01, 0.02), tolerance = 1e-07)
+	expect_equal(x9$expectedNumberOfSubjects, c(93.166381, 72.993336, 56.443486), tolerance = 1e-07)
+	expect_equal(x9$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x9$sampleSizes[2, ], c(83.166381, 63.629633, 47.391312), tolerance = 1e-07)
+	expect_equal(x9$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x9$conditionalPowerAchieved[2, ], c(0.26023971, 0.52016331, 0.61018937), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x9), NA)))
+	    expect_output(print(x9)$show())
+	    invisible(capture.output(expect_error(summary(x9), NA)))
+	    expect_output(summary(x9)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x10 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, 
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(98, 98, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.74, 0.4, 0.06), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.76, 0.42, 0.06), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(62.435526, 88.169977, 94.761842), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(53.505639, 79.765282, 84.761842), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.54108822, 0.32455187, 0.25936079), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
+	expect_equal(x10$iterations[1, ], c(100, 100, 100))
+	expect_equal(x10$iterations[2, ], c(98, 98, 100))
+	expect_equal(x10$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x10$rejectPerStage[2, ], c(0.74, 0.4, 0.06), tolerance = 1e-07)
+	expect_equal(x10$overallReject, c(0.76, 0.42, 0.06), tolerance = 1e-07)
+	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x10$futilityStop, c(0, 0, 0))
+	expect_equal(x10$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x10$expectedNumberOfSubjects, c(62.435526, 88.169977, 94.761842), tolerance = 1e-07)
+	expect_equal(x10$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x10$sampleSizes[2, ], c(53.505639, 79.765282, 84.761842), tolerance = 1e-07)
+	expect_equal(x10$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x10$conditionalPowerAchieved[2, ], c(0.54108822, 0.32455187, 0.25936079), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x10), NA)))
+	    expect_output(print(x10)$show())
+	    invisible(capture.output(expect_error(summary(x10), NA)))
+	    expect_output(summary(x10)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x11 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
 		maxNumberOfIterations = 100, thetaH0 = 0.05)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(100, 100, 98))
-	expect_equal(x$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.12, 0.39, 0.85), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.12, 0.39, 0.87), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(97.820553, 79.30135, 45.942964), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(87.820553, 69.30135, 36.676494), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.24110629, 0.45389272, 0.70091861), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x11' with expected results
+	expect_equal(x11$iterations[1, ], c(100, 100, 100))
+	expect_equal(x11$iterations[2, ], c(100, 100, 98))
+	expect_equal(x11$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x11$rejectPerStage[2, ], c(0.12, 0.39, 0.85), tolerance = 1e-07)
+	expect_equal(x11$overallReject, c(0.12, 0.39, 0.87), tolerance = 1e-07)
+	expect_equal(x11$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x11$futilityStop, c(0, 0, 0))
+	expect_equal(x11$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
+	expect_equal(x11$expectedNumberOfSubjects, c(97.820553, 79.30135, 45.942964), tolerance = 1e-07)
+	expect_equal(x11$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x11$sampleSizes[2, ], c(87.820553, 69.30135, 36.676494), tolerance = 1e-07)
+	expect_equal(x11$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x11$conditionalPowerAchieved[2, ], c(0.24110629, 0.45389272, 0.70091861), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x11), NA)))
+	    expect_output(print(x11)$show())
+	    invisible(capture.output(expect_error(summary(x11), NA)))
+	    expect_output(summary(x11)$show())
 	}
 
-	x <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
+	x12 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
 		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
 		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
 		maxNumberOfIterations = 100, thetaH0 = 0.8)
 
-	## Comparison of the results of SimulationResultsMeans object 'x' with expected results
-	expect_equal(x$iterations[1, ], c(100, 100, 100))
-	expect_equal(x$iterations[2, ], c(99, 100, 100))
-	expect_equal(x$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$rejectPerStage[2, ], c(0.71, 0.45, 0.01), tolerance = 1e-07)
-	expect_equal(x$overallReject, c(0.72, 0.45, 0.01), tolerance = 1e-07)
-	expect_equal(x$futilityPerStage[1, ], c(0, 0, 0))
-	expect_equal(x$futilityStop, c(0, 0, 0))
-	expect_equal(x$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
-	expect_equal(x$sampleSizes[1, ], c(10, 10, 10))
-	expect_equal(x$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
+	## Comparison of the results of SimulationResultsMeans object 'x12' with expected results
+	expect_equal(x12$iterations[1, ], c(100, 100, 100))
+	expect_equal(x12$iterations[2, ], c(99, 100, 100))
+	expect_equal(x12$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x12$rejectPerStage[2, ], c(0.71, 0.45, 0.01), tolerance = 1e-07)
+	expect_equal(x12$overallReject, c(0.72, 0.45, 0.01), tolerance = 1e-07)
+	expect_equal(x12$futilityPerStage[1, ], c(0, 0, 0))
+	expect_equal(x12$futilityStop, c(0, 0, 0))
+	expect_equal(x12$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
+	expect_equal(x12$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
+	expect_equal(x12$sampleSizes[1, ], c(10, 10, 10))
+	expect_equal(x12$sampleSizes[2, ], c(56.194491, 76.865451, 95.50507), tolerance = 1e-07)
+	expect_equal(x12$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x12$conditionalPowerAchieved[2, ], c(0.52087291, 0.38731069, 0.15906003), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(x12), NA)))
+	    expect_output(print(x12)$show())
+	    invisible(capture.output(expect_error(summary(x12), NA)))
+	    expect_output(summary(x12)$show())
 	}
 
 })
 
 test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
+	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	.skipTestIfDisabled()
 
-	x <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 0.4, 
+	x1 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 0.4, 
 		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5)
-	y <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = TRUE, thetaH0 = 0.4,
+	y1 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = TRUE, thetaH0 = 0.4,
 		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE)
 
-	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 200, 4)
+	expectedNumberOfSubjectsDiff <- round((x1$expectedNumberOfSubjects - y1$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
 	expect_equal(expectedNumberOfSubjectsDiff, c(0.0027, 0.0092, 0.0016, -0.0071, 0.0018, 0.0013), tolerance = 1e-07)
 
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
+	overallRejectDiff1 <- round(x1$overallReject - y1$overallReject, 4)
 
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(-0.0018, 0.0015, 2e-04, 0, 0, 0), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'overallRejectDiff1' with expected results
+	expect_equal(overallRejectDiff1, c(-0.0018, 0.0015, 2e-04, 0, 0, 0), tolerance = 1e-07)
 
-	futilityStopDiff <- round(x$futilityStop - y$futilityStop, 4)
+	futilityStopDiff1 <- round(x1$futilityStop - y1$futilityStop, 4)
 
-	## Comparison of the results of numeric object 'futilityStopDiff' with expected results
-	expect_equal(futilityStopDiff, c(0.003, -0.0012, -2e-04, 0, 0, 0), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'futilityStopDiff1' with expected results
+	expect_equal(futilityStopDiff1, c(0.003, -0.0012, -2e-04, 0, 0, 0), tolerance = 1e-07)
 
-	x <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 0.2, 
+	x2 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 0.2, 
 		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5)
-	y <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = FALSE, thetaH0 = 0.2,
+	y2 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = FALSE, thetaH0 = 0.2,
 		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE)
-	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 200, 4)
+	expectedNumberOfSubjectsDiff <- round((x2$expectedNumberOfSubjects - y2$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
 	expect_equal(expectedNumberOfSubjectsDiff, c(-0.0117, 0.0015, -4e-04, 4e-04, -0.0018, 0.0065), tolerance = 1e-07)
 
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
+	overallRejectDiff2 <- round(x2$overallReject - y2$overallReject, 4)
 
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(-0.0016, 0.0111, 0.0023, 0.0198, 0.0107, -0.0071), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'overallRejectDiff2' with expected results
+	expect_equal(overallRejectDiff2, c(-0.0016, 0.0111, 0.0023, 0.0198, 0.0107, -0.0071), tolerance = 1e-07)
 
-	futilityStopDiff <- round(x$futilityStop - y$futilityStop, 4)
+	futilityStopDiff2 <- round(x2$futilityStop - y2$futilityStop, 4)
 
-	## Comparison of the results of numeric object 'futilityStopDiff' with expected results
-	expect_equal(futilityStopDiff, c(0.0132, -0.0034, 0.0147, -3e-04, 0.0035, 0.0013), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'futilityStopDiff2' with expected results
+	expect_equal(futilityStopDiff2, c(0.0132, -0.0034, 0.0147, -3e-04, 0.0035, 0.0013), tolerance = 1e-07)
 
-	x <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.2,  
+	x4 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.2,  
 		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, stDev = 1.5)
-	y <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 1, thetaH0 = 0.2, 
+	y4 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 1, thetaH0 = 0.2, 
 		maxNumberOfSubjects = 200, stDev = 1.5, normalApproximation = TRUE)
-	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 200, 4)
+	expectedNumberOfSubjectsDiff <- round((x4$expectedNumberOfSubjects - y4$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
 	expect_equal(expectedNumberOfSubjectsDiff, c(-0.0038, 0.0042, 0.0102, -0.0074, -0.002, -0.0036), tolerance = 1e-07)
 
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
+	overallRejectDiff4 <- round(x4$overallReject - y4$overallReject, 4)
 
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(-1e-04, 0.0121, -0.0064, 0.0131, -0.0015, 1e-04), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'overallRejectDiff4' with expected results
+	expect_equal(overallRejectDiff4, c(-1e-04, 0.0121, -0.0064, 0.0131, -0.0015, 1e-04), tolerance = 1e-07)
 
-	futilityStopDiff <- round(x$futilityStop - y$futilityStop, 4)
+	futilityStopDiff4 <- round(x4$futilityStop - y4$futilityStop, 4)
 
-	## Comparison of the results of numeric object 'futilityStopDiff' with expected results
-	expect_equal(futilityStopDiff, c(0.0013, -0.0094, -0.0191, -0.007, 0.0016, -1e-04), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'futilityStopDiff4' with expected results
+	expect_equal(futilityStopDiff4, c(0.0013, -0.0094, -0.0191, -0.007, 0.0016, -1e-04), tolerance = 1e-07)
 
-	x <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 1.1,  
+	x5 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 1.1,  
 		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE)
-	y <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = TRUE, thetaH0 = 1.1,
+	y5 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = TRUE, thetaH0 = 1.1,
 		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE)
-	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 200, 4)
+	expectedNumberOfSubjectsDiff <- round((x5$expectedNumberOfSubjects - y5$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
 	expect_equal(expectedNumberOfSubjectsDiff, c(0.008, -0.0088, 0.0023, -0.001, -0.0062, -0.0039), tolerance = 1e-07)
 
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
+	overallRejectDiff5 <- round(x5$overallReject - y5$overallReject, 4)
 
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(0, -0.0019, -9e-04, -1e-04, 0, 0), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'overallRejectDiff5' with expected results
+	expect_equal(overallRejectDiff5, c(0, -0.0019, -9e-04, -1e-04, 0, 0), tolerance = 1e-07)
 
-	futilityStopDiff <- round(x$futilityStop - y$futilityStop, 4)
+	futilityStopDiff5 <- round(x5$futilityStop - y5$futilityStop, 4)
 
-	## Comparison of the results of numeric object 'futilityStopDiff' with expected results
-	expect_equal(futilityStopDiff, c(-0.0164, 0.0103, 0.0038, 0.0057, 0.0018, 6e-04), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'futilityStopDiff5' with expected results
+	expect_equal(futilityStopDiff5, c(-0.0164, 0.0103, 0.0038, 0.0057, 0.0018, 6e-04), tolerance = 1e-07)
 
-	x <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 1.1, 
+	x6 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 1.1, 
 		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE)
-	y <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = FALSE, thetaH0 = 1.1,
+	y6 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = FALSE, thetaH0 = 1.1,
 		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE)
-	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 200, 4)
+	expectedNumberOfSubjectsDiff <- round((x6$expectedNumberOfSubjects - y6$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
 	expect_equal(expectedNumberOfSubjectsDiff, c(0.0029, -0.0013, 0.0079, 0.023, -0.003, -0.0132), tolerance = 1e-07)
 
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
+	overallRejectDiff6 <- round(x6$overallReject - y6$overallReject, 4)
 
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(0.0036, 0.003, -0.0112, -0.0033, -0.0108, -0.0031), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'overallRejectDiff6' with expected results
+	expect_equal(overallRejectDiff6, c(0.0036, 0.003, -0.0112, -0.0033, -0.0108, -0.0031), tolerance = 1e-07)
 
-	futilityStopDiff <- round(x$futilityStop - y$futilityStop, 4)
+	futilityStopDiff6 <- round(x6$futilityStop - y6$futilityStop, 4)
 
-	## Comparison of the results of numeric object 'futilityStopDiff' with expected results
-	expect_equal(futilityStopDiff, c(-0.004, 2e-04, 0.0083, -0.0213, -4e-04, 0.0232), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'futilityStopDiff6' with expected results
+	expect_equal(futilityStopDiff6, c(-0.004, 2e-04, 0.0083, -0.0213, -4e-04, 0.0232), tolerance = 1e-07)
 
-	x <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.8,  
+	x7 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.8,  
 		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, stDev = 1.5, directionUpper = FALSE)
-	y <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 1, thetaH0 = 0.8, 
+	y7 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 1, thetaH0 = 0.8, 
 		maxNumberOfSubjects = 200, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE)
-	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 200, 4)
+	expectedNumberOfSubjectsDiff <- round((x7$expectedNumberOfSubjects - y7$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
 	expect_equal(expectedNumberOfSubjectsDiff, c(0.0012, 6e-04, -0.0061, -3e-04, 0.0091, 0.0036), tolerance = 1e-07)
 
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
+	overallRejectDiff7 <- round(x7$overallReject - y7$overallReject, 4)
 
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(1e-04, 5e-04, -9e-04, -0.0224, -9e-04, -1e-04), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'overallRejectDiff7' with expected results
+	expect_equal(overallRejectDiff7, c(1e-04, 5e-04, -9e-04, -0.0224, -9e-04, -1e-04), tolerance = 1e-07)
 
-	futilityStopDiff <- round(x$futilityStop - y$futilityStop, 4)
+	futilityStopDiff7 <- round(x7$futilityStop - y7$futilityStop, 4)
 
-	## Comparison of the results of numeric object 'futilityStopDiff' with expected results
-	expect_equal(futilityStopDiff, c(-1e-04, -4e-04, -0.003, 0.0059, -4e-04, 0.0033), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'futilityStopDiff7' with expected results
+	expect_equal(futilityStopDiff7, c(-1e-04, -4e-04, -0.003, 0.0059, -4e-04, 0.0033), tolerance = 1e-07)
 
 })
 

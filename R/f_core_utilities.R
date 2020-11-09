@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3694 $
-#:#  Last changed: $Date: 2020-09-25 08:40:37 +0200 (Fr, 25 Sep 2020) $
+#:#  File version: $Revision: 3758 $
+#:#  Last changed: $Date: 2020-10-16 10:14:05 +0200 (Fr, 16 Okt 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -232,13 +232,16 @@ resetLogLevel <- function() {
 	return(x == toupper(x))
 }
 
-.formatCamelCase <- function(x) {
+.formatCamelCase <- function(x, title = FALSE) {
 	indices <- gregexpr("[A-Z]", x)[[1]]
 	parts <- strsplit(x, "[A-Z]")[[1]]
 	result <- ""
 	for (i in 1:length(indices)) {
 		index <- indices[i]
 		y <- tolower(substring(x, index, index))
+		if (title) {
+			y <- .firstCharacterToUpperCase(y)
+		}
 		result <- paste0(result, parts[i], " ", y)
 	}
 	if (length(parts) > length(indices)) {
@@ -1085,7 +1088,7 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 
 	if (.isCompleteUnitTestSetEnabled()) {
 		cat("Run all tests. Please wait...\n")
-		cat("Have a break - it will take 30 minutes or more.\n")
+		cat("Have a break - it will take 10 minutes or more.\n")
 		cat("Exceution of all available unit tests startet at ", 
 			format(startTime, "%H:%M (%d-%B-%Y)"), "\n", sep = "")
 	} else {
@@ -1127,14 +1130,26 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 	inputFileName <- file.path(outDir, "testthat.Rout")
 	if (file.exists(inputFileName)) {
 		fileContent <- base::readChar(inputFileName, file.info(inputFileName)$size)
-		cat("All unit tests were completed successfully, i.e., the installation qualification was successful.\n")
+		cat("All unit tests were completed successfully, i.e., the installation \n", 
+			"qualification was successful.\n", sep = "")
 		cat("Results:\n")
 		cat(.getTestthatResultLine(fileContent), "\n")
-		cat("Test results were written to directory '", outDir, "' (see file 'testthat.Rout')\n", sep = "")
+		cat("\n")
+		cat("Test results were written to directory \n",
+			"'", outDir, "' (see file 'testthat.Rout')\n", sep = "")
 		skipped <- .getTestthatResultNumberOfSkippedTests(fileContent)
 		if (skipped > 0) {
-			cat("Note that ", skipped, " tests were skipped; a possible reason may be that expected error messages could not be tested because of local translation.\n", sep = "")
+			cat("-------------------------------------------------------------------------\n")
+			cat("Note that ", skipped, " tests were skipped; ",
+				"a possible reason may be that expected \n",
+				"error messages could not be tested ",
+				"because of local translation.\n", sep = "")
 		}
+		cat("-------------------------------------------------------------------------\n")
+		cat("Please visit www.rpact.com to learn how to use rpact on FDA/GxP-compliant \n",
+			"validated corporate computer systems and how to get a copy of the formal \n",
+			"validation documentation that is customized and licensed for exclusive use \n",
+			"by your company, e.g., to fulfill regulatory requirements.\n", sep = "")
 	} else {
 		inputFileName <- file.path(outDir, "testthat.Rout.fail")
 		if (file.exists(inputFileName)) {

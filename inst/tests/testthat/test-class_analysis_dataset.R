@@ -14,18 +14,20 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-class_analysis_dataset.R
-#:#  Creation date: 05 September 2020, 14:21:52
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:42:15
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing the class 'Dataset'")
+context("Testing the Class 'Dataset'")
 
 
 test_that("Usage of 'getDataset'", {
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeans1 <- getDataset(
 		n1 = c(22, 11, 22, 11),
 		n2 = c(22, 13, 22, 13),
@@ -309,6 +311,8 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeans4 <- getDataset(
 		n = c(22, 11, 22, 11),
 		means = c(1, 1.1, 1, 1),
@@ -401,6 +405,8 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeans5 <- getDataset(
 		overallSampleSizes = c(22, 33, 55, 66),
 		overallMeans = c(1.000, 1.033, 1.020, 1.017 ),
@@ -493,6 +499,8 @@ test_that("Trim command works as expected for means", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeansExpected <- getDataset(
 		n1 = c(13, 25), 
 		n2 = c(15, NA), 
@@ -544,6 +552,8 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates1 <- getDataset(
 		n = c(8, 10, 9, 11), 
 		events = c(4, 5, 5, 6)
@@ -628,6 +638,8 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates2 <- getDataset(
 		n2 = c(8, 10, 9, 11),
 		n1 = c(11, 13, 12, 13),
@@ -720,6 +732,8 @@ test_that("Creation of a dataset of rates using stage wise data (four groups)", 
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates3 <- getDataset(
 		n1 = c(11, 13, 12, 13),
 		n2 = c(8, 10, 9, 11),
@@ -759,6 +773,8 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates4 <- getDataset(
 		overallSampleSizes1 = c(11, 24, 36, 49),
 		overallSampleSizes2 = c(8, 18, 27, 38),
@@ -851,6 +867,8 @@ test_that("Creation of a dataset of rates using overall data (three groups)", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates5 <- getDataset(
 		overallSampleSizes1 = c(11, 24, 36, 49),
 		overallSampleSizes2 = c(8, 18, 27, 38),
@@ -888,6 +906,8 @@ test_that("Trim command works as expected for rates", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRatesExpected <- getDataset(
 		overallSampleSizes1 = c(11, 24, 36, 49),
 		overallSampleSizes2 = c(8, 18, 27, 38),
@@ -923,6 +943,8 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	datasetSurvival1 <- getDataset(
 		events = c(8, 7, 4, 12),
 		allocationRatios = c(1, 1, 1, 3.58333333333333),
@@ -1030,6 +1052,8 @@ test_that("Creation of a dataset of survival data using overall data", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	datasetSurvival2 <- getDataset(
 		overallEvents = c(8, 15, 19, 31),
 		overallAllocationRatios = c(1, 1, 1, 2),
@@ -1163,6 +1187,8 @@ test_that("Trim command works as expected for suvival data", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	dataExampleSurvivalExpected <- getDataset(
 		events1   = c(25, 32), 
 		events2   = c(18, NA),
@@ -1204,6 +1230,8 @@ test_that("Trim command works as expected for suvival data", {
 
 test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as expected for means", {
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	data1 <- getDataset(
 		overallN1 = c(22, 33, NA),
 		overallN2 = c(20, 34, 56),
@@ -1258,6 +1286,8 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 
 test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as expected for rates", {
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	data1 <- getDataset(
 		overallSampleSizes1 = c(11, 24, 36, NA),
 		overallSampleSizes2 = c(8, 18, 27, NA),
@@ -1338,6 +1368,8 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
+	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	data3 <- getDataset(
 		overallEvents1   = c(13, 33), 
 		overallLogRanks1 = c(1.23, 1.55), 
@@ -1372,10 +1404,11 @@ test_that("Function '.naOmitBackward' works as expected", {
 
 })
 
-context("Testing that 'getDataset' throws exceptions as expected")
+context("Testing that 'getDataset' Throws Exceptions as Expected")
 
 
 test_that("Wrong parameter usage of 'getDataset'", {
+	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	expect_error(getDataset(), 
 		"Missing argument: data.frame or data vectors expected", fixed = TRUE)
 

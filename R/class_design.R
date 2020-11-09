@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3585 $
-#:#  Last changed: $Date: 2020-09-03 15:27:08 +0200 (Do, 03 Sep 2020) $
+#:#  File version: $Revision: 3821 $
+#:#  Last changed: $Date: 2020-11-03 08:59:30 +0100 (Tue, 03 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -891,8 +891,16 @@ plot.TrialDesign = function(x, y, ..., main = NA_character_,
 		}
 	}
 	if (length(typeNumbers) == 1) {
+		if (.isSpecialPlotShowSourceArgument(showSource)) {
+			return(invisible(p))
+		}
+		
 		return(p)
 	} 
+	
+	if (.isSpecialPlotShowSourceArgument(showSource)) {
+		return(invisible(plotList))
+	}
 	
 	return(.createPlotResultObject(plotList, grid))
 }

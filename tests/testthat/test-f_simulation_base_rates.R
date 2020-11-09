@@ -14,19 +14,30 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_simulation_base_rates.R
-#:#  Creation date: 23 September 2020, 11:11:55
-#:#  File version: $Revision: 3674 $
-#:#  Last changed: $Date: 2020-09-23 11:23:26 +0200 (Wed, 23 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:49:07
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing simulation rates function")
+context("Testing Simulation Rates Function")
 
 
 test_that("'getSimulationRates': check several configurations", {
-	.skipTestIfDisabled()
-
-	# @refFS[Sec.]{fs:subsec:seed}
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationRates}
+	# @refFS[Formula]{fs:SimulationOneArmRatesGenerate}
+	# @refFS[Formula]{fs:pValuesOneRateAlternativeGreater}
+	# @refFS[Formula]{fs:pValuesOneRateAlternativeSmaller}
+	# @refFS[Formula]{fs:SimulationTwoArmRatesGenerate}
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller} 
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater} 
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeSmaller}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	seed <- 99123
 	maxNumberOfIterations <- 100
 	options(width = 180)
@@ -95,6 +106,8 @@ test_that("'getSimulationRates': check several configurations", {
 	    invisible(capture.output(expect_error(summary(x2), NA)))
 	    expect_output(summary(x2)$show())
 	}
+
+	.skipTestIfDisabled()
 
 	x3 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
 		informationRates = informationRates), groups = 1, thetaH0 = 0.2, pi1 = seq(0.2, 0.4, 0.05),  
@@ -311,7 +324,7 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(summary(x9)$show())
 	}
 
-	mySampleSizeCalculationFunction <- function(...,stage,
+	calcSubjectsFunctionSimulationBaseRates <- function(...,stage,
 		plannedSubjects,
 		minNumberOfSubjectsPerStage,
 		maxNumberOfSubjectsPerStage,
@@ -336,7 +349,7 @@ test_that("'getSimulationRates': check several configurations", {
 		pi1 = seq(0.3,0.6,0.1), pi2 = 0.3, plannedSubjects = c(40, 80), 
 		minNumberOfSubjectsPerStage = c(40, 20), 
 		maxNumberOfSubjectsPerStage = c(40, 160),
-		conditionalPower = 0.8,	calcSubjectsFunction = mySampleSizeCalculationFunction, 
+		conditionalPower = 0.8,	calcSubjectsFunction = calcSubjectsFunctionSimulationBaseRates, 
 		maxNumberOfIterations = maxNumberOfIterations, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x10' with expected results
@@ -362,11 +375,25 @@ test_that("'getSimulationRates': check several configurations", {
 
 })
 
-test_that("'getSimulationRates': comparison with getPowerRates() results", {
+test_that("'getSimulationRates': comparison with getPowerRates() results for a inverse normal design", {
 
-	.skipTestIfDisabled()
 	.skipTestIfNotX64()
+	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationRates}
+	# @refFS[Formula]{fs:SimulationOneArmRatesGenerate}
+	# @refFS[Formula]{fs:pValuesOneRateAlternativeGreater}
+	# @refFS[Formula]{fs:pValuesOneRateAlternativeSmaller}
+	# @refFS[Formula]{fs:SimulationTwoArmRatesGenerate}
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller} 
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater} 
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeSmaller}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	design <- getDesignInverseNormal(futilityBounds = c(-1), informationRates = c(0.5, 1), typeOfDesign = "P")
 	x <- getSimulationRates(design, 
 		thetaH0 = 0.4, groups = 1, plannedSubjects = c(150, 300), pi1 = seq(0.3, 0.4, 0.02), 
@@ -397,8 +424,24 @@ test_that("'getSimulationRates': comparison with getPowerRates() results", {
 	## Comparison of the results of matrixarray object 'futilityPerStageDiff' with expected results
 	expect_equal(futilityPerStageDiff[1, ], c(-2e-04, 0.0018, -0.0011, -0.0092, -0.0279, -0.0147), tolerance = 1e-07)
 
-	##--
+})
 
+test_that("'getSimulationRates': comparison with getPowerRates() results for a group sequential design", {
+
+	.skipTestIfNotX64()
+	.skipTestIfDisabled()
+
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationRates}
+	# @refFS[Formula]{fs:SimulationTwoArmRatesGenerate}
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller} 
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater} 
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeSmaller}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	design <- getDesignGroupSequential(futilityBounds = c(-1,1), typeOfDesign = "P")
 	x <- getSimulationRates(design, 
 		thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 2, plannedSubjects = (1:3)*100, 
@@ -435,104 +478,40 @@ test_that("'getSimulationRates': comparison with getPowerRates() results", {
 
 	##--
 
-	x <- getSimulationRates(design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"), 
+	x2 <- getSimulationRates(design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"), 
 		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2, 
 		plannedSubjects = c(100, 200, 300), pi1 = seq(0.15,0.4,0.05), pi2 = 0.2, 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA_real_, 150, 300), 
 		maxNumberOfSubjectsPerStage = c(NA_real_, 200, 300), directionUpper = TRUE, 
 		maxNumberOfIterations = 1000, seed = 123)
 
-	y <- getPowerRates(design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"), 
+	y2 <- getPowerRates(design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"), 
 		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2, 
 		pi1 = seq(0.15, 0.4, 0.05), pi2 = 0.2, maxNumberOfSubjects = 300, 
 		directionUpper = TRUE)
 
-	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 300, 4)
+	expectedNumberOfSubjectsDiff2 <- round((x2$expectedNumberOfSubjects - y2$expectedNumberOfSubjects) / 300, 4)
 
-	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
-	expect_equal(expectedNumberOfSubjectsDiff, c(0.336, 0.5853, 0.5882, 0.3089, 0.1411, 0.079), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff2' with expected results
+	expect_equal(expectedNumberOfSubjectsDiff2, c(0.336, 0.5853, 0.5882, 0.3089, 0.1411, 0.079), tolerance = 1e-07)
 
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
+	overallRejectDiff2 <- round(x2$overallReject - y2$overallReject, 4)
 
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(0.0032, 0.0559, 0.2444, 0.1617, 0.0401, 0.0038), tolerance = 1e-07)
+	## Comparison of the results of numeric object 'overallRejectDiff2' with expected results
+	expect_equal(overallRejectDiff2, c(0.0032, 0.0559, 0.2444, 0.1617, 0.0401, 0.0038), tolerance = 1e-07)
 
-	rejectPerStageDiff <- round(x$rejectPerStage - y$rejectPerStage, 4)
+	rejectPerStageDiff2 <- round(x2$rejectPerStage - y2$rejectPerStage, 4)
 
-	## Comparison of the results of matrixarray object 'rejectPerStageDiff' with expected results
-	expect_equal(rejectPerStageDiff[1, ], c(6e-04, -0.0126, -0.0203, -0.0149, -0.0029, -0.0228), tolerance = 1e-07)
-	expect_equal(rejectPerStageDiff[2, ], c(0.0025, 0.0084, 0.104, 0.1808, 0.1029, 0.0508), tolerance = 1e-07)
-	expect_equal(rejectPerStageDiff[3, ], c(1e-04, 0.0601, 0.1607, -0.0041, -0.06, -0.0242), tolerance = 1e-07)
+	## Comparison of the results of matrixarray object 'rejectPerStageDiff2' with expected results
+	expect_equal(rejectPerStageDiff2[1, ], c(6e-04, -0.0126, -0.0203, -0.0149, -0.0029, -0.0228), tolerance = 1e-07)
+	expect_equal(rejectPerStageDiff2[2, ], c(0.0025, 0.0084, 0.104, 0.1808, 0.1029, 0.0508), tolerance = 1e-07)
+	expect_equal(rejectPerStageDiff2[3, ], c(1e-04, 0.0601, 0.1607, -0.0041, -0.06, -0.0242), tolerance = 1e-07)
 
-	futilityPerStageDiff <- round(x$futilityPerStage - y$futilityPerStage, 4)
+	futilityPerStageDiff2 <- round(x2$futilityPerStage - y2$futilityPerStage, 4)
 
-	## Comparison of the results of matrixarray object 'futilityPerStageDiff' with expected results
-	expect_equal(futilityPerStageDiff[1, ], c(-0.0028, -0.016, -0.0034, -3e-04, -5e-04, -1e-04), tolerance = 1e-07)
-	expect_equal(futilityPerStageDiff[2, ], c(-0.0068, -0.0474, -0.0917, -0.0386, -0.0101, -0.0011), tolerance = 1e-07)
-
-	x <- getSimulationSurvival(design = getDesignInverseNormal(typeOfDesign = "P", futilityBounds = c(0,0)), 
-		pi1 = seq(0.2, 0.4, 0.05), maxNumberOfIterations = 1000, accrualTime = 24, plannedEvents = c(67,134,201), 
-		maxNumberOfSubjects = 396, allocation1 = 1, allocation2 = 1, seed = 123)
-	y <- getPowerSurvival(design = getDesignInverseNormal(typeOfDesign = "P", futilityBounds = c(0,0)), 
-		pi1 = seq(0.2, 0.4, 0.05), maxNumberOfEvents = 201, accrualTime = 24, 
-		maxNumberOfSubjects = 396, allocationRatioPlanned = 1)
-
-	expectedNumberOfEventsDiff <- round(x$expectedNumberOfEvents - y$expectedNumberOfEvents, 1)
-
-	## Comparison of the results of numeric object 'expectedNumberOfEventsDiff' with expected results
-	expect_equal(expectedNumberOfEventsDiff, c(-0.9, -2.4, 2.1, 0, 0.6), tolerance = 1e-07)
-
-	expectedNumberOfSubjectsDiff <- round(x$expectedNumberOfSubjects - y$expectedNumberOfSubjects, 1)
-
-	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
-	expect_equal(expectedNumberOfSubjectsDiff, c(-1.7, -0.7, 1.1, -1.3, 0.4), tolerance = 1e-07)
-
-	numberOfSubjectsDiff <- round(x$numberOfSubjects - y$numberOfSubjects, 1)
-
-	## Comparison of the results of matrixarray object 'numberOfSubjectsDiff' with expected results
-	expect_equal(numberOfSubjectsDiff[1, ], c(-2.7, -1.7, -1.3, -1.4, -0.6), tolerance = 1e-07)
-	expect_equal(numberOfSubjectsDiff[2, ], c(0, 0, 0, 0, 0))
-	expect_equal(numberOfSubjectsDiff[3, ], c(0, 0, 0, 0, 0))
-
-	rejectPerStageDiff <- round(x$rejectPerStage - y$rejectPerStage, 4)
-
-	## Comparison of the results of matrixarray object 'rejectPerStageDiff' with expected results
-	expect_equal(rejectPerStageDiff[1, ], c(-0.009, -0.0097, -0.0237, 0.0056, -0.0094), tolerance = 1e-07)
-	expect_equal(rejectPerStageDiff[2, ], c(-0.0019, 0.0213, 0.0137, -0.0076, 0.011), tolerance = 1e-07)
-	expect_equal(rejectPerStageDiff[3, ], c(-7e-04, -0.0053, 0.0028, 0.003, -0.0011), tolerance = 1e-07)
-
-	overallRejectDiff <- round(x$overallReject - y$overallReject, 4)
-
-	## Comparison of the results of numeric object 'overallRejectDiff' with expected results
-	expect_equal(overallRejectDiff, c(-0.0116, 0.0062, -0.0072, 0.001, 5e-04), tolerance = 1e-07)
-
-	earlyStopDiff <- round(x$earlyStop - y$earlyStop, 4)
-
-	## Comparison of the results of numeric object 'earlyStopDiff' with expected results
-	expect_equal(earlyStopDiff, c(0.0012, 0.0291, -0.0097, -0.0035, 0.0013), tolerance = 1e-07)
-
-	futilityPerStageDiff <- round(x$futilityPerStage - y$futilityPerStage, 4)
-
-	## Comparison of the results of matrixarray object 'futilityPerStageDiff' with expected results
-	expect_equal(futilityPerStageDiff[1, ], c(0.021, 0.0158, 0.0015, -0.0015, -3e-04), tolerance = 1e-07)
-	expect_equal(futilityPerStageDiff[2, ], c(-0.0089, 0.0018, -0.0013, 0, 0), tolerance = 1e-07)
-
-	futilityStopDiff <- round(x$futilityStop - y$futilityStop, 4)
-
-	## Comparison of the results of numeric object 'futilityStopDiff' with expected results
-	expect_equal(futilityStopDiff, c(0.0121, 0.0175, 3e-04, -0.0016, -4e-04), tolerance = 1e-07)
-
-	analysisTimeDiff <- round(x$analysisTime - y$analysisTime, 4)
-
-	## Comparison of the results of matrixarray object 'analysisTimeDiff' with expected results
-	expect_equal(analysisTimeDiff[1, ], c(-0.0875, -0.0678, -0.0451, -0.0531, -0.0076), tolerance = 1e-07)
-	expect_equal(analysisTimeDiff[2, ], c(-0.0059, 0.0066, 0.0307, -0.0502, -0.1881), tolerance = 1e-07)
-	expect_equal(analysisTimeDiff[3, ], c(0.0451, -0.1052, -0.0729, -0.8403, -1.7779), tolerance = 1e-07)
-
-	studyDurationDiff <- round(x$studyDuration - y$studyDuration, 4)
-
-	## Comparison of the results of numeric object 'studyDurationDiff' with expected results
-	expect_equal(studyDurationDiff, c(-0.2293, -0.5561, 0.2724, -0.0762, 0.0506), tolerance = 1e-07)
+	## Comparison of the results of matrixarray object 'futilityPerStageDiff2' with expected results
+	expect_equal(futilityPerStageDiff2[1, ], c(-0.0028, -0.016, -0.0034, -3e-04, -5e-04, -1e-04), tolerance = 1e-07)
+	expect_equal(futilityPerStageDiff2[2, ], c(-0.0068, -0.0474, -0.0917, -0.0386, -0.0101, -0.0011), tolerance = 1e-07)
 
 })
 

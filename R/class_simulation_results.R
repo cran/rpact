@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3681 $
-#:#  Last changed: $Date: 2020-09-24 07:28:22 +0200 (Thu, 24 Sep 2020) $
+#:#  File version: $Revision: 3821 $
+#:#  Last changed: $Date: 2020-11-03 08:59:30 +0100 (Tue, 03 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1708,8 +1708,16 @@ plot.SimulationResults = function(x, y, ..., main = NA_character_,
 		}
 	}
 	if (length(typeNumbers) == 1) {
+		if (.isSpecialPlotShowSourceArgument(showSource)) {
+			return(invisible(p))
+		}
+		
 		return(p)
 	} 
+	
+	if (.isSpecialPlotShowSourceArgument(showSource)) {
+		return(invisible(plotList))
+	}
 	
 	return(.createPlotResultObject(plotList, grid))
 }

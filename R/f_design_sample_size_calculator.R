@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3635 $
-#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 3814 $
+#:#  Last changed: $Date: 2020-10-30 17:12:19 +0100 (Fr, 30 Okt 2020) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .addEffectScaleBoundaryDataToDesignPlan <- function(designPlan) {
@@ -530,7 +530,7 @@ getSampleSizeRates <- function(design = NULL, ...,
 #        (see details). 
 # If \code{accountForObservationTimes = FALSE}, only the event rates are used for the calculation 
 # of the maximum number of subjects. 
-# \code{accountForObservationTime} can be selected as \code{FALSE}. In this case, 
+# \code{accountForObservationTimes} can be selected as \code{FALSE}. In this case, 
 # the number of subjects is calculated from the event probabilities only. 
 # This kind of computation does not account for the specific accrual pattern and survival distribution.
 

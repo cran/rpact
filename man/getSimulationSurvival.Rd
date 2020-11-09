@@ -129,7 +129,7 @@ If accrual time and accrual intensity is specified, this will be calculated.}
 \item{plannedEvents}{\code{plannedEvents} is a vector of length \code{kMax} (the number of stages of the design) 
    that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
    For two treatment arms, it is the number of events for both treatment arms. 
-For multi-arm designs, \code{plannedEvents} refers to the number of events per selected comparison to control.}
+For multi-arm designs, \code{plannedEvents} refers to the overall number of events for the selected arms plus control.}
 
 \item{minNumberOfEventsPerStage}{When performing a data driven sample size recalculation, 
 the vector \code{minNumberOfEventsPerStage} with length kMax determines the 
@@ -144,7 +144,7 @@ of events per stage (i.e., not cumulated), the first element is not taken into a
 \code{maxNumberOfSubjectsPerStage} (or \code{minNumberOfEventsPerStage} and \code{maxNumberOfEventsPerStage}
 for survival designs) is specified, a sample size recalculation based on the specified conditional power is performed.
 It is defined as the power for the subsequent stage given the current data. By default, 
-the conditional power is calculated under the observed effect size. Optionally, you can also specify \code{thetaH1} and
+the conditional power will be calculated under the observed effect size. Optionally, you can also specify \code{thetaH1} and
 \code{stDevH1} (for simulating means), \code{pi1H1} and \code{pi2H1} (for simulating rates), or \code{thetaH1} (for simulating
 hazard ratios) as parameters under which it is calculated and the sample size recalculation is performed.}
 

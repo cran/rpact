@@ -34,6 +34,68 @@ getSimulationMultiArmSurvival(
   selectArmsFunction = NULL,
   showStatistics = TRUE
 )
+
+getSimulationMultiArmSurvival(
+  design = NULL,
+  ...,
+  activeArms = 3L,
+  effectMatrix = NULL,
+  typeOfShape = c("linear", "sigmoidEmax", "userDefined"),
+  omegaMaxVector = seq(1, 2.6, 0.4),
+  gED50 = NA_real_,
+  slope = 1,
+  intersectionTest = c("Dunnett", "Bonferroni", "Simes", "Sidak", "Hierarchical"),
+  directionUpper = TRUE,
+  adaptations = NA,
+  typeOfSelection = c("best", "rBest", "epsilon", "all", "userDefined"),
+  effectMeasure = c("effectDifference", "testStatistic"),
+  successCriterion = c("all", "atLeastOne"),
+  epsilonValue = NA_real_,
+  rValue = NA_real_,
+  threshold = -Inf,
+  plannedEvents = NA_real_,
+  allocationRatioPlanned = NA_real_,
+  minNumberOfEventsPerStage = NA_real_,
+  maxNumberOfEventsPerStage = NA_real_,
+  conditionalPower = NA_real_,
+  thetaH1 = NA_real_,
+  maxNumberOfIterations = 1000L,
+  seed = NA_real_,
+  calcEventsFunction = NULL,
+  selectArmsFunction = NULL,
+  showStatistics = TRUE
+)
+
+getSimulationMultiArmSurvival(
+  design = NULL,
+  ...,
+  activeArms = 3L,
+  effectMatrix = NULL,
+  typeOfShape = c("linear", "sigmoidEmax", "userDefined"),
+  omegaMaxVector = seq(1, 2.6, 0.4),
+  gED50 = NA_real_,
+  slope = 1,
+  intersectionTest = c("Dunnett", "Bonferroni", "Simes", "Sidak", "Hierarchical"),
+  directionUpper = TRUE,
+  adaptations = NA,
+  typeOfSelection = c("best", "rBest", "epsilon", "all", "userDefined"),
+  effectMeasure = c("effectDifference", "testStatistic"),
+  successCriterion = c("all", "atLeastOne"),
+  epsilonValue = NA_real_,
+  rValue = NA_real_,
+  threshold = -Inf,
+  plannedEvents = NA_real_,
+  allocationRatioPlanned = NA_real_,
+  minNumberOfEventsPerStage = NA_real_,
+  maxNumberOfEventsPerStage = NA_real_,
+  conditionalPower = NA_real_,
+  thetaH1 = NA_real_,
+  maxNumberOfIterations = 1000L,
+  seed = NA_real_,
+  calcEventsFunction = NULL,
+  selectArmsFunction = NULL,
+  showStatistics = TRUE
+)
 }
 \arguments{
 \item{design}{The trial design. If no trial design is specified, a fixed sample size design is used. 
@@ -108,7 +170,7 @@ a separate threshold condition over the treatment arms.}
 \item{plannedEvents}{\code{plannedEvents} is a vector of length \code{kMax} (the number of stages of the design) 
    that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
    For two treatment arms, it is the number of events for both treatment arms. 
-For multi-arm designs, \code{plannedEvents} refers to the number of events per selected comparison to control.}
+For multi-arm designs, \code{plannedEvents} refers to the overall number of events for the selected arms plus control.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.}
@@ -126,7 +188,7 @@ of events per stage (i.e., not cumulated), the first element is not taken into a
 \code{maxNumberOfSubjectsPerStage} (or \code{minNumberOfEventsPerStage} and \code{maxNumberOfEventsPerStage}
 for survival designs) is specified, a sample size recalculation based on the specified conditional power is performed.
 It is defined as the power for the subsequent stage given the current data. By default, 
-the conditional power is calculated under the observed effect size. Optionally, you can also specify \code{thetaH1} and
+the conditional power will be calculated under the observed effect size. Optionally, you can also specify \code{thetaH1} and
 \code{stDevH1} (for simulating means), \code{pi1H1} and \code{pi2H1} (for simulating rates), or \code{thetaH1} (for simulating
 hazard ratios) as parameters under which it is calculated and the sample size recalculation is performed.}
 
@@ -159,13 +221,89 @@ The following generics (R generic functions) are available for this object:
   \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
 }
+
+Returns a \code{\link{SimulationResults}} object.
+The following generics (R generic functions) are available for this object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.SimulationResults]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
+
+Returns a \code{\link{SimulationResults}} object.
+The following generics (R generic functions) are available for this object:
+\itemize{
+  \item \code{\link[=names.FieldSet]{names}} to obtain the field names,
+  \item \code{\link[=print.FieldSet]{print}} to print the object,
+  \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
+  \item \code{\link[=plot.SimulationResults]{plot}} to plot the object,
+  \item \code{\link[=as.data.frame.ParameterSet]{as.data.frame}} to coerce the object to a \code{\link[base]{data.frame}},
+  \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
+}
 }
 \description{
 Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
 for testing survival in a multi-arm treatment groups testing situation. In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
 distributed logrank test statistics are simulated.
+
+Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
+for testing survival in a multi-arm treatment groups testing situation. In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
+distributed logrank test statistics are simulated.
+
+Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
+for testing survival in a multi-arm treatment groups testing situation. In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
+distributed logrank test statistics are simulated.
 }
 \details{
+At given design the function simulates the power, stopping probabilities, selection probabilities, and expected 
+sample size at given number of subjects, parameter configuration, and treatment arm selection rule in the multi-arm situation. 
+An allocation ratio can be specified referring to the ratio of number of subjects in the active treatment groups as compared to the control group.
+ 
+The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
+and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and 
+\code{maxNumberOfEventsPerStage} (or \code{calcEventsFunction}) are defined.
+
+\code{calcEventsFunction}\cr 
+This function returns the number of events at given conditional power and conditional critical value for specified 
+testing situation. The function might depend on the variables 
+\code{stage}, 
+\code{selectedArms}, 
+\code{plannedEvents}, 
+\code{directionUpper}, 
+\code{allocationRatioPlanned}, 
+\code{minNumberOfEventsPerStage}, 
+\code{maxNumberOfEventsPerStage}, 
+\code{conditionalPower}, 
+\code{conditionalCriticalValue}, and 
+\code{overallEffects}. 
+The function has to contain the three-dots argument '...' (see examples).
+
+At given design the function simulates the power, stopping probabilities, selection probabilities, and expected 
+sample size at given number of subjects, parameter configuration, and treatment arm selection rule in the multi-arm situation. 
+An allocation ratio can be specified referring to the ratio of number of subjects in the active treatment groups as compared to the control group.
+ 
+The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
+and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and 
+\code{maxNumberOfEventsPerStage} (or \code{calcEventsFunction}) are defined.
+
+\code{calcEventsFunction}\cr 
+This function returns the number of events at given conditional power and conditional critical value for specified 
+testing situation. The function might depend on the variables 
+\code{stage}, 
+\code{selectedArms}, 
+\code{plannedEvents}, 
+\code{directionUpper}, 
+\code{allocationRatioPlanned}, 
+\code{minNumberOfEventsPerStage}, 
+\code{maxNumberOfEventsPerStage}, 
+\code{conditionalPower}, 
+\code{conditionalCriticalValue}, and 
+\code{overallEffects}. 
+The function has to contain the three-dots argument '...' (see examples).
+
 At given design the function simulates the power, stopping probabilities, selection probabilities, and expected 
 sample size at given number of subjects, parameter configuration, and treatment arm selection rule in the multi-arm situation. 
 An allocation ratio can be specified referring to the ratio of number of subjects in the active treatment groups as compared to the control group.
@@ -198,6 +336,24 @@ to identify the object specific name of it, e.g.,
 use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
 There you can find, e.g., \code{plot.AnalysisResults} and 
 obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+
+
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
+
+
+Click on the link of a generic in the list above to go directly to the help documentation of 
+the \code{rpact} specific implementation of the generic. 
+Note that you can use the R function \code{\link[utils]{methods}} to get all the methods of a generic and 
+to identify the object specific name of it, e.g., 
+use \code{methods("plot")} to get all the methods for the \code{plot} generic. 
+There you can find, e.g., \code{plot.AnalysisResults} and 
+obtain the specific help documentation linked above by typing \code{?plot.AnalysisResults}.
 }
 
 \examples{
@@ -217,7 +373,7 @@ y1 <- getSimulationMultiArmSurvival(design = design, activeArms = 4,
     minNumberOfEventsPerStage = c(NA_real_, 30), 
     maxNumberOfEventsPerStage = c(NA_real_, 90),
     maxNumberOfIterations = maxNumberOfIterations, 
-    plannedEvents = c(30, 60))
+    plannedEvents = c(75, 120))
 
 y2 <- getSimulationMultiArmSurvival(design = design, activeArms = 4, 
     intersectionTest = "Simes", typeOfShape = "sigmoidEmax", 
@@ -226,7 +382,82 @@ y2 <- getSimulationMultiArmSurvival(design = design, activeArms = 4,
     effectMeasure = "effectDifference",
     conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 30), 
     maxNumberOfEventsPerStage = c(NA_real_, 90),
-    maxNumberOfIterations = maxNumberOfIterations, plannedEvents = c(30, 60))
+    maxNumberOfIterations = maxNumberOfIterations, 
+	   plannedEvents = c(75, 120))
+
+y1$effectMatrix
+
+y1$rejectAtLeastOne
+y2$rejectAtLeastOne
+
+y1$selectedArms
+y2$selectedArms
+}
+
+\donttest{
+# Assess different selection rules for a two-stage survival design with 
+# O'Brien & Fleming alpha spending boundaries and (non-binding) stopping 
+# for futility if the test statistic is negative. 
+# Number of events at the second stage is adjusted based on conditional 
+# power 80\% and specified minimum and maximum number of Events.
+maxNumberOfIterations <- 50
+design <- getDesignInverseNormal(typeOfDesign = "asOF", futilityBounds = 0)
+
+y1 <- getSimulationMultiArmSurvival(design = design, activeArms = 4, 
+    intersectionTest = "Simes", typeOfShape = "sigmoidEmax", 
+    omegaMaxVector = seq(1, 2, 0.5), gED50 = 2, slope = 4, 
+    typeOfSelection = "best", conditionalPower = 0.8, 
+    minNumberOfEventsPerStage = c(NA_real_, 30), 
+    maxNumberOfEventsPerStage = c(NA_real_, 90),
+    maxNumberOfIterations = maxNumberOfIterations, 
+    plannedEvents = c(75, 120))
+
+y2 <- getSimulationMultiArmSurvival(design = design, activeArms = 4, 
+    intersectionTest = "Simes", typeOfShape = "sigmoidEmax", 
+    omegaMaxVector = seq(1,2,0.5), gED50 = 2, slope = 4,
+    typeOfSelection = "epsilon", epsilonValue = 0.2, 
+    effectMeasure = "effectDifference",
+    conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 30), 
+    maxNumberOfEventsPerStage = c(NA_real_, 90),
+    maxNumberOfIterations = maxNumberOfIterations, 
+	   plannedEvents = c(75, 120))
+
+y1$effectMatrix
+
+y1$rejectAtLeastOne
+y2$rejectAtLeastOne
+
+y1$selectedArms
+y2$selectedArms
+}
+
+\donttest{
+# Assess different selection rules for a two-stage survival design with 
+# O'Brien & Fleming alpha spending boundaries and (non-binding) stopping 
+# for futility if the test statistic is negative. 
+# Number of events at the second stage is adjusted based on conditional 
+# power 80\% and specified minimum and maximum number of Events.
+maxNumberOfIterations <- 50
+design <- getDesignInverseNormal(typeOfDesign = "asOF", futilityBounds = 0)
+
+y1 <- getSimulationMultiArmSurvival(design = design, activeArms = 4, 
+    intersectionTest = "Simes", typeOfShape = "sigmoidEmax", 
+    omegaMaxVector = seq(1, 2, 0.5), gED50 = 2, slope = 4, 
+    typeOfSelection = "best", conditionalPower = 0.8, 
+    minNumberOfEventsPerStage = c(NA_real_, 30), 
+    maxNumberOfEventsPerStage = c(NA_real_, 90),
+    maxNumberOfIterations = maxNumberOfIterations, 
+    plannedEvents = c(75, 120))
+
+y2 <- getSimulationMultiArmSurvival(design = design, activeArms = 4, 
+    intersectionTest = "Simes", typeOfShape = "sigmoidEmax", 
+    omegaMaxVector = seq(1,2,0.5), gED50 = 2, slope = 4,
+    typeOfSelection = "epsilon", epsilonValue = 0.2, 
+    effectMeasure = "effectDifference",
+    conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 30), 
+    maxNumberOfEventsPerStage = c(NA_real_, 90),
+    maxNumberOfIterations = maxNumberOfIterations, 
+	   plannedEvents = c(75, 120))
 
 y1$effectMatrix
 

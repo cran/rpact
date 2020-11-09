@@ -14,18 +14,19 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-class_summary.R
-#:#  Creation date: 05 September 2020, 14:21:57
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:42:19
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing class 'SummaryFactory'")
+context("Testing Class 'SummaryFactory'")
 
 
 test_that("Testing 'summary.ParameterSet': no errors occur", {
 	.skipTestIfDisabled()
 
+	# @refFS[Function]{fs:outputOfGenericFunctions}
 	invisible(capture.output(expect_error(summary(getDesignGroupSequential(beta = 0.05, typeOfDesign = "asKD", gammaA = 1, typeBetaSpending = "bsOF")), NA)))
 	invisible(capture.output(expect_error(summary(getDesignGroupSequential(kMax = 1)), NA)))
 	invisible(capture.output(expect_error(summary(getDesignGroupSequential(kMax = 4, sided = 2)), NA)))
@@ -137,13 +138,12 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(pi1 = 0.1, pi2 = 0.3)), NA)))
 
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(lambda2 = 0.03, lambda1 = c(0.040))), NA)))
-	piecewiseSurvivalTime <- list(
-		"0 - <6"   = 0.025, 
-		"6 - <9"   = 0.04, 
-		"9 - <15"  = 0.015, 
-		"15 - <21" = 0.01, 
-		">=21"     = 0.007)
-	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 1.2)), NA))) 
+	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(piecewiseSurvivalTime = list(
+							"0 - <6"   = 0.025, 
+							"6 - <9"   = 0.04, 
+							"9 - <15"  = 0.015, 
+							"15 - <21" = 0.01, 
+							">=21"     = 0.007), hazardRatio = 1.2)), NA))) 
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)))), NA)))
 	invisible(capture.output(expect_error(summary(getPowerSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)), maxNumberOfSubjects = 100, maxNumberOfEvents = 60)), NA)))
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(getDesignGroupSequential(kMax = 4, sided = 2))), NA)))
@@ -172,20 +172,20 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 		dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 		accrualTime = 0, accrualIntensity = 30)), NA)))
 
-	design <- getDesignGroupSequential(
+	design1 <- getDesignGroupSequential(
 		sided = 2, alpha = 0.05, beta = 0.2,
 		informationRates = c(0.6, 1),
 		typeOfDesign = "asOF", twoSidedPower = FALSE)
 
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(
-		design,
+		design1,
 		lambda2 = log(2) / 60, hazardRatio = 0.74,
 		dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 		accrualTime = 0, accrualIntensity = 30,
 		followUpTime = 12)), NA)))
 
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(
-		design,
+		design1,
 		lambda2 = log(2) / 60, lambda1 = log(2) / 50,
 		dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 		accrualTime = 0, accrualIntensity = 30,
@@ -195,22 +195,22 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 
 	## simulations
 
-	design <- getDesignInverseNormal(alpha = 0.05, kMax = 4, futilityBounds = c(0,0,0), 
+	design2 <- getDesignInverseNormal(alpha = 0.05, kMax = 4, futilityBounds = c(0,0,0), 
 		sided = 1, typeOfDesign = "WT", deltaWT = 0.1)
 
-	invisible(capture.output(expect_error(summary(getSimulationSurvival(design,lambda2 = log(2) / 60, lambda1 = c(log(2) / 80),
+	invisible(capture.output(expect_error(summary(getSimulationSurvival(design2,lambda2 = log(2) / 60, lambda1 = c(log(2) / 80),
 		maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345, directionUpper = FALSE)), NA)))
 
-	invisible(capture.output(expect_error(summary(getSimulationSurvival(design,lambda2 = log(2) / 60, hazardRatio = c(1.2, 1.4),
+	invisible(capture.output(expect_error(summary(getSimulationSurvival(design2,lambda2 = log(2) / 60, hazardRatio = c(1.2, 1.4),
 		maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345)), NA)))
 
-	design <- getDesignGroupSequential(typeOfDesign = "P", futilityBounds = c(1,1))
+	design3 <- getDesignGroupSequential(typeOfDesign = "P", futilityBounds = c(1,1))
 
-	invisible(capture.output(expect_error(summary(getSampleSizeMeans(design)), NA)))
+	invisible(capture.output(expect_error(summary(getSampleSizeMeans(design3)), NA)))
 
-	invisible(capture.output(expect_error(summary(getSimulationMeans(design, stDev = 4, plannedSubjects = (1:3)*200, alternative = c(1,2))), NA)))
+	invisible(capture.output(expect_error(summary(getSimulationMeans(design3, stDev = 4, plannedSubjects = (1:3)*200, alternative = c(1,2))), NA)))
 
-	invisible(capture.output(expect_error(summary(getSimulationRates(design, plannedSubjects = (1:3)*200, pi1 = c(0.3,0.4), maxNumberOfIterations = 1000, 
+	invisible(capture.output(expect_error(summary(getSimulationRates(design3, plannedSubjects = (1:3)*200, pi1 = c(0.3,0.4), maxNumberOfIterations = 1000, 
 		minNumberOfSubjectsPerStage = c(NA, 40, 40), maxNumberOfSubjectsPerStage = c(NA, 40, 400), conditionalPower = 0.8)), NA)))
 
 	invisible(capture.output(expect_error(summary(getSimulationMeans(getDesignGroupSequential(kMax = 1), stDev = 4, plannedSubjects = 200, alternative = c(1))), NA)))	
@@ -221,6 +221,7 @@ test_that("Testing 'summary.ParameterSet': output will be produced", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Function]{fs:outputOfGenericFunctions}
 	expect_output(summary(getDesignGroupSequential(beta = 0.05, typeOfDesign = "asKD", gammaA = 1, typeBetaSpending = "bsOF"))$show())
 	expect_output(summary(getDesignGroupSequential(kMax = 1))$show())
 	expect_output(summary(getDesignGroupSequential(kMax = 4, sided = 2))$show())
@@ -332,13 +333,12 @@ test_that("Testing 'summary.ParameterSet': output will be produced", {
 	expect_output(summary(getSampleSizeSurvival(pi1 = 0.1, pi2 = 0.3))$show())
 
 	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.03, lambda1 = c(0.040)))$show())
-	piecewiseSurvivalTime <- list(
-		"0 - <6"   = 0.025, 
-		"6 - <9"   = 0.04, 
-		"9 - <15"  = 0.015, 
-		"15 - <21" = 0.01, 
-		">=21"     = 0.007)
-	expect_output(summary(getSampleSizeSurvival(piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 1.2))$show()) 
+	expect_output(summary(getSampleSizeSurvival(piecewiseSurvivalTime = list(
+					"0 - <6"   = 0.025, 
+					"6 - <9"   = 0.04, 
+					"9 - <15"  = 0.015, 
+					"15 - <21" = 0.01, 
+					">=21"     = 0.007), hazardRatio = 1.2))$show()) 
 	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(futilityBounds = c(1, 2))))$show())
 	expect_output(summary(getPowerSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)), 
 		maxNumberOfSubjects = 100, maxNumberOfEvents = 60))$show())
@@ -371,20 +371,20 @@ test_that("Testing 'summary.ParameterSet': output will be produced", {
 		dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 		accrualTime = 0, accrualIntensity = 30))$show())
 
-	design <- getDesignGroupSequential(
+	design1 <- getDesignGroupSequential(
 		sided = 2, alpha = 0.05, beta = 0.2,
 		informationRates = c(0.6, 1),
 		typeOfDesign = "asOF", twoSidedPower = FALSE)
 
 	expect_output(summary(getSampleSizeSurvival(
-		design,
+		design1,
 		lambda2 = log(2) / 60, hazardRatio = 0.74,
 		dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 		accrualTime = 0, accrualIntensity = 30,
 		followUpTime = 12))$show())
 
 	expect_output(summary(getSampleSizeSurvival(
-		design,
+		design1,
 		lambda2 = log(2) / 60, lambda1 = log(2) / 50,
 		dropoutRate1 = 0.025, dropoutRate2 = 0.025, dropoutTime = 12,
 		accrualTime = 0, accrualIntensity = 30,
@@ -394,22 +394,22 @@ test_that("Testing 'summary.ParameterSet': output will be produced", {
 
 	## simulations
 
-	design <- getDesignInverseNormal(alpha = 0.05, kMax = 4, futilityBounds = c(0,0,0), 
+	design2 <- getDesignInverseNormal(alpha = 0.05, kMax = 4, futilityBounds = c(0,0,0), 
 		sided = 1, typeOfDesign = "WT", deltaWT = 0.1)
 
-	expect_output(summary(getSimulationSurvival(design,lambda2 = log(2) / 60, lambda1 = c(log(2) / 80),
+	expect_output(summary(getSimulationSurvival(design2 ,lambda2 = log(2) / 60, lambda1 = c(log(2) / 80),
 		maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345, directionUpper = FALSE))$show())
 
-	expect_output(summary(getSimulationSurvival(design,lambda2 = log(2) / 60, hazardRatio = c(1.2, 1.4),
+	expect_output(summary(getSimulationSurvival(design2,lambda2 = log(2) / 60, hazardRatio = c(1.2, 1.4),
 		maxNumberOfSubjects = 1000, plannedEvents = c(50, 100, 150, 200), seed = 12345))$show())
 
-	design <- getDesignGroupSequential(typeOfDesign = "P", futilityBounds = c(1,1))
+	design3 <- getDesignGroupSequential(typeOfDesign = "P", futilityBounds = c(1,1))
 
-	expect_output(summary(getSampleSizeMeans(design))$show())
+	expect_output(summary(getSampleSizeMeans(design3))$show())
 
-	expect_output(summary(getSimulationMeans(design, stDev = 4, plannedSubjects = (1:3)*200, alternative = c(1,2)))$show())
+	expect_output(summary(getSimulationMeans(design3, stDev = 4, plannedSubjects = (1:3)*200, alternative = c(1,2)))$show())
 
-	expect_output(summary(getSimulationRates(design, plannedSubjects = (1:3)*200, pi1 = c(0.3,0.4), maxNumberOfIterations = 1000, 
+	expect_output(summary(getSimulationRates(design3, plannedSubjects = (1:3)*200, pi1 = c(0.3,0.4), maxNumberOfIterations = 1000, 
 		minNumberOfSubjectsPerStage = c(NA, 40, 40), maxNumberOfSubjectsPerStage = c(NA, 40, 400), conditionalPower = 0.8))$show())
 
 	expect_output(summary(getSimulationMeans(getDesignGroupSequential(kMax = 1), stDev = 4, plannedSubjects = 200, alternative = 1))$show())	

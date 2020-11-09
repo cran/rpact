@@ -14,19 +14,20 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_design_power_calculator.R
-#:#  Creation date: 05 September 2020, 14:48:03
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:48:32
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing the power calculation of means for different designs and arguments")
+context("Testing the Power Calculation of Testing Means for Different Designs and Arguments")
 
 
-test_that("'getPowerMeans': power calculation of means in one sample for one-sided group sequential design", {
+test_that("'getPowerMeans': Power calculation of means in one sample for one-sided group sequential design", {
 	designGS1 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), sided = 1, alpha = 0.07, 
 		beta = 0.1, futilityBounds = c(-0.5,0.5), typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS1, groups = 1, thetaH0 = 0.5, stDev = 2, 
@@ -64,8 +65,7 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
-	.skipTestIfDisabled()
-
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS1, groups = 1, thetaH0 = -0.5, stDev = 2, 
@@ -103,6 +103,9 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	.skipTestIfDisabled()
+
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS1, groups = 1, thetaH0 = 0.5, stDev = 2, 
@@ -139,6 +142,9 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	.skipTestIfDisabled()
+
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = -0.5, stDev = 2, 
@@ -177,36 +183,37 @@ test_that("'getPowerMeans': power calculation of means in one sample for one-sid
 
 })
 
-test_that("'getPowerMeans': power calculation of means in one sample for two-sided group sequential design", {
+test_that("'getPowerMeans': Power calculation of means in one sample for two-sided group sequential design", {
 
-	designGS2 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), alpha = 0.2, 
-		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.22)
+	designGS2 <- getDesignGroupSequential(informationRates = c(0.34,0.66,1), alpha = 0.12, 
+		sided = 2, beta = 0.15, typeOfDesign = "WT", deltaWT = 0.12)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = 0.5, stDev = 2, 
 		normalApproximation = FALSE, alternative = 1.2, maxNumberOfSubjects = 50)
 
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	expect_equal(powerResult$numberOfSubjects[1, ], 15)
-	expect_equal(powerResult$numberOfSubjects[2, ], 35)
+	expect_equal(powerResult$numberOfSubjects[1, ], 17)
+	expect_equal(powerResult$numberOfSubjects[2, ], 33)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
 	expect_equal(powerResult$effect, 0.7, tolerance = 1e-07)
-	expect_equal(powerResult$expectedNumberOfSubjects, 34.898263, tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.24200246), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.44211004), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.17580597), tolerance = 1e-07)
-	expect_equal(powerResult$overallReject, 0.85991847, tolerance = 1e-07)
-	expect_equal(powerResult$earlyStop, 0.6841125, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -0.6632814, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -0.060186214, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], 0.080390401, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 1.6632814, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 1.0601862, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], 0.9196096, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	expect_equal(powerResult$expectedNumberOfSubjects, 38.840675, tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.14049601), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.38370336), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.27332087), tolerance = 1e-07)
+	expect_equal(powerResult$overallReject, 0.79752024, tolerance = 1e-07)
+	expect_equal(powerResult$earlyStop, 0.52419937, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -0.86833341, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -0.20368487, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], 0.020865698, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 1.8683334, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 1.2036849, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], 0.9791343, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.01229935, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.051692876, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.096614336, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(powerResult), NA)))
 	    expect_output(print(powerResult)$show())
@@ -216,31 +223,32 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = -0.5, stDev = 2, 
 		normalApproximation = FALSE, alternative = -1.2, maxNumberOfSubjects = 50)
 
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	expect_equal(powerResult$numberOfSubjects[1, ], 15)
-	expect_equal(powerResult$numberOfSubjects[2, ], 35)
+	expect_equal(powerResult$numberOfSubjects[1, ], 17)
+	expect_equal(powerResult$numberOfSubjects[2, ], 33)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
 	expect_equal(powerResult$effect, -0.7, tolerance = 1e-07)
-	expect_equal(powerResult$expectedNumberOfSubjects, 34.898263, tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.24200246), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.44211004), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.17580597), tolerance = 1e-07)
-	expect_equal(powerResult$overallReject, 0.85991847, tolerance = 1e-07)
-	expect_equal(powerResult$earlyStop, 0.6841125, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -1.6632814, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -1.0601862, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], -0.9196096, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 0.6632814, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 0.060186214, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], -0.080390401, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	expect_equal(powerResult$expectedNumberOfSubjects, 38.840675, tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.14049601), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.38370336), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.27332087), tolerance = 1e-07)
+	expect_equal(powerResult$overallReject, 0.79752024, tolerance = 1e-07)
+	expect_equal(powerResult$earlyStop, 0.52419937, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -1.8683334, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -1.2036849, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], -0.9791343, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 0.86833341, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 0.20368487, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], -0.020865698, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.01229935, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.051692876, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.096614336, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(powerResult), NA)))
 	    expect_output(print(powerResult)$show())
@@ -248,31 +256,32 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = 0.5, stDev = 2, 
 		normalApproximation = TRUE, alternative = 1.2, maxNumberOfSubjects = 50)
 
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	expect_equal(powerResult$numberOfSubjects[1, ], 15)
-	expect_equal(powerResult$numberOfSubjects[2, ], 35)
+	expect_equal(powerResult$numberOfSubjects[1, ], 17)
+	expect_equal(powerResult$numberOfSubjects[2, ], 33)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
 	expect_equal(powerResult$effect, 0.7, tolerance = 1e-07)
-	expect_equal(powerResult$expectedNumberOfSubjects, 34.735156, tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.24557792), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.44464112), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.17420245), tolerance = 1e-07)
-	expect_equal(powerResult$overallReject, 0.8644215, tolerance = 1e-07)
-	expect_equal(powerResult$earlyStop, 0.69021905, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -0.5560769, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -0.045347909, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], 0.087095017, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 1.5560769, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 1.0453479, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], 0.91290498, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	expect_equal(powerResult$expectedNumberOfSubjects, 38.608242, tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.14453229), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.38954071), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.27190431), tolerance = 1e-07)
+	expect_equal(powerResult$overallReject, 0.80597731, tolerance = 1e-07)
+	expect_equal(powerResult$earlyStop, 0.534073, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -0.71434543, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -0.17739974, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], 0.03005862, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 1.7143454, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 1.1773997, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], 0.96994138, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.01229935, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.051692876, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.096614336, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(powerResult), NA)))
 	    expect_output(print(powerResult)$show())
@@ -280,31 +289,32 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterOneSampleMean}
 	powerResult <- getPowerMeans(designGS2, groups = 1, thetaH0 = -0.5, stDev = 2, 
 		normalApproximation = TRUE, alternative = -1.2, maxNumberOfSubjects = 50)
 
 	## Comparison of the results of TrialDesignPlanMeans object 'powerResult' with expected results
-	expect_equal(powerResult$numberOfSubjects[1, ], 15)
-	expect_equal(powerResult$numberOfSubjects[2, ], 35)
+	expect_equal(powerResult$numberOfSubjects[1, ], 17)
+	expect_equal(powerResult$numberOfSubjects[2, ], 33)
 	expect_equal(powerResult$numberOfSubjects[3, ], 50)
 	expect_equal(powerResult$effect, -0.7, tolerance = 1e-07)
-	expect_equal(powerResult$expectedNumberOfSubjects, 34.735156, tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.24557792), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.44464112), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.17420245), tolerance = 1e-07)
-	expect_equal(powerResult$overallReject, 0.8644215, tolerance = 1e-07)
-	expect_equal(powerResult$earlyStop, 0.69021905, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -1.5560769, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -1.0453479, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], -0.91290498, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 0.5560769, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 0.045347909, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], -0.087095017, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.040846565, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.10670956, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.14433417, tolerance = 1e-07)
+	expect_equal(powerResult$expectedNumberOfSubjects, 38.608242, tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[1, ], c("stage = 1" = 0.14453229), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[2, ], c("stage = 2" = 0.38954071), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[3, ], c("stage = 3" = 0.27190431), tolerance = 1e-07)
+	expect_equal(powerResult$overallReject, 0.80597731, tolerance = 1e-07)
+	expect_equal(powerResult$earlyStop, 0.534073, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[1, ], -1.7143454, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[2, ], -1.1773997, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleLower[3, ], -0.96994138, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[1, ], 0.71434543, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[2, ], 0.17739974, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScaleUpper[3, ], -0.03005862, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.01229935, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[2, ], 0.051692876, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[3, ], 0.096614336, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(powerResult), NA)))
 	    expect_output(print(powerResult)$show())
@@ -314,11 +324,12 @@ test_that("'getPowerMeans': power calculation of means in one sample for two-sid
 
 })
 
-test_that("'getPowerMeans': power calculation of mean difference in two samples for one-sided group sequential design", {
+test_that("'getPowerMeans': Power calculation of mean difference in two samples for one-sided group sequential design", {
 
 	designGS1 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), sided = 1, alpha = 0.07, 
 			beta = 0.1, futilityBounds = c(-0.5,0.5), typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanDiff}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = 0.5, stDev = 1.5, 
@@ -364,6 +375,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanDiff}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = -0.5, stDev = 1.5, 
@@ -407,6 +419,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = 0.5, stDev = 1.5, 
@@ -450,6 +463,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = -0.5, stDev = 1.5, 
@@ -493,6 +507,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanRatio}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = 0.8, 
@@ -536,6 +551,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
 	powerResult <- getPowerMeans(designGS1, groups = 2, thetaH0 = 0.8, 
@@ -581,11 +597,12 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 
 })
 
-test_that("'getPowerMeans': power calculation of mean difference in two samples for two-sided group sequential design", {
+test_that("'getPowerMeans': Power calculation of mean difference in two samples for two-sided group sequential design", {
 
 	designGS2 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), alpha = 0.4, 
 			sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanDiff}
 	powerResult <- getPowerMeans(designGS2, groups = 2, stDev = 2, 
@@ -627,6 +644,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesMeanDiff}
 	powerResult <- getPowerMeans(designGS2, groups = 2, stDev = 2, 
@@ -666,6 +684,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
 	powerResult <- getPowerMeans(designGS2, groups = 2, thetaH0 = 0, 
@@ -705,6 +724,7 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterTwoSamplesMean}
 	powerResult <- getPowerMeans(designGS2, groups = 2, stDev = 2, 
@@ -744,15 +764,19 @@ test_that("'getPowerMeans': power calculation of mean difference in two samples 
 	    expect_output(summary(powerResult)$show())
 	}
 
+	###################################################################################################
+	###################################################################################################
+
 })
 
-context("Testing the power calculation of rates for different designs and arguments")
+context("Testing the Power Calculation of Testing Rates for Different Designs and Arguments")
 
 
-test_that("'getPowerRates': power calculation of rate in one sample for one-sided group sequential design", {
+test_that("'getPowerRates': Power calculation of rate in one sample for one-sided group sequential design", {
 	designGS1 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), sided = 1, alpha = 0.07, 
 			beta = 0.1, futilityBounds = c(-0.5,0.5), typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleRate}
 	powerResult <- getPowerRates(designGS1, groups = 1, thetaH0 = 0.4, 
@@ -791,6 +815,7 @@ test_that("'getPowerRates': power calculation of rate in one sample for one-side
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleRate}
 	powerResult <- getPowerRates(designGS1, groups = 1, thetaH0 = 0.4, pi1 = c(0.4,0.5,0.6),  
@@ -829,11 +854,12 @@ test_that("'getPowerRates': power calculation of rate in one sample for one-side
 
 })
 
-test_that("'getPowerRates': power calculation of rate in one sample for two-sided group sequential design", {
+test_that("'getPowerRates': Power calculation of rate in one sample for two-sided group sequential design", {
 
 	designGS2 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), alpha = 0.4, 
 			sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterOneSampleRate}
 	powerResult <- getPowerRates(designGS2, groups = 1, thetaH0 = 0.4, 
@@ -868,14 +894,16 @@ test_that("'getPowerRates': power calculation of rate in one sample for two-side
 
 })
 
-test_that("'getPowerRates': power calculation of rate in two samples for one-sided group sequential design, riskRatio = FALSE ", {
+test_that("'getPowerRates': Power calculation of rate in two samples for one-sided group sequential design, riskRatio = FALSE ", {
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
 	designGS1 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), sided = 1, alpha = 0.07, 
 			beta = 0.1, futilityBounds = c(-0.5,0.5), typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
@@ -922,6 +950,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
@@ -968,11 +997,12 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 
 })
 
-test_that("'getPowerRates': power calculation of rate in two samples for one-sided group sequential design, riskRatio = TRUE ", {
+test_that("'getPowerRates': Power calculation of rate in two samples for one-sided group sequential design, riskRatio = TRUE ", {
 
 	designGS1 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), sided = 1, alpha = 0.07, 
 			beta = 0.1, futilityBounds = c(-0.5,0.5), typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
 	# @refFS[Formula]{fs:EstimatesRatioFarringtonManning}
@@ -1019,6 +1049,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
 	# @refFS[Formula]{fs:EstimatesRatioFarringtonManning}
@@ -1065,11 +1096,12 @@ test_that("'getPowerRates': power calculation of rate in two samples for one-sid
 
 })
 
-test_that("'getPowerRates': power calculation of rate in two samples for two-sided group sequential design ", {
+test_that("'getPowerRates': Power calculation of rate in two samples for two-sided group sequential design ", {
 
 	designGS2 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), alpha = 0.4, 
 			sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateDiff}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
@@ -1111,6 +1143,7 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:AdjShiftParameterTwoSamplesRateRatio}
 	# @refFS[Formula]{fs:EstimatesRatioFarringtonManning}
@@ -1150,15 +1183,51 @@ test_that("'getPowerRates': power calculation of rate in two samples for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	###################################################################################################
+	###################################################################################################
+
 })
 
-context("Testing the power calculation for survival design for different designs and arguments")
+context("Testing the Power Calculation of Survival Designs for Different Designs and Arguments")
 
 
-test_that("'getPowerSurvival': power calculation for survival design for one-sided group sequential design", {
+test_that("'getPowerSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default ", {
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
+	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
+	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
+
+	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
+	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
+	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
+	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
+	expect_equal(powerResult$lambda2, 0.018595296, tolerance = 1e-07)
+	expect_equal(powerResult$hazardRatio, c(1, 1.5984103, 2.2892242, 3.1062837), tolerance = 1e-07)
+	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
+	expect_equal(powerResult$followUpTime, c(6.1115255, 3.442577, 1.6316894, 0.30440109), tolerance = 1e-07)
+	expect_equal(powerResult$analysisTime[1, ], c(18.111525, 15.442577, 13.631689, 12.304401), tolerance = 1e-07)
+	expect_equal(powerResult$studyDuration, c(18.111525, 15.442577, 13.631689, 12.304401), tolerance = 1e-07)
+	expect_equal(powerResult$expectedNumberOfEvents, c(40, 40, 40, 40))
+	expect_equal(powerResult$expectedNumberOfSubjects, c(200, 200, 200, 200))
+	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
+	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(powerResult), NA)))
+	    expect_output(print(powerResult)$show())
+	    invisible(capture.output(expect_error(summary(powerResult), NA)))
+	    expect_output(summary(powerResult)$show())
+	}
+
+})
+
+test_that("'getPowerSurvival': Power calculation of survival designs for one-sided group sequential design", {
+
 	designGS1 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), sided = 1, alpha = 0.07, 
 			beta = 0.1, futilityBounds = c(-0.5,0.5), typeOfDesign = "WT", deltaWT = 0.22)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1217,6 +1286,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalFreedman}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1273,6 +1343,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalHsieh}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1329,6 +1400,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1383,6 +1455,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1437,6 +1510,7 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1495,11 +1569,12 @@ test_that("'getPowerSurvival': power calculation for survival design for one-sid
 
 })
 
-test_that("'getPowerSurvival': power calculation for survival design for two-sided group sequential design ", {
+test_that("'getPowerSurvival': Power calculation of survival designs for two-sided group sequential design ", {
 
 	designGS2 <- getDesignGroupSequential(informationRates = c(0.3,0.7,1), alpha = 0.11, 
 		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.32)
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1554,6 +1629,7 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalFreedman}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1606,6 +1682,7 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalHsieh}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1658,6 +1735,7 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1708,6 +1786,7 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalFreedman}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1758,6 +1837,7 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:PowerGroupSequentialTwoSided}
 	# @refFS[Formula]{fs:ShiftParameterSurvivalHsieh}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedPatientAccrual}
@@ -1808,44 +1888,20 @@ test_that("'getPowerSurvival': power calculation for survival design for two-sid
 	    expect_output(summary(powerResult)$show())
 	}
 
-})
-
-context("Testing the power calculation of survival data for other parameter variants")
-
-
-test_that("'getPowerSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default ", {
-	.skipTestIfDisabled()
-
-	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
-
-	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
-	expect_equal(powerResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
-	expect_equal(powerResult$median2, 37.275405, tolerance = 1e-07)
-	expect_equal(powerResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
-	expect_equal(powerResult$lambda2, 0.018595296, tolerance = 1e-07)
-	expect_equal(powerResult$hazardRatio, c(1, 1.5984103, 2.2892242, 3.1062837), tolerance = 1e-07)
-	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
-	expect_equal(powerResult$followUpTime, c(6.1115255, 3.442577, 1.6316894, 0.30440109), tolerance = 1e-07)
-	expect_equal(powerResult$analysisTime[1, ], c(18.111525, 15.442577, 13.631689, 12.304401), tolerance = 1e-07)
-	expect_equal(powerResult$studyDuration, c(18.111525, 15.442577, 13.631689, 12.304401), tolerance = 1e-07)
-	expect_equal(powerResult$expectedNumberOfEvents, c(40, 40, 40, 40))
-	expect_equal(powerResult$expectedNumberOfSubjects, c(200, 200, 200, 200))
-	expect_equal(powerResult$overallReject, c(0.025, 0.31674317, 0.74507635, 0.94783846), tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesEffectScale[1, ], 1.8585471, tolerance = 1e-07)
-	expect_equal(powerResult$criticalValuesPValueScale[1, ], 0.025, tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(powerResult), NA)))
-	    expect_output(print(powerResult)$show())
-	    invisible(capture.output(expect_error(summary(powerResult), NA)))
-	    expect_output(summary(powerResult)$show())
-	}
+	###################################################################################################
+	###################################################################################################
 
 })
+
+context("Testing the Power Calculation of Survival Designs for Other Parameter Variants")
+
 
 test_that("'getPowerSurvival': Four stage O'Brien and Fleming group sequential design with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default  ", {
-
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:PowerGroupSequentialOneSided}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 4), 
 		maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
@@ -1900,6 +1956,9 @@ test_that("'getPowerSurvival': For fixed sample design, determine necessary accr
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, 
 		accrualTime = c(0), accrualIntensity = 30, maxNumberOfSubjects = 200)
 
@@ -1931,6 +1990,9 @@ test_that("'getPowerSurvival': Determine necessary accrual time if 200 subjects 
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, 
 		accrualTime = c(0, 6), accrualIntensity = c(20, 30), maxNumberOfSubjects = 200)
 
@@ -1963,6 +2025,9 @@ test_that("'getPowerSurvival': Determine maximum number of Subjects if the first
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, 
 		accrualTime = c(0, 6, 10), accrualIntensity = c(20, 30))
 
@@ -1995,6 +2060,9 @@ test_that("'getPowerSurvival': Specify accrual time as a list", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	at <- list("0 - <6" = 20, "6 - Inf" = 30)
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, accrualTime = at, maxNumberOfSubjects = 200)
 
@@ -2027,6 +2095,9 @@ test_that("'getPowerSurvival': Specify accrual time as a list, if maximum number
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	at <- list("0 - <6" = 20, "6 - <=10" = 30) 
 	powerResult <- getPowerSurvival(maxNumberOfEvents = 40, accrualTime = at)
 
@@ -2059,6 +2130,9 @@ test_that("'getPowerSurvival': Specify effect size for a two-stage group design 
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		pi1 = 0.2, pi2 = 0.3, eventTime = 24, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 
@@ -2101,6 +2175,9 @@ test_that("'getPowerSurvival': Effect size is based on event rate at specified e
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:ShiftParameterSurvivalSchoenfeld}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		hazardRatio = 0.5, pi2 = 0.3, eventTime = 24, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 
@@ -2143,6 +2220,8 @@ test_that("'getPowerSurvival': Effect size is based on hazard rate for the refer
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		hazardRatio = 0.5, lambda2 = 0.02, maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE) 
 
@@ -2183,8 +2262,12 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:sampleSizeSurvivalExponentialPieceWiseAccrual}
+	# @refFS[Formula]{fs:sampleSizeSurvivalGeneralPieceWiseAccrual}
+	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
-		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01,0.02,0.04), hazardRatio = c(1.5, 1.8, 2),  maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
+		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01,0.02,0.04), hazardRatio = c(1.5, 1.8, 2), maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
 	expect_equal(powerResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -2220,6 +2303,9 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 
 	.skipTestIfDisabled()
 
+	# @refFS[Formula]{fs:sampleSizeSurvivalExponentialPieceWiseAccrual}
+	# @refFS[Formula]{fs:sampleSizeSurvivalGeneralPieceWiseAccrual}
+	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}
 	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2), maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
@@ -2258,8 +2344,11 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 
 	.skipTestIfDisabled()
 
+	# @refFS[Formula]{fs:sampleSizeSurvivalExponentialPieceWiseAccrual}
+	# @refFS[Formula]{fs:sampleSizeSurvivalGeneralPieceWiseAccrual}
+	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
-		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), lambda1 = c(0.015,0.03,0.06),  maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
+		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), lambda1 = c(0.015,0.03,0.06), maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'powerResult' with expected results
 	expect_equal(powerResult$hazardRatio, 1.5, tolerance = 1e-07)
@@ -2296,6 +2385,9 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 
 	.skipTestIfDisabled()
 
+	# @refFS[Formula]{fs:sampleSizeSurvivalExponentialPieceWiseAccrual}
+	# @refFS[Formula]{fs:sampleSizeSurvivalGeneralPieceWiseAccrual}
+	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}
 	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
 	powerResult <- getPowerSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2), maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
@@ -2334,6 +2426,8 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:lambdabymedian}
 	powerResult <- getPowerSurvival(lambda1 = log(2) / 5, lambda2 = log(2) / 3, 
 		maxNumberOfEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE)
 
@@ -2363,8 +2457,10 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+	# @refFS[Formula]{fs:lambdabymedian}
 	powerResult <- getPowerSurvival(
-		lambda1 = getLambdaByMedian(median = 5, kappa = 2), 
+		lambda1 = getLambdaByMedian(median = 5, kappa = 2), 		
 		lambda2 = getLambdaByMedian(median = 3, kappa = 2), 
 		kappa = 2, maxNumberOfEvents = 40, 
 		maxNumberOfSubjects = 200, directionUpper = FALSE)
@@ -2391,11 +2487,7 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 
 })
 
-context("Testing the follow-up time calculation")
-
-
-test_that("'getPowerSurvival': analysis time at last stage equals accrual time + follow-up time", {
-	.skipTestIfDisabled()
+test_that("'getPowerSurvival': Analysis time at last stage equals accrual time + follow-up time", {
 
 	x1 <- getPowerSurvival(getDesignGroupSequential(typeOfDesign = "P"), accrualTime = 12, 
 		lambda2 = 0.005, lambda1 = 0.01, 

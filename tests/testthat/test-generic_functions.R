@@ -14,13 +14,13 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-generic_functions.R
-#:#  Creation date: 05 September 2020, 14:49:32
-#:#  File version: $Revision: 3588 $
-#:#  Last changed: $Date: 2020-09-04 09:47:38 +0200 (Fri, 04 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:49:45
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing class 'SummaryFactory'")
+context("Testing Class 'SummaryFactory'")
 
 
 test_that("Testing 'summary.ParameterSet': no errors occur", {

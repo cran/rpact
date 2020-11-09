@@ -14,19 +14,24 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_simulation_base_survival.R
-#:#  Creation date: 05 September 2020, 14:48:49
-#:#  File version: $Revision: 3588 $
-#:#  Last changed: $Date: 2020-09-04 09:47:38 +0200 (Fri, 04 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:49:11
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing simulation survival function")
+context("Testing Simulation Survival Function")
 
 
 test_that("'getSimulationSurvival': configuration 1", {
-	.skipTestIfDisabled()
-
-	# @refFS[Sec.]{fs:subsec:seed}
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
 	simulationResults <- getSimulationSurvival(maxNumberOfSubjects = 200, plannedEvents = 50, 
 		accrualTime = c(0, 3, 6, 12), accrualIntensity = c(0.1, 0.2, 0.2) , 
 		maxNumberOfIterations = 100, seed = 1234567890)
@@ -69,6 +74,15 @@ test_that("'getSimulationSurvival': configuration 2", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	design <- getDesignFisher(kMax = 3, alpha0Vec = c(0.5, 0.5))
 
 	simulationResults <- getSimulationSurvival(design = design, pi2 = 0.6, pi1 = seq(0.3, 0.45, 0.05),  
@@ -136,6 +150,15 @@ test_that("'getSimulationSurvival': configuration 3", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	design <- getDesignFisher(kMax = 3, alpha0Vec = c(0.5, 0.5))
 
 	simulationResults <- getSimulationSurvival(design = design, pi2 = 0.2, pi1 = seq(0.3, 0.45, 0.05),  
@@ -203,6 +226,15 @@ test_that("'getSimulationSurvival': configuration 4", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 
 	piecewiseSurvivalTime <- list(
@@ -268,6 +300,15 @@ test_that("'getSimulationSurvival': configuration 5", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 
 	simulationResults <- getSimulationSurvival(design = design, pi2 = 0.6, pi1 = seq(0.3, 0.45, 0.05), 
@@ -335,6 +376,16 @@ test_that("'getSimulationSurvival': configuration 6", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 
 	piecewiseSurvivalTime <- list(
@@ -437,6 +488,16 @@ test_that("'getSimulationSurvival': configuration 7", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 	simulationResults <- getSimulationSurvival(design = design, 
 		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
@@ -496,6 +557,16 @@ test_that("'getSimulationSurvival': configuration 8", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 	simulationResults <- getSimulationSurvival(design = design, 
 		directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20, 
@@ -552,6 +623,16 @@ test_that("'getSimulationSurvival': configuration 9; ", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 	simulationResults <- getSimulationSurvival(design = design, 
 		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
@@ -609,6 +690,16 @@ test_that("'getSimulationSurvival': configuration 10; ", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 	simulationResults <- getSimulationSurvival(design = design, 
 		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
@@ -687,8 +778,17 @@ test_that("'getSimulationSurvival': test accrual time and intensity definition",
 
 })
 
-test_that("'getSimulationSurvival': test exptected warnings and errors", {
+test_that("'getSimulationSurvival': test expected warnings and errors", {
 
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	.skipTestIfDisabled()
 
 	dIN <- getDesignInverseNormal(informationRates = c(0.4, 0.7, 1))
@@ -791,45 +891,20 @@ test_that("'getSimulationSurvival': test exptected warnings and errors", {
 
 })
 
-context("Testing the simulation of survival data for different parameter variants")
+context("Testing the Simulation of Survival Data for Different Parameter Variants")
 
 
 test_that("'getSimulationSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default ", {
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(plannedEvents = 40, maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
-
-	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
-	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
-	expect_equal(simulationResult$median2, 37.275405, tolerance = 1e-07)
-	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
-	expect_equal(simulationResult$lambda1, c(0.018595296, 0.029722912, 0.042568802, 0.057762265), tolerance = 1e-07)
-	expect_equal(simulationResult$lambda2, 0.018595296, tolerance = 1e-07)
-	expect_equal(simulationResult$hazardRatio, c(1, 1.5984103, 2.2892242, 3.1062837), tolerance = 1e-07)
-	expect_equal(simulationResult$analysisTime[1, ], c(17.941133, 15.499503, 13.535749, 12.34), tolerance = 1e-07)
-	expect_equal(simulationResult$studyDuration, c(17.941133, 15.499503, 13.535749, 12.34), tolerance = 1e-07)
-	expect_equal(simulationResult$eventsNotAchieved[1, ], c(0, 0, 0, 0))
-	expect_equal(simulationResult$iterations[1, ], c(100, 100, 100, 100))
-	expect_equal(simulationResult$rejectPerStage[1, ], c(0.01, 0.3, 0.68, 0.95), tolerance = 1e-07)
-	expect_equal(simulationResult$overallReject, c(0.01, 0.3, 0.68, 0.95), tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, c(0, 0, 0, 0))
-	expect_equal(simulationResult$earlyStop, c(0, 0, 0, 0))
-	expect_equal(simulationResult$expectedNumberOfSubjects, c(200, 200, 199.71, 196.74), tolerance = 1e-07)
-	expect_equal(simulationResult$expectedNumberOfEvents, c(40, 40, 40, 40))
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(simulationResult), NA)))
-	    expect_output(print(simulationResult)$show())
-	    invisible(capture.output(expect_error(summary(simulationResult), NA)))
-	    expect_output(summary(simulationResult)$show())
-	}
-
-})
-
-test_that("'getSimulationSurvival': Increase number of simulation iterations ", {
-
-	.skipTestIfDisabled()
-
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
+	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
+	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
+	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
+	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
+	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
 	simulationResult <- getSimulationSurvival(plannedEvents = 40, maxNumberOfSubjects = 200, 
 		maxNumberOfIterations = 100, seed = 1234567890)
 
@@ -1333,12 +1408,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_output(summary(simulationResult)$show())
 	}
 
-})
-
-test_that("'getSimulationSurvival': Specification of piecewise exponential survival time as a list, note that in getSimulationSurvival only on hazard ratio (not a vector) can be used", {
-
-	.skipTestIfDisabled()
-
 	pws <- list("0 - <5"  = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
 	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = pws, hazardRatio = 1.5, 
@@ -1376,12 +1445,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_output(summary(simulationResult)$show())
 	}
 
-})
-
-test_that("'getSimulationSurvival': Specification of piecewise exponential survival time and delayed effect (response after 5 time units)  ", {
-
-	.skipTestIfDisabled()
-
 	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
 		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
 		lambda1 = c(0.01, 0.02, 0.06), plannedEvents = c(20, 40), maxNumberOfSubjects = 200, 
@@ -1410,73 +1473,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	expect_equal(simulationResult$eventsPerStage[2, ], 40)
 	expect_equal(simulationResult$conditionalPowerAchieved[1, ], NA_real_)
 	expect_equal(simulationResult$conditionalPowerAchieved[2, ], 0.1789388, tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(simulationResult), NA)))
-	    expect_output(print(simulationResult)$show())
-	    invisible(capture.output(expect_error(summary(simulationResult), NA)))
-	    expect_output(summary(simulationResult)$show())
-	}
-
-})
-
-test_that("'getSimulationSurvival': Specify effect size based on median survival times (median1 = 5, median2 = 3)", {
-
-	.skipTestIfDisabled()
-
-	simulationResult <- getSimulationSurvival(lambda1 = log(2) / 5, 
-		lambda2 = log(2) / 3, plannedEvents = 40, 
-		maxNumberOfSubjects = 200, directionUpper = FALSE, 
-		maxNumberOfIterations = 100, seed = 1234567890)
-
-	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
-	expect_equal(simulationResult$pi1, 0.81053543, tolerance = 1e-07)
-	expect_equal(simulationResult$pi2, 0.9375, tolerance = 1e-07)
-	expect_equal(simulationResult$median1, 5)
-	expect_equal(simulationResult$median2, 3)
-	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
-	expect_equal(simulationResult$hazardRatio, 0.6, tolerance = 1e-07)
-	expect_equal(simulationResult$analysisTime[1, ], 6.1552733, tolerance = 1e-07)
-	expect_equal(simulationResult$studyDuration, 6.1552733, tolerance = 1e-07)
-	expect_equal(simulationResult$eventsNotAchieved[1, ], 0)
-	expect_equal(simulationResult$iterations[1, ], 100)
-	expect_equal(simulationResult$rejectPerStage[1, ], 0.29, tolerance = 1e-07)
-	expect_equal(simulationResult$overallReject, 0.29, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
-	expect_equal(simulationResult$earlyStop, 0)
-	expect_equal(simulationResult$expectedNumberOfSubjects, 102.09, tolerance = 1e-07)
-	expect_equal(simulationResult$expectedNumberOfEvents, 40)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(simulationResult), NA)))
-	    expect_output(print(simulationResult)$show())
-	    invisible(capture.output(expect_error(summary(simulationResult), NA)))
-	    expect_output(summary(simulationResult)$show())
-	}
-
-})
-
-test_that("'getSimulationSurvival': Specify effect size based on median survival times of Weibull distribtion with kappa = 2 (median1 = 5, median2 = 3)", {
-
-	.skipTestIfDisabled()
-
-	simulationResult <- getSimulationSurvival(lambda1 = getLambdaByMedian(median = 5, kappa = 2), 
-		lambda2 = getLambdaByMedian(median = 3, kappa = 2), kappa = 2, 
-		plannedEvents = 40, maxNumberOfSubjects = 200, directionUpper = FALSE, 
-		maxNumberOfIterations = 100, seed = 1234567890)
-
-	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
-	expect_equal(simulationResult$median1, 5)
-	expect_equal(simulationResult$median2, 3)
-	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
-	expect_equal(simulationResult$analysisTime[1, ], 5.7220618, tolerance = 1e-07)
-	expect_equal(simulationResult$studyDuration, 5.7220618, tolerance = 1e-07)
-	expect_equal(simulationResult$eventsNotAchieved[1, ], 0)
-	expect_equal(simulationResult$iterations[1, ], 100)
-	expect_equal(simulationResult$rejectPerStage[1, ], 0.29, tolerance = 1e-07)
-	expect_equal(simulationResult$overallReject, 0.29, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
-	expect_equal(simulationResult$earlyStop, 0)
-	expect_equal(simulationResult$expectedNumberOfSubjects, 94.9, tolerance = 1e-07)
-	expect_equal(simulationResult$expectedNumberOfEvents, 40)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(simulationResult), NA)))
 	    expect_output(print(simulationResult)$show())
@@ -1713,7 +1709,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x2$seed, x1$seed)
 	expect_equal(x2$iterations[1, ], x1$iterations[1, ])
 	expect_equal(x2$futilityStop, x1$futilityStop)
-	expect_equal(x2$earlyStop, x1$earlyStop)
 	expect_equal(x2$directionUpper, x1$directionUpper)
 	expect_equal(x2$plannedEvents, x1$plannedEvents)
 	expect_equal(x2$minNumberOfEventsPerStage, x1$minNumberOfEventsPerStage)
@@ -1738,6 +1733,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x2$piecewiseSurvivalTime, x1$piecewiseSurvivalTime)
 	expect_equal(x2$lambda1, x1$lambda1, tolerance = 1e-07)
 	expect_equal(x2$lambda2, x1$lambda2, tolerance = 1e-07)
+	expect_equal(x2$earlyStop, x1$earlyStop)
 	expect_equal(x2$hazardRatio, x1$hazardRatio, tolerance = 1e-07)
 	expect_equal(x2$analysisTime[1, ], x1$analysisTime[1, ], tolerance = 1e-07)
 	expect_equal(x2$studyDuration, x1$studyDuration, tolerance = 1e-07)
@@ -1755,7 +1751,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x3$seed, x1$seed)
 	expect_equal(x3$iterations[1, ], x1$iterations[1, ])
 	expect_equal(x3$futilityStop, x1$futilityStop)
-	expect_equal(x3$earlyStop, x1$earlyStop)
 	expect_equal(x3$directionUpper, x1$directionUpper)
 	expect_equal(x3$plannedEvents, x1$plannedEvents)
 	expect_equal(x3$minNumberOfEventsPerStage, x1$minNumberOfEventsPerStage)
@@ -1780,6 +1775,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x3$piecewiseSurvivalTime, x1$piecewiseSurvivalTime)
 	expect_equal(x3$lambda1, x1$lambda1, tolerance = 1e-07)
 	expect_equal(x3$lambda2, x1$lambda2, tolerance = 1e-07)
+	expect_equal(x3$earlyStop, x1$earlyStop)
 	expect_equal(x3$hazardRatio, x1$hazardRatio, tolerance = 1e-07)
 	expect_equal(x3$analysisTime[1, ], x1$analysisTime[1, ], tolerance = 1e-07)
 	expect_equal(x3$studyDuration, x1$studyDuration, tolerance = 1e-07)
@@ -1797,7 +1793,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x4$seed, x1$seed)
 	expect_equal(x4$iterations[1, ], x1$iterations[1, ])
 	expect_equal(x4$futilityStop, x1$futilityStop)
-	expect_equal(x4$earlyStop, x1$earlyStop)
 	expect_equal(x4$directionUpper, x1$directionUpper)
 	expect_equal(x4$plannedEvents, x1$plannedEvents)
 	expect_equal(x4$minNumberOfEventsPerStage, x1$minNumberOfEventsPerStage)
@@ -1822,6 +1817,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x4$piecewiseSurvivalTime, x1$piecewiseSurvivalTime)
 	expect_equal(x4$lambda1, x1$lambda1, tolerance = 1e-07)
 	expect_equal(x4$lambda2, x1$lambda2, tolerance = 1e-07)
+	expect_equal(x4$earlyStop, x1$earlyStop)
 	expect_equal(x4$hazardRatio, x1$hazardRatio, tolerance = 1e-07)
 	expect_equal(x4$analysisTime[1, ], x1$analysisTime[1, ], tolerance = 1e-07)
 	expect_equal(x4$studyDuration, x1$studyDuration, tolerance = 1e-07)
@@ -1839,7 +1835,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x5$seed, x1$seed)
 	expect_equal(x5$iterations[1, ], x1$iterations[1, ])
 	expect_equal(x5$futilityStop, x1$futilityStop)
-	expect_equal(x5$earlyStop, x1$earlyStop)
 	expect_equal(x5$directionUpper, x1$directionUpper)
 	expect_equal(x5$plannedEvents, x1$plannedEvents)
 	expect_equal(x5$minNumberOfEventsPerStage, x1$minNumberOfEventsPerStage)
@@ -1864,6 +1859,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x5$piecewiseSurvivalTime, x1$piecewiseSurvivalTime)
 	expect_equal(x5$lambda1, x1$lambda1, tolerance = 1e-07)
 	expect_equal(x5$lambda2, x1$lambda2, tolerance = 1e-07)
+	expect_equal(x5$earlyStop, x1$earlyStop)
 	expect_equal(x5$hazardRatio, x1$hazardRatio, tolerance = 1e-07)
 	expect_equal(x5$analysisTime[1, ], x1$analysisTime[1, ], tolerance = 1e-07)
 	expect_equal(x5$studyDuration, x1$studyDuration, tolerance = 1e-07)
@@ -1881,7 +1877,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x6$seed, x1$seed)
 	expect_equal(x6$iterations[1, ], x1$iterations[1, ])
 	expect_equal(x6$futilityStop, x1$futilityStop)
-	expect_equal(x6$earlyStop, x1$earlyStop)
 	expect_equal(x6$directionUpper, x1$directionUpper)
 	expect_equal(x6$plannedEvents, x1$plannedEvents)
 	expect_equal(x6$minNumberOfEventsPerStage, x1$minNumberOfEventsPerStage)
@@ -1906,6 +1901,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x6$piecewiseSurvivalTime, x1$piecewiseSurvivalTime)
 	expect_equal(x6$lambda1, x1$lambda1, tolerance = 1e-07)
 	expect_equal(x6$lambda2, x1$lambda2, tolerance = 1e-07)
+	expect_equal(x6$earlyStop, x1$earlyStop)
 	expect_equal(x6$hazardRatio, x1$hazardRatio, tolerance = 1e-07)
 	expect_equal(x6$analysisTime[1, ], x1$analysisTime[1, ], tolerance = 1e-07)
 	expect_equal(x6$studyDuration, x1$studyDuration, tolerance = 1e-07)
@@ -1923,7 +1919,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x7$seed, x1$seed)
 	expect_equal(x7$iterations[1, ], x1$iterations[1, ])
 	expect_equal(x7$futilityStop, x1$futilityStop)
-	expect_equal(x7$earlyStop, x1$earlyStop)
 	expect_equal(x7$directionUpper, x1$directionUpper)
 	expect_equal(x7$plannedEvents, x1$plannedEvents)
 	expect_equal(x7$minNumberOfEventsPerStage, x1$minNumberOfEventsPerStage)
@@ -1948,6 +1943,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x7$piecewiseSurvivalTime, x1$piecewiseSurvivalTime)
 	expect_equal(x7$lambda1, x1$lambda1, tolerance = 1e-07)
 	expect_equal(x7$lambda2, x1$lambda2, tolerance = 1e-07)
+	expect_equal(x7$earlyStop, x1$earlyStop)
 	expect_equal(x7$hazardRatio, x1$hazardRatio, tolerance = 1e-07)
 	expect_equal(x7$analysisTime[1, ], x1$analysisTime[1, ], tolerance = 1e-07)
 	expect_equal(x7$studyDuration, x1$studyDuration, tolerance = 1e-07)
@@ -1994,7 +1990,6 @@ test_that("'getSimulationSurvival': Confirm that different definitions of delaye
 	expect_equal(x2$seed, x1$seed)
 	expect_equal(x2$iterations[1, ], x1$iterations[1, ])
 	expect_equal(x2$futilityStop, x1$futilityStop)
-	expect_equal(x2$earlyStop, x1$earlyStop)
 	expect_equal(x2$directionUpper, x1$directionUpper)
 	expect_equal(x2$plannedEvents, x1$plannedEvents)
 	expect_equal(x2$minNumberOfEventsPerStage, x1$minNumberOfEventsPerStage)
@@ -2019,6 +2014,7 @@ test_that("'getSimulationSurvival': Confirm that different definitions of delaye
 	expect_equal(x2$piecewiseSurvivalTime, x1$piecewiseSurvivalTime)
 	expect_equal(x2$lambda1, x1$lambda1, tolerance = 1e-07)
 	expect_equal(x2$lambda2, x1$lambda2, tolerance = 1e-07)
+	expect_equal(x2$earlyStop, x1$earlyStop)
 	expect_equal(x2$hazardRatio, x1$hazardRatio, tolerance = 1e-07)
 	expect_equal(x2$analysisTime[1, ], x1$analysisTime[1, ], tolerance = 1e-07)
 	expect_equal(x2$studyDuration, x1$studyDuration, tolerance = 1e-07)

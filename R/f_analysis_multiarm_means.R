@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3635 $
-#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 3784 $
+#:#  Last changed: $Date: 2020-10-23 13:39:46 +0200 (Fr, 23 Okt 2020) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .getAnalysisResultsMeansMultiArm <- function(..., design, dataInput) {
@@ -329,6 +329,7 @@
 	.setValueAndParameterType(stageResults, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
 	effectSizes <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 	overallStDevs <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	overallPooledStDevs <- rep(NA_real_, kMax)
 	testStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 	overallTestStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 	separatePValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
@@ -340,13 +341,15 @@
 	dimnames(overallPValues) = list(paste("arm ", 1:gMax, sep = ""), paste("stage ", (1:kMax), sep = ""))
 	
 	for (k in 1:stage) {
+		overallPooledStDevs[k] <- sqrt(sum((dataInput$getOverallSampleSizes(stage = k) - 1) * 
+								dataInput$getOverallStDevs(stage = k)^2, na.rm = TRUE) /
+								sum(dataInput$getOverallSampleSizes(stage = k) - 1, na.rm = TRUE))
+		
 		if (varianceOption == "overallPooled") {
 			stDev <- sqrt(sum((dataInput$getSampleSizes(stage = k) - 1) * 
 				dataInput$getStDevs(stage = k)^2, na.rm = TRUE) /
 				sum(dataInput$getSampleSizes(stage = k) - 1, na.rm = TRUE))
-			overallStDevForTest <- sqrt(sum((dataInput$getOverallSampleSizes(stage = k) - 1) * 
-				dataInput$getOverallStDevs(stage = k)^2, na.rm = TRUE) /
-				sum(dataInput$getOverallSampleSizes(stage = k) - 1, na.rm = TRUE))
+			overallStDevForTest <- overallPooledStDevs[k]
 		}
 		for (treatmentArm in 1:gMax) {
 			effectSizes[treatmentArm, k] <- dataInput$getOverallMeans(stage = k, group = treatmentArm) - 
@@ -521,6 +524,7 @@
 		stageResults$overallPValues <- overallPValues
 		stageResults$effectSizes <- effectSizes
 		stageResults$overallStDevs <- overallStDevs
+		stageResults$overallPooledStDevs <- overallPooledStDevs 
 		stageResults$testStatistics <- testStatistics
 		stageResults$separatePValues <- separatePValues
 	}

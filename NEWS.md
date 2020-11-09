@@ -1,13 +1,21 @@
 
+# rpact 3.0.2
+
+* getSimulationMultiArmSurvival: plannedEvents redefined as overall events over treatment arms
+* getStageResults: element overallPooledStDevs added; print output improved
+* Unit tests improved: test coverage and references to the functional specification optimized
+* plot type 13 of getSampleSizeSurvival with user defined lambdas with different lengths: issue fixed
+* Minor improvements
+
 # rpact 3.0.1
 
 * Vignette "rpact: Getting Started" included into the package
 * New summary output option "rpact.summary.width" added
 * Generic function summary() improved for several result objects
 * Result output of function testPackage() improved
-* getSimulationMultiArm: stage index corrected for user defined calcSubjectsFunction or calcEventsFunction 
-* getSimulationMultiArmRates: adjustment for identical simulated rates to account for ties 
-* getSimulationMultiArmSurvival: corrected correlation of test statistics  
+* getSimulationMultiArm[Means/Rates/Survival]: stage index corrected for user defined calcSubjectsFunction or calcEventsFunction
+* getSimulationMultiArmRates: adjustment for identical simulated rates to account for ties
+* getSimulationMultiArmSurvival: corrected correlation of test statistics
 * Output formatting improved
 * Minor improvements
 
@@ -15,25 +23,25 @@
 
 ## New features
 
-* Simulation tools for multi-arm design testing means, rates, and hazard ratios 
-* Analysis tools for multi-arm design testing means, rates, and hazard ratios 
-* getSimulationRates: exact versions for testing a rate (one-sample case) and equality of rates (two-sample case) 
-* getDataset: multi-arm datasets for means, rates, and survival data 
-* Analysis of fixed designs 
+* Simulation tools for multi-arm design testing means, rates, and hazard ratios
+* Analysis tools for multi-arm design testing means, rates, and hazard ratios
+* getSimulationRates: exact versions for testing a rate (one-sample case) and equality of rates (two-sample case)
+* getDataset: multi-arm datasets for means, rates, and survival data
+* Analysis of fixed designs
 * Summary for analysis and simulation result objects newly implemented
 * Summary for most rpact result objects substantially improved and enhanced
-* getEventProbabilities: plot of result object 
-* getNumberOfSubjects: plot of result object 
-* Visual comparison of two designs: plot(design1, design2) 
+* getEventProbabilities: plot of result object
+* getNumberOfSubjects: plot of result object
+* Visual comparison of two designs: plot(design1, design2)
 * Functions setOutputFormat and getOutputFormat implemented: definition of user defined output formats
-* getSimulationMeans: thetaH1 and stDevH1 can be specified for assessment of sample size recalculation (replaces thetaStandardized) 
+* getSimulationMeans: thetaH1 and stDevH1 can be specified for assessment of sample size recalculation (replaces thetaStandardized)
 * getSimulationSurvival: separate p-values added to the aggregated simulation data for Fisher designs
 * getSimulationMeans, getSimulationRates: Cumulated number of subjects integrated in getData object
-* getSimulation[MultiArm][Means/Rates/Survival]: new logical argument 'showStatistics' added  
+* getSimulation[MultiArm][Means/Rates/Survival]: new logical argument 'showStatistics' added
 * Example datasets (csv files) added to the package
 * plot type "all": plot all available plots of an object in one step using plot(x, type = "all")
 * plot type improved: 'type' now can be a vector, e.g., plot(x, type = c(1, 3))
-* plot(x, grid = 1): new plot argument 'grid' enables the plotting of 2 or more plots in one graphic 
+* plot(x, grid = 1): new plot argument 'grid' enables the plotting of 2 or more plots in one graphic
 
 ## Improvements, issues, and changes
 
@@ -50,7 +58,7 @@
 * getSimulationSurvival: issue for expected number of events fixed
 * getSimulationSurvival: if eventsNotAchieved > 0, rejection/futility rate and analysis time is estimated for valid simulation runs
 * getSimulationSurvival: output improved for lambda1/median1/hazardRatio with length > 1
-* getSampleSizeSurvival: calculation of the maximum number of subjects given the provided argument 'followUpTime' improved 
+* getSampleSizeSurvival: calculation of the maximum number of subjects given the provided argument 'followUpTime' improved
 * getPiecewiseSurvivalTime: delayed response via list-based piecewiseSurvivalTime definition enabled
 * getAccrualTime/getSimulationSurvival: issue with the calculation of absolute accrual intensity by given relative accrual intensity fixed
 * getRawData: issue for multiple pi1 solved 
@@ -64,7 +72,7 @@
 * Boundaries on effect scale for testing means now accounts for the unknown variance case
 * getAnalysisSurvival: calculation of stage wise results not more in getStageResults
 * getStageResults: the calculation of 'effectSizes' for survival data and thetaH0 != 1 was corrected 
-* getDataset of survival data: issue with the internal storage of log ranks fixed 
+* getDataset of survival data: issue with the internal storage of log ranks fixed
 * Sample size plot: issue for kMax = 1 fixed
 * getSampleSizeSurvival with piecewise survival time: issue with calculation of 'maxNumberOfSubjects' for given 'followUpTime' fixed 
 * Internal Shiny app interface improved
@@ -117,7 +125,7 @@
 * Parameter minNumberOfAdditionalSubjectsPerStage renamed to minNumberOfSubjectsPerStage
 * Parameter maxNumberOfAdditionalSubjectsPerStage renamed to maxNumberOfSubjectsPerStage
 * Output of function getAccrualTime() improved
-* Validation of arguments maxNumberOfIterations, allocation1, and allocation2 added: check for positive integer 
+* Validation of arguments maxNumberOfIterations, allocation1, and allocation2 added: check for positive integer
 * Function getSampleSizeSurvival improved: numeric search for accrualTime if followUpTime is given
 * Default value improved for analysis tools: if no effect was specified for conditional power calculation, the observed effect is selected
 * Fixed: function getDataset produced an error if only one log-rank value and one event was defined
@@ -128,7 +136,7 @@
 
 * Function base::isFALSE replaced to guarantee R 3.4.x compatibility
 * C++ compiler warning on r-devel-linux-x86_64-debian-clang system removed 
-* C++ compiler error on r-patched-solaris-x86 system fixed 
+* C++ compiler error on r-patched-solaris-x86 system fixed
 
 # rpact 2.0.0
 
@@ -149,8 +157,8 @@
 * For all 'set.seed' calls 'kind' and 'normal.kind' were specified as follows: kind = "Mersenne-Twister", normal.kind = "Inversion"
 * Minor code optimizations, e.g. 'return()' replaced by 'return(invisible())' if reasonable
 * Bug in 'readDatasets' fixed: variable names 'group' and 'groups' are now accepted
-* "Overall reject per stage" and "Overall futility per stage" renamed to "Overall reject" and "Overall futility", respectively (also variable names).
-* Labels "events.." and "..patients.." consistently changed to "# events.." and "# patients...", respectively.
+* "Overall reject per stage" and "Overall futility per stage" renamed to "Overall reject" and "Overall futility", respectively (also variable names)
+* Labels "events.." and "..patients.." consistently changed to "# events.." and "# patients...", respectively
 * Output format for 'allocationRatioPlanned' specified
 * Method 'show' of class 'ParameterSet' expanded: R Markdown output features implemented
 * getSampleSizeSurvival(): argument 'maxNumberOfPatients' was renamed in 'maxNumberOfSubjects'

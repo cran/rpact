@@ -14,17 +14,18 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_core_output_formats.R
-#:#  Creation date: 05 September 2020, 14:47:53
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:48:23
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing the output format functions")
+context("Testing the Output Format Functions")
 
 
-	# @refFS[Sec.]{fs:sec:outputFormats}
 test_that("'.formatPValues'", {
+	# @refFS[Sec.]{fs:sec:outputFormats}
+	# @refFS[Tab.]{fs:tab:outputFormats}
 	x <- .formatPValues(0.0000234)
 
 	## Comparison of the results of character object 'x' with expected results
@@ -55,11 +56,12 @@ test_that("'.formatPValues'", {
 	## Comparison of the results of character object 'x' with expected results
 	expect_equal(x, c("<0.0001", "<0.0001", "<0.0001", "NA"))
 
-	# @refFS[Sec.]{fs:sec:outputFormats}
 })
 
 test_that("'.formatRepeatedPValues'", {
 
+	# @refFS[Sec.]{fs:sec:outputFormats}
+	# @refFS[Tab.]{fs:tab:outputFormats}
 	x <- .formatRepeatedPValues(c(0.0000234, 0.0000134, 0.1234))
 
 	## Comparison of the results of character object 'x' with expected results
@@ -75,11 +77,12 @@ test_that("'.formatRepeatedPValues'", {
 	## Comparison of the results of character object 'x' with expected results
 	expect_equal(x, c("<0.0001", "<0.0001", ">0.5", "NA"))
 
-	# @refFS[Sec.]{fs:sec:outputFormats}
 })
 
 test_that("'.formatConditionalPower'", {
 
+	# @refFS[Sec.]{fs:sec:outputFormats}
+	# @refFS[Tab.]{fs:tab:outputFormats}
 	x <- .formatConditionalPower(c(0.0000234, 0.0000134, 0.5234, NA_real_))
 
 	## Comparison of the results of character object 'x' with expected results
@@ -90,15 +93,42 @@ test_that("'.formatConditionalPower'", {
 	## Comparison of the results of character object 'x' with expected results
 	expect_equal(x, c("0.2340", "0.1235", "0.6000", "0"))
 
-	# @refFS[Sec.]{fs:sec:outputFormats}
 })
 
 test_that("'.formatProbabilities'", {
 
+	# @refFS[Sec.]{fs:sec:outputFormats}
+	# @refFS[Tab.]{fs:tab:outputFormats}
 	x <- .formatProbabilities(c(NA_real_, NA_real_, 0.4536623, 0.7713048))
 
 	## Comparison of the results of character object 'x' with expected results
 	expect_equal(x, c("NA", "NA", "0.4537", "0.7713"))
+
+})
+
+test_that("'.getDecimalPlaces'", {
+
+	# @refFS[Sec.]{fs:sec:outputFormats}
+	# @refFS[Tab.]{fs:tab:outputFormats}
+	x <- .getDecimalPlaces(NA)
+
+	## Comparison of the results of integer object 'x' with expected results
+	expect_equal(x, 0)
+
+	x <- .getDecimalPlaces(12.123)
+
+	## Comparison of the results of integer object 'x' with expected results
+	expect_equal(x, 3)
+
+	x <- .getDecimalPlaces(c(6.661338e-16, 8.000000e-01, NA_real_))
+
+	## Comparison of the results of integer object 'x' with expected results
+	expect_equal(x, c(15, 1, 0))
+
+	x <- .getDecimalPlaces(c(6.661338e-16, 8.12300000e-02))
+
+	## Comparison of the results of integer object 'x' with expected results
+	expect_equal(x, c(15, 5))
 
 })
 

@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3581 $
-#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  File version: $Revision: 3783 $
+#:#  Last changed: $Date: 2020-10-23 13:16:02 +0200 (Fri, 23 Oct 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -128,6 +128,16 @@ StageResults <- setRefClass("StageResults",
 				.showParametersOfOneGroup(.getGeneratedParameters(), "Output",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
+			
+				if (grepl("(MultiArm)", class(.self))) {
+					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
+					.cat(paste0("  (i): results of treatment arm i vs. control group ",
+						.dataInput$getNumberOfGroups(),"\n"), 
+						consoleOutputEnabled = consoleOutputEnabled)
+				} else if (.dataInput$getNumberOfGroups(survivalCorrectionEnabled = FALSE) >= 2) {
+					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
+					.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
+				}
 			}
 		},
 		
@@ -365,6 +375,7 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 		combFisher = "matrix", 
 		overallTestStatistics = "matrix", 
 		overallStDevs = "matrix",
+		overallPooledStDevs = "numeric",
 		overallPValues = "matrix",
 		testStatistics = "matrix",
 		separatePValues = "matrix",
@@ -415,6 +426,7 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 				"overallTestStatistics", 
 				"overallPValues",
 				"overallStDevs",
+				"overallPooledStDevs",
 				"testStatistics", 
 				"separatePValues", 
 				"effectSizes",
@@ -1034,7 +1046,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 			cmd <- paste0(cmd, ", thetaRange = seq(0, 1, 0.1)")
 		}
 		else if (grepl("Rates", class(x))) {
-			cmd <- paste0(cmd, ", piTreatmentRange <- seq(0, 1, 0.1)")
+			cmd <- paste0(cmd, ", piTreatmentRange = seq(0, 1, 0.1)")
 		}
 		cmd <- paste0(cmd, ", addPlotData = TRUE)")
 		

@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3635 $
-#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
+#:#  File version: $Revision: 3793 $
+#:#  Last changed: $Date: 2020-10-27 12:14:37 +0100 (Tue, 27 Oct 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -576,6 +576,7 @@ C_PARAMETER_NAMES <- list(
 	singleStepAdjustedPValues = "Single step adjusted p-values",
 	intersectionTest = "Intersection test",
 	varianceOption = "Variance option",
+	overallPooledStDevs = "Overall pooled standard deviations",
 	optimumAllocationRatio = "Optimum allocation ratio",
 	
 	rejected = "Rejected",
@@ -991,6 +992,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	allocationRatioPlanned = ".formatRatios",
 	
 	alpha = ".formatProbabilities",
+	beta = ".formatProbabilities",
 	informationRates = ".formatRates",
 	stageLevels = ".formatProbabilities", 
 	alphaSpent = ".formatProbabilities",
@@ -1005,9 +1007,9 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	constantBoundsHP = ".formatCriticalValues",
 	
 	nMax = ".formatCriticalValues", 
-	nFixed = ".formatCriticalValues", # ".formatSampleSizes",
-	nFixed1 = ".formatCriticalValues", # ".formatSampleSizes",
-	nFixed2 = ".formatCriticalValues", # ".formatSampleSizes",
+	nFixed = ".formatCriticalValues",
+	nFixed1 = ".formatCriticalValues",
+	nFixed2 = ".formatCriticalValues", 
 	shift = ".formatProbabilities",
 	inflationFactor = ".formatProbabilities",
 	information = ".formatRates",
@@ -1044,6 +1046,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	overallStDevs1 = ".formatStDevs", 
 	overallStDevs2 = ".formatStDevs", 
 	overallStDevs = ".formatStDevs", 
+	overallPooledStDevs = ".formatStDevs",
 	testStatistics = ".formatTestStatistics", 
 	combInverseNormal = ".formatTestStatistics", 
 	combFisher = ".formatTestStatisticsFisher",

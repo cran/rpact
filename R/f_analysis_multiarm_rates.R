@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3635 $
-#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 3814 $
+#:#  Last changed: $Date: 2020-10-30 17:12:19 +0100 (Fr, 30 Okt 2020) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 # @title
@@ -725,7 +725,7 @@
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
 	
 	if (!normalApproximation) {
-		message("Repeated confidence intervals is calculated under the normal approximation")
+		message("Repeated confidence intervals will be calculated under the normal approximation")
 		normalApproximation <- TRUE
 	}	
 	

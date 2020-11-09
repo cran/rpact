@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3635 $
-#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
+#:#  File version: $Revision: 3821 $
+#:#  Last changed: $Date: 2020-11-03 08:59:30 +0100 (Tue, 03 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -121,7 +121,8 @@ ConditionalPowerResultsMeans <- setRefClass("ConditionalPowerResultsMeans",
 		initialize = function(...) {
 			callSuper(...)
 			
-			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && !is.null(.design)) {
+			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && 
+					!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
 				conditionalPower <<- rep(NA_real_, .design$kMax)
 			}
 
@@ -131,9 +132,6 @@ ConditionalPowerResultsMeans <- setRefClass("ConditionalPowerResultsMeans",
 			if (is.null(assumedStDev) || length(assumedStDev) == 0 || all(is.na(assumedStDev))) {
 				assumedStDev <<- NA_real_
 			}
-			
-#			.setParameterType("thetaH1", C_PARAM_DEFAULT_VALUE)
-#			.setParameterType("assumedStDevs", C_PARAM_DEFAULT_VALUE)
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
@@ -175,9 +173,6 @@ ConditionalPowerResultsMultiArmMeans <- setRefClass("ConditionalPowerResultsMult
 					conditionalPower <<- matrix(rep(NA_real_, gMax * kMax), nrow = gMax, ncol = kMax)
 				}
 			}
-			
-#			.setParameterType("thetaH1", C_PARAM_DEFAULT_VALUE)
-#			.setParameterType("assumedStDevs", C_PARAM_DEFAULT_VALUE)
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
@@ -198,7 +193,8 @@ ConditionalPowerResultsRates <- setRefClass("ConditionalPowerResultsRates",
 		initialize = function(...) {
 			callSuper(...)
 			
-			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && !is.null(.design)) {
+			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && 
+					!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
 				conditionalPower <<- rep(NA_real_, .design$kMax)
 			}
 			
@@ -208,9 +204,6 @@ ConditionalPowerResultsRates <- setRefClass("ConditionalPowerResultsRates",
 			if (is.null(pi2) || length(pi2) == 0 || all(is.na(pi2))) {
 				pi2 <<- NA_real_
 			}
-			
-#			.setParameterType("pi1", C_PARAM_DEFAULT_VALUE)
-#			.setParameterType("pi2", C_PARAM_DEFAULT_VALUE)
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
@@ -232,9 +225,9 @@ ConditionalPowerResultsMultiArmRates <- setRefClass("ConditionalPowerResultsMult
 			callSuper(...)
 			
 			if (!is.null(.design) && class(.self) != "ConditionalPowerResults" && 
-				!is.null(.stageResults) &&  
-				grepl("MultiArm", class(.stageResults)) &&
-				!is.null(.stageResults$testStatistics)) {
+					!is.null(.stageResults) &&  
+					grepl("MultiArm", class(.stageResults)) &&
+					!is.null(.stageResults$testStatistics)) {
 				gMax <- nrow(.stageResults$testStatistics)
 				if (is.null(gMax)) {
 					gMax <- 1
@@ -252,9 +245,6 @@ ConditionalPowerResultsMultiArmRates <- setRefClass("ConditionalPowerResultsMult
 					conditionalPower <<- matrix(rep(NA_real_, gMax * kMax), nrow = gMax, ncol = kMax)
 				}
 			}
-			
-#			.setParameterType("piTreatments", C_PARAM_DEFAULT_VALUE)
-#			.setParameterType("piControl", C_PARAM_DEFAULT_VALUE)
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
@@ -274,15 +264,14 @@ ConditionalPowerResultsSurvival <- setRefClass("ConditionalPowerResultsSurvival"
 		initialize = function(...) {
 			callSuper(...)
 			
-			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && !is.null(.design)) {
+			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && 
+					!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
 				conditionalPower <<- rep(NA_real_, .design$kMax)
 			}
 			
 			if (is.null(thetaH1) || length(thetaH1) == 0 || all(is.na(thetaH1))) {
 				thetaH1 <<- NA_real_
 			}
-			
-#			.setParameterType("thetaH1", C_PARAM_DEFAULT_VALUE)
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
@@ -320,8 +309,6 @@ ConditionalPowerResultsMultiArmSurvival <- setRefClass("ConditionalPowerResultsM
 					conditionalPower <<- matrix(rep(NA_real_, gMax * kMax), nrow = gMax, ncol = kMax)
 				}
 			}
-			
-#			.setParameterType("thetaH1", C_PARAM_DEFAULT_VALUE)
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
@@ -670,14 +657,10 @@ AnalysisResults <- setRefClass("AnalysisResults",
 					.cat(paste0("  (i): results of treatment arm i vs. control group ",
 							.dataInput$getNumberOfGroups(),"\n"), 
 						consoleOutputEnabled = consoleOutputEnabled)
-				} else {
-					if (grepl("Rates", class(.dataInput)) && .dataInput$getNumberOfGroups() == 2) {
-						.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
-						.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
-					}
+				} else if (grepl("Rates", class(.dataInput)) && .dataInput$getNumberOfGroups() == 2) {
+					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
+					.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
 				}
-				
-				.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
 			}
 		},
 		
@@ -1256,8 +1239,16 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		}
 	}
 	if (length(typeNumbers) == 1) {
+		if (.isSpecialPlotShowSourceArgument(showSource)) {
+			return(invisible(p))
+		}
+		
 		return(p)
 	} 
+	
+	if (.isSpecialPlotShowSourceArgument(showSource)) {
+		return(invisible(plotList))
+	}
 	
 	return(.createPlotResultObject(plotList, grid))
 }

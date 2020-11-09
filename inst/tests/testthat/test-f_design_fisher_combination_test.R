@@ -14,36 +14,40 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_design_fisher_combination_test.R
-#:#  Creation date: 05 September 2020, 14:47:58
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:48:28
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing the Fisher design functionality")
+context("Testing the Fisher Design Functionality")
 
 
 test_that("'getDesignFisher' with default parameters: parameters and results are as expected", {
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
 	# @refFS[Formula]{fs:FisherCombinationEqualAlpha}
-	x <- getDesignFisher()
+	designFisher0 <- getDesignFisher()
 
-	## Comparison of the results of TrialDesignFisher object 'x' with expected results
-	expect_equal(x$alphaSpent, c(0.012308547, 0.01962413, 0.025), tolerance = 1e-07)
-	expect_equal(x$criticalValues, c(0.012308547, 0.0016635923, 0.00029106687), tolerance = 1e-07)
-	expect_equal(x$stageLevels, c(0.012308547, 0.012308547, 0.012308547), tolerance = 1e-07)
-	expect_equal(x$scale, c(1, 1))
-	expect_equal(x$nonStochasticCurtailment, FALSE)
+	## Comparison of the results of TrialDesignFisher object 'designFisher0' with expected results
+	expect_equal(designFisher0$alphaSpent, c(0.012308547, 0.01962413, 0.025), tolerance = 1e-07)
+	expect_equal(designFisher0$criticalValues, c(0.012308547, 0.0016635923, 0.00029106687), tolerance = 1e-07)
+	expect_equal(designFisher0$stageLevels, c(0.012308547, 0.012308547, 0.012308547), tolerance = 1e-07)
+	expect_equal(designFisher0$scale, c(1, 1))
+	expect_equal(designFisher0$nonStochasticCurtailment, FALSE)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x), NA)))
-	    expect_output(print(x)$show())
-	    invisible(capture.output(expect_error(summary(x), NA)))
-	    expect_output(summary(x)$show())
+	    invisible(capture.output(expect_error(print(designFisher0), NA)))
+	    expect_output(print(designFisher0)$show())
+	    invisible(capture.output(expect_error(summary(designFisher0), NA)))
+	    expect_output(summary(designFisher0)$show())
 	}
 
 })
 
 test_that("'getDesignFisher' with kMax = 4: parameters and results are as expected for different arguments", {
 
+	.skipTestIfDisabled()
+
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
 	# @refFS[Formula]{fs:FisherCombinationEqualAlpha}
 	designFisher1 <- getDesignFisher(kMax = 4)
 
@@ -60,6 +64,7 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(summary(designFisher1)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
 	# @refFS[Formula]{fs:FisherCombinationEqualAlpha}
 	designFisher2 <- getDesignFisher(kMax = 4, alpha0Vec = c(0.7,0.6,0.5), informationRates = c(0.1,0.3,0.7,1))
 
@@ -76,6 +81,7 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(summary(designFisher2)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
 	# @refFS[Formula]{fs:FisherCombinationFullAlpha}
 	designFisher3 <- getDesignFisher(kMax = 4, method = "fullAlpha")
 
@@ -92,6 +98,7 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(summary(designFisher3)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
 	# @refFS[Formula]{fs:FisherCombinationFullAlpha}
 	designFisher4 <- getDesignFisher(kMax = 4, alpha0Vec = c(0.7,0.6,0.5), informationRates = c(0.1,0.3,0.7,1), method = "fullAlpha")
 
@@ -108,6 +115,7 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(summary(designFisher4)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
 	# @refFS[Formula]{fs:FisherCombinationNoTreatmentStageInteraction}
 	designFisher5 <- getDesignFisher(kMax = 4, alpha0Vec = c(0.7,0.6,0.5), method = "noInteraction")
 
@@ -124,6 +132,7 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(summary(designFisher5)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
 	# @refFS[Formula]{fs:FisherCombinationNoTreatmentStageInteraction}
 	designFisher6 <- getDesignFisher(kMax = 4, alpha0Vec = c(0.7,0.6,0.5), informationRates = c(0.1,0.3,0.7,1), method = "noInteraction")
 
@@ -140,7 +149,8 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(summary(designFisher6)$show())
 	}
 
-	# @refFS[Formula]{fs:FisherCombinationUserDefinedAlphaPending}
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
+	# @refFS[Formula]{fs:FisherCombinationUserDefinedAlphaSpending}
 	designFisher7 <- getDesignFisher(kMax = 4, alpha0Vec = c(0.7,0.6,0.5), method = "userDefinedAlpha", userAlphaSpending = c(0.01,0.015,0.02,0.025))
 
 	## Comparison of the results of TrialDesignFisher object 'designFisher7' with expected results
@@ -156,7 +166,8 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(summary(designFisher7)$show())
 	}
 
-	# @refFS[Formula]{fs:FisherCombinationUserDefinedAlphaPending}
+	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
+	# @refFS[Formula]{fs:FisherCombinationUserDefinedAlphaSpending}
 	designFisher8 <- getDesignFisher(kMax = 4, alpha0Vec = c(0.7,0.6,0.5), informationRates = c(0.1,0.3,0.7,1), method = "userDefinedAlpha", userAlphaSpending = c(0.01,0.015,0.02,0.025))
 
 	## Comparison of the results of TrialDesignFisher object 'designFisher8' with expected results

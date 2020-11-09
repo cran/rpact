@@ -14,16 +14,61 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_base_means.R
-#:#  Creation date: 05 September 2020, 14:21:59
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:42:20
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing the analysis means functionality for one treatment")
+context("Testing the Analysis Means Functionality for One Treatment")
 
 
-test_that("'getAnalysisResults' for group sequential design and a dataset of one mean per stage (bindingFutility = FALSE)", {
+test_that("'getAnalysisResults' for two-stage group sequential design and a dataset of one mean per stage (bindingFutility = FALSE)", {
+	dataExample <- getDataset(
+			n = 120,
+			means = 0.45,
+			stDevs = 1.3
+	)
+	design <- getDesignGroupSequential(kMax = 2, alpha = 0.025, futilityBounds = 0, 
+			bindingFutility = FALSE, typeOfDesign = "WT", deltaWT = 0.4)
+
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticOneMean}
+	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
+	# @refFS[Formula]{fs:definitionRCIInverseNormal}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:orderingPValueUpper}
+	# @refFS[Formula]{fs:finalCIOneMean}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
+	# @refFS[Formula]{fs:conditionalPowerOneMeanEffect}
+	result <- getAnalysisResults(design = design, dataInput = dataExample, 
+			nPlanned = 130, thetaH1 = 0.22, assumedStDev = 1, thetaH0 = 0.25)
+
+	## Comparison of the results of AnalysisResultsGroupSequential object 'result' with expected results
+	expect_equal(result$testActions, c("continue", NA_character_))
+	expect_equal(result$conditionalRejectionProbabilities, c(0.094509305, NA_real_), tolerance = 1e-07)
+	expect_equal(result$conditionalPower, c(NA_real_, 0.048907456), tolerance = 1e-07)
+	expect_equal(result$repeatedConfidenceIntervalLowerBounds, c(0.17801057, NA_real_), tolerance = 1e-07)
+	expect_equal(result$repeatedConfidenceIntervalUpperBounds, c(0.72198924, NA_real_), tolerance = 1e-07)
+	expect_equal(result$repeatedPValues, c(0.085336561, NA_real_), tolerance = 1e-07)
+	expect_equal(result$finalStage, NA_integer_)
+	expect_equal(result$finalPValues, c(NA_real_, NA_real_))
+	expect_equal(result$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_))
+	expect_equal(result$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_))
+	expect_equal(result$medianUnbiasedEstimates, c(NA_real_, NA_real_))
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(result), NA)))
+	    expect_output(print(result)$show())
+	    invisible(capture.output(expect_error(summary(result), NA)))
+	    expect_output(summary(result)$show())
+	}
+
+})
+
+test_that("'getAnalysisResults' for three-stage group sequential design and a dataset of one mean per stage (bindingFutility = FALSE)", {
+
 	.skipTestIfDisabled()
 
 	dataExample <- getDataset(
@@ -35,9 +80,10 @@ test_that("'getAnalysisResults' for group sequential design and a dataset of one
 	design <- getDesignGroupSequential(kMax = 3, alpha = 0.025, futilityBounds = rep(0.5244, 2), 
 		bindingFutility = FALSE, typeOfDesign = "WT", deltaWT = 0.4)
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -82,9 +128,10 @@ test_that("'getAnalysisResults' for group sequential design and a dataset of one
 	design1 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
 		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -172,12 +219,12 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 
 	dataExample1 <- getDataset(
 			n = c(20, 30, 30),
-			means = c(0.45, 0.51, 0.45) * 100,
+			means = c(0.45, 0.51, 0.45) * 100,   
 			stDevs = c(1.3, 1.4, 1.2) * 100
 	)
 
 	design2 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
-		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
+		bindingFutility = FALSE, typeOfDesign = "WT", deltaWT = 0.4)
 
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
@@ -209,13 +256,14 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 
 	## Comparison of the results of list object 'plotData2' with expected results
 	expect_equal(plotData2$xValues, c(10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80))
-	expect_equal(plotData2$condPowerValues, c(0.18776792, 0.28883478, 0.41147918, 0.5447391, 0.67401995, 0.78575942, 0.87165951, 0.93031941, 0.96586805, 0.98497137, 0.99406923, 0.99790729, 0.999341, 0.99981509, 0.99995383), tolerance = 1e-07)
+	expect_equal(plotData2$condPowerValues, c(0.16190431, 0.25577971, 0.37352079, 0.50571299, 0.6381983, 0.75647047, 0.85036513, 0.91657165, 0.95799515, 0.98097554, 0.99227303, 0.99719255, 0.99908935, 0.99973672, 0.99993224), tolerance = 1e-07)
 	expect_equal(plotData2$likelihoodValues, c(0.12861339, 0.21139553, 0.32435073, 0.46456173, 0.62112851, 0.77522713, 0.90320416, 0.98231862, 0.99730568, 0.94517816, 0.83619688, 0.69057821, 0.53238607, 0.38313335, 0.25738469), tolerance = 1e-07)
 	expect_equal(plotData2$main, "Conditional Power with Likelihood")
 	expect_equal(plotData2$xlab, "Effect size")
 	expect_equal(plotData2$ylab, "Conditional power / Likelihood")
 	expect_equal(plotData2$sub, "Stage = 2, # of remaining subjects = 50, sd = 100")
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
@@ -231,16 +279,16 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'result2' with expected results
 	expect_equal(result2$testActions, c("continue", "continue", "reject and stop", NA_character_))
-	expect_equal(result2$conditionalRejectionProbabilities, c(0.054544013, 0.18776792, 0.47147471, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$conditionalPower, c(NA_real_, NA_real_, NA_real_, 0.98296857), tolerance = 1e-07)
-	expect_equal(result2$repeatedConfidenceIntervalLowerBounds, c(-35.118855, 1.5735511, 13.58964, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$repeatedConfidenceIntervalUpperBounds, c(125.11886, 94.865725, 80.385626, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$repeatedPValues, c(0.18164628, 0.056608473, 0.014183052, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$conditionalRejectionProbabilities, c(0.046837862, 0.16190673, 0.42383694, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$conditionalPower, c(NA_real_, NA_real_, NA_real_, 0.97718516), tolerance = 1e-07)
+	expect_equal(result2$repeatedConfidenceIntervalLowerBounds, c(-37.7517, 0.20066782, 12.631309, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$repeatedConfidenceIntervalUpperBounds, c(127.7517, 96.240714, 81.345632, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$repeatedPValues, c(0.28074785, 0.070627118, 0.016069426, NA_real_), tolerance = 1e-07)
 	expect_equal(result2$finalStage, 3)
-	expect_equal(result2$finalPValues, c(NA_real_, NA_real_, 0.016754234, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 13.011822, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 82.848073, NA_real_), tolerance = 1e-07)
-	expect_equal(result2$medianUnbiasedEstimates, c(NA_real_, NA_real_, 45.714272, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$finalPValues, c(NA_real_, NA_real_, 0.015631623, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 13.353451, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 73.21831, NA_real_), tolerance = 1e-07)
+	expect_equal(result2$medianUnbiasedEstimates, c(NA_real_, NA_real_, 44.191393, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(result2), NA)))
 	    expect_output(print(result2)$show())
@@ -345,9 +393,10 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(plotData1$ylab, "Conditional power / Likelihood")
 	expect_equal(plotData1$sub, "Stage = 2, # of remaining subjects = 50, sd = 100")
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -379,17 +428,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	}
 
 	design5 <- getDesignInverseNormal(kMax = 4, alpha = 0.025,  typeOfDesign = "WT", deltaWT = 0.4)
-
-	## Comparison of the results of TrialDesignInverseNormal object 'design5' with expected results
-	expect_equal(design5$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.02499999), tolerance = 1e-07)
-	expect_equal(design5$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(design5$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design5), NA)))
-	    expect_output(print(design5)$show())
-	    invisible(capture.output(expect_error(summary(design5), NA)))
-	    expect_output(summary(design5)$show())
-	}
 
 	stageResults2 <- getStageResults(design5, dataExample2, thetaH0 = 10, stage = 2)
 
@@ -423,6 +461,7 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	expect_equal(plotData2$ylab, "Conditional power / Likelihood")
 	expect_equal(plotData2$sub, "Stage = 2, # of remaining subjects = 50, sd = 100")
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
@@ -458,19 +497,6 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 
 	design6 <- getDesignFisher(kMax = 4, alpha = 0.025)
 
-	## Comparison of the results of TrialDesignFisher object 'design6' with expected results
-	expect_equal(design6$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(design6$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(design6$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(design6$scale, c(1, 1, 1))
-	expect_equal(design6$nonStochasticCurtailment, FALSE)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design6), NA)))
-	    expect_output(print(design6)$show())
-	    invisible(capture.output(expect_error(summary(design6), NA)))
-	    expect_output(summary(design6)$show())
-	}
-
 	stageResults3 <- getStageResults(design6, dataExample2, thetaH0 = 10, stage = 2)
 
 	## Comparison of the results of StageResultsMeans object 'stageResults3' with expected results
@@ -491,6 +517,7 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	    expect_output(summary(stageResults3)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
 	# @refFS[Formula]{fs:testStatisticOneMean}
 	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
@@ -523,38 +550,26 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 
 })
 
-context("Testing the analysis means functionality for two treatments")
+context("Testing the Analysis Means Functionality for Two Treatments")
 
 
 test_that("'getAnalysisResults' for a Fisher design and a dataset of two means per stage", {
 	.skipTestIfDisabled()
 
 	# note: if third stage value of means1 (4.5) increases, lower bound of RCI does not increase
-	design7 <- getDesignFisher(kMax = 4, alpha = 0.025)
-
-	## Comparison of the results of TrialDesignFisher object 'design7' with expected results
-	expect_equal(design7$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(design7$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(design7$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(design7$scale, c(1, 1, 1))
-	expect_equal(design7$nonStochasticCurtailment, FALSE)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design7), NA)))
-	    expect_output(print(design7)$show())
-	    invisible(capture.output(expect_error(summary(design7), NA)))
-	    expect_output(summary(design7)$show())
-	}
+	design7 <- getDesignFisher(kMax = 4, informationRates = c(0.2,0.5,0.9,1), alpha = 0.05, alpha0Vec = rep(0.4,3))
 
 	dataExample3 <- getDataset(
-		n1 = c(23, 13, 22, 13),
-		n2 = c(22, 11, 22, 11),				
-		means1 = c(2.7, 1.5, 4.5, 2.5) * 100,
-		means2 = c(1, 1.1, 1.3, 1) * 100,				
-		stds1 = c(1.3, 2.4, 2.2, 1.3) * 100,
-		stds2 = c(1.2, 2.2, 2.1, 1.3) * 100
+		n1 = c(23, 13, 22),
+		n2 = c(22, 11, 22),
+		means1 = c(1, 1.1, 1.3) * 100,	
+		means2 = c(1.3, 1.4, 2.5) * 100,
+		stds1 = c(1.3, 2.4, 2.2) * 100,
+		stds2 = c(1.2, 2.2, 2.1) * 100
 	)
 
-	# @refFS[Formula]{fs:testStatisticTwoMeansEqualVariances}
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
@@ -562,23 +577,23 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:finalPValueFisherCombinationTest}
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
-	result <- getAnalysisResults(design = design7, dataInput = dataExample3, equalVariances = TRUE, 
-		directionUpper = TRUE, seed = 123456789)
+	result <- getAnalysisResults(design = design7, dataInput = dataExample3, equalVariances = TRUE, thetaH0 = 0,
+		directionUpper = FALSE, seed = 123456789)
 
 	## Comparison of the results of AnalysisResultsFisher object 'result' with expected results
-	expect_equal(result$thetaH1, 188.47418, tolerance = 1e-07)
-	expect_equal(result$assumedStDev, 192.76382, tolerance = 1e-07)
-	expect_equal(result$testActions, c("reject and stop", "reject and stop", "reject and stop", "reject"))
-	expect_equal(result$conditionalRejectionProbabilities, c(1, 1, 1, NA_real_))
+	expect_equal(result$thetaH1, -66.37931, tolerance = 1e-07)
+	expect_equal(result$assumedStDev, 189.41921, tolerance = 1e-07)
+	expect_equal(result$testActions, c("continue", "continue", "continue", NA_character_))
+	expect_equal(result$conditionalRejectionProbabilities, c(0.044249457, 0.020976199, 0.060555322, NA_real_), tolerance = 1e-07)
 	expect_equal(result$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(result$repeatedConfidenceIntervalLowerBounds, c(80.389809, 58.773337, 126.21876, 121.44462), tolerance = 1e-07)
-	expect_equal(result$repeatedConfidenceIntervalUpperBounds, c(259.61019, 232.56315, 252.86796, 238.01813), tolerance = 1e-07)
-	expect_equal(result$repeatedPValues, c(6.2988707e-05, 0.00026325991, 1.9536724e-06, 1.9536724e-06), tolerance = 1e-07)
-	expect_equal(result$finalStage, 1)
-	expect_equal(result$finalPValues, c(2.1583718e-05, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result$finalConfidenceIntervalLowerBounds, c(96.812108, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result$finalConfidenceIntervalUpperBounds, c(243.18789, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result$medianUnbiasedEstimates, c(170, NA_real_, NA_real_, NA_real_))
+	expect_equal(result$repeatedConfidenceIntervalLowerBounds, c(-102.25178, -110.95946, -128.224, NA_real_), tolerance = 1e-07)
+	expect_equal(result$repeatedConfidenceIntervalUpperBounds, c(42.251781, 50.959457, 11.069379, NA_real_), tolerance = 1e-07)
+	expect_equal(result$repeatedPValues, c(0.25752784, 0.32556092, 0.088271965, NA_real_), tolerance = 1e-07)
+	expect_equal(result$finalStage, NA_integer_)
+	expect_equal(result$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(result$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(result$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(result$medianUnbiasedEstimates, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(result), NA)))
 	    expect_output(print(result)$show())
@@ -603,20 +618,10 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 
 	design8 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, typeOfDesign = "WT", deltaWT = 0.4)
 
-	## Comparison of the results of TrialDesignGroupSequential object 'design8' with expected results
-	expect_equal(design8$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.02499999), tolerance = 1e-07)
-	expect_equal(design8$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(design8$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design8), NA)))
-	    expect_output(print(design8)$show())
-	    invisible(capture.output(expect_error(summary(design8), NA)))
-	    expect_output(summary(design8)$show())
-	}
-
-	# @refFS[Formula]{fs:testStatisticTwoMeansEqualVariances}
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -647,9 +652,10 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	    expect_output(summary(result1)$show())
 	}
 
-	# @refFS[Formula]{fs:testStatisticTwoMeansEqualVariances}
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -680,9 +686,10 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	    expect_output(summary(result4)$show())
 	}
 
-	# @refFS[Formula]{fs:testStatisticTwoMeansEqualVariances}
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -730,19 +737,9 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 
 	design9 <- getDesignInverseNormal(kMax = 4, alpha = 0.025,  typeOfDesign = "WT", deltaWT = 0.4)
 
-	## Comparison of the results of TrialDesignInverseNormal object 'design9' with expected results
-	expect_equal(design9$alphaSpent, c(0.0051577307, 0.011892822, 0.018620498, 0.02499999), tolerance = 1e-07)
-	expect_equal(design9$criticalValues, c(2.5650713, 2.3932961, 2.2981973, 2.2330242), tolerance = 1e-07)
-	expect_equal(design9$stageLevels, c(0.0051577307, 0.0083488792, 0.010775281, 0.012773673), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design9), NA)))
-	    expect_output(print(design9)$show())
-	    invisible(capture.output(expect_error(summary(design9), NA)))
-	    expect_output(summary(design9)$show())
-	}
-
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterUnequalVariances}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -773,9 +770,10 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	    expect_output(summary(result2)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
 	# @refFS[Formula]{fs:testStatisticDifferenceMeansUnequalVariances}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterUnequalVariances}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -806,9 +804,10 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	    expect_output(summary(result5)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
 	# @refFS[Formula]{fs:testStatisticDifferenceMeansUnequalVariances}
 	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterUnequalVariances}
-	# @refFS[Formula]{fs:testStatisticsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:orderingPValueUpper}
@@ -842,6 +841,8 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 
 	.skipTestIfDisabled()
 
+	informationRates <- c(0.2, 0.5, 0.8, 1)
+
 	dataExample6 <- getDataset(
 		n1 = c(23, 13, 22, 13),
 		n2 = c(22, 11, 22, 11),				
@@ -851,37 +852,33 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 		stds2 = c(1.2, 2.2, 2.1, 1.3) * 100
 	)
 
-	design10 <- getDesignFisher(kMax = 4, alpha = 0.025)
+	design10 <- getDesignFisher(kMax = 4, alpha = 0.035,
+						informationRates = informationRates)
 
-	## Comparison of the results of TrialDesignFisher object 'design10' with expected results
-	expect_equal(design10$alphaSpent, c(0.010404785, 0.016661203, 0.021286477, 0.025), tolerance = 1e-07)
-	expect_equal(design10$criticalValues, c(0.010404785, 0.0013703718, 0.00023506069, 4.5812899e-05), tolerance = 1e-07)
-	expect_equal(design10$stageLevels, c(0.010404785, 0.010404785, 0.010404785, 0.010404785), tolerance = 1e-07)
-	expect_equal(design10$scale, c(1, 1, 1))
-	expect_equal(design10$nonStochasticCurtailment, FALSE)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design10), NA)))
-	    expect_output(print(design10)$show())
-	    invisible(capture.output(expect_error(summary(design10), NA)))
-	    expect_output(summary(design10)$show())
-	}
-
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
+	# @refFS[Formula]{fs:definitionRCIFisherCombination}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:finalPValueFisherCombinationTest}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	result3 <- getAnalysisResults(design = design10, dataInput = dataExample6, equalVariances = TRUE,
-		stage = 2, nPlanned = c(15, 15), thetaH0 = 0, thetaH1 = 130, 
+		stage = 2, nPlanned = c(18, 12), thetaH0 = 0, thetaH1 = 130, 
 		assumedStDev = 100, allocationRatioPlanned = 2, seed = 123456789)
 
 	## Comparison of the results of AnalysisResultsFisher object 'result3' with expected results
 	expect_equal(result3$testActions, c("continue", "continue", NA_character_, NA_character_))
-	expect_equal(result3$conditionalRejectionProbabilities, c(0.077408717, 0.036086707, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$repeatedConfidenceIntervalLowerBounds, c(-19.610191, -28.583726, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$repeatedConfidenceIntervalUpperBounds, c(159.61019, 157.36315, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(result3$repeatedPValues, c(0.07529439, 0.13212373, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$conditionalRejectionProbabilities, c(0.092626641, 0.040500778, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$repeatedConfidenceIntervalLowerBounds, c(-14.62622, -29.188312, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$repeatedConfidenceIntervalUpperBounds, c(154.62622, 155.99339, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(result3$repeatedPValues, c(0.078061948, 0.16270991, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(result3$finalStage, NA_integer_)
 	expect_equal(result3$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(result3$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(result3$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(result3$medianUnbiasedEstimates, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(result3$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.599, 0.917), tolerance = 1e-07)
+	expect_equal(result3$conditionalPowerSimulated, c(NA_real_, NA_real_, 0.734, 0.933), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(result3), NA)))
 	    expect_output(print(result3)$show())
@@ -889,17 +886,25 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	    expect_output(summary(result3)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
+	# @refFS[Formula]{fs:definitionRCIFisherCombination}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:finalPValueFisherCombinationTest}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	result6 <- getAnalysisResults(design = design10, dataInput = dataExample6, equalVariances = TRUE,
 		stage = 3, nPlanned = 15, thetaH0 = 0, thetaH1 = 130, 
 		assumedStDev = 100, allocationRatioPlanned = 2, seed = 123456789)
 
 	## Comparison of the results of AnalysisResultsFisher object 'result6' with expected results
 	expect_equal(result6$testActions, c("continue", "continue", "continue", NA_character_))
-	expect_equal(result6$conditionalRejectionProbabilities, c(0.077408717, 0.036086707, 0.017989301, NA_real_), tolerance = 1e-07)
-	expect_equal(result6$conditionalPower, c(NA_real_, NA_real_, NA_real_, 0.60883935), tolerance = 1e-07)
-	expect_equal(result6$repeatedConfidenceIntervalLowerBounds, c(-19.610191, -28.583726, -24.875191, NA_real_), tolerance = 1e-07)
-	expect_equal(result6$repeatedConfidenceIntervalUpperBounds, c(159.61019, 157.36315, 146.25589, NA_real_), tolerance = 1e-07)
-	expect_equal(result6$repeatedPValues, c(0.07529439, 0.13212373, 0.13321282, NA_real_), tolerance = 1e-07)
+	expect_equal(result6$conditionalRejectionProbabilities, c(0.092626641, 0.040500778, 0.016148337, NA_real_), tolerance = 1e-07)
+	expect_equal(result6$conditionalPower, c(NA_real_, NA_real_, NA_real_, 0.5920203), tolerance = 1e-07)
+	expect_equal(result6$repeatedConfidenceIntervalLowerBounds, c(-14.62622, -29.188312, -25.34531, NA_real_), tolerance = 1e-07)
+	expect_equal(result6$repeatedConfidenceIntervalUpperBounds, c(154.62622, 155.99339, 144.38935, NA_real_), tolerance = 1e-07)
+	expect_equal(result6$repeatedPValues, c(0.078061948, 0.16270991, 0.16485567, NA_real_), tolerance = 1e-07)
 	expect_equal(result6$finalStage, NA_integer_)
 	expect_equal(result6$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(result6$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -912,17 +917,25 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	    expect_output(summary(result6)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
+	# @refFS[Formula]{fs:definitionRCIFisherCombination}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:finalPValueFisherCombinationTest}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	result9 <- getAnalysisResults(design = design10, dataInput = dataExample6, equalVariances = TRUE,
 		stage = 4, nPlanned = numeric(0), thetaH0 = 0, thetaH1 = 130, 
 		assumedStDev = 100, allocationRatioPlanned = 2, seed = 123456789)
 
 	## Comparison of the results of AnalysisResultsFisher object 'result9' with expected results
 	expect_equal(result9$testActions, c("continue", "continue", "continue", "reject"))
-	expect_equal(result9$conditionalRejectionProbabilities, c(0.077408717, 0.036086707, 0.017989301, NA_real_), tolerance = 1e-07)
+	expect_equal(result9$conditionalRejectionProbabilities, c(0.092626641, 0.040500778, 0.016148337, NA_real_), tolerance = 1e-07)
 	expect_equal(result9$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(result9$repeatedConfidenceIntervalLowerBounds, c(-19.610191, -28.583726, -24.875191, 10.125544), tolerance = 1e-07)
-	expect_equal(result9$repeatedConfidenceIntervalUpperBounds, c(159.61019, 157.36315, 146.25589, 154.53063), tolerance = 1e-07)
-	expect_equal(result9$repeatedPValues, c(0.07529439, 0.13212373, 0.13321282, 0.010110881), tolerance = 1e-07)
+	expect_equal(result9$repeatedConfidenceIntervalLowerBounds, c(-14.62622, -29.188312, -25.34531, 8.7533154), tolerance = 1e-07)
+	expect_equal(result9$repeatedConfidenceIntervalUpperBounds, c(154.62622, 155.99339, 144.38935, 151.28694), tolerance = 1e-07)
+	expect_equal(result9$repeatedPValues, c(0.078061948, 0.16270991, 0.16485567, 0.017103207), tolerance = 1e-07)
 	expect_equal(result9$finalStage, NA_integer_)
 	expect_equal(result9$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(result9$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -955,17 +968,17 @@ test_that("Check that the conditional power is as expected for different designs
 		informationRates = informationRates, futilityBounds = rep(0.5244, 3), 
 		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.45)
 
-	## Comparison of the results of TrialDesignGroupSequential object 'design11' with expected results
-	expect_equal(design11$alphaSpent, c(0.008066711, 0.01611168, 0.021671928, 0.02499999), tolerance = 1e-07)
-	expect_equal(design11$criticalValues, c(2.4058832, 2.2981456, 2.2447684, 2.2198623), tolerance = 1e-07)
-	expect_equal(design11$stageLevels, c(0.008066711, 0.010776752, 0.012391502, 0.013214058), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design11), NA)))
-	    expect_output(print(design11)$show())
-	    invisible(capture.output(expect_error(summary(design11), NA)))
-	    expect_output(summary(design11)$show())
-	}
-
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeSmallerEqualVariances}
+	# @refFS[Formula]{fs:testStatisticGroupSequential}
+	# @refFS[Formula]{fs:definitionRCIInverseNormal}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:orderingPValueUpper}
+	# @refFS[Formula]{fs:finalCITwoMeans}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
+	# @refFS[Formula]{fs:conditionalPowerTwoMeansEffect}
 	result1 <- getAnalysisResults(design = design11, dataInput = dataExample7, equalVariances = TRUE, 
 		directionUpper = FALSE, stage = 2, thetaH0 = 0.2, thetaH1 = -0.2, nPlanned = c(96, 64), 
 		allocationRatioPlanned = 3, normalApproximation = FALSE)
@@ -993,17 +1006,6 @@ test_that("Check that the conditional power is as expected for different designs
 	design12 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, 
 		informationRates = informationRates, typeOfDesign = "WT", deltaWT = 0.45)
 
-	## Comparison of the results of TrialDesignInverseNormal object 'design12' with expected results
-	expect_equal(design12$alphaSpent, c(0.0064937119, 0.013848609, 0.020340933, 0.02499999), tolerance = 1e-07)
-	expect_equal(design12$criticalValues, c(2.484114, 2.3728731, 2.3177603, 2.2920443), tolerance = 1e-07)
-	expect_equal(design12$stageLevels, c(0.0064937119, 0.0088251631, 0.010231176, 0.010951542), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design12), NA)))
-	    expect_output(print(design12)$show())
-	    invisible(capture.output(expect_error(summary(design12), NA)))
-	    expect_output(summary(design12)$show())
-	}
-
 	stageResults <- getStageResults(design = design12, dataInput = dataExample7, equalVariances = TRUE, 
 		directionUpper = T, stage = 2, thetaH0 = -1) 
 
@@ -1028,6 +1030,9 @@ test_that("Check that the conditional power is as expected for different designs
 	    expect_output(summary(stageResults)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getConditionalPowerMeans}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:conditionalPowerTwoMeansEffect}
 	conditionalPower <- getConditionalPower(stageResults,
 		thetaH1 = 0.840, nPlanned = c(96,64), assumedStDev = 2)
 
@@ -1053,6 +1058,17 @@ test_that("Check that the conditional power is as expected for different designs
 	expect_equal(conditionalPowerPlot$ylab, "Conditional power / Likelihood")
 	expect_equal(conditionalPowerPlot$sub, "Stage = 2, # of remaining subjects = 160, sd = 2, allocation ratio = 3")
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
+	# @refFS[Formula]{fs:definitionRCIInverseNormal}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:orderingPValueLower}
+	# @refFS[Formula]{fs:finalCITwoMeans}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
+	# @refFS[Formula]{fs:conditionalPowerTwoMeansEffect}
 	result2 <- getAnalysisResults(design = design12, dataInput = dataExample7, equalVariances = TRUE, 
 		directionUpper = FALSE,	stage = 2, thetaH0 = 0.2, thetaH1 = -0.2, nPlanned = c(96, 64), 
 		allocationRatioPlanned = 3, normalApproximation = FALSE)
@@ -1077,20 +1093,16 @@ test_that("Check that the conditional power is as expected for different designs
 	    expect_output(summary(result2)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
+	# @refFS[Formula]{fs:definitionRCIFisherCombination}
+	# @refFS[Formula]{fs:calculationRepeatedpValue}
+	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
+	# @refFS[Formula]{fs:conditionalPowerTwoMeansEffect}
 	design13 <- getDesignFisher(kMax = 4, alpha = 0.025, informationRates = informationRates)
-
-	## Comparison of the results of TrialDesignFisher object 'design13' with expected results
-	expect_equal(design13$alphaSpent, c(0.0099747046, 0.017168497, 0.022142404, 0.025), tolerance = 1e-07)
-	expect_equal(design13$criticalValues, c(0.0099747046, 0.00059134153, 6.046221e-05, 1.3203687e-05), tolerance = 1e-07)
-	expect_equal(design13$stageLevels, c(0.0099747046, 0.0099747046, 0.0099747046, 0.0099747046), tolerance = 1e-07)
-	expect_equal(design13$scale, c(1.2247449, 1.2247449, 1), tolerance = 1e-07)
-	expect_equal(design13$nonStochasticCurtailment, FALSE)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(design13), NA)))
-	    expect_output(print(design13)$show())
-	    invisible(capture.output(expect_error(summary(design13), NA)))
-	    expect_output(summary(design13)$show())
-	}
 
 	result3 <- getAnalysisResults(design = design13, dataInput = dataExample7, equalVariances = TRUE, 
 		directionUpper = FALSE,	stage = 2, nPlanned = c(96,64), thetaH1 = -0.4, allocationRatioPlanned = 2, 
@@ -1118,11 +1130,11 @@ test_that("Check that the conditional power is as expected for different designs
 
 })
 
-context("Testing 'getStageResultsMeans'")
+context("Testing 'getStageResults'")
 
 
-test_that("'getStageResultsMeans' for an inverse normal design and one or two treatments", {
-	.skipTestIfDisabled()
+test_that("'getStageResults' for an inverse normal design and one or two treatments", {
+	#.skipTestIfDisabled()
 
 	designInverseNormal <- getDesignInverseNormal(kMax = 4, alpha = 0.025, sided = 1, 
 		typeOfDesign = "WT", 
@@ -1133,11 +1145,15 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 		means = c(2, 3),
 		stDevs = c(1, 1.5))
 
+	# @refFS[Tab.]{fs:tab:output:getStageResultsMeans}
+	# @refFS[Formula]{fs:testStatisticOneMean}
+	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	stageResults1 <- getStageResults(design = designInverseNormal, dataInput = dataExample8, stage = 2,
-		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
-		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
-		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		equalVariances = C_EQUAL_VARIANCES_DEFAULT)
+			thetaH0 = 0, 
+			directionUpper = TRUE, 
+			normalApproximation = FALSE, 
+			equalVariances = TRUE)
 
 	## Comparison of the results of StageResultsMeans object 'stageResults1' with expected results
 	expect_equal(stageResults1$overallTestStatistics, c(6.3245553, 8.3272484, NA_real_, NA_real_), tolerance = 1e-07)
@@ -1166,11 +1182,15 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 		stDevs2 = c(1, 2, 2, 1.3)
 	)
 
+	# @refFS[Tab.]{fs:tab:output:getStageResultsMeans}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	stageResults2 <- getStageResults(design = designInverseNormal, dataInput = dataExample9, stage = 2,
-		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
-		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
-		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		equalVariances = C_EQUAL_VARIANCES_DEFAULT)
+			thetaH0 = 0, 
+			directionUpper = TRUE, 
+			normalApproximation = FALSE, 
+			equalVariances = TRUE)
 
 	## Comparison of the results of StageResultsMeans object 'stageResults2' with expected results
 	expect_equal(stageResults2$overallTestStatistics, c(-1.3266499, -1.1850988, NA_real_, NA_real_), tolerance = 1e-07)
@@ -1195,7 +1215,7 @@ test_that("'getStageResultsMeans' for an inverse normal design and one or two tr
 
 })
 
-test_that("'getStageResultsMeans' for a Fisher design and one or two treatments", {
+test_that("'getStageResults' for a Fisher design and one or two treatments", {
 
 	.skipTestIfDisabled()
 
@@ -1208,11 +1228,15 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 		means = c(2, 3),
 		stDevs = c(1, 1.5))
 
+	# @refFS[Tab.]{fs:tab:output:getStageResultsMeans}
+	# @refFS[Formula]{fs:testStatisticOneMean}
+	# @refFS[Formula]{fs:pValuesOneMeanAlternativeGreater}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	stageResults3 <- getStageResults(design = designFisher, dataInput = dataExample10, stage = 2,
-		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
-		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
-		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		equalVariances = C_EQUAL_VARIANCES_DEFAULT)
+			thetaH0 = 0, 
+			directionUpper = TRUE, 
+			normalApproximation = FALSE, 
+			equalVariances = TRUE)
 
 	## Comparison of the results of StageResultsMeans object 'stageResults3' with expected results
 	expect_equal(stageResults3$overallTestStatistics, c(6.3245553, 8.3272484), tolerance = 1e-07)
@@ -1241,11 +1265,15 @@ test_that("'getStageResultsMeans' for a Fisher design and one or two treatments"
 		stDevs2 = c(1, 2)
 	)
 
+	# @refFS[Tab.]{fs:tab:output:getStageResultsMeans}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	stageResults4 <- getStageResults(design = designFisher, dataInput = dataExample11, stage = 2,
-		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
-		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
-		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		equalVariances = C_EQUAL_VARIANCES_DEFAULT)
+		thetaH0 = 0, 
+		directionUpper = TRUE, 
+		normalApproximation = FALSE, 
+		equalVariances = TRUE)
 
 	## Comparison of the results of StageResultsMeans object 'stageResults4' with expected results
 	expect_equal(stageResults4$overallTestStatistics, c(-1.3266499, -1.1850988), tolerance = 1e-07)
@@ -1281,46 +1309,21 @@ test_that("'getAnalysisResults' with a dataset of means and without defining a d
 		means2 = c(1.4),
 		stds1 = c(1.2),
 		stds2 = c(1.3))
-	analysisResults1 <- getAnalysisResults(data, alpha = 0.02, beta = 0.9,stage = 1)
+	# @refFS[Tab.]{fs:tab:output:getStageResultsMeans}
+	# @refFS[Formula]{fs:testStatisticDifferenceMeansEqualVariances}
+	# @refFS[Formula]{fs:pValuesTwoMeansAlternativeGreaterEqualVariances}
+	analysisResults1 <- getAnalysisResults(data, alpha = 0.02, sided = 2, stage = 1)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'analysisResults1' with expected results
 	expect_equal(analysisResults1$thetaH1, 0.23, tolerance = 1e-07)
 	expect_equal(analysisResults1$assumedStDev, 1.2497805, tolerance = 1e-07)
-	expect_equal(analysisResults1$repeatedConfidenceIntervalLowerBounds, -0.57876509, tolerance = 1e-07)
-	expect_equal(analysisResults1$repeatedConfidenceIntervalUpperBounds, 1.0387651, tolerance = 1e-07)
+	expect_equal(analysisResults1$repeatedConfidenceIntervalLowerBounds, -0.69301003, tolerance = 1e-07)
+	expect_equal(analysisResults1$repeatedConfidenceIntervalUpperBounds, 1.1530101, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(analysisResults1), NA)))
 	    expect_output(print(analysisResults1)$show())
 	    invisible(capture.output(expect_error(summary(analysisResults1), NA)))
 	    expect_output(summary(analysisResults1)$show())
-	}
-
-	analysisResults2 <- getAnalysisResults(data, alpha = 0.02, beta = 0.9, sided = 2)
-
-	## Comparison of the results of AnalysisResultsInverseNormal object 'analysisResults2' with expected results
-	expect_equal(analysisResults2$thetaH1, 0.23, tolerance = 1e-07)
-	expect_equal(analysisResults2$assumedStDev, 1.2497805, tolerance = 1e-07)
-	expect_equal(analysisResults2$repeatedConfidenceIntervalLowerBounds, -0.69301003, tolerance = 1e-07)
-	expect_equal(analysisResults2$repeatedConfidenceIntervalUpperBounds, 1.1530101, tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(analysisResults2), NA)))
-	    expect_output(print(analysisResults2)$show())
-	    invisible(capture.output(expect_error(summary(analysisResults2), NA)))
-	    expect_output(summary(analysisResults2)$show())
-	}
-
-	analysisResults3 <- getAnalysisResults(data, alpha = 0.02, beta = 0.9, sided = 2, twoSidedPower = TRUE)
-
-	## Comparison of the results of AnalysisResultsInverseNormal object 'analysisResults3' with expected results
-	expect_equal(analysisResults3$thetaH1, 0.23, tolerance = 1e-07)
-	expect_equal(analysisResults3$assumedStDev, 1.2497805, tolerance = 1e-07)
-	expect_equal(analysisResults3$repeatedConfidenceIntervalLowerBounds, -0.69301003, tolerance = 1e-07)
-	expect_equal(analysisResults3$repeatedConfidenceIntervalUpperBounds, 1.1530101, tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(analysisResults3), NA)))
-	    expect_output(print(analysisResults3)$show())
-	    invisible(capture.output(expect_error(summary(analysisResults3), NA)))
-	    expect_output(summary(analysisResults3)$show())
 	}
 })
 

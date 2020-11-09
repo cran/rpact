@@ -14,16 +14,17 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-class_time.R
-#:#  Creation date: 05 September 2020, 14:21:58
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  Creation date: 09 November 2020, 11:42:20
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing class 'PiecewiseSurvivalTime'")
+context("Testing Class 'PiecewiseSurvivalTime'")
 
 
 test_that("Testing 'getPiecewiseSurvivalTime': isPiecewiseSurvivalEnabled()", {
+	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	expect_false(getPiecewiseSurvivalTime()$isPiecewiseSurvivalEnabled())
 	expect_false(getPiecewiseSurvivalTime(piecewiseSurvivalTime = NA)$isPiecewiseSurvivalEnabled())
 
@@ -31,6 +32,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': isPiecewiseSurvivalEnabled()", {
 
 test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", {
 
+	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	pwSurvivalTime1 <- getPiecewiseSurvivalTime(lambda2 = 0.5, hazardRatio = 0.8)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime1' with expected results
@@ -479,6 +481,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 
 test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 
+	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	pwSurvivalTime1 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
 		lambda2 = c(0.025, 0.04, 0.015), hazardRatio = 0.8)
 	expect_equal(pwSurvivalTime1$hazardRatio,  0.8)
@@ -670,6 +673,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 
 test_that("Testing 'getPiecewiseSurvivalTime': check error and warnings", {
 
+	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	expect_error(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), lambda2 = 0.4, pi2 = 0.4),
 		"Conflicting arguments: it is not allowed to specify 'pi2' (0.4) and 'lambda2' (0.4) concurrently", fixed = TRUE)
 
@@ -706,6 +710,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': check error and warnings", {
 
 test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 
+	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	pwSurvivalTime8 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list(
 			"<6"       = 0.025, 
 			"6 - <9"   = 0.04, 
@@ -864,7 +869,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 
 })
 
-context("Testing class 'AccrualTime'")
+context("Testing Class 'AccrualTime'")
 
 
 test_that("Testing 'getAccrualTime': isAccrualTimeEnabled()", {
@@ -1091,6 +1096,7 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 
 test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 
+	# @refFS[Tab.]{fs:tab:output:getAccrualTime}
 	accrualTime1 <- getAccrualTime(accrualTime = c(0, 6, 30), 
 		accrualIntensity = c(22, 33), maxNumberOfSubjects = 924) 
 
@@ -1391,6 +1397,7 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 
 test_that("Testing 'getAccrualTime': check expected warnings and errors", {
 
+	# @refFS[Tab.]{fs:tab:output:getAccrualTime}
 	expect_warning(getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(0.22, 0.33)), 
 			"The specified accrual time and intensity cannot be supplemented automatically with the missing information; therefore further calculations are not possible", fixed = TRUE)
 
@@ -1423,54 +1430,57 @@ test_that("Testing 'getAccrualTime': check expected warnings and errors", {
 
 test_that("Testing 'getAccrualTime': list-wise definition", {
 
-	accrualTime <- list(
+	accrualTime1 <- list(
 		"0  - <12"  = 15,
 		"12 - <13" = 21,
 		"13 - <14" = 27,
 		"14 - <15" = 33,
 		"15 - <16" = 39,
 		">=16"     = 45)
-	accrualTime4 <- getAccrualTime(accrualTime = accrualTime, maxNumberOfSubjects = 1405)
+
+	# @refFS[Tab.]{fs:tab:output:getAccrualTime}
+	accrualTime4 <- getAccrualTime(accrualTime = accrualTime1, maxNumberOfSubjects = 1405)
 	expect_equal(accrualTime4$accrualTime,      c( 0, 12, 13, 14, 15, 16, 40.55555556))
 	expect_equal(accrualTime4$accrualIntensity, c(15, 21, 27, 33, 39, 45))
 	expect_equal(accrualTime4$remainingTime, 24.55555556)
 
 	.skipTestIfDisabled()
 
-	accrualTime <- list(
+	accrualTime2 <- list(
 		"0  - <12"  = 15,
 		"12 - <13" = 21,
 		"13 - <14" = 27,
 		"14 - <15" = 33,
 		"15 - <16" = 39,
 		"16 - ?"   = 45)
-	accrualTime5 <- getAccrualTime(accrualTime = accrualTime, maxNumberOfSubjects = 1405)
+	accrualTime5 <- getAccrualTime(accrualTime = accrualTime2, maxNumberOfSubjects = 1405)
 	expect_equal(accrualTime5$accrualTime,      c( 0, 12, 13, 14, 15, 16, 40.55555556))
 	expect_equal(accrualTime5$accrualIntensity, c(15, 21, 27, 33, 39, 45))
 	expect_equal(accrualTime5$remainingTime, 24.55555556)	
 
-	accrualTime <- list(
+	accrualTime3 <- list(
 		"0 - <11"  = 20,
 		"11 - <16" = 40,
 		">=16"     = 60)
-	accrualTime6 <- getAccrualTime(accrualTime = accrualTime, maxNumberOfSubjects = 800)
+	accrualTime6 <- getAccrualTime(accrualTime = accrualTime3, maxNumberOfSubjects = 800)
 	expect_equal(accrualTime6$accrualTime,      c(0, 11, 16, 22.3333333))
 	expect_equal(accrualTime6$accrualIntensity, c(20, 40, 60))
 	expect_equal(accrualTime6$remainingTime, 6.33333333)	
 
-	accrualTime <- list(
+	accrualTime7 <- list(
 		"0 - <11"  = 20,
 		"11 - <16" = 40,
 		"16 - ?"   = 60)
-	accrualTime7 <- getAccrualTime(accrualTime = accrualTime, maxNumberOfSubjects = 800)
-	expect_equal(accrualTime7$accrualTime,      c(0, 11, 16, 22.3333333))
-	expect_equal(accrualTime7$accrualIntensity, c(20, 40, 60))
-	expect_equal(accrualTime7$remainingTime, 6.33333333)	
+	accrualTime8 <- getAccrualTime(accrualTime = accrualTime7, maxNumberOfSubjects = 800)
+	expect_equal(accrualTime8$accrualTime,      c(0, 11, 16, 22.3333333))
+	expect_equal(accrualTime8$accrualIntensity, c(20, 40, 60))
+	expect_equal(accrualTime8$remainingTime, 6.33333333)	
 
 })
 
 test_that("Testing 'getPiecewiseSurvivalTime': mixed arguments", {
 
+	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	pwSurvivalTime1 <- getPiecewiseSurvivalTime(median1 = 37, hazardRatio = 0.8)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime1' with expected results

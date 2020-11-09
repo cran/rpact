@@ -96,7 +96,7 @@ to the maximum number of subjects per selected active arm.}
 \code{maxNumberOfSubjectsPerStage} (or \code{minNumberOfEventsPerStage} and \code{maxNumberOfEventsPerStage}
 for survival designs) is specified, a sample size recalculation based on the specified conditional power is performed.
 It is defined as the power for the subsequent stage given the current data. By default, 
-the conditional power is calculated under the observed effect size. Optionally, you can also specify \code{thetaH1} and
+the conditional power will be calculated under the observed effect size. Optionally, you can also specify \code{thetaH1} and
 \code{stDevH1} (for simulating means), \code{pi1H1} and \code{pi2H1} (for simulating rates), or \code{thetaH1} (for simulating
 hazard ratios) as parameters under which it is calculated and the sample size recalculation is performed.}
 

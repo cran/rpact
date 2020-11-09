@@ -13,24 +13,48 @@
 #:#  
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
-#:#  File name: test-f_design_group_sequential_design.R
-#:#  Creation date: 05 September 2020, 14:47:59
-#:#  File version: $Revision: 3596 $
-#:#  Last changed: $Date: 2020-09-07 08:04:48 +0200 (Mo, 07 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File name: test-f_design_group_sequential.R
+#:#  Creation date: 09 November 2020, 11:48:29
+#:#  File version: $Revision$
+#:#  Last changed: $Date$
+#:#  Last changed by: $Author$
 #:#  
 
-context("Testing the group sequential and inverse normal design functionality")
+context("Testing the Group Sequential and Inverse Normal Design Functionality")
 
 
 test_that("'getDesignInverseNormal' with default parameters: parameters and results are as expected", {
+	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
 	# @refFS[Formula]{fs:criticalValuesOBrienFleming}
-	x1 <- getDesignInverseNormal()
+	x0 <- getDesignInverseNormal()
+
+	## Comparison of the results of TrialDesignInverseNormal object 'x0' with expected results
+	expect_equal(x0$alphaSpent, c(0.00025917372, 0.0071600594, 0.02499999), tolerance = 1e-07)
+	expect_equal(x0$criticalValues, c(3.4710914, 2.4544323, 2.0040356), tolerance = 1e-07)
+	expect_equal(x0$stageLevels, c(0.00025917372, 0.0070553616, 0.022533125), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x0), NA)))
+	    expect_output(print(x0)$show())
+	    invisible(capture.output(expect_error(summary(x0), NA)))
+	    expect_output(summary(x0)$show())
+	}
+
+})
+
+test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asKD', and 'bsKD'", {
+
+	.skipTestIfDisabled()
+
+	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
+	# @refFS[Formula]{fs:alphaSpendingConcept}
+	# @refFS[Formula]{fs:alphaSpendingHwangShiDeCani}
+	x1 <- getDesignInverseNormal(kMax = 3, informationRates = c(0.2, 0.4, 1), 
+			alpha = 0.03, sided = 1, beta = 0.14, typeOfDesign = "asHSD", gammaA = 0) 
 
 	## Comparison of the results of TrialDesignInverseNormal object 'x1' with expected results
-	expect_equal(x1$alphaSpent, c(0.00025917372, 0.0071600594, 0.02499999), tolerance = 1e-07)
-	expect_equal(x1$criticalValues, c(3.4710914, 2.4544323, 2.0040356), tolerance = 1e-07)
-	expect_equal(x1$stageLevels, c(0.00025917372, 0.0070553616, 0.022533125), tolerance = 1e-07)
+	expect_equal(x1$alphaSpent, c(0.006, 0.012, 0.02999999), tolerance = 1e-07)
+	expect_equal(x1$criticalValues, c(2.5121443, 2.4228747, 2.0280392), tolerance = 1e-07)
+	expect_equal(x1$stageLevels, c(0.006, 0.0076991189, 0.021278125), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x1), NA)))
 	    expect_output(print(x1)$show())
@@ -38,43 +62,22 @@ test_that("'getDesignInverseNormal' with default parameters: parameters and resu
 	    expect_output(summary(x1)$show())
 	}
 
-})
-
-test_that("'getDesignInverseNormal' and 'getDesignCharacteristics' with kMax = 4: parameters and results are as expected for different arguments", {
-
-	# @refFS[Formula]{fs:alphaSpendingConcept}
-	# @refFS[Formula]{fs:alphaSpendingHwangShiDeCani}
-	# @refFS[Formula]{fs:betaSpendingApproach}
-	# @refFS[Formula]{fs:betaSpendingHwangShiDeCani}
-	x2 <- getDesignInverseNormal(kMax = 4, alpha = 0.07, sided = 1, beta = 0.14, typeOfDesign = "asHSD",gammaA = -1, 
-		typeBetaSpending = C_TYPE_OF_DESIGN_BS_HSD, gammaB = -2)
-
-	## Comparison of the results of TrialDesignInverseNormal object 'x2' with expected results
-	expect_equal(x2$power, c(0.18540359, 0.47374657, 0.7208955, 0.86), tolerance = 1e-07)
-	expect_equal(x2$futilityBounds, c(-0.81517021, 0.063469084, 0.84025384), tolerance = 1e-07)
-	expect_equal(x2$alphaSpent, c(0.011570732, 0.026427847, 0.045504759, 0.07), tolerance = 1e-07)
-	expect_equal(x2$betaSpent, c(0.014215085, 0.037651799, 0.076292407, 0.14), tolerance = 1e-07)
-	expect_equal(x2$criticalValues, c(2.2710911, 2.0692301, 1.8645608, 1.6606881), tolerance = 1e-07)
-	expect_equal(x2$stageLevels, c(0.011570732, 0.01926225, 0.031121494, 0.048388055), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x2), NA)))
-	    expect_output(print(x2)$show())
-	    invisible(capture.output(expect_error(summary(x2), NA)))
-	    expect_output(summary(x2)$show())
-	}
-	y1 <- getDesignCharacteristics(x2)
+	# @refFS[Tab.]{fs:tab:output:getDesignCharacteristics}
+	# @refFS[Formula]{fs:inflationFactor}
+	# @refFS[Formula]{fs:expectedReduction}
+	y1 <- getDesignCharacteristics(x1)
 
 	## Comparison of the results of TrialDesignCharacteristics object 'y1' with expected results
-	expect_equal(y1$nFixed, 6.5337002, tolerance = 1e-07)
-	expect_equal(y1$shift, 7.5749205, tolerance = 1e-07)
-	expect_equal(y1$inflationFactor, 1.1593615, tolerance = 1e-07)
-	expect_equal(y1$information, c(1.8937301, 3.7874603, 5.6811904, 7.5749205), tolerance = 1e-07)
-	expect_equal(y1$power, c(0.18540359, 0.47374657, 0.7208955, 0.86), tolerance = 1e-07)
-	expect_equal(y1$rejectionProbabilities, c(0.18540359, 0.28834298, 0.24714893, 0.1391045), tolerance = 1e-07)
-	expect_equal(y1$futilityProbabilities, c(0.014215085, 0.023436714, 0.038640608), tolerance = 1e-07)
-	expect_equal(y1$averageSampleNumber1, 0.72222281, tolerance = 1e-07)
-	expect_equal(y1$averageSampleNumber01, 0.82592961, tolerance = 1e-07)
-	expect_equal(y1$averageSampleNumber0, 0.68240644, tolerance = 1e-07)
+	expect_equal(y1$nFixed, 8.7681899, tolerance = 1e-07)
+	expect_equal(y1$shift, 9.4594102, tolerance = 1e-07)
+	expect_equal(y1$inflationFactor, 1.0788327, tolerance = 1e-07)
+	expect_equal(y1$information, c(1.891882, 3.7837641, 9.4594102), tolerance = 1e-07)
+	expect_equal(y1$power, c(0.12783451, 0.34055165, 0.86), tolerance = 1e-07)
+	expect_equal(y1$rejectionProbabilities, c(0.12783451, 0.21271713, 0.51944835), tolerance = 1e-07)
+	expect_equal(y1$futilityProbabilities, c(9.8658765e-10, 9.7584074e-10), tolerance = 1e-07)
+	expect_equal(y1$averageSampleNumber1, 0.83081135, tolerance = 1e-07)
+	expect_equal(y1$averageSampleNumber01, 1.0142116, tolerance = 1e-07)
+	expect_equal(y1$averageSampleNumber0, 1.0697705, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(y1), NA)))
 	    expect_output(print(y1)$show())
@@ -82,43 +85,45 @@ test_that("'getDesignInverseNormal' and 'getDesignCharacteristics' with kMax = 4
 	    expect_output(summary(y1)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
 	# @refFS[Formula]{fs:alphaSpendingConcept}
 	# @refFS[Formula]{fs:alphaSpendingHwangShiDeCani}
 	# @refFS[Formula]{fs:betaSpendingApproach}
 	# @refFS[Formula]{fs:betaSpendingHwangShiDeCani}
-	x3 <- getDesignInverseNormal(kMax = 4, informationRates = c(0.2, 0.4, 0.8, 1), 
-			alpha = 0.07, sided = 1, beta = 0.14, typeOfDesign = "asHSD",gammaA = -1, 
-			typeBetaSpending = C_TYPE_OF_DESIGN_BS_HSD, gammaB = -2)
+	x2 <- getDesignInverseNormal(kMax = 3, informationRates = c(0.2, 0.4, 1), 
+			alpha = 0.07, sided = 1, beta = 0.14, typeOfDesign = "asHSD", gammaA = -1, 
+			typeBetaSpending = "bsHSD", gammaB = -2)
 
-	## Comparison of the results of TrialDesignInverseNormal object 'x3' with expected results
-	expect_equal(x3$power, c(0.12840586, 0.34869365, 0.76424148, 0.86), tolerance = 1e-07)
-	expect_equal(x3$futilityBounds, c(-1.0672796, -0.30464832, 1.028624), tolerance = 1e-07)
-	expect_equal(x3$alphaSpent, c(0.0090195874, 0.020036136, 0.049926539, 0.06999999), tolerance = 1e-07)
-	expect_equal(x3$betaSpent, c(0.010777094, 0.026854629, 0.086620705, 0.14), tolerance = 1e-07)
-	expect_equal(x3$criticalValues, c(2.364813, 2.1928805, 1.7718975, 1.6682985), tolerance = 1e-07)
-	expect_equal(x3$stageLevels, c(0.0090195874, 0.014157994, 0.038205784, 0.047628242), tolerance = 1e-07)
+	## Comparison of the results of TrialDesignInverseNormal object 'x2' with expected results
+	expect_equal(x2$power, c(0.12038954, 0.32895265, 0.86), tolerance = 1e-07)
+	expect_equal(x2$futilityBounds, c(-1.1063623, -0.35992438), tolerance = 1e-07)
+	expect_equal(x2$alphaSpent, c(0.0090195874, 0.020036136, 0.06999999), tolerance = 1e-07)
+	expect_equal(x2$betaSpent, c(0.010777094, 0.026854629, 0.14), tolerance = 1e-07)
+	expect_equal(x2$criticalValues, c(2.364813, 2.1928805, 1.5660474), tolerance = 1e-07)
+	expect_equal(x2$stageLevels, c(0.0090195874, 0.014157994, 0.058668761), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x3), NA)))
-	    expect_output(print(x3)$show())
-	    invisible(capture.output(expect_error(summary(x3), NA)))
-	    expect_output(summary(x3)$show())
+	    invisible(capture.output(expect_error(print(x2), NA)))
+	    expect_output(print(x2)$show())
+	    invisible(capture.output(expect_error(summary(x2), NA)))
+	    expect_output(summary(x2)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignCharacteristics}
 	# @refFS[Formula]{fs:inflationFactor}
 	# @refFS[Formula]{fs:expectedReduction}
-	y2 <- getDesignCharacteristics(x3)
+	y2 <- getDesignCharacteristics(x2)
 
 	## Comparison of the results of TrialDesignCharacteristics object 'y2' with expected results
 	expect_equal(y2$nFixed, 6.5337002, tolerance = 1e-07)
-	expect_equal(y2$shift, 7.5750078, tolerance = 1e-07)
-	expect_equal(y2$inflationFactor, 1.1593749, tolerance = 1e-07)
-	expect_equal(y2$information, c(1.5150016, 3.0300031, 6.0600063, 7.5750078), tolerance = 1e-07)
-	expect_equal(y2$power, c(0.12840586, 0.34869365, 0.76424148, 0.86), tolerance = 1e-07)
-	expect_equal(y2$rejectionProbabilities, c(0.12840586, 0.22028779, 0.41554783, 0.095758523), tolerance = 1e-07)
-	expect_equal(y2$futilityProbabilities, c(0.010777094, 0.016077535, 0.059766076), tolerance = 1e-07)
-	expect_equal(y2$averageSampleNumber1, 0.75564768, tolerance = 1e-07)
-	expect_equal(y2$averageSampleNumber01, 0.85242855, tolerance = 1e-07)
-	expect_equal(y2$averageSampleNumber0, 0.720263, tolerance = 1e-07)
+	expect_equal(y2$shift, 7.1015943, tolerance = 1e-07)
+	expect_equal(y2$inflationFactor, 1.0869177, tolerance = 1e-07)
+	expect_equal(y2$information, c(1.4203189, 2.8406377, 7.1015943), tolerance = 1e-07)
+	expect_equal(y2$power, c(0.12038953, 0.32895265, 0.86), tolerance = 1e-07)
+	expect_equal(y2$rejectionProbabilities, c(0.12038953, 0.20856311, 0.53104735), tolerance = 1e-07)
+	expect_equal(y2$futilityProbabilities, c(0.010777094, 0.016077535), tolerance = 1e-07)
+	expect_equal(y2$averageSampleNumber1, 0.82636428, tolerance = 1e-07)
+	expect_equal(y2$averageSampleNumber01, 0.91614201, tolerance = 1e-07)
+	expect_equal(y2$averageSampleNumber0, 0.79471657, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(y2), NA)))
 	    expect_output(print(y2)$show())
@@ -126,19 +131,66 @@ test_that("'getDesignInverseNormal' and 'getDesignCharacteristics' with kMax = 4
 	    expect_output(summary(y2)$show())
 	}
 
+	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
+	# @refFS[Formula]{fs:alphaSpendingConcept}
+	# @refFS[Formula]{fs:alphaSpendingKimDeMets}
+	# @refFS[Formula]{fs:betaSpendingApproach}
+	# @refFS[Formula]{fs:betaSpendingKimDeMets}
+	x3 <- getDesignInverseNormal(kMax = 3, informationRates = c(0.3, 0.7, 1), 
+			alpha = 0.03, sided = 1, beta = 0.34, typeOfDesign = "asKD", gammaA = 2.2, 
+			typeBetaSpending = "bsKD", gammaB = 3.2)
+
+	## Comparison of the results of TrialDesignInverseNormal object 'x3' with expected results
+	expect_equal(x3$power, c(0.058336437, 0.39824601, 0.66), tolerance = 1e-07)
+	expect_equal(x3$futilityBounds, c(-1.1558435, 0.72836893), tolerance = 1e-07)
+	expect_equal(x3$alphaSpent, c(0.0021222083, 0.013687904, 0.02999999), tolerance = 1e-07)
+	expect_equal(x3$betaSpent, c(0.0072155083, 0.1085907, 0.34), tolerance = 1e-07)
+	expect_equal(x3$criticalValues, c(2.8594012, 2.2435708, 1.9735737), tolerance = 1e-07)
+	expect_equal(x3$stageLevels, c(0.0021222083, 0.012430015, 0.02421512), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x3), NA)))
+	    expect_output(print(x3)$show())
+	    invisible(capture.output(expect_error(summary(x3), NA)))
+	    expect_output(summary(x3)$show())
+	}
+
+	# @refFS[Tab.]{fs:tab:output:getDesignCharacteristics}
+	# @refFS[Formula]{fs:inflationFactor}
+	# @refFS[Formula]{fs:expectedReduction}
+	y3 <- getDesignCharacteristics(x3)
+
+	## Comparison of the results of TrialDesignCharacteristics object 'y3' with expected results
+	expect_equal(y3$nFixed, 5.2590265, tolerance = 1e-07)
+	expect_equal(y3$shift, 5.5513711, tolerance = 1e-07)
+	expect_equal(y3$inflationFactor, 1.0555891, tolerance = 1e-07)
+	expect_equal(y3$information, c(1.6654113, 3.8859597, 5.5513711), tolerance = 1e-07)
+	expect_equal(y3$power, c(0.058336437, 0.39824601, 0.66), tolerance = 1e-07)
+	expect_equal(y3$rejectionProbabilities, c(0.058336437, 0.33990957, 0.26175399), tolerance = 1e-07)
+	expect_equal(y3$futilityProbabilities, c(0.0072155083, 0.10137519), tolerance = 1e-07)
+	expect_equal(y3$averageSampleNumber1, 0.86740735, tolerance = 1e-07)
+	expect_equal(y3$averageSampleNumber01, 0.87361708, tolerance = 1e-07)
+	expect_equal(y3$averageSampleNumber0, 0.75480974, tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(y3), NA)))
+	    expect_output(print(y3)$show())
+	    invisible(capture.output(expect_error(summary(y3), NA)))
+	    expect_output(summary(y3)$show())
+	}
+
 })
 
 test_that("'getDesignInverseNormal' with binding futility bounds", {
 
+	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
 	# @refFS[Formula]{fs:criticalValuesWithFutility}
 	# @refFS[Formula]{fs:criticalValuesWangTiatis}
-	x4 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
+	x4 <- getDesignInverseNormal(kMax = 4, alpha = 0.035, futilityBounds = rep(0.5244, 3), 
 		bindingFutility = TRUE, typeOfDesign = "WT", deltaWT = 0.4)
 
 	## Comparison of the results of TrialDesignInverseNormal object 'x4' with expected results
-	expect_equal(x4$alphaSpent, c(0.0062828133, 0.013876673, 0.02015684, 0.02499999), tolerance = 1e-07)
-	expect_equal(x4$criticalValues, c(2.4958485, 2.328709, 2.2361766, 2.1727623), tolerance = 1e-07)
-	expect_equal(x4$stageLevels, c(0.0062828133, 0.0099372444, 0.012670104, 0.014899106), tolerance = 1e-07)
+	expect_equal(x4$alphaSpent, c(0.0099446089, 0.020756912, 0.029001537, 0.03499999), tolerance = 1e-07)
+	expect_equal(x4$criticalValues, c(2.3284312, 2.1725031, 2.0861776, 2.0270171), tolerance = 1e-07)
+	expect_equal(x4$stageLevels, c(0.0099446089, 0.014908866, 0.018481267, 0.021330332), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x4), NA)))
 	    expect_output(print(x4)$show())
@@ -152,6 +204,7 @@ test_that("'getDesignGroupSequential' with type of design = 'asUser'", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
 	# @refFS[Formula]{fs:alphaSpendingConcept}
 	x5 <- getDesignGroupSequential(typeOfDesign = "asUser", 
 		userAlphaSpending = c(0.01, 0.02, 0.03, 0.05))
@@ -169,37 +222,9 @@ test_that("'getDesignGroupSequential' with type of design = 'asUser'", {
 
 })
 
-test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsUser'", {
-
-	.skipTestIfDisabled()
-
-	# @refFS[Formula]{fs:alphaSpendingConcept}
-	# @refFS[Formula]{fs:alphaSpendingOBrienFleming}
-	# @refFS[Formula]{fs:betaSpendingApproach}
-	x6 <- getDesignGroupSequential(kMax = 3, alpha = 0.03, 
-		typeOfDesign = "asOF", typeBetaSpending = "bsUser",
-		userBetaSpending = c(0.01, 0.05, 0.3))
-
-	## Comparison of the results of TrialDesignGroupSequential object 'x6' with expected results
-	expect_equal(x6$power, c(0.014685829, 0.33275272, 0.7), tolerance = 1e-07)
-	expect_equal(x6$futilityBounds, c(-0.92327973, 0.29975473), tolerance = 1e-07)
-	expect_equal(x6$alphaSpent, c(0.00017079385, 0.0078650906, 0.03), tolerance = 1e-07)
-	expect_equal(x6$betaSpent, c(0.01, 0.05, 0.3), tolerance = 1e-07)
-	expect_equal(x6$criticalValues, c(3.5815302, 2.417863, 1.9175839), tolerance = 1e-07)
-	expect_equal(x6$stageLevels, c(0.00017079385, 0.0078059773, 0.027581894), tolerance = 1e-07)
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(x6), NA)))
-	    expect_output(print(x6)$show())
-	    invisible(capture.output(expect_error(summary(x6), NA)))
-	    expect_output(summary(x6)$show())
-	}
-
-})
-
 test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsP'", {
 
-	.skipTestIfDisabled()
-
+	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
 	# @refFS[Formula]{fs:alphaSpendingConcept}
 	# @refFS[Formula]{fs:alphaSpendingOBrienFleming}
 	# @refFS[Formula]{fs:betaSpendingApproach}
@@ -228,6 +253,7 @@ test_that("'getDesignGroupSequential' with binding futility bounds ", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
 	# @refFS[Formula]{fs:criticalValuesWithFutility}
 	# @refFS[Formula]{fs:criticalValuesWangTiatis}
 	x8 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, futilityBounds = rep(0.5244, 3), 
@@ -250,6 +276,7 @@ test_that("'getDesignGroupSequential' with Haybittle Peto boundaries ", {
 
 	.skipTestIfDisabled()
 
+	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
 	# @refFS[Formula]{fs:criticalValuesHaybittlePeto}
 	x9 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, typeOfDesign = "HP")
 
@@ -282,9 +309,6 @@ test_that("'getDesignInverseNormal': illegal arguments throw exceptions as expec
 			userAlphaSpending = c(0.01, 0.02, 0.023), alpha = 0.02),
 		paste0("'userAlphaSpending' = c(0.01, 0.02, 0.023) must be a vector that ", 
 			"satisfies the following condition: 0 <= alpha_1 <= .. <= alpha_3 <= alpha = 0.02"), fixed = TRUE)
-
-	expect_equal(getDesignInverseNormal(typeOfDesign = "asUser", 
-			userAlphaSpending = c(0.01, 0.02, 0.023))$alpha, 0.023)
 
 	expect_error(getDesignInverseNormal(typeOfDesign = C_TYPE_OF_DESIGN_WT, deltaWT = NA_real_), 
 		"Missing argument: parameter 'deltaWT' must be specified in design", fixed = TRUE)
