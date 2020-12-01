@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3694 $
-#:#  Last changed: $Date: 2020-09-25 08:40:37 +0200 (Fr, 25 Sep 2020) $
+#:#  File version: $Revision: 3989 $
+#:#  Last changed: $Date: 2020-11-23 11:25:20 +0100 (Mon, 23 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1736,7 +1736,7 @@
 						C_ACCEPT_DEVIATION_INFORMATIONRATES) ||
 					any(abs(design$informationRates[2:stage] - 
 						dataInput$getOverallSampleSizesUpTo(stage,2)[2:stage] / 
-						dataInput$getOverallSampleSizesUpTo(1,2)*design$informationRates[1]) > 
+						dataInput$getOverallSampleSizesUpTo(1, 2) * design$informationRates[1]) > 
 						C_ACCEPT_DEVIATION_INFORMATIONRATES)) {
 				param <- "sample sizes"
 			}
@@ -1746,6 +1746,20 @@
 		warning("Observed ", param, " not according to specified information rates in ", 
 			"group sequential design. ", 
 			"Test procedure might not control Type I error rate", call. = FALSE)
+	}
+}
+
+.assertIsOneSidedForMultiArmAnalysis <- function(design, dataInput) {
+	if (design$sided == 2 && .isMultiArmDataset(dataInput)) {
+		stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+			"multi-arm analysis is only applicable for one-sided testing")
+	}
+}
+
+.assertIsOneSidedDesign <- function(design) {
+	if (design$sided == 2) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"multi-arm simulation is only applicable for one-sided testing")
 	}
 }
 
@@ -1956,6 +1970,7 @@
 	
 	if (typeOfSelection == "epsilon") {
 		.assertIsSingleNumber(epsilonValue, "epsilonValue", naAllowed = FALSE, noDefaultAvailable = TRUE)
+		.assertIsInClosedInterval(epsilonValue, "epsilonValue", lower = 0, upper = NULL, naAllowed = TRUE)
 	} else if (!is.na(epsilonValue)) {
 		warning("'epsilonValue' (", epsilonValue, ") will be ignored because 'typeOfSelection' != \"epsilon\"", call. = FALSE)
 	}

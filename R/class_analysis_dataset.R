@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3594 $
-#:#  Last changed: $Date: 2020-09-04 14:53:13 +0200 (Fr, 04 Sep 2020) $
+#:#  File version: $Revision: 3977 $
+#:#  Last changed: $Date: 2020-11-20 12:21:54 +0100 (Fri, 20 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -2982,10 +2982,18 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	}
 	else if (numberOfGroups == 2) {
 		groups <- c("one treatment", "one control group")
+		if (object$isDatasetSurvival()) {
+			groups <- paste0(groups, c(" (1)", " (2)"))
+		}
 	}
 	else {
 		groups <- c(paste0(.integerToWrittenNumber(numberOfGroups - 1), 
 				" treatment groups"), "one control group")
+		if (object$isDatasetSurvival()) {
+			groups <- paste0(groups, c(
+				paste0(" (", .arrayToString(1:(numberOfGroups - 1)), ")"), 
+				paste0(" (", numberOfGroups, ")")))
+		}
 	}
 	
 	prefix <- ""
@@ -2996,12 +3004,13 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 		prefix <- "the sample sizes and events of "
 	}
 	else if (object$isDatasetSurvival()) {
-		prefix <- "the events and log rank statistics of "
+		prefix <- "the events and log rank statistics of the comparison of "
 	}
 	if (numberOfGroups > 1) {
 		prefix <- paste0(prefix, "\n")
 	}
-	header <- paste0("The dataset contains ", prefix, paste0(groups, collapse = " and "))
+	header <- paste0("The dataset contains ", prefix, 
+		paste0(groups, collapse = ifelse(object$isDatasetSurvival(), " with ", " and ")))
 	if (kMax > 1) {
 		header <- paste0(header, ".\nThe total number of looks is ", .integerToWrittenNumber(kMax), 
 			"; stage-wise and overall data are included")
@@ -3020,7 +3029,14 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	}
 
 	if (numberOfGroups > 1) {
-		summaryFactory$addItem("Group", object$groups)
+		
+		groupNumbers <- object$groups
+		if (object$isDatasetSurvival()) {
+			groupNumbers <- paste0(object$groups, " vs ", numberOfGroups)
+			summaryFactory$addItem("Comparison", groupNumbers)
+		} else {
+			summaryFactory$addItem("Group", groupNumbers)
+		}		
 	}
 	
 	parameterCaptionPrefix <- ifelse(kMax == 1, "", "Stage-wise ")

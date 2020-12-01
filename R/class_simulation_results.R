@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3821 $
-#:#  Last changed: $Date: 2020-11-03 08:59:30 +0100 (Tue, 03 Nov 2020) $
+#:#  File version: $Revision: 4046 $
+#:#  Last changed: $Date: 2020-11-30 10:19:49 +0100 (Mo, 30 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -132,6 +132,10 @@ SimulationResults <- setRefClass("SimulationResults",
 			} else {
 				.cat(.toString(startWithUpperCase = TRUE), ":\n\n", heading = 1,
 						consoleOutputEnabled = consoleOutputEnabled)
+					
+				.showParametersOfOneGroup(.getDesignParametersToShow(.self), "Design parameters",
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					
 				userDefinedParameters <- .getUserDefinedParameters()
 				if (inherits(.self, "SimulationResultsSurvival") && .self$.piecewiseSurvivalTime$delayedResponseEnabled) {
 					userDefinedParameters <- c(userDefinedParameters, ".piecewiseSurvivalTime$delayedResponseEnabled")
@@ -145,25 +149,25 @@ SimulationResults <- setRefClass("SimulationResults",
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
 				## statistics of simulated data
-				if (showStatistics && .showStatistics) {
+				if (showStatistics || .showStatistics) {
 					
 					.cat("Simulated data:\n", consoleOutputEnabled = consoleOutputEnabled)
 					params <- c()
 					if (inherits(.self, "SimulationResultsMeans")) {
 						params <- c(
-								"effectEstimate",
+								"effectMeasure",
 								"numberOfSubjects",
 								"testStatistic")
 					}
 					else if (inherits(.self, "SimulationResultsRates")) {
 						params <- c(
-								"effectEstimate",
+								"effectMeasure",
 								"numberOfSubjects",
 								"testStatistic")
 					}
 					else if (inherits(.self, "SimulationResultsSurvival")) {
 						params <- c(
-								"effectEstimate",
+								"effectMeasure",
 								"analysisTime",
 								"numberOfSubjects",
 								"eventsPerStage1",
@@ -176,8 +180,7 @@ SimulationResults <- setRefClass("SimulationResults",
 					else if (inherits(.self, "SimulationResultsMultiArmMeans") || 
 							inherits(.self, "SimulationResultsMultiArmRates")) {
 						params <- c(
-								"effectEstimate",
-								#"subjectsControlArm",
+								"effectMeasure",
 								"subjectsActiveArm",
 								"testStatistic",
 								"conditionalCriticalValue",
@@ -188,8 +191,9 @@ SimulationResults <- setRefClass("SimulationResults",
 					}
 					else if (inherits(.self, "SimulationResultsMultiArmSurvival")) {
 						params <- c(
-								"effectEstimate",
+								"effectMeasure",
 								"numberOfEvents",
+								"singleNumberOfEventsPerStage",
 								"testStatistic",
 								"conditionalCriticalValue",
 								"rejectPerStage",
@@ -285,6 +289,7 @@ SimulationResults <- setRefClass("SimulationResults",
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					if (multiArmSurvivalEnabled) {
 						.cat("  (i): values of treatment arm i compared to control\n", consoleOutputEnabled = consoleOutputEnabled)
+						.cat("  {j}: values of treatment arm j\n", consoleOutputEnabled = consoleOutputEnabled)
 					}
 					else if (twoGroupsEnabled) {
 						.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
@@ -373,16 +378,20 @@ SimulationResults <- setRefClass("SimulationResults",
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
-			s <- "simulation"
+			s <- "simulation of"
+			
+			if (grepl("MultiArm", class(.self)) && !is.null(.self[["activeArms"]]) && .self$activeArms > 1) {
+				s <- paste(s, "multi-arm")
+			}
 			
 			if (inherits(.self, "SimulationResultsBaseMeans")) {
-				s <- paste(s, "of means")
+				s <- paste(s, "means")
 			}
 			else if (inherits(.self, "SimulationResultsBaseRates")) {
-				s <- paste(s, "of rates")
+				s <- paste(s, "rates")
 			}
 			else if (inherits(.self, "SimulationResultsBaseSurvival")) {
-				s <- paste(s, "of survival data")
+				s <- paste(s, "survival data")
 			} 
 			else {
 				s <- paste(s, "results")
@@ -397,6 +406,9 @@ SimulationResults <- setRefClass("SimulationResults",
 			else if (.isTrialDesignFisher(.design)) {
 				s <- paste(s, "(Fisher's combination test design)")
 			}
+			else if (.isTrialDesignConditionalDunnett(.design)) {
+				s <- paste(s, "(conditional Dunnett design)")
+			}
 			else {
 				s <- paste("unknown", s)
 			}
@@ -406,20 +418,21 @@ SimulationResults <- setRefClass("SimulationResults",
 		.getParametersToShow = function() {
 			parametersToShow <- .getVisibleFieldNames()
 			y <- c("iterations",
-					"selectedArms", 
-					"numberOfActiveArms",
-					"rejectedArmsPerStage",
 					"rejectAtLeastOne",
-					"rejectPerStage", # base
 					"overallReject",  # base
+					"rejectedArmsPerStage",
+					"rejectPerStage", # base
 					"futilityPerStage",
 					"futilityStop",
 					"earlyStop",      # base
 					"successPerStage",
+					"selectedArms", 
+					"numberOfActiveArms",
 					"expectedNumberOfSubjects",
 					"expectedNumberOfEvents",
 					"sampleSizes",
 					"eventsPerStage",
+					"singleNumberOfEventsPerStage",
 					"conditionalPowerAchieved" # base
 			)
 			parametersToShow <- c(parametersToShow[!(parametersToShow %in% y)], y[y %in% parametersToShow])
@@ -702,6 +715,7 @@ SimulationResultsMultiArmSurvival <- setRefClass("SimulationResultsMultiArmSurvi
 		rValue = "numeric",
 		threshold = "numeric",		
 		selectArmsFunction = "function",
+		correlationComputation = "character",
 		
 		earlyStop = "matrix",
 		selectedArms = "array",
@@ -710,6 +724,7 @@ SimulationResultsMultiArmSurvival <- setRefClass("SimulationResultsMultiArmSurvi
 		rejectedArmsPerStage = "array",
 		successPerStage = "matrix",
 		eventsPerStage = "array",
+		singleNumberOfEventsPerStage = "array",
 		conditionalPowerAchieved = "matrix"
 	),
 	methods = list(
@@ -911,6 +926,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 					"hazardRatio", 
 					"iterations", 
 					"eventsPerStage",
+					"singleNumberOfEventsPerStage",
 					"expectedNumberOfEvents", 
 					"eventsNotAchieved", 
 					"numberOfSubjects", 

@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3688 $
-#:#  Last changed: $Date: 2020-09-24 14:37:04 +0200 (Thu, 24 Sep 2020) $
+#:#  File version: $Revision: 4060 $
+#:#  Last changed: $Date: 2020-12-01 09:53:32 +0100 (Tue, 01 Dec 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -81,22 +81,24 @@ NULL
 	return(c("alpha", "beta", "sided", "twoSidedPower"))
 }
 
-.getValidatedFutilityBounds <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
+.getValidatedFutilityBounds <- function(design, kMaxLowerBound = 1, 
+		writeToDesign = TRUE, twoSidedWarningForDefaultValues = TRUE) {
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	return(.getValidatedFutilityBoundsOrAlpha0Vec(design = design, parameterName = "futilityBounds", 
 		defaultValue = C_FUTILITY_BOUNDS_DEFAULT, kMaxLowerBound = kMaxLowerBound,
-		writeToDesign = writeToDesign))
+		writeToDesign = writeToDesign, twoSidedWarningForDefaultValues = twoSidedWarningForDefaultValues))
 }
 
-.getValidatedAlpha0Vec <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
+.getValidatedAlpha0Vec <- function(design, kMaxLowerBound = 1, 
+		writeToDesign = TRUE, twoSidedWarningForDefaultValues = TRUE) {
 	.assertIsTrialDesignFisher(design)
 	return(.getValidatedFutilityBoundsOrAlpha0Vec(design = design, parameterName = "alpha0Vec", 
 		defaultValue = C_ALPHA_0_VEC_DEFAULT, kMaxLowerBound = kMaxLowerBound,
-		writeToDesign = writeToDesign))
+		writeToDesign = writeToDesign, twoSidedWarningForDefaultValues = twoSidedWarningForDefaultValues))
 }
 
 .getValidatedFutilityBoundsOrAlpha0Vec <- function(design, parameterName, defaultValue, 
-	kMaxLowerBound, writeToDesign) {
+		kMaxLowerBound, writeToDesign, twoSidedWarningForDefaultValues = TRUE) {
 	
 	parameterValues <- design[[parameterName]]
 	
@@ -111,9 +113,13 @@ NULL
 		}
 	}
 	
-	if (design$sided == 2 && .isDefinedArgument(parameterValues) && any(na.omit(parameterValues) != defaultValue)) {
+	if (design$sided == 2 && .isDefinedArgument(parameterValues) && 
+			(twoSidedWarningForDefaultValues && !all(is.na(parameterValues)) || 
+			(!twoSidedWarningForDefaultValues && any(na.omit(parameterValues) != defaultValue)))) {
+		
 		warning("'", parameterName, "' (", .arrayToString(parameterValues), 
 			") will be ignored because the design is two-sided", call. = FALSE)
+		parameterValues <- rep(defaultValue, design$kMax - 1)
 	}
 	
 	if (writeToDesign) {
@@ -830,6 +836,7 @@ getMedianByPi <- function(piValue,
 	return(eventsOverStages)
 }
 
+# example: .convertStageWiseToOverallValues(array(1:4, c(3, 4)))
 .convertStageWiseToOverallValues <- function(valuesPerStage) {
 	if (is.array(valuesPerStage) && length(dim(valuesPerStage)) == 3) {
 		eventsOverStages <- array(dim = dim(valuesPerStage))
@@ -843,4 +850,43 @@ getMedianByPi <- function(piValue,
 	return(.convertStageWiseToOverallValuesInner(valuesPerStage))
 }
 
-
+.getDesignParametersToShow = function(paramaterSet) {
+	if (is.null(paramaterSet[[".design"]])) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+			"'paramaterSet' (", class(paramaterSet), ") does not contain '.design' field")
+	}
+	
+	designParametersToShow <- c(".design$stages")
+	if (grepl("Dunnett", class(paramaterSet))) {
+		designParametersToShow <- c(
+			designParametersToShow,
+			".design$alpha",
+			".design$informationAtInterim",
+			".design$secondStageConditioning",
+			".design$sided")
+	} else {
+		design <- paramaterSet$.design
+		designParametersToShow <- c()
+		if (design$kMax > 1) {
+			designParametersToShow <- c(designParametersToShow, ".design$informationRates")
+		}
+		designParametersToShow <- c(designParametersToShow, ".design$criticalValues")
+		if (design$kMax > 1) {
+			if (.isTrialDesignFisher(design)) {
+				designParametersToShow <- c(designParametersToShow, ".design$alpha0Vec")
+			} else {
+				designParametersToShow <- c(designParametersToShow, ".design$futilityBounds")
+			}
+			designParametersToShow <- c(designParametersToShow, ".design$alphaSpent")
+			designParametersToShow <- c(designParametersToShow, ".design$stageLevels")
+		} else {
+			if (design$sided == 2) {
+				designParametersToShow <- c(designParametersToShow, ".design$twoSidedPower")
+			}
+		}
+		designParametersToShow <- c(designParametersToShow, ".design$alpha")
+		designParametersToShow <- c(designParametersToShow, ".design$beta")
+		designParametersToShow <- c(designParametersToShow, ".design$sided")
+	}
+	return(designParametersToShow)
+}

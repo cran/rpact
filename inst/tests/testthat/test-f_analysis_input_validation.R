@@ -15,9 +15,9 @@
 #:#  
 #:#  File name: test-f_analysis_input_validation.R
 #:#  Creation date: 09 November 2020, 11:45:48
-#:#  File version: $Revision$
-#:#  Last changed: $Date$
-#:#  Last changed by: $Author$
+#:#  File version: $Revision: 3854 $
+#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  Last changed by: $Author: pahlke $
 #:#  
 
 context("Testing the Correct Input Validation of All Analysis Functions")

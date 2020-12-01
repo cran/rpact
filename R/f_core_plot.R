@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3688 $
-#:#  Last changed: $Date: 2020-09-24 14:37:04 +0200 (Thu, 24 Sep 2020) $
+#:#  File version: $Revision: 4048 $
+#:#  Last changed: $Date: 2020-11-30 10:44:28 +0100 (Mon, 30 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -218,6 +218,15 @@
 .createPlotResultObject <- function(plotList, grid = 1) {
 	.assertIsSingleInteger(grid, "grid", naAllowed = FALSE, validateType = FALSE)
 	.assertIsInClosedInterval(grid, "grid", lower = 0, upper = 100)
+	
+	if (length(plotList) == 0) {
+		if (grid == 0) {
+			return(invisible(plotList))
+		}
+		
+		return(plotList)
+	}
+	
 	if (!inherits(plotList[[1]], "ggplot") || grid == 1) {
 		return(plotList)
 	}
@@ -297,6 +306,10 @@ plotTypes <- function(obj, output = c("numeric", "caption", "numcap", "capnum"),
 		return(TRUE)
 	}
 	
+#	if (inherits(resultObject, "TrialDesignPlan") && plotType %in% c(1:4)) {
+#		return(TRUE)
+#	}
+	
 	for (param in c("alternative", "pi1", "hazardRatio")) {
 		if (!is.null(resultObject[[param]]) && 
 				resultObject$.getParameterType(param) != C_PARAM_NOT_APPLICABLE &&
@@ -317,10 +330,17 @@ plotTypes <- function(obj, output = c("numeric", "caption", "numcap", "capnum"),
 	return(TRUE)
 }
 
-.removeInvalidPlotTypes <- function(resultObject, plotTypes) {
-	validPlotTypes <- c()
+.removeInvalidPlotTypes <- function(resultObject, plotTypes, plotTypesToCheck) {
+	if (is.null(plotTypes) || length(plotTypes) == 0) {
+		return(integer(0))
+	}
+	
+	validPlotTypes <- integer(0)
 	for (plotType in plotTypes) {
-		if (.isValidVariedParameterVectorForPlotting(resultObject, plotType)) {
+		if (!(plotType %in% plotTypesToCheck)) {
+			validPlotTypes <- c(validPlotTypes, plotType)
+		}
+		else if (.isValidVariedParameterVectorForPlotting(resultObject, plotType)) {
 			validPlotTypes <- c(validPlotTypes, plotType)
 		}
 	}
@@ -378,7 +398,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		return(list())
 	}
 	
-	types <- c()
+	types <- integer(0)
 	if (inherits(obj, "TrialDesignPlan")) {
 		if (obj$.design$kMax > 1) {
 			types <- c(types, 1:4)
@@ -394,7 +414,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 				types <- c(types, 10:14)
 			}
 		}
-		types <- .removeInvalidPlotTypes(obj, types)
+		types <- .removeInvalidPlotTypes(obj, types, c(5:14))
 	}
 	else if (inherits(obj, "SimulationResults")) {
 		if (grepl("MultiArm", class(obj))) {
@@ -417,13 +437,16 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		if (inherits(obj, "SimulationResultsSurvival")) {
 			types <- c(types, 10:14)
 		}
-		types <- .removeInvalidPlotTypes(obj, types)
+		types <- .removeInvalidPlotTypes(obj, types, c(4:14))
 	}
 	else if (inherits(obj, "TrialDesign") || inherits(obj, "TrialDesignSet")) {
+		if (obj$kMax > 1) {
+			types <- c(types, 1, 3)
+		}
 		if (inherits(obj, "TrialDesignFisher")) {
-			types <- c(1, 3, 4)
+			types <- c(types, 4)
 		} else {
-			types <- c(types, 1, 3:9)
+			types <- c(types, 4:9)
 		}
 	}
 	else if (inherits(obj, "AnalysisResults")) {
@@ -438,7 +461,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	if (output == "caption") {
-		captions <- c()
+		captions <- character(0)
 		for (type in types) {
 			captions <- c(captions, .getPlotCaption(obj, type = type, 
 				numberInCaptionEnabled = numberInCaptionEnabled))
@@ -653,9 +676,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			"use 'DesignSet$addVariedParameters(character)' to add one or more varied parameters")
 	}
 	
-	data <- as.data.frame(parameterSet, niceColumnNamesEnabled = FALSE, 
-		includeAllParameters = TRUE, addPowerAndAverageSampleNumber = addPowerAndAverageSampleNumber,
-		theta = theta, nMax = nMax)	
+	if (inherits(parameterSet, "TrialDesignSet")) {
+		data <- as.data.frame(parameterSet, niceColumnNamesEnabled = FALSE, 
+			includeAllParameters = TRUE, addPowerAndAverageSampleNumber = addPowerAndAverageSampleNumber,
+			theta = theta, nMax = nMax)	
+	} else {
+		data <- as.data.frame(parameterSet, niceColumnNamesEnabled = FALSE, includeAllParameters = TRUE)	
+	}
 	
 	if (!.isTrialDesignSet(parameterSet)) {
 		return(list(data = data, variedParameters = character(0)))
@@ -720,7 +747,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
 		parameterNames <- c(xParameterName, yParameterNames)
 		parameterNames <- parameterNames[!(parameterNames %in% c("theta", "averageSampleNumber",
-						"overallEarlyStop", "calculatedPower"))]
+			"overallEarlyStop", "calculatedPower"))]
 		fieldNames <- c(names(parameterSet$getRefClass()$fields()), 
 			names(designMaster$getRefClass()$fields()))
 		for (parameterName in parameterNames) {
@@ -748,11 +775,11 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			"overallReject", "overallFutility") 
 	
 	if (!addPowerAndAverageSampleNumber) {
-		addPowerAndAverageSampleNumber <- xParameterName == "effect" &&
+		addPowerAndAverageSampleNumber <- xParameterName %in% c("effect", "effectMatrix") &&
 			yParameterNames[1] %in% c("overallReject", "futilityStop", 
-				"earlyStop", "expectedNumberOfSubjects")
+				"earlyStop", "expectedNumberOfSubjects", "expectedNumberOfEvents")
 	}
-		
+	
 	if (addPowerAndAverageSampleNumber && .isMultiArmSimulationResults(parameterSet)) {
 		addPowerAndAverageSampleNumber <- FALSE 
 	}
@@ -811,6 +838,14 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		} else {
 			yAxisLabel2 <- .getAxisLabel(yParameterName3, tableColumnNames)
 		}
+	}
+	else if (xParameterName == "effectMatrix" && !is.null(yParameterName2) && !is.na(yParameterName2) && 
+			yParameterName1 %in% c("expectedNumberOfEvents", "expectedNumberOfSubjects") &&
+			yParameterName2 == "rejectAtLeastOne") {
+		# special cae: simulation results, plot type 6 (expected number of subjects and power)
+		yAxisLabel2 <- .getAxisLabel(yParameterName2, tableColumnNames)
+		yParameterName3 <- yParameterName2
+		yParameterName2 <- NA_character_
 	}
 	else if (!is.null(yParameterName2) && !mirrorModeEnabled) {
 		yAxisLabel1 <- paste(yAxisLabel1, .getAxisLabel(yParameterName2, tableColumnNames), sep = " and ")
@@ -903,7 +938,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		
 		# sort categories for pairwise printing of the legend
 		unqiueValues <- unique(as.character(data$categories))
-		decreasing <- addPowerAndAverageSampleNumber && xParameterName == "effect"
+		decreasing <- addPowerAndAverageSampleNumber && xParameterName %in% c("effect", "effectMatrix")
 		data$categories <- factor(data$categories, levels = unqiueValues[order(unqiueValues, decreasing = decreasing)])
 		
 		if (yParameterName1 == "alphaSpent" && yParameterName2 == "betaSpent") {
@@ -969,9 +1004,18 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	return(p)
 }
 
+.naAndNaNOmit <- function(x) {
+	if (is.null(x) || length(x) == 0) {
+		return(x)
+	}
+	
+	x <- na.omit(x)
+	return(x[!is.nan(x)])
+}
+
 .getScalingFactors <- function(leftAxisValues, rightAxisValues) {
-	m1 <- ifelse(length(na.omit(leftAxisValues)) == 0, 1, max(na.omit(leftAxisValues)))
-	m2 <- ifelse(length(na.omit(rightAxisValues)) == 0, 1, max(na.omit(rightAxisValues)))
+	m1 <- ifelse(length(.naAndNaNOmit(leftAxisValues)) == 0, 1, max(.naAndNaNOmit(leftAxisValues)))
+	m2 <- ifelse(length(.naAndNaNOmit(rightAxisValues)) == 0, 1, max(.naAndNaNOmit(rightAxisValues)))
 	if (is.na(m1)) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "y-values, left (", 
 			.arrayToString(leftAxisValues), ") are not specified correctly")
@@ -983,13 +1027,18 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	
 	if (m1 > m2) {
 		scalingFactor1 <- 1
-		scalingFactor2 <- m1 / m2
+		scalingFactor2 <- ifelse(m2 == 0, m1, m1 / m2)
 	} else if (m1 < m2) {
-		scalingFactor1 <- m2 / m1
+		scalingFactor1 <- ifelse(m1 == 0, m2, m2 / m1)
 		scalingFactor2 <- 1
 	} else {
 		scalingFactor1 <- 1
 		scalingFactor2 <- 1
+	}
+	
+	if (is.infinite(scalingFactor2)) {
+		stop("Failed to calculate 'scalingFactor2' (", scalingFactor2, ") for ", 
+			.arrayToString(leftAxisValues, maxLength = 15), " and ", .arrayToString(rightAxisValues, maxLength = 15))
 	}
 	
 	return(list(scalingFactor1 = scalingFactor1, scalingFactor2 = scalingFactor2))
@@ -1268,4 +1317,52 @@ getLambdaStepFunction <- function(timeValues, ..., piecewiseSurvivalTime, piecew
 		piecewiseLambda = piecewiseLambda)
 }
 
+.getRelativeFigureOutputPath <- function(subDir = NULL) {
+	if (is.null(subDir)) {
+		subDir <- format(Sys.Date(), format="%Y-%m-%d")
+	}
+	figPath <- file.path(getwd(), "_examples", "output", "figures", subDir)
+	if (!dir.exists(figPath)) {
+		dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
+	}  
+	return(figPath)
+}
+
+# @title 
+# Save Last Plot
+# 
+# @description 
+# Saves the last plot to a PNG file located in 
+# '[getwd()]/_examples/output/figures/[current date]/[filename].png'.
+# 
+# @param filename The filename (without extension!).
+# 
+# @details 
+# This is a wrapper function that creates a output path and uses \code{ggsave} to save the last plot.
+# 
+# @examples
+# 
+# # saveLastPlot('my_plot') 
+# 
+# @keywords internal
+#
+saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) {
+	.assertGgplotIsInstalled()
+	
+	if (grepl("\\\\|/", filename)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'filename' seems to be a path. ", 
+			"Please specify 'outputPath' separately")
+	}
+	
+	if (!grepl("\\.png$", filename)) {
+		filename <- paste0(filename, ".png")
+	}
+	
+	path <- file.path(outputPath, filename)
+	ggplot2::ggsave(filename = path, 
+		plot = ggplot2::last_plot(), device = NULL, path = NULL,
+		scale = 1.2, width = 16, height = 15, units = "cm", dpi = 600, limitsize = TRUE)
+	
+	cat("Last plot was saved to '", path, "'\n")
+}
 

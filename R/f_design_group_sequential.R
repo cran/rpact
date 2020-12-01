@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3700 $
-#:#  Last changed: $Date: 2020-09-25 16:28:28 +0200 (Fr, 25 Sep 2020) $
+#:#  File version: $Revision: 3989 $
+#:#  Last changed: $Date: 2020-11-23 11:25:20 +0100 (Mon, 23 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -302,7 +302,7 @@ NULL
 	invisible(design)
 }
 
-.validateBaseParameters <- function(design) {
+.validateBaseParameters <- function(design, twoSidedWarningForDefaultValues = TRUE) {
 	
 	if (.isDefinedArgument(design$kMax)) {	
 		
@@ -325,7 +325,8 @@ NULL
 	.setKmaxBasedOnAlphaSpendingDefintion(design)
 	
 	design$informationRates <- .getValidatedInformationRates(design)	
-	design$futilityBounds <- .getValidatedFutilityBounds(design)
+	design$futilityBounds <- .getValidatedFutilityBounds(design, 
+		twoSidedWarningForDefaultValues = twoSidedWarningForDefaultValues)
 
 	.assertDesignParameterExists(design, "tolerance", C_DESIGN_TOLERANCE_DEFAULT)
 	if (design$tolerance < 1e-10 || design$tolerance > 1e-03) {
@@ -1012,7 +1013,7 @@ getDesignInverseNormal <- function(
 		tolerance               = tolerance)
 	
 	if (userFunctionCallEnabled) {
-		.validateBaseParameters(design)
+		.validateBaseParameters(design, twoSidedWarningForDefaultValues = FALSE)
 		.validateTypeOfDesign(design)
 		
 		.assertIsValidTolerance(tolerance)	
@@ -1170,7 +1171,7 @@ getDesignGroupSequential <- function(
 		beta = NA_real_, 
 		sided = 1, # C_SIDED_DEFAULT
 		informationRates = NA_real_, 
-		futilityBounds = NA_real_, 		
+		futilityBounds = NA_real_, 	
 		typeOfDesign = c("OF", "P", "WT", "HP", "WToptimum", "asP", "asOF", "asKD", "asHSD", "asUser"), # C_DEFAULT_TYPE_OF_DESIGN,
 		deltaWT = NA_real_, 
 		optimizationCriterion = c("ASNH1", "ASNIFH1", "ASNsum"), # C_OPTIMIZATION_CRITERION_DEFAULT
@@ -1280,7 +1281,8 @@ getDesignCharacteristics <- function(design) {
 	}
 	
 	design$informationRates <- .getValidatedInformationRates(design, writeToDesign = FALSE)	
-	design$futilityBounds <- .getValidatedFutilityBounds(design, writeToDesign = FALSE)
+	design$futilityBounds <- .getValidatedFutilityBounds(design, 
+		writeToDesign = FALSE, twoSidedWarningForDefaultValues = FALSE)
 	
 	designCharacteristics <- TrialDesignCharacteristics(design = design)
 		

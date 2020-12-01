@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3793 $
-#:#  Last changed: $Date: 2020-10-27 12:14:37 +0100 (Tue, 27 Oct 2020) $
+#:#  File version: $Revision: 4060 $
+#:#  Last changed: $Date: 2020-12-01 09:53:32 +0100 (Tue, 01 Dec 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -158,7 +158,7 @@ C_TYPE_OF_SHAPE_DEFAULT <- C_TYPES_OF_SHAPE[1]
 
 C_SUCCESS_CRITERIONS <- c("all", "atLeastOne")
 C_SUCCESS_CRITERION_DEFAULT <- C_SUCCESS_CRITERIONS[1]
-C_EFFECT_MEASURES <- c("effectDifference", "testStatistic")
+C_EFFECT_MEASURES <- c("effectEstimate", "testStatistic")
 C_EFFECT_MEASURE_DEFAULT <- C_EFFECT_MEASURES[1]
 
 # 
@@ -197,6 +197,18 @@ C_TYPE_OF_DESIGN_AS_KD <- "asKD"    # Kim & DeMets alpha spending
 C_TYPE_OF_DESIGN_AS_HSD <- "asHSD"  # Hwang, Shi & DeCani alpha spending
 C_TYPE_OF_DESIGN_AS_USER <- "asUser" # user defined alpha spending
 C_DEFAULT_TYPE_OF_DESIGN <- C_TYPE_OF_DESIGN_OF # the default type of design
+
+C_TYPE_OF_DESIGN_LIST <- list(
+	"OF" = "O'Brien & Fleming", 
+	"P" = "Pocock", 
+	"WT" = "Wang & Tsiatis Delta class", 
+	"HP" = "Haybittle & Peto", 
+	"WToptimum" = "Optimum design within Wang & Tsiatis class", 
+	"asP" = "Pocock type alpha spending", 
+	"asOF" = "O'Brien & Fleming type alpha spending", 
+	"asKD" = "Kim & DeMets alpha spending", 
+	"asHSD" = "Hwang, Shi & DeCani alpha spending", 
+	"asUser" = "user defined alpha spending")
 
 C_PLOT_SHOW_SOURCE_ARGUMENTS <- c("commands", "axes", "test", "validate")
 
@@ -503,8 +515,8 @@ C_PARAMETER_NAMES <- list(
 	
 	twoSidedPower = "Two-sided power",
 	
-	plannedEvents = "Planned events",
-	plannedSubjects = "Planned subjects",
+	plannedEvents = "Planned cumulative overall events",
+	plannedSubjects = "Planned cumulative subjects", # per arm (multi-arm); overall (base)
 	minNumberOfEventsPerStage = "Minimum number of events per stage",
 	maxNumberOfEventsPerStage = "Maximum number of events per stage",
 	minNumberOfSubjectsPerStage = "Minimum number of subjects per stage",
@@ -532,12 +544,12 @@ C_PARAMETER_NAMES <- list(
 	effect = "Effect",
 	maxNumberOfEvents = "Maximum number of events",
 	
-	criticalValuesEffectScale = "Critical values (effect scale)",
-	criticalValuesEffectScaleLower = "Lower critical values (effect scale)",
-	criticalValuesEffectScaleUpper = "Upper critical values (effect scale)",
+	criticalValuesEffectScale = "Critical values (treatment effect scale)",
+	criticalValuesEffectScaleLower = "Lower critical values (treatment effect scale)",
+	criticalValuesEffectScaleUpper = "Upper critical values (treatment effect scale)",
 	criticalValuesPValueScale = "Local one-sided significance levels",
 	".design$stageLevels" = "Local one-sided significance levels",
-	futilityBoundsEffectScale = "Futility bounds (effect scale)",
+	futilityBoundsEffectScale = "Futility bounds (treatment effect scale)",
 	futilityBoundsPValueScale = "Futility bounds (1-sided p-value scale)",
 	
 	analysisTime = "Analysis time",
@@ -557,6 +569,7 @@ C_PARAMETER_NAMES <- list(
 	eventsPerStage = "Cumulative number of events",
 	expectedNumberOfEvents = "Observed number of events",
 	expectedNumberOfSubjects = "Observed number of subjects",
+	singleNumberOfEventsPerStage = "Single number of events",
 	
 	endOfAccrualIsUserDefined = "End of accrual is user defined",
 	followUpTimeMustBeUserDefined = "Follow-up time must be user defined",
@@ -619,7 +632,9 @@ C_PARAMETER_NAMES <- list(
 	calcSubjectsFunction = "Calculate subjects function",
 	calcEventsFunction = "Calculate events function",
 	selectArmsFunction = "Select arms function",
-	numberOfActiveArms = "Number of active arms"
+	numberOfActiveArms = "Number of active arms",
+	
+	correlationComputation = "Correlation computation method"
 )
 
 .getParameterNames <- function(design = NULL, designPlan = NULL) {
@@ -832,8 +847,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	
 	twoSidedPower = "Two-sided power",
 	
-	plannedEvents = "Required planned events",
-	plannedSubjects = "Required planned subjects",
+	plannedEvents = "Planned cumulative events",
+	plannedSubjects = "Planned cumulative subjects",
 	minNumberOfEventsPerStage = "Minimum # events per stage",
 	maxNumberOfEventsPerStage = "Maximum # events per stage",
 	minNumberOfSubjectsPerStage = "Minimum # of subjects per stage",
@@ -860,12 +875,12 @@ C_TABLE_COLUMN_NAMES <- list(
 	effect = "Effect",
 	maxNumberOfEvents = "Maximum # events",
 	
-	criticalValuesEffectScale = "Critical value (effect scale)",
-	criticalValuesEffectScaleLower = "Lower critical value (effect scale)",
-	criticalValuesEffectScaleUpper = "Upper critical value (effect scale)",
+	criticalValuesEffectScale = "Critical value (treatment effect scale)",
+	criticalValuesEffectScaleLower = "Lower critical value (treatment effect scale)",
+	criticalValuesEffectScaleUpper = "Upper critical value (treatment effect scale)",
 	criticalValuesPValueScale = "Local one-sided significance level",
 	".design$stageLevels" = "Local one-sided significance level",
-	futilityBoundsEffectScale = "Futility bound (effect scale)",
+	futilityBoundsEffectScale = "Futility bound (treatment effect scale)",
 	futilityBoundsPValueScale = "Futility bound (1-sided p-value scale)",
 	
 	delayedResponseAllowed = "Delayed response allowed",
@@ -878,6 +893,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	eventsPerStage = "Cumulative # events", 
 	expectedNumberOfEvents = "Observed # events",
 	expectedNumberOfSubjects = "Observed # subjects",
+	singleNumberOfEventsPerStage = "Single # events",
 	
 	endOfAccrualIsUserDefined = "End of accrual is user defined",
 	followUpTimeMustBeUserDefined = "Follow-up time must be user defined",
@@ -939,7 +955,9 @@ C_TABLE_COLUMN_NAMES <- list(
 	calcSubjectsFunction = "Calc subjects fun",
 	calcEventsFunction = "Calc events fun",
 	selectArmsFunction = "Select arms fun",
-	numberOfActiveArms = "Number of active arms"
+	numberOfActiveArms = "Number of active arms",
+	
+	correlationComputation = "Correlation computation"
 )
 
 .getTableColumnNames <- function(design = NULL, designPlan = NULL) {
@@ -1132,6 +1150,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	eventsPerStage = ".formatEvents", 
 	expectedNumberOfEvents = ".formatEvents",
 	expectedNumberOfSubjects = ".formatEvents",
+	singleNumberOfEventsPerStage = ".formatEvents",
 	
 	time = ".formatTime",
 	overallEventProbabilities = ".formatProbabilities",

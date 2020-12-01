@@ -15,16 +15,15 @@
 #:#  
 #:#  File name: test-class_analysis_dataset.R
 #:#  Creation date: 09 November 2020, 11:42:15
-#:#  File version: $Revision$
-#:#  Last changed: $Date$
-#:#  Last changed by: $Author$
+#:#  File version: $Revision: 3854 $
+#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  Last changed by: $Author: pahlke $
 #:#  
 
 context("Testing the Class 'Dataset'")
 
 
 test_that("Usage of 'getDataset'", {
-	.skipTestIfDisabled()
 
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
@@ -52,7 +51,7 @@ test_that("Usage of 'getDataset'", {
 	    invisible(capture.output(expect_error(summary(datasetOfMeans1), NA)))
 	    expect_output(summary(datasetOfMeans1)$show())
 	}
-
+	
 	## Comparison of the results of data.frame object 'datasetOfMeans1$.data' with expected results
 	expect_equal(datasetOfMeans1$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
 	expect_equal(datasetOfMeans1$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
@@ -72,6 +71,8 @@ test_that("Usage of 'getDataset'", {
 	expect_equal(datasetOfMeans1$overallMeans, datasetOfMeans1$.data$overallMean, tolerance = 1e-07)
 	expect_equal(datasetOfMeans1$overallStDevs, datasetOfMeans1$.data$overallStDev, tolerance = 1e-07)
 
+	.skipTestIfDisabled()
+	
 	x <- getMultipleStageResultsForDataset(datasetOfMeans1)
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults1' with expected results

@@ -184,7 +184,7 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_output(summary(x4)$show())
 	}
 
-	x5 <- getSimulationMultiArmRates(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rbest", rValue = 2,
+	x5 <- getSimulationMultiArmRates(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
 		plannedSubjects = c(10, 30, 50), piControl = 0.3, piMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
 		maxNumberOfIterations = 10)
@@ -324,7 +324,7 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_output(summary(x8)$show())
 	}
 
-	x9 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rbest", rValue = 2,
+	x9 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
 		plannedSubjects = c(10, 30, 50), piControl = 0.3, piMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE),
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
 		maxNumberOfIterations = 10)
@@ -570,7 +570,7 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_output(summary(x15)$show())
 	}
 
-	x16 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rbest", rValue = 2,
+	x16 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rBest", rValue = 2,
 		plannedSubjects = c(10, 30, 50), piControl = 0.3, piMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), intersectionTest = "Sidak",
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
 		maxNumberOfIterations = 10)
@@ -710,7 +710,7 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_output(summary(x19)$show())
 	}
 
-	x20 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rbest", rValue = 2,
+	x20 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rBest", rValue = 2,
 		plannedSubjects = c(10, 30, 50), piControl = 0.3, piMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE), intersectionTest = "Hierarchical", 
 		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
 		maxNumberOfIterations = 10)
@@ -948,7 +948,7 @@ test_that("'getSimulationMultiArmRates': typeOfShape = sigmoidEmax", {
 	# @refFS[Formula]{fs:adjustedPValueSubsetDunnett}
 	designIN <- getDesignInverseNormal(typeOfDesign = "P", kMax = 3, futilityBounds = c(0, 0))
 	x <- getSimulationMultiArmRates(designIN, activeArms = 3, typeOfShape = "sigmoidEmax", piMaxVector = seq(0.1, 0.9, 0.2), gED50 = 2, plannedSubjects = cumsum(rep(20, 3)), piControl = 0.1, 
-		intersectionTest = "Sidak", typeOfSelection = "rbest", rValue = 2, threshold = -Inf, successCriterion = "all", maxNumberOfIterations = 100, seed = 3456)
+		intersectionTest = "Sidak", typeOfSelection = "rBest", rValue = 2, threshold = -Inf, successCriterion = "all", maxNumberOfIterations = 100, seed = 3456)
 
 	## Comparison of the results of SimulationResultsMultiArmRates object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(100, 100, 100, 100, 100))

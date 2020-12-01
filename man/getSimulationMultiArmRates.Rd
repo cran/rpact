@@ -18,7 +18,7 @@ getSimulationMultiArmRates(
   directionUpper = TRUE,
   adaptations = NA,
   typeOfSelection = c("best", "rBest", "epsilon", "all", "userDefined"),
-  effectMeasure = c("effectDifference", "testStatistic"),
+  effectMeasure = c("effectEstimate", "testStatistic"),
   successCriterion = c("all", "atLeastOne"),
   epsilonValue = NA_real_,
   rValue = NA_real_,
@@ -34,7 +34,7 @@ getSimulationMultiArmRates(
   seed = NA_real_,
   calcSubjectsFunction = NULL,
   selectArmsFunction = NULL,
-  showStatistics = TRUE
+  showStatistics = FALSE
 )
 }
 \arguments{
@@ -92,8 +92,8 @@ for \code{"epsilon"} (select treatment arm not worse than epsilon compared to th
 If \code{"userDefined"} is selected, \code{"selectArmsFunction"} has to be specified.}
 
 \item{effectMeasure}{Criterion for treatment arm selection, either based on test statistic 
-(\code{"testStatistic"}) or effect difference (\code{"effectDifference"}), 
-default is \code{"effectDifference"}.}
+(\code{"testStatistic"}) or effect estimate (difference for means and rates or ratio for survival) (\code{"effectEstimate"}), 
+default is \code{"effectEstimate"}.}
 
 \item{successCriterion}{Defines when the study is stopped for efficacy at interim. 
 Two options are available: \code{"all"} stops the trial 

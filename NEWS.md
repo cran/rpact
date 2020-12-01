@@ -1,4 +1,22 @@
 
+# rpact 3.0.3
+
+* New utility functions getParameterCaption() and getParameterName() implemented
+* Design parameters added to simulation print output
+* Generic function as.matrix improved for several result objects
+* Issue in getAvailablePlotTypes for sample size and power results fixed
+* Issue for getDesignFisher(kMax = 1) in getSimulationMultiArm...() fixed 
+* getSimulationMultiArmSurvival: correlation of log-rank statistics revised and improved 
+* getSimulationMultiArmMeans: name of the first effectMeasure option "effectDifference" changed to "effectEstimate" 
+* getSimulation[MultiArm][Means/Rates/Survival]: argument 'showStatistics' now works correctly and is consistently FALSE by default for multi-arm and non-multi-arm
+* getSimulation[MultiArm]Survival: generic function summary() improved
+* getAnalysisResults: generic function summary() improved
+* getAccrualTime: improved and new argument 'accrualIntensityType' added
+* Header text added to design summaries
+* getSampleSizeSurvival: field 'studyDurationH1' in result object was replaced by 'studyDuration', i.e., 'studyDurationH1' is deprecated and will be removed in future versions
+* Minor improvements in the inline help and manual
+* Minor improvements
+
 # rpact 3.0.2
 
 * getSimulationMultiArmSurvival: plannedEvents redefined as overall events over treatment arms

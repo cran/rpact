@@ -15,9 +15,9 @@
 #:#  
 #:#  File name: test-f_core_utilities.R
 #:#  Creation date: 09 November 2020, 11:48:24
-#:#  File version: $Revision$
-#:#  Last changed: $Date$
-#:#  Last changed by: $Author$
+#:#  File version: $Revision: 4041 $
+#:#  Last changed: $Date: 2020-11-27 13:15:57 +0100 (Fri, 27 Nov 2020) $
+#:#  Last changed by: $Author: pahlke $
 #:#  
 
 context("Testing Result Object Print Output")
@@ -814,15 +814,10 @@ test_that("Testing 'isUndefinedArgument' and 'isValidArgument'", {
 	expect_equal(.isDefinedArgument(c(1, NA, NA)), TRUE)
 	expect_equal(.isDefinedArgument(c(NA, NA, 1)), TRUE)
 	expect_equal(.isDefinedArgument(1), TRUE)
-
-	skip_if_translated()
-
-	expect_error(.isDefinedArgument(notExistingTestVariable, argumentExistsValidationEnabled = FALSE),
-		"object 'notExistingTestVariable' not found", fixed = TRUE)
-	expect_error(.isDefinedArgument(notExistingTestVariable),
-		paste0("Missing argument: the object 'notExistingTestVariable' has not been defined anywhere. ",
-		"Please define it first, e.g., run 'notExistingTestVariable <- 1'"), fixed = TRUE)
-
+	
+	expect_error(.isDefinedArgument(notExistingTestVariable, argumentExistsValidationEnabled = FALSE))
+	expect_error(.isDefinedArgument(notExistingTestVariable))
+	
 })
 
 test_that("Result of 'setSeed(seed)' is working for different arguments, incl. NULL and NA", {

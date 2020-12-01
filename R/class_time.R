@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3581 $
-#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
+#:#  File version: $Revision: 4051 $
+#:#  Last changed: $Date: 2020-11-30 14:42:18 +0100 (Mo, 30 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -250,13 +250,15 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 #' @description 
 #' Returns an \code{AccrualTime} object that contains the accrual time and the accrual intensity.
 #' 
-#' @param accrualTime The assumed accrual time for the study, default is \code{c(0,12)} (see details).
-#' @param accrualIntensity A value or vector of accrual intensities, default is the relative 
-#'        intensity \code{0.1} (see details).
+#' @inheritParams param_accrualTime
+#' @inheritParams param_accrualIntensity
 #' @param maxNumberOfSubjects The maximum number of subjects.
+#' @param accrualIntensityType A character value specifying the accrual intensity input type.
+#'        Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
+#'        i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.
 #' @inheritParams param_three_dots
 #' 
-#' @template details_piecewise_accrual 
+#' @template details_piecewise_accrual
 #' 
 #' @seealso \code{\link{getNumberOfSubjects}} for calculating the number of subjects at given time points. 
 #' 
@@ -279,7 +281,8 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 getAccrualTime <- function(accrualTime = NA_real_, 
 		...,
 		accrualIntensity = NA_real_, 
-		maxNumberOfSubjects = NA_real_) {
+		maxNumberOfSubjects = NA_real_,
+		accrualIntensityType = c("auto", "absolute", "relative")) {
 	
 	.warnInCaseOfUnknownArguments(functionName = "getAccrualTime", ..., 
 		ignore = c("showWarnings"))
@@ -300,8 +303,18 @@ getAccrualTime <- function(accrualTime = NA_real_,
 		return(accrualTime$.accrualTime)
 	}
 	
+	accrualIntensityType <- match.arg(accrualIntensityType)
+	
 	.assertIsNumericVector(accrualIntensity, "accrualIntensity", naAllowed = TRUE)
 	.assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects, naAllowed = TRUE)
+	.assertIsSingleCharacter(accrualIntensityType, "accrualIntensityType")
+	absoluteAccrualIntensityEnabled <- NA
+	if (accrualIntensityType == "absolute") {
+		absoluteAccrualIntensityEnabled <- TRUE
+	}
+	else if (accrualIntensityType == "relative") {
+		absoluteAccrualIntensityEnabled <- FALSE
+	}
 	
 	args <- list(...)
 	showWarnings <- args[["showWarnings"]]
@@ -312,7 +325,8 @@ getAccrualTime <- function(accrualTime = NA_real_,
 	return(AccrualTime(accrualTime = accrualTime, 
 		accrualIntensity = accrualIntensity, 
 		maxNumberOfSubjects = maxNumberOfSubjects, 
-		showWarnings = showWarnings))
+		showWarnings = showWarnings,
+		absoluteAccrualIntensityEnabled = absoluteAccrualIntensityEnabled))
 }
 
 #' 
@@ -1236,23 +1250,25 @@ AccrualTime <- setRefClass("AccrualTime",
 				accrualIntensity = NA_real_, 
 				maxNumberOfSubjects = NA_real_,
 				showWarnings = TRUE, 
-				silent = FALSE) {
+				absoluteAccrualIntensityEnabled = NA) {
 				
 			callSuper(accrualTime = NA_real_,
 				accrualIntensity = accrualIntensity,
 				maxNumberOfSubjects = maxNumberOfSubjects, 
-				.showWarnings = showWarnings, ...)
+				.showWarnings = showWarnings,
+				absoluteAccrualIntensityEnabled = absoluteAccrualIntensityEnabled, ...)
 			
 			endOfAccrualIsUserDefined <<- NA
 			followUpTimeMustBeUserDefined <<- NA
 			maxNumberOfSubjectsIsUserDefined <<- NA
 			maxNumberOfSubjectsCanBeCalculatedDirectly <<- TRUE
-			absoluteAccrualIntensityEnabled <<- NA
+			#absoluteAccrualIntensityEnabled <<- NA
 			.setParameterType("endOfAccrualIsUserDefined", C_PARAM_GENERATED)
 			.setParameterType("followUpTimeMustBeUserDefined", C_PARAM_GENERATED)
 			.setParameterType("maxNumberOfSubjectsIsUserDefined", C_PARAM_GENERATED)
 			.setParameterType("maxNumberOfSubjectsCanBeCalculatedDirectly", C_PARAM_GENERATED)
-			.setParameterType("absoluteAccrualIntensityEnabled", C_PARAM_GENERATED)
+			.setParameterType("absoluteAccrualIntensityEnabled", 
+				ifelse(is.na(absoluteAccrualIntensityEnabled), C_PARAM_GENERATED, C_PARAM_USER_DEFINED))
 			
 			accrualIntensityRelative <<- NA_real_
 			.setParameterType("accrualIntensityRelative", C_PARAM_NOT_APPLICABLE)
@@ -1262,7 +1278,7 @@ AccrualTime <- setRefClass("AccrualTime",
 			
 			# case 6 correction
 			if (!endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined && 
-					!absoluteAccrualIntensityEnabled) {
+					!.self$absoluteAccrualIntensityEnabled) {
 				remainingTime <<- NA_real_ 
 				.setParameterType("remainingTime", C_PARAM_NOT_APPLICABLE)
 				.self$accrualTime <<- .self$accrualTime[1:length(.self$accrualIntensity)]
@@ -1390,7 +1406,7 @@ AccrualTime <- setRefClass("AccrualTime",
 				}
 			}
 			if (!isTRUE(all.equal(numberOfSubjects, maxNumberOfSubjects, tolerance = 1e-03)) && 
-					.isAbsoluteAccrualIntensity(accrualIntensity)) {
+					absoluteAccrualIntensityEnabled) {
 				stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
 					"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") disagrees with ",
 					"the defined accrual time and intensity: ",
@@ -1703,6 +1719,7 @@ AccrualTime <- setRefClass("AccrualTime",
 		},
 		
 		.initAccrualIntensityAbsolute = function() {
+			
 			if (is.null(maxNumberOfSubjects) || length(maxNumberOfSubjects) != 1 || 
 					is.na(maxNumberOfSubjects) || maxNumberOfSubjects == 0) {
 				return(invisible())
@@ -1724,7 +1741,7 @@ AccrualTime <- setRefClass("AccrualTime",
 					
 					.validateAccrualTimeAndIntensity()
 
-					if (.isAbsoluteAccrualIntensity(accrualIntensity) && 
+					if (absoluteAccrualIntensityEnabled && 
 							.getParameterType("maxNumberOfSubjects") == C_PARAM_USER_DEFINED) {
 						
 						if (.getParameterType("accrualTime") == C_PARAM_DEFAULT_VALUE) {
@@ -1739,7 +1756,7 @@ AccrualTime <- setRefClass("AccrualTime",
 								.getFormula(), " = ", .getSampleSize())
 						}
 					} else {
-						if (.isRelativeAccrualIntensity(accrualIntensity) && 
+						if (!absoluteAccrualIntensityEnabled && # .isRelativeAccrualIntensity(accrualIntensity)
 								.getParameterType("accrualIntensity") == C_PARAM_USER_DEFINED &&
 								.getParameterType("accrualTime") == C_PARAM_DEFAULT_VALUE &&
 								.getParameterType("maxNumberOfSubjects") == C_PARAM_USER_DEFINED) {
@@ -1855,7 +1872,9 @@ AccrualTime <- setRefClass("AccrualTime",
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'accrualTime' must be a list or a numeric vector")
 			}
 			
-			absoluteAccrualIntensityEnabled <<- .isAbsoluteAccrualIntensity(accrualIntensity)
+			if (is.na(absoluteAccrualIntensityEnabled)) {
+				absoluteAccrualIntensityEnabled <<- .isAbsoluteAccrualIntensity(accrualIntensity)
+			}
 			if (is.null(maxNumberOfSubjects) || length(maxNumberOfSubjects) == 0 ||
 					any(is.na(maxNumberOfSubjects))) {
 				if (length(accrualTime) != length(accrualIntensity) + 1 || 
@@ -1906,7 +1925,7 @@ AccrualTime <- setRefClass("AccrualTime",
 							.calculateRemainingTime()
 						} else {
 							if (length(accrualTime) == length(accrualIntensity) + 1 && 
-									.isAbsoluteAccrualIntensity(accrualIntensity)) {
+									absoluteAccrualIntensityEnabled) {
 								stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
 									"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") disagrees with ",
 									"the defined accrual time and intensity: ",
@@ -1918,7 +1937,7 @@ AccrualTime <- setRefClass("AccrualTime",
 						}
 					} else {
 						if ((length(maxNumberOfSubjects) != 1 || is.na(maxNumberOfSubjects)) &&
-								.isAbsoluteAccrualIntensity(accrualIntensity)) {
+								absoluteAccrualIntensityEnabled) {
 							maxNumberOfSubjects <<- sampleSize
 							.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
 						}
@@ -2067,13 +2086,6 @@ AccrualTime <- setRefClass("AccrualTime",
 			if (length(accrualIntensity) > 0 && accrualIntensity[1] == 0) {
 				warning("It makes no sense to start 'accrualIntensity' (", 
 					.arrayToString(accrualIntensity), ") with 0")
-			}
-			
-			if (sum(.isAbsoluteAccrualIntensity(accrualIntensity)) > 0 && 
-					sum(.isRelativeAccrualIntensity(accrualIntensity)) > 0) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-					"the values of 'accrualIntensity' (", .arrayToString(accrualIntensity), ") ", 
-					"must exclusive absolute or relative, i.e., all (= 0 || >= 1) or all (< 1)")
 			}
 		},
 		

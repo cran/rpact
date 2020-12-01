@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3814 $
-#:#  Last changed: $Date: 2020-10-30 17:12:19 +0100 (Fr, 30 Okt 2020) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 3999 $
+#:#  Last changed: $Date: 2020-11-24 11:01:48 +0100 (Tue, 24 Nov 2020) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 #' Parameter Description: "..."
@@ -637,8 +637,8 @@ NULL
 
 #' Parameter Description: Effect Measure
 #' @param effectMeasure Criterion for treatment arm selection, either based on test statistic 
-#'   (\code{"testStatistic"}) or effect difference (\code{"effectDifference"}), 
-#'   default is \code{"effectDifference"}.
+#'   (\code{"testStatistic"}) or effect estimate (difference for means and rates or ratio for survival) (\code{"effectEstimate"}), 
+#'   default is \code{"effectEstimate"}.
 #' @name param_effectMeasure
 #' @keywords internal
 NULL

@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3666 $
-#:#  Last changed: $Date: 2020-09-22 10:59:11 +0200 (Di, 22 Sep 2020) $
+#:#  File version: $Revision: 4063 $
+#:#  Last changed: $Date: 2020-12-01 12:30:11 +0100 (Tue, 01 Dec 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -160,7 +160,7 @@ NULL
 				if (effectMeasure == "testStatistic") {
 					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k], 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))				
-				} else if (effectMeasure == "effectDifference") {
+				} else if (effectMeasure == "effectEstimate") {
 					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffects[, k], 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))
 				}
@@ -301,7 +301,7 @@ getSimulationMultiArmMeans <- function(
 		stDev                       = 1, # C_STDEV_DEFAULT
 		adaptations                 = NA,
 		typeOfSelection             = c("best", "rBest", "epsilon", "all", "userDefined"), # C_TYPE_OF_SELECTION_DEFAULT 
-		effectMeasure               = c("effectDifference", "testStatistic"), # C_EFFECT_MEASURE_DEFAULT
+		effectMeasure               = c("effectEstimate", "testStatistic"), # C_EFFECT_MEASURE_DEFAULT
 		successCriterion            = c("all", "atLeastOne"), # C_SUCCESS_CRITERION_DEFAULT
 		epsilonValue                = NA_real_, 
 		rValue                      = NA_real_,
@@ -317,7 +317,7 @@ getSimulationMultiArmMeans <- function(
 		seed                        = NA_real_,
 		calcSubjectsFunction        = NULL,
 		selectArmsFunction          = NULL,
-		showStatistics              = TRUE) {
+		showStatistics              = FALSE) {
 		
 
 	if (is.null(design)) {
@@ -330,6 +330,8 @@ getSimulationMultiArmMeans <- function(
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}
 	
+	.assertIsOneSidedDesign(design)
+	
 	calcSubjectsFunctionIsUserDefined <- !is.null(calcSubjectsFunction) 
 	
 	simulationResults <- .createSimulationResultsMultiArmObject(
@@ -338,14 +340,10 @@ getSimulationMultiArmMeans <- function(
 		effectMatrix                = effectMatrix,
 		typeOfShape                 = typeOfShape,
 		muMaxVector                 = muMaxVector,    # means only
-		piMaxVector                 = piMaxVector,    # rates only
-		piControl                   = piControl,      # rates only
-		omegaMaxVector              = omegaMaxVector, # survival only
 		gED50                       = gED50,
 		slope                       = slope,
 		intersectionTest            = intersectionTest,
 		stDev                       = stDev,          # means only
-		directionUpper              = directionUpper, # rates + survival only
 		adaptations                 = adaptations,
 		typeOfSelection             = typeOfSelection,
 		effectMeasure               = effectMeasure,
@@ -354,21 +352,15 @@ getSimulationMultiArmMeans <- function(
 		rValue                      = rValue,
 		threshold                   = threshold,
 		plannedSubjects             = plannedSubjects, # means + rates only
-		plannedEvents               = plannedEvents,   # survival only
 		allocationRatioPlanned      = allocationRatioPlanned,
 		minNumberOfSubjectsPerStage = minNumberOfSubjectsPerStage, # means + rates only
 		maxNumberOfSubjectsPerStage = maxNumberOfSubjectsPerStage, # means + rates only
-		minNumberOfEventsPerStage   = minNumberOfEventsPerStage,   # survival only
-		maxNumberOfEventsPerStage   = maxNumberOfEventsPerStage,   # survival only
 		conditionalPower            = conditionalPower,
 		thetaH1                     = thetaH1,         # means + survival only
 		stDevH1                     = stDevH1,         # means only
-		piH1                        = piH1,            # rates only
-		piControlH1                 = piControlH1,     # rates only
 		maxNumberOfIterations       = maxNumberOfIterations,
 		seed                        = seed,
 		calcSubjectsFunction        = calcSubjectsFunction, # means + rates only
-		calcEventsFunction          = calcEventsFunction,   # survival only
 		selectArmsFunction          = selectArmsFunction, 
 		showStatistics              = showStatistics,
 		endpoint                    = "means")
@@ -488,7 +480,7 @@ getSimulationMultiArmMeans <- function(
 				
 				 if ((kMax > 1) && (k < kMax)) {
 					if (!any(is.na(closedTest$futilityStop))) {
-						simulatedFutilityStopping[k, i] <- simulatedFutilityStopping[k, i] + closedTest$futilityStop[k]
+						simulatedFutilityStopping[k, i] <- simulatedFutilityStopping[k, i] + (closedTest$futilityStop[k] && !closedTest$successStop[k])
 					}
 					if (!closedTest$successStop[k] && !closedTest$futilityStop[k]) {
 						simulatedConditionalPower[k + 1, i] <- simulatedConditionalPower[k + 1, i] + 

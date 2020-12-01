@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3814 $
-#:#  Last changed: $Date: 2020-10-30 17:12:19 +0100 (Fr, 30 Okt 2020) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4060 $
+#:#  Last changed: $Date: 2020-12-01 09:53:32 +0100 (Tue, 01 Dec 2020) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 .addEffectScaleBoundaryDataToDesignPlan <- function(designPlan) {
@@ -955,29 +955,28 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 		hazardRatio = NA_real_) {
 		
 	designPlan <- .createDesignPlanSurvival(objectType = "sampleSize",
-			design = design, 
-			typeOfComputation = typeOfComputation, 
-			thetaH0 = thetaH0, 
-			pi2 = pi2, 
-			pi1 = pi1, 
-			allocationRatioPlanned = allocationRatioPlanned, 
-			accountForObservationTimes = accountForObservationTimes, 
-			eventTime = eventTime, 
-			accrualTime = accrualTime, 
-			accrualIntensity = accrualIntensity, 
-			kappa = kappa, 
-			piecewiseSurvivalTime = piecewiseSurvivalTime, 
-			lambda2 = lambda2,
-			lambda1 = lambda1,
-			median1 = median1, 
-			median2 = median2,
-			followUpTime = followUpTime, 
-			maxNumberOfSubjects = maxNumberOfSubjects, 
-			dropoutRate1 = dropoutRate1, 
-			dropoutRate2 = dropoutRate2, 
-			dropoutTime = dropoutTime, 
-			hazardRatio = hazardRatio)
-		
+		design = design, 
+		typeOfComputation = typeOfComputation, 
+		thetaH0 = thetaH0, 
+		pi2 = pi2, 
+		pi1 = pi1, 
+		allocationRatioPlanned = allocationRatioPlanned, 
+		accountForObservationTimes = accountForObservationTimes, 
+		eventTime = eventTime, 
+		accrualTime = accrualTime, 
+		accrualIntensity = accrualIntensity, 
+		kappa = kappa, 
+		piecewiseSurvivalTime = piecewiseSurvivalTime, 
+		lambda2 = lambda2,
+		lambda1 = lambda1,
+		median1 = median1, 
+		median2 = median2,
+		followUpTime = followUpTime, 
+		maxNumberOfSubjects = maxNumberOfSubjects, 
+		dropoutRate1 = dropoutRate1, 
+		dropoutRate2 = dropoutRate2, 
+		dropoutTime = dropoutTime, 
+		hazardRatio = hazardRatio)
 	return(.getSampleSize(designPlan))
 }
 
@@ -1098,9 +1097,9 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	designPlan$.setSampleSizeObject(objectType)
 	
 	designPlan$criticalValuesPValueScale <- matrix(design$stageLevels, ncol = 1)
-	designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_GENERATED)
 	if (design$sided == 2) {
 		designPlan$criticalValuesPValueScale <- designPlan$criticalValuesPValueScale * 2
+		designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_GENERATED)
 	}
 
 	if (any(design$futilityBounds > -6)) {
@@ -3130,7 +3129,7 @@ getNumberOfSubjects <- function(time, ...,
 	designPlan$expectedEventsH01 <- rep(NA_real_, numberOfResults)
 	designPlan$expectedEventsH1 <- rep(NA_real_, numberOfResults)
 	expectedNumberOfSubjectsH1 <- rep(NA_real_, numberOfResults)
-	studyDurationH1 <- rep(NA_real_, numberOfResults)
+	studyDuration <- rep(NA_real_, numberOfResults)
 	designPlan$omega <- rep(NA_real_, numberOfResults)
 	
 	informationRates <- designCharacteristics$information / designCharacteristics$shift
@@ -3296,7 +3295,7 @@ getNumberOfSubjects <- function(time, ...,
 			
 			stoppingProbs[kMax] <- 1 - sum(stoppingProbs[1:(kMax - 1)])
 			
-			studyDurationH1[i] <- analysisTime[, i] %*% stoppingProbs  
+			studyDuration[i] <- analysisTime[, i] %*% stoppingProbs  
 			
 			expectedNumberOfSubjectsH1[i] <- numberOfSubjects[, i] %*% stoppingProbs 	
 		}	
@@ -3366,11 +3365,12 @@ getNumberOfSubjects <- function(time, ...,
 	if (designPlan$accountForObservationTimes) {
 		designPlan$analysisTime <- analysisTime
 		designPlan$expectedNumberOfSubjectsH1 <- expectedNumberOfSubjectsH1
-		designPlan$studyDurationH1 <- studyDurationH1
+		designPlan$studyDuration <- studyDuration
+		designPlan$studyDurationH1 <- studyDuration # deprecated
 		
 		designPlan$.setParameterType("analysisTime", C_PARAM_GENERATED)
 		designPlan$.setParameterType("expectedNumberOfSubjectsH1", C_PARAM_GENERATED)
-		designPlan$.setParameterType("studyDurationH1", C_PARAM_GENERATED)
+		designPlan$.setParameterType("studyDuration", C_PARAM_GENERATED)
 	}
 	
 	designPlan$.setParameterType("eventsFixed", C_PARAM_NOT_APPLICABLE)
@@ -3435,9 +3435,9 @@ getNumberOfSubjects <- function(time, ...,
 	designPlan$.setSampleSizeObject(objectType)
 	
 	designPlan$criticalValuesPValueScale <- matrix(design$stageLevels, ncol = 1)
-	designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_GENERATED)
 	if (design$sided == 2) {
 		designPlan$criticalValuesPValueScale <- designPlan$criticalValuesPValueScale * 2
+		designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_GENERATED)
 	}
 	
 	if (any(design$futilityBounds > -6)) {
@@ -3596,9 +3596,9 @@ getNumberOfSubjects <- function(time, ...,
 	designPlan$.setSampleSizeObject(objectType)
 	
 	designPlan$criticalValuesPValueScale <- matrix(design$stageLevels, ncol = 1)
-	designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_GENERATED)
 	if (design$sided == 2) {
 		designPlan$criticalValuesPValueScale <- designPlan$criticalValuesPValueScale * 2
+		designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_GENERATED)
 	}
 	
 	if (any(design$futilityBounds > -6)) {

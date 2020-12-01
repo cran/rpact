@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3519 $
-#:#  Last changed: $Date: 2020-08-21 14:17:44 +0200 (Fr, 21 Aug 2020) $
+#:#  File version: $Revision: 3977 $
+#:#  Last changed: $Date: 2020-11-20 12:21:54 +0100 (Fri, 20 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -127,6 +127,8 @@ getAnalysisResults <- function(
 		.assertIsTrialDesign(design)
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}
+	
+	.assertIsOneSidedForMultiArmAnalysis(design, dataInput)
 	
 	if (.isMultiArmDataset(dataInput)) {
 		sided <- .getOptionalArgument("sided", ...)

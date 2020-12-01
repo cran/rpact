@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3672 $
-#:#  Last changed: $Date: 2020-09-23 11:05:20 +0200 (Wed, 23 Sep 2020) $
+#:#  File version: $Revision: 4016 $
+#:#  Last changed: $Date: 2020-11-25 15:34:12 +0100 (Mi, 25 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -572,7 +572,8 @@ ParameterSet <- setRefClass("ParameterSet",
 										category = i,
 										matrixRow = ifelse(numberOfRows == 1, NA_integer_, j), 
 										consoleOutputEnabled = consoleOutputEnabled,
-										paramNameRaw = parameterName))
+										paramNameRaw = parameterName,
+										numberOfCategories = numberOfEntries))
 								index <- index + 1
 							}
 						}
@@ -650,7 +651,6 @@ ParameterSet <- setRefClass("ParameterSet",
 		
 		.getParameterValueFormatted = function(parameterName) {
 			tryCatch({
-					
 				result <- .extractParameterNameAndValue(parameterName)
 				parameterName <- result$parameterName
 				paramValue <- result$paramValue
@@ -671,11 +671,15 @@ ParameterSet <- setRefClass("ParameterSet",
 				
 				paramValueFormatted <- paramValue
 				
-				formatFunctionName <- .parameterFormatFunctions[[parameterName]]
-				if (!is.null(formatFunctionName)) {
-					paramValueFormatted <- eval(call(formatFunctionName, paramValueFormatted))
-					if (.isArray(paramValue) && length(dim(paramValue)) == 2) {
-						paramValueFormatted <- matrix(paramValueFormatted, ncol = ncol(paramValue))
+				if (.getParameterType(parameterName) == C_PARAM_USER_DEFINED &&
+						identical(paramValue, round(paramValue))) {
+				} else {
+					formatFunctionName <- .parameterFormatFunctions[[parameterName]]
+					if (!is.null(formatFunctionName)) {
+						paramValueFormatted <- eval(call(formatFunctionName, paramValueFormatted))
+						if (.isArray(paramValue) && length(dim(paramValue)) == 2) {
+							paramValueFormatted <- matrix(paramValueFormatted, ncol = ncol(paramValue))
+						}
 					}
 				}
 				
@@ -733,7 +737,7 @@ ParameterSet <- setRefClass("ParameterSet",
 		
 		.showParameterFormatted = function(paramName, paramValue, ..., paramValueFormatted = NA_character_,
 				showParameterType = FALSE, category = NA_integer_, matrixRow = NA_integer_, consoleOutputEnabled = TRUE,
-				paramNameRaw = NA_character_) {
+				paramNameRaw = NA_character_, numberOfCategories = NA_integer_) {
 			if (!is.na(paramNameRaw)) {
 				paramCaption <- .parameterNames[[paramNameRaw]]
 			}
@@ -744,10 +748,17 @@ ParameterSet <- setRefClass("ParameterSet",
 				paramCaption <- paste0("%", paramName, "%")
 			}
 			if (!is.na(category)) {
-				if (!is.na(matrixRow)) {
-					paramCaption <- paste0(paramCaption, " (", category, ") [", matrixRow, "]")
+				if (inherits(.self, "SimulationResultsMultiArmSurvival") && 
+						paramName == "singleNumberOfEventsPerStage") {
+					if (!is.na(numberOfCategories) && numberOfCategories == category) {
+						category <- "control"
+					}
+					paramCaption <- paste0(paramCaption, " {", category, "}")
 				} else {
 					paramCaption <- paste0(paramCaption, " (", category, ")")
+				}
+				if (!is.na(matrixRow)) {
+					paramCaption <- paste0(paramCaption, " [", matrixRow, "]")
 				}
 			}
 			else if (!is.na(matrixRow)) {
@@ -820,8 +831,8 @@ ParameterSet <- setRefClass("ParameterSet",
 			result <- as.matrix(dataFrame)
 			if (.isTrialDesignPlan(.self)) {
 				dimnames(result)[[1]] <- paste("  ", c(1:nrow(dataFrame)))
-			} else if (!is.null(.self[["stages"]])) {
-				dimnames(result)[[1]] <- paste("  Stage", c(1:nrow(dataFrame)))
+			} else if (!is.null(dataFrame[["stages"]])) {
+				dimnames(result)[[1]] <- paste("  Stage", dataFrame$stages)
 			}
 			
 			print(result, quote = FALSE, right = FALSE)
@@ -1279,6 +1290,9 @@ print.FieldSet <- function(x, ...) {
 #'  
 as.data.frame.ParameterSet <- function(x, row.names = NULL, 
 		optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {	
+		
+	.warnInCaseOfUnknownArguments(functionName = "as.data.frame", ...)
+	
 	return(x$.getAsDataFrame(parameterNames = NULL, 
 			niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters))
 }
@@ -1315,6 +1329,7 @@ as.matrix.FieldSet <- function(x, ..., enforceRowNames = TRUE, niceColumnNamesEn
 		return(result)
 	}
 	
+	# sample size or power object
 	if (.isTrialDesignPlan(x)) {
 		dimnames(result)[[1]] <- paste("  ", c(1:nrow(dataFrame)))
 		return(result)
@@ -1343,11 +1358,12 @@ as.matrix.FieldSet <- function(x, ..., enforceRowNames = TRUE, niceColumnNamesEn
 	
 	if (is.na(enforceRowNames) || isTRUE(enforceRowNames)) {
 		for (paramName in c("stage", "stages", "Stage", "Stages")) {
-			if (paramName %in% colnames(result)) {
+			paramNames <- colnames(result)
+			if (paramName %in% paramNames) {
 				stageNumbers <- result[, paramName]
 				if (!is.null(stageNumbers) && length(stageNumbers) > 0) {
-					dimnames(result)[[1]] <- paste("  Stage", stageNumbers)
-					result <- result[, !(colnames(result) %in% paramName)]
+					dimnames(result)[[1]] <- rep("", nrow(result))
+					result <- result[, c(paramName, paramNames[paramNames != paramName])]
 					return(result)
 				}
 			}
@@ -1411,7 +1427,6 @@ summary.ParameterSet <- function(object, ..., type = 1, digits = NA_integer_) {
 
 	object$.cat(object$.toString(startWithUpperCase = TRUE), " table:\n", heading = 1)
 	parametersToShow <- object$.getParametersToShow()
-	parametersToShow <- parametersToShow[parametersToShow != "stages" & parametersToShow != "stage"]
 	for (parameter in parametersToShow) {
 		if (length(object[[parameter]]) == 1) {
 			parametersToShow <- parametersToShow[parametersToShow != parameter]

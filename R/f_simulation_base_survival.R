@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3853 $
-#:#  Last changed: $Date: 2020-11-07 18:14:11 +0100 (Sa, 07 Nov 2020) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4051 $
+#:#  Last changed: $Date: 2020-11-30 14:42:18 +0100 (Mo, 30 Nov 2020) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 #' @include class_simulation_results.R
@@ -117,12 +117,6 @@ NULL
 #' and constant or non-constant piecewise accrual). 
 #' Additionally, integers \code{allocation1} and \code{allocation2} can be specified that determine the number allocated
 #' to treatment group 1 and treatment group 2, respectively. 
-#'  
-#' \code{piecewiseSurvivalTime}\cr 
-#' The first element of this vector must be equal to \code{0}. \code{piecewiseSurvivalTime} can also 
-#' be a list that combines the definition of the time intervals and hazard rates in the reference group. 
-#' The definition of the survival time in the treatment group is obtained by the specification 
-#' of the hazard ratio (see examples for details).
 #' 
 #' \code{conditionalPower}\cr 
 #' The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
@@ -131,6 +125,10 @@ NULL
 #'  
 #' Note that \code{numberOfSubjects}, \code{numberOfSubjects1}, and \code{numberOfSubjects2} in the output
 #' are expected number of subjects.
+#' 
+#' @template details_piecewise_survival
+#' 
+#' @template details_piecewise_accrual
 #' 
 #' @section Simulation Data:
 #' The summary statistics "Simulated data" contains the following parameters: median [range]; mean +/-sd\cr

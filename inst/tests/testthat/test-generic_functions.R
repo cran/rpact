@@ -147,7 +147,10 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	expect_is(as.matrix(piecewiseSurvivalTime), "matrix")
 	expect_is(as.matrix(accrualTime), "matrix")
 
+	currentWarningOption <- getOption("warn")
+	options(warn = -1)
 	analysisResults <- getAnalysisResults(design, dataset)
+	options(warn = currentWarningOption)
 	expect_vector(names(analysisResults))
 	expect_output(print(analysisResults))
 	expect_output(summary(analysisResults)$show())

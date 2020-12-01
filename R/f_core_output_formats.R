@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3664 $
-#:#  Last changed: $Date: 2020-09-22 09:19:21 +0200 (Tue, 22 Sep 2020) $
+#:#  File version: $Revision: 4049 $
+#:#  Last changed: $Date: 2020-11-30 10:44:36 +0100 (Mon, 30 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -332,7 +332,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	if (!is.null(x)) {
 		return(x)
 	}
-	value[value < 1e-15] <- 0
+	value[abs(value) < 1e-08] <- 0
 	return(.getFormattedValue(value, digits = 4, nsmall = 4))
 }
 

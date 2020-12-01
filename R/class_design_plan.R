@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3821 $
-#:#  Last changed: $Date: 2020-11-03 08:59:30 +0100 (Tue, 03 Nov 2020) $
+#:#  File version: $Revision: 4057 $
+#:#  Last changed: $Date: 2020-11-30 15:18:32 +0100 (Mon, 30 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -176,17 +176,7 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 				.cat("Design plan parameters and output for ", .toString(), ":\n\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
 				
-				designParametersToShow <- c(".design$alpha")
-				if (.objectType == "sampleSize" || (inherits(.self, "TrialDesignPlanSurvival") &&
-						.isBetaSpendingDesignType(.design$typeBetaSpending))) {
-					designParametersToShow <- c(designParametersToShow, ".design$beta")
-				}
-				if (.objectType == "sampleSize"  && !is.null(.design$sided) && 
-					!is.na(.design$sided) && .design$sided == 2) {
-					designParametersToShow <- c(designParametersToShow, ".design$twoSidedPower")
-				}
-				designParametersToShow <- c(designParametersToShow, ".design$sided")
-				.showParametersOfOneGroup(designParametersToShow, "Design parameters",
+				.showParametersOfOneGroup(.getDesignParametersToShow(.self), "Design parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
@@ -1927,6 +1917,10 @@ plot.TrialDesignPlan = function(x, y, ..., main = NA_character_,
 		
 		return(p)
 	} 
+	
+	if (length(plotList) == 0) {
+		message("No plots available for the specified design plan for ", x$.toString())
+	}
 	
 	if (.isSpecialPlotShowSourceArgument(showSource)) {
 		return(invisible(plotList))

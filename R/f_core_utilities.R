@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3758 $
-#:#  Last changed: $Date: 2020-10-16 10:14:05 +0200 (Fr, 16 Okt 2020) $
+#:#  File version: $Revision: 4062 $
+#:#  Last changed: $Date: 2020-12-01 12:21:16 +0100 (Tue, 01 Dec 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -28,6 +28,11 @@ utils::globalVariables(".parallelComputingArguments")
 .parallelComputingCluster <- NULL
 .parallelComputingCaseNumbers <- NULL
 .parallelComputingArguments <- NULL
+
+.getLogicalEnvironmentVariable <- function(variableName) {
+	result <- as.logical(Sys.getenv(variableName))
+	return(ifelse(is.na(result), FALSE, result))
+}
 
 #'
 #' @title
@@ -780,55 +785,6 @@ resetLogLevel <- function() {
 	return(-1)
 }
 
-.getRelativeFigureOutputPath <- function(subDir = NULL) {
-	if (is.null(subDir)) {
-		subDir <- format(Sys.Date(), format="%Y-%m-%d")
-	}
-	figPath <- file.path(getwd(), "_examples", "output", "figures", subDir)
-	if (!dir.exists(figPath)) {
-		dir.create(figPath, showWarnings = FALSE, recursive = TRUE)
-	}  
-	return(figPath)
-}
-
-# @title 
-# Save Last Plot
-# 
-# @description 
-# Saves the last plot to a PNG file located in 
-# '[getwd()]/_examples/output/figures/[current date]/[filename].png'.
-# 
-# @param filename The filename (without extension!).
-# 
-# @details 
-# This is a wrapper function that creates a output path and uses \code{ggsave} to save the last plot.
-# 
-# @examples
-# 
-# # saveLastPlot('my_plot') 
-# 
-# @keywords internal
-#
-saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) {
-	.assertGgplotIsInstalled()
-	
-	if (grepl("\\\\|/", filename)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'filename' seems to be a path. ", 
-			"Please specify 'outputPath' separately")
-	}
-	
-	if (!grepl("\\.png$", filename)) {
-		filename <- paste0(filename, ".png")
-	}
-	
-	path <- file.path(outputPath, filename)
-	ggplot2::ggsave(filename = path, 
-		plot = ggplot2::last_plot(), device = NULL, path = NULL,
-		scale = 1.2, width = 16, height = 15, units = "cm", dpi = 600, limitsize = TRUE)
-	
-	cat("Last plot was saved to '", path, "'\n")
-}
-
 .isFirstValueGreaterThanSecondValue <- function(firstValue, secondValue) {
 	if (is.null(firstValue) || length(firstValue) != 1 || is.na(firstValue)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -1008,25 +964,53 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 }
 
 .getTestthatResultLine <- function(fileContent) {
-	indexStart <- regexpr("\\[ OK: \\d", fileContent)[[1]]
-	indexEnd <- regexpr("FAILED: \\d{1,5} \\]", fileContent)
+	if (grepl("\\[ OK:", fileContent)) {
+		indexStart <- regexpr("\\[ OK: \\d", fileContent)[[1]]
+		indexEnd <- regexpr("FAILED: \\d{1,5} \\]", fileContent)
+		indexEnd <- indexEnd[[1]] + attr(indexEnd, "match.length") - 1
+		resultPart <- substr(fileContent, indexStart, indexEnd)
+		return(resultPart)
+	}
+	
+	indexStart <- regexpr("\\[ FAIL \\d", fileContent)[[1]]
+	if (indexStart == -1) {
+		return("[ FAIL 0 | WARN 0 | SKIP 0 | PASS 14868 ]")
+	}
+	
+	indexEnd <- regexpr("PASS \\d{1,5} \\]", fileContent)
 	indexEnd <- indexEnd[[1]] + attr(indexEnd, "match.length") - 1
 	resultPart <- substr(fileContent, indexStart, indexEnd)
 	return(resultPart)
 }
 
 .getTestthatResultNumberOfFailures <- function(fileContent) {
+	if (grepl("FAILED:", fileContent)) {
+		line <- .getTestthatResultLine(fileContent)
+		index <- regexpr("FAILED: \\d{1,5} \\]", line)
+		indexStart <- index[[1]] + 8
+		indexEnd <- index[[1]] + attr(index, "match.length") - 3
+		return(substr(line, indexStart, indexEnd))
+	}
+	
 	line <- .getTestthatResultLine(fileContent)
-	index <- regexpr("FAILED: \\d{1,5} \\]", line)
-	indexStart <- index[[1]] + 8
-	indexEnd <- index[[1]] + attr(index, "match.length") - 3
+	index <- regexpr("FAIL \\d{1,5} ", line)
+	indexStart <- index[[1]] + 5
+	indexEnd <- index[[1]] + attr(index, "match.length") - 2
 	return(substr(line, indexStart, indexEnd))
 }
 
 .getTestthatResultNumberOfSkippedTests <- function(fileContent) {
+	if (grepl("SKIPPED:", fileContent)) {
+		line <- .getTestthatResultLine(fileContent)
+		index <- regexpr("SKIPPED: \\d{1,5} {1,1}", line)
+		indexStart <- index[[1]] + 9
+		indexEnd   <- index[[1]] + attr(index, "match.length") - 2
+		return(substr(line, indexStart, indexEnd))
+	}
+	
 	line <- .getTestthatResultLine(fileContent)
-	index <- regexpr("SKIPPED: \\d{1,5} {1,1}", line)
-	indexStart <- index[[1]] + 9
+	index <- regexpr("SKIP \\d{1,5} {1,1}", line)
+	indexStart <- index[[1]] + 5
 	indexEnd   <- index[[1]] + attr(index, "match.length") - 2
 	return(substr(line, indexStart, indexEnd))
 }
@@ -1345,3 +1329,124 @@ printCitation <- function(inclusiveR = TRUE) {
 	}
 	return(decimalPlaces)
 }
+
+#'
+#' @title
+#' Get Parameter Caption
+#'
+#' @description
+#' Returns the parameter caption for a given object and parameter name. 
+#' 
+#' @details
+#' This function identifies and returns the caption that will be used in print outputs of an rpact result object.
+#' 
+#' @seealso 
+#' \code{\link{getParameterName}} for getting the parameter name for a given caption.
+#' 
+#' @return Returns a \code{\link[base]{character}} of specifying the corresponding caption of a given parameter name.
+#' Returns \code{NULL} if the specified \code{parameterName} does not exist.
+#'
+#' @examples 
+#' getParameterCaption(getDesignInverseNormal(), "kMax")
+#'
+#' @keywords internal
+#'
+#' @export
+#' 
+getParameterCaption <- function(obj, parameterName) {
+	if (is.null(obj) || length(obj) != 1 || !isS4(obj) || !inherits(obj, "FieldSet")) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", class(obj), ") must be an rpact result object")
+	}
+	.assertIsSingleCharacter(parameterName, "parameterName", naAllowed = FALSE)
+	
+	design <- NULL
+	designPlan <- NULL
+	if (inherits(obj, "TrialDesignPlan")) {
+		designPlan <- obj
+		design <- obj$.design
+	}
+	else if (inherits(obj, "TrialDesign")) {
+		design <- obj
+	}
+	else {
+		design <- obj[[".design"]]
+	}
+	
+	parameterNames <- .getParameterNames(design = design, designPlan = designPlan)
+	if (is.null(parameterNames) || length(parameterNames) == 0) {
+		return(NULL)
+	}
+	
+	return(parameterNames[[parameterName]])
+}
+
+#'
+#' @title
+#' Get Parameter Name
+#'
+#' @description
+#' Returns the parameter name for a given object and parameter caption. 
+#' 
+#' @details
+#' This function identifies and returns the parameter name for a given caption 
+#' that will be used in print outputs of an rpact result object.
+#' 
+#' @seealso 
+#' \code{\link{getParameterCaption}} for getting the parameter caption for a given name.
+#' 
+#' @return Returns a \code{\link[base]{character}} of specifying the corresponding name of a given parameter caption.
+#' Returns \code{NULL} if the specified \code{parameterCaption} does not exist.
+#'
+#' @examples 
+#' getParameterName(getDesignInverseNormal(), "Maximum number of stages")
+#'
+#' @keywords internal
+#'
+#' @export
+#' 
+getParameterName <- function(obj, parameterCaption) {
+	if (is.null(obj) || length(obj) != 1 || !isS4(obj) || !inherits(obj, "FieldSet")) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", class(obj), ") must be an rpact result object")
+	}
+	.assertIsSingleCharacter(parameterCaption, "parameterCaption", naAllowed = FALSE)
+	
+	design <- NULL
+	designPlan <- NULL
+	if (inherits(obj, "TrialDesignPlan")) {
+		designPlan <- obj
+		design <- obj$.design
+	}
+	else if (inherits(obj, "TrialDesign")) {
+		design <- obj
+	}
+	else {
+		design <- obj[[".design"]]
+	}
+	
+	parameterNames <- .getParameterNames(design = design, designPlan = designPlan)
+	if (is.null(parameterNames) || length(parameterNames) == 0) {
+		return(NULL)
+	}
+	
+	return(names(parameterNames)[parameterNames == parameterCaption])
+}
+
+.removeLastEntryFromArray <- function(x) {
+	if (!is.array(x)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'x' (", class(x), ") must be an array")
+	}
+	
+	dataDim <- dim(x)
+	if (length(dataDim) != 3) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function .removeLastEntryFromArray() only works for 3-dimensional arrays")
+	}
+	if (dataDim[3] < 2) {
+		return(NA_real_)
+	}
+	
+	dataDim[3] <- dataDim[3] - 1 
+	subData <- x[, , 1:dataDim[3]]
+	return(array(data = subData, dim = dataDim))
+}
+
+

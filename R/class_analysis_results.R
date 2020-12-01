@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3821 $
-#:#  Last changed: $Date: 2020-11-03 08:59:30 +0100 (Tue, 03 Nov 2020) $
+#:#  File version: $Revision: 4022 $
+#:#  Last changed: $Date: 2020-11-26 10:24:25 +0100 (Thu, 26 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -521,40 +521,6 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
 		},
 		
-		.getDesignParametersToShow = function() {
-			designParametersToShow <- c(".design$stages")
-			if (grepl("Dunnett", class(.self))) {
-				designParametersToShow <- c(
-					designParametersToShow,
-					".design$alpha",
-					".design$informationAtInterim",
-					".design$secondStageConditioning")
-			} else {
-				designParametersToShow <- c()
-				if (.design$kMax > 1) {
-					designParametersToShow <- c(designParametersToShow, ".design$informationRates")
-				}
-				designParametersToShow <- c(designParametersToShow, ".design$criticalValues")
-				if (.design$kMax > 1) {
-					if (.isTrialDesignFisher(.design)) {
-						designParametersToShow <- c(designParametersToShow, ".design$alpha0Vec")
-					} else {
-						designParametersToShow <- c(designParametersToShow, ".design$futilityBounds")
-					}
-					designParametersToShow <- c(designParametersToShow, ".design$alphaSpent")
-					designParametersToShow <- c(designParametersToShow, ".design$stageLevels")
-				} else {
-					designParametersToShow <- c(designParametersToShow, ".design$alpha")
-					designParametersToShow <- c(designParametersToShow, ".design$beta")
-					designParametersToShow <- c(designParametersToShow, ".design$sided")
-					if (.design$sided == 2) {
-						designParametersToShow <- c(designParametersToShow, ".design$twoSidedPower")
-					}
-				}
-			}
-			return(designParametersToShow)
-		},
-		
 		.getStageResultParametersToShow = function() {
 			stageResultParametersToShow <- c() 
 			if (.design$kMax > 1) {
@@ -604,7 +570,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				.cat(.toString(startWithUpperCase = TRUE), ":\n\n", heading = 1,
 					consoleOutputEnabled = consoleOutputEnabled)
 				
-				.showParametersOfOneGroup(.getDesignParametersToShow(), "Design parameters",
+				.showParametersOfOneGroup(.getDesignParametersToShow(.self), "Design parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
@@ -847,7 +813,7 @@ summary.AnalysisResults <- function(object, ..., type = 1, digits = NA_integer_)
 #'  
 as.data.frame.AnalysisResults <- function(x, row.names = NULL, optional = FALSE, ...) {
 
-	parametersToShow <- x$.getDesignParametersToShow()
+	parametersToShow <- .getDesignParametersToShow(x)
 	if (inherits(x, "AnalysisResultsMultiArm")) {
 		parametersToShow <- c(parametersToShow, ".closedTestResults$rejected")
 	}

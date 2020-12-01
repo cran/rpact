@@ -15,9 +15,9 @@
 #:#  
 #:#  File name: test-f_simulation_base_survival.R
 #:#  Creation date: 09 November 2020, 11:49:11
-#:#  File version: $Revision$
-#:#  Last changed: $Date$
-#:#  Last changed by: $Author$
+#:#  File version: $Revision: 3854 $
+#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  Last changed by: $Author: pahlke $
 #:#  
 
 context("Testing Simulation Survival Function")
@@ -1148,7 +1148,7 @@ test_that("'getSimulationSurvival': Specify effect size for a two-stage group de
 
 })
 
-test_that("'getSimulationSurvival': As above, but with a three-stage O'Brien and Flemming design with specified information rates, note that planned events consists of integer values", {
+test_that("'getSimulationSurvival': As above, but with a three-stage O'Brien and Fleming design with specified information rates, note that planned events consists of integer values", {
 
 	.skipTestIfDisabled()
 

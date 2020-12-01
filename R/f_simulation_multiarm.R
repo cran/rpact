@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3700 $
-#:#  Last changed: $Date: 2020-09-25 16:28:28 +0200 (Fr, 25 Sep 2020) $
+#:#  File version: $Revision: 4062 $
+#:#  Last changed: $Date: 2020-12-01 12:21:16 +0100 (Tue, 01 Dec 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -32,7 +32,7 @@
 	
 	gMax <- length(effectVector)
 	
-	if (!(typeOfSelection == "userDefined")) {
+	if (typeOfSelection != "userDefined") {
 		if (typeOfSelection == "all") {
 			selectedArms <- rep(TRUE, gMax)
 		} else { 
@@ -162,9 +162,10 @@
 				}
 			}
 
-			if (kMax == 1) {
-				rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] >= design$criticalValues[k])
-			} else {
+			
+#			if (kMax == 1) {
+#				rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] >= design$criticalValues[k])
+#			} else {
 				if (.isTrialDesignFisher(design)) {
 					rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] <= design$criticalValues[k])
 					if (k < kMax) {
@@ -176,7 +177,7 @@
 						futilityIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] <= design$futilityBounds[k])
 					}	
 				}
-			}	
+#			}	
 			rejectedIntersections[is.na(rejectedIntersections[, k]), k] <- FALSE
 			
 			if ((k == kMax) && !rejectedIntersections[1, k]) {
@@ -234,7 +235,8 @@
 	return(criticalValuesDunnett)
 }	
 
-.performClosedConditionalDunnettTestForSimulation <- function(stageResults, design, indices, criticalValuesDunnett, successCriterion) {
+.performClosedConditionalDunnettTestForSimulation <- function(
+		stageResults, design, indices, criticalValuesDunnett, successCriterion) {
 	
 	testStatistics <- stageResults$testStatistics
 	separatePValues <- stageResults$separatePValues
@@ -347,15 +349,15 @@
 		activeArms,
 		effectMatrix,
 		typeOfShape,
-		muMaxVector,    # means only
-		piMaxVector,    # rates only
-		piControl,      # rates only
-		omegaMaxVector, # survival only
+		muMaxVector = NA_real_,    # means only
+		piMaxVector = NA_real_,    # rates only
+		piControl = NA_real_,      # rates only
+		omegaMaxVector = NA_real_, # survival only
 		gED50,
 		slope,
 		intersectionTest,
-		stDev,          # means only
-		directionUpper, # rates + survival only
+		stDev = NA_real_,          # means only
+		directionUpper = NA,       # rates + survival only
 		adaptations,
 		typeOfSelection,
 		effectMeasure,
@@ -363,22 +365,22 @@
 		epsilonValue,
 		rValue,
 		threshold,
-		plannedSubjects, # means + rates only
-		plannedEvents,   # survival only
+		plannedSubjects = NA_real_, # means + rates only
+		plannedEvents = NA_real_,   # survival only
 		allocationRatioPlanned,
-		minNumberOfSubjectsPerStage, # means + rates only
-		maxNumberOfSubjectsPerStage, # means + rates only
-		minNumberOfEventsPerStage,   # survival only
-		maxNumberOfEventsPerStage,   # survival only
+		minNumberOfSubjectsPerStage = NA_real_, # means + rates only
+		maxNumberOfSubjectsPerStage = NA_real_, # means + rates only
+		minNumberOfEventsPerStage = NA_real_,   # survival only
+		maxNumberOfEventsPerStage = NA_real_,   # survival only
 		conditionalPower,
-		thetaH1,         # means + survival only
-		stDevH1,         # means only
-		piH1,            # rates only
-		piControlH1,     # rates only
+		thetaH1 = NA_real_,         # means + survival only
+		stDevH1 = NA_real_,         # means only
+		piH1 = NA_real_,            # rates only
+		piControlH1 = NA_real_,     # rates only
 		maxNumberOfIterations,
 		seed,
-		calcSubjectsFunction, # means + rates only
-		calcEventsFunction,   # survival only
+		calcSubjectsFunction = NULL, # means + rates only
+		calcEventsFunction = NULL,   # survival only
 		selectArmsFunction,
 		showStatistics,
 		endpoint = c("means", "rates", "survival")) {
@@ -393,14 +395,13 @@
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'activeArms' (", activeArms, ") max not exceed 8")
 	}
 	
-
+	.assertIsSingleNumber(threshold, "threshold", naAllowed = FALSE)
 	.assertIsSingleNumber(gED50, "gED50", naAllowed = TRUE)
 	.assertIsInOpenInterval(gED50, "gED50", 0, NULL, naAllowed = TRUE)
 	
 	.assertIsSingleNumber(slope, "slope", naAllowed = TRUE)
 	.assertIsInOpenInterval(slope, "slope", 0, NULL, naAllowed = TRUE)
 	
-	.assertIsSingleNumber(epsilonValue, "epsilonValue", naAllowed = TRUE)
 	.assertIsSinglePositiveInteger(rValue, "rValue", naAllowed = TRUE, validateType = FALSE)
 	
 	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned", naAllowed = TRUE)
@@ -456,6 +457,11 @@
 	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest, userFunctionCallEnabled = TRUE)
 	.assertIsValidIntersectionTest(design, intersectionTest)
 	typeOfSelection <- .assertIsValidTypeOfSelection(typeOfSelection, rValue, epsilonValue, activeArms)
+	if (length(typeOfSelection) == 1 && typeOfSelection == "userDefined" && 
+			!is.null(threshold) && length(threshold) == 1 && threshold != -Inf) {
+		warning("'threshold' (", threshold, ") will be ignored because 'typeOfSelection' = \"userDefined\"", call. = FALSE)
+		threshold <- -Inf
+	}
 	
 	if (length(typeOfSelection) == 1 && typeOfSelection != "userDefined" && !is.null(selectArmsFunction)) { 
 		warning("'selectArmsFunction' will be ignored because 'typeOfSelection' is not \"userDefined\"", call. = FALSE)
@@ -480,9 +486,11 @@
 	else if (endpoint == "rates") {
 		.assertIsSingleNumber(piH1, "piH1", naAllowed = TRUE)
 		.assertIsInOpenInterval(piH1, "piH1", 0, 1, naAllowed = TRUE)
-		piH1 <- .ignoreParameterIfNotUsed("piH1", piH1, kMax > 1, "design is fixed ('kMax' = 1)", "Assumed active rate(s)")
+		piH1 <- .ignoreParameterIfNotUsed("piH1", piH1, kMax > 1, 
+			"design is fixed ('kMax' = 1)", "Assumed active rate(s)")
 		if (is.na(conditionalPower) && is.null(calcSubjectsFunction) && !is.na(piH1)) {
-			warning("'piH1' will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)	
+			warning("'piH1' will be ignored because neither 'conditionalPower' nor ",
+				"'calcSubjectsFunction' is defined", call. = FALSE)	
 		}	
 		
 		.setValueAndParameterType(simulationResults, "piH1", piH1, NA_real_)
@@ -494,7 +502,8 @@
 		piControlH1 <- .ignoreParameterIfNotUsed("piControlH1", piControlH1, kMax > 1, 
 			"design is fixed ('kMax' = 1)", "Assumed control rate")
 		if (is.na(conditionalPower) && is.null(calcSubjectsFunction) && !is.na(piControlH1)) {
-			warning("'piControlH1' will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)	
+			warning("'piControlH1' will be ignored because neither 'conditionalPower' nor ",
+				"'calcSubjectsFunction' is defined", call. = FALSE)	
 		}	
 	
 		.assertIsSingleNumber(piControlH1, "piControlH1", naAllowed = TRUE)
@@ -535,22 +544,27 @@
 	}
 	
 	if (endpoint %in% c("means", "survival")) {
-		thetaH1 <- .ignoreParameterIfNotUsed("thetaH1", thetaH1, kMax > 1, "design is fixed ('kMax' = 1)", "Assumed effect")
+		thetaH1 <- .ignoreParameterIfNotUsed("thetaH1", thetaH1, kMax > 1, 
+			"design is fixed ('kMax' = 1)", "Assumed effect")
 	}
 	
 	if (endpoint == "means") {
-		stDevH1 <- .ignoreParameterIfNotUsed("stDevH1", stDevH1, kMax > 1, "design is fixed ('kMax' = 1)", "Assumed standard deviation")
+		stDevH1 <- .ignoreParameterIfNotUsed("stDevH1", stDevH1, kMax > 1, 
+			"design is fixed ('kMax' = 1)", "Assumed standard deviation")
 		if (is.na(conditionalPower) && is.null(calcSubjectsFunction) && !is.na(thetaH1)) {
-			warning("'thetaH1' will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)	
+			warning("'thetaH1' will be ignored because neither 'conditionalPower' nor ",
+				"'calcSubjectsFunction' is defined", call. = FALSE)	
 		}
 		if (is.na(conditionalPower) && is.null(calcSubjectsFunction) && !is.na(stDevH1)) {
-			warning("'stDevH1' will be ignored because neither 'conditionalPower' nor 'calcSubjectsFunction' is defined", call. = FALSE)	
+			warning("'stDevH1' will be ignored because neither 'conditionalPower' nor ",
+				"'calcSubjectsFunction' is defined", call. = FALSE)	
 		}
 	}
 	
 	if (endpoint == "survival") {
 		if (is.na(conditionalPower) && is.null(calcEventsFunction) && !is.na(thetaH1)) {
-			warning("'thetaH1' will be ignored because neither 'conditionalPower' nor 'calcEventsFunction' is defined", call. = FALSE)	
+			warning("'thetaH1' will be ignored because neither 'conditionalPower' nor ",
+				"'calcEventsFunction' is defined", call. = FALSE)	
 		}
 	}	
 	
@@ -571,7 +585,7 @@
 			"maxNumberOfSubjectsPerStage", plannedSubjects, conditionalPower, calcSubjectsFunction, kMax,
 			endpoint = endpoint) 
 		
-		if (design$kMax > 1) {
+		if (kMax > 1) {
 			if (!all(is.na(maxNumberOfSubjectsPerStage - minNumberOfSubjectsPerStage)) &&
 					any(maxNumberOfSubjectsPerStage - minNumberOfSubjectsPerStage < 0)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjectsPerStage' (", 
@@ -616,7 +630,6 @@
 	if (kMax == 1 && !is.na(conditionalPower)) { 
 		warning("'conditionalPower' will be ignored for fixed sample design", call. = FALSE)
 	}
-	
 	if (endpoint %in% c("means", "rates") && kMax == 1 && !is.null(calcSubjectsFunction)) { 
 		warning("'calcSubjectsFunction' will be ignored for fixed sample design", call. = FALSE)
 	}
@@ -640,7 +653,7 @@
 	}
 	
 	if (endpoint == "survival" && is.na(conditionalPower) && is.null(calcEventsFunction)) {
-		if (length(minNumberOfEventsPerStage) != 1 ||	!is.na(minNumberOfEventsPerStage)) {
+		if (length(minNumberOfEventsPerStage) != 1 || !is.na(minNumberOfEventsPerStage)) {
 			warning("'minNumberOfEventsPerStage' (", 
 				.arrayToString(minNumberOfEventsPerStage), ") ",
 				"will be ignored because neither 'conditionalPower' nor 'calcEventsFunction' is defined", call. = FALSE)
@@ -656,13 +669,13 @@
 	
 	if (endpoint %in% c("means", "rates")) {
 		simulationResults$.setParameterType("calcSubjectsFunction",
-			ifelse(design$kMax == 1, C_PARAM_NOT_APPLICABLE,
-				ifelse(!is.null(calcSubjectsFunction) && design$kMax > 1, C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE)))
+			ifelse(kMax == 1, C_PARAM_NOT_APPLICABLE,
+				ifelse(!is.null(calcSubjectsFunction) && kMax > 1, C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE)))
 	}
 	else if (endpoint == "survival") {
 		simulationResults$.setParameterType("calcEventsFunction",
-			ifelse(design$kMax == 1, C_PARAM_NOT_APPLICABLE,
-				ifelse(!is.null(calcEventsFunction) && design$kMax > 1, C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE)))
+			ifelse(kMax == 1, C_PARAM_NOT_APPLICABLE,
+				ifelse(!is.null(calcEventsFunction) && kMax > 1, C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE)))
 	}
 	
 	if (endpoint == "means") {
@@ -736,18 +749,22 @@
 		adaptations <- rep(TRUE, kMax - 1)
 	}
 	if (length(adaptations) != kMax - 1) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'adaptations' must have length ", kMax - 1, " (kMax - 1)")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'adaptations' must have length ", (kMax - 1), " (kMax - 1)")
 	}
 	.setValueAndParameterType(simulationResults, "adaptations", adaptations, rep(TRUE, kMax - 1))
 	
 	simulationResults$.setParameterType("effectMatrix", 
 		ifelse(typeOfShape == "userDefined", C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE))
 	.setValueAndParameterType(simulationResults, "activeArms", as.integer(activeArms), 3L)
-	.setValueAndParameterType(simulationResults, "gED50", gED50, NA_real_)
+	if (typeOfShape == "sigmoidEmax") {
+		.setValueAndParameterType(simulationResults, "gED50", gED50, NA_real_)
+	}
 	.setValueAndParameterType(simulationResults, "slope", slope, 1)
-	.setValueAndParameterType(simulationResults, "threshold", threshold, -Inf)
-	.setValueAndParameterType(simulationResults, "epsilonValue", epsilonValue, NA_real_)
-	.setValueAndParameterType(simulationResults, "rValue", rValue, NA_real_)
+	if (typeOfSelection != "userDefined") {
+		.setValueAndParameterType(simulationResults, "threshold", threshold, -Inf)
+		.setValueAndParameterType(simulationResults, "epsilonValue", epsilonValue, NA_real_)
+		.setValueAndParameterType(simulationResults, "rValue", rValue, NA_real_)
+	}
 	.setValueAndParameterType(simulationResults, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
 	.setValueAndParameterType(simulationResults, "typeOfSelection", typeOfSelection, C_TYPE_OF_SELECTION_DEFAULT)
 	.setValueAndParameterType(simulationResults, "typeOfShape", typeOfShape, C_TYPE_OF_SHAPE_DEFAULT)
