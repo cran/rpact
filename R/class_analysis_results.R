@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4022 $
-#:#  Last changed: $Date: 2020-11-26 10:24:25 +0100 (Thu, 26 Nov 2020) $
+#:#  File version: $Revision: 4172 $
+#:#  Last changed: $Date: 2021-01-06 10:48:38 +0100 (Mi, 06 Jan 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -61,7 +61,7 @@ ConditionalPowerResults <- setRefClass("ConditionalPowerResults",
 			if (!is.null(.stageResults) && is.null(.design)) {
 				.design <<- .stageResults$.design
 			}
-
+			
 			if (is.null(simulated) || length(simulated) == 0 || is.na(simulated)) {
 				.self$simulated <<- FALSE
 			}
@@ -122,10 +122,10 @@ ConditionalPowerResultsMeans <- setRefClass("ConditionalPowerResultsMeans",
 			callSuper(...)
 			
 			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && 
-					!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
+				!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
 				conditionalPower <<- rep(NA_real_, .design$kMax)
 			}
-
+			
 			if (is.null(thetaH1) || length(thetaH1) == 0 || all(is.na(thetaH1))) {
 				thetaH1 <<- NA_real_
 			}
@@ -153,9 +153,9 @@ ConditionalPowerResultsMultiArmMeans <- setRefClass("ConditionalPowerResultsMult
 			callSuper(...)
 			
 			if (!is.null(.design) && class(.self) != "ConditionalPowerResults" && 
-					!is.null(.stageResults) &&  
-					grepl("MultiArm", class(.stageResults)) &&
-					!is.null(.stageResults$testStatistics)) {
+				!is.null(.stageResults) &&  
+				grepl("MultiArm", class(.stageResults)) &&
+				!is.null(.stageResults$testStatistics)) {
 				gMax <- nrow(.stageResults$testStatistics)
 				if (is.null(gMax)) {
 					gMax <- 1
@@ -194,7 +194,7 @@ ConditionalPowerResultsRates <- setRefClass("ConditionalPowerResultsRates",
 			callSuper(...)
 			
 			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && 
-					!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
+				!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
 				conditionalPower <<- rep(NA_real_, .design$kMax)
 			}
 			
@@ -225,9 +225,9 @@ ConditionalPowerResultsMultiArmRates <- setRefClass("ConditionalPowerResultsMult
 			callSuper(...)
 			
 			if (!is.null(.design) && class(.self) != "ConditionalPowerResults" && 
-					!is.null(.stageResults) &&  
-					grepl("MultiArm", class(.stageResults)) &&
-					!is.null(.stageResults$testStatistics)) {
+				!is.null(.stageResults) &&  
+				grepl("MultiArm", class(.stageResults)) &&
+				!is.null(.stageResults$testStatistics)) {
 				gMax <- nrow(.stageResults$testStatistics)
 				if (is.null(gMax)) {
 					gMax <- 1
@@ -265,7 +265,7 @@ ConditionalPowerResultsSurvival <- setRefClass("ConditionalPowerResultsSurvival"
 			callSuper(...)
 			
 			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && 
-					!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
+				!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
 				conditionalPower <<- rep(NA_real_, .design$kMax)
 			}
 			
@@ -292,9 +292,9 @@ ConditionalPowerResultsMultiArmSurvival <- setRefClass("ConditionalPowerResultsM
 			callSuper(...)
 			
 			if (!is.null(.design) && class(.self) != "ConditionalPowerResults" && 
-					!is.null(.stageResults) &&  
-					grepl("MultiArm", class(.stageResults)) &&
-					!is.null(.stageResults$testStatistics)) {
+				!is.null(.stageResults) &&  
+				grepl("MultiArm", class(.stageResults)) &&
+				!is.null(.stageResults$testStatistics)) {
 				gMax <- nrow(.stageResults$testStatistics)
 				if (is.null(gMax)) {
 					gMax <- 1
@@ -424,7 +424,7 @@ ClosedCombinationTestResults <- setRefClass("ClosedCombinationTestResults",
 				.cat(paste0("  (i): results of treatment arm i vs. control group ",
 						(nrow(separatePValues) + 1),"\n"), consoleOutputEnabled = consoleOutputEnabled)
 				.cat("  [i]: hypothesis number", 
-						consoleOutputEnabled = consoleOutputEnabled)
+					consoleOutputEnabled = consoleOutputEnabled)
 			}
 		},
 		
@@ -504,7 +504,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 		allocationRatioPlanned = "numeric"
 	),
 	methods = list(
-	
+		
 		initialize = function(design, dataInput, ...) {
 			callSuper(.design = design, .dataInput = dataInput, ...)
 			
@@ -529,11 +529,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallStDevs") 
 				}
 			}
-			if (grepl("Survival", class(.dataInput))) {
-				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$logRanks") 
-			} else {
-				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$testStatistics") 
-			}
+			stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$testStatistics") 
 			if (grepl("(MultiArm|Dunnett)", class(.self))) {
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$separatePValues")
 			} else {
@@ -548,11 +544,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			if (.isTrialDesignInverseNormal(.design)) {
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$combInverseNormal")
 			} else if (.isTrialDesignGroupSequential(.design)) {
-				if (grepl("Survival", class(.dataInput))) {
-					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallLogRanks") 
-				} else {
-					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallTestStatistics") 
-				}
+				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallTestStatistics")
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPValues")
 			}		
 			else if (.isTrialDesignFisher(.design)) {
@@ -584,7 +576,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				
 				.showParametersOfOneGroup(.getStageResultParametersToShow(), "Stage results",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
-
+				
 				# show multi-arm parameters
 				if (grepl("(MultiArm|Dunnett)", class(.self))) {
 					
@@ -613,7 +605,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				} else {
 					.showParametersOfOneGroup(.getGeneratedParameters(), "Analysis results",
-							orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				} 
 				
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
@@ -652,7 +644,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			} else {
 				str <- paste0(str, " of ", numberOfGroups, " groups")
 			}
-	
+			
 			if (grepl("GroupSequential", class(.self))) {
 				str <- paste0(str, ", group sequential design")
 			}
@@ -812,7 +804,7 @@ summary.AnalysisResults <- function(object, ..., type = 1, digits = NA_integer_)
 #' @keywords internal
 #'  
 as.data.frame.AnalysisResults <- function(x, row.names = NULL, optional = FALSE, ...) {
-
+	
 	parametersToShow <- .getDesignParametersToShow(x)
 	if (inherits(x, "AnalysisResultsMultiArm")) {
 		parametersToShow <- c(parametersToShow, ".closedTestResults$rejected")
@@ -823,8 +815,8 @@ as.data.frame.AnalysisResults <- function(x, row.names = NULL, optional = FALSE,
 	parametersToShow <- c(parametersToShow, x$.getGeneratedParameters())
 	
 	parametersToShow <- parametersToShow[!(parametersToShow %in% c(
-		"finalStage", "allocationRatioPlanned", "thetaH0", "thetaH1", "pi1", "pi2"
-	))]
+					"finalStage", "allocationRatioPlanned", "thetaH0", "thetaH1", "pi1", "pi2"
+				))]
 	return(x$.getAsDataFrame(parameterNames = parametersToShow, 
 			tableColumnNames = .getTableColumnNames(design = x$.design)))
 }
@@ -1068,7 +1060,7 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 )
 
 .getAnalysisResultsPlotArguments <- function(x, 
-		nPlanned = NA_real_, allocationRatioPlanned = NA_real_) {
+	nPlanned = NA_real_, allocationRatioPlanned = NA_real_) {
 	
 	if (all(is.na(nPlanned))) {
 		nPlanned <- stats::na.omit(x$nPlanned)
@@ -1079,15 +1071,15 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 	}
 	
 	return(list(
-		stageResults = x$.stageResults,
-		nPlanned = nPlanned,
-		allocationRatioPlanned = allocationRatioPlanned
-	))
+			stageResults = x$.stageResults,
+			nPlanned = nPlanned,
+			allocationRatioPlanned = allocationRatioPlanned
+		))
 }
 
 .getConfidenceIntervalData <- function(data, ciName, treatmentArmsToShow = NULL) {
 	if (is.matrix(data) && !is.null(treatmentArmsToShow) && 
-			length(treatmentArmsToShow) > 0 && !any(is.na(treatmentArmsToShow))) {
+		length(treatmentArmsToShow) > 0 && !any(is.na(treatmentArmsToShow))) {
 		data <- data[treatmentArmsToShow, ]
 	}
 	
@@ -1118,7 +1110,7 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 		}
 		return(result)
 	}
-
+	
 	if (is.null(treatmentArmsToShow) || length(treatmentArmsToShow) == 0 || all(is.na(treatmentArmsToShow))) {
 		treatmentArmsToShow <- 1
 	}
@@ -1179,12 +1171,12 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 #' @export
 #' 
 plot.AnalysisResults <- function(x, y, ..., type = 1L,
-		nPlanned = NA_real_, 
-		allocationRatioPlanned = NA_real_,
-		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
-		showSource = FALSE, grid = 1) {
-		
+	nPlanned = NA_real_, 
+	allocationRatioPlanned = NA_real_,
+	main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+	legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
+	showSource = FALSE, grid = 1) {
+	
 	functionCall <- match.call(expand.dots = TRUE)
 	analysisResultsName <- as.character(functionCall$x)[1]
 	typeNumbers <- .getPlotTypeNumber(type, x)
@@ -1258,7 +1250,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		)
 		
 		if (is.na(legendPosition)) {
-			if (!.isMultiArmAnalysisResults(x)) {
+			if (!.isMultiHypothesesAnalysisResults(x)) {
 				legendPosition <- ifelse(length(treatmentArmsToShow) == 1 && treatmentArmsToShow == 1, 
 					-1, C_POSITION_RIGHT_CENTER)
 			} else {
@@ -1270,7 +1262,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 			warning("'showSource' != FALSE is not implemented yet for plot type 2 and class ", class(x))
 		}
 		
-		p <- .createPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
+		p <- .createAnalysisResultsPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
 			legendTitle = legendTitle, palette = palette, legendPosition = legendPosition,
 			kMax = x$.design$kMax)
 		p <- p + ggplot2::expand_limits(x = c(1, x$.design$kMax))
@@ -1284,7 +1276,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 	if (is.na(legendPosition)) {
 		legendPosition <- C_POSITION_RIGHT_CENTER
 	}
-
+	
 	plotArgs <- .getAnalysisResultsPlotArguments(x = x, nPlanned = nPlanned, 
 		allocationRatioPlanned = allocationRatioPlanned)	
 	
@@ -1306,7 +1298,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 	}
 	
 	if (x$getDataInput()$isDatasetMeans()) {
-		if (.isMultiArmAnalysisResults(x)) {
+		if (.isMultiHypothesesAnalysisResults(x)) {
 			assumedStDevs <- eval.parent(functionCall$assumedStDevs)
 			if (is.null(assumedStDevs)) {
 				assumedStDevs <- as.numeric(x$assumedStDevs)
@@ -1320,12 +1312,14 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 			functionCall$assumedStDev <- assumedStDev
 		}
 	}
-		
+	
 	if (x$getDataInput()$isDatasetMeans() || x$getDataInput()$isDatasetSurvival()) {
 		thetaRange <- eval.parent(functionCall$thetaRange)
 		if (is.null(thetaRange)) {
+			thetaRangeMin <- min(x$thetaH0, min(na.omit(as.numeric(x$thetaH1))))
 			thetaRangeMax <- 2 * max(x$thetaH0, max(na.omit(as.numeric(x$thetaH1))))
-			thetaRange <- seq(0, thetaRangeMax, thetaRangeMax / C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT)
+			thetaRange <- seq(thetaRangeMin, thetaRangeMax, 
+				(thetaRangeMax - thetaRangeMin) / C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT)
 		} else {
 			thetaRange <- .assertIsValidThetaRange(thetaRange = thetaRange,
 				survivalDataEnabled = x$getDataInput()$isDatasetSurvival())
@@ -1359,3 +1353,4 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 	functionCall[[1L]] <- as.name("plot")
 	return(eval.parent(functionCall))
 }
+

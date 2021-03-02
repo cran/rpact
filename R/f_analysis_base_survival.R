@@ -14,7 +14,7 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
 #:#  File version: $Revision: 3519 $
-#:#  Last changed: $Date: 2020-08-21 14:17:44 +0200 (Fr, 21 Aug 2020) $
+#:#  Last changed: $Date: 2020-08-21 14:17:44 +0200 (Fri, 21 Aug 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -265,8 +265,8 @@
 	overallEvents <- dataInput$getOverallEventsUpTo(stage, group = 1)
 	overallAllocationRatios <- dataInput$getOverallAllocationRatiosUpTo(stage, group = 1)
 	
-	# Calculation of overall logRanks for specified hypothesis 
-	overallLogRanks <- dataInput$getOverallLogRanksUpTo(stage, group = 1) - 
+	# Calculation of overall log-ranks for specified hypothesis 
+	overallLogRankTestStatistics <- dataInput$getOverallLogRanksUpTo(stage, group = 1) - 
 		sqrt(overallEvents) * sqrt(overallAllocationRatios) / (1 + overallAllocationRatios) * log(thetaH0)
 	
 	effectSizes <- exp(dataInput$getOverallLogRanksUpTo(stage, group = 1) * (1 + overallAllocationRatios[1:stage]) /
@@ -275,8 +275,8 @@
 	events <- dataInput$getEventsUpTo(stage, group = 1)
 	allocationRatios <- dataInput$getAllocationRatiosUpTo(stage, group = 1)	
 	
-	# Calculation of logRanks for specified hypothesis 
-	logRanks <- dataInput$getLogRanksUpTo(stage, group = 1) - 
+	# Calculation of log-ranks for specified hypothesis 
+	logRankTestStatistics <- dataInput$getLogRanksUpTo(stage, group = 1) - 
 		sqrt(events) * sqrt(allocationRatios) / (1 + allocationRatios) * log(thetaH0)
 
 	# Calculation of stagewise test statistics and combination tests
@@ -287,11 +287,11 @@
 	weightsFisher <- .getWeightsFisher(design) 
 
 	if (directionUpper) {
-		pValues <- 1 - stats::pnorm(logRanks)
-		overallPValues <- 1 - stats::pnorm(overallLogRanks)
+		pValues <- 1 - stats::pnorm(logRankTestStatistics)
+		overallPValues <- 1 - stats::pnorm(overallLogRankTestStatistics)
 	} else {
-		pValues <- stats::pnorm(logRanks)
-		overallPValues <- stats::pnorm(overallLogRanks)
+		pValues <- stats::pnorm(logRankTestStatistics)
+		overallPValues <- stats::pnorm(overallLogRankTestStatistics)
 	}
 						
 	for (k in 1:stage) {
@@ -307,13 +307,13 @@
 		design = design,
 		dataInput = dataInput,
 		stage = as.integer(stage),
-		overallLogRanks = .fillWithNAs(overallLogRanks, design$kMax), 
+		overallTestStatistics = .fillWithNAs(overallLogRankTestStatistics, design$kMax), 
 		overallPValues = .fillWithNAs(overallPValues, design$kMax), 
 		overallEvents = .fillWithNAs(overallEvents, design$kMax), 
 		overallAllocationRatios = .fillWithNAs(overallAllocationRatios, design$kMax),
 		events = .fillWithNAs(events, design$kMax),
 		allocationRatios = .fillWithNAs(allocationRatios, design$kMax),
-		logRanks = .fillWithNAs(logRanks, design$kMax),
+		testStatistics = .fillWithNAs(logRankTestStatistics, design$kMax),
 		pValues = .fillWithNAs(pValues, design$kMax), 
 		effectSizes = .fillWithNAs(effectSizes, design$kMax),
 		combInverseNormal = combInverseNormal, 
@@ -332,6 +332,9 @@
 		stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
 		stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
 	}
+	
+	stageResults$overallLogRanks <- stageResults$overallTestStatistics
+	stageResults$logRanks <- stageResults$testStatistics
 	
 	return(stageResults)
 }
@@ -956,11 +959,11 @@
 	if (stageGroupSeq < design$kMax || stage == design$kMax) { 
 		if (stageGroupSeq == 1) {
 
-			finalConfidenceIntervalGeneral[1] <- stageResults$logRanks[1] - 
+			finalConfidenceIntervalGeneral[1] <- stageResults$testStatistics[1] - 
 					stats::qnorm(1 - design$alpha / design$sided)
-			finalConfidenceIntervalGeneral[2] <- stageResults$logRanks[1] + 
+			finalConfidenceIntervalGeneral[2] <- stageResults$testStatistics[1] + 
 					stats::qnorm(1 - design$alpha / design$sided)
-			medianUnbiasedGeneral <- stageResults$logRanks[1]
+			medianUnbiasedGeneral <- stageResults$testStatistics[1]
 			
 		} else {	
 			
@@ -1053,11 +1056,11 @@
 	if (stageInvNormal < design$kMax || stage == design$kMax) { 
 		if (stageInvNormal == 1) {
 
-			finalConfidenceIntervalGeneral[1] <- stageResults$logRanks[1] - 
+			finalConfidenceIntervalGeneral[1] <- stageResults$testStatistics[1] - 
 					stats::qnorm(1 - design$alpha / design$sided)
-			finalConfidenceIntervalGeneral[2] <- stageResults$logRanks[1] + 
+			finalConfidenceIntervalGeneral[2] <- stageResults$testStatistics[1] + 
 					stats::qnorm(1 - design$alpha / design$sided)
-			medianUnbiasedGeneral <- stageResults$logRanks[1]
+			medianUnbiasedGeneral <- stageResults$testStatistics[1]
 			
 		} else {	
 

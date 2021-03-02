@@ -1,4 +1,14 @@
 
+# rpact 3.0.4
+
+* Beta-spending function approach with binding futility bounds
+* Pampallona & Tsiatis design with binding and non-binding futility bounds
+* Argument 'accrualIntensityType' added to getSampleSizeSurvival, getSimulationSurvival, getNumberOfSubjects, and getEventProbabilities
+* Specification of Weibull survival times possible through definition of hazard rates or medians in simulation tool
+* C code replaced by C++ code based on Rcpp
+* Generic function summary() improved
+* Minor improvements
+
 # rpact 3.0.3
 
 * New utility functions getParameterCaption() and getParameterName() implemented
@@ -14,7 +24,7 @@
 * getAccrualTime: improved and new argument 'accrualIntensityType' added
 * Header text added to design summaries
 * getSampleSizeSurvival: field 'studyDurationH1' in result object was replaced by 'studyDuration', i.e., 'studyDurationH1' is deprecated and will be removed in future versions
-* Minor improvements in the inline help and manual
+* Minor changes in the inline help and manual
 * Minor improvements
 
 # rpact 3.0.2

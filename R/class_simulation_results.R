@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4046 $
-#:#  Last changed: $Date: 2020-11-30 10:19:49 +0100 (Mo, 30 Nov 2020) $
+#:#  File version: $Revision: 4311 $
+#:#  Last changed: $Date: 2021-02-03 11:38:47 +0100 (Mi, 03 Feb 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1700,7 +1700,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 #' 
 #' @export
 #'
-plot.SimulationResults = function(x, y, ..., main = NA_character_,
+plot.SimulationResults <- function(x, y, ..., main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, type = 1L, palette = "Set1",
 		theta = seq(-1, 1, 0.01), plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, 

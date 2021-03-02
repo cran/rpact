@@ -16,7 +16,7 @@
 #:#  File name: test-f_design_sample_size_calculator.R
 #:#  Creation date: 09 November 2020, 11:48:37
 #:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 

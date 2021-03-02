@@ -23,6 +23,7 @@ getSimulationSurvival(
   eventTime = 12L,
   accrualTime = c(0L, 12L),
   accrualIntensity = 0.1,
+  accrualIntensityType = c("auto", "absolute", "relative"),
   dropoutRate1 = 0,
   dropoutRate2 = 0,
   dropoutTime = 12L,
@@ -86,15 +87,15 @@ default is \code{seq(0.2, 0.5, 0.1)} (power calculations and simulations) or
 If the event or hazard rates in both treatment groups are defined, the hazard ratio needs 
 not to be specified as it is calculated, there is no default.}
 
-\item{kappa}{A numeric value >= 0. A \code{kappa != 1} will be used for the specification 
+\item{kappa}{A numeric value > 0. A \code{kappa != 1} will be used for the specification 
 of the shape of the Weibull distribution. 
 Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 Note that the Weibull distribution cannot be used for the piecewise definition of 
-the survival time distribution, i.e., only \code{lambda} and \code{kappa} need to be specified.
+the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
+   can be specified.
 This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
-of the \code{stats} package, i.e., 
-the scale parameter is \code{1 / 'hazard rate'}.\cr
-For example, \cr
+of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
+For example, 
 \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)} 
 and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
 
@@ -115,6 +116,10 @@ subsequent order, default is \code{1}}
 
 \item{accrualIntensity}{A vector of accrual intensities, default is the relative 
 intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
+
+\item{accrualIntensityType}{A character value specifying the accrual intensity input type.
+Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
+i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.}
 
 \item{dropoutRate1}{The assumed drop-out rate in the treatment group, default is \code{0}.}
 
@@ -199,7 +204,7 @@ and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and
 Note that \code{numberOfSubjects}, \code{numberOfSubjects1}, and \code{numberOfSubjects2} in the output
 are expected number of subjects.
 }
-\section{Staggered patient entry}{
+\section{Piecewise survival time}{
 
 The first element of the vector \code{piecewiseSurvivalTime} must be equal to \code{0}. 
 \code{piecewiseSurvivalTime} can also be a list that combines the definition of the 
@@ -208,7 +213,7 @@ The definition of the survival time in the treatment group is obtained by the sp
 of the hazard ratio (see examples for details).
 }
 
-\section{Piecewise accrual}{
+\section{Staggered patient entry}{
 
 \code{accrualTime} is the time period of subjects' accrual in a study. 
 It can be a value that defines the end of accrual or a vector.

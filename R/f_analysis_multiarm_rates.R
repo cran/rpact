@@ -1,5 +1,5 @@
 #:#
-#:#  *Analysis of Rates in multi-armed designs with adaptive test* 
+#:#  *Analysis of rates in multi-arm designs with adaptive test* 
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3814 $
-#:#  Last changed: $Date: 2020-10-30 17:12:19 +0100 (Fr, 30 Okt 2020) $
+#:#  File version: $Revision: 4401 $
+#:#  Last changed: $Date: 2021-02-15 17:29:02 +0100 (Mo, 15 Feb 2021) $
 #:#  Last changed by: $Author: wassmer $
 #:# 
 
@@ -141,7 +141,7 @@
 	
 	startTime <- Sys.time()
 	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest)
 	
 	stageResults <- .getStageResultsRatesMultiArm(design = design, dataInput = dataInput, 
 			intersectionTest = intersectionTest, stage = stage, 
@@ -248,10 +248,8 @@
 	
 	# repeated p-value
 	if (design$kMax > 1) {	
-		startTime <- Sys.time()
 		results$repeatedPValues <- .getRepeatedPValuesMultiArm(stageResults = stageResults, tolerance = tolerance)	
 		results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
-		.logProgress("Repeated p-values calculated", startTime = startTime)
 	}
 	
 	return(results)
@@ -270,7 +268,6 @@
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.assertIsValidDirectionUpper(directionUpper, design$sided)
 	.assertIsSingleLogical(normalApproximation, "normalApproximation")
-	.assertIsValidIntersectionTest(design, intersectionTest)
 	.assertIsSingleLogical(calculateSingleStepAdjusted, "calculateSingleStepAdjusted")
 	.warnInCaseOfUnknownArguments(functionName = ".getStageResultsRatesMultiArm", 
 		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
@@ -288,10 +285,8 @@
 			normalApproximation <- TRUE
 		}
 	}
-	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest, userFunctionCallEnabled)
-	
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest, userFunctionCallEnabled)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 
 	stageResults <- StageResultsMultiArmRates(
 		design = design,
@@ -569,7 +564,7 @@
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT, 
 		firstParameterName) {
 		
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	
 	stageResults <- .getStageResultsRatesMultiArm(design = design, dataInput = dataInput, 
@@ -786,7 +781,7 @@
 }
 
 # 
-#  Calculation of lower and upper limits of repeated confidence intervals (RCIs) for Rates
+#  Calculation of repeated confidence intervals (RCIs) for Rates
 #
 .getRepeatedConfidenceIntervalsRatesMultiArm <- function(..., design) {
 	

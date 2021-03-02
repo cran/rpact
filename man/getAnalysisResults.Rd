@@ -152,9 +152,9 @@ to calculate the analysis results.
  
 dsnGS <- getDesignGroupSequential()
 dataMeans <- getDataset(
-    n = c(30,30),
-    means = c(1.96,1.76),
-    stDevs = c(1.92,2.01))
+    n = c(30, 30),
+    means = c(1.96, 1.76),
+    stDevs = c(1.92, 2.01))
 getAnalysisResults(design = dsnGS, dataInput = dataMeans, thetaH0 = 1.2)
 
 # You can obtain the results when performing an inverse normal combination test 

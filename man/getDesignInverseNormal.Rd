@@ -12,9 +12,11 @@ getDesignInverseNormal(
   sided = 1,
   informationRates = NA_real_,
   futilityBounds = NA_real_,
-  typeOfDesign = c("OF", "P", "WT", "HP", "WToptimum", "asP", "asOF", "asKD", "asHSD",
-    "asUser"),
+  typeOfDesign = c("OF", "P", "WT", "PT", "HP", "WToptimum", "asP", "asOF", "asKD",
+    "asHSD", "asUser"),
   deltaWT = NA_real_,
+  deltaPT1 = NA_real_,
+  deltaPT0 = NA_real_,
   optimizationCriterion = c("ASNH1", "ASNIFH1", "ASNsum"),
   gammaA = NA_real_,
   typeBetaSpending = c("none", "bsP", "bsOF", "bsKD", "bsHSD", "bsUser"),
@@ -52,12 +54,17 @@ default is \code{(1:kMax) / kMax}.}
 
 \item{typeOfDesign}{The type of design. Type of design is one of the following: 
 O'Brien & Fleming (\code{"OF"}), Pocock (\code{"P"}), Wang & Tsiatis Delta class (\code{"WT"}), 
+Pamapallona & Tsiatis (\code{"PT"}),
 Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
 O'Brien & Fleming type alpha spending (\code{"asOF"}), Pocock type alpha spending (\code{"asP"}), 
 Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending (\code{"asHSD"}), 
 user defined alpha spending (\code{"asUser"}), default is \code{"OF"}.}
 
 \item{deltaWT}{Delta for Wang & Tsiatis Delta class.}
+
+\item{deltaPT1}{Delta1 for Pampallona & Tsiatis class rejecting H0 boundaries.}
+
+\item{deltaPT0}{Delta0 for Pampallona & Tsiatis class rejecting H1 boundaries.}
 
 \item{optimizationCriterion}{Optimization criterion for optimum design within 
 Wang & Tsiatis class (\code{"ASNH1"}, \code{"ASNIFH1"}, 

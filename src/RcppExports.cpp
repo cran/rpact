@@ -5,19 +5,15 @@
 
 using namespace Rcpp;
 
-// getDensityValuesFast
-SEXP getDensityValuesFast(SEXP x, SEXP k, SEXP informationRates, SEXP epsilonVec, SEXP x2, SEXP dn2);
-RcppExport SEXP _rpact_getDensityValuesFast(SEXP xSEXP, SEXP kSEXP, SEXP informationRatesSEXP, SEXP epsilonVecSEXP, SEXP x2SEXP, SEXP dn2SEXP) {
+// getGroupSequentialProbabilitiesCpp
+NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix, NumericVector informationRates);
+RcppExport SEXP _rpact_getGroupSequentialProbabilitiesCpp(SEXP decisionMatrixSEXP, SEXP informationRatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type k(kSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type informationRates(informationRatesSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type epsilonVec(epsilonVecSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type x2(x2SEXP);
-    Rcpp::traits::input_parameter< SEXP >::type dn2(dn2SEXP);
-    rcpp_result_gen = Rcpp::wrap(getDensityValuesFast(x, k, informationRates, epsilonVec, x2, dn2));
+    Rcpp::traits::input_parameter< NumericMatrix >::type decisionMatrix(decisionMatrixSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    rcpp_result_gen = Rcpp::wrap(getGroupSequentialProbabilitiesCpp(decisionMatrix, informationRates));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -88,14 +84,11 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP R_getDensityValues(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-
 static const R_CallMethodDef CallEntries[] = {
-    {"_rpact_getDensityValuesFast", (DL_FUNC) &_rpact_getDensityValuesFast, 6},
+    {"_rpact_getGroupSequentialProbabilitiesCpp", (DL_FUNC) &_rpact_getGroupSequentialProbabilitiesCpp, 2},
     {"_rpact_getRandomSurvivalDistribution", (DL_FUNC) &_rpact_getRandomSurvivalDistribution, 2},
     {"_rpact_getRandomPiecewiseExponentialDistribution", (DL_FUNC) &_rpact_getRandomPiecewiseExponentialDistribution, 3},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},
-    {"R_getDensityValues", (DL_FUNC) &R_getDensityValues, 6},
     {NULL, NULL, 0}
 };
 

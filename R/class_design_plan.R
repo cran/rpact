@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4057 $
-#:#  Last changed: $Date: 2020-11-30 15:18:32 +0100 (Mon, 30 Nov 2020) $
+#:#  File version: $Revision: 4216 $
+#:#  Last changed: $Date: 2021-01-19 09:16:02 +0100 (Tue, 19 Jan 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -84,6 +84,7 @@ C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_SURVIVAL <- list(
 #' 
 #' @include f_core_constants.R
 #' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
 #' @include class_design.R
 #' @include class_design_set.R
 #' @include f_core_plot.R
@@ -340,6 +341,8 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 		criticalValuesEffectScaleUpper = "matrix",
 		criticalValuesPValueScale = "matrix",
 		futilityBoundsEffectScale = "matrix",
+		futilityBoundsEffectScaleLower = "matrix",
+		futilityBoundsEffectScaleUpper = "matrix",
 		futilityBoundsPValueScale = "matrix"
 	),
 	
@@ -380,6 +383,10 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 			.setParameterType("criticalValuesEffectScale", C_PARAM_NOT_APPLICABLE)
 			.setParameterType("criticalValuesEffectScaleLower", C_PARAM_NOT_APPLICABLE)
 			.setParameterType("criticalValuesEffectScaleUpper", C_PARAM_NOT_APPLICABLE)
+			
+			.setParameterType("futilityBoundsEffectScale", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("futilityBoundsEffectScaleLower", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("futilityBoundsEffectScaleUpper", C_PARAM_NOT_APPLICABLE)
 		},
 		
 		clone = function(alternative = NA_real_) {
@@ -388,16 +395,16 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 				alternativeTemp <- .self$alternative	
 			}
 			if (.objectType == "sampleSize") {
-				return(getSampleSizeMeans(design = .self$.design, 
+				result <- getSampleSizeMeans(design = .self$.design, 
 					normalApproximation = .self$.getParameterValueIfUserDefinedOrDefault("normalApproximation"), 
 					meanRatio = .self$meanRatio, #.getParameterValueIfUserDefinedOrDefault("meanRatio"), 
 					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
 					alternative = alternativeTemp, 
 					stDev = .self$.getParameterValueIfUserDefinedOrDefault("stDev"), 
 					groups = .self$.getParameterValueIfUserDefinedOrDefault("groups"), 
-					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned")))
+					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned"))
 			} else {
-				return(getPowerMeans(design = .self$.design, 
+				result <- getPowerMeans(design = .self$.design, 
 					normalApproximation = .self$.getParameterValueIfUserDefinedOrDefault("normalApproximation"), 
 					meanRatio = .self$meanRatio, #.getParameterValueIfUserDefinedOrDefault("meanRatio"), 
 					thetaH0 = .self$.getParameterValueIfUserDefinedOrDefault("thetaH0"), 
@@ -406,8 +413,10 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 					directionUpper = .self$.getParameterValueIfUserDefinedOrDefault("directionUpper"), 
 					maxNumberOfSubjects = .self$.getParameterValueIfUserDefinedOrDefault("maxNumberOfSubjects"), 
 					groups = .self$.getParameterValueIfUserDefinedOrDefault("groups"), 
-					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned")))
+					allocationRatioPlanned = .self$.getParameterValueIfUserDefinedOrDefault("allocationRatioPlanned"))
 			}
+			result$.plotSettings <- .self$.plotSettings
+			return(result)
 		},
 		
 		show = function(showType = 1, digits = NA_integer_) {
@@ -481,6 +490,8 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 		criticalValuesEffectScaleUpper = "matrix",
 		criticalValuesPValueScale = "matrix",
 		futilityBoundsEffectScale = "matrix",
+		futilityBoundsEffectScaleLower = "matrix",
+		futilityBoundsEffectScaleUpper = "matrix",
 		futilityBoundsPValueScale = "matrix"
 	),
 	
@@ -520,6 +531,10 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 			.setParameterType("criticalValuesEffectScale", C_PARAM_NOT_APPLICABLE)
 			.setParameterType("criticalValuesEffectScaleLower", C_PARAM_NOT_APPLICABLE)
 			.setParameterType("criticalValuesEffectScaleUpper", C_PARAM_NOT_APPLICABLE)
+			
+			.setParameterType("futilityBoundsEffectScale", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("futilityBoundsEffectScaleLower", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("futilityBoundsEffectScaleUpper", C_PARAM_NOT_APPLICABLE)
 		},
 		
 		clone = function(pi1 = NA_real_) {
@@ -647,6 +662,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		criticalValuesEffectScaleUpper = "matrix",
 		criticalValuesPValueScale = "matrix",
 		futilityBoundsEffectScale = "matrix",
+		futilityBoundsEffectScaleLower = "matrix",
+		futilityBoundsEffectScaleUpper = "matrix",
 		futilityBoundsPValueScale = "matrix"
 	),
 	methods = list(
@@ -673,6 +690,10 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 			.setParameterType("criticalValuesEffectScale", C_PARAM_NOT_APPLICABLE)
 			.setParameterType("criticalValuesEffectScaleLower", C_PARAM_NOT_APPLICABLE)
 			.setParameterType("criticalValuesEffectScaleUpper", C_PARAM_NOT_APPLICABLE)
+			
+			.setParameterType("futilityBoundsEffectScale", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("futilityBoundsEffectScaleLower", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("futilityBoundsEffectScaleUpper", C_PARAM_NOT_APPLICABLE)
 			
 			# set default values	
 			for (parameterName in c("eventTime", "accrualTime", "accrualIntensity", 
@@ -888,7 +909,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 .plotTrialDesignPlan <- function(designPlan, type = 1L, main = NA_character_, 
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
 		theta = seq(-1, 1, 0.02), plotPointsEnabled = NA, 
-		legendPosition = NA_integer_, showSource = FALSE, designPlanName = NA_character_, ...) {
+		legendPosition = NA_integer_, showSource = FALSE, 
+		designPlanName = NA_character_, plotSettings = NULL, ...) {
 	
 	.assertGgplotIsInstalled()
 	.assertIsTrialDesignPlan(designPlan) 
@@ -899,7 +921,9 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	nMax <- ifelse(.isTrialDesignPlanSurvival(designPlan), designPlan$maxNumberOfEvents[1], 
 		designPlan$maxNumberOfSubjects[1]) # use first value for plotting
 	
-	plotSettings <- designPlan$.plotSettings
+	if (is.null(plotSettings)) {
+		plotSettings <- designPlan$.plotSettings
+	}
 	
 	designMaster <- designPlan$.design
 	
@@ -984,7 +1008,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 			
 			xParameterName <- "eventsPerStage"
 			if (designMaster$sided == 1) {
-				if (any(designMaster$futilityBounds > -6)) {
+				if (any(designMaster$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
 					yParameterNames <- c("futilityBounds", "criticalValues")
 				} else {
 					yParameterNames <- "criticalValues"
@@ -1007,6 +1031,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 			
 		} else {
 			designSet <- TrialDesignSet(design = designMaster, singleDesign = TRUE)
+			designSet$.plotSettings <- designPlan$.plotSettings
 			designPlanName <- paste0(designPlanName, "$.design")
 			return(.plotTrialDesignSet(x = designSet, y = NULL, main = main, 
 					xlab = xlab, ylab = ylab, type = type,
@@ -1049,21 +1074,45 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 				ylab <- "Hazard Ratio"
 			}
 		}
-			
+		
+		groupedPlotEnabled <- FALSE
 		yParameterNamesSrc <- c()
 		if (designMaster$sided == 1) {
-			data <- data.frame(
-				criticalValues = designPlan$criticalValuesEffectScale[, 1],
-				futilityBounds = c(designPlan$futilityBoundsEffectScale[, 1], 
-					designPlan$criticalValuesEffectScale[designMaster$kMax, 1])
-			)	
-			yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScale[, 1]")
-			yParameterNamesSrc <- c(yParameterNamesSrc, paste0("c(", designPlanName, "$futilityBoundsEffectScale[, 1], ",
-					designPlanName, "$criticalValuesEffectScale[nrow(", designPlanName, "$criticalValuesEffectScale), 1])"))
-		} else {
+			if (any(designMaster$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+				data <- data.frame(
+					criticalValuesEffectScale = designPlan$criticalValuesEffectScale[, 1],
+					futilityBoundsEffectScale = c(designPlan$futilityBoundsEffectScale[, 1], 
+						designPlan$criticalValuesEffectScale[designMaster$kMax, 1])
+				)	
+				yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScale[, 1]")
+				yParameterNamesSrc <- c(yParameterNamesSrc, paste0("c(", designPlanName, "$futilityBoundsEffectScale[, 1], ",
+						designPlanName, "$criticalValuesEffectScale[nrow(", designPlanName, "$criticalValuesEffectScale), 1])"))
+			} else {
+				data <- data.frame(
+					criticalValuesEffectScale = designPlan$criticalValuesEffectScale[, 1]
+				)	
+				yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScale[, 1]")
+			}
+		} else if (designMaster$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			data <- data.frame(
 				criticalValues = designPlan$criticalValuesEffectScaleUpper[, 1],
-				criticalValuesMirrored = designPlan$criticalValuesEffectScaleLower[, 1]
+				criticalValuesMirrored = designPlan$criticalValuesEffectScaleLower[, 1],
+				futilityBounds = c(designPlan$futilityBoundsEffectScaleUpper[, 1], 
+					designPlan$criticalValuesEffectScaleUpper[designMaster$kMax, 1]),
+				futilityBoundsMirrored = c(designPlan$futilityBoundsEffectScaleLower[, 1], 
+					designPlan$criticalValuesEffectScaleLower[designMaster$kMax, 1])
+			)
+			yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScaleUpper[, 1]")
+			yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScaleLower[, 1]")
+			yParameterNamesSrc <- c(yParameterNamesSrc, paste0("c(", designPlanName, "$futilityBoundsEffectScaleUpper[, 1], ",
+					designPlanName, "$criticalValuesEffectScaleUpper[nrow(", designPlanName, "$criticalValuesEffectScaleUpper), 1])"))
+			yParameterNamesSrc <- c(yParameterNamesSrc, paste0("c(", designPlanName, "$futilityBoundsEffectScaleLower[, 1], ",
+					designPlanName, "$criticalValuesEffectScaleLower[nrow(", designPlanName, "$criticalValuesEffectScaleLower), 1])"))
+			groupedPlotEnabled <- TRUE
+		} else {
+			data <- data.frame(
+				criticalValuesEffectScale = designPlan$criticalValuesEffectScaleUpper[, 1],
+				criticalValuesEffectScaleMirrored = designPlan$criticalValuesEffectScaleLower[, 1]
 			)
 			yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScaleUpper[, 1]")
 			yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScaleLower[, 1]")
@@ -1078,14 +1127,14 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 			xParameterNameSrc <- paste0(designPlanName, "$.design$", xParameterName)
 			data <- cbind(data.frame(informationRates = designMaster$informationRates), data)
 		}
-		if (designMaster$sided == 1) {
-			if (any(designMaster$futilityBounds > -6)) {
-				yParameterNames <- c("futilityBounds", "criticalValues")
+		if (designMaster$sided == 1 || designMaster$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
+			if (any(designMaster$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+				yParameterNames <- c("futilityBoundsEffectScale", "criticalValuesEffectScale")
 			} else {
-				yParameterNames <- "criticalValues"
+				yParameterNames <- "criticalValuesEffectScale"
 			}
 		} else {
-			yParameterNames <- c("criticalValues", "criticalValuesMirrored") 
+			yParameterNames <- c("criticalValuesEffectScale", "criticalValuesEffectScaleMirrored") 
 		}
 		
 		if (is.na(legendPosition)) {
@@ -1095,14 +1144,29 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		if (is.na(legendPosition)) {
 			legendPosition <- C_POSITION_RIGHT_TOP
 		}
-		
-		designPlan <- data
 		
 		srcCmd <- .showPlotSourceInformation(objectName = designPlanName, 
 			xParameterName = xParameterNameSrc, 
 			yParameterNames = yParameterNamesSrc, 
 			hint = showSourceHint, nMax = nMax,
 			type = type, showSource = showSource)
+		
+		if (groupedPlotEnabled) {
+			
+			tableColumnNames <- C_TABLE_COLUMN_NAMES
+			criticalValuesName <- designPlan$.getDataFrameColumnCaption("criticalValuesEffectScale", tableColumnNames, TRUE)
+			futilityBoundsName <- designPlan$.getDataFrameColumnCaption("futilityBoundsEffectScale", tableColumnNames, TRUE)
+			
+			designPlan <- data.frame(
+				xValues = rep(data[[xParameterName]], 4),
+				yValues = c(data$criticalValues, data$criticalValuesMirrored, 
+					data$futilityBounds, data$futilityBoundsMirrored),
+				categories = c(rep(criticalValuesName, nrow(data)), rep("criticalValuesMirrored", nrow(data)),
+					rep(futilityBoundsName, nrow(data)), rep("futilityBoundsMirrored", nrow(data))),
+				groups = c(rep(criticalValuesName, 2 * nrow(data)), rep(futilityBoundsName, 2 * nrow(data))))
+		} else {
+			designPlan <- data
+		}
 	} 
 	
 	else if (type == 3) { # Stage Levels
@@ -1497,7 +1561,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 					xlab = NA_character_, ylab = NA_character_, xAxisLabel = "Hazard Ratio",
 					yAxisLabel1 = "Analysis Time", yAxisLabel2 = NA_character_, 
 					plotPointsEnabled = TRUE, legendTitle = "Stage",
-					legendPosition = legendPosition, sided = designMaster$sided, ...))
+					legendPosition = legendPosition, sided = designMaster$sided, 
+					plotSettings = designPlan$.plotSettings, ...))
 		}
 		
 		else if (type == 13 || type == 14) { # Cumulative Distribution Function / Survival function
@@ -1780,7 +1845,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 			yAxisLabel1 = yAxisLabel1, yAxisLabel2 = "Lambda", 
 			plotPointsEnabled = FALSE, legendTitle = NA_character_,
 			legendPosition = legendPosition, scalingFactor1 = 1, 
-			scalingFactor2 = scalingFactor, palette = palette, sided = designMaster$sided))
+			scalingFactor2 = scalingFactor, palette = palette, sided = designMaster$sided,
+			plotSettings = designPlan$.plotSettings))
 }
 
 .warnInCaseOfUnusedValuesForPlottingMeans <- function(alternative) {
@@ -1897,13 +1963,23 @@ plot.TrialDesignPlan = function(x, y, ..., main = NA_character_,
 	
 	typeNumbers <- .getPlotTypeNumber(type, x)
 	p <- NULL
+	plotSettings <- NULL
+	if (length(typeNumbers) > 3) {
+		plotSettings <- x$.plotSettings
+		if (is.null(plotSettings)) {
+			plotSettings <- PlotSettings()
+		}
+		if (plotSettings$scalingFactor == 1) {
+			plotSettings$scalingFactor <- 0.6
+		}
+	}
 	plotList <- list()
 	for (typeNumber in typeNumbers) {
 		p <- .plotTrialDesignPlan(designPlan = x, 
 			main = main, xlab = xlab, ylab = ylab, type = typeNumber,
 			palette = palette, theta = theta, plotPointsEnabled = plotPointsEnabled, 
 			legendPosition = legendPosition, showSource = showSource,
-			designPlanName = designPlanName, ...)
+			designPlanName = designPlanName, plotSettings = plotSettings, ...)
 		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
 		if (length(typeNumbers) > 1) {
 			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)

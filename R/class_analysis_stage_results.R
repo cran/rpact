@@ -13,18 +13,18 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  File version: $Revision: 4174 $
+#:#  Last changed: $Date: 2021-01-06 12:38:57 +0100 (Mi, 06 Jan 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
 .getStageResultsClassNames <- function() {
 	return(c("StageResultsMeans", 
-		"StageResultsRates",
-		"StageResultsSurvival",
-		"StageResultsMultiArmMeans", 
-		"StageResultsMultiArmRates",
-		"StageResultsMultiArmSurvival"))
+			"StageResultsRates",
+			"StageResultsSurvival",
+			"StageResultsMultiArmMeans", 
+			"StageResultsMultiArmRates",
+			"StageResultsMultiArmSurvival"))
 }
 
 #' 
@@ -98,11 +98,11 @@ StageResults <- setRefClass("StageResults",
 			.setParameterType("stage", C_PARAM_NOT_APPLICABLE)
 			
 			.setParameterType("pValues", ifelse(
-				.isMultiArm(), C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
+					.isMultiArm(), C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
 			.setParameterType("thetaH0", ifelse(
-				identical(thetaH0, C_THETA_H0_MEANS_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+					identical(thetaH0, C_THETA_H0_MEANS_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("direction", ifelse(
-				identical(direction, C_DIRECTION_UPPER), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+					identical(direction, C_DIRECTION_UPPER), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 		},
 		
 		getPlotSettings = function() {
@@ -128,11 +128,11 @@ StageResults <- setRefClass("StageResults",
 				.showParametersOfOneGroup(.getGeneratedParameters(), "Output",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
-			
+				
 				if (grepl("(MultiArm)", class(.self))) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					.cat(paste0("  (i): results of treatment arm i vs. control group ",
-						.dataInput$getNumberOfGroups(),"\n"), 
+							.dataInput$getNumberOfGroups(),"\n"), 
 						consoleOutputEnabled = consoleOutputEnabled)
 				} else if (.dataInput$getNumberOfGroups(survivalCorrectionEnabled = FALSE) >= 2) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
@@ -214,13 +214,13 @@ StageResults <- setRefClass("StageResults",
 			if (.isMultiArm()) {
 				if (inherits(.self, "StageResultsMultiArmRates")) {
 					return(max(ncol(stats::na.omit(testStatistics)), 
-						ncol(stats::na.omit(separatePValues))))
+							ncol(stats::na.omit(separatePValues))))
 				}
 				return(max(ncol(stats::na.omit(effectSizes)), 
-					ncol(stats::na.omit(separatePValues))))
+						ncol(stats::na.omit(separatePValues))))
 			}
 			return(max(length(stats::na.omit(effectSizes)), 
-				length(stats::na.omit(pValues))))
+					length(stats::na.omit(pValues))))
 		}
 	)
 )
@@ -284,10 +284,10 @@ StageResultsMeans <- setRefClass("StageResultsMeans",
 			init(design = design, dataInput = dataInput)
 			
 			for (param in c(
-					"weightsFisher", 
-					"weightsInverseNormal", 
-					"combFisher", 
-					"combInverseNormal")) {
+				"weightsFisher", 
+				"weightsInverseNormal", 
+				"combFisher", 
+				"combInverseNormal")) {
 				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
 			}
 			
@@ -324,7 +324,7 @@ StageResultsMeans <- setRefClass("StageResultsMeans",
 					"overallSampleSizes1",
 					"overallSampleSizes2"
 				)
-
+				
 			}
 			parametersToShow <- c(parametersToShow,	
 				"testStatistics", 
@@ -387,17 +387,17 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 		directionUpper = "logical" 
 	),
 	methods = list(
-		initialize = function(design, dataInput, ..., varianceOption = C_VARIANCE_OPTION_DEFAULT, 
-				normalApproximation = FALSE) {
+		initialize = function(design, dataInput, ..., varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT, 
+			normalApproximation = FALSE) {
 			callSuper(.design = design, .dataInput = dataInput, ...,  
 				varianceOption = varianceOption, normalApproximation = normalApproximation)
 			init(design = design, dataInput = dataInput)
 			
 			for (param in c("singleStepAdjustedPValues",
-					"weightsFisher", 
-					"weightsInverseNormal", 
-					"combFisher", 
-					"combInverseNormal")) {
+				"weightsFisher", 
+				"weightsInverseNormal", 
+				"combFisher", 
+				"combInverseNormal")) {
 				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
 			}
 			
@@ -408,11 +408,11 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 			}
 			
 			.setParameterType("varianceOption", ifelse(
-				identical(varianceOption, C_VARIANCE_OPTION_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+					identical(varianceOption, C_VARIANCE_OPTION_MULTIARMED_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("normalApproximation", ifelse(
-				identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+					identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("directionUpper", ifelse(
-				identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+					identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 		},
 		.getParametersToShow = function() {
 			parametersToShow <- c(
@@ -504,10 +504,10 @@ StageResultsRates <- setRefClass("StageResultsRates",
 			init(design = design, dataInput = dataInput)
 			
 			for (param in c(
-					"weightsFisher", 
-					"weightsInverseNormal", 
-					"combFisher", 
-					"combInverseNormal")) {
+				"weightsFisher", 
+				"weightsInverseNormal", 
+				"combFisher", 
+				"combInverseNormal")) {
 				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
 			}
 			
@@ -531,7 +531,7 @@ StageResultsRates <- setRefClass("StageResultsRates",
 					"overallEvents",
 					"overallSampleSizes"
 				)
-
+				
 			}
 			else if (.dataInput$getNumberOfGroups() == 2) {
 				parametersToShow <- c(parametersToShow,
@@ -578,80 +578,80 @@ StageResultsRates <- setRefClass("StageResultsRates",
 #' @importFrom methods new
 #'
 StageResultsMultiArmRates <- setRefClass("StageResultsMultiArmRates",
-		contains = "StageResults",
-		fields = list(
-			stage = "integer",
-			piControl = "matrix",
-			piTreatments = "matrix",
-			combInverseNormal = "matrix", 
-			combFisher = "matrix", 
-			overallTestStatistics = "matrix", 
-			overallPValues = "matrix",
-			testStatistics = "matrix",
-			separatePValues = "matrix",
-			singleStepAdjustedPValues = "matrix",
-			intersectionTest = "character",
-			normalApproximation = "logical",
-			directionUpper = "logical" 
-		),
-		methods = list(
-				initialize = function(design, dataInput, ..., 
-						normalApproximation = FALSE) {
-					callSuper(.design = design, .dataInput = dataInput, ...,  
-							normalApproximation = normalApproximation)
-					init(design = design, dataInput = dataInput)
-					
-					for (param in c("singleStepAdjustedPValues",
-							"weightsFisher", 
-							"weightsInverseNormal", 
-							"combFisher", 
-							"combInverseNormal")) {
-						.setParameterType(param, C_PARAM_NOT_APPLICABLE)
-					}
-					
-					for (param in .getParametersToShow()) {
-						if (.getParameterType(param) == C_PARAM_TYPE_UNKNOWN) {
-							.setParameterType(param, C_PARAM_GENERATED)
-						}
-					}
-					
-					.setParameterType("normalApproximation", ifelse(
-						identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
-					.setParameterType("directionUpper", ifelse(
-						identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
-				},
-				.getParametersToShow = function() {
-					parametersToShow <- c(
-						"stages",
-						"thetaH0",
-						"direction",
-						"normalApproximation",
-						#"directionUpper",
-						"piControl",
-						"piTreatments", 
-						"intersectionTest",
-						"overallTestStatistics", 
-						"overallPValues",
-						"overallStDevs",
-						"testStatistics", 
-						"separatePValues", 
-						"singleStepAdjustedPValues"
-					)
-					if (.isTrialDesignInverseNormal(.design)) {
-						parametersToShow <- c(parametersToShow,			
-								"combInverseNormal", 
-								"weightsInverseNormal"
-						)
-					}
-					else if (.isTrialDesignFisher(.design)) {
-						parametersToShow <- c(parametersToShow,
-								"combFisher", 
-								"weightsFisher"
-						)
-					}
-					return(parametersToShow)
+	contains = "StageResults",
+	fields = list(
+		stage = "integer",
+		piControl = "matrix",
+		piTreatments = "matrix",
+		combInverseNormal = "matrix", 
+		combFisher = "matrix", 
+		overallTestStatistics = "matrix", 
+		overallPValues = "matrix",
+		testStatistics = "matrix",
+		separatePValues = "matrix",
+		singleStepAdjustedPValues = "matrix",
+		intersectionTest = "character",
+		normalApproximation = "logical",
+		directionUpper = "logical" 
+	),
+	methods = list(
+		initialize = function(design, dataInput, ..., 
+			normalApproximation = FALSE) {
+			callSuper(.design = design, .dataInput = dataInput, ...,  
+				normalApproximation = normalApproximation)
+			init(design = design, dataInput = dataInput)
+			
+			for (param in c("singleStepAdjustedPValues",
+				"weightsFisher", 
+				"weightsInverseNormal", 
+				"combFisher", 
+				"combInverseNormal")) {
+				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
+			}
+			
+			for (param in .getParametersToShow()) {
+				if (.getParameterType(param) == C_PARAM_TYPE_UNKNOWN) {
+					.setParameterType(param, C_PARAM_GENERATED)
 				}
-		)
+			}
+			
+			.setParameterType("normalApproximation", ifelse(
+					identical(normalApproximation, FALSE), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+			.setParameterType("directionUpper", ifelse(
+					identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+		},
+		.getParametersToShow = function() {
+			parametersToShow <- c(
+				"stages",
+				"thetaH0",
+				"direction",
+				"normalApproximation",
+				#"directionUpper",
+				"piControl",
+				"piTreatments", 
+				"intersectionTest",
+				"overallTestStatistics", 
+				"overallPValues",
+				"overallStDevs",
+				"testStatistics", 
+				"separatePValues", 
+				"singleStepAdjustedPValues"
+			)
+			if (.isTrialDesignInverseNormal(.design)) {
+				parametersToShow <- c(parametersToShow,			
+					"combInverseNormal", 
+					"weightsInverseNormal"
+				)
+			}
+			else if (.isTrialDesignFisher(.design)) {
+				parametersToShow <- c(parametersToShow,
+					"combFisher", 
+					"weightsFisher"
+				)
+			}
+			return(parametersToShow)
+		}
+	)
 )
 
 #' 
@@ -692,12 +692,14 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 		combFisher = "numeric", 
 		overallPValues = "numeric",
 		effectSizes = "numeric",
-		overallLogRanks = "numeric",
+		overallTestStatistics = "numeric", 
+		overallLogRanks = "numeric", # deprecated; use overallTestStatistics instead
 		overallEvents = "numeric", 
 		overallAllocationRatios = "numeric",
 		events = "numeric",
 		allocationRatios = "numeric",
-		logRanks = "numeric"
+		testStatistics = "numeric",
+		logRanks = "numeric" # deprecated; use testStatistics instead
 	),
 	methods = list(
 		initialize = function(design, dataInput, ...) {
@@ -705,10 +707,12 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 			init(design = design, dataInput = dataInput)
 			
 			for (param in c(
-					"weightsFisher", 
-					"weightsInverseNormal", 
-					"combFisher", 
-					"combInverseNormal")) {
+				"weightsFisher", 
+				"weightsInverseNormal", 
+				"combFisher", 
+				"combInverseNormal",
+				"overallLogRanks",
+				"logRanks")) {
 				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
 			}
 			
@@ -721,13 +725,13 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 		.getParametersToShow = function() {
 			parametersToShow <- c(
 				"stages",
-				"overallLogRanks",
+				"overallTestStatistics",
 				"overallPValues", 
 				"overallEvents",
 				"overallAllocationRatios", 
 				"events", 
 				"allocationRatios",
-				"logRanks", 
+				"testStatistics", 
 				"pValues", 
 				"overallPValues",
 				"effectSizes"
@@ -764,72 +768,72 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 #' @importFrom methods new
 #'
 StageResultsMultiArmSurvival <- setRefClass("StageResultsMultiArmSurvival",
-		contains = "StageResults",
-		fields = list(
-			stage = "integer",
-			combInverseNormal = "matrix", 
-			combFisher = "matrix", 
-			overallTestStatistics = "matrix", 
-			overallPValues = "matrix",
-			testStatistics = "matrix",
-			separatePValues = "matrix",
-			effectSizes = "matrix",
-			singleStepAdjustedPValues = "matrix",
-			intersectionTest = "character",
-			directionUpper = "logical" 
-		),
-		methods = list(
-				initialize = function(design, dataInput, ..., 
-						normalApproximation = FALSE) {
-					callSuper(.design = design, .dataInput = dataInput, ...)
-					init(design = design, dataInput = dataInput)
-					
-					for (param in c("singleStepAdjustedPValues",
-							"weightsFisher", 
-							"weightsInverseNormal", 
-							"combFisher", 
-							"combInverseNormal")) {
-						.setParameterType(param, C_PARAM_NOT_APPLICABLE)
-					}
-					
-					for (param in .getParametersToShow()) {
-						if (.getParameterType(param) == C_PARAM_TYPE_UNKNOWN) {
-							.setParameterType(param, C_PARAM_GENERATED)
-						}
-					}
-					
-					.setParameterType("directionUpper", ifelse(
-						identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
-				},
-				.getParametersToShow = function() {
-					parametersToShow <- c(
-						"stages",
-						"thetaH0",
-						"direction",
-						#"directionUpper", 
-						"intersectionTest",
-						"overallTestStatistics", 
-						"overallPValues",
-						"testStatistics", 
-						"separatePValues", 
-						"effectSizes",
-						"singleStepAdjustedPValues"
-					)
-					if (.isTrialDesignInverseNormal(.design)) {
-						parametersToShow <- c(parametersToShow,			
-								"combInverseNormal", 
-								"weightsInverseNormal"
-						)
-					}
-					else if (.isTrialDesignFisher(.design)) {
-						parametersToShow <- c(parametersToShow,
-								"combFisher", 
-								"weightsFisher"
-						)
-					}
-					return(parametersToShow)
+	contains = "StageResults",
+	fields = list(
+		stage = "integer",
+		combInverseNormal = "matrix", 
+		combFisher = "matrix", 
+		overallTestStatistics = "matrix", 
+		overallPValues = "matrix",
+		testStatistics = "matrix",
+		separatePValues = "matrix",
+		effectSizes = "matrix",
+		singleStepAdjustedPValues = "matrix",
+		intersectionTest = "character",
+		directionUpper = "logical" 
+	),
+	methods = list(
+		initialize = function(design, dataInput, ..., 
+			normalApproximation = FALSE) {
+			callSuper(.design = design, .dataInput = dataInput, ...)
+			init(design = design, dataInput = dataInput)
+			
+			for (param in c("singleStepAdjustedPValues",
+				"weightsFisher", 
+				"weightsInverseNormal", 
+				"combFisher", 
+				"combInverseNormal")) {
+				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
+			}
+			
+			for (param in .getParametersToShow()) {
+				if (.getParameterType(param) == C_PARAM_TYPE_UNKNOWN) {
+					.setParameterType(param, C_PARAM_GENERATED)
 				}
-		)
+			}
+			
+			.setParameterType("directionUpper", ifelse(
+					identical(directionUpper, C_DIRECTION_UPPER_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+		},
+		.getParametersToShow = function() {
+			parametersToShow <- c(
+				"stages",
+				"thetaH0",
+				"direction",
+				#"directionUpper", 
+				"intersectionTest",
+				"overallTestStatistics", 
+				"overallPValues",
+				"testStatistics", 
+				"separatePValues", 
+				"effectSizes",
+				"singleStepAdjustedPValues"
+			)
+			if (.isTrialDesignInverseNormal(.design)) {
+				parametersToShow <- c(parametersToShow,			
+					"combInverseNormal", 
+					"weightsInverseNormal"
+				)
+			}
+			else if (.isTrialDesignFisher(.design)) {
+				parametersToShow <- c(parametersToShow,
+					"combFisher", 
+					"weightsFisher"
+				)
+			}
+			return(parametersToShow)
+		}
+	)
 )
 
 
@@ -881,8 +885,8 @@ names.StageResults <- function(x) {
 #' @keywords internal
 #'  
 as.data.frame.StageResults <- function(x, row.names = NULL, 
-		optional = FALSE, niceColumnNamesEnabled = FALSE, 
-		includeAllParameters = FALSE, type = 1, ...) {
+	optional = FALSE, niceColumnNamesEnabled = FALSE, 
+	includeAllParameters = FALSE, type = 1, ...) {
 	
 	if (type == 1) {
 		parametersToShow <- x$.getParametersToShow()
@@ -1010,18 +1014,17 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' @export
 #' 
 plot.StageResults <- function(x, y, ..., type = 1L,
-		nPlanned, allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
-		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
-		showSource = FALSE) {
+	nPlanned, allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
+	main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+	legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
+	showSource = FALSE) {
 	
 	fCall = match.call(expand.dots = FALSE)
-		
+	
 	.assertGgplotIsInstalled()
 	.assertIsStageResults(x)
 	.assertIsValidLegendPosition(legendPosition)
 	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, x$.dataInput$getNumberOfGroups())
-	#.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 	.stopInCaseOfIllegalStageDefinition2(...)
 	
 	if (x$.design$kMax == 1) {
@@ -1059,7 +1062,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	
 	plotData <- .getConditionalPowerPlot(stageResults = x, nPlanned = nPlanned, 
 		allocationRatioPlanned = allocationRatioPlanned, ...)
-
+	
 	yParameterName1 <- "Conditional power"
 	yParameterName2 <- "Likelihood"
 	
@@ -1083,7 +1086,8 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 					data <- rbind(data, data.frame(
 						xValues = plotData$xValues[treatmentArmIndices],
 						yValues = plotData$likelihoodValues[treatmentArmIndices],
-						categories = rep(legend2, length(plotData$xValues[treatmentArmIndices]))
+						categories = rep(legend2, length(plotData$xValues[treatmentArmIndices])),
+						treatmentArms = rep(treatmentArm, length(plotData$xValues[treatmentArmIndices]))
 					)) 
 				}
 			} else {
@@ -1093,7 +1097,9 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 					yValues = c(plotData$condPowerValues[treatmentArmIndices], 
 						plotData$likelihoodValues[treatmentArmIndices]),
 					categories = c(rep(legend1, length(plotData$xValues[treatmentArmIndices])), 
-						rep(legend2, length(plotData$xValues[treatmentArmIndices])))
+						rep(legend2, length(plotData$xValues[treatmentArmIndices]))),
+					treatmentArms = c(rep(treatmentArm, length(plotData$xValues[treatmentArmIndices])), 
+						rep(treatmentArm, length(plotData$xValues[treatmentArmIndices])))
 				)) 
 			}
 		}
@@ -1122,14 +1128,14 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 		legendTitle <- "Parameter"
 	}
 	
-	return(.createPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
-		legendTitle = legendTitle, palette = palette, legendPosition = legendPosition))
+	return(.createAnalysisResultsPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
+			legendTitle = legendTitle, palette = palette, legendPosition = legendPosition))
 }
 
-.createPlotObject <- function(x, ..., data, plotData,
-		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_) {
-		
+.createAnalysisResultsPlotObject <- function(x, ..., data, plotData,
+	main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+	legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_) {
+	
 	ciModeEnabled <- !is.null(data[["lower"]]) && !is.null(data[["upper"]])
 	
 	if (!ciModeEnabled) {
@@ -1164,11 +1170,15 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	
 	# plot lines and points
 	if (!ciModeEnabled) {
+		numberOfGroups <- 2
+		if (x$.isMultiArm()) {
+			numberOfGroups <- length(unique(data$treatmentArms)) - 1
+		}
 		p <- x$getPlotSettings()$plotValues(p, plotPointsEnabled = FALSE, pointBorder = 1)
-		n <- length(unique(data$categories)) / 2
+		n <- length(unique(data$categories)) / numberOfGroups
 		if (n > 1) {
-			lineTypeValues <- rep(1:2, n)
-			colorTypes <- sort(rep(1:n, 2))
+			lineTypeValues <- rep(1:numberOfGroups, n)
+			colorTypes <- sort(rep(1:n, numberOfGroups))
 			for (i in c(1, 3)) {
 				colorTypes[colorTypes >= i] <- colorTypes[colorTypes >= i] + 1
 			}
@@ -1182,7 +1192,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 			p <- p + ggplot2::scale_color_manual(name = legendTitle, values = colorValues)
 			p <- p + ggplot2::scale_linetype_manual(name = legendTitle, values = c(1, 2))
 		}
-			
+		
 		p <- x$getPlotSettings()$setAxesAppearance(p)
 		p <- x$getPlotSettings()$enlargeAxisTicks(p)
 	}
@@ -1190,7 +1200,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	# plot confidence intervall
 	if (ciModeEnabled) {
 		pd <- ggplot2::position_dodge(0.15)
-	
+		
 		p <- p + ggplot2::geom_errorbar(data = data, 
 			ggplot2::aes(ymin = .data[["lower"]], ymax = .data[["upper"]]), 
 			width = 0.15, position = pd, size = 0.8)
@@ -1211,7 +1221,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	}
 	
 	p <- x$getPlotSettings()$addCompanyAnnotation(p, enabled = companyAnnotationEnabled)
-
+	
 	# start plot generation
 	return(p)
 }

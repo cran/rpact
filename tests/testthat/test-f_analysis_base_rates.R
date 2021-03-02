@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_base_rates.R
-#:#  Creation date: 09 November 2020, 11:43:42
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  Creation date: 05 January 2021, 11:46:59
+#:#  File version: $Revision: 4166 $
+#:#  Last changed: $Date: 2021-01-05 13:42:19 +0100 (Tue, 05 Jan 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -42,13 +42,13 @@ test_that("'getAnalysisResults' for a group sequential design and one treatment"
 			thetaH0 = 0.4, normalApproximation = FALSE, directionUpper = TRUE) 
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x0' with expected results
-	expect_equal(x0$pi1, 0.6969697, tolerance = 1e-07)
+	expect_equal(x0$pi1, 0.6969697, tolerance = 1e-06)
 	expect_equal(x0$testActions, c("continue", NA_character_))
-	expect_equal(x0$conditionalRejectionProbabilities, c(0.28801679, NA_real_), tolerance = 1e-07)
+	expect_equal(x0$conditionalRejectionProbabilities, c(0.28801679, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x0$repeatedConfidenceIntervalLowerBounds, c(0.38475348, NA_real_), tolerance = 1e-07)
-	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(0.91556364, NA_real_), tolerance = 1e-07)
-	expect_equal(x0$repeatedPValues, c(0.048557231, NA_real_), tolerance = 1e-07)
+	expect_equal(x0$repeatedConfidenceIntervalLowerBounds, c(0.38475348, NA_real_), tolerance = 1e-06)
+	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(0.91556364, NA_real_), tolerance = 1e-06)
+	expect_equal(x0$repeatedPValues, c(0.048557231, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$finalStage, NA_integer_)
 	expect_equal(x0$finalPValues, c(NA_real_, NA_real_))
 	expect_equal(x0$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_))
@@ -131,7 +131,7 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x2$finalStage, 2)
 	expect_equal(x2$finalPValues, c(NA_real_, 0.0011783609, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(NA_real_, 0.18821106, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.62661996, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.62661997, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$medianUnbiasedEstimates, c(NA_real_, 0.40681825, NA_real_, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x2), NA)))
@@ -209,7 +209,7 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x4$finalStage, 2)
 	expect_equal(x4$finalPValues, c(NA_real_, 0.0011783609, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalConfidenceIntervalLowerBounds, c(NA_real_, 0.18821106, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.62661996, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.62661997, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$medianUnbiasedEstimates, c(NA_real_, 0.40681825, NA_real_, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x4), NA)))
@@ -446,7 +446,7 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x2$repeatedPValues, c(0.49999905, 0.1020964, 0.0075111702, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 3)
 	expect_equal(x2$finalPValues, c(NA_real_, NA_real_, 0.0050707339, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 0.30413229, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 0.3041323, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 0.68870859, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$medianUnbiasedEstimates, c(NA_real_, NA_real_, 0.49547717, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -557,7 +557,7 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x5$finalPValues, c(NA_real_, NA_real_, 0.007752129, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 0.29554194, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 0.67875285, NA_real_), tolerance = 1e-07)
-	expect_equal(x5$medianUnbiasedEstimates, c(NA_real_, NA_real_, 0.48769645, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$medianUnbiasedEstimates, c(NA_real_, NA_real_, 0.48769629, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x5), NA)))
 	    expect_output(print(x5)$show())
@@ -1295,7 +1295,7 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	expect_equal(x1$finalPValues, c(NA_real_, 0.13570939), tolerance = 1e-07)
 	expect_equal(x1$finalConfidenceIntervalLowerBounds, c(NA_real_, -0.21309581), tolerance = 1e-07)
 	expect_equal(x1$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.059922132), tolerance = 1e-07)
-	expect_equal(x1$medianUnbiasedEstimates, c(NA_real_, -0.076600215), tolerance = 1e-07)
+	expect_equal(x1$medianUnbiasedEstimates, c(NA_real_, -0.076600295), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x1), NA)))
 	    expect_output(print(x1)$show())
@@ -1331,7 +1331,7 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	expect_equal(x2$finalPValues, c(NA_real_, 0.15026298), tolerance = 1e-07)
 	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(NA_real_, -0.20860056), tolerance = 1e-07)
 	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.064410651), tolerance = 1e-07)
-	expect_equal(x2$medianUnbiasedEstimates, c(NA_real_, -0.072106127), tolerance = 1e-07)
+	expect_equal(x2$medianUnbiasedEstimates, c(NA_real_, -0.072106168), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x2), NA)))
 	    expect_output(print(x2)$show())
@@ -1414,7 +1414,7 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x1$repeatedPValues, c(0.17488831, 0.00058560119), tolerance = 1e-07)
 	expect_equal(x1$finalStage, 2)
 	expect_equal(x1$finalPValues, c(NA_real_, 0.0012732763), tolerance = 1e-07)
-	expect_equal(x1$finalConfidenceIntervalLowerBounds, c(NA_real_, -0.016122345), tolerance = 1e-07)
+	expect_equal(x1$finalConfidenceIntervalLowerBounds, c(NA_real_, -0.016122347), tolerance = 1e-07)
 	expect_equal(x1$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.26034096), tolerance = 1e-07)
 	expect_equal(x1$medianUnbiasedEstimates, c(NA_real_, 0.12355576), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -1487,7 +1487,7 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x3$repeatedPValues, c(0.49999905, 0.49999905), tolerance = 1e-07)
 	expect_equal(x3$finalStage, 2)
 	expect_equal(x3$finalPValues, c(NA_real_, 0.64703032), tolerance = 1e-07)
-	expect_equal(x3$finalConfidenceIntervalLowerBounds, c(NA_real_, -0.0098227452), tolerance = 1e-07)
+	expect_equal(x3$finalConfidenceIntervalLowerBounds, c(NA_real_, -0.0098227441), tolerance = 1e-07)
 	expect_equal(x3$finalConfidenceIntervalUpperBounds, c(NA_real_, 0.26218829), tolerance = 1e-07)
 	expect_equal(x3$medianUnbiasedEstimates, c(NA_real_, 0.12618258), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {

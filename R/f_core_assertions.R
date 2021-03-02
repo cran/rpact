@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3989 $
-#:#  Last changed: $Date: 2020-11-23 11:25:20 +0100 (Mon, 23 Nov 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4401 $
+#:#  Last changed: $Date: 2021-02-15 17:29:02 +0100 (Mo, 15 Feb 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .stopWithWrongDesignMessage <- function(design) {
@@ -179,41 +179,24 @@
 }
 
 .isStageResults <- function(stageResults) {
-	return(.isStageResultsMeans(stageResults) || 
-			.isStageResultsRates(stageResults) || 
-			.isStageResultsSurvival(stageResults) ||
-			.isStageResultsMeansMultiArm(stageResults) || 
-			.isStageResultsRatesMultiArm(stageResults) || 
-			.isStageResultsSurvivalMultiArm(stageResults))
+	return(inherits(stageResults, "StageResults"))
 }
 
-.isStageResultsMeans <- function(stageResults) {
-	return(class(stageResults) == "StageResultsMeans")
-}
-
-.isStageResultsMeansMultiArm <- function(stageResults) {
+.isStageResultsMultiArmMeans <- function(stageResults) {
 	return(class(stageResults) == "StageResultsMultiArmMeans")
 }
 
-.isStageResultsRates <- function(stageResults) {
-	return(class(stageResults) == "StageResultsRates")
-}
-
-.isStageResultsRatesMultiArm <- function(stageResults) {
+.isStageResultsMultiArmRates <- function(stageResults) {
 	return(class(stageResults) == "StageResultsMultiArmRates")
 }
-.isStageResultsSurvival <- function(stageResults) {
-	return(class(stageResults) == "StageResultsSurvival")
-}
 
-.isStageResultsSurvivalMultiArm <- function(stageResults) {
+.isStageResultsMultiArmSurvival <- function(stageResults) {
 	return(class(stageResults) == "StageResultsMultiArmSurvival")
 }
 
 .assertIsStageResults <- function(stageResults) {
 	if (!.isStageResults(stageResults)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stageResults' must be an instance of ", 
-			.arrayToString(.getStageResultsClassNames(), vectorLookAndFeelEnabled = FALSE), 
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stageResults' must be a 'StageResults' object", 
 			" (is '", class(stageResults), "')")
 	}
 }
@@ -523,12 +506,12 @@
 	}
 	
 	if (!is.numeric(x) || (!naAllowed && is.na(x)) || (validateType && !is.integer(x)) || 
-			(!validateType && !is.na(x) && as.integer(x) != x)) {
+			(!validateType && !is.na(x) && !is.infinite(x) && as.integer(x) != x)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'", argumentName, "' (", ifelse(isS4(x), class(x), x), ") must be a ", prefix, "integer value")
 	}
 	
-	if (mustBePositive && !is.na(x) && x <= 0) {
+	if (mustBePositive && !is.na(x) && !is.infinite(x) && x <= 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'", argumentName, "' (", ifelse(isS4(x), class(x), x), ") must be a ", prefix, "integer value")
 	}
@@ -767,28 +750,11 @@
 	}
 }
 
-.assertIsValidKMax <- function(kMax, kMaxLowerBound = 1, kMaxUpperBound = C_KMAX_UPPER_BOUND) {
-	if (missing(kMax)) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'kMax' must be defined")
-	}
-	
-	if (is.null(kMax) || length(kMax) == 0 || sum(is.na(kMax)) > 0) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'kMax' is invalid")
-	}
-	
-	if (kMax == Inf || kMax == -Inf) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, 
-					"'kMax' (%s) is out of bounds [%s; %s]"), kMax, kMaxLowerBound, kMaxUpperBound))
-	}
-	
-	if (kMax != as.integer(kMax)) {
-		stop(sprintf(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"'kMax' (%s) must be a valid integer (is an instance of class '%s')", kMax, class(kMax)))
-	}
-	
-	if (kMax < kMaxLowerBound || kMax > kMaxUpperBound) {
-		stop(sprintf(paste0(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, 
-				"'kMax' (%s) is out of bounds [%s; %s]"), kMax, kMaxLowerBound, kMaxUpperBound))
+.assertIsValidKMax <- function(kMax, kMaxLowerBound = 1, kMaxUpperBound = C_KMAX_UPPER_BOUND, showWarnings = FALSE) {
+	.assertIsSingleInteger(kMax, "kMax", validateType = FALSE)
+	.assertIsInClosedInterval(kMax, "kMax", lower = kMaxLowerBound, upper = kMaxUpperBound)
+	if (showWarnings && kMax > 10) {
+		warning("The usage of 'kMax' (", kMax, ") > 10 is not validated", call. = FALSE)
 	}
 }
 
@@ -1167,7 +1133,7 @@
 		return(FALSE)
 	}
 	
-	return(sum(futilityBounds == C_FUTILITY_BOUNDS_DEFAULT) == 0)
+	return(sum(na.omit(futilityBounds) == C_FUTILITY_BOUNDS_DEFAULT) == 0)
 }
 
 .isTrialDesignWithValidAlpha0Vec <- function(design) {
@@ -1191,7 +1157,7 @@
 .assertPackageIsInstalled <- function(packageName) {
 	if (!requireNamespace(packageName, quietly = TRUE)) {
 		stop("Package \"", packageName, "\" is needed for this function to work. ", 
-			"Please install and load it", call. = FALSE)
+			"Please install using, e.g., install.packages(\"", packageName, "\")", call. = FALSE)
 	}
 }
 
@@ -1409,14 +1375,11 @@
 			results$.setParameterType("assumedStDev", C_PARAM_GENERATED)
 		}
 	}
-
 	.assertIsSingleNumber(assumedStDev, "assumedStDev")
-	
 	if (assumedStDev <= 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
 			"'assumedStDev' (", assumedStDev, ") must be > 0")
 	}
-	
 	invisible(assumedStDev)
 }
 
@@ -1427,22 +1390,22 @@
 			results$.setParameterType("thetaH1", C_PARAM_GENERATED)
 		}
 	}
-		
 	.assertIsNumericVector(thetaH1, "thetaH1", naAllowed = TRUE)
-	
 	invisible(thetaH1)
 }
-
 .assertIsValidAssumedStDevForMultiArm <- function(assumedStDev, stageResults = NULL, stage = NULL, ..., results = NULL) {
 	if (!is.null(stageResults) && all(is.na(assumedStDev)) && !is.null(stage)) {
-		assumedStDev <- stageResults$overallStDevs[, stage]
+		if (is.matrix(stageResults$overallStDevs)) {
+			assumedStDev <- stageResults$overallStDevs[, stage]
+		} else {
+			assumedStDev <- stageResults$overallPooledStDevs[stage]
+		}
+		
 		if (!is.null(results)) {
 			results$.setParameterType("assumedStDevs", C_PARAM_GENERATED)
 		}
 	}
-	
 	.assertIsNumericVector(assumedStDev, "assumedStDev", naAllowed = TRUE)
-	
 	if (any(assumedStDev <= 0, na.rm = TRUE)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
 				"'assumedStDev' (", .arrayToString(assumedStDev), ") must be > 0")
@@ -1465,7 +1428,7 @@
 
 .assertIsValidPiControlForMultiArm <- function(piControl, stageResults = NULL, stage = NULL, ..., results = NULL) {
 	if (is.na(piControl) && !is.null(stageResults) && !is.null(stage)) {
-		piControl <- stageResults$piControl[,stage]
+		piControl <- stageResults$piControl[, stage]
 		if (!is.null(results)) {
 			results$.setParameterType("piControl", C_PARAM_GENERATED)
 		}
@@ -1771,8 +1734,16 @@
 	return(grepl("MultiArm", class(stageResults)))
 }
 
+.isMultiHypothesesStageResults <- function(x) {
+	return(.isMultiArmStageResults(x))
+}
+
 .isMultiArmAnalysisResults <- function(analysisResults) {
 	return(inherits(analysisResults, "AnalysisResultsMultiArm"))
+}
+
+.isMultiHypothesesAnalysisResults <- function(x) {
+	return(.isMultiArmAnalysisResults(x))
 }
 
 .isMultiArmSimulationResults <- function(simulationResults) {
@@ -1822,22 +1793,22 @@
 	}
 }
 
-.isValidIntersectionTest <- function(intersectionTest) {
+.isValidIntersectionTestMultiArm <- function(intersectionTest) {
 	return(!is.null(intersectionTest) && length(intersectionTest) == 1 && !is.na(intersectionTest) && 
-		is.character(intersectionTest) && intersectionTest %in% C_INTERSECTION_TESTS)
+		is.character(intersectionTest) && intersectionTest %in% C_INTERSECTION_TESTS_MULTIARMED)
 }
 
-.getCorrectedIntersectionTestIfNecessary <- function(design, intersectionTest, userFunctionCallEnabled = TRUE) {
+.getCorrectedIntersectionTestMultiArmIfNecessary <- function(design, intersectionTest, userFunctionCallEnabled = TRUE) {
 	.assertIsCharacter(intersectionTest, "intersectionTest")
 	intersectionTest <- intersectionTest[1]
 	if (.isTrialDesignConditionalDunnett(design) && intersectionTest != "Dunnett") {
 		if (userFunctionCallEnabled) {
 			message <- paste0("Intersection test '", intersectionTest, "' ")
-			if (!.isValidIntersectionTest(intersectionTest)) {
+			if (!.isValidIntersectionTestMultiArm(intersectionTest)) {
 				message <- paste0(message, "is invalid, ")
 			}
 			message <- paste0(message, "will be ignored")
-			message <- paste0(message, ifelse(!.isValidIntersectionTest(intersectionTest), ", ", " "))
+			message <- paste0(message, ifelse(!.isValidIntersectionTestMultiArm(intersectionTest), ", ", " "))
 			message <- paste0(message, "and 'Dunnett' will be used instead ",
 				"because conditional Dunnett test was specified as design")
 			warning(message, call. = FALSE)
@@ -1847,14 +1818,14 @@
 	return(intersectionTest)
 }
 
-.assertIsValidIntersectionTest <- function(design, intersectionTest) {
+.assertIsValidIntersectionTestMultiArm <- function(design, intersectionTest) {
 	.assertIsCharacter(intersectionTest, "intersectionTest")
 	intersectionTest <- intersectionTest[1]
-	if (!.isValidIntersectionTest(intersectionTest)) {
+	if (!.isValidIntersectionTestMultiArm(intersectionTest)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'intersectionTest' (", intersectionTest, ") must be one of ",
-			.arrayToString(C_INTERSECTION_TESTS, encapsulate = TRUE))
+			.arrayToString(C_INTERSECTION_TESTS_MULTIARMED, encapsulate = TRUE))
 	}
-	if (.isTrialDesignConditionalDunnett(design) && intersectionTest != C_INTERSECTION_TEST_DUNNETT) {
+	if (.isTrialDesignConditionalDunnett(design) && intersectionTest != "Dunnett") {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "intersection test ('", intersectionTest, "') must be 'Dunnett' ",
 			"because conditional Dunnett test was specified as design")
 	}
@@ -1914,15 +1885,15 @@
 	}
 }
 
-.isValidVarianceOption <- function(varianceOption) {
+.isValidVarianceOptionMultiArmed <- function(varianceOption) {
 	return(!is.null(varianceOption) && length(varianceOption) == 1 && !is.na(varianceOption) && 
-			is.character(varianceOption) && varianceOption %in% C_VARIANCE_OPTIONS)
+			is.character(varianceOption) && varianceOption %in% C_VARIANCE_OPTIONS_MULTIARMED)
 }
 
-.assertIsValidVarianceOption <- function(design, varianceOption) {
-	if (!.isValidVarianceOption(varianceOption)) {
+.assertIsValidVarianceOptionMultiArmed <- function(design, varianceOption) {
+	if (!.isValidVarianceOptionMultiArmed(varianceOption)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'varianceOption' should be one of ",
-			.arrayToString(C_VARIANCE_OPTIONS, encapsulate = TRUE))
+			.arrayToString(C_VARIANCE_OPTIONS_MULTIARMED, encapsulate = TRUE))
 	}
 	if (.isTrialDesignConditionalDunnett(design) && varianceOption != C_VARIANCE_OPTION_DUNNETT) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -1998,7 +1969,7 @@
 	return(effectMeasure)
 }
 
-.assertIsValidMatrix <- function(x, argumentName, naAllowed = FALSE) {
+.assertIsValidMatrix <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
 	if (missing(x) || is.null(x) || length(x) == 0) {
 		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid matrix")
 	}
@@ -2015,6 +1986,11 @@
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
 			.arrayToString(x), ") must be a valid numeric matrix")
 	}
+	
+	if (!is.na(expectedNumberOfColumns) && ncol(x) != expectedNumberOfColumns) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+			.arrayToString(x), ") must be a numeric matrix with ", expectedNumberOfColumns, " columns")
+	}
 }
 
 .assertIsValidTypeOfShape <- function(typeOfShape) {
@@ -2030,7 +2006,7 @@
 .assertIsValidEffectMatrixMeans <- function(typeOfShape, effectMatrix, muMaxVector, gED50, gMax, slope) {
 	
 	if (typeOfShape == "userDefined") {
-		.assertIsValidMatrix(effectMatrix, "effectMatrix", naAllowed = FALSE)
+		.assertIsValidMatrix(effectMatrix, "effectMatrix", expectedNumberOfColumns = gMax, naAllowed = FALSE)
 		
 		.assertIsNumericVector(muMaxVector, "muMaxVector", naAllowed = TRUE)
 		if (!all(is.na(muMaxVector)) && !identical(muMaxVector, C_ALTERNATIVE_POWER_SIMULATION_DEFAULT)) {
@@ -2069,7 +2045,7 @@
 .assertIsValidEffectMatrixRates <- function(typeOfShape, effectMatrix, piMaxVector, piControl, gED50, gMax, slope) {
 	
 	if (typeOfShape == "userDefined") {
-		.assertIsValidMatrix(effectMatrix, "effectMatrix", naAllowed = FALSE)
+		.assertIsValidMatrix(effectMatrix, "effectMatrix", expectedNumberOfColumns = gMax, naAllowed = FALSE)
 		.assertIsInOpenInterval(effectMatrix, "effectMatrix", 0, 1, naAllowed = FALSE)
 		
 		.assertIsNumericVector(piMaxVector, "piMaxVector", naAllowed = TRUE)
@@ -2114,7 +2090,7 @@
 .assertIsValidEffectMatrixSurvival <- function(typeOfShape, effectMatrix, omegaMaxVector, gED50, gMax, slope) {
 	
 	if (typeOfShape == "userDefined") {
-		.assertIsValidMatrix(effectMatrix, "effectMatrix", naAllowed = FALSE)
+		.assertIsValidMatrix(effectMatrix, "effectMatrix", expectedNumberOfColumns = gMax, naAllowed = FALSE)
 		.assertIsInOpenInterval(effectMatrix, "effectMatrix", 0, NULL, naAllowed = FALSE)
 		
 		.assertIsNumericVector(omegaMaxVector, "omegaMaxVector", naAllowed = TRUE)

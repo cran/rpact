@@ -1,5 +1,5 @@
 #:#
-#:#  *Analysis of means in multi-armed designs with adaptive test*
+#:#  *Analysis of means in multi-arm designs with adaptive test*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3784 $
-#:#  Last changed: $Date: 2020-10-23 13:39:46 +0200 (Fr, 23 Okt 2020) $
+#:#  File version: $Revision: 4401 $
+#:#  Last changed: $Date: 2021-02-15 17:29:02 +0100 (Mo, 15 Feb 2021) $
 #:#  Last changed by: $Author: wassmer $
 #:# 
 
@@ -40,7 +40,7 @@
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT,
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT,
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		thetaH1 = NA_real_,	assumedStDevs = NA_real_, 
 		nPlanned = NA_real_, 
@@ -70,7 +70,7 @@
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT,
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT,
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		thetaH1 = NA_real_,	assumedStDevs = NA_real_,
 		nPlanned = NA_real_,		
@@ -104,7 +104,7 @@
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,		
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT,		
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT,		
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		thetaH1 = NA_real_,	assumedStDevs = NA_real_, 
 		nPlanned = NA_real_, 
@@ -138,7 +138,7 @@
 		
 	startTime <- Sys.time()
 	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest)
 	
 	stageResults <- .getStageResultsMeansMultiArm(design = design, dataInput = dataInput, 
 		intersectionTest = intersectionTest, stage = stage, 
@@ -165,7 +165,7 @@
 	.setValueAndParameterType(results, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
 	.setValueAndParameterType(results, "directionUpper", directionUpper, C_DIRECTION_UPPER_DEFAULT)
 	.setValueAndParameterType(results, "normalApproximation", normalApproximation, C_NORMAL_APPROXIMATION_MEANS_DEFAULT)
-	.setValueAndParameterType(results, "varianceOption", varianceOption, C_VARIANCE_OPTION_DEFAULT)
+	.setValueAndParameterType(results, "varianceOption", varianceOption, C_VARIANCE_OPTION_MULTIARMED_DEFAULT)
 	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	.setValueAndParameterType(results, "thetaH0", thetaH0, C_THETA_H0_MEANS_DEFAULT)
 	if (results$.getParameterType("thetaH1") == C_PARAM_TYPE_UNKNOWN) {
@@ -268,10 +268,8 @@
 	
 	# repeated p-value
 	if (design$kMax > 1) {	
-		startTime <- Sys.time()
 		results$repeatedPValues <- .getRepeatedPValuesMultiArm(stageResults = stageResults, tolerance = tolerance)	
 		results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
-		.logProgress("Repeated p-values calculated", startTime = startTime)
 	}
 
 	return(results)
@@ -281,7 +279,7 @@
 		thetaH0 = C_THETA_H0_MEANS_DEFAULT, 
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT,
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT,
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,
 		calculateSingleStepAdjusted = FALSE,
 		userFunctionCallEnabled = FALSE) {	
@@ -291,8 +289,7 @@
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.assertIsValidDirectionUpper(directionUpper, design$sided)
 	.assertIsSingleLogical(normalApproximation, "normalApproximation")
-	.assertIsValidVarianceOption(design, varianceOption)
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	.assertIsValidVarianceOptionMultiArmed(design, varianceOption)
 	.warnInCaseOfUnknownArguments(functionName = ".getStageResultsMeansMultiArm", 
 		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
 	
@@ -309,10 +306,8 @@
 			normalApproximation <- TRUE
 		}
 	}
-	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest, userFunctionCallEnabled)
-	
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest, userFunctionCallEnabled)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 	
 	stageResults <- StageResultsMultiArmMeans(
 		design = design,
@@ -589,12 +584,12 @@
 		design, dataInput,  
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT, 
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT, 
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT, 
 		firstParameterName) {
 	
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	stageResults <- .getStageResultsMeansMultiArm(design = design, dataInput = dataInput, 
 			stage = stage, thetaH0 = 0, directionUpper = directionUpper, 
@@ -801,7 +796,7 @@
 .getRepeatedConfidenceIntervalsMeansMultiArmInverseNormal <- function(..., 
 		design, dataInput, 
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT,  
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT,  
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
@@ -822,7 +817,7 @@
 .getRepeatedConfidenceIntervalsMeansMultiArmFisher <- function(..., 
 		design, dataInput,     
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT, 
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT, 
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
@@ -843,7 +838,7 @@
 .getRepeatedConfidenceIntervalsMeansMultiArmConditionalDunnett <- function(..., 
 		design, dataInput,     
 		normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT, 
-		varianceOption = C_VARIANCE_OPTION_DEFAULT, 
+		varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT, 
 		directionUpper = C_DIRECTION_UPPER_DEFAULT, 
 		intersectionTest = C_INTERSECTION_TEST_MULTIARMED_DEFAULT,
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {

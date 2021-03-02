@@ -14,7 +14,7 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
 #:#  File version: $Revision: 3700 $
-#:#  Last changed: $Date: 2020-09-25 16:28:28 +0200 (Fr, 25 Sep 2020) $
+#:#  Last changed: $Date: 2020-09-25 16:28:28 +0200 (Fri, 25 Sep 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -25,8 +25,7 @@
 #' @description
 #' rpact (R Package for Adaptive Clinical Trials) is a comprehensive package that enables 
 #' the design and analysis of confirmatory adaptive group sequential designs. 
-#' Particularly, the methods described in the recent 
-#' \href{https://doi.org/10.1007/978-3-319-32562-0}{monograph by Wassmer and Brannath} 
+#' Particularly, the methods described in the recent monograph by Wassmer and Brannath  
 #' (published by Springer, 2016) are implemented. It also comprises advanced methods for sample
 #' size calculations for fixed sample size designs incl., e.g., sample size calculation for survival
 #' trials with piecewise exponentially distributed survival times and staggered patients entry. 
@@ -59,7 +58,7 @@
 #' 
 #' @references 
 #' Wassmer, G., Brannath, W. (2016) Group Sequential and Confirmatory Adaptive Designs 
-#' in Clinical Trials (Springer Series in Pharmaceutical Statistics) <\href{https://doi.org/10.1007/978-3-319-32562-0}{doi:10.1007/978-3-319-32562-0}>
+#' in Clinical Trials (Springer Series in Pharmaceutical Statistics) <\doi{10.1007/978-3-319-32562-0}>
 #' 
 #' @docType package
 #' @author Gernot Wassmer, Friedrich Pahlke 
@@ -82,10 +81,6 @@
 .onAttach <- function(libname, pkgname) {
 	if (grepl("^\\d\\.\\d\\.\\d\\.\\d{4,4}$", packageVersion("rpact"))) {
 		packageStartupMessage(paste0("rpact developer version ", packageVersion("rpact"), " loaded"))
-		if (!is.loaded("R_getDensityValues", PACKAGE = "rpact", type = "Call")) {
-			warning("Cannot execute .Call(\"R_getDensityValues\") in rpact:::.getDnormValues() ",
-				"because C function was not found in lookup table")
-		}
 	}
 }
 

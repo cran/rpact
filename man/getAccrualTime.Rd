@@ -8,8 +8,8 @@ getAccrualTime(
   accrualTime = NA_real_,
   ...,
   accrualIntensity = NA_real_,
-  maxNumberOfSubjects = NA_real_,
-  accrualIntensityType = c("auto", "absolute", "relative")
+  accrualIntensityType = c("auto", "absolute", "relative"),
+  maxNumberOfSubjects = NA_real_
 )
 }
 \arguments{
@@ -22,11 +22,11 @@ that a warning will be displayed if unknown arguments are passed.}
 \item{accrualIntensity}{A vector of accrual intensities, default is the relative 
 intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
 
-\item{maxNumberOfSubjects}{The maximum number of subjects.}
-
 \item{accrualIntensityType}{A character value specifying the accrual intensity input type.
 Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
 i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.}
+
+\item{maxNumberOfSubjects}{The maximum number of subjects.}
 }
 \value{
 Returns an \code{\link{AccrualTime}} object.
@@ -43,7 +43,7 @@ The following generics (R generic functions) are available for this result objec
 \description{
 Returns an \code{AccrualTime} object that contains the accrual time and the accrual intensity.
 }
-\section{Piecewise accrual}{
+\section{Staggered patient entry}{
 
 \code{accrualTime} is the time period of subjects' accrual in a study. 
 It can be a value that defines the end of accrual or a vector.

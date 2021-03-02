@@ -6,6 +6,7 @@
 \arguments{
 \item{typeOfDesign}{The type of design. Type of design is one of the following: 
 O'Brien & Fleming (\code{"OF"}), Pocock (\code{"P"}), Wang & Tsiatis Delta class (\code{"WT"}), 
+Pamapallona & Tsiatis (\code{"PT"}),
 Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
 O'Brien & Fleming type alpha spending (\code{"asOF"}), Pocock type alpha spending (\code{"asP"}), 
 Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending (\code{"asHSD"}), 

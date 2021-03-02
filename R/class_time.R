@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4051 $
-#:#  Last changed: $Date: 2020-11-30 14:42:18 +0100 (Mo, 30 Nov 2020) $
+#:#  File version: $Revision: 4166 $
+#:#  Last changed: $Date: 2021-01-05 13:42:19 +0100 (Tue, 05 Jan 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -252,10 +252,8 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 #' 
 #' @inheritParams param_accrualTime
 #' @inheritParams param_accrualIntensity
+#' @inheritParams param_accrualIntensityType
 #' @param maxNumberOfSubjects The maximum number of subjects.
-#' @param accrualIntensityType A character value specifying the accrual intensity input type.
-#'        Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
-#'        i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.
 #' @inheritParams param_three_dots
 #' 
 #' @template details_piecewise_accrual
@@ -280,9 +278,9 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 #' 
 getAccrualTime <- function(accrualTime = NA_real_, 
 		...,
-		accrualIntensity = NA_real_, 
-		maxNumberOfSubjects = NA_real_,
-		accrualIntensityType = c("auto", "absolute", "relative")) {
+		accrualIntensity = NA_real_,
+		accrualIntensityType = c("auto", "absolute", "relative"), 
+		maxNumberOfSubjects = NA_real_) {
 	
 	.warnInCaseOfUnknownArguments(functionName = "getAccrualTime", ..., 
 		ignore = c("showWarnings"))

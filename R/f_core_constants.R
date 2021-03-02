@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4060 $
-#:#  Last changed: $Date: 2020-12-01 09:53:32 +0100 (Tue, 01 Dec 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4391 $
+#:#  Last changed: $Date: 2021-02-12 15:23:10 +0100 (Fr, 12 Feb 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 C_LOG_LEVEL_TRACE <- "TRACE"
@@ -48,7 +48,7 @@ C_ALPHA_DEFAULT <- 0.025
 C_BETA_DEFAULT <- 0.2
 C_SIDED_DEFAULT <- 1L
 C_KMAX_DEFAULT <- 3L 
-C_KMAX_UPPER_BOUND <- 10L
+C_KMAX_UPPER_BOUND <- 20L
 C_KMAX_UPPER_BOUND_FISHER <- 6L
 
 C_NA_MAX_DEFAULT <- 100L
@@ -104,19 +104,19 @@ C_DIRECTION_LOWER = "lower"
 C_DIRECTION_UPPER = "upper"
 
 # 
-# Constants used in 'f_analysis_multiarm'
+# Constants used in 'f_analysis_multiarm' 
 # 
-C_INTERSECTION_TEST_DUNNETT <- "Dunnett"
 C_INTERSECTION_TEST_MULTIARMED_DEFAULT <- "Dunnett"
-C_VARIANCE_OPTION_DUNNETT <- "overallPooled" 
-C_VARIANCE_OPTION_DEFAULT <- "overallPooled" 
-C_VARIANCE_OPTIONS <- c("overallPooled", "pairwisePooled", "notPooled") 
-C_INTERSECTION_TESTS <- c(
+C_INTERSECTION_TESTS_MULTIARMED <- c(
 	"Bonferroni",
 	"Simes",
 	"Sidak",
 	"Dunnett",
 	"Hierarchical")
+C_VARIANCE_OPTION_DUNNETT <- "overallPooled" 
+C_VARIANCE_OPTION_MULTIARMED_DEFAULT <- "overallPooled" 
+C_VARIANCE_OPTIONS_MULTIARMED <- c("overallPooled", "pairwisePooled", "notPooled") 
+C_STRATIFIED_ANALYSIS_DEFAULT <- TRUE
 
 # 
 # Constants used in 'parameters.R'
@@ -189,6 +189,7 @@ C_STDEV_DEFAULT <- 1
 C_TYPE_OF_DESIGN_OF <- "OF" # O'Brien & Fleming
 C_TYPE_OF_DESIGN_P <- "P"   # Pocock, 
 C_TYPE_OF_DESIGN_WT <- "WT" # Wang & Tsiatis Delta class
+C_TYPE_OF_DESIGN_PT <- "PT" # Pampallona & Tsiatis class
 C_TYPE_OF_DESIGN_HP <- "HP" # Haybittle & Peto
 C_TYPE_OF_DESIGN_WT_OPTIMUM <- "WToptimum" # Optimum design within Wang & Tsiatis class
 C_TYPE_OF_DESIGN_AS_P <- "asP"      # Pocock type alpha spending
@@ -202,6 +203,7 @@ C_TYPE_OF_DESIGN_LIST <- list(
 	"OF" = "O'Brien & Fleming", 
 	"P" = "Pocock", 
 	"WT" = "Wang & Tsiatis Delta class", 
+	"PT" = "Pampallona & Tsiatis class",
 	"HP" = "Haybittle & Peto", 
 	"WToptimum" = "Optimum design within Wang & Tsiatis class", 
 	"asP" = "Pocock type alpha spending", 
@@ -220,6 +222,7 @@ C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD <- "Conditional power / Likelihood
 		C_TYPE_OF_DESIGN_OF,
 		C_TYPE_OF_DESIGN_P,
 		C_TYPE_OF_DESIGN_WT,
+		C_TYPE_OF_DESIGN_PT,
 		C_TYPE_OF_DESIGN_HP,
 		C_TYPE_OF_DESIGN_WT_OPTIMUM,
 		C_TYPE_OF_DESIGN_AS_P,
@@ -258,6 +261,15 @@ C_TYPE_OF_DESIGN_BS_OF <- "bsOF"     # O'Brien & Fleming type beta spending
 C_TYPE_OF_DESIGN_BS_KD <- "bsKD"     # Kim & DeMets beta spending
 C_TYPE_OF_DESIGN_BS_HSD <- "bsHSD"   # Hwang, Shi & DeCani beta spending
 C_TYPE_OF_DESIGN_BS_USER <- "bsUser" # user defined beta spending
+
+C_TYPE_OF_DESIGN_BS_LIST <- list(
+	"none" = "none",
+	"bsP" = "Pocock type beta spending", 
+	"bsOF" = "O'Brien & Fleming type beta spending", 
+	"bsKD" = "Kim & DeMets beta spending", 
+	"bsHSD" = "Hwang, Shi & DeCani beta spending", 
+	"bsUser" = "user defined beta spending"
+)
 
 .getBetaSpendingDesignTypes <- function() {
 	return(c(
@@ -384,6 +396,8 @@ C_PARAMETER_NAMES <- list(
 	futilityBoundsNonBinding = "Futility bounds (non-binding)",
 	typeOfDesign = "Type of design",
 	deltaWT = "Delta for Wang & Tsiatis Delta class",
+	deltaPT0 = "Delta0 for Pampallona & Tsiatis class", 
+	deltaPT1 = "Delta1 for Pampallona & Tsiatis class", 
 	optimizationCriterion = "Optimization criterion for optimum design within Wang & Tsiatis class",
 	gammaA = "Parameter for alpha spending function",
 	gammaB = "Parameter for beta spending function",
@@ -418,8 +432,9 @@ C_PARAMETER_NAMES <- list(
 	pi2H1 = "pi(2) under H1",
 	nPlanned = "Planned sample size",
 	
-	piControl = "Control rate",
-	piTreatments = "Treatment rate",
+	piControl = "Assumed control rate",
+	piControls = "Assumed control rate",
+	piTreatments = "Assumed treatment rate",
 	effectSizes = "Overall effect sizes",
 	testStatistics = "Test statistics",
 	pValues = "p-values",
@@ -550,6 +565,8 @@ C_PARAMETER_NAMES <- list(
 	criticalValuesPValueScale = "Local one-sided significance levels",
 	".design$stageLevels" = "Local one-sided significance levels",
 	futilityBoundsEffectScale = "Futility bounds (treatment effect scale)",
+	futilityBoundsEffectScaleLower = "Lower futility bounds (treatment effect scale)",
+	futilityBoundsEffectScaleUpper = "Upper futility bounds (treatment effect scale)",
 	futilityBoundsPValueScale = "Futility bounds (1-sided p-value scale)",
 	
 	analysisTime = "Analysis time",
@@ -713,6 +730,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	futilityBoundsNonBinding = "Futility bound (non-binding)",
 	typeOfDesign = "Type of design",
 	deltaWT = "Delta (Wang & Tsiatis)",
+	deltaPT0 = "Delta0 (Pampallona & Tsiatis)", 
+	deltaPT1 = "Delta1 (Pampallona & Tsiatis)", 
 	optimizationCriterion = "Optimization criterion (Wang & Tsiatis)",
 	gammaA = "Parameter for alpha spending function",
 	gammaB = "Parameter for beta spending function",
@@ -748,8 +767,9 @@ C_TABLE_COLUMN_NAMES <- list(
 	pi2H1 = "pi(2) under H1",
 	nPlanned = "Planned sample size",
 	
-	piControl = "Control rate",
-	piTreatments = "Treatment rate",
+	piControl = "Assumed control rate",
+	piControls = "Assumed control rate",
+	piTreatments = "Assumed treatment rate",
 	stages = "Stage",
 	effectSizes = "Overall effect size",
 	testStatistics = "Test statistic",
@@ -881,6 +901,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	criticalValuesPValueScale = "Local one-sided significance level",
 	".design$stageLevels" = "Local one-sided significance level",
 	futilityBoundsEffectScale = "Futility bound (treatment effect scale)",
+	futilityBoundsEffectScaleLower = "Lower futility bound (treatment effect scale)",
+	futilityBoundsEffectScaleUpper = "Upper futility bound (treatment effect scale)",
 	futilityBoundsPValueScale = "Futility bound (1-sided p-value scale)",
 	
 	delayedResponseAllowed = "Delayed response allowed",
@@ -1139,6 +1161,8 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	criticalValuesEffectScaleUpper = ".formatCriticalValues",
 	criticalValuesPValueScale = ".formatProbabilities",
 	futilityBoundsEffectScale = ".formatCriticalValues",
+	futilityBoundsEffectScaleLower = ".formatCriticalValues",
+	futilityBoundsEffectScaleUpper = ".formatCriticalValues",
 	futilityBoundsPValueScale = ".formatProbabilities",
 	
 	median1 = ".formatRatesDynamic",
@@ -1166,6 +1190,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	userBetaSpending = ".formatHowItIs",
 	
 	piControl = ".formatRates",
+	piControls = ".formatRates",
 	piTreatments = ".formatRates",
 	
 	adjustedStageWisePValues = ".formatPValues",

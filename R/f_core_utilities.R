@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4062 $
-#:#  Last changed: $Date: 2020-12-01 12:21:16 +0100 (Tue, 01 Dec 2020) $
+#:#  File version: $Revision: 4443 $
+#:#  Last changed: $Date: 2021-02-22 09:13:17 +0100 (Mon, 22 Feb 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -230,6 +230,7 @@ resetLogLevel <- function() {
 	s[s %in% wordsToExclude] <- tolower(s[s %in% wordsToExclude])
 	s <- paste(s, collapse = " ")
 	s <- sub("non\\-binding", "Non-Binding", s)
+	s <- sub("binding", "Binding", s)
 	return(s)
 }
 
@@ -850,15 +851,22 @@ resetLogLevel <- function() {
 	}
 }
 
-.logProgress <- function(s, ..., startTime) {
+.logProgress <- function(s, ..., startTime, runtimeUnits = c("secs", "auto")) {
 	if (!(getLogLevel() %in% c(C_LOG_LEVEL_TRACE, C_LOG_LEVEL_DEBUG, 
 			C_LOG_LEVEL_INFO, C_LOG_LEVEL_WARN, 
 			C_LOG_LEVEL_ERROR, C_LOG_LEVEL_PROGRESS))) {
 		return(invisible())
 	}
 	
-	time <- Sys.time() - startTime	
-	timeStr <- paste0("[", round(as.numeric(time), 4), " secs]")
+	runtimeUnits <- match.arg(runtimeUnits)
+	if (runtimeUnits == "secs") {
+		time <- as.numeric(difftime(Sys.time(), startTime, units = "secs"))
+		time <- round(time, ifelse(time < 1, 4, 2))
+		timeStr <- paste0("[", time, " secs]")
+	} else {
+		time <- format(difftime(Sys.time(), startTime))
+		timeStr <- paste0("[", time, "]")
+	}
 	if (length(list(...)) > 0) {
 		cat(paste0("[", C_LOG_LEVEL_PROGRESS, "]"), sprintf(s, ...), timeStr, "\n")
 	} else {
@@ -1052,6 +1060,7 @@ testPackage <- function(outDir = ".", ..., completeUnitTestSetEnabled = TRUE,
 		types = "tests", sourceDirectory = NULL) {
 	
 	.assertTestthatIsInstalled()
+	.assertMnormtIsInstalled()
 		
 	if (!dir.exists(outDir)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -1449,4 +1458,34 @@ getParameterName <- function(obj, parameterCaption) {
 	return(array(data = subData, dim = dataDim))
 }
 
-
+.moveColumn <- function(data, columnName, insertPositionColumnName) {
+	if (!is.data.frame(data)) {
+		stop("Illegal argument: 'data' (", class(data), ") must be a data.frame")
+	}
+	if (is.null(insertPositionColumnName) || length(insertPositionColumnName) != 1 || 
+			is.na(insertPositionColumnName) || !is.character(insertPositionColumnName)) {
+		stop("Illegal argument: 'insertPositionColumnName' (", class(insertPositionColumnName), ") must be a valid character value")
+	}
+	if (is.null(columnName) || length(columnName) != 1 || is.na(columnName) || !is.character(columnName)) {
+		stop("Illegal argument: 'columnName' (", class(columnName), ") must be a valid character value")
+	}
+	
+	colNames <- colnames(data)
+	if (!(columnName %in% colNames)) {
+		stop("Illegal argument: 'columnName' (", columnName, ") does not exist in the specified data.frame 'data'")
+	}
+	if (!(insertPositionColumnName %in% colNames)) {
+		stop("Illegal argument: 'insertPositionColumnName' (", insertPositionColumnName, 
+				") does not exist in the specified data.frame 'data'")
+	}
+	if (columnName == insertPositionColumnName) {
+		return(data)
+	}
+	
+	colNames <- colNames[colNames != columnName]
+	insertPositioIndex <- which(colNames == insertPositionColumnName)
+	if (insertPositioIndex != (which(colnames(data) == columnName) - 1)) {
+		data <- data[, c(colNames[1:insertPositioIndex], columnName, colNames[(insertPositioIndex + 1):length(colNames)])]
+	}
+	return(data)
+}

@@ -14,7 +14,7 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_design_group_sequential.R
-#:#  Creation date: 09 November 2020, 11:48:29
+#:#  Creation date: 05 January 2021, 10:21:15
 #:#  File version: $Revision$
 #:#  Last changed: $Date$
 #:#  Last changed by: $Author$
@@ -230,8 +230,7 @@ test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsP'", {
 	# @refFS[Formula]{fs:betaSpendingApproach}
 	# @refFS[Formula]{fs:betaSpendingPocock}
 	x7 <- getDesignGroupSequential(kMax = 3, alpha = 0.03, 
-			typeOfDesign = "asOF", typeBetaSpending = "bsP",
-			userBetaSpending = c(0.01, 0.05, 0.3))
+			typeOfDesign = "asOF", typeBetaSpending = "bsP")
 
 	## Comparison of the results of TrialDesignGroupSequential object 'x7' with expected results
 	expect_equal(x7$power, c(0.03410434, 0.52267986, 0.8), tolerance = 1e-07)
@@ -291,6 +290,69 @@ test_that("'getDesignGroupSequential' with Haybittle Peto boundaries ", {
 	    expect_output(summary(x9)$show())
 	}
 
+})
+
+test_that("'getDesignGroupSequential' with Pampallona Tsiatis boundaries ", {
+
+	.skipTestIfDisabled()
+	
+	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
+	# @refFS[Formula]{fs:criticalValuesPampallonaTiatis}
+	x10 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, typeOfDesign = "HP")
+	
+	## Comparison of the results of TrialDesignGroupSequential object 'x10' with expected results
+	expect_equal(x10$power, c(0.19834666, 0.83001122, 0.9), tolerance = 1e-07)
+	expect_equal(x10$futilityBounds, c(-0.042079544, 1.4407359), tolerance = 1e-07)
+	expect_equal(x10$alphaSpent, c(0.0038332427, 0.024917168, 0.03499999), tolerance = 1e-07)
+	expect_equal(x10$betaSpent, c(0.031375368, 0.08073415, 0.1), tolerance = 1e-07)
+	expect_equal(x10$criticalValues, c(2.6664156, 1.9867225, 1.8580792), tolerance = 1e-07)
+	expect_equal(x10$stageLevels, c(0.0038332427, 0.023476576, 0.031578885), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+		invisible(capture.output(expect_error(print(x10), NA)))
+		expect_output(print(x10)$show())
+		invisible(capture.output(expect_error(summary(x10), NA)))
+		expect_output(summary(x10)$show())
+	}
+	
+	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
+	# @refFS[Formula]{fs:criticalValuesPampallonaTiatis}
+	x11 <- getDesignGroupSequential(kMax = 3, alpha = 0.035, beta = 0.05,  
+		informationRates = c(0.3, 0.8, 1), typeOfDesign = "PT", sided = 2, 
+		bindingFutility = TRUE, deltaPT1 = 0.2, deltaPT0 = 0.3)
+	
+	## Comparison of the results of TrialDesignGroupSequential object 'x11' with expected results
+	expect_equal(x11$power, c(0.16615376, 0.88013007, 0.94999991), tolerance = 1e-07)
+	expect_equal(x11$futilityBounds, c(NA_real_, 1.671433), tolerance = 1e-07)
+	expect_equal(x11$alphaSpent, c(0.0019236202, 0.022017713, 0.035), tolerance = 1e-07)
+	expect_equal(x11$betaSpent, c(0, 0.035025978, 0.05), tolerance = 1e-07)
+	expect_equal(x11$criticalValues, c(3.1017782, 2.3111074, 2.1614596), tolerance = 1e-07)
+	expect_equal(x11$stageLevels, c(0.00096181011, 0.010413463, 0.015329928), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+		invisible(capture.output(expect_error(print(x11), NA)))
+		expect_output(print(x11)$show())
+		invisible(capture.output(expect_error(summary(x11), NA)))
+		expect_output(summary(x11)$show())
+	}
+	
+	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
+	# @refFS[Formula]{fs:criticalValuesPampallonaTiatis}		
+	x12 <- getDesignGroupSequential(kMax = 3, alpha = 0.035, beta = 0.05,  
+		informationRates = c(0.3, 0.8, 1), typeOfDesign = "PT", sided = 2, 
+		bindingFutility = FALSE, deltaPT1 = 0.2, deltaPT0 = 0.3)
+	
+	## Comparison of the results of TrialDesignGroupSequential object 'x12' with expected results
+	expect_equal(x12$power, c(0.15712277, 0.87874666, 0.94999995), tolerance = 1e-07)
+	expect_equal(x12$futilityBounds, c(NA_real_, 1.7090472), tolerance = 1e-07)
+	expect_equal(x12$alphaSpent, c(0.0015647741, 0.01943585, 0.03499999), tolerance = 1e-07)
+	expect_equal(x12$betaSpent, c(0, 0.034947415, 0.05), tolerance = 1e-07)
+	expect_equal(x12$criticalValues, c(3.1623945, 2.356272, 2.2036998), tolerance = 1e-07)
+	expect_equal(x12$stageLevels, c(0.00078238706, 0.0092296969, 0.013772733), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+		invisible(capture.output(expect_error(print(x12), NA)))
+		expect_output(print(x12)$show())
+		invisible(capture.output(expect_error(summary(x12), NA)))
+		expect_output(summary(x12)$show())
+	}
 })
 
 test_that("'getDesignInverseNormal': illegal arguments throw exceptions as expected", {
@@ -360,29 +422,29 @@ test_that("'getDesignInverseNormal': illegal arguments throw exceptions as expec
 		paste0("Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; ",  
 			C_KMAX_UPPER_BOUND, "]"), fixed = TRUE)
 
-	expect_error(getDesignInverseNormal(kMax = -Inf), "Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -10), "Argument out of bounds: 'kMax' (-10) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -9), "Argument out of bounds: 'kMax' (-9) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -8), "Argument out of bounds: 'kMax' (-8) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -7), "Argument out of bounds: 'kMax' (-7) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -6), "Argument out of bounds: 'kMax' (-6) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -5), "Argument out of bounds: 'kMax' (-5) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -4), "Argument out of bounds: 'kMax' (-4) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -3), "Argument out of bounds: 'kMax' (-3) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -2), "Argument out of bounds: 'kMax' (-2) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -1), "Argument out of bounds: 'kMax' (-1) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 0), "Argument out of bounds: 'kMax' (0) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 11), "Argument out of bounds: 'kMax' (11) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 12), "Argument out of bounds: 'kMax' (12) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 13), "Argument out of bounds: 'kMax' (13) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 14), "Argument out of bounds: 'kMax' (14) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 15), "Argument out of bounds: 'kMax' (15) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 16), "Argument out of bounds: 'kMax' (16) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 17), "Argument out of bounds: 'kMax' (17) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 18), "Argument out of bounds: 'kMax' (18) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 19), "Argument out of bounds: 'kMax' (19) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 20), "Argument out of bounds: 'kMax' (20) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = Inf), "Argument out of bounds: 'kMax' (Inf) is out of bounds [1; 10]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -Inf), "Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -10), "Argument out of bounds: 'kMax' (-10) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -9), "Argument out of bounds: 'kMax' (-9) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -8), "Argument out of bounds: 'kMax' (-8) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -7), "Argument out of bounds: 'kMax' (-7) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -6), "Argument out of bounds: 'kMax' (-6) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -5), "Argument out of bounds: 'kMax' (-5) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -4), "Argument out of bounds: 'kMax' (-4) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -3), "Argument out of bounds: 'kMax' (-3) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -2), "Argument out of bounds: 'kMax' (-2) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -1), "Argument out of bounds: 'kMax' (-1) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 0), "Argument out of bounds: 'kMax' (0) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 21), "Argument out of bounds: 'kMax' (21) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 22), "Argument out of bounds: 'kMax' (22) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 23), "Argument out of bounds: 'kMax' (23) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 24), "Argument out of bounds: 'kMax' (24) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 25), "Argument out of bounds: 'kMax' (25) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 26), "Argument out of bounds: 'kMax' (26) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 27), "Argument out of bounds: 'kMax' (27) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 28), "Argument out of bounds: 'kMax' (28) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 29), "Argument out of bounds: 'kMax' (29) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 30), "Argument out of bounds: 'kMax' (30) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = Inf), "Argument out of bounds: 'kMax' (Inf) is out of bounds [1; 20]", fixed = TRUE)
 
 	expect_error(getDesignInverseNormal(kMax = 2, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (2) - 1", fixed = TRUE)
 	expect_error(getDesignInverseNormal(kMax = 3, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (3) - 1", fixed = TRUE)
@@ -392,6 +454,16 @@ test_that("'getDesignInverseNormal': illegal arguments throw exceptions as expec
 	expect_error(getDesignInverseNormal(kMax = 8, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (8) - 1", fixed = TRUE)
 	expect_error(getDesignInverseNormal(kMax = 9, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (9) - 1", fixed = TRUE)
 	expect_error(getDesignInverseNormal(kMax = 10, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (10) - 1", fixed = TRUE)
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 11, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (11) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 12, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (12) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 13, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (13) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 14, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (14) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 15, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (15) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 16, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (16) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 17, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (17) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 18, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (18) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 19, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (19) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 20, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (20) - 1", fixed = TRUE))
 
 	expect_error(getDesignInverseNormal(futilityBounds = c(-7, 5)), 
 		"Argument out of bounds: 'futilityBounds' (-7, 5) is out of bounds [-6; 6]", fixed = TRUE)
@@ -472,29 +544,29 @@ test_that("'getDesignGroupSequential': illegal arguments throw exceptions as exp
 		paste0("Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; ",  
 			C_KMAX_UPPER_BOUND, "]"), fixed = TRUE)
 
-	expect_error(getDesignInverseNormal(kMax = -Inf), "Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -10), "Argument out of bounds: 'kMax' (-10) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -9), "Argument out of bounds: 'kMax' (-9) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -8), "Argument out of bounds: 'kMax' (-8) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -7), "Argument out of bounds: 'kMax' (-7) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -6), "Argument out of bounds: 'kMax' (-6) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -5), "Argument out of bounds: 'kMax' (-5) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -4), "Argument out of bounds: 'kMax' (-4) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -3), "Argument out of bounds: 'kMax' (-3) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -2), "Argument out of bounds: 'kMax' (-2) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = -1), "Argument out of bounds: 'kMax' (-1) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 0), "Argument out of bounds: 'kMax' (0) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 11), "Argument out of bounds: 'kMax' (11) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 12), "Argument out of bounds: 'kMax' (12) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 13), "Argument out of bounds: 'kMax' (13) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 14), "Argument out of bounds: 'kMax' (14) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 15), "Argument out of bounds: 'kMax' (15) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 16), "Argument out of bounds: 'kMax' (16) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 17), "Argument out of bounds: 'kMax' (17) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 18), "Argument out of bounds: 'kMax' (18) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 19), "Argument out of bounds: 'kMax' (19) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = 20), "Argument out of bounds: 'kMax' (20) is out of bounds [1; 10]", fixed = TRUE)
-	expect_error(getDesignInverseNormal(kMax = Inf), "Argument out of bounds: 'kMax' (Inf) is out of bounds [1; 10]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -Inf), "Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -10), "Argument out of bounds: 'kMax' (-10) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -9), "Argument out of bounds: 'kMax' (-9) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -8), "Argument out of bounds: 'kMax' (-8) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -7), "Argument out of bounds: 'kMax' (-7) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -6), "Argument out of bounds: 'kMax' (-6) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -5), "Argument out of bounds: 'kMax' (-5) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -4), "Argument out of bounds: 'kMax' (-4) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -3), "Argument out of bounds: 'kMax' (-3) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -2), "Argument out of bounds: 'kMax' (-2) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = -1), "Argument out of bounds: 'kMax' (-1) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 0), "Argument out of bounds: 'kMax' (0) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 21), "Argument out of bounds: 'kMax' (21) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 22), "Argument out of bounds: 'kMax' (22) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 23), "Argument out of bounds: 'kMax' (23) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 24), "Argument out of bounds: 'kMax' (24) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 25), "Argument out of bounds: 'kMax' (25) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 26), "Argument out of bounds: 'kMax' (26) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 27), "Argument out of bounds: 'kMax' (27) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 28), "Argument out of bounds: 'kMax' (28) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 29), "Argument out of bounds: 'kMax' (29) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = 30), "Argument out of bounds: 'kMax' (30) is out of bounds [1; 20]", fixed = TRUE)
+	expect_error(getDesignInverseNormal(kMax = Inf), "Argument out of bounds: 'kMax' (Inf) is out of bounds [1; 20]", fixed = TRUE)
 
 	expect_error(getDesignInverseNormal(kMax = 2, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (2) - 1", fixed = TRUE)
 	expect_error(getDesignInverseNormal(kMax = 3, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (3) - 1", fixed = TRUE)
@@ -504,6 +576,16 @@ test_that("'getDesignGroupSequential': illegal arguments throw exceptions as exp
 	expect_error(getDesignInverseNormal(kMax = 8, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (8) - 1", fixed = TRUE)
 	expect_error(getDesignInverseNormal(kMax = 9, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (9) - 1", fixed = TRUE)
 	expect_error(getDesignInverseNormal(kMax = 10, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (10) - 1", fixed = TRUE)
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 11, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (11) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 12, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (12) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 13, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (13) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 14, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (14) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 15, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (15) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 16, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (16) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 17, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (17) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 18, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (18) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 19, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (19) - 1", fixed = TRUE))
+	expect_warning(expect_error(getDesignInverseNormal(kMax = 20, futilityBounds = c(0, 0, 1, 2)), "Conflicting arguments: length of 'futilityBounds' (4) must be equal to 'kMax' (20) - 1", fixed = TRUE))
 
 	expect_error(getDesignGroupSequential(futilityBounds = c(-7, 5)), 
 		"Argument out of bounds: 'futilityBounds' (-7, 5) is out of bounds [-6; 6]", fixed = TRUE)

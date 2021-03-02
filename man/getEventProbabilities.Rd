@@ -9,6 +9,7 @@ getEventProbabilities(
   ...,
   accrualTime = c(0L, 12L),
   accrualIntensity = 0.1,
+  accrualIntensityType = c("auto", "absolute", "relative"),
   kappa = 1,
   piecewiseSurvivalTime = NA_real_,
   lambda2 = NA_real_,
@@ -33,15 +34,19 @@ that a warning will be displayed if unknown arguments are passed.}
 \item{accrualIntensity}{A vector of accrual intensities, default is the relative 
 intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
 
-\item{kappa}{A numeric value >= 0. A \code{kappa != 1} will be used for the specification 
+\item{accrualIntensityType}{A character value specifying the accrual intensity input type.
+Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
+i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.}
+
+\item{kappa}{A numeric value > 0. A \code{kappa != 1} will be used for the specification 
 of the shape of the Weibull distribution. 
 Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 Note that the Weibull distribution cannot be used for the piecewise definition of 
-the survival time distribution, i.e., only \code{lambda} and \code{kappa} need to be specified.
+the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
+   can be specified.
 This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
-of the \code{stats} package, i.e., 
-the scale parameter is \code{1 / 'hazard rate'}.\cr
-For example, \cr
+of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
+For example, 
 \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)} 
 and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
 

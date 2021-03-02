@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3977 $
-#:#  Last changed: $Date: 2020-11-20 12:21:54 +0100 (Fri, 20 Nov 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4435 $
+#:#  Last changed: $Date: 2021-02-18 11:57:34 +0100 (Thu, 18 Feb 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' @title
@@ -148,7 +148,7 @@ getAnalysisResults <- function(
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design, stage = stage, showWarnings = TRUE)
 	.assertIsValidDirectionUpper(directionUpper, sided = design$sided)
 	.assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
-		on.exit(dataInput$.trim())
+	on.exit(dataInput$.trim())
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.assertAreSuitableInformationRates(design, dataInput, stage = stage)
 	.assertIsValidNPlanned(nPlanned, design$kMax, stage, required = FALSE)
@@ -658,7 +658,7 @@ getConditionalPower <- function(stageResults, ..., nPlanned,
 .getConditionalPowerPlot <- function(..., 
 		stageResults, nPlanned, allocationRatioPlanned = NA_real_) {
 		
-	if (stageResults$.isMultiArm()) {
+	if (.isMultiArmStageResults(stageResults)) {
 		return(.getConditionalPowerPlotMultiArm(stageResults = stageResults,
 			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...))
 	}
@@ -1245,6 +1245,24 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 	design <- stageResults$.design
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
+		warning("Repeated p-values not available for 'typeOfDesign' = '", 
+				C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
+		return(repeatedPValues)
+	}
+	
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
+		message("Repeated p-values for 'typeOfDesign' = '", 
+				C_TYPE_OF_DESIGN_HP, "' will only be calculated for the final stage")
+		return(repeatedPValues)
+	}
+	
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
+		warning("Repeated p-values not available for 'typeOfDesign' = '", 
+				C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
+		return(repeatedPValues)
+	}
+	
 	repeatedPValues <- rep(NA_real_, design$kMax)
 	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP && stageResults$stage == design$kMax) {
 		
@@ -1288,6 +1306,21 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 		}
 		
 	} else {
+		typeOfDesign <- design$typeOfDesign
+		deltaWT <- design$deltaWT
+		typeBetaSpending = design$typeBetaSpending
+		
+		if (!design$bindingFutility){
+			if (design$typeOfDesign == "PT"){
+				typeOfDesign <- "WT"
+				deltaWT <- design$deltaPT1
+			}
+			if (design$typeBetaSpending != "none"){
+				typeBetaSpending <- "none"
+			}	
+		} else if ((design$typeOfDesign == "PT") || (design$typeBetaSpending != "none")){
+			message("Calculation of repeated p-values might take a while for binding case, please wait...")
+		}
 		
 		for (k in 1:stageResults$stage) {		
 			if (!is.na(stageResults$overallPValues[k]) && stats::qnorm(1 - stageResults$overallPValues[k]) == Inf) {
@@ -1304,8 +1337,13 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 						y <- .getDesignGroupSequential(kMax = design$kMax, alpha = level, 
 							sided = design$sided, 
 							informationRates = design$informationRates, 
-							typeOfDesign = design$typeOfDesign, 
-							deltaWT = design$deltaWT, 
+							typeOfDesign = typeOfDesign, 
+							typeBetaSpending = typeBetaSpending, 
+							gammaB = design$gammaB,
+							deltaWT = deltaWT, 
+							deltaPT0 = design$deltaPT0, 
+							deltaPT1 = design$deltaPT1, 
+							beta = design$beta,
 							gammaA = design$gammaA,
 							futilityBounds = design$futilityBounds,
 							bindingFutility = design$bindingFutility)
@@ -1337,6 +1375,24 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 	design <- stageResults$.design
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	.warnInCaseOfUnknownArguments(functionName = ".getRepeatedPValuesInverseNormal", ...)
+	
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
+		warning("Repeated p-values not available for 'typeOfDesign' = '", 
+				C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
+		return(repeatedPValues)
+	}
+	
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
+		message("Repeated p-values for 'typeOfDesign' = '", 
+				C_TYPE_OF_DESIGN_HP, "' will only be calculated for the final stage")
+		return(repeatedPValues)
+	}
+	
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
+		warning("Repeated p-values not available for 'typeOfDesign' = '", 
+				C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
+		return(repeatedPValues)
+	}	
 	
 	repeatedPValues <- rep(NA_real_, design$kMax)
 	
@@ -1380,6 +1436,21 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 			)
 		}
 	} else {
+		typeOfDesign <- design$typeOfDesign
+		deltaWT <- design$deltaWT
+		typeBetaSpending = design$typeBetaSpending
+		
+		if (!design$bindingFutility){
+			if (design$typeOfDesign == "PT"){
+				typeOfDesign <- "WT"
+				deltaWT <- design$deltaPT1
+			}
+			if (design$typeBetaSpending != "none"){
+				typeBetaSpending <- "none"
+			}	
+		} else if ((design$typeOfDesign == "PT") || (design$typeBetaSpending != "none")){
+			message("Calculation of repeated p-values might take a while for binding case, please wait...")
+		}
 		
 		for (k in 1:stageResults$stage) {		
 
@@ -1398,8 +1469,13 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 							alpha = level, 
 							sided = design$sided, 
 							informationRates = design$informationRates, 
-							typeOfDesign = design$typeOfDesign, 
-							deltaWT = design$deltaWT, 
+							typeOfDesign = typeOfDesign, 
+							typeBetaSpending = typeBetaSpending, 
+							gammaB = design$gammaB,
+							deltaWT = deltaWT, 
+							deltaPT0 = design$deltaPT0, 
+							deltaPT1 = design$deltaPT1, 
+							beta = design$beta,
 							gammaA = design$gammaA,
 							futilityBounds = design$futilityBounds,
 							bindingFutility = design$bindingFutility)

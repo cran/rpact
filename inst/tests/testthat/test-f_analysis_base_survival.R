@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_base_survival.R
-#:#  Creation date: 09 November 2020, 11:45:26
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  Creation date: 05 January 2021, 10:37:55
+#:#  File version: $Revision: 4166 $
+#:#  Last changed: $Date: 2021-01-05 13:42:19 +0100 (Tue, 05 Jan 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -29,8 +29,8 @@ test_that("'getAnalysisResults' for a two-stage group sequential design and surv
 			typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0))
 
 	dataExample0 <- getDataset(
-			overallEvents = c(8, 20),
-			overallLogRanks = c(1.92, 2.1)
+		overallEvents = c(8, 20),
+		overallLogRanks = c(1.92, 2.1)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -43,18 +43,18 @@ test_that("'getAnalysisResults' for a two-stage group sequential design and surv
 	x0 <- getAnalysisResults(design0, dataExample0, directionUpper = TRUE)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x0' with expected results
-	expect_equal(x0$thetaH1, 2.5578027, tolerance = 1e-07)
+	expect_equal(x0$thetaH1, 2.5578027, tolerance = 1e-06)
 	expect_equal(x0$testActions, c("continue", "reject"))
-	expect_equal(x0$conditionalRejectionProbabilities, c(0.15200046, NA_real_), tolerance = 1e-07)
+	expect_equal(x0$conditionalRejectionProbabilities, c(0.15200046, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x0$repeatedConfidenceIntervalLowerBounds, c(0.65051922, 1.04083), tolerance = 1e-07)
-	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(23.22605, 6.2857086), tolerance = 1e-07)
-	expect_equal(x0$repeatedPValues, c(0.074184316, 0.019962317), tolerance = 1e-07)
+	expect_equal(x0$repeatedConfidenceIntervalLowerBounds, c(0.65051922, 1.04083), tolerance = 1e-06)
+	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(23.22605, 6.2857086), tolerance = 1e-06)
+	expect_equal(x0$repeatedPValues, c(0.074184316, 0.019962317), tolerance = 1e-06)
 	expect_equal(x0$finalStage, 2)
-	expect_equal(x0$finalPValues, c(NA_real_, 0.021122043), tolerance = 1e-07)
-	expect_equal(x0$finalConfidenceIntervalLowerBounds, c(NA_real_, 1.0341796), tolerance = 1e-07)
-	expect_equal(x0$finalConfidenceIntervalUpperBounds, c(NA_real_, 6.2409205), tolerance = 1e-07)
-	expect_equal(x0$medianUnbiasedEstimates, c(NA_real_, 2.5476524), tolerance = 1e-07)
+	expect_equal(x0$finalPValues, c(NA_real_, 0.021122043), tolerance = 1e-06)
+	expect_equal(x0$finalConfidenceIntervalLowerBounds, c(NA_real_, 1.0341796), tolerance = 1e-06)
+	expect_equal(x0$finalConfidenceIntervalUpperBounds, c(NA_real_, 6.2409205), tolerance = 1e-06)
+	expect_equal(x0$medianUnbiasedEstimates, c(NA_real_, 2.5476534), tolerance = 1e-06)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x0), NA)))
 	    expect_output(print(x0)$show())
@@ -97,7 +97,7 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, 0.0074535505), tolerance = 1e-07)
 	expect_equal(x1$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 1.222663), tolerance = 1e-07)
 	expect_equal(x1$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 4.752454), tolerance = 1e-07)
-	expect_equal(x1$medianUnbiasedEstimates, c(NA_real_, NA_real_, 2.4763993), tolerance = 1e-07)
+	expect_equal(x1$medianUnbiasedEstimates, c(NA_real_, NA_real_, 2.4764002), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x1), NA)))
 	    expect_output(print(x1)$show())
@@ -188,8 +188,8 @@ test_that("'getAnalysisResults' for a three-stage ggroup sequential design and s
 	.skipTestIfDisabled()
 
 	design2 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, 
-			informationRates = c(0.2, 0.4, 1), bindingFutility = FALSE,
-			typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0, 0))
+		informationRates = c(0.2, 0.4, 1), bindingFutility = FALSE,
+		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0, 0))
 
 	dataExample2 <- getDataset(
 		overallEvents = c(8, 15, 40),
@@ -390,8 +390,8 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	.skipTestIfDisabled()
 
 	design4 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
-			informationRates = c(0.4, 0.6, 1), bindingFutility = FALSE,
-			typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0.2, 0.2))
+		informationRates = c(0.4, 0.6, 1), bindingFutility = FALSE,
+		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0.2, 0.2))
 
 	dataExample4 <- getDataset(
 		overallEvents = c(8, 15, 29),
@@ -417,7 +417,7 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	expect_equal(x1$finalStage, 3)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, 0.012073682), tolerance = 1e-07)
 	expect_equal(x1$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, 0.16812443), tolerance = 1e-07)
-	expect_equal(x1$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 0.86143433), tolerance = 1e-07)
+	expect_equal(x1$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, 0.86143434), tolerance = 1e-07)
 	expect_equal(x1$medianUnbiasedEstimates, c(NA_real_, NA_real_, 0.3631684), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x1), NA)))
@@ -515,12 +515,12 @@ test_that("'getAnalysisResults' for a three-stage Fisher design and 'bindingFuti
 	.skipTestIfDisabled()
 
 	design6 <- getDesignFisher(kMax = 3, alpha = 0.025, 
-			informationRates = c(0.4, 0.6, 1), alpha0Vec = c(0.5,0.4), bindingFutility = TRUE)
+		informationRates = c(0.4, 0.6, 1), alpha0Vec = c(0.5,0.4), bindingFutility = TRUE)
 
 	dataExample6 <- getDataset(
-			overallEvents = c(8, 15),
-			overallAllocationRatios = c(1, 1),
-			overallLogRanks = -c(1.52, 2)
+		overallEvents = c(8, 15),
+		overallAllocationRatios = c(1, 1),
+		overallLogRanks = -c(1.52, 2)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}

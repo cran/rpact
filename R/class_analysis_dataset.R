@@ -14,7 +14,7 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
 #:#  File version: $Revision: 3977 $
-#:#  Last changed: $Date: 2020-11-20 12:21:54 +0100 (Fri, 20 Nov 2020) $
+#:#  Last changed: $Date: 2020-11-20 12:21:54 +0100 (Fr, 20 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -240,9 +240,9 @@ readDataset <- function(file, ..., header = TRUE, sep = ",", quote = "\"",
 #' @export
 #'
 writeDataset <- function(dataset, file, ..., append = FALSE, quote = TRUE, sep = ",",
-		eol = "\n", na = "NA", dec = ".", row.names = TRUE,
-		col.names = NA, qmethod = "double",
-		fileEncoding = "UTF-8") {
+	eol = "\n", na = "NA", dec = ".", row.names = TRUE,
+	col.names = NA, qmethod = "double",
+	fileEncoding = "UTF-8") {
 	
 	.assertIsDataset(dataset)
 	
@@ -1903,7 +1903,7 @@ DatasetMeans <- setRefClass("DatasetMeans",
 #' @export
 #'
 plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_character_,
-		legendTitle = "Group", palette = "Set1", showSource = FALSE) {
+	legendTitle = "Group", palette = "Set1", showSource = FALSE) {
 	
 	.assertGgplotIsInstalled()
 	
@@ -1947,13 +1947,13 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 			# plot sample size
 			p <- p + ggplot2::geom_bar(data = data, 
 				ggplot2::aes(y = .data[["sampleSize"]], 
-				x = factor(.data[["stage"]]), fill = factor(.data[["stage"]])),
+					x = factor(.data[["stage"]]), fill = factor(.data[["stage"]])),
 				position = "dodge", stat = "identity", alpha = 0.4)
 			
 			# plot events
 			p <- p + ggplot2::geom_bar(data = data, 
 				ggplot2::aes(y = .data[["event"]], x = factor(.data[["stage"]]), 	
-				fill = factor(.data[["stage"]])), 
+					fill = factor(.data[["stage"]])), 
 				position = "dodge", stat = "identity") 
 		}
 		
@@ -1987,7 +1987,7 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 			# plot events
 			p <- p + ggplot2::geom_bar(data = data, 
 				ggplot2::aes(y = .data[["event"]], x = factor(.data[["stage"]]), 
-				fill = factor(.data[["group"]])), 
+					fill = factor(.data[["group"]])), 
 				position = "dodge", stat = "identity") 
 		}
 		
@@ -2030,7 +2030,6 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 		companyAnnotationEnabled <- FALSE
 	}
 	p <- x$getPlotSettings()$addCompanyAnnotation(p, enabled = companyAnnotationEnabled)
-	
 	p
 }
 
@@ -2991,8 +2990,8 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 				" treatment groups"), "one control group")
 		if (object$isDatasetSurvival()) {
 			groups <- paste0(groups, c(
-				paste0(" (", .arrayToString(1:(numberOfGroups - 1)), ")"), 
-				paste0(" (", numberOfGroups, ")")))
+					paste0(" (", .arrayToString(1:(numberOfGroups - 1)), ")"), 
+					paste0(" (", numberOfGroups, ")")))
 		}
 	}
 	
@@ -3027,7 +3026,7 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	if (kMax > 1) {
 		summaryFactory$addItem("Stage", object$stages)
 	}
-
+	
 	if (numberOfGroups > 1) {
 		
 		groupNumbers <- object$groups

@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3585 $
-#:#  Last changed: $Date: 2020-09-03 15:27:08 +0200 (Do, 03 Sep 2020) $
+#:#  File version: $Revision: 4327 $
+#:#  Last changed: $Date: 2021-02-05 10:54:21 +0100 (Fri, 05 Feb 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -171,6 +171,12 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 			variedParameters <<- character(0)
 			if (length(list(...)) > 0) {
 				add(...)
+			}
+			if (length(designs) > 0) {
+				masterDesign <- designs[[1]]
+				if (inherits(masterDesign, "ParameterSet")) {
+					.self$.plotSettings = masterDesign$.plotSettings
+				}
 			}
 		},
 		
@@ -459,7 +465,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 			defaultValues[[argumentName]] <- argumentValue
 			
 			if (.isTrialDesignGroupSequential(designMaster)) {
-				return(getDesignGroupSequential(  
+				result <- getDesignGroupSequential(  
 					kMax = defaultValues$kMax, 
 					alpha = defaultValues$alpha, 
 					beta = defaultValues$beta, 
@@ -474,11 +480,11 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 					userAlphaSpending = defaultValues$userAlphaSpending, 
 					userBetaSpending = defaultValues$userBetaSpending, 
 					gammaB = defaultValues$gammaB, 
-					tolerance = defaultValues$tolerance))
+					tolerance = defaultValues$tolerance)
 			} 
 			
 			else if (.isTrialDesignInverseNormal(designMaster)) {
-				return(getDesignInverseNormal(
+				result <- getDesignInverseNormal(
 					kMax = defaultValues$kMax, 
 					alpha = defaultValues$alpha, 
 					beta = defaultValues$beta, 
@@ -493,11 +499,11 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 					userAlphaSpending = defaultValues$userAlphaSpending, 
 					userBetaSpending = defaultValues$userBetaSpending, 
 					gammaB = defaultValues$gammaB, 
-					tolerance = defaultValues$tolerance))
+					tolerance = defaultValues$tolerance)
 			}
 			
 			else if (.isTrialDesignFisher(designMaster)) {
-				return(getDesignFisher(
+				result <- getDesignFisher(
 					kMax = defaultValues$kMax, 
 					alpha = defaultValues$alpha, 
 					method = defaultValues$method, 
@@ -507,8 +513,10 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 					sided = defaultValues$sided,
 					tolerance = defaultValues$tolerance,
 					iterations = defaultValues$iterations,
-					seed = defaultValues$seed))
-			}		
+					seed = defaultValues$seed)
+			}
+			result$.plotSettings <- designMaster$.plotSettings
+			return(result)
 		}
 	)
 )
@@ -816,7 +824,7 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 		main <- ifelse(is.na(main), "Boundaries", main)
 		xParameterName <- "informationRates"
 		yParameterNames <- c("criticalValues")
-		if (designMaster$sided == 1) {
+		if (designMaster$sided == 1 || designMaster$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			if (.isTrialDesignWithValidFutilityBounds(designMaster)) {
 				yParameterNames <- c("futilityBounds", "criticalValues")
 			}

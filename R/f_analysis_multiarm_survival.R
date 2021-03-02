@@ -1,5 +1,5 @@
 #:#
-#:#  *Analysis of Survival in multi-armed designs with adaptive test*
+#:#  *Analysis of survival in multi-arm designs with adaptive test*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3635 $
-#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mo, 14 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4401 $
+#:#  Last changed: $Date: 2021-02-15 17:29:02 +0100 (Mo, 15 Feb 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 # @title
@@ -140,7 +140,7 @@
 	
 	startTime <- Sys.time()
 	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest)
 	
 	stageResults <- .getStageResultsSurvivalMultiArm(design = design, dataInput = dataInput, 
 		intersectionTest = intersectionTest, stage = stage, 
@@ -243,10 +243,8 @@
 	
 	# repeated p-value
 	if (design$kMax > 1) {	
-		startTime <- Sys.time()
 		results$repeatedPValues <- .getRepeatedPValuesMultiArm(stageResults = stageResults, tolerance = tolerance)	
 		results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
-		.logProgress("Repeated p-values calculated", startTime = startTime)
 	}
 	
 	return(results)
@@ -263,7 +261,6 @@
 	.assertIsDatasetSurvival(dataInput)
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.assertIsValidDirectionUpper(directionUpper, design$sided)
-	.assertIsValidIntersectionTest(design, intersectionTest)
 	.assertIsSingleLogical(calculateSingleStepAdjusted, "calculateSingleStepAdjusted")
 	.warnInCaseOfUnknownArguments(functionName = ".getStageResultsSurvivalMultiArm", 
 		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
@@ -272,9 +269,8 @@
 	gMax <- dataInput$getNumberOfGroups() - 1
 	kMax <- design$kMax
 	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest, userFunctionCallEnabled)
-	
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest, userFunctionCallEnabled)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 	
 	stageResults <- StageResultsMultiArmSurvival(
 		design = design,
@@ -464,7 +460,7 @@
 		tolerance = C_ANALYSIS_TOLERANCE_DEFAULT, 
 		firstParameterName) {
 	
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	
 	stageResults <- .getStageResultsSurvivalMultiArm(design = design, dataInput = dataInput, 

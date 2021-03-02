@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4063 $
-#:#  Last changed: $Date: 2020-12-01 12:30:11 +0100 (Tue, 01 Dec 2020) $
+#:#  File version: $Revision: 4107 $
+#:#  Last changed: $Date: 2020-12-11 14:00:27 +0100 (Fri, 11 Dec 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -215,7 +215,7 @@ NULL
 					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k], 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))				
 				} else if (effectMeasure == "effectEstimate") {
-					if (directionUpper){
+					if (directionUpper) {
 						selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffects[, k], 
 							typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))
 					} else {
@@ -574,7 +574,7 @@ getSimulationMultiArmSurvival <- function(
 				
 				iterations[k, i] <- iterations[k, i] + 1
 				
-				if (k == 1){
+				if (k == 1) {
 					simulatedOverallEventsPerStage[k, i] <- simulatedOverallEventsPerStage[k, i] +  
 						stageResults$plannedEvents[k]  
 				} else {

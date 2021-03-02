@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3821 $
-#:#  Last changed: $Date: 2020-11-03 08:59:30 +0100 (Tue, 03 Nov 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4135 $
+#:#  Last changed: $Date: 2020-12-17 17:18:06 +0100 (Thu, 17 Dec 2020) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 
@@ -53,6 +53,7 @@ TrialDesign <- setRefClass("TrialDesign",
 	contains = "ParameterSet",
 	
 	fields = list(
+		.plotSettings = "PlotSettings",
 		kMax = "integer", 
 		alpha = "numeric",
 		stages = "integer",
@@ -85,6 +86,8 @@ TrialDesign <- setRefClass("TrialDesign",
 				alphaSpent = alphaSpent, 
 				bindingFutility = bindingFutility,
 				tolerance = tolerance)
+			
+			.plotSettings <<- PlotSettings()
 			
 			if (inherits(.self, "TrialDesignConditionalDunnett")) {
 				.parameterNames <<- C_PARAMETER_NAMES
@@ -468,6 +471,8 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 		typeOfDesign = "character",
 		beta = "numeric", 
 		deltaWT = "numeric",
+		deltaPT1 = "numeric",
+		deltaPT0 = "numeric",
 		futilityBounds = "numeric",
 		gammaA = "numeric",
 		gammaB = "numeric",
@@ -489,6 +494,8 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 			futilityBounds = NA_real_,
 			typeOfDesign = C_DEFAULT_TYPE_OF_DESIGN,
 			deltaWT = NA_real_,
+			deltaPT1 = NA_real_,
+			deltaPT0 = NA_real_,
 			optimizationCriterion = C_OPTIMIZATION_CRITERION_DEFAULT,
 			gammaA = NA_real_,
 			gammaB = NA_real_,
@@ -505,6 +512,8 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 				futilityBounds = futilityBounds, 
 				typeOfDesign = typeOfDesign, 
 				deltaWT = deltaWT,
+				deltaPT1 = deltaPT1,
+				deltaPT0 = deltaPT0,
 				optimizationCriterion = optimizationCriterion,
 				gammaA = gammaA,
 				gammaB = gammaB,
@@ -523,6 +532,8 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 				"futilityBounds",
 				"typeOfDesign",
 				"deltaWT",
+				"deltaPT1",
+				"deltaPT0",
 				"optimizationCriterion",
 				"gammaA",
 				"gammaB",
@@ -550,6 +561,8 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 				sided, 
 				typeOfDesign, 
 				deltaWT, 
+				deltaPT1, 
+				deltaPT0, 
 				informationRates, 
 				futilityBounds, 
 				optimizationCriterion, 
@@ -582,6 +595,14 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 				if (typeOfDesign == C_TYPE_OF_DESIGN_WT) {
 					if (!identical(deltaWT, .self$deltaWT)) {
 						return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
+					}
+				}
+				if (typeOfDesign == C_TYPE_OF_DESIGN_PT) {
+					if (!identical(deltaPT1, .self$deltaPT1)) {
+						return(.pasteComparisonResult("deltaPT1", deltaPT1, .self$deltaPT1))
+					}
+					if (!identical(deltaPT0, .self$deltaPT0)) {
+						return(.pasteComparisonResult("deltaPT0", deltaPT0, .self$deltaPT0))
 					}
 				}
 				if (!identical(informationRatesTemp, .self$informationRates)) {
@@ -635,6 +656,8 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 				"power",
 				"twoSidedPower",
 				"deltaWT",
+				"deltaPT1",
+				"deltaPT0",
 				"futilityBounds",
 				"bindingFutility",
 				"constantBoundsHP",
@@ -777,13 +800,13 @@ TrialDesignConditionalDunnett <- setRefClass(
 #' @param secondStageConditioning The way the second stage p-values are calculated within the closed system of hypotheses.
 #' 		If \code{secondStageConditioning = FALSE} is specified, the unconditional adjusted p-values are used, otherwise 
 #'  	conditional adjusted p-values are calculated, default is \code{secondStageConditioning = TRUE} 
-#'      (for details, see König et al., 2008).
+#'      (for details, see Koenig et al., 2008).
 #'
 #' @details 
 #' For performing the conditional Dunnett test the design must be defined through this function. 
 #' You can define the information fraction and the way of how to compute the second stage 
 #' p-values only in the design definition, and not in the analysis call.\cr 
-#' See \code{\link{getClosedConditionalDunnettTestResults}} for an example and König et al. (2008) and
+#' See \code{\link{getClosedConditionalDunnettTestResults}} for an example and Koenig et al. (2008) and
 #' Wassmer & Brannath (2016), chapter 11 for details of the test procedure.
 #' 
 #' @template return_object_trial_design
@@ -878,12 +901,23 @@ plot.TrialDesign = function(x, y, ..., main = NA_character_,
 	typeNumbers <- .getPlotTypeNumber(type, x)
 	p <- NULL
 	plotList <- list()
+
+	plotSettings <- NULL
+	if (length(typeNumbers) > 3) {
+		plotSettings <- x$.plotSettings
+		if (is.null(plotSettings)) {
+			plotSettings <- PlotSettings()
+		}
+		if (plotSettings$scalingFactor == 1) {
+			plotSettings$scalingFactor <- 0.6
+		}
+	}
 	for (typeNumber in typeNumbers) {
 		p <- .plotTrialDesign(x = x, y = y, main = main,
 			xlab = xlab, ylab = ylab, type = typeNumber, palette = palette,
 			theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled, 
 			legendPosition = legendPosition, showSource = showSource, 
-			designName = designName, ...)
+			designName = designName, plotSettings = plotSettings, ...)
 		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
 		if (length(typeNumbers) > 1) {
 			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
@@ -908,7 +942,7 @@ plot.TrialDesign = function(x, y, ..., main = NA_character_,
 .plotTrialDesign = function(..., x, y, main,
 		xlab, ylab, type, palette,
 		theta, nMax, plotPointsEnabled, 
-		legendPosition, showSource, designName) {
+		legendPosition, showSource, designName, plotSettings = NULL) {
 		
 	.assertGgplotIsInstalled()
 	
@@ -941,6 +975,9 @@ plot.TrialDesign = function(x, y, ..., main = NA_character_,
 		designSet <- getDesignSet(designs = c(x, y), variedParameters = variedParameters)
 	} else {
 		designSet <- TrialDesignSet(design = x, singleDesign = TRUE)
+		if (!is.null(plotSettings)) {
+			designSet$.plotSettings <- plotSettings
+		}
 	}
 	
 	.plotTrialDesignSet(x = designSet, y = y, main = main, xlab = xlab, ylab = ylab, type = type,

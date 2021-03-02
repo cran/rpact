@@ -23,6 +23,7 @@ getPowerSurvival(
   eventTime = 12L,
   accrualTime = c(0L, 12L),
   accrualIntensity = 0.1,
+  accrualIntensityType = c("auto", "absolute", "relative"),
   maxNumberOfSubjects = NA_real_,
   maxNumberOfEvents = NA_real_,
   dropoutRate1 = 0,
@@ -77,15 +78,15 @@ default is \code{seq(0.2, 0.5, 0.1)} (power calculations and simulations) or
 
 \item{median2}{The assumed median survival time in the reference group, there is no default.}
 
-\item{kappa}{A numeric value >= 0. A \code{kappa != 1} will be used for the specification 
+\item{kappa}{A numeric value > 0. A \code{kappa != 1} will be used for the specification 
 of the shape of the Weibull distribution. 
 Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 Note that the Weibull distribution cannot be used for the piecewise definition of 
-the survival time distribution, i.e., only \code{lambda} and \code{kappa} need to be specified.
+the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
+   can be specified.
 This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
-of the \code{stats} package, i.e., 
-the scale parameter is \code{1 / 'hazard rate'}.\cr
-For example, \cr
+of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
+For example, 
 \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)} 
 and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
 
@@ -107,6 +108,10 @@ design, default is \code{1}. For multi-arm designs, it is the allocation ratio r
 
 \item{accrualIntensity}{A vector of accrual intensities, default is the relative 
 intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
+
+\item{accrualIntensityType}{A character value specifying the accrual intensity input type.
+Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
+i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.}
 
 \item{maxNumberOfSubjects}{\code{maxNumberOfSubjects > 0} needs to be specified.
 If accrual time and accrual intensity is specified, this will be calculated.}
@@ -151,7 +156,7 @@ is used to calculate the expected number of events under the alternative
 (see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized to piecewise survival times and 
 non-constant piecewise accrual over time.\cr
 }
-\section{Staggered patient entry}{
+\section{Piecewise survival time}{
 
 The first element of the vector \code{piecewiseSurvivalTime} must be equal to \code{0}. 
 \code{piecewiseSurvivalTime} can also be a list that combines the definition of the 
@@ -160,7 +165,7 @@ The definition of the survival time in the treatment group is obtained by the sp
 of the hazard ratio (see examples for details).
 }
 
-\section{Piecewise accrual}{
+\section{Staggered patient entry}{
 
 \code{accrualTime} is the time period of subjects' accrual in a study. 
 It can be a value that defines the end of accrual or a vector.

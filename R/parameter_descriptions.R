@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3999 $
-#:#  Last changed: $Date: 2020-11-24 11:01:48 +0100 (Tue, 24 Nov 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4241 $
+#:#  Last changed: $Date: 2021-01-22 09:44:20 +0100 (Fri, 22 Jan 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' Parameter Description: "..."
@@ -79,6 +79,7 @@ NULL
 #' Parameter Description: Type of Design
 #' @param typeOfDesign The type of design. Type of design is one of the following: 
 #'   O'Brien & Fleming (\code{"OF"}), Pocock (\code{"P"}), Wang & Tsiatis Delta class (\code{"WT"}), 
+#'   Pamapallona & Tsiatis (\code{"PT"}),
 #'   Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
 #'   O'Brien & Fleming type alpha spending (\code{"asOF"}), Pocock type alpha spending (\code{"asP"}), 
 #'   Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending (\code{"asHSD"}), 
@@ -206,15 +207,15 @@ NULL
 NULL
 
 #' Parameter Description: Kappa
-#' @param kappa A numeric value >= 0. A \code{kappa != 1} will be used for the specification 
+#' @param kappa A numeric value > 0. A \code{kappa != 1} will be used for the specification 
 #'   of the shape of the Weibull distribution. 
 #'   Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 #'   Note that the Weibull distribution cannot be used for the piecewise definition of 
-#'   the survival time distribution, i.e., only \code{lambda} and \code{kappa} need to be specified.
+#'   the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
+#' 	 can be specified.
 #'   This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
-#'   of the \code{stats} package, i.e., 
-#'   the scale parameter is \code{1 / 'hazard rate'}.\cr
-#'   For example, \cr
+#'   of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
+#'   For example, 
 #'   \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)} 
 #'   and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result. 
 #' @name param_kappa
@@ -521,6 +522,14 @@ NULL
 #' @param accrualIntensity A vector of accrual intensities, default is the relative 
 #'   intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).
 #' @name param_accrualIntensity
+#' @keywords internal
+NULL
+
+#' Parameter Description: Accrual Intensity Type
+#' @param accrualIntensityType A character value specifying the accrual intensity input type.
+#'        Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
+#'        i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.
+#' @name param_accrualIntensityType
 #' @keywords internal
 NULL
 

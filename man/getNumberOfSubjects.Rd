@@ -9,6 +9,7 @@ getNumberOfSubjects(
   ...,
   accrualTime = c(0L, 12L),
   accrualIntensity = 0.1,
+  accrualIntensityType = c("auto", "absolute", "relative"),
   maxNumberOfSubjects = NA_real_
 )
 }
@@ -23,6 +24,10 @@ that a warning will be displayed if unknown arguments are passed.}
 
 \item{accrualIntensity}{A vector of accrual intensities, default is the relative 
 intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
+
+\item{accrualIntensityType}{A character value specifying the accrual intensity input type.
+Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
+i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.}
 
 \item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified, 
 the end of accrual at specified \code{accrualIntensity} for the specified number of 

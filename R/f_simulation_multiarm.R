@@ -14,9 +14,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4062 $
-#:#  Last changed: $Date: 2020-12-01 12:21:16 +0100 (Tue, 01 Dec 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4254 $
+#:#  Last changed: $Date: 2021-01-25 18:21:18 +0100 (Mo, 25 Jan 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .getIndicesOfClosedHypothesesSystemForSimulation <- function(gMax) {
@@ -454,8 +454,8 @@
 	gMax <- activeArms
 	kMax <- design$kMax
 	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest, userFunctionCallEnabled = TRUE)
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest, userFunctionCallEnabled = TRUE)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 	typeOfSelection <- .assertIsValidTypeOfSelection(typeOfSelection, rValue, epsilonValue, activeArms)
 	if (length(typeOfSelection) == 1 && typeOfSelection == "userDefined" && 
 			!is.null(threshold) && length(threshold) == 1 && threshold != -Inf) {

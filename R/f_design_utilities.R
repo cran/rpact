@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4060 $
-#:#  Last changed: $Date: 2020-12-01 09:53:32 +0100 (Tue, 01 Dec 2020) $
+#:#  File version: $Revision: 4311 $
+#:#  Last changed: $Date: 2021-02-03 11:38:47 +0100 (Mi, 03 Feb 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -113,7 +113,7 @@ NULL
 		}
 	}
 	
-	if (design$sided == 2 && .isDefinedArgument(parameterValues) && 
+	if (design$sided == 2 && .isDefinedArgument(parameterValues) && !(design$typeOfDesign == "PT") &&
 			(twoSidedWarningForDefaultValues && !all(is.na(parameterValues)) || 
 			(!twoSidedWarningForDefaultValues && any(na.omit(parameterValues) != defaultValue)))) {
 		
@@ -156,9 +156,9 @@ NULL
 			if (.isDefaultVector(parameterValues, rep(defaultValue, design$kMax - 1))) {
 				.setParameterType(design, parameterName, C_PARAM_DEFAULT_VALUE)
 			}
-		}
+		}		
 		
-		if (.isBetaSpendingDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
+		if (.isBetaSpendingOrPampallonaTsiatisDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
 			return(rep(defaultValue, design$kMax - 1))
 		}
 		
@@ -180,15 +180,20 @@ NULL
 			kMaxLowerBound = kMaxLowerBound, kMaxUpperBound = kMaxUpperBound)
 	}
 	
-	if (.isBetaSpendingDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
+	if (.isBetaSpendingOrPampallonaTsiatisDesignWithDefinedFutilityBounds(design, parameterName, writeToDesign)) {
 		return(rep(defaultValue, design$kMax - 1))
 	}
 	
 	return(parameterValues)
 }
 
-.isBetaSpendingDesignWithDefinedFutilityBounds <- function(design, parameterName, writeToDesign) {
-	if (.isTrialDesignFisher(design) || !.isBetaSpendingDesignType(design$typeBetaSpending)) {
+# Check whether design is a beta spending or Pampallona Tsiatis design
+.isBetaSpendingOrPampallonaTsiatisDesignWithDefinedFutilityBounds <- function(design, parameterName, writeToDesign) {
+	if (.isTrialDesignFisher(design)) {
+		return(FALSE)
+	}
+	
+	if (!.isBetaSpendingDesignType(design$typeBetaSpending) && design$typeOfDesign != "PT") {
 		return(FALSE)
 	}
 	
@@ -595,15 +600,16 @@ NULL
 #' starting times (\code{piecewiseSurvivalTime}) and a vector of hazard rates (\code{piecewiseLambda}).
 #' You can also use a list that defines the starting times and piecewise 
 #' lambdas together and define piecewiseSurvivalTime as this list.
-#' The list needs to have the form, e.g., #' piecewiseSurvivalTime <- list(
+#' The list needs to have the form, e.g., 
+#' piecewiseSurvivalTime <- list(
 #'     "0 - <6"   = 0.025, 
 #'     "6 - <9"   = 0.04, 
 #'     "9 - <15"  = 0.015, 
-#'     ">=15"      = 0.007) 
+#'     ">=15"      = 0.007) .
 #' For the Weibull case, you can also specify a shape parameter kappa in order to 
-#' calculated probabilities, quantiles, or random numbers.
-#' In this case, no piecewise definition is possible, i.e., only piecewiseLambda and 
-#' kappa need to be specified. 
+#' calculate probabilities, quantiles, or random numbers.
+#' In this case, no piecewise definition is possible, i.e., only piecewiseLambda
+#' (as a single value) and kappa need to be specified. 
 #' 
 #' @return Returns a \code{\link[base]{numeric}} value or vector will be returned.
 #' 
@@ -850,7 +856,7 @@ getMedianByPi <- function(piValue,
 	return(.convertStageWiseToOverallValuesInner(valuesPerStage))
 }
 
-.getDesignParametersToShow = function(paramaterSet) {
+.getDesignParametersToShow <- function(paramaterSet) {
 	if (is.null(paramaterSet[[".design"]])) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
 			"'paramaterSet' (", class(paramaterSet), ") does not contain '.design' field")

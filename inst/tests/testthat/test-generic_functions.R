@@ -147,6 +147,8 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	expect_is(as.matrix(piecewiseSurvivalTime), "matrix")
 	expect_is(as.matrix(accrualTime), "matrix")
 
+	
+	# workaround to deactivate warnings during test execution
 	currentWarningOption <- getOption("warn")
 	options(warn = -1)
 	analysisResults <- getAnalysisResults(design, dataset)

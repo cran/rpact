@@ -44,15 +44,15 @@ rpwexp(n, ..., s = NA_real_, lambda = NA_real_, kappa = 1)
 \item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{kappa}{A numeric value >= 0. A \code{kappa != 1} will be used for the specification 
+\item{kappa}{A numeric value > 0. A \code{kappa != 1} will be used for the specification 
 of the shape of the Weibull distribution. 
 Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 Note that the Weibull distribution cannot be used for the piecewise definition of 
-the survival time distribution, i.e., only \code{lambda} and \code{kappa} need to be specified.
+the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
+   can be specified.
 This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
-of the \code{stats} package, i.e., 
-the scale parameter is \code{1 / 'hazard rate'}.\cr
-For example, \cr
+of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
+For example, 
 \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)} 
 and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
 
@@ -83,15 +83,16 @@ The piecewise definition is performed through a vector of
 starting times (\code{piecewiseSurvivalTime}) and a vector of hazard rates (\code{piecewiseLambda}).
 You can also use a list that defines the starting times and piecewise 
 lambdas together and define piecewiseSurvivalTime as this list.
-The list needs to have the form, e.g., #' piecewiseSurvivalTime <- list(
+The list needs to have the form, e.g., 
+piecewiseSurvivalTime <- list(
     "0 - <6"   = 0.025, 
     "6 - <9"   = 0.04, 
     "9 - <15"  = 0.015, 
-    ">=15"      = 0.007) 
+    ">=15"      = 0.007) .
 For the Weibull case, you can also specify a shape parameter kappa in order to 
-calculated probabilities, quantiles, or random numbers.
-In this case, no piecewise definition is possible, i.e., only piecewiseLambda and 
-kappa need to be specified.
+calculate probabilities, quantiles, or random numbers.
+In this case, no piecewise definition is possible, i.e., only piecewiseLambda
+(as a single value) and kappa need to be specified.
 }
 \examples{
 # Calculate probabilties for a range of time values for a 

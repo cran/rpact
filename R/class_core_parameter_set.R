@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4016 $
-#:#  Last changed: $Date: 2020-11-25 15:34:12 +0100 (Mi, 25 Nov 2020) $
+#:#  File version: $Revision: 4311 $
+#:#  Last changed: $Date: 2021-02-03 11:38:47 +0100 (Mi, 03 Feb 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -595,7 +595,8 @@ ParameterSet <- setRefClass("ParameterSet",
 									paramValueFormatted = param$paramValueFormatted[[i]], 
 									showParameterType = showParameterType,
 									matrixRow = ifelse(n == 1, NA_integer_, i), consoleOutputEnabled = consoleOutputEnabled,
-									paramNameRaw = parameterName))
+									paramNameRaw = parameterName,
+									numberOfCategories = n))
 						}
 					} else {
 						output <- .showParameterFormatted(paramName = param$paramName, paramValue = param$paramValue, 
@@ -672,7 +673,13 @@ ParameterSet <- setRefClass("ParameterSet",
 				paramValueFormatted <- paramValue
 				
 				if (.getParameterType(parameterName) == C_PARAM_USER_DEFINED &&
-						identical(paramValue, round(paramValue))) {
+						(!is.numeric(paramValue) || identical(paramValue, round(paramValue)))) {
+					if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeOfDesign") {
+						paramValueFormatted <- C_TYPE_OF_DESIGN_LIST[[paramValue]]
+					}
+					if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeBetaSpending") {
+						paramValueFormatted <- C_TYPE_OF_DESIGN_BS_LIST[[paramValue]]
+					}
 				} else {
 					formatFunctionName <- .parameterFormatFunctions[[parameterName]]
 					if (!is.null(formatFunctionName)) {
@@ -680,6 +687,12 @@ ParameterSet <- setRefClass("ParameterSet",
 						if (.isArray(paramValue) && length(dim(paramValue)) == 2) {
 							paramValueFormatted <- matrix(paramValueFormatted, ncol = ncol(paramValue))
 						}
+					}
+					else if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeOfDesign") {
+						paramValueFormatted <- C_TYPE_OF_DESIGN_LIST[[paramValue]] 
+					}
+					else if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeBetaSpending") {
+						paramValueFormatted <- C_TYPE_OF_DESIGN_BS_LIST[[paramValue]]
 					}
 				}
 				
@@ -762,12 +775,13 @@ ParameterSet <- setRefClass("ParameterSet",
 				}
 			}
 			else if (!is.na(matrixRow)) {
-				if (inherits(.self, "AnalysisResultsMultiArm") && paramName %in% 
-						c("conditionalErrorRate", "secondStagePValues", 
-							"adjustedStageWisePValues", "overallAdjustedTestStatistics")) {
+				if (.isMultiArmAnalysisResults(.self) && paramName %in% 
+					c("conditionalErrorRate", "secondStagePValues", 
+						"adjustedStageWisePValues", "overallAdjustedTestStatistics")) {
 					treatments <- .closedTestResults$.getHypothesisTreatmentArmVariants()[matrixRow]
 					paramCaption <- paste0("Treatment", ifelse(grepl(",", treatments), "s", ""), " ", treatments, " vs. control")
-				} else if (inherits(.self, "AnalysisResultsMultiArm") || grepl("StageResultsMultiArm", class(.self)) || 
+				}
+    			else if (.isMultiArmAnalysisResults(.self) || grepl("StageResultsMultiArm", class(.self)) || 
 						(inherits(.self, "SimulationResults") && paramName == "effectMatrix") ||
 						(inherits(.self, "ClosedCombinationTestResults") && paramName %in% c("rejected", "separatePValues"))) {
 					paramCaption <- paste0(paramCaption, " (", matrixRow, ")")
@@ -1500,7 +1514,6 @@ plot.ParameterSet = function(x, y, ..., main = NA_character_,
 		legendPosition = NA_integer_, showSource = FALSE) {
 	
 	.assertGgplotIsInstalled()
-	#.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 	
 	stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
 		"sorry, function 'plot' is not implemented yet for class '", class(x), "'")

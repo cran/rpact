@@ -14,7 +14,7 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
 #:#  File version: $Revision: 3519 $
-#:#  Last changed: $Date: 2020-08-21 14:17:44 +0200 (Fr, 21 Aug 2020) $
+#:#  Last changed: $Date: 2020-08-21 14:17:44 +0200 (Fri, 21 Aug 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 

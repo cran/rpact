@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 3.0.3
-Date: 2020-12-01
+Version: 3.0.4
+Date: 2021-03-02
 Authors@R: c(
 	person("Gernot", "Wassmer", email = "gernot.wassmer@rpact.com", role = c("aut")),
     person("Friedrich", "Pahlke", email = "friedrich.pahlke@rpact.com", role = c("aut", "cre")))
@@ -32,17 +32,18 @@ Collate: 'RcppExports.R' 'f_core_constants.R'
         'f_analysis_base_rates.R' 'f_analysis_base_survival.R'
         'f_analysis_multiarm.R' 'f_analysis_multiarm_means.R'
         'f_analysis_multiarm_rates.R' 'f_analysis_multiarm_survival.R'
-        'f_core_output_formats.R' 'f_design_fisher_combination_test.R'
+        'f_analysis_utilities.R' 'f_core_output_formats.R'
+        'f_design_fisher_combination_test.R'
         'f_design_group_sequential.R'
         'f_design_sample_size_calculator.R' 'f_simulation_base_means.R'
         'f_simulation_base_rates.R' 'f_simulation_multiarm.R'
         'f_simulation_multiarm_means.R' 'f_simulation_multiarm_rates.R'
-        'f_simulation_multiarm_survival.R' 'parameter_descriptions.R'
-        'pkgname.R'
+        'f_simulation_multiarm_survival.R' 'f_simulation_utilities.R'
+        'parameter_descriptions.R' 'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2020-12-01 15:49:36 UTC; fried
+Packaged: 2021-03-02 10:51:08 UTC; fried
 Author: Gernot Wassmer [aut],
   Friedrich Pahlke [aut, cre]
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2020-12-01 17:10:02 UTC
+Date/Publication: 2021-03-02 11:20:02 UTC

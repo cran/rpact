@@ -16,7 +16,7 @@
 #:#  File name: test-class_summary.R
 #:#  Creation date: 09 November 2020, 11:42:19
 #:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mo, 09 Nov 2020) $
+#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 

@@ -14,147 +14,15 @@
  *
  * Contact us for information about our services: info@rpact.com
  *
- * File version: $Revision: 3576 $
- * Last changed: $Date: 2020-09-02 10:59:38 +0200 (Mi, 02 Sep 2020) $
+ * File version: $Revision: 4248 $
+ * Last changed: $Date: 2021-01-22 15:57:53 +0100 (Fri, 22 Jan 2021) $
  * Last changed by: $Author: pahlke $
  *
  */
 
 #include <Rcpp.h>
+#include "f_utilities.h"
 using namespace Rcpp;
-
-NumericVector vectorSum(NumericVector x, NumericVector y) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = x[i] + y[i];
-	}
-	return result;
-}
-
-NumericVector vectorSqrt(NumericVector x) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = sqrt(x[i]);
-	}
-	return result;
-}
-
-NumericVector vectorDivide(NumericVector x, double value) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = x[i] / value;
-	}
-	return result;
-}
-
-NumericVector vectorDivide(NumericMatrix x, int rowIndex, double value) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = x(rowIndex, i) / value;
-	}
-	return result;
-}
-
-//double vectorSum(NumericMatrix x, int rowIndex) {
-//	double s = 0;
-//	for (int i = 0; i < x.ncol(); i++) {
-//		s += x(rowIndex, i);
-//	}
-//	return s;
-//}
-
-NumericVector vectorDivide(NumericVector x, NumericVector y) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		if (y[i] != 0.0) {
-			result[i] = x[i] / y[i];
-		}
-	}
-	return result;
-}
-
-NumericVector vectorMultiply(NumericVector x, double multiplier) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = x[i] * multiplier;
-	}
-	return result;
-}
-
-NumericVector vectorMultiply(NumericVector x, NumericVector y) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = x[i] * y[i];
-	}
-	return result;
-}
-
-NumericVector vectorPow(NumericVector x, NumericVector y) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = pow(x[i], y[i]);
-	}
-	return result;
-}
-
-NumericVector vectorPow(double x, NumericVector y) {
-	int n = y.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = pow(x, y[i]);
-	}
-	return result;
-}
-
-NumericVector vectorRepEachValue(NumericVector x, int kMax) {
-	int n = x.size();
-	NumericVector result = NumericVector(n * kMax, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < kMax; j++) {
-			result[i * kMax + j] = x[i];
-		}
-	}
-	return result;
-}
-
-double vectorProduct(NumericVector x) {
-	int n = x.size();
-	if (n == 0) {
-		return 0;
-	}
-
-	if (n == 1) {
-		return x[0];
-	}
-
-	double s = x[0];
-	for (int i = 1; i < n; i++) {
-		s *= x[i];
-	}
-	return s;
-}
-
-double vectorProduct(NumericVector x, NumericVector y) {
-	int n = x.size();
-	double s = 0;
-	for (int i = 0; i < n; i++) {
-		s += x[i] * y[i];
-	}
-	return s;
-}
-
-double round(double value, int digits) {
-	double mult = std::pow(10.0, (double)digits);
-	return round(value * mult) / mult;
-}
 
 double findObservationTime(
 		NumericVector accrualTime,
@@ -756,10 +624,8 @@ NumericMatrix getExtendedSurvivalDataSet(IntegerVector treatmentGroup,
 	NumericVector dropoutTime = NumericVector(maxNumberOfSubjects, NA_REAL);
 
 	for (int i = 0; i < maxNumberOfSubjects; i++) {
-
 		if (treatmentGroup[i] == 1) {
-			survivalTime[i] = getRandomPiecewiseExponentialDistribution(
-					cdfValues1, lambdaVec1, piecewiseSurvivalTime);
+			survivalTime[i] = getRandomPiecewiseExponentialDistribution(cdfValues1, lambdaVec1, piecewiseSurvivalTime);
 			if (phi1 > 0) {
 				dropoutTime[i] = getRandomPiecewiseExponentialDistribution(
 						cdfValues1, rep(phi1, lambdaVec1.size()), piecewiseSurvivalTime);
@@ -805,34 +671,15 @@ void assertArgumentsAreValid(
 	}
 }
 
-void vectorSumC(int i, int j, int kMax, double* x, NumericMatrix y) {
-	for (int k = 0; k < kMax; k++) {
-    	x[i * kMax + k] += y(k, j);
-    }
-}
-
-void vectorInitC(int i, int kMax, double* x, double value) {
-    for (int k = 0; k < kMax; k++) {
-    	x[i * kMax + k] = value;
-    }
-}
-
-void logDebug(std::string s) {
-	Rcout << s << std::endl;
-}
-
 bool isPiecewiseExponentialSurvivalEnabled(NumericVector lambdaVec2) {
-
-	if (lambdaVec2.size() == 0) {
+	if (lambdaVec2.size() <= 1) {
 		return false;
 	}
-
 	for (int i = 0; i < lambdaVec2.size(); i++) {
 		if (R_IsNA(lambdaVec2[i])) {
 			return false;
 		}
 	}
-
 	return true;
 }
 
@@ -967,10 +814,16 @@ List getSimulationSurvivalCpp(
 		double hazardRatio = NA_REAL;
 		double lambda1 = NA_REAL;
 		double lambda2 = NA_REAL;
+
 		if (!pwExpEnabled) {
-			pi1 = pi1Vec[pi1Index];
-			lambda1 = getLambdaByPi(pi1, eventTime, kappa);
-			lambda2 = getLambdaByPi(pi2, eventTime, kappa);
+			if (R_IsNA(pi1Vec[pi1Index])) {
+				lambda1 = lambdaVec1[pi1Index];
+				lambda2 = lambdaVec2[0];
+			} else {
+				pi1 = pi1Vec[pi1Index];
+				lambda1 = getLambdaByPi(pi1, eventTime, kappa);
+				lambda2 = getLambdaByPi(pi2, eventTime, kappa);
+			}
 			hazardRatio = pow(lambda1 / lambda2, kappa);
 		}
 

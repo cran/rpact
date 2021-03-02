@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3581 $
-#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Do, 03 Sep 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4222 $
+#:#  Last changed: $Date: 2021-01-19 11:34:53 +0100 (Tue, 19 Jan 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 
@@ -58,7 +58,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 		initialize = function(design, theta = seq(-1, 1, 0.05), nMax = 100L, ...) {
 			callSuper(.design = design, theta = theta, nMax = nMax, ...)
 			theta <<- .assertIsValidThetaRange(thetaRange = theta, thetaAutoSeqEnabled = FALSE)
-			.initPowerAndAverageSampleNumber(design = design, theta = .self$theta, nMax = nMax)			
+			.initPowerAndAverageSampleNumber()			
 			.parameterNames <<- .getParameterNames(design)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
@@ -102,10 +102,9 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		},
 		
-		.initPowerAndAverageSampleNumber = function(design, theta = C_POWER_ASN_THETA_DEFAULT, 
-				nMax = C_NA_MAX_DEFAULT) {
-			.assertIsTrialDesignInverseNormalOrGroupSequential(design)			
-			.assertIsValidSidedParameter(design$sided)
+		.initPowerAndAverageSampleNumber = function() {
+			.assertIsTrialDesignInverseNormalOrGroupSequential(.design)			
+			.assertIsValidSidedParameter(.design$sided)
 			
 			if (nMax <= 0) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'nMax' must be an integer > 0")
@@ -117,7 +116,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 				sum(theta == C_POWER_ASN_THETA_DEFAULT) == length(theta)
 			.setParameterType("theta", ifelse(thetaIsDefault, C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			
-			kMax <- design$kMax
+			kMax <- .design$kMax
 			
 			# initialization
 			numberOfThetas <- length(theta)
@@ -145,10 +144,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			}
 			
 			for (i in 1:numberOfThetas) {
-				result <- .getPowerAndAverageSampleNumber(kMax = design$kMax, 
-					informationRates = design$informationRates, 
-					futilityBounds = design$futilityBounds, criticalValues = design$criticalValues, 
-					sided = design$sided, theta = theta[i], nMax)
+				result <- .getPowerAndAverageSampleNumber(theta = theta[i])
 				
 				averageSampleNumber[i] <<- result$averageSampleNumber
 				calculatedPower[i] <<- result$calculatedPower
@@ -167,24 +163,25 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			.setParameterType("overallFutility", C_PARAM_GENERATED)
 		},
 		
-		.getPowerAndAverageSampleNumberByDesign = function(design, theta, nMax) {
-			if (.isTrialDesignFisher(design)) {
-				futilityBounds <- design$alpha0Vec
-			} else {
-				futilityBounds <- design$futilityBounds
-			}
-			return(.getPowerAndAverageSampleNumber(kMax = design$kMax, 
-					informationRates = design$informationRates, futilityBounds = futilityBounds, 
-					criticalValues = design$criticalValues, sided = design$sided, 
-					theta = theta, nMax = nMax))
-		},
-		
-		.getPowerAndAverageSampleNumber = function(kMax, informationRates, futilityBounds, 
-			criticalValues, sided, theta, nMax) {
-			
+		.getPowerAndAverageSampleNumber = function(theta) {
+			kMax <- .design$kMax
+			futilityBounds <- .design$futilityBounds
+			informationRates <- .design$informationRates
+			criticalValues <- .design$criticalValues
+			sided <- .design$sided
+				
 			if (sided == 2) {
-				decisionMatrix <- matrix(c(-criticalValues - theta * sqrt(nMax * informationRates), 
-						criticalValues - theta * sqrt(nMax * informationRates)), nrow = 2, byrow = TRUE)
+				if (.design$typeOfDesign == "PT"){
+					futilityBounds[is.na(futilityBounds)] <- 0 
+					decisionMatrix <- matrix(c(-criticalValues - theta * sqrt(nMax * informationRates), 
+								c(-futilityBounds - theta * sqrt(nMax * informationRates[1:(kMax - 1)]), 0),
+								c(futilityBounds - theta * sqrt(nMax * informationRates[1:(kMax - 1)]), 0),
+								criticalValues - theta * sqrt(nMax * informationRates)), nrow = 4, byrow = TRUE)
+				} else {
+					decisionMatrix <- matrix(c(-criticalValues - theta * sqrt(nMax * informationRates), 
+									criticalValues - theta * sqrt(nMax * informationRates)), nrow = 2, byrow = TRUE)
+				}
+				
 			} else {
 				shiftedFutilityBounds <- futilityBounds - theta * sqrt(nMax * informationRates[1:(kMax - 1)])
 				shiftedFutilityBounds[futilityBounds <= C_FUTILITY_BOUNDS_DEFAULT] <- C_FUTILITY_BOUNDS_DEFAULT
@@ -193,14 +190,28 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			}
 			
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
-			.averageSampleNumber <- nMax - sum((probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + 
-						probs[1, 1:(kMax - 1)]) * 
-					(informationRates[kMax] - informationRates[1:(kMax - 1)]) * nMax)
+			
+			if (nrow(probs) == 3){
+				.averageSampleNumber <- nMax - sum((probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]) *	
+								(informationRates[kMax] - informationRates[1:(kMax - 1)]) * nMax)
+			} else {
+				.averageSampleNumber <- nMax - sum((probs[5, 1:(kMax - 1)] - 
+									probs[4, 1:(kMax - 1)] + probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]) *
+								(informationRates[kMax] - informationRates[1:(kMax - 1)]) * nMax)
+			}
 			
 			.futilityPerStage <- rep(NA_real_, kMax)
 			if (sided == 2) {
-				.calculatedPower <- sum(probs[3, 1:kMax] - probs[2, 1:kMax] + probs[1, 1:kMax])
-				.rejectPerStage <- probs[3, 1:kMax] - probs[2, 1:kMax] + probs[1, 1:kMax]
+				if (nrow(probs) == 3){
+					.calculatedPower <- sum(probs[3, 1:kMax] - probs[2, 1:kMax] + probs[1, 1:kMax])
+					.rejectPerStage <- probs[3, 1:kMax] - probs[2, 1:kMax] + probs[1, 1:kMax]
+				} else {
+					.calculatedPower <- sum(probs[5, 1:kMax] - probs[4, 1:kMax] + probs[1, 1:kMax])
+					.rejectPerStage <- probs[5, 1:kMax] - probs[4, 1:kMax] +  probs[1, 1:kMax]
+					if (kMax > 1) {
+						.futilityPerStage <- probs[3, 1:kMax] - probs[2, 1:kMax]
+					} 	
+				}	
 			} else {
 				.calculatedPower <- sum(probs[3, 1:kMax] - probs[2, 1:kMax])
 				.rejectPerStage <- probs[3, 1:kMax] - probs[2, 1:kMax]
@@ -211,7 +222,11 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			
 			.earlyStop <- rep(NA_real_, kMax)
 			if (kMax > 1) {
-				.earlyStop <- probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]
+				if (nrow(probs) == 3){
+					.earlyStop <- probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]
+				} else {
+					.earlyStop <- probs[5, 1:(kMax - 1)] - probs[4, 1:(kMax - 1)] + probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]
+				}	
 			}
 			
 			return(list(

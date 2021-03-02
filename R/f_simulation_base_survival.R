@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4051 $
-#:#  Last changed: $Date: 2020-11-30 14:42:18 +0100 (Mo, 30 Nov 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4237 $
+#:#  Last changed: $Date: 2021-01-21 16:48:14 +0100 (Thu, 21 Jan 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' @include class_simulation_results.R
@@ -37,11 +37,11 @@ NULL
 	if (pwsTimeObject$kappa != 1) {
 		if (length(pwsTimeObject$lambda1) != 1) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"if 'kappa' != 1 then 'lambda1' (", .arrayToString(lambda1), ") must be a single numeric value")
+				"if 'kappa' != 1 then 'lambda1' (", .arrayToString(pwsTimeObject$lambda1), ") must be a single numeric value")
 		}
 		if (length(pwsTimeObject$lambda2) != 1) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"if 'kappa' != 1 then 'lambda2' (", .arrayToString(lambda2), ") must be a single numeric value")
+				"if 'kappa' != 1 then 'lambda2' (", .arrayToString(pwsTimeObject$lambda2), ") must be a single numeric value")
 		}
 		
 		return(TRUE)
@@ -90,6 +90,7 @@ NULL
 #' @inheritParams param_eventTime
 #' @inheritParams param_accrualTime
 #' @inheritParams param_accrualIntensity
+#' @inheritParams param_accrualIntensityType
 #' @inheritParams param_dropoutRate1 
 #' @inheritParams param_dropoutRate2
 #' @inheritParams param_dropoutTime
@@ -229,6 +230,7 @@ getSimulationSurvival <- function(design = NULL, ...,
 		eventTime = 12L,	      # C_EVENT_TIME_DEFAULT
 		accrualTime = c(0L, 12L), # C_ACCRUAL_TIME_DEFAULT
 		accrualIntensity = 0.1,   # C_ACCRUAL_INTENSITY_DEFAULT
+		accrualIntensityType = c("auto", "absolute", "relative"), 
 		dropoutRate1 = 0,  # C_DROP_OUT_RATE_1_DEFAULT
 		dropoutRate2 = 0,  # C_DROP_OUT_RATE_2_DEFAULT
 		dropoutTime = 12L, # C_DROP_OUT_TIME_DEFAULT
@@ -343,7 +345,9 @@ getSimulationSurvival <- function(design = NULL, ...,
 	}
 	
 	accrualSetup <- getAccrualTime(accrualTime = accrualTime, 
-		accrualIntensity = accrualIntensity, maxNumberOfSubjects = maxNumberOfSubjects)
+		accrualIntensity = accrualIntensity,
+		accrualIntensityType = accrualIntensityType,
+		maxNumberOfSubjects = maxNumberOfSubjects)
 	if (is.na(accrualSetup$maxNumberOfSubjects)) {
 		if (identical(accrualIntensity, 1L)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -581,7 +585,7 @@ getSimulationSurvival <- function(design = NULL, ...,
 		maxNumberOfIterations          = maxNumberOfIterations,                                                             
 		maxNumberOfRawDatasetsPerStage = maxNumberOfRawDatasetsPerStage,                                                    
 		kappa                          = kappa)
-	
+
 	overview <- resultData$overview
 	if (length(overview) == 0 || nrow(overview) == 0) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "no simulation results calculated")
@@ -757,5 +761,4 @@ getSimulationSurvival <- function(design = NULL, ...,
 	
 	return(simulationResults)
 }
-
 

@@ -1,5 +1,5 @@
 #:#
-#:#  *Analysis of multi-armed designs with adaptive test*
+#:#  *Analysis of multi-arm designs with adaptive test*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3535 $
-#:#  Last changed: $Date: 2020-08-27 09:43:02 +0200 (Do, 27 Aug 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4435 $
+#:#  Last changed: $Date: 2021-02-18 11:57:34 +0100 (Thu, 18 Feb 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #
@@ -33,7 +33,7 @@
 		nPlanned = NA_real_) {
 	
 	.assertIsTrialDesignInverseNormalOrFisherOrConditionalDunnett(design)
-	.assertIsValidIntersectionTest(design, intersectionTest)
+	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 	
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design, showWarnings = TRUE)
 	.assertIsSingleLogical(directionUpper, "directionUpper")
@@ -42,7 +42,7 @@
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.assertIsValidNPlanned(nPlanned, design$kMax, stage, required = FALSE)
 	
-	intersectionTest <- .getCorrectedIntersectionTestIfNecessary(design, intersectionTest)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest)
 	
 	if (dataInput$isDatasetMeans()) {
 		if (is.na(thetaH0)) {
@@ -97,7 +97,7 @@
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not supported")
 }
 
-# Get Repeated Confidence Intervals for multi-armed case
+# Get Repeated Confidence Intervals for multi-arm case
 # Calculates and returns the lower and upper limit of the repeated confidence intervals of the trial for multi-arm designs.
 #  
 .getRepeatedConfidenceIntervalsMultiArm <- function(design, dataInput, ...) {
@@ -125,8 +125,8 @@
 }
 
 # 
-# Get Conditional Power for multi-armed case
-# Calculates and returns the conditional power for multi-armed case.
+# Get Conditional Power for multi-arm case
+# Calculates and returns the conditional power for multi-arm case.
 #
 .getConditionalPowerMultiArm <- function(..., stageResults, nPlanned, 
 		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT) {
@@ -246,21 +246,24 @@
 	for (k in 1:stage) {
 		for (i in 1:(2^gMax - 1)) {
 			if (!all(is.na(stageResults$separatePValues[indices[i, ] == 1, k]))) {
-				if (intersectionTest == "Dunnett") {
-
-					if (.isStageResultsSurvivalMultiArm(stageResults)) {
-						allocationRatiosSelected <- as.numeric(na.omit(
-										dataInput$getAllocationRatios(stage = k, group = 1:gMax)[indices[i, ] == 1]))
-						sigma <- sqrt(allocationRatiosSelected / (1 + allocationRatiosSelected)) %*% 
-								sqrt(t(allocationRatiosSelected / (1 + allocationRatiosSelected))) 			
-						diag(sigma) <- 1
-					} else {	
-						sampleSizesSelected <- as.numeric(na.omit(
-							dataInput$getSampleSizes(stage = k, group = 1:gMax)[indices[i, ] == 1]))
-						sigma <- sqrt(sampleSizesSelected / (sampleSizesSelected + 
-							dataInput$getSampleSizes(stage = k, group = gMax + 1))) %*% 
-							sqrt(t(sampleSizesSelected / (sampleSizesSelected + 
-							dataInput$getSampleSizes(stage = k, group = gMax + 1)))) 
+				if ((intersectionTest == "Dunnett") || (intersectionTest == "SpiessensDebois")) {
+					sigma <- 1
+					if (grepl("MultiArm", class(stageResults))){	
+						if (.isStageResultsMultiArmSurvival(stageResults)) {
+							allocationRatiosSelected <- as.numeric(na.omit(
+											dataInput$getAllocationRatios(stage = k, group = 1:gMax)[indices[i, ] == 1]))
+							sigma <- sqrt(allocationRatiosSelected / (1 + allocationRatiosSelected)) %*% 
+									sqrt(t(allocationRatiosSelected / (1 + allocationRatiosSelected))) 			
+						} else {	
+							sampleSizesSelected <- as.numeric(na.omit(
+								dataInput$getSampleSizes(stage = k, group = 1:gMax)[indices[i, ] == 1]))
+							sigma <- sqrt(sampleSizesSelected / (sampleSizesSelected + 
+								dataInput$getSampleSizes(stage = k, group = gMax + 1))) %*% 
+								sqrt(t(sampleSizesSelected / (sampleSizesSelected + 
+								dataInput$getSampleSizes(stage = k, group = gMax + 1)))) 
+						}
+					}
+					if (is.matrix(sigma)){
 						diag(sigma) <- 1
 					}
 					
@@ -271,7 +274,7 @@
 					}	
 					
 					df <- NA_real_
-					if (.isStageResultsMeansMultiArm(stageResults)) {
+					if (.isStageResultsMultiArmMeans(stageResults)) {
 						if (!stageResults$normalApproximation) {
 							df <- sum(dataInput$getSampleSizes(stage = k) - 1, na.rm = TRUE)
 						}
@@ -370,9 +373,10 @@
 #' @export
 #'  
 getClosedCombinationTestResults <- function(stageResults) {
+	
 	.assertIsTrialDesignInverseNormalOrFisher(stageResults$.design)
 	
-	if (.isStageResultsMeansMultiArm(stageResults)) {
+	if (.isStageResultsMultiArmMeans(stageResults)) {
 		if (stageResults$intersectionTest == "Dunnett" && stageResults$varianceOption != "overallPooled" &&	
 				!stageResults$normalApproximation) {
 			warning("'varianceOption' was set to \"overallPooled\" because ",
@@ -381,7 +385,7 @@ getClosedCombinationTestResults <- function(stageResults) {
 		}
 	}
 	
-	if (.isStageResultsRatesMultiArm(stageResults)) {
+	if (.isStageResultsMultiArmRates(stageResults)) {
 		if (stageResults$intersectionTest == "Dunnett" && !stageResults$normalApproximation) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 				"Dunnett test cannot be used with Fisher's exact test (normalApproximation = FALSE)", call. = FALSE)
@@ -401,7 +405,7 @@ getClosedCombinationTestResults <- function(stageResults) {
 }
 
 #
-# Repeated p-values for multi-armed designs
+# Repeated p-values for multi-arm designs
 #
 .getRepeatedPValuesMultiArm <- function(stageResults, ..., tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
 	
@@ -418,26 +422,26 @@ getClosedCombinationTestResults <- function(stageResults) {
 	if (.isTrialDesignInverseNormal(design)) {
 		if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
 			warning("Repeated p-values not available for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
+					C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
 			return(repeatedPValues)
 		}
 		
 		if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
-			warning("Repeated p-values not available for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_HP, "'", call. = FALSE)
+			message("Repeated p-values for 'typeOfDesign' = '", 
+					C_TYPE_OF_DESIGN_HP, "' will only be calculated for the final stage")
 			return(repeatedPValues)
 		}
 		
 		if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
 			warning("Repeated p-values not available for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
+					C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
 			return(repeatedPValues)
 		}
 	}
 	
 	if (.isTrialDesignFisher(design) && design$method == C_FISHER_METHOD_USER_DEFINED_ALPHA) {
 		warning("Repeated p-values not available for 'method' = '", 
-			C_FISHER_METHOD_USER_DEFINED_ALPHA, "'", call. = FALSE)
+				C_FISHER_METHOD_USER_DEFINED_ALPHA, "'", call. = FALSE)
 		return(repeatedPValues)
 	}
 	
@@ -459,10 +463,10 @@ getClosedCombinationTestResults <- function(stageResults) {
 				while (prec > tolerance && maxSearchIterations >= 0) {
 					alpha <- (lower + upper)/2
 					ctr <- .getClosedConditionalDunnettTestResults(
-						design = getDesignConditionalDunnett(
-							alpha = alpha, informationAtInterim = design$informationAtInterim, 
-							secondStageConditioning = design$secondStageConditioning), 
-						stageResults = stageResults, stage = stage)
+							design = getDesignConditionalDunnett(
+									alpha = alpha, informationAtInterim = design$informationAtInterim, 
+									secondStageConditioning = design$secondStageConditioning), 
+							stageResults = stageResults, stage = stage)
 					ifelse(ctr$rejected[g, 2], upper <- alpha, lower <- alpha)
 					prec <- upper - lower
 					maxSearchIterations <- maxSearchIterations - 1
@@ -473,46 +477,106 @@ getClosedCombinationTestResults <- function(stageResults) {
 		return(repeatedPValues)
 	} 
 	
+	if (.isTrialDesignInverseNormal(design)){
+		typeOfDesign <- design$typeOfDesign
+		deltaWT <- design$deltaWT
+		typeBetaSpending = design$typeBetaSpending
+		
+		if (!design$bindingFutility){
+			if (design$typeOfDesign == "PT"){
+				typeOfDesign <- "WT"
+				deltaWT <- design$deltaPT1
+			}
+			if (design$typeBetaSpending != "none"){
+				typeBetaSpending <- "none"
+			}	
+		} else if ((design$typeOfDesign == "PT") || (design$typeBetaSpending != "none")){
+			message("Calculation of repeated p-values might take a while for binding case, please wait...")
+		}
+	}	
+	
 	intersectionTest <- stageResults$intersectionTest
-	for (k in 1:stage) {
-		for (g in 1:gMax) {
-			if (!is.na(stageResults$testStatistics[g, k])) {	
-				prec <- 1
-				lower <- tolerance
-				if (.isTrialDesignFisher(design)) {
-					upper <- 0.5
-				} else {	
+	
+	if (!.isTrialDesignFisher(design) && (design$typeOfDesign == C_TYPE_OF_DESIGN_HP)){ 
+		if (stage == kMax) {
+			startTime <- Sys.time()
+			for (g in 1:gMax) {
+				if (!is.na(stageResults$testStatistics[g, kMax])) {	
+					prec <- 1
+					lower <- .getDesignGroupSequential(kMax = kMax,  
+							sided = design$sided, 
+							informationRates = design$informationRates, 
+							typeOfDesign = C_TYPE_OF_DESIGN_HP, 
+							futilityBounds = design$futilityBounds,
+							bindingFutility = design$bindingFutility)$alphaSpent[kMax - 1] + tolerance
 					if (design$bindingFutility) {
 						upper <- min(0.5, 1 - stats::pnorm(max(design$futilityBounds)))
 					} else {
 						upper <- 0.5
 					}
-				}
-				maxSearchIterations <- 30
-				while (prec > tolerance && maxSearchIterations >= 0) {
-					alpha <- (lower + upper)/2
-					if (.isTrialDesignFisher(design)) {
-						designAlpha <- .getDesignFisher(kMax = kMax, alpha = alpha, 
-							method = design$method, alpha0Vec = design$alpha0Vec, 
-							sided = design$sided, bindingFutility = design$bindingFutility, 
-							informationRates = design$informationRates)	
-					} else {	
+					maxSearchIterations <- 30
+					while (prec > tolerance && maxSearchIterations >= 0) {
+						alpha <- (lower + upper)/2
 						designAlpha <- .getDesignInverseNormal(kMax = kMax, 
-							alpha = alpha, typeOfDesign = design$typeOfDesign, deltaWT = design$deltaWT, 
-							gammaA = design$gammaA,	futilityBounds = design$futilityBounds, 
-							sided = design$sided, bindingFutility = design$bindingFutility, 
-							informationRates = design$informationRates)
-					} 
-					ctr <- .performClosedCombinationTest(stageResults = stageResults, 
-						design = designAlpha, intersectionTest = intersectionTest)
-					ifelse(ctr$rejected[g, k], upper <- alpha, lower <- alpha)
-					prec <- upper - lower
-					maxSearchIterations <- maxSearchIterations - 1
+								alpha = alpha, typeOfDesign = C_TYPE_OF_DESIGN_HP,  
+								futilityBounds = design$futilityBounds,
+								sided = design$sided, bindingFutility = design$bindingFutility, 
+								informationRates = design$informationRates)
+						ctr <- .performClosedCombinationTest(stageResults = stageResults, 
+								design = designAlpha, intersectionTest = intersectionTest)
+						ifelse(ctr$rejected[g, kMax], upper <- alpha, lower <- alpha)
+						prec <- upper - lower
+						maxSearchIterations <- maxSearchIterations - 1
+					}
+					repeatedPValues[g, kMax] <- upper
 				}
-				repeatedPValues[g, k] <- upper
-			}	
+			}
+			.logProgress("Repeated p-values for final stage calculated", startTime = startTime, kMax)
 		}
-		.logProgress("Repeated p-values for stage %s calculated", startTime = startTime, k)		
+	} else {	
+		for (k in 1:stage) {
+			startTime <- Sys.time()
+			for (g in 1:gMax) {
+				if (!is.na(stageResults$testStatistics[g, k])) {	
+					prec <- 1
+					lower <- tolerance
+					if (.isTrialDesignFisher(design)) {
+						upper <- 0.5
+					} else {	
+						if (design$bindingFutility) {
+							upper <- min(0.5, 1 - stats::pnorm(max(design$futilityBounds)))
+						} else {
+							upper <- 0.5
+						}
+					}
+					maxSearchIterations <- 30
+					while (prec > tolerance && maxSearchIterations >= 0) {
+						alpha <- (lower + upper)/2
+						if (.isTrialDesignFisher(design)) {
+							designAlpha <- .getDesignFisher(kMax = kMax, alpha = alpha, 
+									method = design$method, alpha0Vec = design$alpha0Vec, 
+									sided = design$sided, bindingFutility = design$bindingFutility, 
+									informationRates = design$informationRates)	
+						} else {	
+							designAlpha <- .getDesignInverseNormal(kMax = kMax, 
+									alpha = alpha, typeOfDesign = typeOfDesign, deltaWT = deltaWT,
+									typeBetaSpending = typeBetaSpending, gammaB = design$gammaB,
+									deltaPT0 = design$deltaPT0, deltaPT1 = design$deltaPT1, beta = design$beta,
+									gammaA = design$gammaA,	futilityBounds = design$futilityBounds, 
+									sided = design$sided, bindingFutility = design$bindingFutility, 
+									informationRates = design$informationRates)							
+						} 
+						ctr <- .performClosedCombinationTest(stageResults = stageResults, 
+								design = designAlpha, intersectionTest = intersectionTest)
+						ifelse(ctr$rejected[g, k], upper <- alpha, lower <- alpha)
+						prec <- upper - lower
+						maxSearchIterations <- maxSearchIterations - 1
+					}
+					repeatedPValues[g, k] <- upper
+				}	
+			}
+			.logProgress("Repeated p-values for stage %s calculated", startTime = startTime, k)		
+		}
 	}	
 	return(repeatedPValues)
 }
@@ -533,7 +597,7 @@ getClosedCombinationTestResults <- function(stageResults) {
 #' @details 
 #' For performing the conditional Dunnett test the design must be defined through the function 
 #' \code{\link{getDesignConditionalDunnett}}.\cr 
-#' See König et al. (2008) and Wassmer & Brannath (2016), chapter 11 for details of the test procedure.
+#' See Koenig et al. (2008) and Wassmer & Brannath (2016), chapter 11 for details of the test procedure.
 #'  
 #' @template return_object_closed_combination_test_results
 #' @template how_to_get_help_for_generics
@@ -576,7 +640,7 @@ getClosedConditionalDunnettTestResults <- function(stageResults, ..., stage = st
 	secondStageConditioning <- design$secondStageConditioning
 	alpha <- design$alpha
 	
-	if (.isStageResultsSurvivalMultiArm(stageResults)) {
+	if (.isStageResultsMultiArmSurvival(stageResults)) {
 		frac1 <- stageResults$.dataInput$allocationRatios[stageResults$.dataInput$stages == 1 & 
 				 stageResults$.dataInput$groups <= gMax] /
 				(stageResults$.dataInput$allocationRatios[stageResults$.dataInput$stages == 1 & 
@@ -714,7 +778,7 @@ getClosedConditionalDunnettTestResults <- function(stageResults, ..., stage = st
 	secondStageConditioning <- design$secondStageConditioning
 	alpha <- design$alpha
 	
-	if (.isStageResultsSurvivalMultiArm(stageResults)) {
+	if (.isStageResultsMultiArmSurvival(stageResults)) {
 		frac1 <- stageResults$.dataInput$allocationRatios[stageResults$.dataInput$stages == 1 & 
 								stageResults$.dataInput$groups <= gMax] /
 				(stageResults$.dataInput$allocationRatios[stageResults$.dataInput$stages == 1 & 

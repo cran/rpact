@@ -13,14 +13,14 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3334 $
-#:#  Last changed: $Date: 2020-06-22 08:39:06 +0200 (Mon, 22 Jun 2020) $
+#:#  File version: $Revision: 4166 $
+#:#  Last changed: $Date: 2021-01-05 13:42:19 +0100 (Tue, 05 Jan 2021) $
 #:#  Last changed by: $Author: pahlke $
 ##
 
 
-getAssertionTestDesign <- function(kMax = NA_integer_, informationRates = NA_real_, futilityBounds = NA_real_,
-	designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
+getAssertionTestDesign <- function(..., kMax = NA_integer_, informationRates = NA_real_, futilityBounds = NA_real_,
+		designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
 	
 	if (designClass == C_CLASS_NAME_TRIAL_DESIGN_FISHER) {
 		return(TrialDesignFisher(

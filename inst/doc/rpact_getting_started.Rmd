@@ -67,7 +67,7 @@ following topics:
     [gsDesign](https://cran.r-project.org/package=gsDesign)
 12. Supplementing and enhancing rpact's graphical capabilities with
     [ggplot2](https://cran.r-project.org/package=ggplot2)
-13.  Using the inverse normal combination test for analysing a trial with
+13.  Using the inverse normal combination test for analyzing a trial with
      continuous endpoint and potential sample size reassessment
 14. Planning a trial with binary endpoints
 15. Planning a survival trial

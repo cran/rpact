@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4048 $
-#:#  Last changed: $Date: 2020-11-30 10:44:28 +0100 (Mon, 30 Nov 2020) $
+#:#  File version: $Revision: 4443 $
+#:#  Last changed: $Date: 2021-02-22 09:13:17 +0100 (Mon, 22 Feb 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -233,7 +233,7 @@
 	
 	if (grid == 0) {
 		for (p in plotList) {
-			print(p)
+			suppressMessages(print(p))
 		}
 		return(invisible(plotList))
 	}
@@ -440,10 +440,14 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		types <- .removeInvalidPlotTypes(obj, types, c(4:14))
 	}
 	else if (inherits(obj, "TrialDesign") || inherits(obj, "TrialDesignSet")) {
-		if (obj$kMax > 1) {
+		design <- obj
+		if (inherits(obj, "TrialDesignSet")) {
+			design <- obj$getDesignMaster()
+		}
+		if (design$kMax > 1) {
 			types <- c(types, 1, 3)
 		}
-		if (inherits(obj, "TrialDesignFisher")) {
+		if (inherits(design, "TrialDesignFisher")) {
 			types <- c(types, 4)
 		} else {
 			types <- c(types, 4:9)
@@ -588,6 +592,10 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (identical(yParameterNames, c("futilityBounds", "criticalValues"))) {
 		yParameterNames[1] <- paste0("c(", objectName, "$futilityBounds, ", 
 			objectName, "$criticalValues[length(", objectName, "$criticalValues)])")
+	}
+	else if (identical(yParameterNames, c("futilityBoundsEffectScale", "criticalValuesEffectScale"))) {
+		yParameterNames[1] <- paste0("c(", objectName, "$futilityBoundsEffectScale, ", 
+			objectName, "$criticalValuesEffectScale[length(", objectName, "$criticalValuesEffectScale)])")
 	}
 
 	yAxisCmds <- c()
@@ -741,7 +749,9 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		mainTitle = NA_character_, xlab = NA_character_, ylab = NA_character_, 
 		palette = "Set1", theta = seq(-1, 1, 0.02), nMax = NA_integer_, 
 		plotPointsEnabled = NA, legendPosition = NA_integer_, 
-		variedParameters = logical(0), qnormAlphaLineEnabled = TRUE, yAxisScalingEnabled = TRUE, 
+		variedParameters = logical(0), 
+		qnormAlphaLineEnabled = TRUE, 
+		yAxisScalingEnabled = TRUE, 
 		ratioEnabled = NA, plotSettings = NULL) {
 	
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
@@ -818,10 +828,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		yParameterName3 <- yParameterNames[3]
 	}
 	
-	mirrorModeEnabled <- FALSE
-	if (!is.null(yParameterName2) && !is.na(yParameterName2)) {
-		mirrorModeEnabled <- paste0(yParameterName1, "Mirrored") == yParameterName2
-	}
+	mirrorModeEnabled <- any(grepl("Mirrored$", yParameterNames))
 	
 	tableColumnNames <- .getTableColumnNames(design = designMaster)
 	
@@ -842,7 +849,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	else if (xParameterName == "effectMatrix" && !is.null(yParameterName2) && !is.na(yParameterName2) && 
 			yParameterName1 %in% c("expectedNumberOfEvents", "expectedNumberOfSubjects") &&
 			yParameterName2 == "rejectAtLeastOne") {
-		# special cae: simulation results, plot type 6 (expected number of subjects and power)
+		# special case: simulation results, plot type 6 (expected number of subjects and power)
 		yAxisLabel2 <- .getAxisLabel(yParameterName2, tableColumnNames)
 		yParameterName3 <- yParameterName2
 		yParameterName2 <- NA_character_
@@ -857,27 +864,30 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		}
 	}
 	
-	data$xValues <- data[[xParameterName]]
-	data$yValues <- data[[yParameterName1]]
-	if (is.null(yParameterName2) || is.na(yParameterName2)) {
-		data$yValues2 <- rep(NA_real_, nrow(data))
-	} else {
-		data$yValues2 <- data[[yParameterName2]]
-	}
-	if (is.null(yParameterName3)) {
-		data$yValues3 <- rep(NA_real_, nrow(data))
-	} else {
-		data$yValues3 <- data[[yParameterName3]]
-	}
-	
-	if (!is.na(categoryParameterName)) {
-		data$categories <- data[[categoryParameterName]]
-		if (length(variedParameters) > 1) {
-			data$categories <- paste0(variedParameters[1], " = ", data$categories, ", ", 
-				variedParameters[2], " = ", data[[variedParameters[2]]])
+	if (!("xValues" %in% colnames(data)) || !("yValues" %in% colnames(data))) {
+		data$xValues <- data[[xParameterName]]
+		data$yValues <- data[[yParameterName1]]
+		
+		if (is.null(yParameterName2) || is.na(yParameterName2)) {
+			data$yValues2 <- rep(NA_real_, nrow(data))
+		} else {
+			data$yValues2 <- data[[yParameterName2]]
 		}
-	} else {
-		data$categories <- rep(NA_character_, nrow(data))
+		if (is.null(yParameterName3)) {
+			data$yValues3 <- rep(NA_real_, nrow(data))
+		} else {
+			data$yValues3 <- data[[yParameterName3]]
+		}
+		
+		if (!is.na(categoryParameterName)) {
+			data$categories <- data[[categoryParameterName]]
+			if (length(variedParameters) > 1) {
+				data$categories <- paste0(variedParameters[1], " = ", data$categories, ", ", 
+					variedParameters[2], " = ", data[[variedParameters[2]]])
+			}
+		} else {
+			data$categories <- rep(NA_character_, nrow(data))
+		}
 	}
 	
 	if (!is.na(nMax) && is.null(yParameterName3) && xParameterName == "informationRates") {
@@ -899,7 +909,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	
 	scalingFactor1 <- 1
 	scalingFactor2 <- 1
-	if (!is.null(yParameterName2)) {
+	if (!is.null(yParameterName2) && "yValues2" %in% colnames(data) && "yValues3" %in% colnames(data)) { 
 		if (yAxisScalingEnabled && !is.null(yParameterName3)) {
 			if (is.na(yParameterName2)) {
 				scalingFactors <- .getScalingFactors(data$yValues, data$yValues3)
@@ -941,7 +951,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		decreasing <- addPowerAndAverageSampleNumber && xParameterName %in% c("effect", "effectMatrix")
 		data$categories <- factor(data$categories, levels = unqiueValues[order(unqiueValues, decreasing = decreasing)])
 		
-		if (yParameterName1 == "alphaSpent" && yParameterName2 == "betaSpent") {
+		if (!is.na(legendTitle) && yParameterName1 == "alphaSpent" && yParameterName2 == "betaSpent") {
 			sep <- ifelse(length(legendTitle) > 0 && nchar(legendTitle) > 0, "\n", "")
 			legendTitle <- paste(legendTitle, "Type of error", sep = sep)
 		}
@@ -958,30 +968,53 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			(.isTrialDesignPlanRates(parameterSet) && parameterSet$riskRatio)
 	}
 	
+	plotDashedHorizontalLine <- "criticalValuesEffectScale" %in% yParameterNames && designMaster$sided == 2
 	p <- .plotDataFrame(data, mainTitle = mainTitle, xlab = xlab, ylab = ylab, 
 		xAxisLabel = xAxisLabel, yAxisLabel1 = yAxisLabel1, yAxisLabel2 = yAxisLabel2, 
 		palette = palette, plotPointsEnabled = plotPointsEnabled, legendTitle = legendTitle,
 		legendPosition = legendPosition, scalingFactor1 = scalingFactor1, scalingFactor2 = scalingFactor2,
 		addPowerAndAverageSampleNumber = addPowerAndAverageSampleNumber, 
-		mirrorModeEnabled = mirrorModeEnabled, ratioEnabled = ratioEnabled, 
-		plotSettings = plotSettings, sided = designMaster$sided, ...)
+		mirrorModeEnabled = mirrorModeEnabled, plotDashedHorizontalLine = plotDashedHorizontalLine, 
+		ratioEnabled = ratioEnabled, plotSettings = plotSettings, sided = designMaster$sided, ...)
 	
 	if (xParameterName == "informationRates") {
 		p <- p + ggplot2::scale_x_continuous(breaks=c(0, round(data$xValues, 3)))
 	}
-	
-	if (!is.data.frame(parameterSet) && yParameterName1 == "criticalValues" && designMaster$sided == 2) {
+
+	# add mirrored lines
+	if (!is.data.frame(parameterSet) && designMaster$sided == 2 && 
+			((yParameterName1 == "criticalValues" || yParameterName1 == "criticalValuesEffectScale") ||
+			(!is.null(yParameterName2) && !is.na(yParameterName2) && 
+				(yParameterName2 == "criticalValues" || yParameterName2 == "criticalValuesEffectScale")))) {
 		p <- plotSettings$mirrorYValues(p, yValues = data$yValues, 
 			plotPointsEnabled = !addPowerAndAverageSampleNumber, 
 			pointBorder = .getPointBorder(data, plotSettings))
+		
+		# add zero line for Pampallona Tsiatis design
+		p <- p + ggplot2::geom_hline(yintercept = 0, linetype = "solid") # longdash
 	}
 	
 	if (!.isTrialDesignFisher(designMaster) && qnormAlphaLineEnabled && 
-			((!is.data.frame(parameterSet) && (yParameterName1 == "criticalValues" || 
-			(yParameterName1 == "futilityBounds" && !is.null(yParameterName2) && 
-			yParameterName2 == "criticalValues"))) || 
-			(yParameterName1 %in% c("futilityBounds", "criticalValues") && !is.null(yParameterName2) && 
-			yParameterName2 %in% c("criticalValues", "criticalValuesMirrored")))) {
+				(
+					(
+						!is.data.frame(parameterSet) && 
+						(
+							yParameterName1 == "criticalValues" 
+							|| 
+							(	
+								yParameterName1 == "futilityBounds" && !is.null(yParameterName2) && 
+									yParameterName2 == "criticalValues"
+							)
+						)
+					) 
+					|| 
+					(
+						!is.null(yParameterName2) && 
+							grepl("futilityBounds|criticalValues", yParameterName1) &&
+							grepl("criticalValues", yParameterName2)
+					)
+				)
+			) {
 		p <- .addQnormAlphaLine(p, designMaster, plotSettings, data)
 	}
 	
@@ -994,14 +1027,28 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		}
 		p <- p + ggplot2::geom_hline(yintercept = yValue, linetype = "dashed")
 		yValueLabel <- paste0("alpha == ", round(yValue, 4))
-		hjust <- -0.2
+		hjust <- plotSettings$scaleSize(-0.2)
 		p <- p + ggplot2::annotate("label", x = -Inf, hjust = hjust, y = yValue, 
-			label = yValueLabel, size = 2.5, parse = TRUE, colour = "white", fill = "white")
-		p <- p + ggplot2::annotate("text", x = -Inf, hjust = hjust - 0.15, y = yValue, 
-			label = yValueLabel, size = 2.5, parse = TRUE)
+			label = yValueLabel, size = plotSettings$scaleSize(2.5), parse = TRUE, colour = "white", fill = "white")
+		p <- p + ggplot2::annotate("text", x = -Inf, hjust = hjust - plotSettings$scaleSize(0.15), y = yValue, 
+			label = yValueLabel, size = plotSettings$scaleSize(2.5), parse = TRUE)
 	}
 	
 	return(p)
+}
+
+.isPampallonaTsiatisDesign <- function(x) {
+	design <- NULL
+	if (inherits(x, "TrialDesign")) {
+		design <- x
+	}
+	if (inherits(x, "TrialDesignSet")) {
+		design <- x$getDesignMaster()
+	}
+	if (is.null(design)) {
+		return(FALSE)
+	}
+	return(design$typeOfDesign == C_TYPE_OF_DESIGN_PT)
 }
 
 .naAndNaNOmit <- function(x) {
@@ -1049,7 +1096,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		yAxisLabel1 = NA_character_, yAxisLabel2 = NA_character_, 
 		palette = "Set1", plotPointsEnabled = NA, legendTitle = NA_character_,
 		legendPosition = NA_integer_, scalingFactor1 = 1, scalingFactor2 = 1,
-		addPowerAndAverageSampleNumber = FALSE, mirrorModeEnabled = FALSE, 
+		addPowerAndAverageSampleNumber = FALSE, mirrorModeEnabled = FALSE, plotDashedHorizontalLine = FALSE, 
 		ratioEnabled = FALSE, plotSettings = NULL, sided = 1, ...) {
 	
 	if (!is.data.frame(data)) {
@@ -1073,19 +1120,28 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 				removedRows1, removedRows2), call. = FALSE)
 	}
 	
-	categoryEnabled <- !is.null(data$categories) && (sum(is.na(data$categories)) < length(data$categories))
-	if (categoryEnabled) {
+	categoryEnabled <- !is.null(data[["categories"]]) && !all(is.na(data$categories))
+	groupEnabled <- !is.null(data[["groups"]]) && !all(is.na(data$groups))
+	if (categoryEnabled && groupEnabled) {
+		data <- data[, c("xValues", "yValues", "categories", "groups")]
+	} else if (categoryEnabled) {
 		data <- data[, c("xValues", "yValues", "categories")]
+	} else if (groupEnabled) {
+		data <- data[, c("xValues", "yValues", "groups")]
 	} else {
 		data <- data[, c("xValues", "yValues")]
 	}
 	
-	if (mirrorModeEnabled) {
+	if (categoryEnabled && groupEnabled) {
 		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 
-				fill = factor(.data[["categories"]]))) 
+			colour = factor(.data[["groups"]]),
+			fill = factor(.data[["categories"]]))) 
+	} else if (mirrorModeEnabled) {
+		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 
+			fill = factor(.data[["categories"]]))) 
 	} else if (categoryEnabled) {	
 		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 
-				colour = factor(.data[["categories"]])))
+			colour = factor(.data[["categories"]])))
 	} else {
 		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]]))
 	}
@@ -1097,9 +1153,9 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	p <- plotSettings$setMainTitle(p, mainTitle)
 	
 	# set legend
-	if (mirrorModeEnabled || (!is.na(legendPosition) && legendPosition == -1)) {
+	if (!categoryEnabled || mirrorModeEnabled || (!is.na(legendPosition) && legendPosition == -1)) {
 		p <- p + ggplot2::theme(legend.position = "none")
-	} else if (categoryEnabled) {
+	} else {
 		p <- plotSettings$setLegendPosition(p, legendPosition = legendPosition)
 		p <- plotSettings$setLegendBorder(p)
 		p <- plotSettings$setLegendTitle(p, legendTitle)
@@ -1123,7 +1179,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	# add dashed line to y = 0 or y = 1
-	if (mirrorModeEnabled) {
+	if (mirrorModeEnabled || plotDashedHorizontalLine) {
 		p <- p + ggplot2::geom_hline(yintercept = ifelse(ratioEnabled, 1, 0), linetype = "dashed")
 	}
 	
@@ -1229,10 +1285,10 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		p <- p + ggplot2::geom_hline(yintercept = -yValue, linetype = "dashed")
 	}
 	if (annotationEnabled) {
-		p <- p + ggplot2::annotate("label", x = -Inf, hjust = -0.1, y = yValue, 
-			label = yValueLabel, size = 2.5, parse = TRUE, colour = "white", fill = "white")
-		p <- p + ggplot2::annotate("text", x = -Inf, hjust = -0.15, y = yValue, 
-			label = yValueLabel, size = 2.5, parse = TRUE)
+		p <- p + ggplot2::annotate("label", x = -Inf, hjust = plotSettings$scaleSize(-0.1), y = yValue, 
+			label = yValueLabel, size = plotSettings$scaleSize(2.5), parse = TRUE, colour = "white", fill = "white")
+		p <- p + ggplot2::annotate("text", x = -Inf, hjust = plotSettings$scaleSize(-0.15), y = yValue, 
+			label = yValueLabel, size = plotSettings$scaleSize(2.5), parse = TRUE)
 	}
 	
 	# expand y-axis range
