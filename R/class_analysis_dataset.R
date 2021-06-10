@@ -13,13 +13,14 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3977 $
-#:#  Last changed: $Date: 2020-11-20 12:21:54 +0100 (Fr, 20 Nov 2020) $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
 C_KEY_WORDS_GROUPS <- c("group", "groups")
 C_KEY_WORDS_STAGES <- c("stage", "stages")
+C_KEY_WORDS_SUBSETS <- c("subset", "subsets")
 
 C_KEY_WORDS_SAMPLE_SIZES <- c("n", "sampleSizes", "sampleSize")
 C_KEY_WORDS_MEANS <- c("means", "mean")
@@ -32,6 +33,12 @@ C_KEY_WORDS_EVENTS_2 <- c("event2", "events2")
 C_KEY_WORDS_OVERALL_EVENTS <- c("overallEvents", "overallEvent", "overall.events", "overall.event")
 C_KEY_WORDS_OVERALL_EVENTS_1 <- c("overallEvents1", "overallEvent1", "overall.events.1", "overall.event.1")
 C_KEY_WORDS_OVERALL_EVENTS_2 <- c("overallEvents2", "overallEvent2", "overall.events.2", "overall.event.2")
+
+C_KEY_WORDS_EXPECTED_EVENTS <- c("expectedEvents", "expectedEvent")
+C_KEY_WORDS_VARIANCE_EVENTS <- c("varianceEvents", "varianceEvent")
+
+C_KEY_WORDS_OVERALL_EXPECTED_EVENTS <- c("overallExpectedEvents", "overallExpectedEvent")
+C_KEY_WORDS_OVERALL_VARIANCE_EVENTS <- c("overallVarianceEvents", "overallVarianceEvent")
 
 C_KEY_WORDS_SAMPLE_SIZES_1 <- c("n1", "sampleSize1", "sampleSizes1")
 C_KEY_WORDS_MEANS_1 <- c("means1", "mean1")
@@ -72,6 +79,7 @@ C_KEY_WORDS_OVERALL_LOG_RANKS <- c("overallLogRanks", "overallLogRank", "olr",
 C_KEY_WORDS <- c(
 	C_KEY_WORDS_GROUPS,
 	C_KEY_WORDS_STAGES,
+	C_KEY_WORDS_SUBSETS,
 	C_KEY_WORDS_SAMPLE_SIZES, 
 	C_KEY_WORDS_MEANS, 
 	C_KEY_WORDS_ST_DEVS,
@@ -487,33 +495,52 @@ writeDatasets <- function(datasets, file, ..., append = FALSE, quote = TRUE, sep
 #'     \code{getDataset(events =, logRanks =, allocationRatios =)} where 
 #'     \code{events}, \code{logRanks}, and \code{allocation ratios} are the stagewise events, 
 #'     (one-sided) logrank statistics, and allocation ratios. 
-#' 	  \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}} 
-#' 	  for more than one comparison is created by adding subsequent digits to the variable names. 
-#' 	  The system can analyze these data in a multi-arm many-to-one comparison setting where the
-#' 	  group with the highest index represents the control group.		  		
+#'   \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}} 
+#'     for more than one comparison is created by adding subsequent digits to the variable names. 
+#'     The system can analyze these data in a multi-arm many-to-one comparison setting where the
+#'     group with the highest index represents the control group.		  		
 #' }
 #' Prefix \code{overall[Capital case of first letter of variable name]...} for the variable 
 #' names enables entering the overall results and calculates stagewise statistics.
-#' 
+#'
+#' \code{n} can be used in place of \code{samplesizes}. 
+#'  
 #' Note that in survival design usually the overall events and logrank test statistics are provided
 #' in the output, so \cr
 #' \code{getDataset(overallEvents=, overallLogRanks =, overallAllocationRatios =)} \cr
 #' is the usual command for entering survival data. Note also that for \code{overallLogranks} also the
 #' z scores from a Cox regression can be used.
 #' 
-#' For multi-arm designs the index refers to the considered comparison. For example,\cr
+#' For multi-arm designs, the index refers to the considered comparison. For example,\cr
 #' \code{
-#' 	getDataset(events1=c(13, 33), logRanks1 = c(1.23, 1.55), events2 = c(16, NA), logRanks2 = c(1.55, NA))
+#'   getDataset(events1=c(13, 33), logRanks1 = c(1.23, 1.55), events2 = c(16, NA), logRanks2 = c(1.55, NA))
 #' } \cr
 #' refers to the case where one active arm (1) is considered at both stages whereas active arm 2  
 #' was dropped at interim. Number of events and logrank statistics are entered for the corresponding
 #' comparison to control (see Examples). 
 #' 
-#' \code{n} can be used in place of \code{samplesizes}.  
-#'  
+#' For enrichment designs, the comparison of two samples is provided for an unstratified  
+#' (sub-population wise) or stratified data input.\cr
+#' For unstratified (sub-population wise) data input the data sets are defined for the sub-populations 
+#' S1, S2, ..., F, where F refers to the full populations. Use of \code{getDataset(S1 = , S2, ..., F = )} 
+#' defines the data set to be used in \code{\link{getAnalysisResults}} (see examples)\cr
+#' For stratified data input the data sets are defined for the strata S1, S12, S2, ..., R, where R 
+#' refers to the remainder of the strata such that the union of all sets is the full population. 
+#' Use of \code{getDataset(S1 = , S12 = , S2, ..., R = )} defines the data set to be used in 
+#' \code{\link{getAnalysisResults}} (see examples)\cr
+#' For survival data, for enrichment designs the log-rank statistics should be entered as stratified
+#' log-rank statistics in order to provide strong control of Type I error rate. For stratified data input,
+#' the variables to be specified in \code{getDataset()} are \code{events}, \code{expectedEvents}, 
+#' \code{varianceEvents}, and \code{allocationRatios} or \code{overallEvents}, \code{overallExpectedEvents}, 
+#' \code{overallVarianceEvents}, and \code{overallAllocationRatios}. From this, (stratified) log-rank tests are 
+#' calculated. 
+#' 
 #' @template return_object_dataset
 #'  
 #' @template examples_get_dataset
+#' 
+#' @include f_analysis_base.R
+#' @include f_analysis_utilities.R
 #' 
 #' @export
 #' 
@@ -521,7 +548,11 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	
 	args <- list(...)
 	if (length(args) == 0) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame or data vectors expected")
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame, data vectors, or datasets expected")
+	}
+	
+	if (.optionalArgsContainsDatasets(...)) {
+		return(.getEnrichmentDatasetFromArgs(...))
 	}
 	
 	exampleType <- args[["example"]]
@@ -546,22 +577,439 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 		dataFrame <- .createDataFrame(...)
 	}
 	
+	enrichmentEnabled <- .isDataObjectEnrichment(...)
+	
 	if (.isDataObjectMeans(...)) {
 		return(DatasetMeans(dataFrame = dataFrame, 
-				floatingPointNumbersEnabled = floatingPointNumbersEnabled))
+			floatingPointNumbersEnabled = floatingPointNumbersEnabled,
+			enrichmentEnabled = enrichmentEnabled))
 	}
 	
 	if (.isDataObjectRates(...)) {
 		return(DatasetRates(dataFrame = dataFrame,
-				floatingPointNumbersEnabled = floatingPointNumbersEnabled))
+			floatingPointNumbersEnabled = floatingPointNumbersEnabled,
+			enrichmentEnabled = enrichmentEnabled))
+	}
+	
+	if (.isDataObjectNonStratifiedEnrichmentSurvival(...)) {
+		return(DatasetEnrichmentSurvival(dataFrame = dataFrame,
+			floatingPointNumbersEnabled = floatingPointNumbersEnabled,
+			enrichmentEnabled = enrichmentEnabled))
 	}
 	
 	if (.isDataObjectSurvival(...)) {
 		return(DatasetSurvival(dataFrame = dataFrame,
-				floatingPointNumbersEnabled = floatingPointNumbersEnabled))
+			floatingPointNumbersEnabled = floatingPointNumbersEnabled,
+			enrichmentEnabled = enrichmentEnabled))
 	}
 	
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "failed to identify dataset type")
+}
+
+.optionalArgsContainsDatasets <- function(...) {
+	args <- list(...)
+	if (length(args) == 0) {
+		return(FALSE)
+	}
+	
+	for (arg in args) {
+		if (inherits(arg, "Dataset")) {
+			return(TRUE)
+		}
+	}
+	return(FALSE)
+}
+
+.getGMaxFromSubsetNames <- function(subsetNames) {
+	subsetNumbers <- gsub("\\D", "", subsetNames)
+	subsetNumbers <- subsetNumbers[subsetNumbers != ""]
+	if (length(subsetNumbers) == 0) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'subsetNames' (", .arrayToString(subsetNames), ") does not contain any numbers")
+	}
+	subsetNumbers <- paste0(subsetNumbers, collapse = "")
+	subsetNumbers <- strsplit(subsetNumbers, "")[[1]]
+	subsetNumbers <- as.integer(subsetNumbers)
+	gMax <- max(subsetNumbers) + 1
+	return(gMax)
+}
+
+.getSubsetsFromArgs <- function(...) {
+	args <- list(...)
+	if (length(args) == 0) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "one or more subset datasets expected")
+	}
+	
+	subsetNames <- names(args)
+	if (is.null(subsetNames)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all subsets must be named")
+	}
+	
+	if (!("R" %in% subsetNames) && !("F" %in% subsetNames)) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+			'"R" (stratified analysis)" or "F" (non-stratified analysis) must be defined as subset')
+	}
+	
+	subsetNumbers <- gsub("\\D", "", subsetNames)
+	subsetNumbers <- subsetNumbers[subsetNumbers != ""] #  & nchar(subsetNumbers) == 1
+	if (length(subsetNumbers) == 0) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all subset names (", 
+			.arrayToString(subsetNames), ") must be \"S[n]\", \"R\", or \"F\", ", 
+			"where [n] is a number with increasing digits (starting with 1)")
+	}
+	
+	stratifiedInput <- "R" %in% subsetNames 
+	
+	validSubsetNames <- ifelse(stratifiedInput, "R", "F")
+	subsetNumbers <- paste0(subsetNumbers, collapse = "")
+	subsetNumbers <- strsplit(subsetNumbers, "")[[1]]
+	subsetNumbers <- as.integer(subsetNumbers)
+	gMax <- max(subsetNumbers) + 1
+	validSubsetNames <- unique(unlist(.createSubsetsByGMax(gMax, stratifiedInput = stratifiedInput)))
+	for (subsetName in subsetNames) {
+		if (subsetName == "") {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all subsets must be named")
+		}
+		
+		if (!(subsetName %in% validSubsetNames)) {
+			suffix <- ifelse(stratifiedInput, " (stratified analysis)", " (non-stratified analysis)")
+			if (length(validSubsetNames) < 10) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "invalid subset name (", subsetName, "); ", 
+					"valid names are ", .arrayToString(validSubsetNames), suffix)
+			} else {
+				restFull <- ifelse(stratifiedInput, '"R"', '"F"')
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "invalid subset name (", subsetName, "): ", 
+					"all subset names must be \"S[n]\" or ", restFull, ", ", 
+					"where [n] is a number with increasing digits", suffix)
+			}
+		}
+	}
+	
+	subsets <- NULL
+	subsetType <- NA_character_
+	emptySubsetNames <- validSubsetNames[!(validSubsetNames %in% subsetNames)]
+	for (subsetName in subsetNames) {
+		subset <- args[[subsetName]]
+		if (is.null(subset) || (!isS4(subset) && is.na(subset))) {
+			emptySubsetNames <- c(emptySubsetNames, subsetName)
+		} else {
+			if (!.isDataset(subset)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+					"subset ", subsetName, " is not a dataset (is ", class(subset), ")")
+			}
+			if (!is.na(subsetType) && subsetType != class(subset)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+					"all subsets must have the same type (found ", subsetType, " and ", class(subset), ")")
+			}
+			subsetType <- class(subset)
+			if (is.null(subset[[".data"]])) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+					"subset ", subsetName, " does not contain field '.data'")
+			}
+			subset <- subset$.data
+			subset$subset <- rep(subsetName, nrow(subset))
+			if (is.null(subsets)) {
+				subsets <- subset
+			} else {
+				subsets <- rbind(subsets, subset)
+			}
+		}
+	}
+	
+	if (length(emptySubsetNames) > 0) {
+		emptySubsetNames <- unique(emptySubsetNames)
+		template <- subsets[subsets$subset == ifelse(stratifiedInput, "R", "F"), ]
+		colNames <- colnames(template)
+		colNames <- colNames[!(colNames %in% c("stage", "group", "subset"))]
+		for (colName in colNames) {
+			template[[colName]] <- rep(NA_real_, nrow(template))
+		}
+		
+		for (subsetName in emptySubsetNames) {
+			template$subset <- rep(subsetName, nrow(template))
+			subsets <- rbind(subsets, template)
+		}
+		
+		if (length(emptySubsetNames) == 1) {
+			warning("The undefined subset ", emptySubsetNames, 
+				" was defined as empty subset", call. = FALSE)
+		} else {
+			warning(gettextf("The %s undefined subsets %s were defined as empty subsets",
+				length(emptySubsetNames), .arrayToString(emptySubsetNames)), call. = FALSE)
+		}
+	}
+	
+	return(subsets)
+}
+
+.validateEnrichmentDataFrameAtFirstStage <- function(dataFrame, params) {
+	dataFrameStage1 <- dataFrame[dataFrame$stage == 1, ]
+	for (param in params) {
+		paramValue <- dataFrameStage1[[param]]
+		if (any(is.null(paramValue) || any(is.infinite(paramValue)))) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				gettextf("all %s values (%s) at first stage must be valid",
+				sQuote(param), .arrayToString(paramValue, maxLength = 10)))
+		}
+		if (any(is.na(paramValue))) {
+			subsets <- unique(dataFrame$subset)			
+			for (s in subsets) {
+				subData <- dataFrame[dataFrame$subset == s, ]
+				subsetParamValues <- subData[[param]]
+				if (!all(is.na(subsetParamValues)) && any(is.na(subsetParamValues[subData$stage == 1]))) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+						gettextf("all %s values (%s) at first stage must be valid (NA is not allowed)", 
+						sQuote(param), .arrayToString(paramValue, maxLength = 10)))
+				}
+			}
+		}
+	}
+}
+
+.getEndpointSpecificDataFrameParameterNames <- function(dataFrame) {
+	paramNames <- colnames(dataFrame)
+	paramNames <- paramNames[!(paramNames %in% c("stage", "group", "subset"))]
+	return(paramNames)
+}
+
+.validateEnrichmentDataFrameDeselection <- function(dataFrame) {
+	paramNames <- .getEndpointSpecificDataFrameParameterNames(dataFrame)
+	for (i in 1:nrow(dataFrame)) {
+		row <- dataFrame[i, paramNames]
+		if (any(is.na(row)) && !all(is.na(row))) {
+			stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+				gettextf(paste0("inconsistent deselction in group %s at stage %s (", 
+					"%s: all or none must be NA)"), 
+					dataFrame$group[i], dataFrame$stage[i], .arrayToString(paramNames, maxCharacters = 40)))
+		}
+	}
+	
+	subsets <- unique(dataFrame$subset)
+	for (s in subsets) {
+		deselectedStage <- 0
+		for (stage in unique(dataFrame$stage)) {
+			subData <- dataFrame[dataFrame$subset == s & dataFrame$stage == stage, paramNames]
+
+			if (deselectedStage > 0 && !all(is.na(subData))) {
+				stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+					gettextf(paste0("%s was deselected at stage %s ",  
+					"and therefore must be also deselected in the following stages, ",
+					"but is no longer deselected in stage %s"), s, deselectedStage, stage))
+			}
+			
+			if (any(is.na(subData))) {
+				deselectedStage <- stage
+			}
+		}
+	}
+}
+
+.validateEnrichmentDataFrameMeans <- function(dataFrame) {
+	if (any(na.omit(dataFrame$stDev) <= 0) || any(na.omit(dataFrame$overallStDev) <= 0)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all standard deviations must be > 0")
+	}
+	if (any(na.omit(dataFrame$sampleSize) <= 0) || any(na.omit(dataFrame$overallSampleSize) <= 0)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be > 0")
+	}
+	
+	.validateEnrichmentDataFrameAtFirstStage(dataFrame, 
+		params = c("sampleSize", "overallSampleSize", "mean", "overallMean", "stDev", "overallStDev"))
+	
+	.validateEnrichmentDataFrameDeselection(dataFrame)
+	
+	subsets <- unique(dataFrame$subset)
+	if ("F" %in% subsets) {
+		subsets <- subsets[subsets != "F"]
+		fullData <- dataFrame[dataFrame$subset == "F", ] 
+		for (s in subsets) {
+			for (stage in unique(dataFrame$stage)) {
+				for (group in unique(dataFrame$group)) {
+					subData <- dataFrame[dataFrame$subset == s & dataFrame$stage == stage & dataFrame$group == group,  ]
+					
+					stDevFull <- na.omit(fullData$stDev[fullData$stage == stage & fullData$group == group])
+    				stDevSubset <- na.omit(subData$stDev)
+					if (length(stDevFull) > 0 && length(stDevSubset) > 0 && any(stDevFull <= stDevSubset)) {
+						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+							gettextf("'stDev' F (%s) must be > 'stDev' %s (%s) in group %s at stage %s",
+							.arrayToString(stDevFull), s, 
+							.arrayToString(stDevSubset), group, stage))
+					}
+					
+					sampleSizeFull <- na.omit(fullData$sampleSize[fullData$stage == stage & fullData$group == group])
+    				sampleSizeSubset <- na.omit(subData$sampleSize)
+					if (length(sampleSizeFull) > 0 && length(sampleSizeSubset) > 0 && any(sampleSizeFull < sampleSizeSubset)) {
+						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+							gettextf("'sampleSize' F (%s) must be >= 'sampleSize' %s (%s) in group %s at stage %s",
+							.arrayToString(sampleSizeFull), s, 
+							.arrayToString(sampleSizeSubset), group, stage))
+					}
+				}
+			}
+		}
+	}
+}
+
+.validateEnrichmentDataFrameSurvival <- function(dataFrame) {
+	if (any(na.omit(dataFrame$event) < 0) || any(na.omit(dataFrame$overallEvent) < 0)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all events must be >= 0")
+	}
+	
+	.validateEnrichmentDataFrameAtFirstStage(dataFrame, 
+		params = c("event", "overallEvent"))
+	
+	.validateEnrichmentDataFrameDeselection(dataFrame)
+	
+	subsets <- unique(dataFrame$subset)
+	if ("F" %in% subsets) {
+		subsets <- subsets[subsets != "F"]
+		fullData <- dataFrame[dataFrame$subset == "F", ] 
+		for (s in subsets) {
+			for (stage in unique(dataFrame$stage)) {
+				for (group in unique(dataFrame$group)) {
+					subData <- dataFrame[dataFrame$subset == s & dataFrame$stage == stage & dataFrame$group == group,  ]
+					
+					eventFull <- na.omit(fullData$event[fullData$stage == stage & fullData$group == group])
+    				eventSubset <- na.omit(subData$event)
+					if (length(eventFull) > 0 && length(eventSubset) > 0 && any(eventFull < eventSubset)) {
+						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+							gettextf("'event' F (%s) must be >= 'event' %s (%s) in group %s at stage %s",
+							.arrayToString(eventFull), s, 
+							.arrayToString(eventSubset), group, stage))
+					}
+				}
+			}
+		}
+	}
+}
+
+.validateEnrichmentDataFrameRates <- function(dataFrame) {
+	if (any(na.omit(dataFrame$sampleSize) <= 0) || any(na.omit(dataFrame$overallSampleSize) <= 0)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be > 0")
+	}
+	
+	.validateEnrichmentDataFrameAtFirstStage(dataFrame, 
+		params = c("sampleSize", "overallSampleSize"))
+	
+	.validateEnrichmentDataFrameDeselection(dataFrame)
+	
+	subsets <- unique(dataFrame$subset)
+	if ("F" %in% subsets) {
+		subsets <- subsets[subsets != "F"]
+		fullData <- dataFrame[dataFrame$subset == "F", ] 
+		for (s in subsets) {
+			for (stage in unique(dataFrame$stage)) {
+				for (group in unique(dataFrame$group)) {
+					subData <- dataFrame[dataFrame$subset == s & dataFrame$stage == stage & dataFrame$group == group,  ]
+					
+					sampleSizeFull <- na.omit(fullData$sampleSize[fullData$stage == stage & fullData$group == group])
+    				sampleSizeSubset <- na.omit(subData$sampleSize)
+					if (length(sampleSizeFull) > 0 && length(sampleSizeSubset) > 0 && any(sampleSizeFull < sampleSizeSubset)) {
+						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+							gettextf("'sampleSize' F (%s) must be >= 'sampleSize' %s (%s) in group %s at stage %s",
+							.arrayToString(sampleSizeFull), s, 
+							.arrayToString(sampleSizeSubset), group, stage))
+					}
+				}
+			}
+		}
+	}
+	
+	.validateEnrichmentDataFrameSurvival(dataFrame)
+}
+
+.validateEnrichmentDataFrameHasConsistentNumberOfStages <- function(dataFrame) {
+	subsets <- unique(dataFrame$subset)
+	kMaxList <- list()
+	for (s in subsets) {
+		subsetStages <- as.integer(sort(unique(na.omit(as.character(dataFrame$stage[dataFrame$subset == s])))))
+		kMax <- max(subsetStages)
+		if (!identical(1:kMax, subsetStages)) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				gettextf("subset %s has incomplete stages (%s)", s, .arrayToString(subsetStages)))
+		}
+		
+		kMaxList[[s]] <- kMax
+	}
+	
+	kMax <- unique(unlist(kMaxList))
+	if (length(kMax) > 1) {
+		stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+			"all subsets must have the identical number of stages defined (kMax: ", .listToString(kMaxList), ")")
+	}
+}
+
+.validateEnrichmentDataFrame <- function(dataFrame) {
+	paramNames <- colnames(dataFrame)
+	if (any(grepl("(S|s)tDev", paramNames))) {
+		.validateEnrichmentDataFrameMeans(dataFrame)
+	}
+	else if (any(grepl("(S|s)ampleSize", paramNames)) && any(grepl("(E|e)vent", paramNames))) {
+		.validateEnrichmentDataFrameRates(dataFrame)
+	}
+	else if (any(grepl("(L|l)ogRank", paramNames)) || any(grepl("(E|e)xpectedEvent", paramNames))) {
+		.validateEnrichmentDataFrameSurvival(dataFrame)
+	}
+	else {
+		print(paramNames)
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "could not identify the endpoint of the specified dataset")
+	}
+	
+	subsets <- unique(dataFrame$subset)
+	if ("R" %in% subsets) {
+		paramNames <- .getEndpointSpecificDataFrameParameterNames(dataFrame)
+		paramName <- paramNames[1]
+		subsets <- subsets[subsets != "R"]
+		subsets <- subsets[grepl("^S\\d$", subsets)]
+		if (length(subsets) > 0) {
+			restData <- dataFrame[dataFrame$subset == "R", ] 
+			for (s in subsets) {
+				stages <- unique(dataFrame$stage)
+				stages <- stages[stages != 1]
+				if (length(stages) > 0) {
+					for (stage in stages) {
+						for (group in unique(dataFrame$group)) {
+							subData <- dataFrame[dataFrame$subset == s & dataFrame$stage == stage & dataFrame$group == group,  ]
+							
+							paramValueRest <- restData[[paramName]][restData$stage == stage & restData$group == group]
+    						paramValueSubset <- subData[[paramName]]
+							if (length(paramValueRest) > 0 && length(paramValueSubset) > 0 && 
+								any(is.na(paramValueSubset)) && !all(is.na(paramValueRest))) {
+								stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+									gettextf(paste0("if %s is deselected (NA) then R also must be deselected (NA) but, e.g., ",
+									"%s R is %s in group %s at stage %s"),
+									s, sQuote(paramName), .arrayToString(paramValueRest, vectorLookAndFeelEnabled = TRUE),
+									group, stage))
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	.validateEnrichmentDataFrameHasConsistentNumberOfStages(dataFrame)
+}
+
+.getEnrichmentDataFrameFromArgs <- function(...) {
+	dataFrame <- .getSubsetsFromArgs(...)
+	
+	validColumns <- c()
+	for (j in 1:ncol(dataFrame)) {
+		if (!all(is.na(dataFrame[, j]))) {
+			validColumns <- c(validColumns, j)
+		}
+	}
+	if (length(validColumns) > 0) {
+		dataFrame <- dataFrame[, validColumns]
+	}
+	
+	return(dataFrame)
+}
+
+.getEnrichmentDatasetFromArgs <- function(...) {
+	dataFrame <- .getEnrichmentDataFrameFromArgs(...)
+	.validateEnrichmentDataFrame(dataFrame)
+	dataFrame <- .getWideFormat(dataFrame)
+	return(getDataset(dataFrame = dataFrame))
 }
 
 .getDatasetExample <- function(exampleType) {
@@ -604,393 +1052,6 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'exampleType' (", exampleType, ") is not allowed")
 }
 
-.arraysAreEqual <- function(a1, a2) {
-	if (length(a1) != length(a2)) {
-		return(FALSE)
-	}
-	
-	l <- length(a1)
-	if (l > 0) {
-		a1 <- sort(a1)
-		a2 <- sort(a2)
-		if (base::sum(a1 == a2) < l) {
-			return(FALSE)
-		}
-	}
-	
-	return(TRUE)
-}
-
-.getNumberOfGroupsFromArgumentNames <- function(argNames) {
-	numbers <- gsub("\\D", "", argNames)
-	numbers <- numbers[numbers != ""]
-	return(ifelse(length(numbers) == 0, 1, max(as.numeric(numbers))))
-}
-
-.getGroupNumberFromArgumentName <- function(argName) {
-	n <- gsub("\\D", "", argName)
-	return(ifelse(n == "", 1, as.numeric(n)))
-}
-
-.isControlGroupArgument <- function(argName, numberOfGroups) {
-	if (numberOfGroups <= 2) {
-		return(FALSE)
-	}
-	
-	return(ifelse(numberOfGroups == 1, FALSE, .getGroupNumberFromArgumentName(argName) == numberOfGroups))
-}
-
-#.isControlGroupArgument("n", 1)
-#.isControlGroupArgument("n1", 2)
-#.isControlGroupArgument("n2", 2)
-
-.naOmitBackward <- function(x) {
-	indices <- which(is.na(x))
-	if (length(indices) == 0) {
-		return(x)
-	}
-	
-	if (length(x) == 1 || !is.na(x[length(x)])) {
-		return(x)
-	}
-	
-	if (length(indices) == 1) {
-		return(x[1:(length(x) - 1)])
-	}
-	
-	indexBefore <- NA_real_
-	for (i in length(indices):1) {
-		index <- indices[i]
-		if (!is.na(indexBefore) && index != indexBefore - 1) {
-			return(x[1:(indexBefore - 1)])
-		}
-		indexBefore <- index
-	}
-	if (!is.na(indexBefore)) {
-		return(x[1:(indexBefore - 1)])
-	}
-	return(x)
-}
-
-.getNumberOfStagesFromArguments <- function(args, argNames) {
-	numberOfStages <- 1
-	for (argName in argNames) {	
-		argValues <- args[[argName]]
-		n <- length(.naOmitBackward(argValues))
-		if (n > numberOfStages) {
-			numberOfStages <- n
-		}
-	}
-	return(numberOfStages)
-}
-
-.assertIsValidTreatmentArmArgumentDefined <- function(args, argNames, numberOfGroups, numberOfStages) {
-	tratmentArgNames <- argNames[!grepl(paste0(".*\\D{1}", numberOfGroups, "$"), argNames)]
-	for (argName in tratmentArgNames) {
-		argValues <- args[[argName]]
-		if (!is.null(argValues) && length(.naOmitBackward(argValues)) == numberOfStages) {
-			return(invisible())
-		}
-	}
-	stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-		"at least for one treatment arm the values for ", numberOfStages, " stages must be defined ",
-		"because the control arm defines ", numberOfStages, " stages")
-}
-
-.createDataFrame <- function(...) {
-	args <- list(...)
-	argNames <- .getArgumentNames(...)
-	if (length(args) == 0 || length(argNames) == 0) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data.frame or data vectors expected")
-	}
-	
-	multiArmEnabled <- any(grep("3", argNames))
-	numberOfGroups <- .getNumberOfGroupsFromArgumentNames(argNames)
-	numberOfStages <- .getNumberOfStagesFromArguments(args, argNames)
-	survivalDataEnabled <- .isDataObjectSurvival(...)
-	if (multiArmEnabled) {
-		.assertIsValidTreatmentArmArgumentDefined(args, argNames, numberOfGroups, numberOfStages)
-	}
-	
-	numberOfValues <- length(args[[1]])
-	naIndicesBefore <- NULL
-	if (!survivalDataEnabled && multiArmEnabled) {
-		naIndicesBefore <- list()
-	}
-	for (argName in argNames) {	
-		argValues <- args[[argName]]
-		if (is.null(argValues) || length(argValues) == 0) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"'", argName, "' is not a valid numeric vector")
-		}
-		
-		if (is.na(argValues[1])) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"'", argName, "' is NA at first stage; a valid numeric value must be specified at stage 1")
-		}
-		
-		if (length(argValues) != numberOfValues) {
-			stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-				"all data vectors must have the same length: '", 
-				argName, "' (", length(argValues), ") differs from '", 
-				argNames[1], "' (", numberOfValues, ")")
-		}
-		
-		if (.equalsRegexpIgnoreCase(argName, "^stages?$")) {
-			if (length(stats::na.omit(argValues)) != length(argValues)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"NA's not allowed for '", argName, "'; stages must be defined completely")
-			}
-			
-			definedStages <- sort(intersect(unique(argValues), 1:numberOfValues))
-			if (length(definedStages) < numberOfValues) {
-				if (length(definedStages) == 0) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "no valid stages are defined; ",
-						"stages must be defined completely (", .arrayToString(1:numberOfValues), ")")
-				}
-				msg <- ifelse(length(definedStages) == 1,  
-					paste0("only stage ", definedStages, " is defined"), 
-					paste0("only stages ", .arrayToString(definedStages), " are defined"))
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, msg, "; stages must be defined completely")
-			}
-		}
-		
-		if (!survivalDataEnabled && .isControlGroupArgument(argName, numberOfGroups) &&
-			length(na.omit(argValues)) < numberOfStages) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"control group '", argName, "' (", .arrayToString(argValues, digits = 2), ") must be defined for all stages")
-		}
-		
-		naIndices <- which(is.na(argValues))
-		if (length(naIndices) > 0) {
-			stageIndex <- naIndices[length(naIndices)]
-			if (stageIndex != numberOfValues) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"'", argName, "' contains a NA at stage ", stageIndex, 
-					" followed by a value for a higher stage; NA's must be the last values")
-			}
-		}
-		if (length(naIndices) > 1) {
-			indexBefore <- naIndices[length(naIndices)]
-			for (i in (length(naIndices) - 1):1) {
-				index <- naIndices[i]
-				if (indexBefore - index > 1) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-						"'", argName, "' contains alternating values and NA's; ",
-						"NA's must be the last values")
-				}
-				indexBefore <- index
-			}
-		}
-		
-		if (!survivalDataEnabled) {
-			if (!multiArmEnabled) {
-				if (!is.null(naIndicesBefore) && !.equalsRegexpIgnoreCase(argName, "^stages?$")) {
-					if (!.arraysAreEqual(naIndicesBefore, naIndices)) {
-						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-							"inconsistent NA definition; ",
-							"if NA's exist, then they are mandatory for each group at the same stage")
-					}
-				}
-				naIndicesBefore <- naIndices
-			} else {
-				groupNumber <- .getGroupNumberFromArgumentName(argName)
-				if (!is.null(naIndicesBefore[[as.character(groupNumber)]]) && 
-					!.equalsRegexpIgnoreCase(argName, "^stages?$") &&
-					!.isControlGroupArgument(argName, numberOfGroups)) {
-					if (!.arraysAreEqual(naIndicesBefore[[as.character(groupNumber)]], naIndices)) {
-						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-							"values of treatment ", groupNumber, " not correctly specified; ",
-							"if NA's exist, then they are mandatory for each parameter at the same stage")
-					}
-				}
-				if (!.isControlGroupArgument(argName, numberOfGroups)) {
-					naIndicesBefore[[as.character(groupNumber)]] <- naIndices
-				}
-			}
-		}
-		
-		if (base::sum(is.infinite(argValues)) > 0) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all data values must be finite; ",
-				"'", argName, "' contains infinite values")
-		}
-		
-		if (!is.numeric(argValues)) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all data vectors must be numeric ('", 
-				argName, "' is ", class(argValues), ")")
-		}
-		
-		if (length(argValues) > C_KMAX_UPPER_BOUND) {
-			stop(C_EXCEPTION_TYPE_ARGUMENT_LENGTH_OUT_OF_BOUNDS, 
-				"'", argName, "' is out of bounds [1, ", C_KMAX_UPPER_BOUND, "]")
-		}
-	}
-	
-	for (groupNumber in 1:numberOfGroups) {
-		groupVars <- argNames[grepl(paste0("\\D", groupNumber, "$"), argNames)]
-		naIndicesBefore <- NULL
-		for (argName in groupVars) {	
-			argValues <- args[[argName]]
-			naIndices <- which(is.na(argValues))
-			if (!is.null(naIndicesBefore) && !.equalsRegexpIgnoreCase(argName, "^stages?$")) {
-				if (!.arraysAreEqual(naIndicesBefore, naIndices)) {
-					stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-						"inconsistent NA definition for group ", groupNumber, "; ",
-						"if NA's exist, then they are mandatory for each group at the same stage")
-				}
-			}
-			naIndicesBefore <- naIndices
-		}
-	}
-	
-	dataFrame <- as.data.frame(args)
-	if (length(intersect(tolower(names(dataFrame)), c("stage", "stages"))) == 0) {
-		dataFrame$stages <- 1:nrow(dataFrame)
-	}
-	return(dataFrame)
-}
-
-.getDataFrameFromArgs <- function(...) {
-	args <- list(...)
-	if (length(args) == 0) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-			"cannot initialize dataset because no data are defined")
-	}
-	
-	dataFrame <- NULL
-	dataFrameCounter <- 0
-	for (arg in args) {	
-		if (is.data.frame(arg)) {
-			dataFrameCounter <- dataFrameCounter + 1
-			if (is.null(dataFrame)) {
-				dataFrame <- arg
-			}
-		}
-	}
-	
-	if (dataFrameCounter > 1) {
-		warning("Found ", dataFrameCounter, ", data.frame arguments; ", 
-			"only the first data.frame will be used for the initialization of the dataset", call. = FALSE)
-	}
-	
-	return(dataFrame)
-}
-
-.getArgumentNames <- function(...) {
-	dataFrame <- .getDataFrameFromArgs(...)
-	if (!is.null(dataFrame)) {
-		return(names(dataFrame))
-	} 
-	
-	args <- list(...)
-	if (length(args) == 0) {
-		return(character(0))
-	}
-	
-	return(names(args))
-}
-
-.assertIsValidDatasetArgument <- function(...) {
-	argNames <- .getArgumentNames(...)
-	if (length(argNames) == 0) {
-		return(TRUE)
-	}
-	
-	argNamesLower <- tolower(argNames)
-	dataObjectkeyWords <- tolower(C_KEY_WORDS)
-	
-	multiArmKeywords <- tolower(c(
-			C_KEY_WORDS_EVENTS, 
-			C_KEY_WORDS_OVERALL_EVENTS, 
-			C_KEY_WORDS_SAMPLE_SIZES, 
-			C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 
-			C_KEY_WORDS_MEANS, 
-			C_KEY_WORDS_OVERALL_MEANS, 
-			C_KEY_WORDS_ST_DEVS, 
-			C_KEY_WORDS_OVERALL_ST_DEVS,
-			C_KEY_WORDS_ALLOCATION_RATIOS,
-			C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
-			C_KEY_WORDS_LOG_RANKS,
-			C_KEY_WORDS_OVERALL_LOG_RANKS))
-	unknownArgs <- setdiff(argNamesLower, dataObjectkeyWords)
-	unknownArgsChecked <- unknownArgs
-	unknownArgs <- c()
-	for (unknownArg in unknownArgsChecked) {
-		unknown <- TRUE
-		for (multiArmKeyword in multiArmKeywords) {
-			if (grepl(paste0(multiArmKeyword, "\\d{1,4}"), unknownArg)) {
-				unknown <- FALSE
-			}
-		}
-		if (unknown) {
-			unknownArgs <- c(unknownArgs, unknownArg)
-		}
-	}
-	
-	if (length(unknownArgs) > 0) {
-		for (i in 1:length(unknownArgs)) {
-			unknownArgs[i] <- argNames[argNamesLower == unknownArgs[i]][1]
-		}
-		if (length(unknownArgs) == 1) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"the argument '", unknownArgs, "' is not a valid dataset argument")
-		} else {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"the arguments ", .arrayToString(unknownArgs, encapsulate = TRUE), 
-				" are no valid dataset arguments")
-		}
-	}
-	
-	invisible(TRUE)
-}
-
-.isDataObject <- function(..., dataObjectkeyWords) {
-	.assertIsValidDatasetArgument(...)
-	
-	argNames <- .getArgumentNames(...)
-	if (length(argNames) == 0) {
-		return(FALSE)
-	}
-	
-	argNames <- tolower(argNames)
-	matching <- intersect(argNames, tolower(dataObjectkeyWords))
-	
-	return(length(matching) > 0)
-}
-
-.isDataObjectMeans <- function(...) {
-	return(.isDataObject(..., dataObjectkeyWords = 
-				c(C_KEY_WORDS_MEANS, C_KEY_WORDS_ST_DEVS, 
-					C_KEY_WORDS_MEANS_1, C_KEY_WORDS_ST_DEVS_1,
-					C_KEY_WORDS_MEANS_2, C_KEY_WORDS_ST_DEVS_2,
-					C_KEY_WORDS_OVERALL_MEANS, C_KEY_WORDS_OVERALL_ST_DEVS, 
-					C_KEY_WORDS_OVERALL_MEANS_1, C_KEY_WORDS_OVERALL_ST_DEVS_1,
-					C_KEY_WORDS_OVERALL_MEANS_2, C_KEY_WORDS_OVERALL_ST_DEVS_2)))
-}
-
-.isDataObjectRates <- function(...) {	
-	dataObjectkeyWords1 <- c(C_KEY_WORDS_EVENTS, C_KEY_WORDS_OVERALL_EVENTS)
-	dataObjectkeyWords2 <- c(C_KEY_WORDS_OVERALL_LOG_RANKS, 
-		C_KEY_WORDS_LOG_RANKS, 
-		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, 
-		C_KEY_WORDS_ALLOCATION_RATIOS)
-	
-	dataObjectkeyWords1 <- c(dataObjectkeyWords1, paste0(dataObjectkeyWords1, c(1, 2)))
-	dataObjectkeyWords2 <- c(dataObjectkeyWords2, paste0(dataObjectkeyWords2, c(1, 2)))
-	
-	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords1) &&
-			!.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords2))
-}
-
-.isDataObjectSurvival <- function(...) {
-	dataObjectkeyWords <- c(C_KEY_WORDS_OVERALL_LOG_RANKS, 
-		C_KEY_WORDS_LOG_RANKS, 
-		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, 
-		C_KEY_WORDS_ALLOCATION_RATIOS)
-	dataObjectkeyWords <- c(dataObjectkeyWords, paste0(dataObjectkeyWords, c(1, 2)))
-	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords))
-}
-
 #' 
 #' @name Dataset
 #' 
@@ -1016,6 +1077,7 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
 #' @include f_core_constants.R
+#' @include f_core_assertions.R
 #' 
 #' @keywords internal
 #' 
@@ -1030,23 +1092,30 @@ Dataset <- setRefClass("Dataset",
 		.description = "character",
 		.floatingPointNumbersEnabled = "logical",
 		.kMax = "integer",
+		.enrichmentEnabled = "logical",
+		.inputType = "character",
 		stages = "integer",
-		groups = "integer"
+		groups = "integer",
+		subsets = "character"
 	),
 	methods = list(
-		initialize = function(dataFrame, ..., floatingPointNumbersEnabled = FALSE) {
-			callSuper(...)
+		initialize = function(dataFrame, ..., floatingPointNumbersEnabled = FALSE, enrichmentEnabled = FALSE) {
+			callSuper(.floatingPointNumbersEnabled = floatingPointNumbersEnabled, 
+				.enrichmentEnabled = enrichmentEnabled, ...)
 			.plotSettings <<- PlotSettings()
 			.parameterNames <<- .getParameterNames()
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
-			.floatingPointNumbersEnabled <<- floatingPointNumbersEnabled
 			
 			.id <<- NA_integer_
 			.description <<- NA_character_
+			.inputType <<- NA_character_
 			
 			if (!missing(dataFrame)) {
 				.initByDataFrame(dataFrame)
 				.kMax <<- getNumberOfStages()
+				if (!.enrichmentEnabled) {
+					.validateDataset()
+				}
 			}
 		},
 		
@@ -1093,7 +1162,7 @@ Dataset <- setRefClass("Dataset",
 			}
 			
 			stages <<- as.integer(.getValuesByParameterName(dataFrame, c("stages", "stage")))
-			if (length(unique(stages)) < length(stages)) {
+			if (!.enrichmentEnabled && length(unique(stages)) < length(stages)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stages' (", .arrayToString(stages), 
 					") must be a unique vector of stage numbers")
 			}
@@ -1101,6 +1170,18 @@ Dataset <- setRefClass("Dataset",
 			
 			.setParameterType("groups", C_PARAM_USER_DEFINED)
 			.setParameterType("stages", C_PARAM_USER_DEFINED)
+			
+			if (any(grepl("^subsets?\\d*$", colnames(dataFrame)))) {
+				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, c(C_KEY_WORDS_SAMPLE_SIZES, C_KEY_WORDS_LOG_RANKS))
+				subsets <<- character(0)
+				for (group in 1:numberOfTreatmentGroups) {
+					suffix <- ifelse(any(grepl("^subsets?\\d+$", colnames(dataFrame))), group, "")
+					subsets <<- c(subsets, .getValuesByParameterName(dataFrame, C_KEY_WORDS_SUBSETS, suffix = suffix))
+				}
+				.setParameterType("subsets", C_PARAM_USER_DEFINED)
+			} else {
+				subsets <<- rep(NA_character_, length(stages))
+			}
 		},
 		
 		.validateDataset = function() {
@@ -1116,6 +1197,10 @@ Dataset <- setRefClass("Dataset",
 		},
 		
 		.validateValues = function(values, name) {
+			if (.enrichmentEnabled) {
+				return(invisible())
+			}
+			
 			l1 <- length(unique(stages))
 			l2 <- length(values)
 			if (l1 != l2) {
@@ -1126,6 +1211,19 @@ Dataset <- setRefClass("Dataset",
 			}
 		},
 		
+		.recreateDataFrame = function() {
+			.data <<- data.frame(
+				stage = factor(stages), 
+				group = factor(groups),
+				subset = factor(subsets))
+		},
+		
+		.setDataToVariables = function() {
+			stages <<- as.integer(.data$stage)
+			groups <<- as.integer(.data$group)
+			subsets <<- as.character(.data$subset)
+		},
+		
 		.fillWithNAs = function(kMax) {
 			numberOfStages <- getNumberOfStages()
 			.kMax <<- numberOfStages
@@ -1134,10 +1232,23 @@ Dataset <- setRefClass("Dataset",
 			}
 			
 			numberOfGroups <- getNumberOfGroups(survivalCorrectionEnabled = FALSE)
-			for (s in (numberOfStages + 1):kMax) {
-				for (g in 1:numberOfGroups) {
-					stages <<- c(stages, s)
-					groups <<- c(groups, g)
+			if (.enrichmentEnabled) {
+				for (stage in (numberOfStages + 1):kMax) {
+					for (group in 1:numberOfGroups) {
+						for (subset in levels(.data$subset)) {
+							stages <<- c(stages, stage)
+							groups <<- c(groups, group)
+							subsets <<- c(subsets, subset)
+						}
+					}
+				}
+			} else {
+				for (stage in (numberOfStages + 1):kMax) {
+					for (group in 1:numberOfGroups) {
+						stages <<- c(stages, stage)
+						groups <<- c(groups, group)
+						subsets <<- c(subsets, NA_character_)
+					}
 				}
 			}
 		},
@@ -1155,12 +1266,24 @@ Dataset <- setRefClass("Dataset",
 			
 			stages <<- stages[indices]
 			groups <<- groups[indices]
+			subsets <<- subsets[indices]
 			
 			return(indices)
 		},
 		
 		.orderDataByStageAndGroup = function() {
-			.data <<- .data[order(.data[, 1], .data[, 2]), ]
+			if (.enrichmentEnabled) {
+				
+				dat <- .data
+				dat$char <- gsub("\\d", "", as.character(.data$subset))
+				dat$char[dat$char == "R"] <- "Z"
+				dat$char[dat$char == "F"] <- "Z"
+				dat$num <- as.integer(gsub("\\D", "", as.character(.data$subset)))
+				
+				.data <<- .data[order(.data$stage, .data$group, dat$char, dat$num), ]
+			} else {
+				.data <<- .data[order(.data$stage, .data$group), ]
+			}
 		},
 		
 		.getNumberOfNAsToAdd = function(kMax) {
@@ -1170,6 +1293,9 @@ Dataset <- setRefClass("Dataset",
 			}
 			
 			n <- n * getNumberOfGroups(survivalCorrectionEnabled = FALSE)
+			if (.enrichmentEnabled) {
+				n <- n * getNumberOfSubsets()
+			}
 			return(n)
 		},
 		
@@ -1200,62 +1326,77 @@ Dataset <- setRefClass("Dataset",
 				paste0(parameterNameVariants[1], suffix), "' is missing or not correctly specified")
 		},
 		
-		.getIndices = function(stage, group) {
+		.getValueLevels = function(values) {
+			if (is.factor(values)) {
+				return(levels(values))
+			} 
+			
+			return(sort(unique(na.omit(values))))
+		},
+		
+		.getValues = function(paramName, paramValues) {
+			values <- .data[[paramName]]
+			valueLevels <- .getValueLevels(values)
+			if (!all(paramValues %in% valueLevels)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", paramName, "' (", .arrayToString(paramValues), 
+					") out of range [", .arrayToString(valueLevels), "]")
+			}
+			return(values)
+		},
+		
+		.getIndexValues = function(paramName, paramValues, subset = NA_character_) {
+			values <- .getValues(paramName, paramValues)
+			if (all(is.na(subset))) {
+				return(which(values %in% paramValues))
+			}
+			
+			.assertIsValidSubset(subset)
+			return(which(values %in% paramValues & .data$subset %in% subset))
+		},
+		
+		.assertIsValidSubset = function(subset) {
+			for (s in subset) {
+				if (!(s %in% levels(.data$subset))) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'subset' (", s, 
+						") is not a defined value [", .arrayToString(levels(.data$subset)), "]")
+				}
+			}
+		},
+		
+		.getIndices = function(..., stage, group, subset = NA_character_) {
 			if (is.null(.data)) {
 				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'.data' must be defined")
 			}
 			
 			if (!is.null(stage) && !any(is.na(stage)) && all(stage < 0)) {
-				i <- 1:getNumberOfStages()
-				stage <- i[!(i %in% abs(stage))]
+				index <- 1:getNumberOfStages()
+				stage <- index[!(index %in% abs(stage))]
 			}
 			
 			if (!is.null(group) && !any(is.na(group)) && all(group < 0)) {
-				i <- 1:getNumberOfGroups(survivalCorrectionEnabled = FALSE)
-				group <- i[!(i %in% abs(group))]
+				index <- 1:getNumberOfGroups(survivalCorrectionEnabled = FALSE)
+				group <- index[!(index %in% abs(group))]
 			}
 			
+			# stage only and optional subset
 			if (!is.null(group) && length(group) == 1 && is.na(group)) {
-				if (!all(stage %in% .data$stage)) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stage' (", .arrayToString(stage), 
-						") out of range [", .arrayToString(sort(unique(.data$stage))), "]")
-				}
-				
-				indices <- (.data$stage %in% stage)
-				indices[is.na(indices)] <- FALSE
-				return(indices)
+				return(.getIndexValues("stage", stage, subset))
 			}
 			
+			# group only and optional subset
 			if (!is.null(stage) && length(stage) == 1 && is.na(stage)) {
-				if (!all(group %in% .data$group)) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'group' (", .arrayToString(group), 
-						") out of range [", .arrayToString(sort(unique(.data$group))), "]")
-				}
-				
-				indices <- (.data$group %in% group)
-				indices[is.na(indices)] <- FALSE
-				return(indices)
+				return(.getIndexValues("group", group, subset))
 			}
 			
-			if (!all(stage %in% .data$stage)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'stage' (", .arrayToString(stage), 
-					") out of range [", .arrayToString(sort(unique(.data$stage))), "]")
+			# stage and group and optional subset
+			stageValues <- .getValues("stage", stage)
+			groupValues <- .getValues("group", group)
+			if (all(is.na(subset))) {
+				return(which(stageValues %in% stage & groupValues %in% group))
 			}
 			
-			if (!all(group %in% .data$group)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'group' (", .arrayToString(group), 
-					") out of range [", .arrayToString(sort(unique(.data$group))), "]")
-			}
-			
-			if (length(stage) > 1) {
-				indices <- (.data$stage %in% stage & .data$group %in% group)
-				indices[is.na(indices)] <- FALSE
-				return(indices)
-			}
-			
-			indices <- (.data$stage %in% stage & .data$group %in% group)
-			indices[is.na(indices)] <- FALSE
-			return(indices)
+			.assertIsValidSubset(subset)
+			return(which(stageValues %in% stage & groupValues %in% group & .data$subset %in% subset))
 		},
 		
 		.getValidatedFloatingPointNumbers = function(x, parameterName = "Sample sizes") {
@@ -1282,19 +1423,15 @@ Dataset <- setRefClass("Dataset",
 		},
 		
 		.getNumberOfGroups = function(dataFrame, keyWords) {
-			for (group in 3:1000) {
+			for (group in 2:1000) {
 				if (!.keyWordExists(dataFrame, keyWords, group)) {
 					return(group - 1)
 				}
 			}
-			return(2)
+			return(1)
 		},
 		
-		.getValidatedStage = function(..., stage = NA_integer_, group = NA_integer_) {
-			if (length(list(...)) > 0) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"argument 'stage' or 'group' is missing, all arguments must be named")
-			}
+		.getValidatedStage = function(stage = NA_integer_) {
 			if (all(is.na(stage))) {
 				stage <- c(1:getNumberOfStages())
 			}
@@ -1304,29 +1441,51 @@ Dataset <- setRefClass("Dataset",
 		getNumberOfGroups = function(survivalCorrectionEnabled = TRUE) {
 			data <- stats::na.omit(.data)
 			if (!survivalCorrectionEnabled) {
-				return(length(unique(data$group)))
+				return(length(levels(data$group)))
 			}
-			return(length(unique(data$group)) + ifelse(inherits(.self, "DatasetSurvival"), 1, 0))
+			return(length(levels(data$group)) + ifelse(inherits(.self, "DatasetSurvival"), 1, 0))
 		},
 		
 		getNumberOfStages = function(naOmitEnabled = TRUE) {
 			if (naOmitEnabled) {
-				data <- stats::na.omit(.data)
-				return(length(unique(data$stage)))
+				colNames <- colnames(.data)
+				validColNames <- character(0)
+				for (colName in colNames) {
+					colValues <- .data[, colName]
+					if (length(colValues) > 0 && !all(is.na(colValues))) {
+						validColNames <- c(validColNames, colName)
+					}
+				}
+				subData <- stats::na.omit(.data[, validColNames])
+				numberOfStages <- length(unique(as.character(subData$stage)))
+				if (numberOfStages == 0) {
+					print(.data[, validColNames])
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+						".data seems to contain an invalid column")
+				}
+				return(numberOfStages)
 			}
-			return(length(unique(.data$stage)))
+			return(length(levels(.data$stage)))
+		},
+		
+		getNumberOfSubsets = function() {
+			return(length(levels(.data$subset)))
 		},
 		
 		isDatasetMeans = function() {
-			return(class(.self) == "DatasetMeans")
+			return(inherits(.self, "DatasetMeans"))
 		},
 		
 		isDatasetRates = function() {
-			return(class(.self) == "DatasetRates")
+			return(inherits(.self, "DatasetRates"))
 		},
 		
 		isDatasetSurvival = function() {
-			return(class(.self) == "DatasetSurvival")
+			return(inherits(.self, "DatasetSurvival"))
+		},
+		
+		isStratified = function() {
+			return(.enrichmentEnabled && "R" %in% levels(.data$subset))
 		},
 		
 		setId = function(id) {
@@ -1346,15 +1505,25 @@ Dataset <- setRefClass("Dataset",
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
-			s <- "unknown dataset"
+			s <- "dataset of "
+			if (.enrichmentEnabled) {
+				s <- paste0(s, "enrichment ")
+			}
+			else if (.self$getNumberOfGroups() > 2) {
+				s <- paste0(s, "multi-arm ")
+			}
+			
 			if (isDatasetMeans()) {
-				s <- "dataset of means"
+				s <- paste0(s, "means")
 			}
 			else if (isDatasetRates()) {
-				s <- "dataset of rates"
+				s <- paste0(s, "rates")
 			}
 			else if (isDatasetSurvival()) {
-				s <- "dataset of survival data"
+				s <- paste0(s, "survival data")
+			}
+			else {
+				s <- paste0(s, "unknown endpoint")
 			}
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		}
@@ -1400,82 +1569,76 @@ DatasetMeans <- setRefClass("DatasetMeans",
 	),
 	methods = list(
 		
-		getSampleSize = function(stage, group = 1) {
-			return(.data$sampleSize[.getIndices(stage = stage, group = group)])
+		getSampleSize = function(stage, group = 1, subset = NA_character_) {
+			return(.data$sampleSize[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getMean = function(stage, group = 1) {
-			return(.data$mean[.getIndices(stage = stage, group = group)])
+		getMean = function(stage, group = 1, subset = NA_character_) {
+			return(.data$mean[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getStDev = function(stage, group = 1) {
-			return(.data$stDev[.getIndices(stage = stage, group = group)])
+		getStDev = function(stage, group = 1, subset = NA_character_) {
+			return(.data$stDev[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$sampleSize[.getIndices(stage = stage, group = group)])
+		getSampleSizes = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$sampleSize[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getMeans = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$mean[.getIndices(stage = stage, group = group)])
+		getMeans = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$mean[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getStDevs = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$stDev[.getIndices(stage = stage, group = group)])
+		getStDevs = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$stDev[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getSampleSizesUpTo = function(to, group = 1) {
-			return(.data$sampleSize[.getIndices(stage = c(1:to), group = group)])
+		getSampleSizesUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$sampleSize[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getMeansUpTo = function(to, group = 1) {
-			return(.data$mean[.getIndices(stage = c(1:to), group = group)])
+		getMeansUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$mean[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getStDevsUpTo = function(to, group = 1) {
-			return(.data$stDev[.getIndices(stage = c(1:to), group = group)])
+		getStDevsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$stDev[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallSampleSize = function(stage, group = 1) {
-			return(.data$overallSampleSize[.getIndices(stage = stage, group = group)])
+		getOverallSampleSize = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallSampleSize[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallMean = function(stage, group = 1) {
-			return(.data$overallMean[.getIndices(stage = stage, group = group)])
+		getOverallMean = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallMean[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallStDev = function(stage, group = 1) {
-			return(.data$overallStDev[.getIndices(stage = stage, group = group)])
+		getOverallStDev = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallStDev[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallSampleSize[.getIndices(stage = stage, group = group)])
+		getOverallSampleSizes = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallSampleSize[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallMeans = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallMean[.getIndices(stage = stage, group = group)])
+		getOverallMeans = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallMean[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallStDevs = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallStDev[.getIndices(stage = stage, group = group)])
+		getOverallStDevs = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallStDev[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallSampleSizesUpTo = function(to, group = 1) {
-			return(.data$overallSampleSize[.getIndices(stage = c(1:to), group = group)])
+		getOverallSampleSizesUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallSampleSize[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallMeansUpTo = function(to, group = 1) {
-			return(.data$overallMean[.getIndices(stage = c(1:to), group = group)])
+		getOverallMeansUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallMean[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallStDevsUpTo = function(to, group = 1) {
-			return(.data$overallStDev[.getIndices(stage = c(1:to), group = group)])
+		getOverallStDevsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallStDev[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
 		.getValidatedSampleSizes = function(n) {
@@ -1483,10 +1646,11 @@ DatasetMeans <- setRefClass("DatasetMeans",
 		},
 		
 		.initByDataFrame = function(dataFrame) {
-			callSuper(dataFrame)	
+			callSuper(dataFrame)
 			
 			# case: one mean - stage wise
 			if (.paramExists(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)) {
+				.inputType <<- "stagewise"
 				sampleSizes <<- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
 						C_KEY_WORDS_SAMPLE_SIZES))
 				.validateValues(sampleSizes, "n")
@@ -1501,73 +1665,32 @@ DatasetMeans <- setRefClass("DatasetMeans",
 				
 				stDevs <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_ST_DEVS)
 				.validateValues(stDevs, "stDevs")
-				
-				kMax <- length(sampleSizes)
-				stageNumber <- length(stats::na.omit(sampleSizes))
-				dataInput <- data.frame(
-					sampleSizes = sampleSizes,
-					means = means,
-					stDevs = stDevs)
-				dataInput <- .getOverallData(dataInput, kMax, stage = stageNumber)
-				overallSampleSizes <<- .getValidatedSampleSizes(dataInput$overallSampleSizes)
-				overallMeans <<- dataInput$overallMeans
-				overallStDevs <<- dataInput$overallStDevs
-				
-				.setParameterType("sampleSizes", C_PARAM_USER_DEFINED)
-				.setParameterType("means", C_PARAM_USER_DEFINED)
-				.setParameterType("stDevs", C_PARAM_USER_DEFINED)
-				
-				.setParameterType("overallSampleSizes", C_PARAM_GENERATED)
-				.setParameterType("overallMeans", C_PARAM_GENERATED)
-				.setParameterType("overallStDevs", C_PARAM_GENERATED)
 			}
 			
 			# case: one mean - overall
 			else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES)) {
+				.inputType <<- "overall"
 				overallSampleSizes <<- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
 						C_KEY_WORDS_OVERALL_SAMPLE_SIZES))
 				.validateValues(overallSampleSizes, "overallSampleSizes")
-				.assertValuesAreStrictlyIncreasing(overallSampleSizes, "overallSampleSizes", endingNasAllowed = TRUE)
 				
 				overallMeans <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_MEANS)
 				.validateValues(overallMeans, "overallMeans")
 				
 				overallStDevs <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_ST_DEVS)
 				.validateValues(overallStDevs, "overallStDevs")
-				
-				kMax <- length(overallSampleSizes)
-				stageNumber <- length(stats::na.omit(overallSampleSizes))
-				dataInput <- data.frame(
-					overallSampleSizes = overallSampleSizes,
-					overallMeans = overallMeans,
-					overallStDevs = overallStDevs)
-				dataInput <- .getStageWiseData(dataInput, kMax, stage = stageNumber)
-				sampleSizes <<- .getValidatedSampleSizes(dataInput$sampleSizes)
-				means <<- dataInput$means
-				stDevs <<- dataInput$stDevs
-				
-				.setParameterType("sampleSizes", C_PARAM_GENERATED)
-				.setParameterType("means", C_PARAM_GENERATED)
-				.setParameterType("stDevs", C_PARAM_GENERATED)
-				
-				.setParameterType("overallSampleSizes", C_PARAM_USER_DEFINED)
-				.setParameterType("overallMeans", C_PARAM_USER_DEFINED)
-				.setParameterType("overallStDevs", C_PARAM_USER_DEFINED)
 			}
 			
 			# case: two or more means - stage wise
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 1)) && 
 				.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 2))) {
-				
+				.inputType <<- "stagewise"
 				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)
 				stages <<- rep(stages, numberOfTreatmentGroups)
 				groups <<- integer(0)
 				sampleSizes <<- numeric(0)
 				means <<- numeric(0)
 				stDevs <<- numeric(0)
-				overallSampleSizes <<- numeric(0)
-				overallMeans <<- numeric(0)
-				overallStDevs <<- numeric(0)
 				for (group in 1:numberOfTreatmentGroups) {
 					sampleSizesTemp <- .getValidatedSampleSizes(.getValuesByParameterName(
 							dataFrame, C_KEY_WORDS_SAMPLE_SIZES, suffix = group))
@@ -1588,39 +1711,13 @@ DatasetMeans <- setRefClass("DatasetMeans",
 					stDevs <<- c(stDevs, stDevsTemp)
 					
 					groups <<- c(groups, rep(as.integer(group), length(sampleSizesTemp)))
-					
-					kMax <- length(sampleSizesTemp)
-					numberOfValidStages <- length(stats::na.omit(sampleSizesTemp))
-					overallData <- .getOverallData(data.frame(
-							sampleSizes = sampleSizesTemp,
-							means = meansTemp,
-							stDevs = stDevsTemp), kMax, stage = numberOfValidStages)
-					
-					overallSampleSizes <<- c(overallSampleSizes, 
-						.getValidatedSampleSizes(overallData$overallSampleSizes))
-					overallMeans <<- c(overallMeans, overallData$overallMeans)
-					overallStDevs <<- c(overallStDevs, overallData$overallStDevs)
 				}
-				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
-				}
-				if (base::sum(stats::na.omit(stDevs) < 0) > 0) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all standard deviations must be >= 0")
-				}
-				
-				.setParameterType("sampleSizes", C_PARAM_USER_DEFINED)
-				.setParameterType("means", C_PARAM_USER_DEFINED)
-				.setParameterType("stDevs", C_PARAM_USER_DEFINED)
-				
-				.setParameterType("overallSampleSizes", C_PARAM_GENERATED)
-				.setParameterType("overallMeans", C_PARAM_GENERATED)
-				.setParameterType("overallStDevs", C_PARAM_GENERATED)
 			}
 			
 			# case: two or more means - overall
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 1)) &&
 				.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 2))) {
-				
+				.inputType <<- "overall"
 				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES)
 				stages <<- rep(stages, numberOfTreatmentGroups)
 				groups <<- integer(0)
@@ -1634,8 +1731,6 @@ DatasetMeans <- setRefClass("DatasetMeans",
 					overallSampleSizesTemp <- .getValidatedSampleSizes(.getValuesByParameterName(
 							dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES, suffix = group))
 					.validateValues(overallSampleSizesTemp, paste0("overallSampleSizes", group))
-					.assertValuesAreStrictlyIncreasing(overallSampleSizesTemp, 
-						paste0("overallSampleSizes", group), endingNasAllowed = TRUE)
 					overallSampleSizes <<- c(overallSampleSizes, overallSampleSizesTemp)
 					
 					overallMeansTemp <- .getValuesByParameterName(dataFrame, 
@@ -1649,27 +1744,35 @@ DatasetMeans <- setRefClass("DatasetMeans",
 					overallStDevs <<- c(overallStDevs, overallStDevsTemp)
 					
 					groups <<- c(groups, rep(as.integer(group), length(overallSampleSizesTemp)))
-					
-					kMax <- length(overallSampleSizesTemp)
-					numberOfValidStages <- length(stats::na.omit(overallSampleSizesTemp))
-					overallData <- .getStageWiseData(data.frame(
-							overallSampleSizes = overallSampleSizesTemp,
-							overallMeans = overallMeansTemp,
-							overallStDevs = overallStDevsTemp), kMax, stage = numberOfValidStages)
-					
-					validatedSampleSizes <- .getValidatedSampleSizes(overallData$sampleSizes)
-					.validateValues(validatedSampleSizes, paste0("n", group))
-					sampleSizes <<- c(sampleSizes, validatedSampleSizes)
-					means <<- c(means, overallData$means)
-					stDevs <<- c(stDevs, overallData$stDevs)
-					
-					if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
-						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
-					}
-					if (base::sum(stats::na.omit(stDevs) < 0) > 0) {
-						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all standard deviations must be >= 0")
-					}
 				}
+			}
+			
+			else {
+				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
+					"sample sizes are missing or not correctly specified")
+			}
+			
+			if (.inputType == "stagewise") {
+				n <- length(sampleSizes)
+				overallSampleSizes <<- rep(NA_real_, n)
+				overallMeans <<- rep(NA_real_, n)
+				overallStDevs <<- rep(NA_real_, n)
+				
+				.setParameterType("sampleSizes", C_PARAM_USER_DEFINED)
+				.setParameterType("means", C_PARAM_USER_DEFINED)
+				.setParameterType("stDevs", C_PARAM_USER_DEFINED)
+				
+				.setParameterType("overallSampleSizes", C_PARAM_GENERATED)
+				.setParameterType("overallMeans", C_PARAM_GENERATED)
+				.setParameterType("overallStDevs", C_PARAM_GENERATED)
+				
+				.recreateDataFrame()
+				.createOverallData()
+			} else {
+				n <- length(overallSampleSizes)
+				sampleSizes <<- rep(NA_real_, n)
+				means <<- rep(NA_real_, n)
+				stDevs <<- rep(NA_real_, n)
 				
 				.setParameterType("sampleSizes", C_PARAM_GENERATED)
 				.setParameterType("means", C_PARAM_GENERATED)
@@ -1678,26 +1781,34 @@ DatasetMeans <- setRefClass("DatasetMeans",
 				.setParameterType("overallSampleSizes", C_PARAM_USER_DEFINED)
 				.setParameterType("overallMeans", C_PARAM_USER_DEFINED)
 				.setParameterType("overallStDevs", C_PARAM_USER_DEFINED)
+				
+				.recreateDataFrame()
+				.createStageWiseData()
 			}
 			
-			else {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"sample sizes are missing or not correctly specified")
+			if (sum(stats::na.omit(sampleSizes) < 0) > 0) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
 			}
-			
-			.data <<- data.frame(stage = stages, group = groups, sampleSize = sampleSizes, 
-				mean = means, stDev = stDevs, overallSampleSize = overallSampleSizes, 
-				overallMean = overallMeans, overallStDev = overallStDevs)
-			
+			if (sum(stats::na.omit(stDevs) < 0) > 0) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all standard deviations must be >= 0")
+			}
+		},
+		
+		.recreateDataFrame = function() {
+			callSuper()
+			.data <<- cbind(.data, data.frame(
+					sampleSize = sampleSizes, 
+					mean = means, 
+					stDev = stDevs, 
+					overallSampleSize = overallSampleSizes, 
+					overallMean = overallMeans, 
+					overallStDev = overallStDevs))
 			.orderDataByStageAndGroup()
 			.setDataToVariables()
-			
-			.validateDataset()
 		},
 		
 		.setDataToVariables = function() {
-			stages <<- .data$stage
-			groups <<- .data$group
+			callSuper()
 			sampleSizes <<- .data$sampleSize
 			means <<- .data$mean
 			stDevs <<- .data$stDev
@@ -1720,12 +1831,7 @@ DatasetMeans <- setRefClass("DatasetMeans",
 			overallMeans <<- c(overallMeans, naRealsToAdd)
 			overallStDevs <<- c(overallStDevs, naRealsToAdd)
 			
-			.data <<- data.frame(stage = stages, group = groups, sampleSize = sampleSizes, 
-				mean = means, stDev = stDevs, overallSampleSize = overallSampleSizes, 
-				overallMean = overallMeans, overallStDev = overallStDevs)
-			
-			.orderDataByStageAndGroup()
-			.setDataToVariables()
+			.recreateDataFrame()
 		},
 		
 		.trim = function(kMax = NA_integer_) {
@@ -1742,113 +1848,168 @@ DatasetMeans <- setRefClass("DatasetMeans",
 			overallMeans <<- overallMeans[indices]
 			overallStDevs <<- overallStDevs[indices]
 			
-			.data <<- data.frame(stage = stages, group = groups, sampleSize = sampleSizes, 
-				mean = means, stDev = stDevs, overallSampleSize = overallSampleSizes, 
-				overallMean = overallMeans, overallStDev = overallStDevs)
-			
-			.orderDataByStageAndGroup()
-			.setDataToVariables()
-			
+			.recreateDataFrame()
 			return(invisible(TRUE))
+		},
+		
+		.getOverallMeans = function(sampleSizes, means) {
+			return(cumsum(sampleSizes * means) / cumsum(sampleSizes))
+		},
+		
+		.getOverallStDevs = function(sampleSizes, means, stDevs, overallMeans) {
+			kMax <- length(sampleSizes)
+			overallStDev <- rep(NA_real_, kMax)
+			for (k in 1:kMax) {
+				overallStDev[k] <- sqrt((sum((sampleSizes[1:k] - 1) * stDevs[1:k]^2) + 
+							sum(sampleSizes[1:k] * (means[1:k] - overallMeans[k])^2)) /
+						(sum(sampleSizes[1:k]) - 1))
+			}
+			return(overallStDev)
+		},
+		
+		.createOverallData = function() {
+			.data$overallSampleSize <<- rep(NA_real_, nrow(.data))
+			.data$overallMean <<- rep(NA_real_, nrow(.data))
+			.data$overallStDev <<- rep(NA_real_, nrow(.data))
+			subsetLevels <- NA_character_
+			if (.enrichmentEnabled) {
+				subsetLevels <- levels(.data$subset)
+			}
+			for (s in subsetLevels) {
+				for (g in levels(.data$group)) {
+					if (!is.na(s)) {
+						indices <- which(.data$subset == s & .data$group == g)
+					} else {
+						indices <- which(.data$group == g)
+					}
+					.data$overallSampleSize[indices] <<- cumsum(.data$sampleSize[indices])
+					.data$overallMean[indices] <<- .getOverallMeans(
+						.data$sampleSize[indices], .data$mean[indices])
+					.data$overallStDev[indices] <<- .getOverallStDevs(.data$sampleSize[indices], 
+						.data$mean[indices], .data$stDev[indices], .data$overallMean[indices])
+				}
+			}
+			.setDataToVariables()
+		},
+		
+		.getStageWiseSampleSizes = function(overallSampleSizes) {
+			result <- overallSampleSizes
+			if (length(overallSampleSizes) == 1) {
+				return(result)
+			}
+			
+			kMax <- length(overallSampleSizes)
+			result[2:kMax] <- overallSampleSizes[2:kMax] - overallSampleSizes[1:(kMax - 1)]
+			return(result)
+		},
+		
+		.getStageWiseMeans = function(sampleSizes, overallSampleSizes, overallMeans) {
+			result <- overallMeans
+			if (length(overallMeans) == 1) {
+				return(result)
+			}
+			
+			for (k in 2:length(overallMeans)) {
+				result[k] <- (overallSampleSizes[k] * overallMeans[k] -
+						overallSampleSizes[k - 1] * overallMeans[k - 1]) / sampleSizes[k]
+			}
+			return(result)
+		},
+		
+		.getStageWiseStDevs = function(overallStDevs, sampleSizes, overallSampleSizes, means, overallMeans) {
+			result <- overallStDevs
+			if (length(overallStDevs) == 1) {
+				return(result)
+			}
+			
+			for (k in 2:length(overallStDevs)) {
+				result[k] <- sqrt(((overallSampleSizes[k] - 1) * overallStDevs[k]^2 - 
+							(overallSampleSizes[k - 1] - 1) * overallStDevs[k - 1]^2 + 
+							sum(sampleSizes[1:(k - 1)] * (means[1:(k - 1)] - overallMeans[k - 1])^2) -
+							sum(sampleSizes[1:k] * (means[1:k] - overallMeans[k])^2)) / (sampleSizes[k] - 1))
+			}
+			return(result)
+		},
+		
+		.createStageWiseData = function() {
+			"Calculates stagewise means and standard deviation if overall data is available"
+			
+			.data$sampleSize <<- rep(NA_real_, nrow(.data))
+			.data$mean <<- rep(NA_real_, nrow(.data))
+			.data$stDev <<- rep(NA_real_, nrow(.data))
+			
+			subsetLevels <- NA_character_
+			if (.enrichmentEnabled) {
+				subsetLevels <- levels(.data$subset)
+			}
+			
+			for (s in subsetLevels) {
+				for (g in levels(.data$group)) {
+					if (!is.na(s)) {
+						indices <- which(.data$subset == s & .data$group == g)
+					} else {
+						indices <- which(.data$group == g)
+					}
+					
+					.assertValuesAreStrictlyIncreasing(.data$overallSampleSize[indices], 
+						paste0("overallSampleSizes", g), endingNasAllowed = TRUE)
+					
+					.data$sampleSize[indices] <<- .getStageWiseSampleSizes(.data$overallSampleSize[indices])
+					.data$mean[indices] <<- .getStageWiseMeans(.data$sampleSize[indices], 
+						.data$overallSampleSize[indices], .data$overallMean[indices])
+					.data$stDev[indices] <<- .getStageWiseStDevs(
+						.data$overallStDev[indices], .data$sampleSize[indices],
+						.data$overallSampleSize[indices], .data$mean[indices], .data$overallMean[indices])
+				}
+			}
+			.setDataToVariables()
 		},
 		
 		getRandomData = function() {
 			data <- NULL
 			for (stage in 1:getNumberOfStages()) {
 				for (group in 1:getNumberOfGroups()) {
-					randomData <- stats::rnorm(n = getSampleSize(stage = stage, group = group), 
-						mean = getMean(stage = stage, group = group), 
-						sd = getStDev(stage = stage, group = group))
-					row <- data.frame(
-						stage = stage,
-						group = group, 
-						randomData = randomData
-					)
-					if (is.null(data)) {
-						data <- row
+					if (.enrichmentEnabled) {
+						for (subset in levels(.data$subset)) {
+							randomData <- stats::rnorm(
+								n = getSampleSize(stage = stage, group = group, subset = subset), 
+								mean = getMean(stage = stage, group = group, subset = subset), 
+								sd = getStDev(stage = stage, group = group, subset = subset))
+							row <- data.frame(
+								stage = stage,
+								group = group, 
+								subset = subset,
+								randomData = randomData
+							)
+							if (is.null(data)) {
+								data <- row
+							} else {
+								data <- rbind(data, row)
+							}
+						}
 					} else {
-						data <- rbind(data, row)
+						randomData <- stats::rnorm(n = getSampleSize(stage = stage, group = group), 
+							mean = getMean(stage = stage, group = group), 
+							sd = getStDev(stage = stage, group = group))
+						row <- data.frame(
+							stage = stage,
+							group = group, 
+							randomData = randomData
+						)
+						if (is.null(data)) {
+							data <- row
+						} else {
+							data <- rbind(data, row)
+						}
 					}
 				}
 			}
 			data$stage <- factor(data$stage)
 			data$group <- factor(data$group, label=paste("Group", c(1:getNumberOfGroups())))
+			if (.enrichmentEnabled) {
+				data$subset <- factor(data$subset)
+			}
 			return(data)
-		},
-		
-		.getOverallData = function(dataInput, kMax, stage) {
-			"Calculates overall means and standard deviation if stagewise data is available"
-			if (is.null(dataInput[["sampleSizes"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'sampleSizes'")
-			}
-			if (is.null(dataInput[["means"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'means'")
-			}
-			if (is.null(dataInput[["stDevs"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'stDevs'")
-			}
-			
-			dataInput$overallSampleSizes <- c(base::cumsum(dataInput$sampleSizes[1:stage]), 
-				rep(NA_real_, kMax - stage))
-			
-			dataInput$overallMeans <- c(base::cumsum(dataInput$sampleSizes[1:stage] * 
-							dataInput$means[1:stage]) /
-					base::cumsum(dataInput$sampleSizes[1:stage]), rep(NA_real_, kMax - stage))
-			
-			dataInput$overallStDevs <- rep(NA_real_, kMax)
-			for (k in 1:stage) {
-				dataInput$overallStDevs[k] <- 
-					base::sqrt((base::sum((dataInput$sampleSizes[1:k] - 1) * dataInput$stDevs[1:k]^2) + 
-								base::sum(dataInput$sampleSizes[1:k] * 
-										(dataInput$means[1:k] - dataInput$overallMeans[k])^2)) /
-							(base::sum(dataInput$sampleSizes[1:k]) - 1))
-			}	
-			return(dataInput)
-		},
-		
-		.getStageWiseData = function(dataInput, kMax, stage) {
-			"Calculates stagewise means and standard deviation if overall data is available"
-			if (is.null(dataInput[["overallSampleSizes"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"data input must contain variable 'overallSampleSizes'")
-			}
-			if (is.null(dataInput[["overallMeans"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallMeans'")
-			}
-			if (is.null(dataInput[["overallStDevs"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'overallStDevs'")
-			}
-			
-			dataInput$sampleSizes <- c(dataInput$overallSampleSizes[1:stage], rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				dataInput$sampleSizes[2:stage] <- dataInput$overallSampleSizes[2:stage] - 
-					dataInput$overallSampleSizes[1:(stage - 1)]
-			}	
-			
-			dataInput$means <- c(dataInput$overallMeans[1:stage], rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				for (k in 2:stage) {
-					dataInput$means[k] <- (dataInput$overallSampleSizes[k] * dataInput$overallMeans[k] -
-							dataInput$overallSampleSizes[k - 1] * dataInput$overallMeans[k - 1])/	
-						dataInput$sampleSizes[k]
-				}
-			}
-			
-			dataInput$stDevs <- c(dataInput$overallStDevs[1:stage], rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				for (k in 2:stage) {
-					dataInput$stDevs[k] <- 
-						base::sqrt(((dataInput$overallSampleSizes[k] - 1) * dataInput$overallStDevs[k]^2 - 
-									(dataInput$overallSampleSizes[k - 1] - 1) * dataInput$overallStDevs[k - 1]^2 + 
-									base::sum(dataInput$sampleSizes[1:(k - 1)] * 
-											(dataInput$means[1:(k - 1)] - dataInput$overallMeans[k - 1])^2) -
-									base::sum(dataInput$sampleSizes[1:k] * 
-											(dataInput$means[1:k] - dataInput$overallMeans[k])^2)) /
-								(dataInput$sampleSizes[k] - 1))
-				}
-			}	
-			
-			return(dataInput)
 		}
 	)
 )
@@ -1869,6 +2030,7 @@ DatasetMeans <- setRefClass("DatasetMeans",
 #' @param legendTitle The legend title, default is \code{"Group"}.
 #' @inheritParams param_palette
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_three_dots_plot
 #' 
 #' @details
@@ -1903,8 +2065,12 @@ DatasetMeans <- setRefClass("DatasetMeans",
 #' @export
 #'
 plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_character_,
-	legendTitle = "Group", palette = "Set1", showSource = FALSE) {
+		legendTitle = "Group", palette = "Set1", showSource = FALSE, plotSettings = NULL) {
 	
+	if (x$.enrichmentEnabled) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "plot of enrichment data is not implemented yet")
+	}
+		
 	.assertGgplotIsInstalled()
 	
 	if (x$isDatasetMeans()) {
@@ -1928,6 +2094,10 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 		warning("'showSource' != FALSE is not implemented yet for class ", class(x))
 	}
 	
+	if (is.null(plotSettings)) {
+		plotSettings <- x$getPlotSettings()
+	}
+	
 	if (x$getNumberOfGroups() == 1) {	
 		if (x$isDatasetMeans()) {
 			p <- ggplot2::ggplot(data = data, 
@@ -1935,7 +2105,7 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 			p <- p + ggplot2::geom_boxplot(ggplot2::aes(fill = .data[["stage"]]))
 			p <- p + ggplot2::geom_point(colour = "#0e414e", shape = 20, 
 				position = ggplot2::position_jitter(width = .1), 
-				size = x$getPlotSettings()$pointSize) 
+				size = plotSettings$pointSize) 
 			p <- p + ggplot2::stat_summary(fun = "mean", geom = "point", 
 				shape = 21, position = ggplot2::position_dodge(.75), size = 4, fill = "white", 
 				colour = "black", show.legend = FALSE)
@@ -1968,7 +2138,7 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 					fill = factor(.data[["group"]])), data = data) 
 			p <- p + ggplot2::geom_point(ggplot2::aes(colour = .data[["group"]]), shape = 20, 
 				position = ggplot2::position_dodge(.75), 
-				size = x$getPlotSettings()$pointSize)
+				size = plotSettings$pointSize)
 			p <- p + ggplot2::geom_boxplot()
 			p <- p + ggplot2::stat_summary(ggplot2::aes(colour = .data[["group"]]), 
 				fun = "mean", geom = "point", 
@@ -2004,32 +2174,33 @@ plot.Dataset <- function(x, y, ..., main = "Dataset", xlab = "Stage", ylab = NA_
 	}
 	
 	# set theme
-	p <- x$getPlotSettings()$setTheme(p)
+	p <- plotSettings$setTheme(p)
 	#p <- designSet$getPlotSettings()$hideGridLines(p)
 	
 	# set main title
-	p <- x$getPlotSettings()$setMainTitle(p, main)
+	p <- plotSettings$setMainTitle(p, main)
 	
 	# set axes labels
-	p <- x$getPlotSettings()$setAxesLabels(p, xlab = xlab, ylab = ylab)
+	p <- plotSettings$setAxesLabels(p, xlab = xlab, ylab = ylab)
 	
 	# set legend
 	if (x$getNumberOfGroups() > 1) {
-		p <- x$getPlotSettings()$setLegendPosition(p, legendPosition = C_POSITION_OUTSIDE_PLOT)
-		p <- x$getPlotSettings()$setLegendBorder(p)
-		p <- x$getPlotSettings()$setLegendTitle(p, legendTitle, mode = "fill")
-		p <- x$getPlotSettings()$setLegendLabelSize(p)
+		p <- plotSettings$setLegendPosition(p, legendPosition = C_POSITION_OUTSIDE_PLOT)
+		p <- plotSettings$setLegendBorder(p)
+		p <- plotSettings$setLegendTitle(p, legendTitle, mode = "fill")
+		p <- plotSettings$setLegendLabelSize(p)
 	}
 	
-	p <- x$getPlotSettings()$setAxesAppearance(p)
-	p <- x$getPlotSettings()$setColorPalette(p, palette, mode = "all")
-	p <- x$getPlotSettings()$enlargeAxisTicks(p)
+	p <- plotSettings$setAxesAppearance(p)
+	p <- plotSettings$setColorPalette(p, palette, mode = "all")
+	p <- plotSettings$enlargeAxisTicks(p)
 	
 	companyAnnotationEnabled <- .getOptionalArgument("companyAnnotationEnabled", ...)
 	if (is.null(companyAnnotationEnabled) || !is.logical(companyAnnotationEnabled)) {
 		companyAnnotationEnabled <- FALSE
 	}
-	p <- x$getPlotSettings()$addCompanyAnnotation(p, enabled = companyAnnotationEnabled)
+	p <- plotSettings$addCompanyAnnotation(p, enabled = companyAnnotationEnabled)
+	
 	p
 }
 
@@ -2071,56 +2242,52 @@ DatasetRates <- setRefClass("DatasetRates",
 	),
 	methods = list(
 		
-		getSampleSize = function(stage, group = 1) {
-			return(.data$sampleSize[.getIndices(stage = stage, group = group)])
+		getSampleSize = function(stage, group = 1, subset = NA_character_) {
+			return(.data$sampleSize[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$sampleSize[.getIndices(stage = stage, group = group)])
+		getSampleSizes = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$sampleSize[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getSampleSizesUpTo = function(to, group = 1) {
-			return(.data$sampleSize[.getIndices(stage = c(1:to), group = group)])
+		getSampleSizesUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$sampleSize[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getEvent = function(stage, group = 1) {
-			return(.data$event[.getIndices(stage = stage, group = group)])
+		getEvent = function(stage, group = 1, subset = NA_character_) {
+			return(.data$event[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getEvents = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$event[.getIndices(stage = stage, group = group)])
+		getEvents = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$event[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getEventsUpTo = function(to, group = 1) {
-			return(.data$event[.getIndices(stage = c(1:to), group = group)])
+		getEventsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$event[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallSampleSize = function(stage, group = 1) {
-			return(.data$overallSampleSize[.getIndices(stage = stage, group = group)])
+		getOverallSampleSize = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallSampleSize[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallSampleSizes = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallSampleSize[.getIndices(stage = stage, group = group)])
+		getOverallSampleSizes = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallSampleSize[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallSampleSizesUpTo = function(to, group = 1) {
-			return(.data$overallSampleSize[.getIndices(stage = c(1:to), group = group)])
+		getOverallSampleSizesUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallSampleSize[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallEvent = function(stage, group = 1) {
-			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
+		getOverallEvent = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallEvent[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallEvents = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
+		getOverallEvents = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallEvent[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallEventsUpTo = function(to, group = 1) {
-			return(.data$overallEvent[.getIndices(stage = c(1:to), group = group)])
+		getOverallEventsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallEvent[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
 		.getValidatedSampleSizes = function(n) {
@@ -2132,6 +2299,7 @@ DatasetRates <- setRefClass("DatasetRates",
 			
 			# case: one rate - stage wise
 			if (.paramExists(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)) {
+				.inputType <<- "stagewise"
 				sampleSizes <<- .getValidatedSampleSizes(
 					.getValuesByParameterName(dataFrame, C_KEY_WORDS_SAMPLE_SIZES))
 				.validateValues(sampleSizes, "n")
@@ -2166,6 +2334,7 @@ DatasetRates <- setRefClass("DatasetRates",
 			
 			# case: one rate - overall
 			else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES)) {
+				.inputType <<- "overall"
 				overallSampleSizes <<- .getValidatedSampleSizes(.getValuesByParameterName(dataFrame, 
 						C_KEY_WORDS_OVERALL_SAMPLE_SIZES))
 				.validateValues(overallSampleSizes, "overallSampleSizes")
@@ -2193,6 +2362,7 @@ DatasetRates <- setRefClass("DatasetRates",
 			# case: two or more rates - stage wise
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 1)) && 
 				.paramExists(dataFrame, paste0(C_KEY_WORDS_SAMPLE_SIZES, 2))) {
+				.inputType <<- "stagewise"
 				
 				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_SAMPLE_SIZES)
 				
@@ -2234,7 +2404,7 @@ DatasetRates <- setRefClass("DatasetRates",
 						.getValidatedSampleSizes(overallData$overallSampleSizes))
 					overallEvents <<- c(overallEvents, overallData$overallEvents)
 				}
-				if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
+				if (sum(stats::na.omit(sampleSizes) < 0) > 0) {
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
 				}
 				
@@ -2248,6 +2418,7 @@ DatasetRates <- setRefClass("DatasetRates",
 			# case: two or more rates - overall
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 1)) &&
 				.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 2))) {
+				.inputType <<- "overall"
 				
 				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_OVERALL_SAMPLE_SIZES)
 				
@@ -2286,7 +2457,7 @@ DatasetRates <- setRefClass("DatasetRates",
 					sampleSizes <<- c(sampleSizes, validatedSampleSizes)
 					events <<- c(events, stageWiseData$events)
 					
-					if (base::sum(stats::na.omit(sampleSizes) < 0) > 0) {
+					if (sum(stats::na.omit(sampleSizes) < 0) > 0) {
 						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all sample sizes must be >= 0")
 					}
 				}
@@ -2303,23 +2474,29 @@ DatasetRates <- setRefClass("DatasetRates",
 					"sample sizes are missing or not correctly specified")
 			}
 			
-			if (base::sum(stats::na.omit(events) < 0) > 0) {
+			if (sum(stats::na.omit(events) < 0) > 0) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all events must be >= 0")
 			}
 			
-			.data <<- data.frame(stage = stages, group = groups, 
-				sampleSize = sampleSizes, event = events,
-				overallSampleSize = overallSampleSizes, overallEvent = overallEvents)
-			
+			.recreateDataFrame()
+			if (.enrichmentEnabled) {
+				.createOverallDataEnrichment()
+			}
+		},
+		
+		.recreateDataFrame = function() {
+			callSuper()
+			.data <<- cbind(.data, data.frame(
+					sampleSize = sampleSizes, 
+					event = events,
+					overallSampleSize = overallSampleSizes, 
+					overallEvent = overallEvents))
 			.orderDataByStageAndGroup()
 			.setDataToVariables()
-			
-			.validateDataset()
 		},
 		
 		.setDataToVariables = function() {
-			stages <<- .data$stage
-			groups <<- .data$group
+			callSuper()
 			sampleSizes <<- .data$sampleSize
 			events <<- .data$event
 			overallSampleSizes <<- .data$overallSampleSize
@@ -2336,14 +2513,8 @@ DatasetRates <- setRefClass("DatasetRates",
 			overallSampleSizes <<- c(overallSampleSizes, rep(NA_real_, n))
 			overallEvents <<- c(overallEvents, rep(NA_real_, n))
 			
-			.data <<- data.frame(stage = stages, group = groups, 
-				sampleSize = sampleSizes, event = events,
-				overallSampleSize = overallSampleSizes, overallEvent = overallEvents)
-			
-			.orderDataByStageAndGroup()
-			.setDataToVariables()
+			.recreateDataFrame()
 		},
-		
 		
 		.trim = function(kMax = NA_integer_) {
 			indices <- callSuper(kMax)
@@ -2357,12 +2528,7 @@ DatasetRates <- setRefClass("DatasetRates",
 			overallSampleSizes <<- overallSampleSizes[indices]
 			overallEvents <<- overallEvents[indices]
 			
-			.data <<- data.frame(stage = stages, group = groups, 
-				sampleSize = sampleSizes, event = events,
-				overallSampleSize = overallSampleSizes, overallEvent = overallEvents)
-			
-			.orderDataByStageAndGroup()
-			.setDataToVariables()
+			.recreateDataFrame()
 			
 			return(invisible(TRUE))
 		},
@@ -2372,27 +2538,67 @@ DatasetRates <- setRefClass("DatasetRates",
 			for (stage in 1:getNumberOfStages()) {
 				for (group in 1:getNumberOfGroups()) {
 					
-					n = getSampleSize(stage = stage, group = group)
-					numberOfEvents <- getEvent(stage = stage, group = group)
-					randomIndizes <- sample(x = c(1:n), size = numberOfEvents, replace = FALSE)
-					randomData <- rep(0, n)
-					randomData[randomIndizes] <- 1
-					
-					row <- data.frame(
-						stage = stage,
-						group = group, 
-						randomData = randomData
-					)
-					if (is.null(data)) {
-						data <- row
+					if (.enrichmentEnabled) {
+						for (subset in levels(.data$subset)) {
+							n = getSampleSize(stage = stage, group = group, subset = subset)
+							numberOfEvents <- getEvent(stage = stage, group = group, subset = subset)
+							randomIndizes <- sample(x = c(1:n), size = numberOfEvents, replace = FALSE)
+							randomData <- rep(0, n)
+							randomData[randomIndizes] <- 1
+							
+							row <- data.frame(
+								stage = stage,
+								group = group,
+								subset = subset,
+								randomData = randomData
+							)
+							if (is.null(data)) {
+								data <- row
+							} else {
+								data <- rbind(data, row)
+							}
+						}
 					} else {
-						data <- rbind(data, row)
+						n = getSampleSize(stage = stage, group = group)
+						numberOfEvents <- getEvent(stage = stage, group = group)
+						randomIndizes <- sample(x = c(1:n), size = numberOfEvents, replace = FALSE)
+						randomData <- rep(0, n)
+						randomData[randomIndizes] <- 1
+						
+						row <- data.frame(
+							stage = stage,
+							group = group, 
+							randomData = randomData
+						)
+						if (is.null(data)) {
+							data <- row
+						} else {
+							data <- rbind(data, row)
+						}
 					}
 				}
 			}
 			data$stage <- factor(data$stage)		
 			data$group <- factor(data$group, label=paste("Group", c(1:getNumberOfGroups())))
 			return(data)
+		},
+		
+		.createOverallDataEnrichment = function() {
+			if (!.enrichmentEnabled) {
+				return(invisible())
+			}
+			
+			.data$overallSampleSize <<- rep(NA_real_, nrow(.data))
+			.data$overallEvent <<- rep(NA_real_, nrow(.data))
+			for (s in levels(.data$subset)) {
+				for (g in levels(.data$group)) {
+					indices <- which(.data$subset == s & .data$group == g)
+					.data$overallSampleSize[indices] <<- cumsum(.data$sampleSize[indices])
+					.data$overallEvent[indices] <<- cumsum(.data$event[indices])
+				}
+			}
+			
+			.setDataToVariables()
 		},
 		
 		.getOverallData = function(dataInput, kMax, stage) {
@@ -2404,10 +2610,10 @@ DatasetRates <- setRefClass("DatasetRates",
 				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'events'")
 			}
 			
-			dataInput$overallSampleSizes <- c(base::cumsum(dataInput$sampleSizes[1:stage]), 
+			dataInput$overallSampleSizes <- c(cumsum(dataInput$sampleSizes[1:stage]), 
 				rep(NA_real_, kMax - stage))
 			
-			dataInput$overallEvents <- c(base::cumsum(dataInput$events[1:stage]), 
+			dataInput$overallEvents <- c(cumsum(dataInput$events[1:stage]), 
 				rep(NA_real_, kMax - stage))
 			
 			return(dataInput)
@@ -2482,82 +2688,76 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 	),
 	methods = list(
 		
-		getEvent = function(stage, group = 1) {
-			return(.data$event[.getIndices(stage = stage, group = group)])
+		getEvent = function(stage, group = 1, subset = NA_character_) {
+			return(.data$event[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getEvents = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$event[.getIndices(stage = stage, group = group)])
+		getEvents = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$event[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getEventsUpTo = function(to, group = 1) {
-			return(.data$event[.getIndices(stage = c(1:to), group = group)])
+		getEventsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$event[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getAllocationRatio = function(stage, group = 1) {
-			return(.data$allocationRatio[.getIndices(stage = stage, group = group)])
+		getAllocationRatio = function(stage, group = 1, subset = NA_character_) {
+			return(.data$allocationRatio[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getAllocationRatios = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$allocationRatio[.getIndices(stage = stage, group = group)])
+		getAllocationRatios = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$allocationRatio[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getAllocationRatiosUpTo = function(to, group = 1) {
-			return(.data$allocationRatio[.getIndices(stage = c(1:to), group = group)])
+		getAllocationRatiosUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$allocationRatio[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getLogRank = function(stage, group = 1) {
-			return(.data$logRank[.getIndices(stage = stage, group = group)])
+		getLogRank = function(stage, group = 1, subset = NA_character_) {
+			return(.data$logRank[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getLogRanks = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$logRank[.getIndices(stage = stage, group = group)])
+		getLogRanks = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$logRank[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getLogRanksUpTo = function(to, group = 1) {
-			return(.data$logRank[.getIndices(stage = c(1:to), group = group)])
+		getLogRanksUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$logRank[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallEvent = function(stage, group = 1) {
-			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
+		getOverallEvent = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallEvent[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallEvents = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallEvent[.getIndices(stage = stage, group = group)])
+		getOverallEvents = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallEvent[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallEventsUpTo = function(to, group = 1) {
-			return(.data$overallEvent[.getIndices(stage = c(1:to), group = group)])
+		getOverallEventsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallEvent[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallAllocationRatio = function(stage, group = 1) {
-			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group)])
+		getOverallAllocationRatio = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallAllocationRatios = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallAllocationRatio[.getIndices(stage = stage, group = group)])
+		getOverallAllocationRatios = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallAllocationRatio[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallAllocationRatiosUpTo = function(to, group = 1) {
-			return(.data$overallAllocationRatio[.getIndices(stage = c(1:to), group = group)])
+		getOverallAllocationRatiosUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallAllocationRatio[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
-		getOverallLogRank = function(stage, group = 1) {
-			return(.data$overallLogRank[.getIndices(stage = stage, group = group)])
+		getOverallLogRank = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallLogRank[.getIndices(stage = stage, group = group, subset = subset)])
 		},
 		
-		getOverallLogRanks = function(..., stage = NA_integer_, group = NA_integer_) {
-			stage <- .getValidatedStage(..., stage = stage, group = group)
-			return(.data$overallLogRank[.getIndices(stage = stage, group = group)])
+		getOverallLogRanks = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallLogRank[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
 		},
 		
-		getOverallLogRanksUpTo = function(to, group = 1) {
-			return(.data$overallLogRank[.getIndices(stage = c(1:to), group = group)])
+		getOverallLogRanksUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallLogRank[.getIndices(stage = c(1:to), group = group, subset = subset)])
 		},
 		
 		.getAllocationRatioDefaultValues = function(stages, events, logRanks) {
@@ -2570,13 +2770,47 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 		.initByDataFrame = function(dataFrame) {
 			callSuper(dataFrame)	
 			
-			# case: survival, two groups - overall
-			if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS)) {
+			if (inherits(.self, "DatasetEnrichmentSurvival")) {
 				
+				if (.paramExists(dataFrame, C_KEY_WORDS_EXPECTED_EVENTS) ||
+						.paramExists(dataFrame, C_KEY_WORDS_VARIANCE_EVENTS)) {
+					.inputType <<- "stagewise"
+					
+					events <<- .getValidatedFloatingPointNumbers(
+						.getValuesByParameterName(dataFrame, C_KEY_WORDS_EVENTS), parameterName = "Events")
+					.validateValues(events, "events")
+					
+					allocationRatios <<- .getValuesByParameterName(
+						dataFrame, C_KEY_WORDS_ALLOCATION_RATIOS,
+						defaultValues = .getAllocationRatioDefaultValues(stages, events, logRanks))
+					.validateValues(allocationRatios, "allocationRatios")
+				}
+				else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_EXPECTED_EVENTS) ||
+						.paramExists(dataFrame, C_KEY_WORDS_OVERALL_VARIANCE_EVENTS)) {
+					.inputType <<- "overall"
+					
+					overallEvents <<- .getValidatedFloatingPointNumbers(
+						.getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS), parameterName = "Overall events")
+					.validateValues(overallEvents, "overallEvents")
+					
+					overallAllocationRatios <<- .getValuesByParameterName(
+						dataFrame, parameterNameVariants = C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
+						defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallLogRanks))
+					.validateValues(overallAllocationRatios, "overallAllocationRatios")
+				}
+				
+				# stratified enrichment: do nothing more here
+			}
+			
+			# case: survival, two groups - overall
+			else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS)) {
+				.inputType <<- "overall"
 				overallEvents <<- .getValidatedFloatingPointNumbers(
 					.getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS), parameterName = "Overall events")
 				.validateValues(overallEvents, "overallEvents")
-				.assertValuesAreStrictlyIncreasing(overallEvents, "overallEvents", endingNasAllowed = TRUE)
+				if (!.enrichmentEnabled) {
+					.assertValuesAreStrictlyIncreasing(overallEvents, "overallEvents", endingNasAllowed = TRUE)
+				}
 				
 				overallLogRanks <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS)
 				.validateValues(overallLogRanks, "overallLogRanks")
@@ -2586,36 +2820,17 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 					defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallLogRanks))
 				.validateValues(overallAllocationRatios, "overallAllocationRatios")
 				
-				kMax <- length(overallEvents)
-				stageNumber <- length(stats::na.omit(overallEvents))
-				dataInput <- data.frame(
-					overallEvents = overallEvents,
-					overallAllocationRatios = overallAllocationRatios,
-					overallLogRanks = overallLogRanks)
-				dataInput <- .getStageWiseData(dataInput, kMax, stage = stageNumber)
-				events <<- .getValidatedFloatingPointNumbers(dataInput$events, parameterName = "Events")
-				allocationRatios <<- dataInput$allocationRatios
-				logRanks <<- dataInput$logRanks
-				
-				.setParameterType("events", C_PARAM_GENERATED)
-				.setParameterType("allocationRatios", C_PARAM_GENERATED)
-				.setParameterType("logRanks", C_PARAM_GENERATED)
-				
-				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
-				.setParameterType("overallAllocationRatios", C_PARAM_USER_DEFINED)
-				.setParameterType("overallLogRanks", C_PARAM_USER_DEFINED)
-				
 				.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
 			}
 			
 			# case: survival, two groups - stage wise
 			else if (.paramExists(dataFrame, C_KEY_WORDS_LOG_RANKS)) {
-				
+				.inputType <<- "stagewise"
 				events <<- .getValidatedFloatingPointNumbers(.getValuesByParameterName(
 						dataFrame, C_KEY_WORDS_EVENTS), parameterName = "Events")
 				.validateValues(events, "events")
-				if (any(stats::na.omit(events) <= 0)) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all events must be > 0")
+				if (any(stats::na.omit(events) < 0)) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all events must be >= 0")
 				}
 				
 				logRanks <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_LOG_RANKS)
@@ -2626,40 +2841,19 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 					defaultValues = .getAllocationRatioDefaultValues(stages, events, logRanks))
 				.validateValues(allocationRatios, "allocationRatios")
 				
-				kMax <- length(events)
-				stageNumber <- length(stats::na.omit(events))
-				dataInput <- data.frame(
-					events = events,
-					allocationRatios = allocationRatios,
-					logRanks = logRanks)
-				dataInput <- .getOverallData(dataInput, kMax, stage = stageNumber)
-				overallEvents <<- .getValidatedFloatingPointNumbers(dataInput$overallEvents, parameterName = "Overall events")
-				overallAllocationRatios <<- dataInput$overallAllocationRatios
-				overallLogRanks <<- dataInput$overallLogRanks
-				
-				.setParameterType("events", C_PARAM_USER_DEFINED)
-				.setParameterType("allocationRatios", C_PARAM_USER_DEFINED)
-				.setParameterType("logRanks", C_PARAM_USER_DEFINED)
-				
-				.setParameterType("overallEvents", C_PARAM_GENERATED)
-				.setParameterType("overallAllocationRatios", C_PARAM_GENERATED)
-				.setParameterType("overallLogRanks", C_PARAM_GENERATED)
-				
 				.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
 			}
 			
 			# case: survival, three ore more groups - overall
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_LOG_RANKS, 1)) &&
 				.paramExists(dataFrame, paste0(C_KEY_WORDS_OVERALL_LOG_RANKS, 2))) {
+				.inputType <<- "overall"
 				
 				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_OVERALL_LOG_RANKS)
 				
 				stages <<- rep(stages, numberOfTreatmentGroups)
 				
 				groups <<- integer(0)
-				events <<- numeric(0)
-				allocationRatios <<- numeric(0)
-				logRanks <<- numeric(0)
 				overallEvents <<- numeric(0)
 				overallAllocationRatios <<- numeric(0)
 				overallLogRanks <<- numeric(0)
@@ -2684,35 +2878,13 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 					overallAllocationRatios <<- c(overallAllocationRatios, overallAllocationRatiosTemp)
 					
 					groups <<- c(groups, rep(as.integer(group), length(overallLogRanksTemp)))
-					
-					kMax <- length(overallLogRanksTemp)
-					numberOfValidStages <- length(stats::na.omit(overallLogRanksTemp))
-					stageWiseData <- .getStageWiseData(data.frame(
-							overallLogRanks = overallLogRanksTemp,
-							overallAllocationRatios = overallAllocationRatiosTemp,
-							overallEvents = overallEventsTemp), 
-						kMax, stage = numberOfValidStages)
-					
-					validatedLogRanks <- stageWiseData$logRanks
-					.validateValues(validatedLogRanks, paste0("n", group))
-					logRanks <<- c(logRanks, validatedLogRanks)
-					allocationRatios <<- c(allocationRatios, stageWiseData$allocationRatios)
-					events <<- c(events, stageWiseData$events)
 				}
-				
-				.setParameterType("events", C_PARAM_GENERATED)
-				.setParameterType("allocationRatios", C_PARAM_GENERATED)
-				.setParameterType("logRanks", C_PARAM_GENERATED)
-				
-				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
-				.setParameterType("overallAllocationRatios", C_PARAM_USER_DEFINED)
-				.setParameterType("overallLogRanks", C_PARAM_USER_DEFINED)
 			}
 			
 			# case: survival, three ore more groups - stage wise
 			else if (.paramExists(dataFrame, paste0(C_KEY_WORDS_LOG_RANKS, 1)) && 
 				.paramExists(dataFrame, paste0(C_KEY_WORDS_LOG_RANKS, 2))) {
-				
+				.inputType <<- "stagewise"
 				numberOfTreatmentGroups <- .getNumberOfGroups(dataFrame, C_KEY_WORDS_LOG_RANKS)
 				
 				stages <<- rep(stages, numberOfTreatmentGroups)
@@ -2721,15 +2893,11 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				events <<- numeric(0)
 				allocationRatios <<- numeric(0)
 				logRanks <<- numeric(0)
-				overallEvents <<- numeric(0)
-				overallAllocationRatios <<- numeric(0)
-				overallLogRanks <<- numeric(0)
 				for (group in 1:numberOfTreatmentGroups) {
-					
 					eventsTemp <- .getValidatedFloatingPointNumbers(.getValuesByParameterName(
 							dataFrame, C_KEY_WORDS_EVENTS, suffix = group), parameterName = "Events")
-					if (any(stats::na.omit(eventsTemp) <= 0)) {
-						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all events must be > 0, but 'events", group, "' = ",
+					if (any(stats::na.omit(eventsTemp) < 0)) {
+						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all events must be >= 0, but 'events", group, "' = ",
 							.arrayToString(eventsTemp, vectorLookAndFeelEnabled = TRUE))
 					}
 					events <<- c(events, eventsTemp)
@@ -2747,51 +2915,97 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 					allocationRatios <<- c(allocationRatios, allocationRatiosTemp)
 					
 					groups <<- c(groups, rep(as.integer(group), length(eventsTemp)))
-					
-					kMax <- length(eventsTemp)
-					numberOfValidStages <- length(stats::na.omit(eventsTemp))
-					overallData <- .getOverallData(data.frame(
-							events = eventsTemp,
-							allocationRatios = allocationRatiosTemp,
-							logRanks = logRanksTemp), kMax, stage = numberOfValidStages)
-					
-					overallEvents <<- c(overallEvents, overallData$overallEvents)
-					overallAllocationRatios <<- c(overallAllocationRatios, overallData$overallAllocationRatios)
-					overallLogRanks <<- c(overallLogRanks, overallData$overallLogRanks)
 				}
+			}
+			
+			else {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "unable to identify case for ", class(.self), " and columns ", 
+					.arrayToString(colnames(dataFrame)))
+			}
+			
+			if (.inputType == "stagewise") {
+				n <- length(events)
+				overallEvents <<- rep(NA_real_, n)
+				overallAllocationRatios <<- rep(NA_real_, n)
+				overallLogRanks <<- rep(NA_real_, n)
 				
 				.setParameterType("events", C_PARAM_USER_DEFINED)
 				.setParameterType("allocationRatios", C_PARAM_USER_DEFINED)
-				.setParameterType("logRanks", C_PARAM_USER_DEFINED)
+				if (!inherits(.self, "DatasetEnrichmentSurvival")) {
+					.setParameterType("logRanks", C_PARAM_USER_DEFINED)	
+				}
 				
 				.setParameterType("overallEvents", C_PARAM_GENERATED)
 				.setParameterType("overallAllocationRatios", C_PARAM_GENERATED)
-				.setParameterType("overallLogRanks", C_PARAM_GENERATED)
+				if (!inherits(.self, "DatasetEnrichmentSurvival")) {
+					.setParameterType("overallLogRanks", C_PARAM_GENERATED)	
+				}
+				
+				if (!inherits(.self, "DatasetEnrichmentSurvival")) {
+					.recreateDataFrame()
+					.createOverallData()
+				}
+			} else {
+				n <- length(overallEvents)
+				events <<- rep(NA_real_, n)
+				allocationRatios <<- rep(NA_real_, n)
+				logRanks <<- rep(NA_real_, n)
+				
+				.setParameterType("events", C_PARAM_GENERATED)
+				.setParameterType("allocationRatios", C_PARAM_GENERATED)
+				if (!inherits(.self, "DatasetEnrichmentSurvival")) {
+					.setParameterType("logRanks", C_PARAM_GENERATED)	
+				}
+				
+				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
+				.setParameterType("overallAllocationRatios", C_PARAM_USER_DEFINED)
+				if (!inherits(.self, "DatasetEnrichmentSurvival")) {
+					.setParameterType("overallLogRanks", C_PARAM_USER_DEFINED)	
+				}
+				
+				if (!inherits(.self, "DatasetEnrichmentSurvival")) {
+					.recreateDataFrame()
+					.createStageWiseData()
+				}
 			}
+		},
+		
+		.recreateDataFrame = function() {
+			callSuper()
 			
-			.data <<- data.frame(stage = stages, group = groups, 
-				overallEvent = overallEvents, 
-				overallAllocationRatio = overallAllocationRatios, 
-				overallLogRank = overallLogRanks, 
-				event = events,
-				allocationRatio = allocationRatios,
-				logRank = logRanks)
-			
-			.orderDataByStageAndGroup()	
+			if (inherits(.self, "DatasetEnrichmentSurvival")) {
+				.data <<- cbind(.data, data.frame(
+					overallEvent = overallEvents, 
+					overallExpectedEvent = overallExpectedEvents, 
+					overallVarianceEvent = overallVarianceEvents, 
+					overallAllocationRatio = overallAllocationRatios,
+					event = events,
+					expectedEvent = expectedEvents,
+					# varianceEvent = varianceEvents, # maybe implemented later
+					allocationRatio = allocationRatios))
+			} else {
+				.data <<- cbind(.data, data.frame(
+					overallEvent = overallEvents, 
+					overallAllocationRatio = overallAllocationRatios, 
+					overallLogRank = overallLogRanks, 
+					event = events,
+					allocationRatio = allocationRatios,
+					logRank = logRanks))
+			}
+			.orderDataByStageAndGroup()
 			.setDataToVariables()
-			
-			.validateDataset()
 		},
 		
 		.setDataToVariables = function() {
-			stages <<- .data$stage
-			groups <<- .data$group
+			callSuper()
 			overallEvents <<- .data$overallEvent
 			overallAllocationRatios <<- .data$overallAllocationRatio
-			overallLogRanks <<- .data$overallLogRank
 			events <<- .data$event
 			allocationRatios <<- .data$allocationRatio
-			logRanks <<- .data$logRank
+			if (!inherits(.self, "DatasetEnrichmentSurvival")) {
+				overallLogRanks <<- .data$overallLogRank
+				logRanks <<- .data$logRank
+			}
 		},
 		
 		.fillWithNAs = function(kMax) {
@@ -2806,16 +3020,7 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 			allocationRatios <<- c(allocationRatios, rep(NA_real_, n))
 			logRanks <<- c(logRanks, rep(NA_real_, n))
 			
-			.data <<- data.frame(stage = stages, group = groups, 
-				overallEvent = overallEvents, 
-				overallAllocationRatio = overallAllocationRatios, 
-				overallLogRank = overallLogRanks,
-				event = events,
-				allocationRatio = allocationRatios,
-				logRank = logRanks)
-			
-			.orderDataByStageAndGroup()
-			.setDataToVariables()
+			.recreateDataFrame()
 		},
 		
 		.trim = function(kMax = NA_integer_) {
@@ -2832,16 +3037,7 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 			overallAllocationRatios <<- overallAllocationRatios[indices]
 			overallLogRanks <<- overallLogRanks[indices]
 			
-			.data <<- data.frame(stage = stages, group = groups, 
-				overallEvent = overallEvents, 
-				overallAllocationRatio = overallAllocationRatios, 
-				overallLogRank = overallLogRanks,
-				event = events,
-				allocationRatio = allocationRatios,
-				logRank = logRanks)
-			
-			.orderDataByStageAndGroup()
-			.setDataToVariables()
+			.recreateDataFrame()
 			
 			return(invisible(TRUE))
 		},
@@ -2851,95 +3047,339 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 				"the function 'DatasetSurvival.getRandomData()' is not implemented yet") 
 		},
 		
-		.getOverallData = function(dataInput, kMax, stage) {
-			"Calculates overall logrank statistics, events, and allocation ratios if stagewise data is available"
-			if (is.null(dataInput[["events"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'events'")
-			}
-			if (is.null(dataInput[["logRanks"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "data input must contain variable 'logRanks'")
-			}
-			if (is.null(dataInput[["allocationRatios"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"data input must contain variable 'allocationRatios'")
-			}
+		.getOverallLogRanks = function(logRanks, events, overallEvents, 
+			kMax = length(logRanks), stage = length(logRanks)) {
 			
-			dataInput$overallEvents <- c(base::cumsum(dataInput$events[1:stage]), 
-				rep(NA_real_, kMax - stage))
-			
-			dataInput$overallLogRanks <- c(dataInput$logRanks[1:stage], rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				for (k in 2:stage) {
-					dataInput$overallLogRanks[k] <- 
-						(base::sqrt(dataInput$events[k]) * dataInput$logRanks[k] + 
-							base::sqrt(dataInput$overallEvents[k - 1]) * 
-							dataInput$overallLogRanks[k - 1]) / base::sqrt(dataInput$overallEvents[k])  
-				}		
+			result <- c(logRanks[1:stage], rep(NA_real_, kMax - stage))
+			if (stage == 1) {
+				return(result)
 			}
-			
-			dataInput$overallAllocationRatios <- c(dataInput$allocationRatios[1:stage], 
-				rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				for (k in 2:stage) {
-					dataInput$overallAllocationRatios[k] <- (dataInput$events[k] * 
-							dataInput$allocationRatios[k] + dataInput$overallEvents[k - 1] * 
-							dataInput$overallAllocationRatios[k - 1]) / dataInput$overallEvents[k]  
-				}
-			}
-			
-			return(dataInput)
+			for (k in 2:stage) {
+				result[k] <- 
+					(sqrt(events[k]) * logRanks[k] + 
+						sqrt(overallEvents[k - 1]) * 
+						result[k - 1]) / sqrt(overallEvents[k])  
+			}	
+			return(result)
 		},
 		
-		.getStageWiseData = function(dataInput, kMax, stage) {
-			"Calculates stagewise logrank statistics, events, and allocation ratios if overall data is available"
-			if (is.null(dataInput[["overallEvents"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"data input must contain variable 'overallEvents'")
-			}
-			if (is.null(dataInput[["overallLogRanks"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"data input must contain variable 'overallLogRanks'")
-			}
-			if (is.null(dataInput[["overallAllocationRatios"]])) {
-				stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-					"data input must contain variable 'overallAllocationRatios'")
-			}	
+		.getOverallAllocationRatios = function(allocationRatios, events, overallEvents, 
+			kMax = length(allocationRatios), stage = length(allocationRatios)) {
 			
-			dataInput$events <- c(dataInput$overallEvents[1:stage], rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				dataInput$events[2:stage] <- dataInput$overallEvents[2:stage] - 
-					dataInput$overallEvents[1:(stage - 1)]
-			}	
-			
-			dataInput$logRanks <- c(dataInput$overallLogRanks[1:stage], rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				dataInput$logRanks[2:stage] <- (base::sqrt(dataInput$overallEvents[2:stage]) * 
-						dataInput$overallLogRanks[2:stage] - 
-						base::sqrt(dataInput$overallEvents[1:(stage - 1)]) * 
-						dataInput$overallLogRanks[1:(stage - 1)]) /
-					base::sqrt(dataInput$overallEvents[2:stage] - dataInput$overallEvents[1:(stage - 1)])
-			}	
-			
-			dataInput$allocationRatios <- c(dataInput$overallAllocationRatios[1:stage], rep(NA_real_, kMax - stage))
-			if (stage > 1) {
-				dataInput$allocationRatios[2:stage] <- (
-						dataInput$overallAllocationRatios[2:stage] - 
-						dataInput$overallAllocationRatios[1:(stage - 1)] * 
-						dataInput$overallEvents[1:(stage - 1)] / 
-						dataInput$overallEvents[2:stage]
-						) /	
-					(dataInput$events[2:stage] / dataInput$overallEvents[2:stage])
+			result <- c(allocationRatios[1:stage], 
+				rep(NA_real_, kMax - stage))
+			if (stage == 1) {
+				return(result)
 			}
-			if (any(stats::na.omit(dataInput$allocationRatios) <= 0)) {
+			for (k in 2:stage) {
+				result[k] <- (events[k] * 
+						allocationRatios[k] + overallEvents[k - 1] * 
+						result[k - 1]) / overallEvents[k]  
+			}
+			return(result)
+		},
+		
+		.createOverallData = function() {
+			.data$overallEvent <<- rep(NA_real_, nrow(.data))
+			if (inherits(.self, "DatasetEnrichmentSurvival")) {
+				.data$overallExpectedEvent <<- rep(NA_real_, nrow(.data))	
+				.data$overallVarianceEvent <<- rep(NA_real_, nrow(.data))	
+			} else {
+				.data$overallLogRank <<- rep(NA_real_, nrow(.data))	
+			}
+			.data$overallAllocationRatio <<- rep(NA_real_, nrow(.data))
+			subsetLevels <- NA_character_
+			if (.enrichmentEnabled) {
+				subsetLevels <- levels(.data$subset)
+			}
+			for (s in subsetLevels) {
+				for (g in levels(.data$group)) {
+					if (!is.na(s)) {
+						indices <- which(.data$subset == s & .data$group == g)
+					} else {
+						indices <- which(.data$group == g)
+					}
+					.data$overallEvent[indices] <<- cumsum(.data$event[indices])
+					.data$overallExpectedEvent[indices] <<- cumsum(.data$expectedEvent[indices])
+					#.data$overallVarianceEvent[indices] <<- # maybe implemented later
+					.data$overallLogRank[indices] <<- .getOverallLogRanks(
+						.data$logRank[indices], .data$event[indices], .data$overallEvent[indices])
+					.data$overallAllocationRatio[indices] <<- .getOverallAllocationRatios(
+						.data$allocationRatio[indices], .data$event[indices], .data$overallEvent[indices])
+				}
+			}
+			.setDataToVariables()
+		},
+		
+		.getStageWiseEvents = function(overallEvents) {
+			result <- overallEvents
+			if (length(result) == 1) {
+				return(result)
+			}
+			
+			kMax <- length(result)
+			result[2:kMax] <- overallEvents[2:kMax] - overallEvents[1:(kMax - 1)]
+			return(result)
+		},
+		
+		.getStageWiseLogRanks = function(overallLogRanks, overallEvents) {
+			result <- overallLogRanks
+			if (length(result) == 1) {
+				return(result)
+			}
+			
+			kMax <- length(result)
+			result[2:kMax] <- (sqrt(overallEvents[2:kMax]) * 
+					overallLogRanks[2:kMax] - 
+					sqrt(overallEvents[1:(kMax - 1)]) * 
+					overallLogRanks[1:(kMax - 1)]) /
+				sqrt(overallEvents[2:kMax] - overallEvents[1:(kMax - 1)])
+			return(result)
+		},
+		
+		.getStageWiseAllocationRatios = function(overallAllocationRatios, events, overallEvents) {
+			result <- overallAllocationRatios
+			if (length(result) == 1) {
+				return(result)
+			}
+			
+			kMax <- length(result)
+			result[2:kMax] <- (
+					overallAllocationRatios[2:kMax] - 
+					overallAllocationRatios[1:(kMax - 1)] * 
+					overallEvents[1:(kMax - 1)] / overallEvents[2:kMax]
+					) /	(events[2:kMax] / overallEvents[2:kMax])
+			if (any(stats::na.omit(result) <= 0)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"overall allocation ratios not correctly specified, must be > 0") 
 			}	
+			return(result)
+		},
+		
+		.createStageWiseData = function() {
+			"Calculates stagewise logrank statistics, events, and allocation ratios if overall data is available"
 			
-			return(dataInput)
+			.data$event <<- rep(NA_real_, nrow(.data))
+			if (inherits(.self, "DatasetEnrichmentSurvival")) {
+				.data$expectedEvent <<- rep(NA_real_, nrow(.data))
+				.data$varianceEvent <<- rep(NA_real_, nrow(.data))
+			} else {
+				.data$logRank <<- rep(NA_real_, nrow(.data))
+			}
+			.data$allocationRatio <<- rep(NA_real_, nrow(.data))
+			
+			subsetLevels <- NA_character_
+			if (.enrichmentEnabled) {
+				subsetLevels <- levels(.data$subset)
+			}
+			
+			for (s in subsetLevels) {
+				for (g in levels(.data$group)) {
+					if (!is.na(s)) {
+						indices <- which(.data$subset == s & .data$group == g)
+					} else {
+						indices <- which(.data$group == g)
+					}
+					
+					groupNumber <- ifelse(levels(.data$group) > 1, g, "")
+					if (.enrichmentEnabled) {
+						.assertValuesAreStrictlyIncreasing(.data$overallEvent[indices], 
+							paste0("overallEvents", groupNumber, "[subset == \"", s, "\"]"), endingNasAllowed = TRUE)
+					} else {
+						.assertValuesAreStrictlyIncreasing(.data$overallEvent[indices], 
+							paste0("overallEvents", groupNumber), endingNasAllowed = TRUE)
+					}
+					
+					.data$event[indices] <<- .getStageWiseEvents(.data$overallEvent[indices])
+					if (inherits(.self, "DatasetEnrichmentSurvival")) {
+						.data$expectedEvent[indices] <<- .getStageWiseEvents(.data$overallExpectedEvent[indices])
+						#.data$varianceEvent[indices] <<- # maybe implemented later
+					} else {
+						.data$logRank[indices] <<- .getStageWiseLogRanks(
+							.data$overallLogRank[indices], .data$overallEvent[indices])	
+					}
+					.data$allocationRatio[indices] <<- .getStageWiseAllocationRatios(.data$overallAllocationRatio[indices], 
+						.data$event[indices], .data$overallEvent[indices])
+				}
+			}
+			.setDataToVariables()
 		}
 	)
 )
 
+# Dataset for non-stratified analysis
+DatasetEnrichmentSurvival <- setRefClass("DatasetEnrichmentSurvival",
+	contains = "DatasetSurvival",
+	fields = list(
+		expectedEvents = "numeric",
+		varianceEvents = "numeric",
+		overallExpectedEvents = "numeric",
+		overallVarianceEvents = "numeric"
+	),
+	methods = list(
+		
+		.initByDataFrame = function(dataFrame) {
+			callSuper(dataFrame)	
+
+			if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_EXPECTED_EVENTS) ||
+					.paramExists(dataFrame, C_KEY_WORDS_OVERALL_VARIANCE_EVENTS)) {
+				
+				if (!.paramExists(dataFrame, C_KEY_WORDS_OVERALL_EXPECTED_EVENTS)) {
+					stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'overallExpectedEvents' is missing")
+				}
+				if (!.paramExists(dataFrame, C_KEY_WORDS_OVERALL_VARIANCE_EVENTS)) {
+					stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'overallVarianceEvents' is missing")
+				}
+				
+				.inputType <<- "overall"
+				
+				overallEvents <<- .getValidatedFloatingPointNumbers(
+					.getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EVENTS), parameterName = "Overall events")
+				.validateValues(overallEvents, "overallEvents")
+				
+				overallExpectedEvents <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_EXPECTED_EVENTS)
+				.validateValues(overallExpectedEvents, "overallExpectedEvents")
+				
+				overallVarianceEvents <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_OVERALL_VARIANCE_EVENTS)
+				.validateValues(overallVarianceEvents, "overallVarianceEvents")
+				
+				overallAllocationRatios <<- .getValuesByParameterName(
+					dataFrame, parameterNameVariants = C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
+					defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallLogRanks))
+				.validateValues(overallAllocationRatios, "overallAllocationRatios")
+			}
+			else if (.paramExists(dataFrame, C_KEY_WORDS_EXPECTED_EVENTS) ||
+				.paramExists(dataFrame, C_KEY_WORDS_VARIANCE_EVENTS)) {
+				
+				if (!.paramExists(dataFrame, C_KEY_WORDS_EXPECTED_EVENTS)) {
+					stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'expectedEvents' is missing")
+				}
+				if (!.paramExists(dataFrame, C_KEY_WORDS_VARIANCE_EVENTS)) {
+					stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'varianceEvents' is missing")
+				}
+				
+				.inputType <<- "stagewise"
+				
+				events <<- .getValidatedFloatingPointNumbers(
+					.getValuesByParameterName(dataFrame, C_KEY_WORDS_EVENTS), parameterName = "Events")
+				.validateValues(events, "events")
+				
+				expectedEvents <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_EXPECTED_EVENTS)
+				.validateValues(expectedEvents, "expectedEvents")
+				
+				varianceEvents <<- .getValuesByParameterName(dataFrame, C_KEY_WORDS_VARIANCE_EVENTS)
+				.validateValues(varianceEvents, "varianceEvents")
+				
+				allocationRatios <<- .getValuesByParameterName(
+					dataFrame, parameterNameVariants = C_KEY_WORDS_ALLOCATION_RATIOS,
+					defaultValues = .getAllocationRatioDefaultValues(stages, events, logRanks))
+				.validateValues(allocationRatios, "allocationRatios")
+			}
+			
+			.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
+			
+			if (.inputType == "stagewise") {
+				n <- length(events)
+				overallExpectedEvents <<- rep(NA_real_, n)
+				overallVarianceEvents <<- rep(NA_real_, n)
+				
+				.setParameterType("events", C_PARAM_USER_DEFINED)
+				.setParameterType("allocationRatios", C_PARAM_USER_DEFINED)
+				.setParameterType("expectedEvents", C_PARAM_USER_DEFINED)
+				.setParameterType("varianceEvents", C_PARAM_USER_DEFINED)
+				
+				.setParameterType("overallEvents", C_PARAM_GENERATED)
+				.setParameterType("overallAllocationRatios", C_PARAM_GENERATED)
+				.setParameterType("overallExpectedEvents", C_PARAM_GENERATED)
+				.setParameterType("overallVarianceEvents", C_PARAM_GENERATED)
+				
+				.recreateDataFrame()
+				.createOverallData()
+			} else {
+				n <- length(overallEvents)
+				expectedEvents <<- rep(NA_real_, n)
+				varianceEvents <<- rep(NA_real_, n)
+				
+				.setParameterType("events", C_PARAM_GENERATED)
+				.setParameterType("allocationRatios", C_PARAM_GENERATED)
+				.setParameterType("expectedEvents", C_PARAM_GENERATED)
+				.setParameterType("varianceEvents", C_PARAM_GENERATED)
+				
+				.setParameterType("overallEvents", C_PARAM_USER_DEFINED)
+				.setParameterType("overallAllocationRatios", C_PARAM_USER_DEFINED)
+				.setParameterType("overallExpectedEvents", C_PARAM_USER_DEFINED)
+				.setParameterType("overallVarianceEvents", C_PARAM_USER_DEFINED)
+				
+				.recreateDataFrame()
+				.createStageWiseData()
+			}
+		},
+		
+		.getVisibleFieldNames = function() {
+			visibleFieldNames <- callSuper()
+			visibleFieldNames <- visibleFieldNames[!(visibleFieldNames %in% c("logRanks", "overallLogRanks"))]
+			return(visibleFieldNames)
+		},
+		
+		.setDataToVariables = function() {
+			callSuper()
+			overallExpectedEvents <<- .data$overallExpectedEvent
+			overallVarianceEvents <<- .data$overallVarianceEvent
+			expectedEvents <<- .data$expectedEvent
+#			varianceEvents <<- .data$varianceEvent # maybe implemented later
+		},
+		
+		getOverallExpectedEvent = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallExpectedEvent[.getIndices(stage = stage, group = group, subset = subset)])
+		},
+		
+		getOverallExpectedEvents = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallExpectedEvent[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
+		},
+		
+		getOverallExpectedEventsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallExpectedEvent[.getIndices(stage = c(1:to), group = group, subset = subset)])
+		},
+		
+		getOverallVarianceEvent = function(stage, group = 1, subset = NA_character_) {
+			return(.data$overallVarianceEvent[.getIndices(stage = stage, group = group, subset = subset)])
+		},
+		
+		getOverallVarianceEvents = function(..., stage = NA_integer_, group = NA_integer_, subset = NA_character_) {
+			return(.data$overallVarianceEvent[.getIndices(stage = .getValidatedStage(stage), group = group, subset = subset)])
+		},
+		
+		getOverallVarianceEventsUpTo = function(to, group = 1, subset = NA_character_) {
+			return(.data$overallVarianceEvent[.getIndices(stage = c(1:to), group = group, subset = subset)])
+		}
+	)
+)
+
+#'
+#' @name Dataset_summary
+#' 
+#' @title
+#' Dataset Summary
+#'
+#' @description
+#' Displays a summary of \code{\link{Dataset}} object.
+#' 
+#' @param object A \code{\link{Dataset}} object.
+#' @inheritParams param_digits
+#' @inheritParams param_three_dots
+#' 
+#' @details
+#' Summarizes the parameters and results of a dataset.
+#' 
+#' @template details_summary
+#' 
+#' @template return_object_summary
+#' @template how_to_get_help_for_generics
+#' 
+#' @export
+#' 
+#' @keywords internal
+#' 
 summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	.warnInCaseOfUnknownArguments(functionName = "summary", ...)
 	
@@ -2956,16 +3396,7 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	
 	summaryFactory <- SummaryFactory(object = object, intervalFormat = intervalFormat)
 	
-	s <- ""
-	if (object$isDatasetMeans()) {
-		s <- "dataset of means"
-	}
-	else if (object$isDatasetRates()) {
-		s <- "dataset of rates"
-	}
-	else if (object$isDatasetSurvival()) {
-		s <- "dataset of survival data"
-	}
+	s <- object$.toString()
 	
 	kMax <- object$getNumberOfStages()
 	if (kMax == 1) {
@@ -3010,6 +3441,9 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	}
 	header <- paste0("The dataset contains ", prefix, 
 		paste0(groups, collapse = ifelse(object$isDatasetSurvival(), " with ", " and ")))
+	if (object$.enrichmentEnabled) {
+		header <- paste0(header, ". The data will be analyzed ", ifelse(object$isStratified(), "", "non-"), "stratified")
+	}
 	if (kMax > 1) {
 		header <- paste0(header, ".\nThe total number of looks is ", .integerToWrittenNumber(kMax), 
 			"; stage-wise and overall data are included")
@@ -3028,7 +3462,6 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	}
 	
 	if (numberOfGroups > 1) {
-		
 		groupNumbers <- object$groups
 		if (object$isDatasetSurvival()) {
 			groupNumbers <- paste0(object$groups, " vs ", numberOfGroups)
@@ -3036,6 +3469,10 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 		} else {
 			summaryFactory$addItem("Group", groupNumbers)
 		}		
+	}
+	
+	if (object$.enrichmentEnabled) {
+		summaryFactory$addItem("Subset", object$subsets)
 	}
 	
 	parameterCaptionPrefix <- ifelse(kMax == 1, "", "Stage-wise ")
@@ -3096,3 +3533,245 @@ summary.Dataset <- function(object, ..., type = 1, digits = NA_integer_) {
 	
 	return(summaryFactory)
 }
+
+#'
+#' @name Dataset_print
+#' 
+#' @title
+#' Print Dataset Values
+#'
+#' @description
+#' \code{print} prints its \code{\link{Dataset}} argument and returns it invisibly (via \code{invisible(x)}). 
+#' 
+#' @param x A \code{\link{Dataset}} object.
+#' @param markdown If \code{TRUE}, the output will be created in Markdown.
+#' @param output A character defining the output type, default is "list".
+#' @inheritParams param_three_dots
+#' 
+#' @details
+#' Prints the dataset.
+#' 
+#' @export
+#' 
+#' @keywords internal
+#' 
+print.Dataset <- function(x, ..., markdown = FALSE, output = c("list", "long", "wide", "r", "rComplete")) {
+	fCall = match.call(expand.dots = FALSE)
+	datasetName <- deparse(fCall$x)
+	
+	output <- match.arg(output)
+	
+	if (markdown) {
+		if (output != "list") {
+			warning("'output' (\"", output, "\") will be ignored ",
+				"because only \"list\" is supported yet if markdown is enabled", call. = FALSE)
+		}
+		
+		x$.catMarkdownText()
+		return(invisible(x))
+	}
+	
+	if (output == "long") {
+		m <- getLongFormat(x)
+		m <- prmatrix(m, rowlab = rep("", nrow(m)))
+		print(m, quote = FALSE, right = FALSE)
+		return(invisible(x))
+	}
+	else if (output == "wide") {
+		m <- getWideFormat(x)
+		m <- prmatrix(m, rowlab = rep("", nrow(m)))
+		print(m, quote = FALSE, right = FALSE)
+		return(invisible(x))
+	}
+	else if (output %in% c("r", "rComplete")) {
+		lines <- .getDatasetArgumentsRCodeLines(x, complete = (output == "rComplete"))
+		lines <- paste0("\t", lines)
+		
+		if (is.null(datasetName) || length(datasetName) != 1 || is.na(datasetName)) {
+			datasetName <- "dataInput"
+		}
+		
+		cat(datasetName, " <- getDataset(\n", sep = "")
+		cat(paste0(lines, collapse = ",\n"), "\n")
+		cat(")\n")
+		return(invisible(x))
+	}
+	
+	x$show()
+	return(invisible(x))
+}
+
+.getDatasetArgumentsRCodeLines <- function(x, complete = FALSE) {
+	m <- getWideFormat(x)
+	lines <- character(0)
+	paramNames <- colnames(m)
+	if (!complete) {
+		if (x$.inputType == "stagewise") {
+			paramNames <- paramNames[!grepl("^overall", paramNames)]
+		} else {
+			paramNames <- paramNames[grepl("^(stage|group|subset|overall)", paramNames)]
+		}
+	}
+	
+	for (paramName in paramNames) {
+		encapsulate <- grepl("^subset", paramName)
+		if (!encapsulate || isTRUE(x$.enrichmentEnabled)) {
+			lines <- c(lines, paste0(paramName, " = ", .arrayToString(m[[paramName]], 
+				vectorLookAndFeelEnabled = TRUE, encapsulate = encapsulate, digits = NA_integer_)))
+		}
+	}
+	
+	return(lines)
+}
+
+.getRecalculatedInformationRates <- function(dataInput, maxInformation, stage = NA_integer_) {
+	.assertIsSingleInteger(stage, "stage", naAllowed = TRUE, validateType = FALSE)
+	stageFromData <- dataInput$getNumberOfStages()
+	if (is.null(stage) || is.na(stage) || stage > stageFromData) {
+		stage <- stageFromData	
+	}
+	informationRates <- rep(NA_real_, stage)
+	absoluteInformations <- rep(NA_real_, stage)
+	if (.isDatasetMeans(dataInput) || .isDatasetRates(dataInput)) {
+		for (k in 1:stage) {
+			sampleSizes <- dataInput$getOverallSampleSizes(stage = k)
+			absoluteInformations[k] <- sum(sampleSizes, na.rm = TRUE)
+			informationRates[k] <- absoluteInformations[k] / maxInformation
+		}
+	}
+	else if (.isDatasetSurvival(dataInput)) {
+		for (k in 1:stage) {
+			events <- dataInput$getOverallEvents(stage = k)
+			absoluteInformations[k] <- sum(events, na.rm = TRUE)
+			informationRates[k] <- absoluteInformations[k] / maxInformation
+		}
+	}
+	else {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'dataInput' class ", class(dataInput), " is not supported")
+	}
+	return(list(informationRates = informationRates, absoluteInformations = absoluteInformations, stage = stage))
+}
+
+#' @title
+#' Get Observed Information Rates
+#' 
+#' @description  
+#' Recalculates the observed information rates from the specified dataset.
+#' 
+#' @param dataInput The dataset for which the information rates shall be recalculated.
+#' @inheritParams param_maxInformation
+#' @inheritParams param_informationEpsilon
+#' @inheritParams param_stage
+#' @inheritParams param_three_dots
+#' 
+#' @details
+#' For means and rates the maximum information is the maximum number of subjects; 
+#' for survival data it is the maximum number of events.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{getAnalysisResults}} for using \code{getObservedInformationRates} implicit,
+#'   \item https://vignettes.rpact.org/html/rpact_boundary_update_example.html
+#' }
+#' 
+#' @export
+#' 
+getObservedInformationRates <- function(dataInput, ..., maxInformation = NULL, informationEpsilon = NULL, stage = NA_integer_) { 
+	
+	.assertIsDataset(dataInput)
+	.assertIsSingleInteger(maxInformation, "maxInformation", validateType = FALSE)
+	
+	information <- .getRecalculatedInformationRates(dataInput, maxInformation, stage = stage)
+	informationRates <- information$informationRates
+	absoluteInformations <- information$absoluteInformations
+	stage <- information$stage
+	
+	status <- "interim-stage"
+	
+	# Updates at the final analysis in case the observed information at the final analysis 
+	# is larger ("over-running") or smaller ("under-running") than the planned maximum information
+    if (informationRates[length(informationRates)] < 1) {
+		underRunningEnabled <- FALSE
+		if (!is.null(informationEpsilon)) {
+			.assertIsSingleNumber(informationEpsilon, "informationEpsilon")
+			.assertIsInOpenInterval(informationEpsilon, "informationEpsilon", lower = 0, upper = maxInformation)
+			
+			lastInformationRate <- informationRates[length(informationRates)] 
+			lastInformationNumber <- absoluteInformations[length(absoluteInformations)] 
+			
+			if (informationEpsilon < 1) {
+				if (lastInformationRate >= (1 - informationEpsilon)) {
+					message("Under-running: relative information epsilon ", round(informationEpsilon, 4), " is applicable; ", 
+						"use observed information ", lastInformationNumber, " instead of planned information ", maxInformation)
+					information <- .getRecalculatedInformationRates(
+						dataInput, lastInformationNumber, stage = stage)
+					informationRates <- information$informationRates
+					absoluteInformations <- information$absoluteInformations
+					stage <- information$stage
+					underRunningEnabled <- TRUE
+					maxInformation <- lastInformationNumber
+				}
+			} else {
+				if ((lastInformationNumber + informationEpsilon) >= maxInformation) {
+					message("Under-running: absolute information epsilon ", round(informationEpsilon, 1), " is applicable; ", 
+						"use observed information ", lastInformationNumber, " instead of planned information ", maxInformation)
+					maxInformation <- lastInformationNumber
+					information <- .getRecalculatedInformationRates(
+						dataInput, lastInformationNumber, stage = stage)
+					informationRates <- information$informationRates
+					absoluteInformations <- information$absoluteInformations
+					stage <- information$stage
+					underRunningEnabled <- TRUE
+				}
+			}
+		}
+		
+		if (!underRunningEnabled) {
+			informationRates <- c(informationRates, 1)
+		} else {
+			status <- "under-running"
+		}
+	} else {
+		lastInformationNumber <- absoluteInformations[length(absoluteInformations)]
+    	if (lastInformationNumber > maxInformation) {
+			information <- .getRecalculatedInformationRates(
+				dataInput, lastInformationNumber, stage = stage)
+			informationRates <- information$informationRates
+			absoluteInformations <- information$absoluteInformations
+			stage <- information$stage
+			message("Over-running: observed information ", lastInformationNumber, " at stage ", length(absoluteInformations), 
+				" is larger than the maximum planned information ", maxInformation, "; information rates will be recalculated")
+			status <- "over-running"
+			maxInformation <- lastInformationNumber
+		}
+	}
+	
+	if (any(informationRates > 1)) {
+		warning("The observed information at stage ", 
+			.arrayToString(which(informationRates > 1)), " is over-running, ",
+			"i.e., the information rate (", .arrayToString(informationRates[informationRates > 1]), ") ",
+			"is larger than the planned maximum information rate (1)", call. = FALSE)
+	}
+	
+	informationRates[informationRates > 1] <- 1
+	
+	end <- min(which(informationRates == 1))
+	informationRates <- informationRates[1:end]
+	
+	message("The observed information rates for 'maxInformation' = ", maxInformation, 
+		" at stage ", stage, " are: ", .arrayToString(informationRates))
+	
+	if (status == "interim-stage" && informationRates[length(informationRates)] == 1 &&
+			stage == length(informationRates)) {
+		status <- "final-stage"
+	}
+	
+	return(list(
+		absoluteInformations = absoluteInformations, 
+		maxInformation = maxInformation,
+		informationEpsilon = informationEpsilon,
+		informationRates = informationRates, 
+		status = status))
+}
+
+

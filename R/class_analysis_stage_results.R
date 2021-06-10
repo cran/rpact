@@ -13,18 +13,21 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4174 $
-#:#  Last changed: $Date: 2021-01-06 12:38:57 +0100 (Mi, 06 Jan 2021) $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
 .getStageResultsClassNames <- function() {
 	return(c("StageResultsMeans", 
-			"StageResultsRates",
-			"StageResultsSurvival",
-			"StageResultsMultiArmMeans", 
-			"StageResultsMultiArmRates",
-			"StageResultsMultiArmSurvival"))
+		"StageResultsRates",
+		"StageResultsSurvival",
+		"StageResultsMultiArmMeans", 
+		"StageResultsMultiArmRates",
+		"StageResultsMultiArmSurvival",
+		"StageResultsEnrichmentMeans", 
+		"StageResultsEnrichmentRates",
+		"StageResultsEnrichmentSurvival"))
 }
 
 #' 
@@ -90,19 +93,18 @@ StageResults <- setRefClass("StageResults",
 				} else {
 					.setParameterType("stages", C_PARAM_USER_DEFINED)
 				}
-				
-				.parameterNames <<- .getParameterNames(design)
+				.parameterNames <<- .getParameterNames(design = design)
 			}
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 			
 			.setParameterType("stage", C_PARAM_NOT_APPLICABLE)
 			
 			.setParameterType("pValues", ifelse(
-					.isMultiArm(), C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
+				.isMultiArm(), C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
 			.setParameterType("thetaH0", ifelse(
-					identical(thetaH0, C_THETA_H0_MEANS_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+				identical(thetaH0, C_THETA_H0_MEANS_DEFAULT), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 			.setParameterType("direction", ifelse(
-					identical(direction, C_DIRECTION_UPPER), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+				identical(direction, C_DIRECTION_UPPER), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 		},
 		
 		getPlotSettings = function() {
@@ -129,7 +131,11 @@ StageResults <- setRefClass("StageResults",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
-				if (grepl("(MultiArm)", class(.self))) {
+				if (grepl("Enrichment", class(.self))) {
+					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
+					.cat(paste0("  S[i]: population i\n"), consoleOutputEnabled = consoleOutputEnabled)
+					.cat(paste0("  F: full population\n"), consoleOutputEnabled = consoleOutputEnabled)
+				} else if (grepl("MultiArm", class(.self))) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					.cat(paste0("  (i): results of treatment arm i vs. control group ",
 							.dataInput$getNumberOfGroups(),"\n"), 
@@ -149,37 +155,53 @@ StageResults <- setRefClass("StageResults",
 			return(grepl("multi", tolower(class(.self))))
 		},
 		
+		.isEnrichment = function() {
+			return(grepl("enrichment", tolower(class(.self))))
+		},
+		
+		getGMax = function() {
+			if (!is.matrix(testStatistics)) {
+				return(1L)
+			}
+			
+			gMax <- nrow(testStatistics)
+			if (is.null(gMax) || gMax == 0) {
+				gMax <- 1L
+			}
+			return(gMax)
+		},
+		
 		.getParametersToShow = function() {
 			return(c("stages"))
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
-			prefix <- paste(ifelse(startWithUpperCase, "Stage results of", "stage results of"))
-			if (class(.self) == "StageResultsMeans") {
-				return(paste(prefix, "means"))
+			s <- "stage results of"
+			
+			if (grepl("MultiArm", class(.self))) {
+				s <- paste(s, "multi-arm")
+			}
+			else if (grepl("Enrichment", class(.self))) {
+				s <- paste(s, "enrichment")
 			}
 			
-			if (class(.self) == "StageResultsMultiArmMeans") {
-				return(paste(prefix, "multi-armed means"))
+			if (grepl("Means", class(.self))) {
+				s <- paste(s, "means")
 			}
 			
-			if (class(.self) == "StageResultsRates") {
-				return(paste(prefix, "rates"))
+			if (grepl("Rates", class(.self))) {
+				s <- paste(s, "rates")
 			}
 			
-			if (class(.self) == "StageResultsMultiArmRates") {
-				return(paste(prefix, "multi-armed rates"))
+			if (grepl("Survival", class(.self))) {
+				s <- paste(s, "survival data")
 			}
 			
-			if (class(.self) == "StageResultsSurvival") {
-				return(paste(prefix, "survival data"))
+			if (startWithUpperCase) {
+				s <- .firstCharacterToUpperCase(s)
 			}
 			
-			if (class(.self) == "StageResultsMultiArmSurvival") {
-				return(paste(prefix, "multi-armed survival"))
-			}
-			
-			return("unknown stage results")
+			return(s)
 		},
 		
 		getDataInput = function() {
@@ -214,13 +236,13 @@ StageResults <- setRefClass("StageResults",
 			if (.isMultiArm()) {
 				if (inherits(.self, "StageResultsMultiArmRates")) {
 					return(max(ncol(stats::na.omit(testStatistics)), 
-							ncol(stats::na.omit(separatePValues))))
+						ncol(stats::na.omit(separatePValues))))
 				}
 				return(max(ncol(stats::na.omit(effectSizes)), 
-						ncol(stats::na.omit(separatePValues))))
+					ncol(stats::na.omit(separatePValues))))
 			}
 			return(max(length(stats::na.omit(effectSizes)), 
-					length(stats::na.omit(pValues))))
+				length(stats::na.omit(pValues))))
 		}
 	)
 )
@@ -329,7 +351,7 @@ StageResultsMeans <- setRefClass("StageResultsMeans",
 			parametersToShow <- c(parametersToShow,	
 				"testStatistics", 
 				"pValues", 
-				"effectSizes"
+				"effectSizes" 
 			)
 			if (.isTrialDesignInverseNormal(.design)) {
 				parametersToShow <- c(parametersToShow,			
@@ -375,7 +397,7 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 		combFisher = "matrix", 
 		overallTestStatistics = "matrix", 
 		overallStDevs = "matrix",
-		overallPooledStDevs = "numeric",
+		overallPooledStDevs = "matrix",
 		overallPValues = "matrix",
 		testStatistics = "matrix",
 		separatePValues = "matrix",
@@ -384,7 +406,7 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 		intersectionTest = "character",
 		varianceOption = "character",
 		normalApproximation = "logical",
-		directionUpper = "logical" 
+		directionUpper = "logical"
 	),
 	methods = list(
 		initialize = function(design, dataInput, ..., varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT, 
@@ -420,7 +442,7 @@ StageResultsMultiArmMeans <- setRefClass("StageResultsMultiArmMeans",
 				"thetaH0",
 				"direction",
 				"normalApproximation",
-				#"directionUpper",
+				"directionUpper",
 				"varianceOption", 
 				"intersectionTest",
 				"overallTestStatistics", 
@@ -489,6 +511,8 @@ StageResultsRates <- setRefClass("StageResultsRates",
 		overallPValues = "numeric",
 		effectSizes = "numeric",
 		testStatistics = "numeric",
+		overallPi1 = "numeric",
+		overallPi2 = "numeric",
 		overallEvents = "numeric",
 		overallEvents1 = "numeric", 
 		overallEvents2 = "numeric",
@@ -529,7 +553,8 @@ StageResultsRates <- setRefClass("StageResultsRates",
 			if (.dataInput$getNumberOfGroups() == 1) {
 				parametersToShow <- c(parametersToShow,
 					"overallEvents",
-					"overallSampleSizes"
+					"overallSampleSizes",
+					"overallPi1"
 				)
 				
 			}
@@ -538,14 +563,19 @@ StageResultsRates <- setRefClass("StageResultsRates",
 					"overallEvents1", 
 					"overallEvents2",
 					"overallSampleSizes1",
-					"overallSampleSizes2"
+					"overallSampleSizes2",
+					"overallPi1",
+					"overallPi2"
 				)
 			}
 			parametersToShow <- c(parametersToShow,	
 				"testStatistics", 
-				"pValues", 
-				"effectSizes"
+				"pValues"
 			)
+			if (.dataInput$getNumberOfGroups() > 1) {
+				parametersToShow <- c(parametersToShow,	"effectSizes")
+			}
+			
 			if (.isTrialDesignInverseNormal(.design)) {
 				parametersToShow <- c(parametersToShow,				
 					"combInverseNormal", 
@@ -581,18 +611,19 @@ StageResultsMultiArmRates <- setRefClass("StageResultsMultiArmRates",
 	contains = "StageResults",
 	fields = list(
 		stage = "integer",
-		piControl = "matrix",
-		piTreatments = "matrix",
+		overallPiTreatments = "matrix",
+		overallPiControl = "matrix", 
 		combInverseNormal = "matrix", 
 		combFisher = "matrix", 
 		overallTestStatistics = "matrix", 
 		overallPValues = "matrix",
 		testStatistics = "matrix",
 		separatePValues = "matrix",
+		effectSizes = "matrix",
 		singleStepAdjustedPValues = "matrix",
 		intersectionTest = "character",
 		normalApproximation = "logical",
-		directionUpper = "logical" 
+		directionUpper = "logical"
 	),
 	methods = list(
 		initialize = function(design, dataInput, ..., 
@@ -626,13 +657,12 @@ StageResultsMultiArmRates <- setRefClass("StageResultsMultiArmRates",
 				"thetaH0",
 				"direction",
 				"normalApproximation",
-				#"directionUpper",
-				"piControl",
-				"piTreatments", 
+				"directionUpper",
+				"overallPiControl",
+				"overallPiTreatments", 
 				"intersectionTest",
 				"overallTestStatistics", 
 				"overallPValues",
-				"overallStDevs",
 				"testStatistics", 
 				"separatePValues", 
 				"singleStepAdjustedPValues"
@@ -692,14 +722,12 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 		combFisher = "numeric", 
 		overallPValues = "numeric",
 		effectSizes = "numeric",
-		overallTestStatistics = "numeric", 
-		overallLogRanks = "numeric", # deprecated; use overallTestStatistics instead
+		overallTestStatistics = "numeric",
 		overallEvents = "numeric", 
 		overallAllocationRatios = "numeric",
 		events = "numeric",
 		allocationRatios = "numeric",
-		testStatistics = "numeric",
-		logRanks = "numeric" # deprecated; use testStatistics instead
+		testStatistics = "numeric"
 	),
 	methods = list(
 		initialize = function(design, dataInput, ...) {
@@ -710,9 +738,7 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 				"weightsFisher", 
 				"weightsInverseNormal", 
 				"combFisher", 
-				"combInverseNormal",
-				"overallLogRanks",
-				"logRanks")) {
+				"combInverseNormal")) { 
 				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
 			}
 			
@@ -731,7 +757,7 @@ StageResultsSurvival <- setRefClass("StageResultsSurvival",
 				"overallAllocationRatios", 
 				"events", 
 				"allocationRatios",
-				"testStatistics", 
+				"testStatistics",
 				"pValues", 
 				"overallPValues",
 				"effectSizes"
@@ -780,7 +806,7 @@ StageResultsMultiArmSurvival <- setRefClass("StageResultsMultiArmSurvival",
 		effectSizes = "matrix",
 		singleStepAdjustedPValues = "matrix",
 		intersectionTest = "character",
-		directionUpper = "logical" 
+		directionUpper = "logical"
 	),
 	methods = list(
 		initialize = function(design, dataInput, ..., 
@@ -810,7 +836,7 @@ StageResultsMultiArmSurvival <- setRefClass("StageResultsMultiArmSurvival",
 				"stages",
 				"thetaH0",
 				"direction",
-				#"directionUpper", 
+				"directionUpper", 
 				"intersectionTest",
 				"overallTestStatistics", 
 				"overallPValues",
@@ -836,6 +862,50 @@ StageResultsMultiArmSurvival <- setRefClass("StageResultsMultiArmSurvival",
 	)
 )
 
+StageResultsEnrichmentMeans <- setRefClass("StageResultsEnrichmentMeans",
+	contains = "StageResultsMultiArmMeans",
+	fields = list(
+		.overallSampleSizes1 = "matrix",
+		.overallSampleSizes2 = "matrix", 
+		stratifiedAnalysis = "logical" 
+	),
+	methods = list(
+		.getParametersToShow = function() {
+			return(c(callSuper(), "stratifiedAnalysis"))
+		}
+	)
+) 
+
+StageResultsEnrichmentRates <- setRefClass("StageResultsEnrichmentRates",
+	contains = "StageResultsMultiArmRates",
+	fields = list(
+		.overallSampleSizes1 = "matrix",
+		.overallSampleSizes2 = "matrix", 
+		overallPisTreatment = "matrix",
+		overallPisControl = "matrix",  
+		stratifiedAnalysis = "logical" 
+	),
+	methods = list(
+		.getParametersToShow = function() {
+			parametersToShow <- callSuper()
+			parametersToShow <- parametersToShow[!(parametersToShow %in% c("overallPiTreatments", "overallPiControl"))]
+			return(c(parametersToShow, "stratifiedAnalysis", "overallPisTreatment", "overallPisControl"))
+		}
+	)
+)
+
+StageResultsEnrichmentSurvival <- setRefClass("StageResultsEnrichmentSurvival",
+	contains = "StageResultsMultiArmSurvival",
+	fields = list(
+		stratifiedAnalysis = "logical",
+		.overallEvents = "matrix"
+	),
+	methods = list(
+		.getParametersToShow = function() {
+			return(c(callSuper(), "stratifiedAnalysis"))
+		}
+	)
+)
 
 #'
 #' @name StageResults_names
@@ -953,6 +1023,39 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 	return(treatmentArmsToShow)
 }
 
+.getPopulationsToShow <- function(x, ..., gMax) {
+	dataInput <- x
+	if (!inherits(dataInput, "Dataset")) {
+		dataInput <- x[[".dataInput"]]
+	}
+	if (is.null(dataInput) || !inherits(dataInput, "Dataset")) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to get 'dataInput' from ", class(x))
+	}
+	
+	numberOfPopulations <- gMax
+	if (numberOfPopulations > 1) {
+		validComparisons <- 1L:as.integer(numberOfPopulations)
+	} else {
+		validComparisons <- 1L
+	}
+	
+	populationsToShow <- .getOptionalArgument("populations", ...)	
+	
+	if (!is.null(populationsToShow)) {
+		populationsToShow <- as.integer(na.omit(populationsToShow))
+	}
+	if (is.null(populationsToShow) || length(populationsToShow) == 0 || 
+		all(is.na(populationsToShow)) || !is.numeric(populationsToShow)) {
+		populationsToShow <- validComparisons
+	} else if (!all(populationsToShow %in% validComparisons)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'populations' (", 
+			.arrayToString(populationsToShow), ") must be a vector ",
+			"containing one or more values of ", .arrayToString(validComparisons))
+	}
+	populationsToShow <- sort(unique(populationsToShow))
+	return(populationsToShow)
+}
+
 #'
 #' @title
 #' Stage Results Plotting
@@ -971,23 +1074,24 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' @param legendTitle The legend title.
 #' @inheritParams param_palette
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @param type The plot type (default = 1). Note that at the moment only one type 
 #'        (the conditional power plot) is available.
 #' @param ... Optional \link[=param_three_dots_plot]{plot arguments}. Furthermore the following arguments can be defined:
 #' \itemize{
 #' \item \code{thetaRange}: A range of assumed effect sizes if testing means or a survival design was specified. 
-#' 			Additionally, if testing means was selected, an assumed standard deviation can be specified (default is 1).
+#'       Additionally, if testing means was selected, an assumed standard deviation can be specified (default is 1).
 #' \item \code{piTreatmentRange}: A range of assumed rates pi1 to calculate the conditional power. 
-#' 		  Additionally, if a two-sample comparison was selected, pi2 can be specified (default is the value from 
-#'        \code{getAnalysisResults}). 
+#'       Additionally, if a two-sample comparison was selected, pi2 can be specified (default is the value from 
+#'       \code{getAnalysisResults}). 
 #' \item \code{directionUpper}: Specifies the direction of the alternative, 
-#'        only applicable for one-sided testing; default is \code{TRUE}
-#'        which means that larger values of the test statistics yield smaller p-values.
+#'       only applicable for one-sided testing; default is \code{TRUE}
+#'       which means that larger values of the test statistics yield smaller p-values.
 #' \item \code{\link[=param_thetaH0]{thetaH0}}: The null hypothesis value, default is 0 for the normal and the binary case, 
-#'        it is 1 for the survival case.      
-#'        For testing a rate in one sample, a value thetaH0 in (0,1) has to be specified for 
-#'        defining the null hypothesis H0: pi = thetaH0.
+#'       it is 1 for the survival case.      
+#'       For testing a rate in one sample, a value thetaH0 in (0,1) has to be specified for 
+#'       defining the null hypothesis H0: pi = thetaH0.
 #' }
 #' 
 #' @details
@@ -1014,17 +1118,19 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' @export
 #' 
 plot.StageResults <- function(x, y, ..., type = 1L,
-	nPlanned, allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
-	main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-	legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
-	showSource = FALSE) {
+		nPlanned, allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
+		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
+		showSource = FALSE, plotSettings = NULL) {
 	
 	fCall = match.call(expand.dots = FALSE)
 	
 	.assertGgplotIsInstalled()
 	.assertIsStageResults(x)
 	.assertIsValidLegendPosition(legendPosition)
-	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, x$.dataInput$getNumberOfGroups())
+	if (.isConditionalPowerEnabled(nPlanned)) {
+		.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, x$.dataInput$getNumberOfGroups())
+	}
 	.stopInCaseOfIllegalStageDefinition2(...)
 	
 	if (x$.design$kMax == 1) {
@@ -1042,7 +1148,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 		
 		cmd <- paste0("condPow <- getConditionalPower(", stageResultsName,
 			", nPlanned = ", .arrayToString(nPlanned, vectorLookAndFeelEnabled = TRUE))
-		if (allocationRatioPlanned != C_ALLOCATION_RATIO_DEFAULT) {
+		if (.isConditionalPowerEnabled(nPlanned) && allocationRatioPlanned != C_ALLOCATION_RATIO_DEFAULT) {
 			cmd <- paste0(cmd, ", allocationRatioPlanned = ", allocationRatioPlanned)
 		}
 		if (grepl("Means|Survival", class(x))) {
@@ -1066,12 +1172,13 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	yParameterName1 <- "Conditional power"
 	yParameterName2 <- "Likelihood"
 	
-	if (x$.isMultiArm()) {
+	if (.isMultiArmStageResults(x)) {
 		treatmentArmsToShow <- .getTreatmentArmsToShow(x, ...) 
 		data <- data.frame(
 			xValues = numeric(0),
 			yValues = numeric(0),
-			categories = character(0)
+			categories = character(0),
+			treatmentArms = numeric(0)
 		)
 		for (treatmentArm in treatmentArmsToShow) {
 			legend1 <- ifelse(length(treatmentArmsToShow) == 1, yParameterName1,
@@ -1103,6 +1210,47 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 				)) 
 			}
 		}
+	}
+	else if (.isEnrichmentStageResults(x)) {
+		gMax <- max(na.omit(plotData$populations))
+		populationsToShow <- .getPopulationsToShow(x, ..., gMax = gMax)
+		data <- data.frame(
+			xValues = numeric(0),
+			yValues = numeric(0),
+			categories = character(0),
+			populations = numeric(0)
+		)
+		for (population in populationsToShow) {
+			populationName <- ifelse(population == gMax, "F", paste0("S", population))
+			legend1 <- ifelse(length(populationsToShow) == 1, yParameterName1,
+				paste0(yParameterName1, " (", populationName, ")"))
+			legend2 <- ifelse(length(populationsToShow) == 1, yParameterName2,
+				paste0(yParameterName2, " (", populationName, ")"))
+			
+			populationIndices <- which(plotData$populations == population)
+			
+			if (all(is.na(plotData$condPowerValues[populationIndices]))) {
+				if (!all(is.na(plotData$likelihoodValues[populationIndices]))) {
+					data <- rbind(data, data.frame(
+						xValues = plotData$xValues[populationIndices],
+						yValues = plotData$likelihoodValues[populationIndices],
+						categories = rep(legend2, length(plotData$xValues[populationIndices])),
+						populations = rep(population, length(plotData$xValues[populationIndices]))
+					)) 
+				}
+			} else {
+				data <- rbind(data, data.frame(
+					xValues = c(plotData$xValues[populationIndices], 
+						plotData$xValues[populationIndices]),
+					yValues = c(plotData$condPowerValues[populationIndices], 
+						plotData$likelihoodValues[populationIndices]),
+					categories = c(rep(legend1, length(plotData$xValues[populationIndices])), 
+						rep(legend2, length(plotData$xValues[populationIndices]))),
+					populations = c(rep(population, length(plotData$xValues[populationIndices])), 
+						rep(population, length(plotData$xValues[populationIndices])))
+				)) 
+			}
+		}
 	} else {
 		if (all(is.na(plotData$condPowerValues))) {
 			legendPosition <- -1
@@ -1121,6 +1269,8 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 		}
 	}
 	
+	data$categories <- factor(data$categories, levels = unique(data$categories))
+	
 	main <- ifelse(is.na(main), C_PLOT_MAIN_CONDITIONAL_POWER_WITH_LIKELIHOOD, main)
 	ylab <- ifelse(is.na(ylab), C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD, ylab)
 	
@@ -1129,56 +1279,67 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	}
 	
 	return(.createAnalysisResultsPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
-			legendTitle = legendTitle, palette = palette, legendPosition = legendPosition))
+		legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, numberOfPairedLines = 2L,
+		plotSettings = plotSettings))
 }
 
 .createAnalysisResultsPlotObject <- function(x, ..., data, plotData,
-	main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-	legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_) {
+		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_,
+		numberOfPairedLines = NA_integer_, plotSettings = NULL) {
 	
 	ciModeEnabled <- !is.null(data[["lower"]]) && !is.null(data[["upper"]])
 	
 	if (!ciModeEnabled) {
 		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 
-				colour = factor(.data[["categories"]]), 
-				linetype = factor(.data[["categories"]])))
+			colour = factor(.data[["categories"]]), 
+			linetype = factor(.data[["categories"]])))
 	} else {
 		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]],
-				colour = factor(.data[["categories"]])))
+			colour = factor(.data[["categories"]])))
 	}
 	
-	p <- x$getPlotSettings()$setTheme(p)
-	p <- x$getPlotSettings()$hideGridLines(p)
+	if (is.null(plotSettings)) {
+		plotSettings <- x$getPlotSettings()
+	}
+	
+	p <- plotSettings$setTheme(p)
+	p <- plotSettings$hideGridLines(p)
 	
 	# set main title
 	mainTitle <- ifelse(is.na(main), plotData$main, main)
-	p <- x$getPlotSettings()$setMainTitle(p, mainTitle, subtitle = plotData$sub)
+	p <- plotSettings$setMainTitle(p, mainTitle, subtitle = plotData$sub)
 	
 	# set legend
 	if (is.na(legendPosition)) {
 		legendPosition <- C_POSITION_LEFT_TOP
 	}
-	p <- x$getPlotSettings()$setLegendPosition(p, legendPosition = legendPosition)
-	p <- x$getPlotSettings()$setLegendBorder(p)
-	p <- x$getPlotSettings()$setLegendTitle(p, legendTitle)
-	p <- x$getPlotSettings()$setLegendLabelSize(p)
+	p <- plotSettings$setLegendPosition(p, legendPosition = legendPosition)
+	p <- plotSettings$setLegendBorder(p)
+	p <- plotSettings$setLegendTitle(p, legendTitle)
+	p <- plotSettings$setLegendLabelSize(p)
 	
 	# set axes labels
-	p <- x$getPlotSettings()$setAxesLabels(p, 
+	p <- plotSettings$setAxesLabels(p, 
 		xAxisLabel = plotData$xlab, yAxisLabel1 = plotData$ylab, 
 		xlab = xlab, ylab = ylab)
 	
 	# plot lines and points
 	if (!ciModeEnabled) {
-		numberOfGroups <- 2
-		if (x$.isMultiArm()) {
-			numberOfGroups <- length(unique(data$treatmentArms)) - 1
+		if (is.na(numberOfPairedLines)) {
+			numberOfPairedLines <- 2
+			if (x$.isMultiArm()) {
+				numberOfPairedLines <- length(unique(data$treatmentArms)) - 1
+			} else if (x$.isEnrichment()) {
+				numberOfPairedLines <- length(unique(data$populations)) - 1
+			}
 		}
-		p <- x$getPlotSettings()$plotValues(p, plotPointsEnabled = FALSE, pointBorder = 1)
-		n <- length(unique(data$categories)) / numberOfGroups
+
+		p <- plotSettings$plotValues(p, plotPointsEnabled = FALSE, pointBorder = 1)
+		n <- length(unique(data$categories)) / numberOfPairedLines
 		if (n > 1) {
-			lineTypeValues <- rep(1:numberOfGroups, n)
-			colorTypes <- sort(rep(1:n, numberOfGroups))
+			lineTypeValues <- rep(1:numberOfPairedLines, n)
+			colorTypes <- sort(rep(1:n, numberOfPairedLines))
 			for (i in c(1, 3)) {
 				colorTypes[colorTypes >= i] <- colorTypes[colorTypes >= i] + 1
 			}
@@ -1192,13 +1353,10 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 			p <- p + ggplot2::scale_color_manual(name = legendTitle, values = colorValues)
 			p <- p + ggplot2::scale_linetype_manual(name = legendTitle, values = c(1, 2))
 		}
-		
-		p <- x$getPlotSettings()$setAxesAppearance(p)
-		p <- x$getPlotSettings()$enlargeAxisTicks(p)
 	}
 	
 	# plot confidence intervall
-	if (ciModeEnabled) {
+	else {
 		pd <- ggplot2::position_dodge(0.15)
 		
 		p <- p + ggplot2::geom_errorbar(data = data, 
@@ -1207,20 +1365,26 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 		p <- p + ggplot2::geom_line(position = pd, linetype = "longdash")
 		p <- p + ggplot2::geom_point(position = pd, size = 2.0)
 		
+		
 		stage <- unique(data$xValues)
 		kMax <- list(...)[["kMax"]]
 		if (length(stage) == 1 && !is.null(kMax)) {
 			stages <- 1:kMax
 			p <- p + ggplot2::scale_x_continuous(breaks = stages)
+		} else if (length(stage) > 1 && all(stage %in% 1:10)) {
+			p <- p + ggplot2::scale_x_continuous(breaks = stage)
 		}
 	}
+	
+	p <- plotSettings$setAxesAppearance(p)
+	p <- plotSettings$enlargeAxisTicks(p)
 	
 	companyAnnotationEnabled <- .getOptionalArgument("companyAnnotationEnabled", ...)
 	if (is.null(companyAnnotationEnabled) || !is.logical(companyAnnotationEnabled)) {
 		companyAnnotationEnabled <- FALSE
 	}
 	
-	p <- x$getPlotSettings()$addCompanyAnnotation(p, enabled = companyAnnotationEnabled)
+	p <- plotSettings$addCompanyAnnotation(p, enabled = companyAnnotationEnabled)
 	
 	# start plot generation
 	return(p)

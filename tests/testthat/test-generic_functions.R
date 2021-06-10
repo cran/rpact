@@ -14,10 +14,10 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-generic_functions.R
-#:#  Creation date: 09 November 2020, 11:49:45
-#:#  File version: $Revision$
-#:#  Last changed: $Date$
-#:#  Last changed by: $Author$
+#:#  Creation date: 18 May 2021, 17:48:43
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:#  
 
 context("Testing Class 'SummaryFactory'")
@@ -147,7 +147,6 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	expect_is(as.matrix(piecewiseSurvivalTime), "matrix")
 	expect_is(as.matrix(accrualTime), "matrix")
 
-	
 	# workaround to deactivate warnings during test execution
 	currentWarningOption <- getOption("warn")
 	options(warn = -1)

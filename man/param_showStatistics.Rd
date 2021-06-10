@@ -2,13 +2,13 @@
 % Please edit documentation in R/parameter_descriptions.R
 \name{param_showStatistics}
 \alias{param_showStatistics}
-\title{Parameter Description: ShowStatistics}
+\title{Parameter Description: Show Statistics}
 \arguments{
 \item{showStatistics}{If \code{TRUE}, summary statistics of the simulated data
 are displayed for the \code{print} command, otherwise the output is suppressed, default
 is \code{FALSE}.}
 }
 \description{
-Parameter Description: ShowStatistics
+Parameter Description: Show Statistics
 }
 \keyword{internal}

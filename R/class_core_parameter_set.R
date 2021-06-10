@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4311 $
-#:#  Last changed: $Date: 2021-02-03 11:38:47 +0100 (Mi, 03 Feb 2021) $
+#:#  File version: $Revision: 4952 $
+#:#  Last changed: $Date: 2021-06-01 14:13:33 +0200 (Tue, 01 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -213,7 +213,8 @@ FieldSet <- setRefClass("FieldSet",
 		},
 		
 		.cat = function(..., file = "", sep = "", fill = FALSE, labels = NULL, 
-				append = FALSE, heading = 0, tableColumns = 0, consoleOutputEnabled = TRUE) {
+				append = FALSE, heading = 0, tableColumns = 0, consoleOutputEnabled = TRUE, 
+				na = NA_character_) {
 			
 			if (consoleOutputEnabled) {
 				cat(..., file = file, sep = sep, fill = fill, labels = labels, append = append)
@@ -229,6 +230,14 @@ FieldSet <- setRefClass("FieldSet",
 					for (i in 1:length(values)) {
 						values[i] <- gsub("\n", "", values[i])
 					}
+					if (!is.null(na) && length(na) == 1 && !is.na(na)) {
+						len <- min(nchar(values))
+						naStr <- paste0(trimws(na), " ")
+						while (nchar(naStr) < len) {
+							naStr <- paste0(" ", naStr)
+						}
+						values[is.na(values) | nchar(trimws(values)) == 0] <- naStr
+					}
 					line <- paste0(values, collapse = "| ")
 					if (trimws(line) != "" && !grepl("\\| *$", line)) {
 						line <- paste0(line, "|")
@@ -242,9 +251,35 @@ FieldSet <- setRefClass("FieldSet",
 				} else {
 					line <- paste0(args, collapse = sep)
 					listItemEnabled <- grepl("^  ", line)
+					
+					headingBaseNumber <- as.integer(getOption("rpact.print.heading.base.number", 0L))
+					if (is.na(headingBaseNumber)) {
+						headingBaseNumber <- 0L
+					}
+					if (headingBaseNumber < -1) {
+						warning("Illegal option ", sQuote("rpact.print.heading.base.number"), 
+							" (", headingBaseNumber, ") was set to 0")
+						headingBaseNumber <- 0L
+					}
+					if (headingBaseNumber > 4) {
+						warning("Illgeal option ", sQuote("rpact.print.heading.base.number"), 
+							" (", headingBaseNumber, ") was set to 4 becasue it was too large")
+						headingBaseNumber <- 4L
+					}
+					
 					if (heading > 0) {
-						headingCmd <- paste0(rep("#", heading + 1), collapse = "")
-						line <- paste0(headingCmd, " ", sub(": *", "", line))
+						if (headingBaseNumber == -1) {
+							lineBreak <- ""
+							if (grepl("\n *\n *$", line)) {
+								lineBreak <- "\n\n"
+							} else if (grepl("\n *$", line)) {
+								lineBreak <- "\n"
+							}
+							line <- paste0("**", sub(": *", "", trimws(line)), "**", lineBreak)
+						} else {
+							headingCmd <- paste0(rep("#", heading + headingBaseNumber + 1), collapse = "")
+							line <- paste0(headingCmd, " ", sub(": *", "", line))
+						}
 					} else {
 						parts <- strsplit(line, " *: ")[[1]]
 						if (length(parts) == 2) {
@@ -515,8 +550,8 @@ ParameterSet <- setRefClass("ParameterSet",
 			}
 		},
 		
-		.catMarkdownText = function() {
-			.show(consoleOutputEnabled = FALSE)
+		.catMarkdownText = function(...) {
+			.show(consoleOutputEnabled = FALSE, ...)
 			if (length(.catLines) == 0) {
 				return(invisible())
 			}
@@ -566,14 +601,14 @@ ParameterSet <- setRefClass("ParameterSet",
 						for (i in 1:numberOfEntries) {
 							for (j in 1:numberOfRows) { 
 								output <- paste0(output, .showParameterFormatted(paramName = param$paramName, 
-										paramValue = param$paramValue[j, , i], 
-										paramValueFormatted = param$paramValueFormatted[[index]], 
-										showParameterType = showParameterType,
-										category = i,
-										matrixRow = ifelse(numberOfRows == 1, NA_integer_, j), 
-										consoleOutputEnabled = consoleOutputEnabled,
-										paramNameRaw = parameterName,
-										numberOfCategories = numberOfEntries))
+									paramValue = param$paramValue[j, , i], 
+									paramValueFormatted = param$paramValueFormatted[[index]], 
+									showParameterType = showParameterType,
+									category = i,
+									matrixRow = ifelse(numberOfRows == 1, NA_integer_, j), 
+									consoleOutputEnabled = consoleOutputEnabled,
+									paramNameRaw = parameterName,
+									numberOfCategories = numberOfEntries))
 								index <- index + 1
 							}
 						}
@@ -591,17 +626,21 @@ ParameterSet <- setRefClass("ParameterSet",
 							}
 							
 							output <- paste0(output, .showParameterFormatted(paramName = param$paramName, 
-									paramValue = paramValue, 
-									paramValueFormatted = param$paramValueFormatted[[i]], 
-									showParameterType = showParameterType,
-									matrixRow = ifelse(n == 1, NA_integer_, i), consoleOutputEnabled = consoleOutputEnabled,
-									paramNameRaw = parameterName,
-									numberOfCategories = n))
+								paramValue = paramValue, 
+								paramValueFormatted = param$paramValueFormatted[[i]], 
+								showParameterType = showParameterType,
+								matrixRow = ifelse(n == 1, NA_integer_, i), 
+								consoleOutputEnabled = consoleOutputEnabled,
+								paramNameRaw = parameterName,
+								numberOfCategories = n))
 						}
 					} else {
-						output <- .showParameterFormatted(paramName = param$paramName, paramValue = param$paramValue, 
-							paramValueFormatted = param$paramValueFormatted, showParameterType = showParameterType, 
-							consoleOutputEnabled = consoleOutputEnabled, paramNameRaw = parameterName)
+						output <- .showParameterFormatted(paramName = param$paramName, 
+							paramValue = param$paramValue, 
+							paramValueFormatted = param$paramValueFormatted, 
+							showParameterType = showParameterType, 
+							consoleOutputEnabled = consoleOutputEnabled, 
+							paramNameRaw = parameterName)
 					}
 				}
 				return(invisible(output))
@@ -776,14 +815,37 @@ ParameterSet <- setRefClass("ParameterSet",
 			}
 			else if (!is.na(matrixRow)) {
 				if (.isMultiArmAnalysisResults(.self) && paramName %in% 
-					c("conditionalErrorRate", "secondStagePValues", 
-						"adjustedStageWisePValues", "overallAdjustedTestStatistics")) {
+						c("conditionalErrorRate", "secondStagePValues", 
+							"adjustedStageWisePValues", "overallAdjustedTestStatistics")) {
 					treatments <- .closedTestResults$.getHypothesisTreatmentArmVariants()[matrixRow]
-					paramCaption <- paste0("Treatment", ifelse(grepl(",", treatments), "s", ""), " ", treatments, " vs. control")
+					paramCaption <- paste0("Treatment", ifelse(grepl(",", treatments), "s", ""), " ", 
+						treatments, " vs. control")
+				}
+				else if (.isEnrichmentAnalysisResults(.self) || .isEnrichmentStageResults(.self) || 
+						(inherits(.self, "ClosedCombinationTestResults") && isTRUE(.self$.enrichment))) {
+					if (paramName %in% c("indices", "conditionalErrorRate", "secondStagePValues", 
+							"adjustedStageWisePValues", "overallAdjustedTestStatistics", "rejectedIntersections")) {
+						if (.isEnrichmentAnalysisResults(.self)) {
+							populations <- .closedTestResults$.getHypothesisPopulationVariants()[matrixRow]
+						} else if (inherits(.self, "ClosedCombinationTestResults")) {
+							populations <- .self$.getHypothesisPopulationVariants()[matrixRow]
+						} else {
+							stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "only ClosedCombinationTestResults ",
+								"supports function .getHypothesisPopulationVariants() (object is ", class(.self), ")")
+						}
+						paramCaption <- paste0(paramCaption, " ", populations)
+					} else {
+						if (!is.na(numberOfCategories) && numberOfCategories == matrixRow) {
+							paramCaption <- paste0(paramCaption, " F")
+						} else {
+							paramCaption <- paste0(paramCaption, " S", matrixRow)	
+						}
+					}
 				}
     			else if (.isMultiArmAnalysisResults(.self) || grepl("StageResultsMultiArm", class(.self)) || 
 						(inherits(.self, "SimulationResults") && paramName == "effectMatrix") ||
-						(inherits(.self, "ClosedCombinationTestResults") && paramName %in% c("rejected", "separatePValues"))) {
+						(inherits(.self, "ClosedCombinationTestResults") && 
+							paramName %in% c("rejected", "separatePValues"))) {
 					paramCaption <- paste0(paramCaption, " (", matrixRow, ")")
 				} else {
 					paramCaption <- paste0(paramCaption, " [", matrixRow, "]")
@@ -797,10 +859,12 @@ ParameterSet <- setRefClass("ParameterSet",
 				paramValueFormatted <- .listToString(paramValueFormatted)
 			}
 			if (is.function(paramValue)) {
-				paramValueFormatted <- ifelse(.getParameterType(paramName) == C_PARAM_USER_DEFINED, "user defined", "default")
+				paramValueFormatted <- ifelse(
+					.getParameterType(paramName) == C_PARAM_USER_DEFINED, "user defined", "default")
 			}
 			prefix <- ifelse(showParameterType, .showParameterType(paramName), "")
-			variableNameFormatted <- .getFormattedVariableName(name = paramCaption, n = .getNChar(), prefix = prefix)
+			variableNameFormatted <- .getFormattedVariableName(name = paramCaption, 
+				n = .getNChar(), prefix = prefix)
 			output <- paste(variableNameFormatted, paramValueFormatted, "\n")
 			.cat(output, consoleOutputEnabled = consoleOutputEnabled)
 			invisible(output)
@@ -919,6 +983,8 @@ ParameterSet <- setRefClass("ParameterSet",
 		},
 		
 		.getVariedParameter = function(parameterNames, numberOfVariants) {
+			
+			# search for user defined parameters
 			for (parameterName in parameterNames) {
 				parameterValues <- .self[[parameterName]]
 				if (!is.null(parameterValues) && !is.matrix(parameterValues) &&
@@ -928,6 +994,8 @@ ParameterSet <- setRefClass("ParameterSet",
 					return(parameterName)
 				}
 			}
+			
+			# search for default values
 			for (parameterName in parameterNames) {
 				parameterValues <- .self[[parameterName]]
 				if (!is.null(parameterValues) && !is.matrix(parameterValues) &&
@@ -937,6 +1005,7 @@ ParameterSet <- setRefClass("ParameterSet",
 					return(parameterName)
 				}
 			}
+			
 			return(NULL)
 		},
 		
@@ -1308,8 +1377,77 @@ as.data.frame.ParameterSet <- function(x, row.names = NULL,
 	.warnInCaseOfUnknownArguments(functionName = "as.data.frame", ...)
 	
 	return(x$.getAsDataFrame(parameterNames = NULL, 
-			niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters))
+		niceColumnNamesEnabled = niceColumnNamesEnabled, includeAllParameters = includeAllParameters))
 }
+
+#'
+#' @title 
+#' Field Set Transpose
+#' 
+#' @description 
+#' Given a \code{FieldSet} \code{x}, t returns the transpose of \code{x}. 
+#' 
+#' @param x A \code{FieldSet}.
+#' 
+#' @details 
+#' Implementation of the base R generic function \code{\link[base]{t}}
+#' 
+#' @keywords internal
+#' 
+#' @export
+#'
+setMethod("t", "FieldSet",
+	function(x) {
+		x <- as.matrix(x, niceColumnNamesEnabled = TRUE)
+		return(t(x))
+	}
+)
+
+#' 
+#' @title
+#' Create output in Markdown
+#' 
+#' @description
+#' The \code{kable()} function returns the output of the specified object formatted in Markdown.
+#' 
+#' @param x A \code{ParameterSet}. If x does not inherit from class \code{\link{ParameterSet}}, 
+#'        \code{knitr::kable(x)} will be returned.
+#' 
+#' @details
+#' Generic function to represent a parameter set in Markdown.
+#' Use \code{options("rpact.print.heading.base.number" = "NUMBER")} (where \code{NUMBER} is an integer value >= -1) to 
+#' specify the heading level. The default is \code{options("rpact.print.heading.base.number" = "0")}, i.e., the 
+#' top headings start with \code{##} in Markdown. \code{options("rpact.print.heading.base.number" = "-1")} means
+#' that all headings will be written bold but are not explicit defined as header. 
+#' 
+#' @param x The object that inherits from \code{\link{ParameterSet}}.
+#' 
+#' @export
+#' 
+kable.ParameterSet <- function(x) {
+	if (inherits(x, "ParameterSet")) {
+		return(print(x, markdown = TRUE))
+	}
+	
+	.assertPackageIsInstalled("knitr")
+	knitr::kable(x)
+}
+
+#' 
+#' @title
+#' Create tables in Markdown
+#' 
+#' @description
+#' The \code{kable()} function returns a single table for a single object that inherits from class \code{\link{ParameterSet}}.
+#' 
+#' @details
+#' Generic to represent a parameter set in Markdown.
+#' 
+#' @param x The object that inherits from \code{\link{ParameterSet}}.
+#' 
+#' @export
+#' 
+setGeneric("kable", kable.ParameterSet)
 
 #'
 #' @name FrameSet_as.matrix
@@ -1337,20 +1475,15 @@ as.data.frame.ParameterSet <- function(x, row.names = NULL,
 #' 
 as.matrix.FieldSet <- function(x, ..., enforceRowNames = TRUE, niceColumnNamesEnabled = TRUE) {
 	dataFrame <- as.data.frame(x, niceColumnNamesEnabled = niceColumnNamesEnabled)
+	dataFrame <- .setStagesAsFirstColumn(dataFrame)
 	result <- as.matrix(dataFrame)
 	
 	if (nrow(result) == 0) {
 		return(result)
 	}
-	
-	# sample size or power object
-	if (.isTrialDesignPlan(x)) {
-		dimnames(result)[[1]] <- paste("  ", c(1:nrow(dataFrame)))
-		return(result)
-	} 
-	
+
 	if (inherits(x, "PowerAndAverageSampleNumberResult")) {
-		dimnames(result)[[1]] <- rep("", nrow(dataFrame))
+		dimnames(result)[[1]] <- rep("", nrow(result))
 		return(result)
 	} 
 	
@@ -1362,29 +1495,40 @@ as.matrix.FieldSet <- function(x, ..., enforceRowNames = TRUE, niceColumnNamesEn
 			dfTemp <- merge(dfDesign, dfStageResults)
 			if (length(intersect(names(dfTemp), names(dataFrame))) >= 1) {
 				dataFrame <- merge(dfTemp, dataFrame, all.x = FALSE, all.y = TRUE)
+				dataFrame <- .setStagesAsFirstColumn(dataFrame)
 				result <- as.matrix(dataFrame)
 			}
 		} else if (length(intersect(names(dfStageResults), names(dataFrame))) >= 1) {
 			dataFrame <- merge(dfStageResults, dataFrame, all.x = FALSE, all.y = TRUE)
+			dataFrame <- .setStagesAsFirstColumn(dataFrame)
 			result <- as.matrix(dataFrame)
 		}
 	}
 	
-	if (is.na(enforceRowNames) || isTRUE(enforceRowNames)) {
-		for (paramName in c("stage", "stages", "Stage", "Stages")) {
-			paramNames <- colnames(result)
-			if (paramName %in% paramNames) {
-				stageNumbers <- result[, paramName]
-				if (!is.null(stageNumbers) && length(stageNumbers) > 0) {
-					dimnames(result)[[1]] <- rep("", nrow(result))
-					result <- result[, c(paramName, paramNames[paramNames != paramName])]
-					return(result)
-				}
-			}
-		}
+	if (any(grepl("^(S|s)tages?$", colnames(result)))) {
+		dimnames(result)[[1]] <- rep("", nrow(result))
 	}
 	
 	return(result)
+}
+
+.setStagesAsFirstColumn <- function(data) {
+	
+	columnNames <- colnames(data)
+	index <- grep("^(S|s)tages?$", columnNames)
+	if (length(index) == 0 || index == 1) {
+		return(data)
+	}
+	
+	stageName <- columnNames[index[1]]
+	stageNumbers <- data[, stageName]
+	if (is.null(stageNumbers)|| length(stageNumbers) == 0) {
+		return(data)
+	}
+	
+	data <- data[, c(stageName, columnNames[columnNames != stageName])]
+	
+	return(data)
 }
 
 #'
@@ -1488,9 +1632,6 @@ print.ParameterSet <- function(x, ..., markdown = FALSE) {
 #' @description
 #' Plots an object that inherits from class \code{\link{ParameterSet}}.
 #' 
-#' @details
-#' Generic function to plot a parameter set.
-#' 
 #' @param x The object that inherits from \code{\link{ParameterSet}}.
 #' @param y Not available for this kind of plot (is only defined to be compatible to the generic plot function).
 #' @param main The main title.
@@ -1499,6 +1640,7 @@ print.ParameterSet <- function(x, ..., markdown = FALSE) {
 #' @param type The plot type (default = 1).
 #' @inheritParams param_palette
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_three_dots_plot
 #' 
@@ -1509,12 +1651,15 @@ print.ParameterSet <- function(x, ..., markdown = FALSE) {
 #' 
 #' @export
 #' 
-plot.ParameterSet = function(x, y, ..., main = NA_character_,
+plot.ParameterSet <- function(x, y, ..., main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, type = 1L, palette = "Set1",
-		legendPosition = NA_integer_, showSource = FALSE) {
+		legendPosition = NA_integer_, showSource = FALSE, plotSettings = NULL) {
 	
 	.assertGgplotIsInstalled()
 	
 	stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
 		"sorry, function 'plot' is not implemented yet for class '", class(x), "'")
 }
+
+
+

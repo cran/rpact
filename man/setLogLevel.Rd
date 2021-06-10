@@ -20,7 +20,7 @@ Sets the \code{rpact} log level.
 This function sets the log level of the \code{rpact} internal log message system.
 By default only calculation progress messages will be shown on the output console,
 particularly \code{\link{getAnalysisResults}} shows this kind of messages.
-The output of this messages can be disabled by setting the log level to \code{"DISABLED"}.
+The output of these messages can be disabled by setting the log level to \code{"DISABLED"}.
 }
 \examples{
 \dontrun{

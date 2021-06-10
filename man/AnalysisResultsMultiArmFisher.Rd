@@ -3,11 +3,17 @@
 \docType{class}
 \name{AnalysisResultsMultiArmFisher}
 \alias{AnalysisResultsMultiArmFisher}
+\alias{AnalysisResultsEnrichmentFisher}
 \title{Analysis Results Multi-Arm Fisher}
 \description{
 Class for multi-arm analysis results based on a Fisher combination test design.
+
+Class for multi-arm analysis results based on a Fisher combination test design.
 }
 \details{
+This object cannot be created directly; use \code{\link{getAnalysisResults}} 
+with suitable arguments to create the multi-arm analysis results of a Fisher combination test design.
+
 This object cannot be created directly; use \code{\link{getAnalysisResults}} 
 with suitable arguments to create the multi-arm analysis results of a Fisher combination test design.
 }

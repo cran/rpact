@@ -5,7 +5,9 @@
 \title{Parameter Description: Standard Deviation for Simulation}
 \arguments{
 \item{stDev}{The standard deviation under which the data is simulated, 
-default is \code{1}.}
+default is \code{1}. 
+If \code{meanRatio = TRUE} is specified, \code{stDev} defines 
+the coefficient of variation \code{sigma / mu2}.}
 }
 \description{
 Parameter Description: Standard Deviation for Simulation

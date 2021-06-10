@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_simulation_base_rates.R
-#:#  Creation date: 09 November 2020, 11:49:07
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:48:05
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -51,16 +51,17 @@ test_that("'getSimulationRates': check several configurations", {
 		allocationRatioPlanned = 3, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x1' with expected results
+	expect_equal(x1$effect, c(0.2, 0.7, 1.2, 1.7), tolerance = 1e-07)
 	expect_equal(x1$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(x1$iterations[2, ], c(78, 93, 99, 96))
 	expect_equal(x1$iterations[3, ], c(41, 68, 56, 40))
+	expect_equal(x1$overallReject, c(0.05, 0.23, 0.74, 0.88), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[1, ], c(0, 0, 0, 0.04), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[2, ], c(0.02, 0.04, 0.34, 0.54), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[3, ], c(0.03, 0.19, 0.4, 0.3), tolerance = 1e-07)
-	expect_equal(x1$overallReject, c(0.05, 0.23, 0.74, 0.88), tolerance = 1e-07)
+	expect_equal(x1$futilityStop, c(0.57, 0.28, 0.1, 0.02), tolerance = 1e-07)
 	expect_equal(x1$futilityPerStage[1, ], c(0.22, 0.07, 0.01, 0), tolerance = 1e-07)
 	expect_equal(x1$futilityPerStage[2, ], c(0.35, 0.21, 0.09, 0.02), tolerance = 1e-07)
-	expect_equal(x1$futilityStop, c(0.57, 0.28, 0.1, 0.02), tolerance = 1e-07)
 	expect_equal(x1$earlyStop, c(0.59, 0.32, 0.44, 0.6), tolerance = 1e-07)
 	expect_equal(x1$expectedNumberOfSubjects, c(65.7, 78.3, 76.5, 70.8), tolerance = 1e-07)
 	expect_equal(x1$sampleSizes[1, ], c(30, 30, 30, 30))
@@ -74,6 +75,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x1)$show())
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
+	    x1CodeBased <- eval(parse(text = getObjectRCode(x1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x1CodeBased$effect, x1$effect, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$iterations, x1$iterations, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$overallReject, x1$overallReject, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$rejectPerStage, x1$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$futilityStop, x1$futilityStop, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$futilityPerStage, x1$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$earlyStop, x1$earlyStop, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$expectedNumberOfSubjects, x1$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$sampleSizes, x1$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalPowerAchieved, x1$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	x2 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
@@ -82,16 +94,17 @@ test_that("'getSimulationRates': check several configurations", {
 		allocationRatioPlanned = 3, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x2' with expected results
+	expect_equal(x2$effect, c(0.1, 0.2, 0.3, 0.4), tolerance = 1e-07)
 	expect_equal(x2$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(x2$iterations[2, ], c(84, 95, 100, 97))
 	expect_equal(x2$iterations[3, ], c(55, 73, 64, 42))
+	expect_equal(x2$overallReject, c(0.08, 0.39, 0.81, 0.88), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[1, ], c(0, 0, 0, 0.03), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[2, ], c(0.02, 0.09, 0.33, 0.53), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[3, ], c(0.06, 0.3, 0.48, 0.32), tolerance = 1e-07)
-	expect_equal(x2$overallReject, c(0.08, 0.39, 0.81, 0.88), tolerance = 1e-07)
+	expect_equal(x2$futilityStop, c(0.43, 0.18, 0.03, 0.02), tolerance = 1e-07)
 	expect_equal(x2$futilityPerStage[1, ], c(0.16, 0.05, 0, 0), tolerance = 1e-07)
 	expect_equal(x2$futilityPerStage[2, ], c(0.27, 0.13, 0.03, 0.02), tolerance = 1e-07)
-	expect_equal(x2$futilityStop, c(0.43, 0.18, 0.03, 0.02), tolerance = 1e-07)
 	expect_equal(x2$earlyStop, c(0.45, 0.27, 0.36, 0.58), tolerance = 1e-07)
 	expect_equal(x2$expectedNumberOfSubjects, c(71.7, 80.4, 79.2, 71.7), tolerance = 1e-07)
 	expect_equal(x2$sampleSizes[1, ], c(30, 30, 30, 30))
@@ -105,6 +118,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x2)$show())
 	    invisible(capture.output(expect_error(summary(x2), NA)))
 	    expect_output(summary(x2)$show())
+	    x2CodeBased <- eval(parse(text = getObjectRCode(x2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x2CodeBased$effect, x2$effect, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$iterations, x2$iterations, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$overallReject, x2$overallReject, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$rejectPerStage, x2$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$futilityStop, x2$futilityStop, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$futilityPerStage, x2$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$earlyStop, x2$earlyStop, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$expectedNumberOfSubjects, x2$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$sampleSizes, x2$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalPowerAchieved, x2$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	.skipTestIfDisabled()
@@ -114,16 +138,17 @@ test_that("'getSimulationRates': check several configurations", {
 		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x3' with expected results
+	expect_equal(x3$effect, c(0, 0.05, 0.1, 0.15, 0.2), tolerance = 1e-07)
 	expect_equal(x3$iterations[1, ], c(100, 100, 100, 100, 100))
 	expect_equal(x3$iterations[2, ], c(78, 91, 96, 90, 72))
 	expect_equal(x3$iterations[3, ], c(32, 65, 62, 37, 6))
+	expect_equal(x3$overallReject, c(0.03, 0.3, 0.6, 0.93, 0.99), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[1, ], c(0, 0.02, 0.04, 0.1, 0.28), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[2, ], c(0.01, 0.06, 0.28, 0.53, 0.66), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[3, ], c(0.02, 0.22, 0.28, 0.3, 0.05), tolerance = 1e-07)
-	expect_equal(x3$overallReject, c(0.03, 0.3, 0.6, 0.93, 0.99), tolerance = 1e-07)
+	expect_equal(x3$futilityStop, c(0.67, 0.27, 0.06, 0, 0), tolerance = 1e-07)
 	expect_equal(x3$futilityPerStage[1, ], c(0.22, 0.07, 0, 0, 0), tolerance = 1e-07)
 	expect_equal(x3$futilityPerStage[2, ], c(0.45, 0.2, 0.06, 0, 0), tolerance = 1e-07)
-	expect_equal(x3$futilityStop, c(0.67, 0.27, 0.06, 0, 0), tolerance = 1e-07)
 	expect_equal(x3$earlyStop, c(0.68, 0.35, 0.38, 0.63, 0.94), tolerance = 1e-07)
 	expect_equal(x3$expectedNumberOfSubjects, c(63, 76.8, 77.4, 68.1, 53.4), tolerance = 1e-07)
 	expect_equal(x3$sampleSizes[1, ], c(30, 30, 30, 30, 30))
@@ -137,6 +162,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x3)$show())
 	    invisible(capture.output(expect_error(summary(x3), NA)))
 	    expect_output(summary(x3)$show())
+	    x3CodeBased <- eval(parse(text = getObjectRCode(x3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x3CodeBased$effect, x3$effect, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$iterations, x3$iterations, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$overallReject, x3$overallReject, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$rejectPerStage, x3$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$futilityStop, x3$futilityStop, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$futilityPerStage, x3$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$earlyStop, x3$earlyStop, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$expectedNumberOfSubjects, x3$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$sampleSizes, x3$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$conditionalPowerAchieved, x3$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	x4 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5), 
@@ -146,16 +182,17 @@ test_that("'getSimulationRates': check several configurations", {
 		allocationRatioPlanned = 3, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x4' with expected results
+	expect_equal(x4$effect, c(-1.25, -1, -0.75, -0.5, -0.25), tolerance = 1e-07)
 	expect_equal(x4$iterations[1, ], c(100, 100, 100, 100, 100))
 	expect_equal(x4$iterations[2, ], c(74, 64, 47, 36, 39))
 	expect_equal(x4$iterations[3, ], c(28, 28, 30, 20, 25))
+	expect_equal(x4$overallReject, c(0.66, 0.51, 0.19, 0.08, 0.1), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[1, ], c(0.06, 0.05, 0.02, 0, 0), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[2, ], c(0.43, 0.29, 0.09, 0.04, 0.04), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[3, ], c(0.17, 0.17, 0.08, 0.04, 0.06), tolerance = 1e-07)
-	expect_equal(x4$overallReject, c(0.66, 0.51, 0.19, 0.08, 0.1), tolerance = 1e-07)
+	expect_equal(x4$futilityStop, c(0.23, 0.38, 0.59, 0.76, 0.71), tolerance = 1e-07)
 	expect_equal(x4$futilityPerStage[1, ], c(0.2, 0.31, 0.51, 0.64, 0.61), tolerance = 1e-07)
 	expect_equal(x4$futilityPerStage[2, ], c(0.03, 0.07, 0.08, 0.12, 0.1), tolerance = 1e-07)
-	expect_equal(x4$futilityStop, c(0.23, 0.38, 0.59, 0.76, 0.71), tolerance = 1e-07)
 	expect_equal(x4$earlyStop, c(0.72, 0.72, 0.7, 0.8, 0.75), tolerance = 1e-07)
 	expect_equal(x4$expectedNumberOfSubjects, c(60.6, 57.6, 53.1, 46.8, 49.2), tolerance = 1e-07)
 	expect_equal(x4$sampleSizes[1, ], c(30, 30, 30, 30, 30))
@@ -169,6 +206,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x4)$show())
 	    invisible(capture.output(expect_error(summary(x4), NA)))
 	    expect_output(summary(x4)$show())
+	    x4CodeBased <- eval(parse(text = getObjectRCode(x4, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x4CodeBased$effect, x4$effect, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$iterations, x4$iterations, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$overallReject, x4$overallReject, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$rejectPerStage, x4$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$futilityStop, x4$futilityStop, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$futilityPerStage, x4$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$earlyStop, x4$earlyStop, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$expectedNumberOfSubjects, x4$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$sampleSizes, x4$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x4CodeBased$conditionalPowerAchieved, x4$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	x5 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5), 
@@ -177,16 +225,17 @@ test_that("'getSimulationRates': check several configurations", {
 		allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x5' with expected results
+	expect_equal(x5$effect, c(-0.1, 2.7755576e-17, 0.1, 0.2), tolerance = 1e-07)
 	expect_equal(x5$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(x5$iterations[2, ], c(50, 41, 12, 2))
 	expect_equal(x5$iterations[3, ], c(34, 29, 3, 0))
+	expect_equal(x5$overallReject, c(0.22, 0.03, 0, 0), tolerance = 1e-07)
 	expect_equal(x5$rejectPerStage[1, ], c(0.01, 0, 0, 0), tolerance = 1e-07)
 	expect_equal(x5$rejectPerStage[2, ], c(0.09, 0.02, 0, 0), tolerance = 1e-07)
 	expect_equal(x5$rejectPerStage[3, ], c(0.12, 0.01, 0, 0), tolerance = 1e-07)
-	expect_equal(x5$overallReject, c(0.22, 0.03, 0, 0), tolerance = 1e-07)
+	expect_equal(x5$futilityStop, c(0.56, 0.69, 0.97, 1), tolerance = 1e-07)
 	expect_equal(x5$futilityPerStage[1, ], c(0.49, 0.59, 0.88, 0.98), tolerance = 1e-07)
 	expect_equal(x5$futilityPerStage[2, ], c(0.07, 0.1, 0.09, 0.02), tolerance = 1e-07)
-	expect_equal(x5$futilityStop, c(0.56, 0.69, 0.97, 1), tolerance = 1e-07)
 	expect_equal(x5$earlyStop, c(0.66, 0.71, 0.97, 1), tolerance = 1e-07)
 	expect_equal(x5$expectedNumberOfSubjects, c(55.2, 51, 34.5, 30.6), tolerance = 1e-07)
 	expect_equal(x5$sampleSizes[1, ], c(30, 30, 30, 30))
@@ -200,6 +249,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x5)$show())
 	    invisible(capture.output(expect_error(summary(x5), NA)))
 	    expect_output(summary(x5)$show())
+	    x5CodeBased <- eval(parse(text = getObjectRCode(x5, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x5CodeBased$effect, x5$effect, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$iterations, x5$iterations, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$overallReject, x5$overallReject, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$rejectPerStage, x5$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$futilityStop, x5$futilityStop, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$futilityPerStage, x5$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$earlyStop, x5$earlyStop, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$expectedNumberOfSubjects, x5$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$sampleSizes, x5$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x5CodeBased$conditionalPowerAchieved, x5$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	x6 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5), 
@@ -208,16 +268,17 @@ test_that("'getSimulationRates': check several configurations", {
 		maxNumberOfIterations = maxNumberOfIterations, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x6' with expected results
+	expect_equal(x6$effect, c(-0.2, -0.15, -0.1, -0.05, 0), tolerance = 1e-07)
 	expect_equal(x6$iterations[1, ], c(100, 100, 100, 100, 100))
 	expect_equal(x6$iterations[2, ], c(91, 89, 66, 56, 39))
 	expect_equal(x6$iterations[3, ], c(19, 49, 51, 48, 24))
+	expect_equal(x6$overallReject, c(0.92, 0.78, 0.4, 0.15, 0.03), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[1, ], c(0.03, 0.01, 0, 0, 0), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[2, ], c(0.72, 0.4, 0.14, 0.01, 0.01), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[3, ], c(0.17, 0.37, 0.26, 0.14, 0.02), tolerance = 1e-07)
-	expect_equal(x6$overallReject, c(0.92, 0.78, 0.4, 0.15, 0.03), tolerance = 1e-07)
+	expect_equal(x6$futilityStop, c(0.06, 0.1, 0.35, 0.51, 0.75), tolerance = 1e-07)
 	expect_equal(x6$futilityPerStage[1, ], c(0.06, 0.1, 0.34, 0.44, 0.61), tolerance = 1e-07)
 	expect_equal(x6$futilityPerStage[2, ], c(0, 0, 0.01, 0.07, 0.14), tolerance = 1e-07)
-	expect_equal(x6$futilityStop, c(0.06, 0.1, 0.35, 0.51, 0.75), tolerance = 1e-07)
 	expect_equal(x6$earlyStop, c(0.81, 0.51, 0.49, 0.52, 0.76), tolerance = 1e-07)
 	expect_equal(x6$expectedNumberOfSubjects, c(63, 71.4, 65.1, 61.2, 48.9), tolerance = 1e-07)
 	expect_equal(x6$sampleSizes[1, ], c(30, 30, 30, 30, 30))
@@ -231,6 +292,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x6)$show())
 	    invisible(capture.output(expect_error(summary(x6), NA)))
 	    expect_output(summary(x6)$show())
+	    x6CodeBased <- eval(parse(text = getObjectRCode(x6, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x6CodeBased$effect, x6$effect, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$iterations, x6$iterations, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$overallReject, x6$overallReject, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$rejectPerStage, x6$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$futilityStop, x6$futilityStop, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$futilityPerStage, x6$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$earlyStop, x6$earlyStop, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$expectedNumberOfSubjects, x6$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$sampleSizes, x6$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x6CodeBased$conditionalPowerAchieved, x6$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	x7 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5), typeOfDesign = "P"), 
@@ -241,13 +313,14 @@ test_that("'getSimulationRates': check several configurations", {
 		directionUpper = TRUE, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x7' with expected results
+	expect_equal(x7$effect, c(0, 0.05, 0.1, 0.15, 0.2), tolerance = 1e-07)
 	expect_equal(x7$iterations[1, ], c(100, 100, 100, 100, 100))
 	expect_equal(x7$iterations[2, ], c(25, 41, 53, 50, 35))
+	expect_equal(x7$overallReject, c(0.05, 0.18, 0.47, 0.77, 0.91), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[1, ], c(0.02, 0.06, 0.15, 0.36, 0.59), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[2, ], c(0.03, 0.12, 0.32, 0.41, 0.32), tolerance = 1e-07)
-	expect_equal(x7$overallReject, c(0.05, 0.18, 0.47, 0.77, 0.91), tolerance = 1e-07)
-	expect_equal(x7$futilityPerStage[1, ], c(0.73, 0.53, 0.32, 0.14, 0.06), tolerance = 1e-07)
 	expect_equal(x7$futilityStop, c(0.73, 0.53, 0.32, 0.14, 0.06), tolerance = 1e-07)
+	expect_equal(x7$futilityPerStage[1, ], c(0.73, 0.53, 0.32, 0.14, 0.06), tolerance = 1e-07)
 	expect_equal(x7$earlyStop, c(0.75, 0.59, 0.47, 0.5, 0.65), tolerance = 1e-07)
 	expect_equal(x7$expectedNumberOfSubjects, c(58.56, 77.43, 83.21, 80.96, 58.83), tolerance = 1e-07)
 	expect_equal(x7$sampleSizes[1, ], c(30, 30, 30, 30, 30))
@@ -259,6 +332,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x7)$show())
 	    invisible(capture.output(expect_error(summary(x7), NA)))
 	    expect_output(summary(x7)$show())
+	    x7CodeBased <- eval(parse(text = getObjectRCode(x7, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x7CodeBased$effect, x7$effect, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$iterations, x7$iterations, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$overallReject, x7$overallReject, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$rejectPerStage, x7$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$futilityStop, x7$futilityStop, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$futilityPerStage, x7$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$earlyStop, x7$earlyStop, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$expectedNumberOfSubjects, x7$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$sampleSizes, x7$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x7CodeBased$conditionalPowerAchieved, x7$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	x8 <- getSimulationRates(design = getDesignGroupSequential(
@@ -270,16 +354,17 @@ test_that("'getSimulationRates': check several configurations", {
 		directionUpper = FALSE, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x8' with expected results
+	expect_equal(x8$effect, c(-0.3, -0.25, -0.2, -0.15, -0.1), tolerance = 1e-07)
 	expect_equal(x8$iterations[1, ], c(100, 100, 100, 100, 100))
 	expect_equal(x8$iterations[2, ], c(7, 23, 41, 52, 59))
 	expect_equal(x8$iterations[3, ], c(0, 1, 1, 11, 20))
+	expect_equal(x8$overallReject, c(1, 0.98, 0.95, 0.81, 0.61), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[1, ], c(0.93, 0.75, 0.54, 0.29, 0.1), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[2, ], c(0.07, 0.22, 0.4, 0.41, 0.37), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[3, ], c(0, 0.01, 0.01, 0.11, 0.14), tolerance = 1e-07)
-	expect_equal(x8$overallReject, c(1, 0.98, 0.95, 0.81, 0.61), tolerance = 1e-07)
+	expect_equal(x8$futilityStop, c(0, 0.02, 0.05, 0.19, 0.33), tolerance = 1e-07)
 	expect_equal(x8$futilityPerStage[1, ], c(0, 0.02, 0.05, 0.19, 0.31), tolerance = 1e-07)
 	expect_equal(x8$futilityPerStage[2, ], c(0, 0, 0, 0, 0.02), tolerance = 1e-07)
-	expect_equal(x8$futilityStop, c(0, 0.02, 0.05, 0.19, 0.33), tolerance = 1e-07)
 	expect_equal(x8$earlyStop, c(1, 0.99, 0.99, 0.89, 0.8), tolerance = 1e-07)
 	expect_equal(x8$expectedNumberOfSubjects, c(115.79, 135.33, 201.46, 331.88, 420.15), tolerance = 1e-07)
 	expect_equal(x8$sampleSizes[1, ], c(100, 100, 100, 100, 100))
@@ -293,6 +378,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x8)$show())
 	    invisible(capture.output(expect_error(summary(x8), NA)))
 	    expect_output(summary(x8)$show())
+	    x8CodeBased <- eval(parse(text = getObjectRCode(x8, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x8CodeBased$effect, x8$effect, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$iterations, x8$iterations, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$overallReject, x8$overallReject, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$rejectPerStage, x8$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$futilityStop, x8$futilityStop, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$futilityPerStage, x8$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$earlyStop, x8$earlyStop, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$expectedNumberOfSubjects, x8$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$sampleSizes, x8$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x8CodeBased$conditionalPowerAchieved, x8$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	x9 <- getSimulationRates(design = getDesignGroupSequential(
@@ -304,13 +400,14 @@ test_that("'getSimulationRates': check several configurations", {
 		maxNumberOfSubjectsPerStage = 5*c(NA, 100), directionUpper = TRUE, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x9' with expected results
+	expect_equal(x9$effect, c(-0.05, 0.2, 0.45, 0.7, 0.95, 1.2), tolerance = 1e-07)
 	expect_equal(x9$iterations[1, ], c(100, 100, 100, 100, 100, 100))
 	expect_equal(x9$iterations[2, ], c(48, 66, 75, 74, 57, 35))
+	expect_equal(x9$overallReject, c(0.01, 0.07, 0.45, 0.86, 0.92, 1), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[1, ], c(0.01, 0.02, 0.11, 0.24, 0.41, 0.65), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[2, ], c(0, 0.05, 0.34, 0.62, 0.51, 0.35), tolerance = 1e-07)
-	expect_equal(x9$overallReject, c(0.01, 0.07, 0.45, 0.86, 0.92, 1), tolerance = 1e-07)
-	expect_equal(x9$futilityPerStage[1, ], c(0.51, 0.32, 0.14, 0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x9$futilityStop, c(0.51, 0.32, 0.14, 0.02, 0.02, 0), tolerance = 1e-07)
+	expect_equal(x9$futilityPerStage[1, ], c(0.51, 0.32, 0.14, 0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x9$earlyStop, c(0.52, 0.34, 0.25, 0.26, 0.43, 0.65), tolerance = 1e-07)
 	expect_equal(x9$expectedNumberOfSubjects, c(323.82, 368.88, 387.13, 364.4, 246.27, 193.96), tolerance = 1e-07)
 	expect_equal(x9$sampleSizes[1, ], c(100, 100, 100, 100, 100, 100))
@@ -322,6 +419,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x9)$show())
 	    invisible(capture.output(expect_error(summary(x9), NA)))
 	    expect_output(summary(x9)$show())
+	    x9CodeBased <- eval(parse(text = getObjectRCode(x9, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x9CodeBased$effect, x9$effect, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$iterations, x9$iterations, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$overallReject, x9$overallReject, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$rejectPerStage, x9$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$futilityStop, x9$futilityStop, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$futilityPerStage, x9$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$earlyStop, x9$earlyStop, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$expectedNumberOfSubjects, x9$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$sampleSizes, x9$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x9CodeBased$conditionalPowerAchieved, x9$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 	calcSubjectsFunctionSimulationBaseRates <- function(...,stage,
@@ -353,13 +461,14 @@ test_that("'getSimulationRates': check several configurations", {
 		maxNumberOfIterations = maxNumberOfIterations, seed = seed)
 
 	## Comparison of the results of SimulationResultsRates object 'x10' with expected results
+	expect_equal(x10$effect, c(0, 0.1, 0.2, 0.3), tolerance = 1e-07)
 	expect_equal(x10$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(x10$iterations[2, ], c(100, 99, 95, 75))
+	expect_equal(x10$overallReject, c(0.02, 0.2, 0.52, 0.89), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[1, ], c(0, 0.01, 0.05, 0.25), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[2, ], c(0.02, 0.19, 0.47, 0.64), tolerance = 1e-07)
-	expect_equal(x10$overallReject, c(0.02, 0.2, 0.52, 0.89), tolerance = 1e-07)
-	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0, 0))
 	expect_equal(x10$futilityStop, c(0, 0, 0, 0))
+	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0, 0))
 	expect_equal(x10$earlyStop, c(0, 0.01, 0.05, 0.25), tolerance = 1e-07)
 	expect_equal(x10$expectedNumberOfSubjects, c(104.34, 113.7, 101.87, 83.69), tolerance = 1e-07)
 	expect_equal(x10$sampleSizes[1, ], c(40, 40, 40, 40))
@@ -371,6 +480,17 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_output(print(x10)$show())
 	    invisible(capture.output(expect_error(summary(x10), NA)))
 	    expect_output(summary(x10)$show())
+	    x10CodeBased <- eval(parse(text = getObjectRCode(x10, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x10CodeBased$effect, x10$effect, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$iterations, x10$iterations, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$overallReject, x10$overallReject, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$rejectPerStage, x10$rejectPerStage, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$futilityStop, x10$futilityStop, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$futilityPerStage, x10$futilityPerStage, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$earlyStop, x10$earlyStop, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$expectedNumberOfSubjects, x10$expectedNumberOfSubjects, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$sampleSizes, x10$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x10CodeBased$conditionalPowerAchieved, x10$conditionalPowerAchieved, tolerance = 1e-05)
 	}
 
 })

@@ -103,7 +103,7 @@ setOutputFormat(file = "rpact_options.txt")
 }
 \seealso{
 \code{\link[base]{format}} for details on the 
-         internal used funtion to format the values.
+         function used internally to format the values.
 
 Other output formats: 
 \code{\link{getOutputFormat}()}

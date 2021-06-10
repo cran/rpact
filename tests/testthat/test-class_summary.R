@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-class_summary.R
-#:#  Creation date: 09 November 2020, 11:42:19
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:36:20
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -85,9 +85,9 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	invisible(capture.output(expect_error(summary(getDesignFisher()), NA)))
 	invisible(capture.output(expect_error(summary(getDesignFisher(alpha0Vec = c(0.1, 0.2))), NA)))
 	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 1)), NA)))
-	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 4, sided = 2), digits = 5), NA)))
-	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 4, sided = 2), digits = 0), NA)))
-	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 1, sided = 2)), NA)))
+	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 4), digits = 5), NA)))
+	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 4), digits = 0), NA)))
+	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 1)), NA)))
 
 	## test design plans - means
 
@@ -139,11 +139,11 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(lambda2 = 0.03, lambda1 = c(0.040))), NA)))
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(piecewiseSurvivalTime = list(
-							"0 - <6"   = 0.025, 
-							"6 - <9"   = 0.04, 
-							"9 - <15"  = 0.015, 
-							"15 - <21" = 0.01, 
-							">=21"     = 0.007), hazardRatio = 1.2)), NA))) 
+		"0 - <6"   = 0.025, 
+		"6 - <9"   = 0.04, 
+		"9 - <15"  = 0.015, 
+		"15 - <21" = 0.01, 
+		">=21"     = 0.007), hazardRatio = 1.2)), NA))) 
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)))), NA)))
 	invisible(capture.output(expect_error(summary(getPowerSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)), maxNumberOfSubjects = 100, maxNumberOfEvents = 60)), NA)))
 	invisible(capture.output(expect_error(summary(getSampleSizeSurvival(getDesignGroupSequential(kMax = 4, sided = 2))), NA)))
@@ -280,9 +280,9 @@ test_that("Testing 'summary.ParameterSet': output will be produced", {
 	expect_output(summary(getDesignFisher())$show())
 	expect_output(summary(getDesignFisher(alpha0Vec = c(0.1, 0.2)))$show())
 	expect_output(summary(getDesignFisher(kMax = 1))$show())
-	expect_output(summary(getDesignFisher(kMax = 4, sided = 2), digits = 5)$show())
-	expect_output(summary(getDesignFisher(kMax = 4, sided = 2), digits = 0)$show())
-	expect_output(summary(getDesignFisher(kMax = 1, sided = 2))$show())
+	expect_output(summary(getDesignFisher(kMax = 4), digits = 5)$show())
+	expect_output(summary(getDesignFisher(kMax = 4), digits = 0)$show())
+	expect_output(summary(getDesignFisher(kMax = 1))$show())
 
 	## test design plans - means
 
@@ -334,11 +334,11 @@ test_that("Testing 'summary.ParameterSet': output will be produced", {
 
 	expect_output(summary(getSampleSizeSurvival(lambda2 = 0.03, lambda1 = c(0.040)))$show())
 	expect_output(summary(getSampleSizeSurvival(piecewiseSurvivalTime = list(
-					"0 - <6"   = 0.025, 
-					"6 - <9"   = 0.04, 
-					"9 - <15"  = 0.015, 
-					"15 - <21" = 0.01, 
-					">=21"     = 0.007), hazardRatio = 1.2))$show()) 
+		"0 - <6"   = 0.025, 
+		"6 - <9"   = 0.04, 
+		"9 - <15"  = 0.015, 
+		"15 - <21" = 0.01, 
+		">=21"     = 0.007), hazardRatio = 1.2))$show()) 
 	expect_output(summary(getSampleSizeSurvival(getDesignGroupSequential(futilityBounds = c(1, 2))))$show())
 	expect_output(summary(getPowerSurvival(getDesignGroupSequential(futilityBounds = c(1, 2)), 
 		maxNumberOfSubjects = 100, maxNumberOfEvents = 60))$show())

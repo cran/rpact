@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3581 $
-#:#  Last changed: $Date: 2020-09-03 08:58:34 +0200 (Thu, 03 Sep 2020) $
+#:#  File version: $Revision: 4863 $
+#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -196,6 +196,7 @@ NumberOfSubjects <- setRefClass("NumberOfSubjects",
 #' @inheritParams param_palette
 #' @inheritParams param_plotPointsEnabled
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_three_dots_plot
 #' 
@@ -206,11 +207,12 @@ NumberOfSubjects <- setRefClass("NumberOfSubjects",
 #' 
 #' @export
 #' 
-plot.EventProbabilities = function(x, y, ..., 
+plot.EventProbabilities <- function(x, y, ..., 
 		allocationRatioPlanned = x$allocationRatioPlanned, 
 		main = NA_character_, xlab = NA_character_, ylab = NA_character_, type = 1L, 
 		legendTitle = NA_character_, palette = "Set1",
-		plotPointsEnabled = NA, legendPosition = NA_integer_, showSource = FALSE) {
+		plotPointsEnabled = NA, legendPosition = NA_integer_, showSource = FALSE,
+		plotSettings = NULL) {
 
 	fCall = match.call(expand.dots = FALSE)
 	xObjectName <- deparse(fCall$x)
@@ -326,6 +328,10 @@ plot.EventProbabilities = function(x, y, ...,
 		return(srcCmd)
 	}
 	
+	if (is.null(plotSettings)) {
+		plotSettings <- x$.plotSettings
+	}
+	
 	return(.plotDataFrame(data, mainTitle = main, 
 		xlab = xlab, ylab = ylab, xAxisLabel = "Time",
 		yAxisLabel1 = NA_character_, yAxisLabel2 = NA_character_, 
@@ -333,7 +339,7 @@ plot.EventProbabilities = function(x, y, ...,
 		legendTitle = legendTitle,
 		legendPosition = legendPosition, scalingFactor1 = 1, scalingFactor2 = 1,
 		addPowerAndAverageSampleNumber = FALSE, mirrorModeEnabled = FALSE, 
-		ratioEnabled = FALSE, plotSettings = x$.plotSettings, sided = 1, ...))
+		ratioEnabled = FALSE, plotSettings = plotSettings, sided = 1, ...))
 }
 
 #' 
@@ -358,6 +364,7 @@ plot.EventProbabilities = function(x, y, ...,
 #' @inheritParams param_palette
 #' @inheritParams param_plotPointsEnabled
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_three_dots_plot
 #' 
@@ -368,11 +375,12 @@ plot.EventProbabilities = function(x, y, ...,
 #' 
 #' @export
 #' 
-plot.NumberOfSubjects = function(x, y, ..., 
+plot.NumberOfSubjects <- function(x, y, ..., 
 		allocationRatioPlanned = NA_real_,
 		main = NA_character_, xlab = NA_character_, ylab = NA_character_, type = 1L, 
 		legendTitle = NA_character_, palette = "Set1",
-		plotPointsEnabled = NA, legendPosition = NA_integer_, showSource = FALSE) {
+		plotPointsEnabled = NA, legendPosition = NA_integer_, showSource = FALSE,
+		plotSettings = NULL) {
 		
 	fCall = match.call(expand.dots = FALSE)
 	objectName <- deparse(fCall$x)
@@ -385,7 +393,7 @@ plot.NumberOfSubjects = function(x, y, ...,
 			main = main, xlab = xlab, ylab = ylab, type = type, 
 			legendTitle = legendTitle, palette = palette,
 			plotPointsEnabled = plotPointsEnabled, legendPosition = legendPosition, 
-			showSource = showSource, ...))
+			showSource = showSource, plotSettings = plotSettings, ...))
 	}
 	
 	if (!is.na(allocationRatioPlanned)) {
@@ -423,6 +431,10 @@ plot.NumberOfSubjects = function(x, y, ...,
 		return(srcCmd)
 	}
 	
+	if (is.null(plotSettings)) {
+		plotSettings <- x$.plotSettings
+	}
+	
 	return(.plotDataFrame(data, mainTitle = main, 
 		xlab = xlab, ylab = ylab, xAxisLabel = "Time",
 		yAxisLabel1 = NA_character_, yAxisLabel2 = NA_character_, 
@@ -430,5 +442,5 @@ plot.NumberOfSubjects = function(x, y, ...,
 		legendTitle = legendTitle,
 		legendPosition = legendPosition, scalingFactor1 = 1, scalingFactor2 = 1,
 		addPowerAndAverageSampleNumber = FALSE, mirrorModeEnabled = FALSE, 
-		ratioEnabled = FALSE, plotSettings = x$.plotSettings, sided = 1, ...))
+		ratioEnabled = FALSE, plotSettings = plotSettings, sided = 1, ...))
 }

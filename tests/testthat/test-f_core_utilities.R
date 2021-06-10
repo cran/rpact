@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_core_utilities.R
-#:#  Creation date: 09 November 2020, 11:48:24
-#:#  File version: $Revision: 4041 $
-#:#  Last changed: $Date: 2020-11-27 13:15:57 +0100 (Fri, 27 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:47:16
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -355,56 +355,116 @@ test_that("'getValidatedInformationRates': 'futilityBounds' must be generated co
 	design94 <- getTestDesign(kMax = 10L, designClass = "TrialDesignGroupSequential")
 	expect_equal(.getValidatedFutilityBounds(design94), c(-6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design95 <- getTestDesign(kMax = 1L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design95), numeric(0), tolerance = 1e-08)
+	design95 <- getTestDesign(kMax = 11L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design95), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design96 <- getTestDesign(kMax = 2L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design96), -6, tolerance = 1e-08)
+	design96 <- getTestDesign(kMax = 12L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design96), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design97 <- getTestDesign(kMax = 3L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design97), c(-6, -6), tolerance = 1e-08)
+	design97 <- getTestDesign(kMax = 13L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design97), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design98 <- getTestDesign(kMax = 4L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design98), c(-6, -6, -6), tolerance = 1e-08)
+	design98 <- getTestDesign(kMax = 14L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design98), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design99 <- getTestDesign(kMax = 5L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design99), c(-6, -6, -6, -6), tolerance = 1e-08)
+	design99 <- getTestDesign(kMax = 15L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design99), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design100 <- getTestDesign(kMax = 6L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design100), c(-6, -6, -6, -6, -6), tolerance = 1e-08)
+	design100 <- getTestDesign(kMax = 16L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design100), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design101 <- getTestDesign(kMax = 7L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design101), c(-6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+	design101 <- getTestDesign(kMax = 17L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design101), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design102 <- getTestDesign(kMax = 8L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design102), c(-6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+	design102 <- getTestDesign(kMax = 18L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design102), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design103 <- getTestDesign(kMax = 9L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design103), c(-6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+	design103 <- getTestDesign(kMax = 19L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design103), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
-	design104 <- getTestDesign(kMax = 10L, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design104), c(-6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+	design104 <- getTestDesign(kMax = 20L, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design104), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design105 <- getTestDesign(kMax = 1L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design105), numeric(0), tolerance = 1e-08)
+
+	design106 <- getTestDesign(kMax = 2L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design106), -6, tolerance = 1e-08)
+
+	design107 <- getTestDesign(kMax = 3L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design107), c(-6, -6), tolerance = 1e-08)
+
+	design108 <- getTestDesign(kMax = 4L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design108), c(-6, -6, -6), tolerance = 1e-08)
+
+	design109 <- getTestDesign(kMax = 5L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design109), c(-6, -6, -6, -6), tolerance = 1e-08)
+
+	design110 <- getTestDesign(kMax = 6L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design110), c(-6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design111 <- getTestDesign(kMax = 7L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design111), c(-6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design112 <- getTestDesign(kMax = 8L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design112), c(-6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design113 <- getTestDesign(kMax = 9L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design113), c(-6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design114 <- getTestDesign(kMax = 10L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design114), c(-6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design115 <- getTestDesign(kMax = 11L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design115), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design116 <- getTestDesign(kMax = 12L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design116), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design117 <- getTestDesign(kMax = 13L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design117), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design118 <- getTestDesign(kMax = 14L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design118), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design119 <- getTestDesign(kMax = 15L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design119), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design120 <- getTestDesign(kMax = 16L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design120), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design121 <- getTestDesign(kMax = 17L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design121), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design122 <- getTestDesign(kMax = 18L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design122), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design123 <- getTestDesign(kMax = 19L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design123), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
+
+	design124 <- getTestDesign(kMax = 20L, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design124), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-08)
 
 
 
 
-	design105 <- getTestDesign(kMax = 1L, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design105), numeric(0), tolerance = 1e-08)
+	design125 <- getTestDesign(kMax = 1L, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design125), numeric(0), tolerance = 1e-08)
 
-	design106 <- getTestDesign(kMax = 2L, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design106), 1, tolerance = 1e-08)
+	design126 <- getTestDesign(kMax = 2L, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design126), 1, tolerance = 1e-08)
 
-	design107 <- getTestDesign(kMax = 3L, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design107), c(1, 1), tolerance = 1e-08)
+	design127 <- getTestDesign(kMax = 3L, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design127), c(1, 1), tolerance = 1e-08)
 
-	design108 <- getTestDesign(kMax = 4L, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design108), c(1, 1, 1), tolerance = 1e-08)
+	design128 <- getTestDesign(kMax = 4L, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design128), c(1, 1, 1), tolerance = 1e-08)
 
-	design109 <- getTestDesign(kMax = 5L, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design109), c(1, 1, 1, 1), tolerance = 1e-08)
+	design129 <- getTestDesign(kMax = 5L, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design129), c(1, 1, 1, 1), tolerance = 1e-08)
 
-	design110 <- getTestDesign(kMax = 6L, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design110), c(1, 1, 1, 1, 1), tolerance = 1e-08)
+	design130 <- getTestDesign(kMax = 6L, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design130), c(1, 1, 1, 1, 1), tolerance = 1e-08)
 
 
 
@@ -414,151 +474,271 @@ test_that("'getValidatedInformationRates': 'futilityBounds' must be set correctl
 
 	.skipTestIfDisabled()
 
-	design111 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design111), 2, tolerance = 1e-07)
+	design131 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design131), 2, tolerance = 1e-07)
 
-	design112 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design112), c(1, 2), tolerance = 1e-07)
+	design132 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design132), c(1, 2), tolerance = 1e-07)
 
-	design113 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design113), c(0, 1, 2), tolerance = 1e-07)
+	design133 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design133), c(0, 1, 2), tolerance = 1e-07)
 
-	design114 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design114), c(0, 0, 1, 2), tolerance = 1e-07)
+	design134 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design134), c(0, 0, 1, 2), tolerance = 1e-07)
 
-	design115 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design115), c(0, 0, 0, 1, 2), tolerance = 1e-07)
+	design135 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design135), c(0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design116 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design116), c(0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design136 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design136), c(0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design117 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design117), c(0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design137 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design137), c(0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design118 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design118), c(0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design138 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design138), c(0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design119 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design119), c(0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design139 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design139), c(0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design120 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design120), 2, tolerance = 1e-07)
+	design140 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design140), c(0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design121 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design121), c(1, 2), tolerance = 1e-07)
+	design141 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design141), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design122 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design122), c(0, 1, 2), tolerance = 1e-07)
+	design142 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design142), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design123 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design123), c(0, 0, 1, 2), tolerance = 1e-07)
+	design143 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design143), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design124 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design124), c(0, 0, 0, 1, 2), tolerance = 1e-07)
+	design144 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design144), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design125 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design125), c(0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design145 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design145), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design126 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design126), c(0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design146 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design146), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design127 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design127), c(0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design147 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design147), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design128 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design128), c(0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
+	design148 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design148), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
+	design149 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design149), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
+	design150 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design150), 2, tolerance = 1e-07)
 
+	design151 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design151), c(1, 2), tolerance = 1e-07)
 
-	design129 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design129), 0.5, tolerance = 1e-07)
+	design152 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design152), c(0, 1, 2), tolerance = 1e-07)
 
-	design130 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design130), c(0.5, 1), tolerance = 1e-07)
+	design153 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design153), c(0, 0, 1, 2), tolerance = 1e-07)
 
-	design131 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design131), c(0.01, 0.5, 1), tolerance = 1e-07)
+	design154 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design154), c(0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design132 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design132), c(0.01, 0.01, 0.5, 1), tolerance = 1e-07)
+	design155 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design155), c(0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design133 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design133), c(0.01, 0.01, 0.01, 0.5, 1), tolerance = 1e-07)
+	design156 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design156), c(0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
+	design157 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design157), c(0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
+	design158 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design158), c(0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design134 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design134), -6, tolerance = 1e-07)
+	design159 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design159), c(0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design135 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design135), c(-6, -6), tolerance = 1e-07)
+	design160 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design160), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design136 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design136), c(-6, -6, -6), tolerance = 1e-07)
+	design161 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design161), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design137 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design137), c(-6, -6, -6, -6), tolerance = 1e-07)
+	design162 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design162), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design138 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design138), c(-6, -6, -6, -6, -6), tolerance = 1e-07)
+	design163 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design163), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design139 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design139), c(-6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+	design164 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design164), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design140 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design140), c(-6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+	design165 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design165), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design141 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design141), c(-6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+	design166 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design166), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design142 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignGroupSequential")
-	expect_equal(.getValidatedFutilityBounds(design142), c(-6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+	design167 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design167), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
-	design143 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design143), -6, tolerance = 1e-07)
-
-	design144 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design144), c(-6, -6), tolerance = 1e-07)
-
-	design145 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design145), c(-6, -6, -6), tolerance = 1e-07)
-
-	design146 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design146), c(-6, -6, -6, -6), tolerance = 1e-07)
-
-	design147 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design147), c(-6, -6, -6, -6, -6), tolerance = 1e-07)
-
-	design148 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design148), c(-6, -6, -6, -6, -6, -6), tolerance = 1e-07)
-
-	design149 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design149), c(-6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
-
-	design150 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design150), c(-6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
-
-	design151 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignInverseNormal")
-	expect_equal(.getValidatedFutilityBounds(design151), c(-6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+	design168 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design168), c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), tolerance = 1e-07)
 
 
 
 
-	design152 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design152), 1, tolerance = 1e-07)
+	design169 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design169), 0.5, tolerance = 1e-07)
 
-	design153 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design153), c(1, 1), tolerance = 1e-07)
+	design170 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design170), c(0.5, 1), tolerance = 1e-07)
 
-	design154 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design154), c(1, 1, 1), tolerance = 1e-07)
+	design171 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design171), c(0.01, 0.5, 1), tolerance = 1e-07)
 
-	design155 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design155), c(1, 1, 1, 1), tolerance = 1e-07)
+	design172 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design172), c(0.01, 0.01, 0.5, 1), tolerance = 1e-07)
 
-	design156 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignFisher")
-	expect_equal(.getValidatedAlpha0Vec(design156), c(1, 1, 1, 1, 1), tolerance = 1e-07)
+	design173 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design173), c(0.01, 0.01, 0.01, 0.5, 1), tolerance = 1e-07)
+
+
+
+	design174 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design174), -6, tolerance = 1e-07)
+
+	design175 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design175), c(-6, -6), tolerance = 1e-07)
+
+	design176 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design176), c(-6, -6, -6), tolerance = 1e-07)
+
+	design177 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design177), c(-6, -6, -6, -6), tolerance = 1e-07)
+
+	design178 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design178), c(-6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design179 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design179), c(-6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design180 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design180), c(-6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design181 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design181), c(-6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design182 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design182), c(-6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design183 <- getTestDesign(informationRates = c(0.072727273, 0.14545455, 0.21818182, 0.29090909, 0.36363636, 0.43636364, 0.50909091, 0.58181818, 0.65454545, 0.72727273, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design183), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design184 <- getTestDesign(informationRates = c(0.066666667, 0.13333333, 0.2, 0.26666667, 0.33333333, 0.4, 0.46666667, 0.53333333, 0.6, 0.66666667, 0.73333333, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design184), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design185 <- getTestDesign(informationRates = c(0.061538462, 0.12307692, 0.18461538, 0.24615385, 0.30769231, 0.36923077, 0.43076923, 0.49230769, 0.55384615, 0.61538462, 0.67692308, 0.73846154, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design185), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design186 <- getTestDesign(informationRates = c(0.057142857, 0.11428571, 0.17142857, 0.22857143, 0.28571429, 0.34285714, 0.4, 0.45714286, 0.51428571, 0.57142857, 0.62857143, 0.68571429, 0.74285714, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design186), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design187 <- getTestDesign(informationRates = c(0.053333333, 0.10666667, 0.16, 0.21333333, 0.26666667, 0.32, 0.37333333, 0.42666667, 0.48, 0.53333333, 0.58666667, 0.64, 0.69333333, 0.74666667, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design187), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design188 <- getTestDesign(informationRates = c(0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design188), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design189 <- getTestDesign(informationRates = c(0.047058824, 0.094117647, 0.14117647, 0.18823529, 0.23529412, 0.28235294, 0.32941176, 0.37647059, 0.42352941, 0.47058824, 0.51764706, 0.56470588, 0.61176471, 0.65882353, 0.70588235, 0.75294118, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design189), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design190 <- getTestDesign(informationRates = c(0.044444444, 0.088888889, 0.13333333, 0.17777778, 0.22222222, 0.26666667, 0.31111111, 0.35555556, 0.4, 0.44444444, 0.48888889, 0.53333333, 0.57777778, 0.62222222, 0.66666667, 0.71111111, 0.75555556, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design190), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design191 <- getTestDesign(informationRates = c(0.042105263, 0.084210526, 0.12631579, 0.16842105, 0.21052632, 0.25263158, 0.29473684, 0.33684211, 0.37894737, 0.42105263, 0.46315789, 0.50526316, 0.54736842, 0.58947368, 0.63157895, 0.67368421, 0.71578947, 0.75789474, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design191), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design192 <- getTestDesign(informationRates = c(0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.76, 1), designClass = "TrialDesignGroupSequential")
+	expect_equal(.getValidatedFutilityBounds(design192), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design193 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design193), -6, tolerance = 1e-07)
+
+	design194 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design194), c(-6, -6), tolerance = 1e-07)
+
+	design195 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design195), c(-6, -6, -6), tolerance = 1e-07)
+
+	design196 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design196), c(-6, -6, -6, -6), tolerance = 1e-07)
+
+	design197 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design197), c(-6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design198 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design198), c(-6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design199 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design199), c(-6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design200 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design200), c(-6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design201 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design201), c(-6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design202 <- getTestDesign(informationRates = c(0.072727273, 0.14545455, 0.21818182, 0.29090909, 0.36363636, 0.43636364, 0.50909091, 0.58181818, 0.65454545, 0.72727273, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design202), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design203 <- getTestDesign(informationRates = c(0.066666667, 0.13333333, 0.2, 0.26666667, 0.33333333, 0.4, 0.46666667, 0.53333333, 0.6, 0.66666667, 0.73333333, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design203), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design204 <- getTestDesign(informationRates = c(0.061538462, 0.12307692, 0.18461538, 0.24615385, 0.30769231, 0.36923077, 0.43076923, 0.49230769, 0.55384615, 0.61538462, 0.67692308, 0.73846154, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design204), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design205 <- getTestDesign(informationRates = c(0.057142857, 0.11428571, 0.17142857, 0.22857143, 0.28571429, 0.34285714, 0.4, 0.45714286, 0.51428571, 0.57142857, 0.62857143, 0.68571429, 0.74285714, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design205), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design206 <- getTestDesign(informationRates = c(0.053333333, 0.10666667, 0.16, 0.21333333, 0.26666667, 0.32, 0.37333333, 0.42666667, 0.48, 0.53333333, 0.58666667, 0.64, 0.69333333, 0.74666667, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design206), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design207 <- getTestDesign(informationRates = c(0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design207), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design208 <- getTestDesign(informationRates = c(0.047058824, 0.094117647, 0.14117647, 0.18823529, 0.23529412, 0.28235294, 0.32941176, 0.37647059, 0.42352941, 0.47058824, 0.51764706, 0.56470588, 0.61176471, 0.65882353, 0.70588235, 0.75294118, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design208), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design209 <- getTestDesign(informationRates = c(0.044444444, 0.088888889, 0.13333333, 0.17777778, 0.22222222, 0.26666667, 0.31111111, 0.35555556, 0.4, 0.44444444, 0.48888889, 0.53333333, 0.57777778, 0.62222222, 0.66666667, 0.71111111, 0.75555556, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design209), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design210 <- getTestDesign(informationRates = c(0.042105263, 0.084210526, 0.12631579, 0.16842105, 0.21052632, 0.25263158, 0.29473684, 0.33684211, 0.37894737, 0.42105263, 0.46315789, 0.50526316, 0.54736842, 0.58947368, 0.63157895, 0.67368421, 0.71578947, 0.75789474, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design210), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+	design211 <- getTestDesign(informationRates = c(0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.76, 1), designClass = "TrialDesignInverseNormal")
+	expect_equal(.getValidatedFutilityBounds(design211), c(-6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6, -6), tolerance = 1e-07)
+
+
+
+
+	design212 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design212), 1, tolerance = 1e-07)
+
+	design213 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design213), c(1, 1), tolerance = 1e-07)
+
+	design214 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design214), c(1, 1, 1), tolerance = 1e-07)
+
+	design215 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design215), c(1, 1, 1, 1), tolerance = 1e-07)
+
+	design216 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignFisher")
+	expect_equal(.getValidatedAlpha0Vec(design216), c(1, 1, 1, 1, 1), tolerance = 1e-07)
 
 
 
@@ -568,197 +748,357 @@ test_that("'getValidatedInformationRates': 'kMax' must be set correctly based on
 
 	.skipTestIfDisabled()
 
-	design157 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design157)
-	expect_equal(design157$kMax, 2, tolerance = 1e-07)
+	design217 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design217)
+	expect_equal(design217$kMax, 2, tolerance = 1e-07)
 
-	design158 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design158)
-	expect_equal(design158$kMax, 3, tolerance = 1e-07)
+	design218 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design218)
+	expect_equal(design218$kMax, 3, tolerance = 1e-07)
 
-	design159 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design159)
-	expect_equal(design159$kMax, 4, tolerance = 1e-07)
+	design219 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design219)
+	expect_equal(design219$kMax, 4, tolerance = 1e-07)
 
-	design160 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design160)
-	expect_equal(design160$kMax, 5, tolerance = 1e-07)
+	design220 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design220)
+	expect_equal(design220$kMax, 5, tolerance = 1e-07)
 
-	design161 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design161)
-	expect_equal(design161$kMax, 6, tolerance = 1e-07)
+	design221 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design221)
+	expect_equal(design221$kMax, 6, tolerance = 1e-07)
 
-	design162 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design162)
-	expect_equal(design162$kMax, 7, tolerance = 1e-07)
+	design222 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design222)
+	expect_equal(design222$kMax, 7, tolerance = 1e-07)
 
-	design163 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design163)
-	expect_equal(design163$kMax, 8, tolerance = 1e-07)
+	design223 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design223)
+	expect_equal(design223$kMax, 8, tolerance = 1e-07)
 
-	design164 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design164)
-	expect_equal(design164$kMax, 9, tolerance = 1e-07)
+	design224 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design224)
+	expect_equal(design224$kMax, 9, tolerance = 1e-07)
 
-	design165 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design165)
-	expect_equal(design165$kMax, 10, tolerance = 1e-07)
+	design225 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design225)
+	expect_equal(design225$kMax, 10, tolerance = 1e-07)
 
-	design166 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design166)
-	expect_equal(design166$kMax, 2, tolerance = 1e-07)
+	design226 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design226)
+	expect_equal(design226$kMax, 11, tolerance = 1e-07)
 
-	design167 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design167)
-	expect_equal(design167$kMax, 3, tolerance = 1e-07)
+	design227 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design227)
+	expect_equal(design227$kMax, 12, tolerance = 1e-07)
 
-	design168 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design168)
-	expect_equal(design168$kMax, 4, tolerance = 1e-07)
+	design228 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design228)
+	expect_equal(design228$kMax, 13, tolerance = 1e-07)
 
-	design169 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design169)
-	expect_equal(design169$kMax, 5, tolerance = 1e-07)
+	design229 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design229)
+	expect_equal(design229$kMax, 14, tolerance = 1e-07)
 
-	design170 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design170)
-	expect_equal(design170$kMax, 6, tolerance = 1e-07)
+	design230 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design230)
+	expect_equal(design230$kMax, 15, tolerance = 1e-07)
 
-	design171 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design171)
-	expect_equal(design171$kMax, 7, tolerance = 1e-07)
+	design231 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design231)
+	expect_equal(design231$kMax, 16, tolerance = 1e-07)
 
-	design172 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design172)
-	expect_equal(design172$kMax, 8, tolerance = 1e-07)
+	design232 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design232)
+	expect_equal(design232$kMax, 17, tolerance = 1e-07)
 
-	design173 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design173)
-	expect_equal(design173$kMax, 9, tolerance = 1e-07)
+	design233 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design233)
+	expect_equal(design233$kMax, 18, tolerance = 1e-07)
 
-	design174 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design174)
-	expect_equal(design174$kMax, 10, tolerance = 1e-07)
+	design234 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design234)
+	expect_equal(design234$kMax, 19, tolerance = 1e-07)
 
+	design235 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design235)
+	expect_equal(design235$kMax, 20, tolerance = 1e-07)
 
+	design236 <- getTestDesign(futilityBounds = 2, designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design236)
+	expect_equal(design236$kMax, 2, tolerance = 1e-07)
 
+	design237 <- getTestDesign(futilityBounds = c(1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design237)
+	expect_equal(design237$kMax, 3, tolerance = 1e-07)
 
-	design175 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design175)
-	expect_equal(design175$kMax, 2, tolerance = 1e-07)
+	design238 <- getTestDesign(futilityBounds = c(0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design238)
+	expect_equal(design238$kMax, 4, tolerance = 1e-07)
 
-	design176 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design176)
-	expect_equal(design176$kMax, 3, tolerance = 1e-07)
+	design239 <- getTestDesign(futilityBounds = c(0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design239)
+	expect_equal(design239$kMax, 5, tolerance = 1e-07)
 
-	design177 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design177)
-	expect_equal(design177$kMax, 4, tolerance = 1e-07)
+	design240 <- getTestDesign(futilityBounds = c(0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design240)
+	expect_equal(design240$kMax, 6, tolerance = 1e-07)
 
-	design178 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design178)
-	expect_equal(design178$kMax, 5, tolerance = 1e-07)
+	design241 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design241)
+	expect_equal(design241$kMax, 7, tolerance = 1e-07)
 
-	design179 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design179)
-	expect_equal(design179$kMax, 6, tolerance = 1e-07)
+	design242 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design242)
+	expect_equal(design242$kMax, 8, tolerance = 1e-07)
 
+	design243 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design243)
+	expect_equal(design243$kMax, 9, tolerance = 1e-07)
 
+	design244 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design244)
+	expect_equal(design244$kMax, 10, tolerance = 1e-07)
 
-	design180 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design180)
-	expect_equal(design180$kMax, 2, tolerance = 1e-07)
+	design245 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design245)
+	expect_equal(design245$kMax, 11, tolerance = 1e-07)
 
-	design181 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design181)
-	expect_equal(design181$kMax, 3, tolerance = 1e-07)
+	design246 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design246)
+	expect_equal(design246$kMax, 12, tolerance = 1e-07)
 
-	design182 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design182)
-	expect_equal(design182$kMax, 4, tolerance = 1e-07)
+	design247 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design247)
+	expect_equal(design247$kMax, 13, tolerance = 1e-07)
 
-	design183 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design183)
-	expect_equal(design183$kMax, 5, tolerance = 1e-07)
+	design248 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design248)
+	expect_equal(design248$kMax, 14, tolerance = 1e-07)
 
-	design184 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design184)
-	expect_equal(design184$kMax, 6, tolerance = 1e-07)
+	design249 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design249)
+	expect_equal(design249$kMax, 15, tolerance = 1e-07)
 
-	design185 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design185)
-	expect_equal(design185$kMax, 7, tolerance = 1e-07)
+	design250 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design250)
+	expect_equal(design250$kMax, 16, tolerance = 1e-07)
 
-	design186 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design186)
-	expect_equal(design186$kMax, 8, tolerance = 1e-07)
+	design251 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design251)
+	expect_equal(design251$kMax, 17, tolerance = 1e-07)
 
-	design187 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design187)
-	expect_equal(design187$kMax, 9, tolerance = 1e-07)
+	design252 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design252)
+	expect_equal(design252$kMax, 18, tolerance = 1e-07)
 
-	design188 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignGroupSequential")
-	.getValidatedFutilityBounds(design188)
-	expect_equal(design188$kMax, 10, tolerance = 1e-07)
+	design253 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design253)
+	expect_equal(design253$kMax, 19, tolerance = 1e-07)
 
-	design189 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design189)
-	expect_equal(design189$kMax, 2, tolerance = 1e-07)
-
-	design190 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design190)
-	expect_equal(design190$kMax, 3, tolerance = 1e-07)
-
-	design191 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design191)
-	expect_equal(design191$kMax, 4, tolerance = 1e-07)
-
-	design192 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design192)
-	expect_equal(design192$kMax, 5, tolerance = 1e-07)
-
-	design193 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design193)
-	expect_equal(design193$kMax, 6, tolerance = 1e-07)
-
-	design194 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design194)
-	expect_equal(design194$kMax, 7, tolerance = 1e-07)
-
-	design195 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design195)
-	expect_equal(design195$kMax, 8, tolerance = 1e-07)
-
-	design196 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design196)
-	expect_equal(design196$kMax, 9, tolerance = 1e-07)
-
-	design197 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignInverseNormal")
-	.getValidatedFutilityBounds(design197)
-	expect_equal(design197$kMax, 10, tolerance = 1e-07)
+	design254 <- getTestDesign(futilityBounds = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design254)
+	expect_equal(design254$kMax, 20, tolerance = 1e-07)
 
 
 
 
-	design198 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design198)
-	expect_equal(design198$kMax, 2, tolerance = 1e-07)
+	design255 <- getTestDesign(futilityBounds = 0.5, designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design255)
+	expect_equal(design255$kMax, 2, tolerance = 1e-07)
 
-	design199 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design199)
-	expect_equal(design199$kMax, 3, tolerance = 1e-07)
+	design256 <- getTestDesign(futilityBounds = c(0.5, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design256)
+	expect_equal(design256$kMax, 3, tolerance = 1e-07)
 
-	design200 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design200)
-	expect_equal(design200$kMax, 4, tolerance = 1e-07)
+	design257 <- getTestDesign(futilityBounds = c(0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design257)
+	expect_equal(design257$kMax, 4, tolerance = 1e-07)
 
-	design201 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design201)
-	expect_equal(design201$kMax, 5, tolerance = 1e-07)
+	design258 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design258)
+	expect_equal(design258$kMax, 5, tolerance = 1e-07)
 
-	design202 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignFisher")
-	.getValidatedAlpha0Vec(design202)
-	expect_equal(design202$kMax, 6, tolerance = 1e-07)
+	design259 <- getTestDesign(futilityBounds = c(0.01, 0.01, 0.01, 0.5, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design259)
+	expect_equal(design259$kMax, 6, tolerance = 1e-07)
+
+
+
+	design260 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design260)
+	expect_equal(design260$kMax, 2, tolerance = 1e-07)
+
+	design261 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design261)
+	expect_equal(design261$kMax, 3, tolerance = 1e-07)
+
+	design262 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design262)
+	expect_equal(design262$kMax, 4, tolerance = 1e-07)
+
+	design263 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design263)
+	expect_equal(design263$kMax, 5, tolerance = 1e-07)
+
+	design264 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design264)
+	expect_equal(design264$kMax, 6, tolerance = 1e-07)
+
+	design265 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design265)
+	expect_equal(design265$kMax, 7, tolerance = 1e-07)
+
+	design266 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design266)
+	expect_equal(design266$kMax, 8, tolerance = 1e-07)
+
+	design267 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design267)
+	expect_equal(design267$kMax, 9, tolerance = 1e-07)
+
+	design268 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design268)
+	expect_equal(design268$kMax, 10, tolerance = 1e-07)
+
+	design269 <- getTestDesign(informationRates = c(0.072727273, 0.14545455, 0.21818182, 0.29090909, 0.36363636, 0.43636364, 0.50909091, 0.58181818, 0.65454545, 0.72727273, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design269)
+	expect_equal(design269$kMax, 11, tolerance = 1e-07)
+
+	design270 <- getTestDesign(informationRates = c(0.066666667, 0.13333333, 0.2, 0.26666667, 0.33333333, 0.4, 0.46666667, 0.53333333, 0.6, 0.66666667, 0.73333333, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design270)
+	expect_equal(design270$kMax, 12, tolerance = 1e-07)
+
+	design271 <- getTestDesign(informationRates = c(0.061538462, 0.12307692, 0.18461538, 0.24615385, 0.30769231, 0.36923077, 0.43076923, 0.49230769, 0.55384615, 0.61538462, 0.67692308, 0.73846154, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design271)
+	expect_equal(design271$kMax, 13, tolerance = 1e-07)
+
+	design272 <- getTestDesign(informationRates = c(0.057142857, 0.11428571, 0.17142857, 0.22857143, 0.28571429, 0.34285714, 0.4, 0.45714286, 0.51428571, 0.57142857, 0.62857143, 0.68571429, 0.74285714, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design272)
+	expect_equal(design272$kMax, 14, tolerance = 1e-07)
+
+	design273 <- getTestDesign(informationRates = c(0.053333333, 0.10666667, 0.16, 0.21333333, 0.26666667, 0.32, 0.37333333, 0.42666667, 0.48, 0.53333333, 0.58666667, 0.64, 0.69333333, 0.74666667, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design273)
+	expect_equal(design273$kMax, 15, tolerance = 1e-07)
+
+	design274 <- getTestDesign(informationRates = c(0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design274)
+	expect_equal(design274$kMax, 16, tolerance = 1e-07)
+
+	design275 <- getTestDesign(informationRates = c(0.047058824, 0.094117647, 0.14117647, 0.18823529, 0.23529412, 0.28235294, 0.32941176, 0.37647059, 0.42352941, 0.47058824, 0.51764706, 0.56470588, 0.61176471, 0.65882353, 0.70588235, 0.75294118, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design275)
+	expect_equal(design275$kMax, 17, tolerance = 1e-07)
+
+	design276 <- getTestDesign(informationRates = c(0.044444444, 0.088888889, 0.13333333, 0.17777778, 0.22222222, 0.26666667, 0.31111111, 0.35555556, 0.4, 0.44444444, 0.48888889, 0.53333333, 0.57777778, 0.62222222, 0.66666667, 0.71111111, 0.75555556, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design276)
+	expect_equal(design276$kMax, 18, tolerance = 1e-07)
+
+	design277 <- getTestDesign(informationRates = c(0.042105263, 0.084210526, 0.12631579, 0.16842105, 0.21052632, 0.25263158, 0.29473684, 0.33684211, 0.37894737, 0.42105263, 0.46315789, 0.50526316, 0.54736842, 0.58947368, 0.63157895, 0.67368421, 0.71578947, 0.75789474, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design277)
+	expect_equal(design277$kMax, 19, tolerance = 1e-07)
+
+	design278 <- getTestDesign(informationRates = c(0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.76, 1), designClass = "TrialDesignGroupSequential")
+	.getValidatedFutilityBounds(design278)
+	expect_equal(design278$kMax, 20, tolerance = 1e-07)
+
+	design279 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design279)
+	expect_equal(design279$kMax, 2, tolerance = 1e-07)
+
+	design280 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design280)
+	expect_equal(design280$kMax, 3, tolerance = 1e-07)
+
+	design281 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design281)
+	expect_equal(design281$kMax, 4, tolerance = 1e-07)
+
+	design282 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design282)
+	expect_equal(design282$kMax, 5, tolerance = 1e-07)
+
+	design283 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design283)
+	expect_equal(design283$kMax, 6, tolerance = 1e-07)
+
+	design284 <- getTestDesign(informationRates = c(0.11428571, 0.22857143, 0.34285714, 0.45714286, 0.57142857, 0.68571429, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design284)
+	expect_equal(design284$kMax, 7, tolerance = 1e-07)
+
+	design285 <- getTestDesign(informationRates = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design285)
+	expect_equal(design285$kMax, 8, tolerance = 1e-07)
+
+	design286 <- getTestDesign(informationRates = c(0.088888889, 0.17777778, 0.26666667, 0.35555556, 0.44444444, 0.53333333, 0.62222222, 0.71111111, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design286)
+	expect_equal(design286$kMax, 9, tolerance = 1e-07)
+
+	design287 <- getTestDesign(informationRates = c(0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design287)
+	expect_equal(design287$kMax, 10, tolerance = 1e-07)
+
+	design288 <- getTestDesign(informationRates = c(0.072727273, 0.14545455, 0.21818182, 0.29090909, 0.36363636, 0.43636364, 0.50909091, 0.58181818, 0.65454545, 0.72727273, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design288)
+	expect_equal(design288$kMax, 11, tolerance = 1e-07)
+
+	design289 <- getTestDesign(informationRates = c(0.066666667, 0.13333333, 0.2, 0.26666667, 0.33333333, 0.4, 0.46666667, 0.53333333, 0.6, 0.66666667, 0.73333333, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design289)
+	expect_equal(design289$kMax, 12, tolerance = 1e-07)
+
+	design290 <- getTestDesign(informationRates = c(0.061538462, 0.12307692, 0.18461538, 0.24615385, 0.30769231, 0.36923077, 0.43076923, 0.49230769, 0.55384615, 0.61538462, 0.67692308, 0.73846154, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design290)
+	expect_equal(design290$kMax, 13, tolerance = 1e-07)
+
+	design291 <- getTestDesign(informationRates = c(0.057142857, 0.11428571, 0.17142857, 0.22857143, 0.28571429, 0.34285714, 0.4, 0.45714286, 0.51428571, 0.57142857, 0.62857143, 0.68571429, 0.74285714, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design291)
+	expect_equal(design291$kMax, 14, tolerance = 1e-07)
+
+	design292 <- getTestDesign(informationRates = c(0.053333333, 0.10666667, 0.16, 0.21333333, 0.26666667, 0.32, 0.37333333, 0.42666667, 0.48, 0.53333333, 0.58666667, 0.64, 0.69333333, 0.74666667, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design292)
+	expect_equal(design292$kMax, 15, tolerance = 1e-07)
+
+	design293 <- getTestDesign(informationRates = c(0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design293)
+	expect_equal(design293$kMax, 16, tolerance = 1e-07)
+
+	design294 <- getTestDesign(informationRates = c(0.047058824, 0.094117647, 0.14117647, 0.18823529, 0.23529412, 0.28235294, 0.32941176, 0.37647059, 0.42352941, 0.47058824, 0.51764706, 0.56470588, 0.61176471, 0.65882353, 0.70588235, 0.75294118, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design294)
+	expect_equal(design294$kMax, 17, tolerance = 1e-07)
+
+	design295 <- getTestDesign(informationRates = c(0.044444444, 0.088888889, 0.13333333, 0.17777778, 0.22222222, 0.26666667, 0.31111111, 0.35555556, 0.4, 0.44444444, 0.48888889, 0.53333333, 0.57777778, 0.62222222, 0.66666667, 0.71111111, 0.75555556, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design295)
+	expect_equal(design295$kMax, 18, tolerance = 1e-07)
+
+	design296 <- getTestDesign(informationRates = c(0.042105263, 0.084210526, 0.12631579, 0.16842105, 0.21052632, 0.25263158, 0.29473684, 0.33684211, 0.37894737, 0.42105263, 0.46315789, 0.50526316, 0.54736842, 0.58947368, 0.63157895, 0.67368421, 0.71578947, 0.75789474, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design296)
+	expect_equal(design296$kMax, 19, tolerance = 1e-07)
+
+	design297 <- getTestDesign(informationRates = c(0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.76, 1), designClass = "TrialDesignInverseNormal")
+	.getValidatedFutilityBounds(design297)
+	expect_equal(design297$kMax, 20, tolerance = 1e-07)
+
+
+
+
+	design298 <- getTestDesign(informationRates = c(0.4, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design298)
+	expect_equal(design298$kMax, 2, tolerance = 1e-07)
+
+	design299 <- getTestDesign(informationRates = c(0.26666667, 0.53333333, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design299)
+	expect_equal(design299$kMax, 3, tolerance = 1e-07)
+
+	design300 <- getTestDesign(informationRates = c(0.2, 0.4, 0.6, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design300)
+	expect_equal(design300$kMax, 4, tolerance = 1e-07)
+
+	design301 <- getTestDesign(informationRates = c(0.16, 0.32, 0.48, 0.64, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design301)
+	expect_equal(design301$kMax, 5, tolerance = 1e-07)
+
+	design302 <- getTestDesign(informationRates = c(0.13333333, 0.26666667, 0.4, 0.53333333, 0.66666667, 1), designClass = "TrialDesignFisher")
+	.getValidatedAlpha0Vec(design302)
+	expect_equal(design302$kMax, 6, tolerance = 1e-07)
 
 
 
@@ -785,7 +1125,7 @@ test_that("Testing '.equalsRegexpIgnoreCase'	", {
 	expect_equal(.equalsRegexpIgnoreCase(" stages", "^stages?$"), FALSE)
 
 	expect_equal(.equalsRegexpIgnoreCase("stages2", "stages?"), TRUE)
-	expect_equal(.equalsRegexpIgnoreCase("1stage2", "stages?"), TRUE)		
+	expect_equal(.equalsRegexpIgnoreCase("1stage2", "stages?"), TRUE)	
 
 })
 
@@ -814,10 +1154,15 @@ test_that("Testing 'isUndefinedArgument' and 'isValidArgument'", {
 	expect_equal(.isDefinedArgument(c(1, NA, NA)), TRUE)
 	expect_equal(.isDefinedArgument(c(NA, NA, 1)), TRUE)
 	expect_equal(.isDefinedArgument(1), TRUE)
-	
+
 	expect_error(.isDefinedArgument(notExistingTestVariable, argumentExistsValidationEnabled = FALSE))
 	expect_error(.isDefinedArgument(notExistingTestVariable))
-	
+
+	#skip_if_translated()
+	#expect_error(.isDefinedArgument(notExistingTestVariable),
+	#	paste0("Missing argument: the object 'notExistingTestVariable' has not been defined anywhere. ",
+	#	"Please define it first, e.g., run 'notExistingTestVariable <- 1'"), fixed = TRUE)
+
 })
 
 test_that("Result of 'setSeed(seed)' is working for different arguments, incl. NULL and NA", {
@@ -904,8 +1249,8 @@ test_that("Testing '.getOneDimensionalRoot'", {
 
 	tolerance <- 1e-08	
 
-	expect_warning(expect_equal(.getOneDimensionalRoot(f = function(x) {x - 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_))
-	expect_warning(expect_equal(.getOneDimensionalRoot(f = function(x) {x + 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_))
+	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
 
 	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 1 - tolerance}, lower = -1, upper = 1, tolerance = tolerance), 1)
 	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 1 + tolerance}, lower = -1, upper = 1, tolerance = tolerance), -1)
@@ -946,7 +1291,7 @@ test_that("Testing '.getOneDimensionalRoot'", {
 		overallEvents2 = c(10,25,36),
 		overallEvents1 = c(14,35,53))
 	result2 <- getRepeatedConfidenceIntervals(design = design2, dataInput = dataExample2, 
-		stage = 3, normalApproximation = T, directionUpper = TRUE)
+		stage = 3, normalApproximation = TRUE, directionUpper = TRUE)
 
 	## Comparison of the results of matrixarray object 'result2' with expected results
 	expect_equal(result2[1, ], c(-0.17491836, -0.048575353, 0.018957992), tolerance = 1e-07)

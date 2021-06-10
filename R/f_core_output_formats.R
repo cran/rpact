@@ -771,7 +771,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 #' }
 #' 
 #' @seealso \code{\link[base]{format}} for details on the 
-#'          internal used funtion to format the values. 
+#'          function used internally to format the values. 
 #' 
 #' @template examples_set_output_format
 #' 

@@ -4,7 +4,7 @@
 \alias{param_stDev}
 \title{Parameter Description: Standard Deviation}
 \arguments{
-\item{stDev}{The standard deviation under which the conditional power 
+\item{stDev}{The standard deviation under which the sample size or power 
 calculation is performed, default is \code{1}. 
 If \code{meanRatio = TRUE} is specified, \code{stDev} defines 
 the coefficient of variation \code{sigma / mu2}.}

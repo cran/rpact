@@ -92,7 +92,7 @@ of the shape of the Weibull distribution.
 Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 Note that the Weibull distribution cannot be used for the piecewise definition of 
 the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
-   can be specified.
+can be specified.
 This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
 of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
 For example, 
@@ -132,8 +132,8 @@ treatment group, default is \code{12}.}
 If accrual time and accrual intensity is specified, this will be calculated.}
 
 \item{plannedEvents}{\code{plannedEvents} is a vector of length \code{kMax} (the number of stages of the design) 
-   that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
-   For two treatment arms, it is the number of events for both treatment arms. 
+that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
+For two treatment arms, it is the number of events for both treatment arms. 
 For multi-arm designs, \code{plannedEvents} refers to the overall number of events for the selected arms plus control.}
 
 \item{minNumberOfEventsPerStage}{When performing a data driven sample size recalculation, 
@@ -290,8 +290,8 @@ object as \code{\link[base]{data.frame}}. The data frame contains the following 
         log-rank statistic.
   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-			selected sample size and effect. The effect is either estimated from the data or can be
-			user defined with \code{thetaH1}.   
+        selected sample size and effect. The effect is either estimated from the data or can be
+        user defined with \code{thetaH1}.   
 }
 }
 

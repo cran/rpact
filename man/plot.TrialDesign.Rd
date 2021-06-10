@@ -18,7 +18,8 @@
   plotPointsEnabled = NA,
   legendPosition = NA_integer_,
   showSource = FALSE,
-  grid = 1
+  grid = 1,
+  plotSettings = NULL
 )
 }
 \arguments{
@@ -97,6 +98,8 @@ If \code{grid = 0} is specified, all plots will be created using \code{\link[bas
 and a list of \code{ggplot} objects will be returned invisible. 
 Note that one of the following packages must be installed to create a grid plot: 
 'ggpubr', 'gridExtra', or 'cowplot'.}
+
+\item{plotSettings}{An object of class \code{PlotSettings} created by \code{\link{getPlotSettings}}.}
 }
 \value{
 Returns a \code{ggplot2} object.
@@ -112,7 +115,7 @@ Generic function to plot a trial design.
 Note that \code{\link[=param_nMax]{nMax}} is not an argument that it passed to \code{ggplot2}. 
 Rather, the underlying calculations (e.g. power for different theta's or average sample size) are based 
 on calls to function \code{\link{getPowerAndAverageSampleNumber}} which has argument \code{\link[=param_nMax]{nMax}}. 
-I.e. \code{\link[=param_nMax]{nMax}} is not an argument to ggplot2 but to \code{\link{getPowerAndAverageSampleNumber}} 
+I.e., \code{\link[=param_nMax]{nMax}} is not an argument to ggplot2 but to \code{\link{getPowerAndAverageSampleNumber}} 
 which is called prior to plotting.
 }
 \examples{

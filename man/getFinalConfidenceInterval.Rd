@@ -19,7 +19,7 @@ getFinalConfidenceInterval(
 
 \item{dataInput}{The summary data used for calculating the test results. 
 This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
-and should be created with the function \code{\link{getDataset}}.
+and should be created with the function \code{getDataset}.
 For more information see \code{\link{getDataset}}.}
 
 \item{...}{Further (optional) arguments to be passed:
@@ -27,11 +27,9 @@ For more information see \code{\link{getDataset}}.}
   \item{\code{normalApproximation}}{
       The type of computation of the p-values. Default is \code{FALSE} for 
       testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio. 
-      For testing rates, if \cr 
-      \code{normalApproximation = FALSE} is specified, the binomial test 
+      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
       (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
-      In the survival setting, \cr
-      \code{normalApproximation = FALSE} has no effect.}  
+      In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
   \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
       the t test assuming that the variances are equal or the t test without assuming this, 
       i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}

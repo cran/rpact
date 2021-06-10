@@ -46,8 +46,8 @@ In this case, the data frame contains the following columns:
   \item \code{logRankStatistic}: Z-score statistic which corresponds to a one-sided 
         log-rank test at considered stage. 
   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-			selected sample size and effect. The effect is either estimated from the data or can be
-			user defined with \code{thetaH1} or \code{pi1H1} and \code{pi2H1}.
+        selected sample size and effect. The effect is either estimated from the data or can be
+        user defined with \code{thetaH1} or \code{pi1H1} and \code{pi2H1}.
   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
   \item \code{hazardRatioEstimateLR}: The estimated hazard ratio, derived from the 
         log-rank statistic.

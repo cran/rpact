@@ -57,7 +57,8 @@ For \code{"linear"} and \code{"sigmoidEmax"}, \code{"muMaxVector"} specifies the
 of effect sizes for the treatment group with highest response.    
 If \code{"userDefined"} is selected, \code{"effectMatrix"} has to be entered.}
 
-\item{omegaMaxVector}{Range of hazard ratios with highest response for \code{"linear"} and \code{"sigmoidEmax"} model, default is \code{seq(1, 2.6, 0.4)}.}
+\item{omegaMaxVector}{Range of hazard ratios with highest response for \code{"linear"} and 
+\code{"sigmoidEmax"} model, default is \code{seq(1, 2.6, 0.4)}.}
 
 \item{gED50}{If \code{"sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
 to specify the ED50 of the sigmoid Emax model.}
@@ -67,7 +68,7 @@ to specify the slope of the sigmoid Emax model, default is 1.}
 
 \item{intersectionTest}{Defines the multiple test for the intersection 
 hypotheses in the closed system of hypotheses. 
-Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
 \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
 
 \item{directionUpper}{Specifies the direction of the alternative, 
@@ -95,10 +96,13 @@ if the efficacy criterion is fulfilled for all selected treatment arms,
 \code{"atLeastOne"} stops if at least one of the selected treatment arms is shown to be 
 superior to control at interim, default is \code{"all"}.}
 
-\item{correlationComputation}{If \code{correlationComputation = "alternative"}, for simulating log-rank statistics in the
-many-to-one design, a correlation matrix according to Deng et al. (Biometrics, 2019) accounting for the respective alternative is used;
-if \code{correlationComputation = "null"}, a constant correlation matrix valid under the null, i.e., not accounting for the alternative is used, 
-default is \code{"alternative"}.}
+\item{correlationComputation}{If \code{correlationComputation = "alternative"}, 
+for simulating log-rank statistics in the many-to-one design, a correlation 
+matrix according to Deng et al. (Biometrics, 2019) accounting for the 
+respective alternative is used;
+if \code{correlationComputation = "null"}, a constant correlation matrix valid 
+under the null, i.e., not accounting for the alternative is used, 
+ default is \code{"alternative"}.}
 
 \item{epsilonValue}{For \code{"epsilon"} (select treatment arm not worse than 
 epsilon compared to the best), the parameter \code{epsilonValue} has to be specified.}
@@ -112,8 +116,8 @@ exceeds \code{threshold}, default is \code{-Inf}.
 a separate threshold condition over the treatment arms.}
 
 \item{plannedEvents}{\code{plannedEvents} is a vector of length \code{kMax} (the number of stages of the design) 
-   that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
-   For two treatment arms, it is the number of events for both treatment arms. 
+that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
+For two treatment arms, it is the number of events for both treatment arms. 
 For multi-arm designs, \code{plannedEvents} refers to the overall number of events for the selected arms plus control.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
@@ -148,7 +152,8 @@ recalculation. By default, sample size recalculation is performed with condition
 \code{minNumberOfEventsPerStage} and \code{maxNumberOfEventsPerStage} (see details and examples).}
 
 \item{selectArmsFunction}{Optionally, a function can be entered that defines the way of how treatment arms
-are selected. This function has to depend on \code{effectVector} with length \code{activeArms} (see examples).}
+are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms}
+and \code{stage} (see examples).}
 
 \item{showStatistics}{If \code{TRUE}, summary statistics of the simulated data
 are displayed for the \code{print} command, otherwise the output is suppressed, default
@@ -168,21 +173,25 @@ The following generics (R generic functions) are available for this object:
 }
 \description{
 Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
-for testing survival in a multi-arm treatment groups testing situation. In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
+for testing survival in a multi-arm treatment groups testing situation. 
+In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
 distributed logrank test statistics are simulated.
 }
 \details{
-At given design the function simulates the power, stopping probabilities, selection probabilities, and expected 
-sample size at given number of subjects, parameter configuration, and treatment arm selection rule in the multi-arm situation. 
-An allocation ratio can be specified referring to the ratio of number of subjects in the active treatment groups as compared to the control group.
+At given design the function simulates the power, stopping probabilities, 
+selection probabilities, and expected sample size at given number of subjects, 
+parameter configuration, and treatment arm selection rule in the multi-arm situation. 
+An allocation ratio can be specified referring to the ratio of number of subjects 
+in the active treatment groups as compared to the control group.
  
 The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
 and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and 
 \code{maxNumberOfEventsPerStage} (or \code{calcEventsFunction}) are defined.
 
 \code{calcEventsFunction}\cr 
-This function returns the number of events at given conditional power and conditional critical value for specified 
-testing situation. The function might depend on the variables 
+This function returns the number of events at given conditional power 
+and conditional critical value for specified testing situation. 
+The function might depend on the variables 
 \code{stage}, 
 \code{selectedArms}, 
 \code{plannedEvents}, 

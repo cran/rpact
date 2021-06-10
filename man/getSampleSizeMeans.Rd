@@ -49,9 +49,9 @@ For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be spe
 defining the null hypothesis H0: \code{pi = thetaH0}.}
 
 \item{alternative}{The alternative hypothesis value for testing means. This can be a vector of assumed 
-alternatives, default is \code{seq(0, 1, 0.2)}.}
+alternatives, default is \code{seq(0, 1, 0.2)} (power calculations) or \code{seq(0.2, 1, 0.2)} (sample size calculations).}
 
-\item{stDev}{The standard deviation under which the conditional power 
+\item{stDev}{The standard deviation under which the sample size or power 
 calculation is performed, default is \code{1}. 
 If \code{meanRatio = TRUE} is specified, \code{stDev} defines 
 the coefficient of variation \code{sigma / mu2}.}

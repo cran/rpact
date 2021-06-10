@@ -18,7 +18,8 @@
   palette = "Set1",
   legendPosition = NA_integer_,
   showSource = FALSE,
-  grid = 1
+  grid = 1,
+  plotSettings = NULL
 )
 }
 \arguments{
@@ -49,7 +50,8 @@
 The argument must be a vector with length equal to the number of remaining stages and contain 
 the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
 it should contain the planned number of additional events. 
-For multi-arm designs, it is the per-comparison (combined) sample size.}
+For multi-arm designs, it is the per-comparison (combined) sample size. 
+For enrichment designs, it is the (combined) sample size for the considered sub-population.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.}
@@ -102,6 +104,8 @@ If \code{grid = 0} is specified, all plots will be created using \code{\link[bas
 and a list of \code{ggplot} objects will be returned invisible. 
 Note that one of the following packages must be installed to create a grid plot: 
 'ggpubr', 'gridExtra', or 'cowplot'.}
+
+\item{plotSettings}{An object of class \code{PlotSettings} created by \code{\link{getPlotSettings}}.}
 }
 \value{
 Returns a \code{ggplot2} object.

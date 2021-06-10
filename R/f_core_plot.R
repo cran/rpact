@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4443 $
-#:#  Last changed: $Date: 2021-02-22 09:13:17 +0100 (Mon, 22 Feb 2021) $
+#:#  File version: $Revision: 4970 $
+#:#  Last changed: $Date: 2021-06-08 07:58:23 +0200 (Di, 08 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -104,7 +104,7 @@
 			return(.addNumberToPlotCaption("Expected Number of Subjects", type, numberInCaptionEnabled))
 		}
 		else if (type == 12) {
-			return(.addNumberToPlotCaption("Analysis Times", type, numberInCaptionEnabled))
+			return(.addNumberToPlotCaption("Analysis Time", type, numberInCaptionEnabled))
 		}
 		else if (type == 13) { 
 			return(.addNumberToPlotCaption("Cumulative Distribution Function", type, numberInCaptionEnabled))
@@ -454,7 +454,11 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		}
 	}
 	else if (inherits(obj, "AnalysisResults")) {
-		types <- c(1, 2)
+		types <- integer(0)
+		if (.isConditionalPowerEnabled(obj$nPlanned)) {
+			types <- c(1)
+		}
+		types <- c(types, 2)
 	}
 	else if (inherits(obj, "StageResults")) {
 		types <- c(1)
@@ -867,6 +871,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (!("xValues" %in% colnames(data)) || !("yValues" %in% colnames(data))) {
 		data$xValues <- data[[xParameterName]]
 		data$yValues <- data[[yParameterName1]]
+		if (yParameterName1 == "futilityBounds") {
+			data$yValues[!is.na(data$yValues) & 
+				(is.infinite(data$yValues) | data$yValues == C_FUTILITY_BOUNDS_DEFAULT)] <- NA_real_
+		}
+		else if (yParameterName1 == "alpha0Vec") {
+			data$yValues[!is.na(data$yValues) & data$yValues == C_ALPHA_0_VEC_DEFAULT] <- NA_real_
+		}
 		
 		if (is.null(yParameterName2) || is.na(yParameterName2)) {
 			data$yValues2 <- rep(NA_real_, nrow(data))
@@ -978,7 +989,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		ratioEnabled = ratioEnabled, plotSettings = plotSettings, sided = designMaster$sided, ...)
 	
 	if (xParameterName == "informationRates") {
-		p <- p + ggplot2::scale_x_continuous(breaks=c(0, round(data$xValues, 3)))
+		p <- p + ggplot2::scale_x_continuous(breaks = c(0, round(data$xValues, 3)))
 	}
 
 	# add mirrored lines
@@ -1223,7 +1234,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	pointBorder <- 4
 	if (length(unique(data$xValues)) / numberOfCategories > 10) {
 		pointBorder <- 1
-		plotSettings$adjustPointSize(-2)
+		plotSettings$adjustPointSize(0.333)
 	}
 	else if (numberOfCategories > 8) {
 		pointBorder <- 1
@@ -1241,8 +1252,8 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		yParameterName2, addPowerAndAverageSampleNumber) {
 	
 	if (length(unique(data$categories)) > 6) {
-		plotSettings$adjustPointSize(-0.5)
-		plotSettings$adjustLegendFontSize(-2)
+		plotSettings$adjustPointSize(0.8)
+		plotSettings$adjustLegendFontSize(0.8)
 		return(C_POSITION_OUTSIDE_PLOT)
 	}
 	
@@ -1421,4 +1432,62 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	
 	cat("Last plot was saved to '", path, "'\n")
 }
+
+.getGridPlotSettings <- function(x, typeNumbers, grid) {
+	if (length(typeNumbers) <= 3 || grid <= 1) {
+		return(NULL)
+	}
+	
+	if (is.null(x[[".plotSettings"]])) {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'x' (", class(x), ") does not contain field .plotSettings")
+	}
+	
+	plotSettings <- x$.plotSettings
+	if (is.null(plotSettings)) {
+		plotSettings <- PlotSettings()
+	} else {
+		plotSettings <- plotSettings$clone()
+	}
+	if (plotSettings$scalingFactor == 1) {
+		plotSettings$scalingFactor <- 0.6
+	}
+	return(plotSettings)
+}
+
+.getGridLegendPosition <- function(legendPosition, typeNumbers, grid) {
+	if (length(typeNumbers) <= 3 || grid <= 1) {
+		return(NA_integer_)
+	}
+	
+	if (is.na(legendPosition)) {
+		return(-1L) # hide legend
+	}
+	
+	return(legendPosition)
+}
+
+.formatSubTitleValue <- function(value, paramName) {
+	if (paramName == "allocationRatioPlanned") {
+		return(round(value, 2))
+	}
+	
+	if (paramName %in% c("assumedStDev", "assumedStDevs")) {
+		if (length(value) > 1) {
+			return(paste0("(", .arrayToString(round(value, 1), encapsulate = FALSE), ")"))
+		}
+		
+		return(round(value, 2))
+	}
+	
+	if (paramName %in% c("piControls", "pi2")) {
+		if (length(value) > 1) {
+			return(paste0("(", .arrayToString(round(value, 3), encapsulate = FALSE), ")"))
+		}
+		
+		return(round(value, 3))
+	}
+	
+	return(.arrayToString(round(value, 2)))
+}
+
 

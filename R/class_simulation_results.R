@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4311 $
-#:#  Last changed: $Date: 2021-02-03 11:38:47 +0100 (Mi, 03 Feb 2021) $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -88,10 +88,10 @@ SimulationResults <- setRefClass("SimulationResults",
 		.rawData = "data.frame",
 		.showStatistics = "logical",
 		
-		allocationRatioPlanned = "numeric",	
-		conditionalPower = "numeric",
 		maxNumberOfIterations = "integer",
 		seed = "numeric",
+		allocationRatioPlanned = "numeric",	
+		conditionalPower = "numeric",
 		
 		iterations = "matrix",
 		futilityPerStage = "matrix",
@@ -103,7 +103,7 @@ SimulationResults <- setRefClass("SimulationResults",
 			callSuper(.design = design, .showStatistics = showStatistics, ...)
 			
 			.plotSettings <<- PlotSettings()
-			.parameterNames <<- .getParameterNames(design, .self)
+			.parameterNames <<- .getParameterNames(design = design, designPlan = .self)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
 		
@@ -125,80 +125,96 @@ SimulationResults <- setRefClass("SimulationResults",
 			.resetCat()
 			if (showType == 3) {
 				.createSummary(.self, digits = digits)$.show(showType = 1, 
-						digits = digits, consoleOutputEnabled = consoleOutputEnabled)
+					digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			}
 			else if (showType == 2) {
 				callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
 			} else {
-				.cat(.toString(startWithUpperCase = TRUE), ":\n\n", heading = 1,
+				if (is.null(showStatistics) || length(showStatistics) != 1) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+						"'showStatistics' (", .arrayToString(showStatistics), 
+						") must be a single logical or character")
+				}
+				
+				if (!is.character(showStatistics) || showStatistics != "exclusive") {
+					.cat(.toString(startWithUpperCase = TRUE), ":\n\n", heading = 1,
 						consoleOutputEnabled = consoleOutputEnabled)
 					
-				.showParametersOfOneGroup(.getDesignParametersToShow(.self), "Design parameters",
-					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					.showParametersOfOneGroup(.getDesignParametersToShow(.self), "Design parameters",
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 					
-				userDefinedParameters <- .getUserDefinedParameters()
-				if (inherits(.self, "SimulationResultsSurvival") && .self$.piecewiseSurvivalTime$delayedResponseEnabled) {
-					userDefinedParameters <- c(userDefinedParameters, ".piecewiseSurvivalTime$delayedResponseEnabled")
+					userDefinedParameters <- .getUserDefinedParameters()
+					if (inherits(.self, "SimulationResultsSurvival") && 
+						.self$.piecewiseSurvivalTime$delayedResponseEnabled) {
+						userDefinedParameters <- c(userDefinedParameters, 
+							".piecewiseSurvivalTime$delayedResponseEnabled")
+					}
+					.showParametersOfOneGroup(userDefinedParameters, "User defined parameters",
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					derivedParameters <- .getDerivedParameters()
+					if (length(derivedParameters) > 0) {
+						.showParametersOfOneGroup(derivedParameters, "Derived from user defined parameters",
+							orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					}
+					.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					.showParametersOfOneGroup(.getGeneratedParameters(), "Results",
+						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				}
-				.showParametersOfOneGroup(userDefinedParameters, "User defined parameters",
-						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
-				.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
-						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
-				.showParametersOfOneGroup(.getGeneratedParameters(), "Results",
-						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
-				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
 				## statistics of simulated data
-				if (showStatistics || .showStatistics) {
+				if (isTRUE(showStatistics) || .showStatistics || 
+						(is.character(showStatistics) && showStatistics == "exclusive")) {
 					
-					.cat("Simulated data:\n", consoleOutputEnabled = consoleOutputEnabled)
+					.cat("Simulated data:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					params <- c()
 					if (inherits(.self, "SimulationResultsMeans")) {
 						params <- c(
-								"effectMeasure",
-								"numberOfSubjects",
-								"testStatistic")
+							"effectMeasure",
+							"numberOfSubjects",
+							"testStatistic")
 					}
 					else if (inherits(.self, "SimulationResultsRates")) {
 						params <- c(
-								"effectMeasure",
-								"numberOfSubjects",
-								"testStatistic")
+							"effectMeasure",
+							"numberOfSubjects",
+							"testStatistic")
 					}
 					else if (inherits(.self, "SimulationResultsSurvival")) {
 						params <- c(
-								"effectMeasure",
-								"analysisTime",
-								"numberOfSubjects",
-								"eventsPerStage1",
-								"eventsPerStage2",
-								"eventsPerStage",
-								"testStatistic",
-								"logRankStatistic",
-								"hazardRatioEstimateLR")
+							"effectMeasure",
+							"analysisTime",
+							"numberOfSubjects",
+							"eventsPerStage1",
+							"eventsPerStage2",
+							"eventsPerStage",
+							"testStatistic",
+							"logRankStatistic",
+							"hazardRatioEstimateLR")
 					}
 					else if (inherits(.self, "SimulationResultsMultiArmMeans") || 
 							inherits(.self, "SimulationResultsMultiArmRates")) {
 						params <- c(
-								"effectMeasure",
-								"subjectsActiveArm",
-								"testStatistic",
-								"conditionalCriticalValue",
-								"rejectPerStage",
-								"successStop",
-								"futilityPerStage"
+							"effectMeasure",
+							"subjectsActiveArm",
+							"testStatistic",
+							"conditionalCriticalValue",
+							"rejectPerStage",
+							"successStop",
+							"futilityPerStage"
 						)
 					}
 					else if (inherits(.self, "SimulationResultsMultiArmSurvival")) {
 						params <- c(
-								"effectMeasure",
-								"numberOfEvents",
-								"singleNumberOfEventsPerStage",
-								"testStatistic",
-								"conditionalCriticalValue",
-								"rejectPerStage",
-								"successStop",
-								"futilityPerStage"
+							"effectMeasure",
+							"numberOfEvents",
+							"singleNumberOfEventsPerStage",
+							"testStatistic",
+							"conditionalCriticalValue",
+							"rejectPerStage",
+							"successStop",
+							"futilityPerStage"
 						)
 					}
 					
@@ -269,13 +285,13 @@ SimulationResults <- setRefClass("SimulationResults",
 								}
 								for (stage in stages) {
 									.catStatisticsLine(stage = stage, 
-											parameterName = parameterName2, 
-											paramCaption = paramCaption2,
-											parameterValue1 = parameterValue1, 
-											variedParameterName1 = variedParameterName1, 
-											parameterValue2 = unique(parameterValues2), 
-											variedParameterName2 = variedParameterName2, 
-											consoleOutputEnabled = consoleOutputEnabled)
+										parameterName = parameterName2, 
+										paramCaption = paramCaption2,
+										parameterValue1 = parameterValue1, 
+										variedParameterName1 = variedParameterName1, 
+										parameterValue2 = unique(parameterValues2), 
+										variedParameterName2 = variedParameterName2, 
+										consoleOutputEnabled = consoleOutputEnabled)
 								}
 							}
 						}
@@ -338,35 +354,44 @@ SimulationResults <- setRefClass("SimulationResults",
 			postfix <- ""
 			if (!is.na(parameterValue1)) {
 				if (!all(is.na(parameterValue2))) {
-					postfix <- paste0(postfix, .getVariedParameterValueString(variedParameterName1, parameterValue1))
+					postfix <- paste0(postfix, .getVariedParameterValueString(
+						variedParameterName1, parameterValue1))
 					if (parameterName != "subjectsControlArm") {
-						postfix <- paste0(postfix, .getVariedParameterValueString(variedParameterName2, parameterValue2))
+						postfix <- paste0(postfix, .getVariedParameterValueString(
+							variedParameterName2, parameterValue2))
 					}
 					paramValue <- .self$.data[[parameterName]][
-							.self$.data$stageNumber == stage & .self$.data[[variedParameterName1]] == parameterValue1 & 
-									.self$.data[[variedParameterName2]] %in% parameterValue2]
+						.self$.data$stageNumber == stage & 
+						.self$.data[[variedParameterName1]] == parameterValue1 & 
+						.self$.data[[variedParameterName2]] %in% parameterValue2]
 				} else {
-					postfix <- paste0(postfix, .getVariedParameterValueString(variedParameterName1, parameterValue1))
+					postfix <- paste0(postfix, .getVariedParameterValueString(
+						variedParameterName1, parameterValue1))
 					paramValue <- .self$.data[[parameterName]][
-							.self$.data$stageNumber == stage & .self$.data[[variedParameterName1]] == parameterValue1]
+						.self$.data$stageNumber == stage & 
+						.self$.data[[variedParameterName1]] == parameterValue1]
 				}
 			} else {
 				paramValue <- .self$.data[[parameterName]][
-						.self$.data$stageNumber == stage]
+					.self$.data$stageNumber == stage]
 			}
 			if (.design$kMax > 1) {
 				postfix <- paste0(postfix, " [", stage, "]")
 			}
 			
+			if (!consoleOutputEnabled) {
+				paramCaption <- paste0("*", paramCaption, "*")
+			}
+			
 			variableNameFormatted <- .getFormattedVariableName(name = paramCaption, 
-					n = .getNChar(), prefix = "", postfix = postfix)
+				n = .getNChar(), prefix = "", postfix = postfix)
 			
 			if (!is.null(paramValue)) {
 				paramValue <- stats::na.omit(paramValue)
 				if (length(paramValue) > 0 && is.numeric(paramValue)) {
 					paramValueFormatted <- paste0("median [range]: ", round(stats::median(paramValue), 3), 
-							" [", paste(round(base::range(paramValue), 3), collapse = " - "), "]; ", 
-							"mean +/-sd: ", round(base::mean(paramValue), 3), " +/-", round(stats::sd(paramValue), 3))
+						" [", paste(round(base::range(paramValue), 3), collapse = " - "), "]; ", 
+						"mean +/-sd: ", round(base::mean(paramValue), 3), " +/-", round(stats::sd(paramValue), 3))
 				} else {
 					paramValueFormatted <- "median [range]: NA [NA - NA]; mean +/sd: NA +/-NA"
 				}
@@ -397,20 +422,21 @@ SimulationResults <- setRefClass("SimulationResults",
 				s <- paste(s, "results")
 			}
 			
-			if (.isTrialDesignGroupSequential(.design)) {
-				s <- paste(s, "(group sequential design)")
-			}
-			else if (.isTrialDesignInverseNormal(.design)) {
-				s <- paste(s, "(inverse normal combination test design)")
-			}
-			else if (.isTrialDesignFisher(.design)) {
-				s <- paste(s, "(Fisher's combination test design)")
-			}
-			else if (.isTrialDesignConditionalDunnett(.design)) {
-				s <- paste(s, "(conditional Dunnett design)")
-			}
-			else {
-				s <- paste("unknown", s)
+			if (.design$kMax > 1) {
+				if (.isTrialDesignGroupSequential(.design)) {
+					s <- paste(s, "(group sequential design)")
+				}
+				else if (.isTrialDesignInverseNormal(.design)) {
+					s <- paste(s, "(inverse normal combination test design)")
+				}
+				else if (.isTrialDesignFisher(.design)) {
+					s <- paste(s, "(Fisher's combination test design)")
+				}
+				else if (.isTrialDesignConditionalDunnett(.design)) {
+					s <- paste(s, "(conditional Dunnett design)")
+				}
+			} else {
+				s <- paste(s, "(fixed sample size design)")
 			}
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		},
@@ -422,8 +448,8 @@ SimulationResults <- setRefClass("SimulationResults",
 					"overallReject",  # base
 					"rejectedArmsPerStage",
 					"rejectPerStage", # base
-					"futilityPerStage",
 					"futilityStop",
+					"futilityPerStage",
 					"earlyStop",      # base
 					"successPerStage",
 					"selectedArms", 
@@ -463,14 +489,14 @@ SimulationResultsBaseMeans <- setRefClass("SimulationResultsBaseMeans",
 			callSuper(design = design, ...)
 			
 			for (generatedParam in c(
-					"iterations", 
-					"sampleSizes", 
+					"iterations",
+					"expectedNumberOfSubjects",					
+					"sampleSizes",
+					"overallReject",					
 					"rejectPerStage", 
-					"overallReject", 
-					"futilityPerStage", 
-					"futilityStop", 
-					"earlyStop",
-					"expectedNumberOfSubjects")) {
+					"futilityStop",
+					"futilityPerStage",					
+					"earlyStop")) {
 				.setParameterType(generatedParam, C_PARAM_GENERATED)
 			}
 		}
@@ -561,14 +587,14 @@ SimulationResultsBaseRates <- setRefClass("SimulationResultsBaseRates",
 			callSuper(design = design, ...)
 			
 			for (generatedParam in c(
-					"iterations", 
+					"iterations",
+					"expectedNumberOfSubjects", 
 					"sampleSizes", 
-					"rejectPerStage", 
-					"overallReject", 
+					"overallReject",
+					"rejectPerStage",
+					"futilityStop", 					
 					"futilityPerStage", 
-					"futilityStop", 
-					"earlyStop",
-					"expectedNumberOfSubjects")) {
+					"earlyStop")) {
 				.setParameterType(generatedParam, C_PARAM_GENERATED)
 			}
 		}
@@ -662,9 +688,11 @@ SimulationResultsBaseSurvival <- setRefClass("SimulationResultsBaseSurvival",
 		initialize = function(design, ...) {
 			callSuper(design = design, ...)
 			for (generatedParam in c(
-					"iterations", 
+					"iterations",
+					"expectedNumberOfEvents",					
 					"eventsPerStage", 
-					"expectedNumberOfEvents", 
+ 					"overallReject",					
+					"rejectPerStage", 					
 					"futilityPerStage", 
 					"futilityStop", 
 					"earlyStop")) {
@@ -769,17 +797,20 @@ SimulationResultsMultiArmSurvival <- setRefClass("SimulationResultsMultiArmSurvi
 SimulationResultsMeans <- setRefClass("SimulationResultsMeans",
 	contains = "SimulationResultsBaseMeans",
 	fields = list(
+		meanRatio = "logical",
+		thetaH0 = "numeric", 
+		normalApproximation = "logical",
 		alternative = "numeric",
 		groups = "integer",
 		directionUpper = "logical",
-		thetaH0 = "numeric", 
-		meanRatio = "logical",
-		normalApproximation = "logical",
 		
-		earlyStop = "numeric",
+		thetaH1 = "numeric",
+		srDevH1 = "numeric",
+		
 		effect = "numeric",
+		earlyStop = "numeric",
+		sampleSizes = "matrix",		
 		overallReject = "numeric", # = rejectedArmsPerStage in multi-arm 
-		sampleSizes = "matrix",
 		rejectPerStage = "matrix",
 		conditionalPowerAchieved = "matrix"
 	),
@@ -815,23 +846,23 @@ SimulationResultsMeans <- setRefClass("SimulationResultsMeans",
 #'
 SimulationResultsRates <- setRefClass("SimulationResultsRates",
 	contains = "SimulationResultsBaseRates",
-	fields = list(	
+	fields = list(
+		riskRatio = "logical",
+		thetaH0 = "numeric", 
+		normalApproximation = "logical",
 		pi1 = "numeric",
 		pi2 = "numeric",
-		effect = "numeric",		
 		groups = "integer",
 		directionUpper = "logical",
-		thetaH0 = "numeric", 
-		riskRatio = "logical",
+		
 		pi1H1 = "numeric",
 		pi2H1 = "numeric",
-		normalApproximation = "logical",
 		
+		effect = "numeric",
 		earlyStop = "numeric",
 		sampleSizes = "matrix", 
 		overallReject = "numeric", 
-		thetaH1 = "numeric", 
-		rejectPerStage = "matrix",
+ 		rejectPerStage = "matrix",
 		conditionalPowerAchieved = "matrix" 
 	),
 	methods = list(
@@ -844,10 +875,10 @@ SimulationResultsRates <- setRefClass("SimulationResultsRates",
 					"sampleSizes",
 					"eventsNotAchieved", 
 					"expectedNumberOfSubjects", 
-					"rejectPerStage", 
-					"overallReject", 
+					"overallReject",
+					"rejectPerStage",
+					"futilityStop",					
 					"futilityPerStage", 
-					"futilityStop", 
 					"earlyStop",
 					"analysisTime", 
 					"studyDuration")) {
@@ -931,10 +962,10 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 					"eventsNotAchieved", 
 					"numberOfSubjects", 
 					"expectedNumberOfSubjects", 
+					"overallReject",
 					"rejectPerStage", 
-					"overallReject", 
-					"futilityPerStage", 
-					"futilityStop", 
+					"futilityStop",
+					"futilityPerStage",					
 					"earlyStop",
 					"analysisTime", 
 					"studyDuration",
@@ -1016,13 +1047,18 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 .plotSimulationResults <- function(simulationResults, designMaster, type = 5L, main = NA_character_, 
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
 		theta = seq(-1, 1, 0.02), plotPointsEnabled = NA, 
-		legendPosition = NA_integer_, showSource = FALSE, simulationResultsName = NA_character_, ...) {
+		legendPosition = NA_integer_, showSource = FALSE, 
+		simulationResultsName = NA_character_, plotSettings = NULL, ...) {
 	
 	.assertGgplotIsInstalled()
 	.assertIsSimulationResults(simulationResults) 
 	.assertIsValidLegendPosition(legendPosition)
 	.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 	theta <- .assertIsValidThetaRange(thetaRange = theta)
+	
+	if (is.null(plotSettings)) {
+		plotSettings <- simulationResults$.plotSettings
+	}
 	
 	survivalEnabled <- grepl("Survival", class(simulationResults))
 	meansEnabled <- grepl("Means", class(simulationResults))
@@ -1098,7 +1134,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 				yAxisLabel2 = NA_character_, 
 				plotPointsEnabled = plotPointsEnabled, legendTitle = NA_character_,
 				legendPosition = legendPosition, sided = designMaster$sided,
-				palette = palette))
+				palette = palette, plotSettings = plotSettings))
 	}
 	else if (type == 2) { # Multi-arm, Success per Stage
 		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
@@ -1159,7 +1195,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 				yAxisLabel2 = NA_character_, 
 				plotPointsEnabled = plotPointsEnabled, legendTitle = "Stage",
 				legendPosition = legendPosition, sided = designMaster$sided,
-				palette = palette))
+				palette = palette, plotSettings = plotSettings))
 	}
 	else if (type == 3) { # Multi-arm, Selected Arms per Stage
 			
@@ -1233,7 +1269,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 				plotPointsEnabled = plotPointsEnabled, 
 				legendTitle = ifelse(designMaster$kMax > 1, "Arm, Stage", "Arm"),
 				legendPosition = legendPosition, sided = designMaster$sided,
-				palette = palette))
+				palette = palette, plotSettings = plotSettings))
 	}
 	else if (type == 4) { # Multi-arm, Rejected Arms per Stage
 		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
@@ -1333,15 +1369,16 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		
 		palette <- NULL
 		
+		yAxisLabel1 <- ifelse(.isMultiArmSimulationResults(simulationResults), "Rejected Arms", "Rejection Probability")
 		return(.plotDataFrame(data, mainTitle = main, 
 				xlab = NA_character_, ylab = NA_character_, 
 				xAxisLabel = .getSimulationPlotXAxisLabel(simulationResults),
-				yAxisLabel1 = "Rejected Arms", 
+				yAxisLabel1 = yAxisLabel1, 
 				yAxisLabel2 = NA_character_, 
 				plotPointsEnabled = plotPointsEnabled, 
 				legendTitle = ifelse(multiArmEnabled, ifelse(designMaster$kMax > 1, "Arm, Stage", "Arm"), "Stage"),
 				legendPosition = legendPosition, sided = designMaster$sided,
-				palette = palette))
+				palette = palette, plotSettings = plotSettings))
 	}
 	else if (type == 5) { # Power and Stopping Probabilities 
 		
@@ -1418,7 +1455,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 				plotPointsEnabled = plotPointsEnabled, 
 				legendTitle = NA_character_,
 				legendPosition = legendPosition, sided = designMaster$sided,
-				palette = palette))
+				palette = palette, plotSettings = plotSettings))
 		} else {
 			if (is.null(list(...)[["ylim"]])) {
 				ylim <- c(0, 1)
@@ -1427,14 +1464,16 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 					legendPosition = legendPosition, variedParameters = variedParameters, 
-					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...)) # ratioEnabled = TRUE
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, 
+					plotSettings = plotSettings, ylim = ylim, ...)) # ratioEnabled = TRUE
 			} else {
 				return(.plotParameterSet(parameterSet = simulationResults, designMaster = designMaster, 
 					xParameterName = xParameterName,
 					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 					legendPosition = legendPosition, variedParameters = variedParameters, 
-					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, 
+					plotSettings = plotSettings, ...))
 			}
 		}
 	} 
@@ -1573,7 +1612,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 	else if (type == 12) { # Analysis Time
 		.assertIsValidVariedParameterVectorForSimulationResultsPlotting(simulationResults, type)
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Analysis Times")
+			items <- PlotSubTitleItems(title = "Analysis Time")
 			.addPlotSubTitleItems(simulationResults, designMaster, items, type)
 			main <- items$toQuote()
 		}
@@ -1619,14 +1658,14 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			xlab = NA_character_, ylab = NA_character_, xAxisLabel = "Hazard Ratio",
 			yAxisLabel1 = "Analysis Time", yAxisLabel2 = NA_character_, 
 			plotPointsEnabled = TRUE, legendTitle = "Stage",
-			legendPosition = legendPosition, sided = designMaster$sided))
+			legendPosition = legendPosition, sided = designMaster$sided, plotSettings = plotSettings))
 	}
 	
 	else if (type == 13 || type == 14) { # Cumulative Distribution Function / Survival function
 		return(.plotSurvivalFunction(simulationResults, designMaster = designMaster, type = type, main = main, 
 			xlab = xlab, ylab = ylab, palette = palette,
 			legendPosition = legendPosition, designPlanName = simulationResultsName, 
-			showSource = showSource))
+			showSource = showSource, plotSettings = plotSettings))
 	} else {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 5, 6, ..., 14")	
 	}
@@ -1643,7 +1682,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 		yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 		palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 		legendPosition = legendPosition, variedParameters = variedParameters, 
-		qnormAlphaLineEnabled = (type != 2), ratioEnabled = TRUE, ...))
+		qnormAlphaLineEnabled = (type != 2), ratioEnabled = TRUE, plotSettings = plotSettings, ...))
 }
 
 #'
@@ -1660,6 +1699,7 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 #' @inheritParams param_theta
 #' @inheritParams param_plotPointsEnabled
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
@@ -1704,19 +1744,24 @@ plot.SimulationResults <- function(x, y, ..., main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, type = 1L, palette = "Set1",
 		theta = seq(-1, 1, 0.01), plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, 
-		grid = 1) {
+		grid = 1, plotSettings = NULL) {
 		
 	fCall = match.call(expand.dots = FALSE)
 	simulationResultsName <- deparse(fCall$x)
+	.assertIsSingleInteger(grid, "grid", validateType = FALSE)
 	typeNumbers <- .getPlotTypeNumber(type, x)
+	if (is.null(plotSettings)) {
+		plotSettings <- .getGridPlotSettings(x, typeNumbers, grid)
+	}
 	p <- NULL
 	plotList <- list()
 	for (typeNumber in typeNumbers) {
 		p <- .plotSimulationResults(simulationResults = x, designMaster = x$.design, 
 			main = main, xlab = xlab, ylab = ylab, type = typeNumber,
 			palette = palette, theta = theta, plotPointsEnabled = plotPointsEnabled, 
-			legendPosition = legendPosition, showSource = showSource,
-			simulationResultsName = simulationResultsName, ...)
+			legendPosition = .getGridLegendPosition(legendPosition, typeNumbers, grid), 
+			showSource = showSource, simulationResultsName = simulationResultsName, 
+			plotSettings = plotSettings, ...)
 		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
 		if (length(typeNumbers) > 1) {
 			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
@@ -1736,6 +1781,37 @@ plot.SimulationResults <- function(x, y, ..., main = NA_character_,
 	}
 	
 	return(.createPlotResultObject(plotList, grid))
+}
+
+#'
+#' @name SimulationResults_print
+#' 
+#' @title
+#' Print Simulation Results
+#' 
+#' @description
+#' \code{print} prints its \code{SimulationResults} argument and returns it invisibly (via \code{invisible(x)}). 
+#' 
+#' @param x The \code{\link{SimulationResults}} object to print.
+#' @param markdown If \code{TRUE}, the object \code{x} will be printed using markdown syntax; 
+#'        normal representation will be used otherwise (default is \code{FALSE})
+#' @inheritParams param_three_dots
+#' 
+#' @details
+#' Prints the parameters and results of an \code{SimulationResults} object.
+#'
+#' @export
+#' 
+#' @keywords internal
+#' 
+print.SimulationResults <- function(x, ..., showStatistics = FALSE, markdown = FALSE) {
+	if (markdown) {
+		x$.catMarkdownText(showStatistics = showStatistics)
+		return(invisible(x))
+	}
+	
+	x$show(showStatistics = showStatistics)
+	invisible(x)
 }
 
 #'
@@ -1778,8 +1854,8 @@ plot.SimulationResults <- function(x, y, ..., main = NA_character_,
 #'   \item \code{logRankStatistic}: Z-score statistic which corresponds to a one-sided 
 #'         log-rank test at considered stage. 
 #'   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-#' 			selected sample size and effect. The effect is either estimated from the data or can be
-#' 			user defined with \code{thetaH1} or \code{pi1H1} and \code{pi2H1}.
+#'         selected sample size and effect. The effect is either estimated from the data or can be
+#'         user defined with \code{thetaH1} or \code{pi1H1} and \code{pi2H1}.
 #'   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
 #'   \item \code{hazardRatioEstimateLR}: The estimated hazard ratio, derived from the 
 #'         log-rank statistic.

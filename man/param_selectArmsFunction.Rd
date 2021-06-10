@@ -5,7 +5,8 @@
 \title{Parameter Description: Select Arms Function}
 \arguments{
 \item{selectArmsFunction}{Optionally, a function can be entered that defines the way of how treatment arms
-are selected. This function has to depend on \code{effectVector} with length \code{activeArms} (see examples).}
+are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms}
+and \code{stage} (see examples).}
 }
 \description{
 Parameter Description: Select Arms Function

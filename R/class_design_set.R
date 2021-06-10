@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4327 $
-#:#  Last changed: $Date: 2021-02-05 10:54:21 +0100 (Fri, 05 Feb 2021) $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -70,13 +70,13 @@ NULL
 #' 
 #' # Example 3 (use of designs instead of design)
 #' d1 <- getDesignGroupSequential(alpha = 0.05, kMax = 2,
-#'		 sided = 1, beta = 0.2, typeOfDesign = "asHSD",
-#'		 gammaA = 0.5, typeBetaSpending = "bsHSD", gammaB = 0.5)
+#'  	 sided = 1, beta = 0.2, typeOfDesign = "asHSD",
+#'  	 gammaA = 0.5, typeBetaSpending = "bsHSD", gammaB = 0.5)
 #' d2 <- getDesignGroupSequential(alpha = 0.05, kMax = 4,
-#'		 sided = 1, beta = 0.2, typeOfDesign = "asP",
-#'		 typeBetaSpending = "bsP")
+#'  	 sided = 1, beta = 0.2, typeOfDesign = "asP",
+#'  	 typeBetaSpending = "bsP")
 #' designSet <- getDesignSet (designs = c(d1, d2),
-#'		 variedParameters = c("typeOfDesign", "kMax"))
+#'  	 variedParameters = c("typeOfDesign", "kMax"))
 #' \donttest{
 #' if (require(ggplot2)) plot(designSet, type = 8, nMax = 20)
 #' } 
@@ -175,7 +175,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 			if (length(designs) > 0) {
 				masterDesign <- designs[[1]]
 				if (inherits(masterDesign, "ParameterSet")) {
-					.self$.plotSettings = masterDesign$.plotSettings
+					.self$.plotSettings <<- masterDesign$.plotSettings
 				}
 			}
 		},
@@ -734,6 +734,7 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 #' @inheritParams param_nMax
 #' @inheritParams param_plotPointsEnabled
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
@@ -773,19 +774,24 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
 		theta = seq(-1, 1, 0.02), nMax = NA_integer_, plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, 
-		grid = 1) {
+		grid = 1, plotSettings = NULL) {
 	
 	fCall = match.call(expand.dots = FALSE)
 	designSetName <- deparse(fCall$x)
+	.assertIsSingleInteger(grid, "grid", validateType = FALSE)
 	typeNumbers <- .getPlotTypeNumber(type, x)
+	if (is.null(plotSettings)) {
+		plotSettings <- .getGridPlotSettings(x, typeNumbers, grid)
+	}
 	p <- NULL
 	plotList <- list()
 	for (typeNumber in typeNumbers) {
 		p <- .plotTrialDesignSet(x = x, y = y, type = typeNumber, main = main, 
 			xlab = xlab, ylab = ylab, palette = palette,
 			theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled, 
-			legendPosition = legendPosition, showSource = showSource, 
-			designSetName = designSetName, ...)
+			legendPosition = .getGridLegendPosition(legendPosition, typeNumbers, grid), 
+			showSource = showSource, designSetName = designSetName, 
+			plotSettings = plotSettings, ...)
 		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
 		if (length(typeNumbers) > 1) {
 			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
@@ -803,7 +809,7 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
 		theta = seq(-1, 1, 0.02), nMax = NA_integer_, plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, 
-		designSetName = NA_character_) {
+		designSetName = NA_character_, plotSettings = NULL) {
 	
 	.assertGgplotIsInstalled()
 	.assertIsSingleCharacter(main, "main", naAllowed = TRUE)
@@ -824,7 +830,8 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 		main <- ifelse(is.na(main), "Boundaries", main)
 		xParameterName <- "informationRates"
 		yParameterNames <- c("criticalValues")
-		if (designMaster$sided == 1 || designMaster$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
+		if (designMaster$sided == 1 || (.isTrialDesignInverseNormalOrGroupSequential(designMaster) && 
+				designMaster$typeOfDesign == C_TYPE_OF_DESIGN_PT)) {
 			if (.isTrialDesignWithValidFutilityBounds(designMaster)) {
 				yParameterNames <- c("futilityBounds", "criticalValues")
 			}
@@ -930,7 +937,7 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 		xParameterName = xParameterName,
 		yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 		palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
-		legendPosition = legendPosition, ...))
+		legendPosition = legendPosition, plotSettings = plotSettings, ...))
 }
 
 

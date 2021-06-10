@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4216 $
-#:#  Last changed: $Date: 2021-01-19 09:16:02 +0100 (Tue, 19 Jan 2021) $
+#:#  File version: $Revision: 4863 $
+#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -105,7 +105,7 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 			callSuper(.design = design, ...)
 			
 			.plotSettings <<- PlotSettings()
-			.parameterNames <<- .getParameterNames(design, .self)
+			.parameterNames <<- .getParameterNames(design = design, designPlan = .self)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 			
 			if (.isTrialDesignPlanMeans(.self)) {
@@ -303,16 +303,24 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 	contains = "TrialDesignPlan",
 	
 	fields = list(
-		normalApproximation = "logical", 
 		meanRatio = "logical", 
-		thetaH0 = "numeric", 
+		thetaH0 = "numeric",
+		normalApproximation = "logical", 
 		alternative = "numeric", 
 		stDev = "numeric", 
 		groups = "numeric", 
 		allocationRatioPlanned = "numeric",
 		optimumAllocationRatio = "logical",
 		directionUpper = "logical",
+
+		effect = "numeric",
+		overallReject = "numeric",		
+		rejectPerStage = "matrix",
+		futilityStop = "numeric",		
+		futilityPerStage = "matrix",
+		earlyStop = "numeric",
 		
+		expectedNumberOfSubjects = "numeric",
 		nFixed = "numeric",
 		nFixed1 = "numeric", 
 		nFixed2 = "numeric", 
@@ -327,14 +335,6 @@ TrialDesignPlanMeans <- setRefClass("TrialDesignPlanMeans",
 		expectedNumberOfSubjectsH0 = "numeric",
 		expectedNumberOfSubjectsH01 = "numeric",
 		expectedNumberOfSubjectsH1 = "numeric",
-		
-		effect = "numeric",
-		expectedNumberOfSubjects = "numeric", 
-		rejectPerStage = "matrix",
-		overallReject = "numeric",		
-		futilityPerStage = "matrix",
-		futilityStop = "numeric",
-		earlyStop = "numeric",
 		
 		criticalValuesEffectScale = "matrix",
 		criticalValuesEffectScaleLower = "matrix",
@@ -452,19 +452,27 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 	contains = "TrialDesignPlan",
 	
 	fields = list(
-		normalApproximation = "logical", 
 		riskRatio = "logical", 
-		thetaH0 = "numeric", 
+		thetaH0 = "numeric",
+		normalApproximation = "logical",		
 		pi1 = "numeric", 
 		pi2 = "numeric", 
 		groups = "numeric", 
 		allocationRatioPlanned = "numeric",
 		optimumAllocationRatio = "logical",
 		directionUpper = "logical",
-		
+
+		effect = "numeric",
+		expectedNumberOfSubjects = "numeric",
 		nFixed = "numeric",
 		nFixed1 = "numeric", 
-		nFixed2 = "numeric", 
+		nFixed2 = "numeric",
+
+		overallReject = "numeric",
+		rejectPerStage = "matrix",
+		futilityStop = "numeric",		
+		futilityPerStage = "matrix",		
+		earlyStop = "numeric",
 		
 		informationRates = "matrix",		
 		maxNumberOfSubjects = "numeric",					
@@ -476,14 +484,6 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 		expectedNumberOfSubjectsH0 = "numeric",
 		expectedNumberOfSubjectsH01 = "numeric",
 		expectedNumberOfSubjectsH1 = "numeric",
-		
-		effect = "numeric",
-		expectedNumberOfSubjects = "numeric",
-		rejectPerStage = "matrix",
-		overallReject = "numeric",
-		futilityPerStage = "matrix",		
-		futilityStop = "numeric",
-		earlyStop = "numeric",
 		
 		criticalValuesEffectScale = "matrix",
 		criticalValuesEffectScaleLower = "matrix",
@@ -600,8 +600,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		.piecewiseSurvivalTime = "PiecewiseSurvivalTime",
 		.accrualTime = "AccrualTime",
 		.calculateFollowUpTime = "logical", 
-		typeOfComputation = "character", 
-		thetaH0 = "numeric", 
+		thetaH0 = "numeric",
+		typeOfComputation = "character",		
 		directionUpper = "logical",
 		pi1 = "numeric", 
 		pi2 = "numeric", 
@@ -630,10 +630,17 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		dropoutTime = "numeric",
 		
 		omega = "numeric",
+		expectedNumberOfEvents = "numeric",		
 		eventsFixed = "numeric",
 		nFixed = "numeric",
 		nFixed1 = "numeric", 
 		nFixed2 = "numeric",
+
+		overallReject = "numeric",
+		rejectPerStage = "matrix",
+		futilityStop = "numeric",		
+		futilityPerStage = "matrix",
+		earlyStop = "numeric",
 		
 		informationRates = "matrix",
 		analysisTime = "matrix", 
@@ -644,18 +651,11 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		expectedEventsH0 = "numeric",
 		expectedEventsH01 = "numeric",
 		expectedEventsH1 = "numeric",	
-		expectedNumberOfEvents = "numeric",
 		numberOfSubjects = "matrix",
 		numberOfSubjects1 = "matrix",
 		numberOfSubjects2 = "matrix",		
 		expectedNumberOfSubjectsH1 = "numeric",
 		expectedNumberOfSubjects = "numeric", 
-		
-		rejectPerStage = "matrix",
-		overallReject = "numeric",
-		futilityPerStage = "matrix",
-		futilityStop = "numeric",		
-		earlyStop = "numeric",
 		
 		criticalValuesEffectScale = "matrix",
 		criticalValuesEffectScaleLower = "matrix",
@@ -1037,7 +1037,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 					xlab = xlab, ylab = ylab, type = type,
 					palette = palette, theta = theta, nMax = nMax, 
 					plotPointsEnabled = plotPointsEnabled, legendPosition = legendPosition, 
-					designSetName = designPlanName, showSource = showSource, ...))
+					designSetName = designPlanName, showSource = showSource,
+					plotSettings = plotSettings, ...))
 		}
 	}
 	
@@ -1314,7 +1315,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 					legendPosition = legendPosition, variedParameters = variedParameters, 
-					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE,
+					plotSettings = plotSettings, ...))
 		} else {
 			if (is.na(main)) {
 				items <- PlotSubTitleItems(title = "Overall Power and Early Stopping")
@@ -1354,14 +1356,16 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 					legendPosition = legendPosition, variedParameters = variedParameters, 
-					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ylim = ylim, ...))
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE,
+					plotSettings = plotSettings, ylim = ylim, ...))
 			} else {
 				return(.plotParameterSet(parameterSet = designPlan, designMaster = designMaster, 
 					xParameterName = xParameterName,
 					yParameterNames = yParameterNames, mainTitle = main, xlab = xlab, ylab = ylab,
 					palette = palette, theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled,
 					legendPosition = legendPosition, variedParameters = variedParameters, 
-					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE, ...))
+					qnormAlphaLineEnabled = FALSE, yAxisScalingEnabled = FALSE,
+					plotSettings = plotSettings, ...))
 			}
 		}
 	} 
@@ -1519,7 +1523,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		else if (type == 12) { # Analysis Time
 			.assertIsValidVariedParameterVectorForPlotting(designPlan, type)
 			if (is.na(main)) {
-				items <- PlotSubTitleItems(title = "Analysis Times")
+				items <- PlotSubTitleItems(title = "Analysis Time")
 				.addPlotSubTitleItems(designPlan, designMaster, items, type)
 				main <- items$toQuote()
 			}
@@ -1562,14 +1566,15 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 					yAxisLabel1 = "Analysis Time", yAxisLabel2 = NA_character_, 
 					plotPointsEnabled = TRUE, legendTitle = "Stage",
 					legendPosition = legendPosition, sided = designMaster$sided, 
-					plotSettings = designPlan$.plotSettings, ...))
+					plotSettings = plotSettings, ...))
 		}
 		
 		else if (type == 13 || type == 14) { # Cumulative Distribution Function / Survival function
 			return(.plotSurvivalFunction(designPlan, designMaster = designMaster, type = type, main = main, 
 				xlab = xlab, ylab = ylab, palette = palette,
 				legendPosition = legendPosition, showSource = showSource,
-				designPlanName = designPlanName, ...))
+				designPlanName = designPlanName, 
+				plotSettings = plotSettings, ...))
 		}
 		
 		else {
@@ -1627,7 +1632,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 # Cumulative Distribution Function / Survival function
 .plotSurvivalFunction <- function(designPlan, ..., designMaster, type = 1L, main = NA_character_, 
 		xlab = NA_character_, ylab = NA_character_, palette = "Set1",
-		legendPosition = NA_integer_, showSource = FALSE, designPlanName = NA_character_) {
+		legendPosition = NA_integer_, showSource = FALSE, 
+		designPlanName = NA_character_, plotSettings = NULL) {
 		
 	if (is.null(designPlan$piecewiseSurvivalTime) || 
 		length(designPlan$piecewiseSurvivalTime) == 0) {
@@ -1840,13 +1846,17 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		return(srcCmd)
 	}
 	
+	if (is.null(plotSettings)) {
+		plotSettings <- designPlan$.plotSettings
+	}
+	
 	return(.plotDataFrame(data2, mainTitle = main, 
 			xlab = xlab, ylab = ylab, xAxisLabel = "Time",
 			yAxisLabel1 = yAxisLabel1, yAxisLabel2 = "Lambda", 
 			plotPointsEnabled = FALSE, legendTitle = NA_character_,
 			legendPosition = legendPosition, scalingFactor1 = 1, 
 			scalingFactor2 = scalingFactor, palette = palette, sided = designMaster$sided,
-			plotSettings = designPlan$.plotSettings))
+			plotSettings = plotSettings))
 }
 
 .warnInCaseOfUnusedValuesForPlottingMeans <- function(alternative) {
@@ -1908,6 +1918,7 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 #' @inheritParams param_theta
 #' @inheritParams param_plotPointsEnabled
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
@@ -1945,15 +1956,16 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 #' 
 #' @export
 #'
-plot.TrialDesignPlan = function(x, y, ..., main = NA_character_,
+plot.TrialDesignPlan <- function(x, y, ..., main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, 
 		type = ifelse(x$.design$kMax == 1, 5L, 1L), palette = "Set1",
 		theta = seq(-1, 1, 0.01), plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, 
-		grid = 1) {
+		grid = 1, plotSettings = NULL) {
 		
 	fCall = match.call(expand.dots = FALSE)
 	designPlanName <- deparse(fCall$x)
+	.assertIsSingleInteger(grid, "grid", validateType = FALSE)
 	
 	nMax <- list(...)[["nMax"]]
 	if (!is.null(nMax)) {
@@ -1962,24 +1974,18 @@ plot.TrialDesignPlan = function(x, y, ..., main = NA_character_,
 	}
 	
 	typeNumbers <- .getPlotTypeNumber(type, x)
-	p <- NULL
-	plotSettings <- NULL
-	if (length(typeNumbers) > 3) {
-		plotSettings <- x$.plotSettings
-		if (is.null(plotSettings)) {
-			plotSettings <- PlotSettings()
-		}
-		if (plotSettings$scalingFactor == 1) {
-			plotSettings$scalingFactor <- 0.6
-		}
+	if (is.null(plotSettings)) {
+		plotSettings <- .getGridPlotSettings(x, typeNumbers, grid)
 	}
+	p <- NULL
 	plotList <- list()
 	for (typeNumber in typeNumbers) {
 		p <- .plotTrialDesignPlan(designPlan = x, 
 			main = main, xlab = xlab, ylab = ylab, type = typeNumber,
 			palette = palette, theta = theta, plotPointsEnabled = plotPointsEnabled, 
-			legendPosition = legendPosition, showSource = showSource,
-			designPlanName = designPlanName, plotSettings = plotSettings, ...)
+			legendPosition = .getGridLegendPosition(legendPosition, typeNumbers, grid), 
+			showSource = showSource, designPlanName = designPlanName, 
+			plotSettings = plotSettings, ...)
 		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
 		if (length(typeNumbers) > 1) {
 			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)

@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4064 $
-#:#  Last changed: $Date: 2020-12-01 17:20:16 +0100 (Tue, 01 Dec 2020) $
+#:#  File version: $Revision: 4947 $
+#:#  Last changed: $Date: 2021-05-31 14:31:17 +0200 (Mo, 31 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -63,7 +63,6 @@ NULL
 	}
 	return(newSubjects)
 }
-
 
 .getSimulatedStageMeansMultiArm <- function(...,
 		design, muVector, stDev, plannedSubjects, typeOfSelection, effectMeasure, 
@@ -125,7 +124,6 @@ NULL
 					(stDev * sqrt(1 / sum(subjectsPerStage[treatmentArm, 1:k]) + 1 / sum(subjectsPerStage[gMax + 1, 1:k])))
 				
 				separatePValues[treatmentArm, k] <- 1 - stats::pnorm(testStatistics[treatmentArm, k])
-				
 			}	
 		}
 		
@@ -158,10 +156,10 @@ NULL
 			if (adaptations[k]) {
 				
 				if (effectMeasure == "testStatistic") {
-					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k], 
+					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(k, overallTestStatistics[, k], 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))				
 				} else if (effectMeasure == "effectEstimate") {
-					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffects[, k], 
+					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(k, overallEffects[, k], 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))
 				}
 				
@@ -199,8 +197,8 @@ NULL
 			}
 			
 			conditionalPowerPerStage[k] <- 1 - stats::pnorm(conditionalCriticalValue[k] - 
-							thetaStandardized * sqrt(plannedSubjects[k + 1] - plannedSubjects[k]) *  
-								sqrt(1 / (1 + allocationRatioPlanned)))
+				thetaStandardized * sqrt(plannedSubjects[k + 1] - plannedSubjects[k]) *  
+				sqrt(1 / (1 + allocationRatioPlanned)))
 		}	
 	}
 
@@ -226,7 +224,7 @@ NULL
 #'
 #' @param muMaxVector Range of effect sizes for the treatment group with highest response 
 #'        for \code{"linear"} and \code{"sigmoidEmax"} model, default is \code{seq(0,1,0.2)}.
-#' @inheritParams param_intersectionTest 
+#' @inheritParams param_intersectionTest_MultiArm 
 #' @inheritParams param_typeOfSelection
 #' @inheritParams param_effectMeasure 
 #' @inheritParams param_adaptations
@@ -321,16 +319,16 @@ getSimulationMultiArmMeans <- function(
 		
 
 	if (is.null(design)) {
-		design <- .getDefaultDesign(..., type = "simulation", multiArmEnabled = TRUE)
+		design <- .getDefaultDesign(..., type = "simulation")
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmMeans", 
-			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, multiArmEnabled = TRUE), "showStatistics"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "showStatistics"), ...)
 	} else {
 		.assertIsTrialDesignInverseNormalOrFisherOrConditionalDunnett(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmMeans", ignore = "showStatistics", ...)
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}
 	
-	.assertIsOneSidedDesign(design)
+	.assertIsOneSidedDesign(design, designType = "multi-arm", engineType = "simulation")
 	
 	calcSubjectsFunctionIsUserDefined <- !is.null(calcSubjectsFunction) 
 	
@@ -534,7 +532,6 @@ getSimulationMultiArmMeans <- function(
 				} 
 				
 				rejectedArmsBefore <- closedTest$rejected[, k] & closedTest$selectedArms[1:gMax, k] | rejectedArmsBefore				
-				
 			}
 		}
 		

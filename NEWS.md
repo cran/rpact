@@ -1,12 +1,37 @@
 
+# rpact 3.1.0
+
+## New features
+
+* Analysis tools for enrichment design testing means, rates, and hazard ratios: function getAnalysisResults() generalized for enrichment designs; function getDataset() generalized for entering stratified data; manual extended for enrichment designs
+* Automatic boundary recalculations during the trial for analysis with alpha spending approach, 
+  including under- and over-running: 
+  setup via the optional parameters 'maxInformation' and 'informationEpsilon' in function getAnalysisResults()
+* The new function getObjectRCode (short: rcmd) returns the original R command which 
+  produced any rpact result object, including all dependencies
+* getWideFormat() and getLongFormat() return a dataset object in wide format (unstacked) or long format (narrow, stacked)
+* Generic function kable() returns the output of an rpact result object formatted in Markdown.
+* Generic function t() returns the transpose of an rpact result object
+
+## Improvements, issues, and changes
+
+* New argument 'plotSettings' added to all plot functions
+* Summary for design, simulation, and analysis unified and extended
+* Issue in getDesignFisher fixed: getDesignFisher(method = "noInteraction", kMax = 3) and getDesignFisher(method = "noInteraction") produced different results
+* 'normalApproximation' default value changed to TRUE for multi-arm analysis of rates
+* Repeated p-values: in search algorithm, upper bound of significance level corrected when considering binding futility bounds
+* testPackage: the default call is now running only a small subset of all available unit tests; with the new 
+  argument 'connection' the owners of the rpact validation documentation 
+  can enter a \code{token} and a \code{secret} to get full access to all unit tests
+* Scaling of grid plots improved
+* Minor improvements
+
 # rpact 3.0.4
 
 * Beta-spending function approach with binding futility bounds
 * Pampallona & Tsiatis design with binding and non-binding futility bounds
 * Argument 'accrualIntensityType' added to getSampleSizeSurvival, getSimulationSurvival, getNumberOfSubjects, and getEventProbabilities
 * Specification of Weibull survival times possible through definition of hazard rates or medians in simulation tool
-* C code replaced by C++ code based on Rcpp
-* Generic function summary() improved
 * Minor improvements
 
 # rpact 3.0.3

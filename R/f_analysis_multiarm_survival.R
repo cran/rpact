@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4401 $
-#:#  Last changed: $Date: 2021-02-15 17:29:02 +0100 (Mo, 15 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4878 $
+#:#  Last changed: $Date: 2021-05-17 17:39:11 +0200 (Mon, 17 May 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 # @title
@@ -63,7 +63,7 @@
 	.assertIsTrialDesignInverseNormal(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsSurvivalInverseNormalMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsMultiArmInverseNormal(design = design, dataInput = dataInput)
 	
@@ -91,12 +91,9 @@
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsSurvivalFisherMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsMultiArmFisher(design = design, dataInput = dataInput)
-	.setValueAndParameterType(results, "iterations", as.integer(iterations), C_ITERATIONS_DEFAULT)
-	.setValueAndParameterType(results, "seed", seed, NA_real_)
-	
 	results <- .getAnalysisResultsSurvivalMultiArmAll(results = results, design = design, dataInput = dataInput, 
 		intersectionTest = intersectionTest, stage = stage, directionUpper = directionUpper, 
 		thetaH0 = thetaH0, thetaH1 = thetaH1, nPlanned = nPlanned, 
@@ -120,7 +117,7 @@
 	.assertIsTrialDesignConditionalDunnett(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsSurvivalConditionalDunnettMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsConditionalDunnett(design = design, dataInput = dataInput)
 	
@@ -145,31 +142,17 @@
 	stageResults <- .getStageResultsSurvivalMultiArm(design = design, dataInput = dataInput, 
 		intersectionTest = intersectionTest, stage = stage, 
 		thetaH0 = thetaH0, directionUpper = directionUpper)
-	results$.stageResults <- stageResults
+	results$.setStageResults(stageResults)
 	.logProgress("Stage results calculated", startTime = startTime)
-	gMax <- nrow(stageResults$testStatistics)
-	
-	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, dataInput$getNumberOfGroups())
+	gMax <- stageResults$getGMax()
 	
 	thetaH1 <- .assertIsValidThetaH1ForMultiArm(thetaH1, stageResults, stage, results = results)
 	
 	.setValueAndParameterType(results, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
 	.setValueAndParameterType(results, "directionUpper", directionUpper, C_DIRECTION_UPPER_DEFAULT)
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	.setValueAndParameterType(results, "thetaH0", thetaH0, C_THETA_H0_MEANS_DEFAULT)
-	if (results$.getParameterType("thetaH1") == C_PARAM_TYPE_UNKNOWN) {
-		.setValueAndParameterType(results, "thetaH1", matrix(thetaH1, ncol = 1),  matrix(rep(NA_real_, gMax), ncol = 1))
-	} else {
-		results$thetaH1 <- matrix(thetaH1, ncol = 1)
-	}
-	
-	.setValueAndParameterType(results, "nPlanned", nPlanned, NA_real_)
-	while (length(results$nPlanned) < design$kMax) {
-		results$nPlanned <- c(NA_real_, results$nPlanned)
-	}
-	if (design$kMax == 1) {
-		results$.setParameterType("nPlanned", C_PARAM_NOT_APPLICABLE)
-	}
+	.setConditionalPowerArguments(results, dataInput, nPlanned, allocationRatioPlanned)
+	.setNPlannedAndThetaH1(results, nPlanned, thetaH1)
 	
 	startTime <- Sys.time()
 	if (!.isTrialDesignConditionalDunnett(design)) {
@@ -242,10 +225,8 @@
 	results$.setParameterType("repeatedConfidenceIntervalUpperBounds", C_PARAM_GENERATED)
 	
 	# repeated p-value
-	if (design$kMax > 1) {	
-		results$repeatedPValues <- .getRepeatedPValuesMultiArm(stageResults = stageResults, tolerance = tolerance)	
-		results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
-	}
+	results$repeatedPValues <- .getRepeatedPValuesMultiArm(stageResults = stageResults, tolerance = tolerance)	
+	results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
 	
 	return(results)
 }
@@ -263,7 +244,7 @@
 	.assertIsValidDirectionUpper(directionUpper, design$sided)
 	.assertIsSingleLogical(calculateSingleStepAdjusted, "calculateSingleStepAdjusted")
 	.warnInCaseOfUnknownArguments(functionName = ".getStageResultsSurvivalMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	gMax <- dataInput$getNumberOfGroups() - 1
@@ -319,6 +300,9 @@
 			} 	
 		}			
 	}
+	
+	.setWeightsToStageResults(design, stageResults)
+	
 	# Calculation of single stage adjusted p-Values and overall test statistics
 	# for determination of RCIs
 	if (calculateSingleStepAdjusted) {
@@ -327,11 +311,12 @@
 		combFisher <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 		
 		if (.isTrialDesignInverseNormal(design)) {	
-			weightsInverseNormal <- .getWeightsInverseNormal(design)
+			weightsInverseNormal <- stageResults$weightsInverseNormal
 		}	
-		if (.isTrialDesignFisher(design)) {
-			weightsFisher <- .getWeightsFisher(design) 
+		else if (.isTrialDesignFisher(design)) {
+			weightsFisher <- stageResults$weightsFisher
 		}
+		
 		for (k in 1:stage) {
 			selected <- sum(!is.na(separatePValues[, k]))
 			allocationRatiosSelected <- as.numeric(na.omit(
@@ -383,16 +368,10 @@
 		if (.isTrialDesignFisher(design)) {	
 			stageResults$combFisher <- combFisher 
 			stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
-			
-			stageResults$weightsFisher <- weightsFisher
-			stageResults$.setParameterType("weightsFisher", C_PARAM_GENERATED)
 		}
 		else if (.isTrialDesignInverseNormal(design)) {
 			stageResults$combInverseNormal <- combInverseNormal 
 			stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
-			
-			stageResults$weightsInverseNormal <- weightsInverseNormal
-			stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
 		}
 		
 	} else {
@@ -472,6 +451,7 @@
 	
 	# Confidence interval for second stage when using conditional Dunnett test
 	if (.isTrialDesignConditionalDunnett(design)) {
+		startTime <- Sys.time()
 		for (treatmentArm in 1:gMax) {
 			if (!is.na(stageResults$testStatistics[treatmentArm, 2])) {
 				
@@ -531,7 +511,7 @@
 				}
 			}
 		}
-		
+		.logProgress("Confidence intervals for final stage calculated", startTime = startTime)
 	} else {
 		# Repeated onfidence intervals when using combination tests
 		
@@ -651,7 +631,7 @@
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsSurvivalMultiArmInverseNormal", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	return(.getRepeatedConfidenceIntervalsSurvivalMultiArmAll(design = design, dataInput = dataInput, 
 		directionUpper = directionUpper, intersectionTest = intersectionTest,
@@ -669,7 +649,7 @@
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsSurvivalMultiArmFisher", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	return(.getRepeatedConfidenceIntervalsSurvivalMultiArmAll(design = design, dataInput = dataInput, 
 		directionUpper = directionUpper, intersectionTest = intersectionTest,
@@ -687,7 +667,7 @@
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsSurvivalMultiArmConditionalDunnett", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	return(.getRepeatedConfidenceIntervalsSurvivalMultiArmAll(design = design, dataInput = dataInput, 
 		directionUpper = directionUpper, intersectionTest = intersectionTest,
@@ -720,7 +700,7 @@
 		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_) {
 	
 	design <- stageResults$.design
-	gMax <- nrow(stageResults$testStatistics)
+	gMax <- stageResults$getGMax()
 	kMax <- design$kMax
 	
 	results <- ConditionalPowerResultsMultiArmSurvival(
@@ -748,8 +728,9 @@
 	.assertIsValidNPlanned(nPlanned, kMax, stage)
 	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")	
 	.assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
-	
+	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	thetaH1 <- .assertIsValidThetaH1ForMultiArm(thetaH1, stageResults, stage, results = results)
+	results$.setParameterType("nPlanned", C_PARAM_USER_DEFINED)
 	
 	if (any(thetaH1 <= 0, na.rm = TRUE)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'thetaH1' (", thetaH1, ") must be > 0")
@@ -795,13 +776,12 @@
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerSurvivalMultiArmInverseNormal", ...)
 	
 	kMax <- design$kMax	
-	gMax <- nrow(stageResults$testStatistics)	
+	gMax <- stageResults$getGMax()	
 	weights <- .getWeightsInverseNormal(design)
 	informationRates <- design$informationRates
 	nPlanned <- c(rep(NA_real_, stage), nPlanned)	
 	nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 	
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	if (length(thetaH1) == 1) {
 		thetaH1 <- rep(thetaH1, gMax)
 		results$.setParameterType("thetaH1", C_PARAM_GENERATED)
@@ -875,18 +855,17 @@
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerSurvivalMultiArmFisher", ...)
 	kMax <- design$kMax	
-	gMax <- nrow(stageResults$testStatistics)
+	gMax <- stageResults$getGMax()
 	criticalValues <- design$criticalValues
 	weightsFisher <- .getWeightsFisher(design) 
 	
 	results$iterations <- as.integer(iterations) 
 	results$.setParameterType("iterations", C_PARAM_USER_DEFINED)
-	results$.setParameterType("seed", ifelse(is.na(seed), C_PARAM_GENERATED, C_PARAM_USER_DEFINED))
+	results$.setParameterType("seed", ifelse(is.na(seed), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 	results$seed <- .setSeed(seed)
 	results$simulated <- FALSE
 	results$.setParameterType("simulated", C_PARAM_DEFAULT_VALUE)
 	
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	if (length(thetaH1) == 1) {
 		thetaH1 <- rep(thetaH1, gMax)
 		results$.setParameterType("thetaH1", C_PARAM_GENERATED)
@@ -946,6 +925,14 @@
 	results$.setParameterType("conditionalPower", C_PARAM_GENERATED)
 	
 	results$thetaH1 <- thetaH1
+	
+	if (!results$simulated) {
+		results$iterations <- NA_integer_
+		results$seed <- NA_real_
+		results$.setParameterType("iterations", C_PARAM_NOT_APPLICABLE)
+		results$.setParameterType("seed", C_PARAM_NOT_APPLICABLE)
+	}
+	
 	return(results)	
 }
 
@@ -963,11 +950,10 @@
 		warning("Conditional power is only calculated for the first (interim) stage", call. = FALSE)
 	}	
 	
-	gMax <- nrow(stageResults$testStatistics)	
+	gMax <- stageResults$getGMax()	
 	nPlanned <- c(rep(NA_real_, stage), nPlanned)	
 	nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 	
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	if (length(thetaH1) == 1) {
 		thetaH1 <- rep(thetaH1, gMax)
 		results$.setParameterType("thetaH1", C_PARAM_GENERATED)
@@ -1012,7 +998,7 @@
 	
 	design <- stageResults$.design
 	kMax <- design$kMax
-	gMax <- nrow(stageResults$testStatistics)
+	gMax <- stageResults$getGMax()
 	intersectionTest <- stageResults$intersectionTest
 	
 	thetaRange <- .assertIsValidThetaH1ForMultiArm(thetaH1 = thetaRange)
@@ -1069,8 +1055,8 @@
 	}	
 	
 	subTitle <- paste0("Intersection test = ", intersectionTest, 
-		", Stage = ", stage, ", # of remaining events = ", 
-		sum(nPlanned), ", allocation ratio = ", allocationRatioPlanned)
+		", Stage = ", stage, ", # of remaining events = ", sum(nPlanned), 
+		", allocation ratio = ", .formatSubTitleValue(allocationRatioPlanned, "allocationRatioPlanned"))
 	
 	return(list(
 		treatmentArms = treatmentArms,			

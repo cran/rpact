@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4435 $
-#:#  Last changed: $Date: 2021-02-18 11:57:34 +0100 (Thu, 18 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 #' @title
@@ -31,6 +31,8 @@
 #' @inheritParams param_nPlanned
 #' @inheritParams param_allocationRatioPlanned
 #' @inheritParams param_stage
+#' @inheritParams param_maxInformation
+#' @inheritParams param_informationEpsilon
 #' @param ... Further arguments to be passed to methods (cf. separate functions in "See Also" below), e.g.,
 #' \describe{
 #'   \item{\code{thetaH1} and \code{assumedStDev} or \code{pi1}, \code{pi2}}{The 
@@ -53,15 +55,25 @@
 #'   \item{\code{seed}}{Seed for simulating the power for Fisher's combination test. 
 #'       See above, default is a random seed.}
 #'   \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
-#'       hypotheses in the closed system of hypotheses when testing multiple treatment arms. 
-#'       Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
-#'       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
+#'       hypotheses in the closed system of hypotheses when testing multiple hypotheses. 
+#'       Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+#'       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.
+#'       Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only), 
+#'       \code{"Bonferroni"}, \code{"Simes"}, and \code{"Sidak"}, default is \code{"Simes"}.}
 #'   \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
-#' 	  for testing means. Three options are available: \code{"overallPooled"}, 
-#'        \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.}
+#'   	 or population enrichment designs for testing means. For multiple arms, three options are available: 
+#'        \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}. 
+#'       For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only),
+#'       and \code{"notPooled"}, default is \code{"pooled"}.}
 #'   \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The 
-#'       assumed effect size or assumed rates to calculate the conditional power in multi-arm trials.
-#'       You can specify a value or a vector with elements referring to the treatment arms.}
+#'       assumed effect size or assumed rates to calculate the conditional power in multi-arm trials
+#'       or enrichment designs. For survival designs, \code{thetaH1} refers to the hazard ratio.
+#'       You can specify a value or a vector with elements referring to the 
+#'       treatment arms or the sub-populations, respectively. If not specified, the conditional
+#'       power is calculated under the assumption of observed effect sizes, standard deviations, rates, or hazard ratios.}
+#'   \item{\code{stratifiedAnalysis}}{For enrichment designs, typically a stratified analysis should be chosen.
+#'       For testing means and rates, also a non-stratified analysis based on overall data can be performed. 
+#'       For survival data, only a stratified analysis is possible (see Brannath et al., 2009), default is \code{TRUE}.}
 #' }
 #' 
 #' @details
@@ -71,7 +83,8 @@
 #' repeated overall p-values, and final stage p-values, median unbiased effect estimates, 
 #' and final confidence intervals. 
 #' 
-#' For designs with more than two treatments arms (multi-arm designs) a closed combination test is performed.
+#' For designs with more than two treatments arms (multi-arm designs) or enrichment designs 
+#' a closed combination test is performed.
 #' That is, additionally the statistics to be used in a closed testing procedure are provided.
 #'  
 #' The conditional power is calculated only if effect size and sample size 
@@ -85,7 +98,7 @@
 #' For Fisher's combination test, the conditional power for more than one remaining stages is estimated via simulation.     
 #' 
 #' Final stage p-values, median unbiased effect estimates, and final confidence intervals are not calculated
-#' for multi-arm designs.  
+#' for multi-arm and enrichment designs.  
 #' 
 #' @return Returns an \code{\link{AnalysisResults}} object.
 #' The following generics (R generic functions) are available for this result object:
@@ -102,6 +115,9 @@
 #' @template details_analysis_base_mnormt_dependency
 #' 
 #' @seealso 
+#' \itemize{
+#'   \item \code{\link{getObservedInformationRates}} for recalculation the observed information rates.
+#' }
 #' 
 #' @family analysis functions
 #' 
@@ -115,27 +131,106 @@ getAnalysisResults <- function(
 		thetaH0 = NA_real_, 
 		nPlanned = NA_real_,
 		allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
-		stage = NA_integer_
+		stage = NA_integer_, 
+		maxInformation = NULL, 
+		informationEpsilon = NULL
 		) {
 
 	if (missing(dataInput) && !missing(design) && inherits(design, "Dataset")) {
 		dataInput <- design
-		design <- .getDefaultDesign(..., type = "analysis", multiArmEnabled = .isMultiArmDataset(dataInput))
+		design <- .getDefaultDesign(..., type = "analysis")
 	} else if (!missing(dataInput) && missing(design)) {
-		design <- .getDefaultDesign(..., type = "analysis", multiArmEnabled = .isMultiArmDataset(dataInput))
+		design <- .getDefaultDesign(..., type = "analysis")
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}
 	
-	.assertIsOneSidedForMultiArmAnalysis(design, dataInput)
+	informationRatesRecalculated <- FALSE
+	if (.isAlphaSpendingDesign(design) && .isTrialDesignGroupSequential(design) && !.isMultiArmDataset(dataInput)) {
+		observedInformationRates <- NULL
+		absoluteInformations <- NULL
+		status <- NULL
+		if (!is.null(maxInformation) && !is.na(maxInformation)) {
+			observedInformation <- getObservedInformationRates(
+				dataInput, maxInformation = maxInformation, informationEpsilon = informationEpsilon)
+			observedInformationRates <- observedInformation$informationRates
+			absoluteInformations <- observedInformation$absoluteInformations
+			status <- observedInformation$status
+		} else if (!is.null(informationEpsilon) && !is.na(informationEpsilon)) {
+			warning("'informationEpsilon' (", .arrayToString(informationEpsilon), 
+				") will be ignored because 'maxInformation' is undefined", call. = FALSE)
+		}
+		if (!is.null(observedInformationRates)) {
+			stageFromData <- dataInput$getNumberOfStages()
+			if (!is.null(status) && status %in% c("under-running", "over-running") && 
+					length(observedInformationRates) > 1) {
+					
+				if (stageFromData == 1) {
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Recalculation of the information rates not possible at stage 1")
+				}
+				
+				message("Calculate alpha values that has actually been spent ",
+					"at earlier interim analyses at stage ", (stageFromData - 1))
+				observedInformationRatesBefore <- getObservedInformationRates(
+					dataInput, maxInformation = maxInformation, 
+					informationEpsilon = informationEpsilon, stage = stageFromData - 1)$informationRates
+				if (length(observedInformationRatesBefore) < length(design$informationRates)) {
+					for (i in (length(observedInformationRatesBefore) + 1):length(design$informationRates)) {
+						if (observedInformationRatesBefore[length(observedInformationRatesBefore)] < 1) {
+							observedInformationRatesBefore <- c(observedInformationRatesBefore, design$informationRates[i])
+						}
+					}
+				}
+				
+				designBefore <- eval(parse(text = getObjectRCode(design, 
+					newArgumentValues = list(
+						informationRates = observedInformationRatesBefore), 
+					stringWrapParagraphWidth = NULL)))
+		
+				userAlphaSpending <- designBefore$alphaSpent
+				message("Use alpha values that has actually been spent at earlier interim analyses (", 
+					.arrayToString(userAlphaSpending), ") ",
+					"and spend all remaining alpha at the final analysis")
+				observedInformationRates <- getObservedInformationRates(
+					dataInput, maxInformation = absoluteInformations[stageFromData], 
+					informationEpsilon = informationEpsilon)$informationRates
+				design <- eval(parse(text = getObjectRCode(design, 
+					newArgumentValues = list(informationRates = observedInformationRates,
+						userAlphaSpending = userAlphaSpending,
+						typeOfDesign = C_TYPE_OF_DESIGN_AS_USER), 
+					stringWrapParagraphWidth = NULL)))
+			} else {
+				design <- eval(parse(text = getObjectRCode(design, 
+					newArgumentValues = list(informationRates = observedInformationRates), 
+					stringWrapParagraphWidth = NULL)))
+			}	
+			informationRatesRecalculated <- TRUE
+		}
+	} else {
+		if (!is.null(maxInformation) && !is.na(maxInformation)) {
+			warning("'maxInformation' (", .arrayToString(maxInformation), 
+				") will be ignored because it is only applicable for ",
+				"alpha spending group sequential designs with a single hypothesis", call. = FALSE)
+		}
+		if (!is.null(informationEpsilon) && !is.na(informationEpsilon)) {
+			warning("'informationEpsilon' (", .arrayToString(informationEpsilon), 
+				") will be ignored because it is only applicable for ",
+				"alpha spending group sequential designs with a single hypothesis", call. = FALSE)
+		}
+	}
+	
+	if (.isEnrichmentDataset(dataInput)) {
+		return(.getAnalysisResultsEnrichment(
+			design = design, dataInput = dataInput,
+			directionUpper = directionUpper, 
+			thetaH0 = thetaH0, 
+			nPlanned = nPlanned, 
+			allocationRatioPlanned = allocationRatioPlanned, 
+			stage = stage, ...))
+	}
 	
 	if (.isMultiArmDataset(dataInput)) {
-		sided <- .getOptionalArgument("sided", ...)
-		if (!is.null(sided)) {
-			warning("Argument unknown in getAnalysisResults(...): 'sided' = ", sided, " will be ignored", call. = FALSE)
-		}
-		
 		return(.getAnalysisResultsMultiArm(
 			design = design, dataInput = dataInput,
 			directionUpper = directionUpper, 
@@ -145,43 +240,57 @@ getAnalysisResults <- function(
 			stage = stage, ...))
 	}
 	
-	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design, stage = stage, showWarnings = TRUE)
+	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, 
+		design = design, stage = stage, showWarnings = TRUE)
 	.assertIsValidDirectionUpper(directionUpper, sided = design$sided)
 	.assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
 	on.exit(dataInput$.trim())
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
-	.assertAreSuitableInformationRates(design, dataInput, stage = stage)
+	if (is.null(maxInformation) || is.na(maxInformation)) {
+		.assertAreSuitableInformationRates(design, dataInput, stage = stage)
+	}	
 	.assertIsValidNPlanned(nPlanned, design$kMax, stage, required = FALSE)
-	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, numberOfGroups = dataInput$getNumberOfGroups())
+	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, 
+		numberOfGroups = dataInput$getNumberOfGroups())
 		
+	result <- NULL
 	if (dataInput$isDatasetMeans()) {
 		if (is.na(thetaH0)) {
 			thetaH0 = C_THETA_H0_MEANS_DEFAULT
 		}
-		return(.getAnalysisResultsMeans(design = design, dataInput = dataInput, 
+		result <- .getAnalysisResultsMeans(design = design, dataInput = dataInput, 
 			directionUpper = directionUpper, thetaH0 = thetaH0, nPlanned = nPlanned, 
-			allocationRatioPlanned = allocationRatioPlanned, stage = stage, ...))
-	}
-
-	if (dataInput$isDatasetRates()) {
+			allocationRatioPlanned = allocationRatioPlanned, stage = stage, ...)
+	} else if (dataInput$isDatasetRates()) {
 		if (is.na(thetaH0)) {
 			thetaH0 = C_THETA_H0_RATES_DEFAULT
 		}
-		return(.getAnalysisResultsRates(design = design, dataInput = dataInput,  
+		result <- .getAnalysisResultsRates(design = design, dataInput = dataInput,  
 			directionUpper = directionUpper, thetaH0 = thetaH0, nPlanned = nPlanned, 
-			allocationRatioPlanned = allocationRatioPlanned, stage = stage, ...))
-	}
-	
-	if (dataInput$isDatasetSurvival()) {
+			allocationRatioPlanned = allocationRatioPlanned, stage = stage, ...)
+	} else if (dataInput$isDatasetSurvival()) {
 		if (is.na(thetaH0)) {
 			thetaH0 = C_THETA_H0_SURVIVAL_DEFAULT
 		}
-		return(.getAnalysisResultsSurvival(design = design, dataInput = dataInput, 
+		result <- .getAnalysisResultsSurvival(design = design, dataInput = dataInput, 
 			directionUpper = directionUpper, thetaH0 = thetaH0, nPlanned = nPlanned, 
-			allocationRatioPlanned = allocationRatioPlanned, stage = stage, ...))
+			allocationRatioPlanned = allocationRatioPlanned, stage = stage, ...)
 	}
 	
-	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+	if (is.null(result)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+	}
+	
+	if (informationRatesRecalculated) {
+		result$maxInformation <- as.integer(maxInformation)
+		result$.setParameterType("maxInformation", C_PARAM_USER_DEFINED)
+		if (!is.null(informationEpsilon) && !is.na(informationEpsilon)) {
+			result$informationEpsilon <- informationEpsilon
+			result$.setParameterType("informationEpsilon", C_PARAM_USER_DEFINED)
+		}
+	}
+	
+	return(result)
 }
 
 #' @title
@@ -222,13 +331,20 @@ getAnalysisResults <- function(
 #'   \item{\code{directionUpper}}{The direction of one-sided testing. 
 #'       Default is \code{TRUE} which means that larger values of the 
 #'       test statistics yield smaller p-values.}
-#' 	 \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
-#'        hypotheses in the closed system of hypotheses when testing multiple treatment arms. 
-#'        Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
-#'        \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
-#' 	 \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
-#' 		  for testing means. Three options are available: \code{"overallPooled"}, 
-#'        \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.}
+#'   \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
+#'       hypotheses in the closed system of hypotheses when testing multiple hypotheses. 
+#'       Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+#'       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.
+#'       Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only), 
+#'       \code{"Bonferroni"}, \code{"Simes"}, and \code{"Sidak"}, default is \code{"Simes"}.}
+#'   \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
+#'   	 or population enrichment designs for testing means. For multiple arms, three options are available: 
+#'       \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}. 
+#'       For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only), 
+#'       and \code{"notPooled"}, default is \code{"pooled"}.}
+#'   \item{\code{stratifiedAnalysis}}{For enrichment designs, typically a stratified analysis should be chosen.
+#'     For testing means and rates, also a non-stratified analysis based on overall data can be performed. 
+#'     For survival data, only a stratified analysis is possible (see Brannath et al., 2009), default is \code{TRUE}.}
 #' }
 #' 
 #' @details
@@ -255,6 +371,11 @@ getStageResults <- function(design, dataInput, ..., stage = NA_integer_) {
 	
 	if (.isMultiArmDataset(dataInput)) {
 		return(.getStageResultsMultiArm(
+			design = design, dataInput = dataInput, stage = stage, ...))
+	}
+
+	if (.isEnrichmentDataset(dataInput)) {
+		return(.getStageResultsEnrichment(
 			design = design, dataInput = dataInput, stage = stage, ...))
 	}
 	
@@ -333,7 +454,7 @@ getTestActions <- function(stageResults, ...) {
 	
 	stageResults <- .getStageResultsObject(stageResults, functionName = "getTestActions", ...)
 	.stopInCaseOfIllegalStageDefinition(stageResults, ...)
-	.assertIsStageResultsNonMultiArm(stageResults)
+	.assertIsStageResultsNonMultiHypotheses(stageResults)
 	design <- stageResults$.design
 	
 	testActions <- rep(NA_character_, design$kMax)
@@ -474,13 +595,20 @@ getTestActions <- function(stageResults, ...) {
 #'   \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
 #'       the t test assuming that the variances are equal or the t test without assuming this, 
 #'       i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
-#' 	 \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
-#'       hypotheses in the closed system of hypotheses when testing multiple treatment arms. 
-#'       Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
-#'       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
-#' 	 \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple samples  
-#' 		  for testing means. Three options are available: \code{"overallPooled"}, 
-#'        \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.}
+#'   \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
+#'       hypotheses in the closed system of hypotheses when testing multiple hypotheses. 
+#'       Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+#'       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.
+#'       Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only), 
+#'       \code{"Bonferroni"}, \code{"Simes"}, and \code{"Sidak"}, default is \code{"Simes"}.}
+#'   \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
+#'   	 or population enrichment designs for testing means. For multiple arms, three options are available: 
+#'       \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}. 
+#'       For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only), 
+#'       and \code{"notPooled"}, default is \code{"pooled"}.}
+#'   \item{\code{stratifiedAnalysis}}{For enrichment designs, typically a stratified analysis should be chosen.
+#'     For testing means and rates, also a non-stratified analysis based on overall data can be performed. 
+#'     For survival data, only a stratified analysis is possible (see Brannath et al., 2009), default is \code{TRUE}.}
 #' }
 #'  
 #' @details
@@ -507,6 +635,12 @@ getRepeatedConfidenceIntervals <- function(design, dataInput, ...,
 		) {
 	
 	.assertIsValidTolerance(tolerance)
+	
+	if (.isEnrichmentDataset(dataInput)) {
+		return(.getRepeatedConfidenceIntervalsEnrichment(
+			design = design, dataInput = dataInput, stage = stage, ...))
+	}
+	
 	if (.isMultiArmDataset(dataInput)) {
 		return(.getRepeatedConfidenceIntervalsMultiArm(
 			design = design, dataInput = dataInput, stage = stage, ...))
@@ -574,15 +708,16 @@ getRepeatedConfidenceIntervals <- function(design, dataInput, ...,
 #' @inheritParams param_allocationRatioPlanned
 #' @param ... Further (optional) arguments to be passed:
 #' \describe{
-#'   \item{\code{thetaH1} and \code{assumedStDev} or \code{pi1}, \code{pi2}}{The 
-#'       assumed effect size or assumed rates to calculate the 
-#'       conditional power. Depending on the type of dataset, either \code{thetaH1} (means and survival) 
-#'       or \code{pi1}, \code{pi2} (rates) can be specified. 
-#'       For testing means, an assumed standard deviation can be specified, default is \code{1}.}
+#'   \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The 
+#'      assumed effect size or assumed rates to calculate the conditional power in multi-arm trials
+#'      or enrichment designs. For survival designs, \code{thetaH1} refers to the hazard ratio.
+#'      You can specify a value or a vector with elements referring to the 
+#'      treatment arms or the sub-populations, respectively.
+#'      For testing means, an assumed standard deviation can be specified, default is \code{1}.}
 #'   \item{\code{iterations}}{Iterations for simulating the power for Fisher's combination test. 
 #'       If the power for more than one remaining stages is to be determined for Fisher's combination test, 
 #'       it is estimated via simulation with specified \cr 
-#' 		 \code{iterations}, the default value is \code{10000}.}
+#'       \code{iterations}, the default value is \code{10000}.}
 #'   \item{\code{seed}}{Seed for simulating the power for Fisher's combination test. 
 #'       See above, default is a random seed.}
 #' }
@@ -623,22 +758,25 @@ getConditionalPower <- function(stageResults, ..., nPlanned,
 	stageResults <- .getStageResultsObject(stageResults = stageResults, functionName = "getConditionalPower", ...)
 	
 	conditionalPower <- NULL
-	if (.isMultiArmStageResults(stageResults)) {
+	if (.isEnrichmentStageResults(stageResults)) {
+		conditionalPower <- .getConditionalPowerEnrichment(stageResults = stageResults, 
+			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
+	} else if (.isMultiArmStageResults(stageResults)) {
 		conditionalPower <- .getConditionalPowerMultiArm(stageResults = stageResults, 
 			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
 	} else {
 		.assertIsStageResults(stageResults)
 		if (stageResults$isDatasetMeans()) {
 			conditionalPower <- .getConditionalPowerMeans(stageResults = stageResults,
-					nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
+				nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
 		}
 		else if (stageResults$isDatasetRates()) {
 			conditionalPower <- .getConditionalPowerRates(stageResults = stageResults,
-					nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
+				nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
 		}
 		else if (stageResults$isDatasetSurvival()) {
 			conditionalPower <- .getConditionalPowerSurvival(stageResults = stageResults,
-					nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
+				nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...)
 		}
 	}
 	if (!is.null(conditionalPower)) {
@@ -648,6 +786,12 @@ getConditionalPower <- function(stageResults, ..., nPlanned,
 				stageResults = stageResults, nPlanned = nPlanned, 
 				allocationRatioPlanned = allocationRatioPlanned, ...)
 		}
+		
+		conditionalPower$.setParameterType("nPlanned", C_PARAM_USER_DEFINED)
+		conditionalPower$.setParameterType("allocationRatioPlanned", 
+			ifelse(allocationRatioPlanned == C_ALLOCATION_RATIO_DEFAULT, 
+				C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+		
 		return(conditionalPower)
 	} else {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", 
@@ -660,6 +804,11 @@ getConditionalPower <- function(stageResults, ..., nPlanned,
 		
 	if (.isMultiArmStageResults(stageResults)) {
 		return(.getConditionalPowerPlotMultiArm(stageResults = stageResults,
+			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...))
+	}
+	
+	if (.isEnrichmentStageResults(stageResults)) {
+		return(.getConditionalPowerPlotEnrichment(stageResults = stageResults,
 			nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...))
 	}
 	
@@ -738,6 +887,10 @@ getRepeatedPValues <- function(stageResults, ...,
 	stageResults <- .getStageResultsObject(stageResults, functionName = "getRepeatedPValues", ...)
 	.stopInCaseOfIllegalStageDefinition(stageResults, ...)
 	
+	if (.isEnrichmentStageResults(stageResults)) {
+		return(.getRepeatedPValuesEnrichment(stageResults = stageResults, tolerance = tolerance, ...))
+	}
+	
 	if (.isMultiArmStageResults(stageResults)) {
 		return(.getRepeatedPValuesMultiArm(stageResults = stageResults, tolerance = tolerance, ...))
 	}
@@ -746,7 +899,8 @@ getRepeatedPValues <- function(stageResults, ...,
 	design <- stageResults$.design
 	
 	if (design$kMax == 1) {
-		return(rep(NA_real_, design$kMax))
+		#return(rep(NA_real_, design$kMax))
+		return(ifelse(design$sided == 1, stageResults$pValues[1], 2*min(stageResults$pValues[1], 1 - stageResults$pValues[1])))
 	}
 	
 	if (.isTrialDesignInverseNormalOrGroupSequential(design)) {
@@ -755,6 +909,7 @@ getRepeatedPValues <- function(stageResults, ...,
 				C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
 			return(rep(NA_real_, design$kMax))
 		}
+		
 		if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
 			warning("Repeated p-values not available for 'typeOfDesign' = '", 
 					C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
@@ -871,18 +1026,29 @@ getRepeatedPValues <- function(stageResults, ...,
 	return(list(finalStage = NA_integer_, pFinal = NA_real_))
 }
 
+.setWeightsToStageResults <- function(design, stageResults) {
+	if (.isTrialDesignInverseNormal(design)) {
+		stageResults$weightsInverseNormal <- .getWeightsInverseNormal(design)
+		stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
+	}
+	else if (.isTrialDesignFisher(design)) {	
+		stageResults$weightsFisher <- .getWeightsFisher(design) 
+		stageResults$.setParameterType("weightsFisher", C_PARAM_GENERATED)
+	}
+}
+
 # 
 # Returns the weights for inverse normal statistic
 # 
 .getWeightsInverseNormal <- function(design) {
-	weights <- rep(NA, design$kMax) 
-	weights[1] <- sqrt(design$informationRates[1])
 	if (design$kMax == 1) {
-		return(weights)
+		return(1)
 	}
 	
+	weights <- rep(NA, design$kMax) 
+	weights[1] <- sqrt(design$informationRates[1])
 	weights[2:design$kMax] <- sqrt(design$informationRates[2:design$kMax] - 
-					design$informationRates[1:(design$kMax - 1)]) 
+		design$informationRates[1:(design$kMax - 1)]) 
 	return(weights)
 }
 
@@ -890,12 +1056,12 @@ getRepeatedPValues <- function(stageResults, ...,
 # Returns the weights for Fisher's combination test statistic
 # 
 .getWeightsFisher <- function(design) {
-	weights <- rep(NA, design$kMax) 
-	weights[1] <- 1
 	if (design$kMax == 1) {
-		return(weights)
+		return(1)
 	}
 	
+	weights <- rep(NA, design$kMax) 
+	weights[1] <- 1
 	weights[2:design$kMax] <- sqrt((design$informationRates[2:design$kMax] - 
 		design$informationRates[1:(design$kMax - 1)]) / design$informationRates[1]) 
 	return(weights)
@@ -1114,7 +1280,7 @@ getFinalPValue <- function(stageResults, ...) {
 	
 	.stopInCaseOfIllegalStageDefinition(stageResults, ...)
 	
-	.assertIsStageResultsNonMultiArm(stageResults)
+	.assertIsStageResultsNonMultiHypotheses(stageResults)
 	
 	if (stageResults$.design$kMax == 1) {
 		return(list(finalStage = NA_integer_, pFinal = NA_real_))
@@ -1162,11 +1328,9 @@ getFinalPValue <- function(stageResults, ...) {
 #'   \item{\code{normalApproximation}}{
 #'       The type of computation of the p-values. Default is \code{FALSE} for 
 #'       testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio. 
-#'       For testing rates, if \cr 
-#'       \code{normalApproximation = FALSE} is specified, the binomial test 
+#'       For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
 #'       (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
-#'       In the survival setting, \cr
-#'       \code{normalApproximation = FALSE} has no effect.}  
+#'       In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
 #'   \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
 #'       the t test assuming that the variances are equal or the t test without assuming this, 
 #'       i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
@@ -1209,7 +1373,8 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 	.assertIsTrialDesign(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design, stage = stage)
 	.assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
-	.assertIsDatasetNonMultiArm(dataInput)
+	
+	.assertIsDatasetNonMultiHypotheses(dataInput)
 	on.exit(dataInput$.trim())
 	
 	if (design$bindingFutility) {
@@ -1245,24 +1410,6 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 	design <- stageResults$.design
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
-		warning("Repeated p-values not available for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
-		return(repeatedPValues)
-	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
-		message("Repeated p-values for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_HP, "' will only be calculated for the final stage")
-		return(repeatedPValues)
-	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
-		warning("Repeated p-values not available for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
-		return(repeatedPValues)
-	}
-	
 	repeatedPValues <- rep(NA_real_, design$kMax)
 	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP && stageResults$stage == design$kMax) {
 		
@@ -1277,13 +1424,9 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 				typeOfDesign = C_TYPE_OF_DESIGN_HP, 
 				futilityBounds = design$futilityBounds,
 				bindingFutility = design$bindingFutility)$alphaSpent[design$kMax - 1] + tolerance
-			if (design$bindingFutility) {
-				upper <- min(0.5, 1 - stats::pnorm(max(design$futilityBounds)))
-			} else {
-				upper <- 0.5
-			}	
+			upper <- 0.5
 			repeatedPValues[design$kMax] <- .getOneDimensionalRootBisectionMethod(
-				f = function(level) {
+				fun = function(level) {
 					y <- .getDesignGroupSequential(kMax = design$kMax, alpha = level, 
 							sided = design$sided, 
 							informationRates = design$informationRates, 
@@ -1303,6 +1446,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 					acceptResultsOutOfTolerance = TRUE, suppressWarnings = TRUE,
 					callingFunctionInformation = ".getRepeatedPValuesGroupSequential"
 			)
+			.logProgress("Repeated p-values for final stage calculated", startTime = startTime)
 		}
 		
 	} else {
@@ -1310,15 +1454,15 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 		deltaWT <- design$deltaWT
 		typeBetaSpending = design$typeBetaSpending
 		
-		if (!design$bindingFutility){
-			if (design$typeOfDesign == "PT"){
-				typeOfDesign <- "WT"
+		if (!design$bindingFutility) {
+			if (design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
+				typeOfDesign <- C_TYPE_OF_DESIGN_WT
 				deltaWT <- design$deltaPT1
 			}
-			if (design$typeBetaSpending != "none"){
+			if (design$typeBetaSpending != "none") {
 				typeBetaSpending <- "none"
 			}	
-		} else if ((design$typeOfDesign == "PT") || (design$typeBetaSpending != "none")){
+		} else if ((design$typeOfDesign == C_TYPE_OF_DESIGN_PT) || (design$typeBetaSpending != "none")) {
 			message("Calculation of repeated p-values might take a while for binding case, please wait...")
 		}
 		
@@ -1327,13 +1471,9 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 				repeatedPValues[k] <- tolerance
 			} else {
 				startTime <- Sys.time()
-				if (design$bindingFutility) {
-					upper <- min(0.5, 1 - stats::pnorm(max(design$futilityBounds)))
-				} else {
-					upper <- 0.5
-				}	
+				upper <- 0.5
 				repeatedPValues[k] <- .getOneDimensionalRootBisectionMethod(
-					f = function(level) {
+					fun = function(level) {
 						y <- .getDesignGroupSequential(kMax = design$kMax, alpha = level, 
 							sided = design$sided, 
 							informationRates = design$informationRates, 
@@ -1358,7 +1498,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 						acceptResultsOutOfTolerance = TRUE, suppressWarnings = TRUE,
 						callingFunctionInformation = ".getRepeatedPValuesGroupSequential"
 				)
-				.logProgress("Overall repeated p-values of stage %s calculated", startTime = startTime, k)
+				.logProgress("Repeated p-values of stage %s calculated", startTime = startTime, k)
 			}
 		}
 	}
@@ -1376,24 +1516,6 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	.warnInCaseOfUnknownArguments(functionName = ".getRepeatedPValuesInverseNormal", ...)
 	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
-		warning("Repeated p-values not available for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_AS_USER, "'", call. = FALSE)
-		return(repeatedPValues)
-	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
-		message("Repeated p-values for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_HP, "' will only be calculated for the final stage")
-		return(repeatedPValues)
-	}
-	
-	if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
-		warning("Repeated p-values not available for 'typeOfDesign' = '", 
-				C_TYPE_OF_DESIGN_WT_OPTIMUM, "'", call. = FALSE)
-		return(repeatedPValues)
-	}	
-	
 	repeatedPValues <- rep(NA_real_, design$kMax)
 	
 	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP && stageResults$stage == design$kMax) {
@@ -1408,13 +1530,9 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 				typeOfDesign = C_TYPE_OF_DESIGN_HP, 
 				futilityBounds = design$futilityBounds,
 				bindingFutility = design$bindingFutility)$alphaSpent[design$kMax - 1] + tolerance
-			if (design$bindingFutility) {
-				upper <- min(0.5, 1 - stats::pnorm(max(design$futilityBounds)))
-			} else {
-				upper <- 0.5
-			}	
+			upper <- 0.5
 			repeatedPValues[design$kMax] <- .getOneDimensionalRootBisectionMethod(
-				f = function(level) {
+				fun = function(level) {
 					y <- .getDesignGroupSequential(kMax = design$kMax, 
 						alpha = level, 
 						sided = design$sided, 
@@ -1434,21 +1552,22 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 					acceptResultsOutOfTolerance = TRUE, suppressWarnings = TRUE,
 					callingFunctionInformation = ".getRepeatedPValuesInverseNormal"
 			)
+			.logProgress("Repeated p-values for final stage calculated", startTime = startTime)
 		}
 	} else {
 		typeOfDesign <- design$typeOfDesign
 		deltaWT <- design$deltaWT
 		typeBetaSpending = design$typeBetaSpending
 		
-		if (!design$bindingFutility){
-			if (design$typeOfDesign == "PT"){
-				typeOfDesign <- "WT"
+		if (!design$bindingFutility) {
+			if (design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
+				typeOfDesign <- C_TYPE_OF_DESIGN_WT
 				deltaWT <- design$deltaPT1
 			}
-			if (design$typeBetaSpending != "none"){
+			if (design$typeBetaSpending != "none") {
 				typeBetaSpending <- "none"
 			}	
-		} else if ((design$typeOfDesign == "PT") || (design$typeBetaSpending != "none")){
+		} else if ((design$typeOfDesign == C_TYPE_OF_DESIGN_PT) || (design$typeBetaSpending != "none")) {
 			message("Calculation of repeated p-values might take a while for binding case, please wait...")
 		}
 		
@@ -1458,13 +1577,9 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 				repeatedPValues[k] <- tolerance
 			} else {
 				startTime <- Sys.time()
-				if (design$bindingFutility) {
-					upper <- min(0.5, 1 - stats::pnorm(max(design$futilityBounds)))
-				} else {
-					upper <- 0.5
-				}	
+				upper <- 0.5
 				repeatedPValues[k] <- .getOneDimensionalRootBisectionMethod(
-					f = function(level) {
+					fun = function(level) {
 						y <- .getDesignGroupSequential(kMax = design$kMax, 
 							alpha = level, 
 							sided = design$sided, 
@@ -1490,7 +1605,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 						acceptResultsOutOfTolerance = TRUE, suppressWarnings = TRUE,
 						callingFunctionInformation = ".getRepeatedPValuesInverseNormal"
 				)
-				.logProgress("Overall repeated p-values of stage %s calculated", startTime = startTime, k)
+				.logProgress("Repeated p-values of stage %s calculated", startTime = startTime, k)
 			}
 		}
 	}
@@ -1514,7 +1629,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 		} else {
 			startTime <- Sys.time()
 			repeatedPValues[k] <- .getOneDimensionalRootBisectionMethod(
-				f = function(level) {
+				fun = function(level) {
 					y <- .getDesignFisher(kMax = design$kMax, 
 						alpha = level,
 						sided = design$sided,
@@ -1534,7 +1649,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 				acceptResultsOutOfTolerance = TRUE, suppressWarnings = TRUE,
 				callingFunctionInformation = ".getRepeatedPValuesFisher"
 			)
-			.logProgress("Overall repeated p-values of stage %s calculated", startTime = startTime, k)
+			.logProgress("Repeated p-values of stage %s calculated", startTime = startTime, k)
 		}
 	}
 	
@@ -1725,7 +1840,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 					weights[(k + 2):kMax] / weights[k + 1])
 			} else {
 				conditionalRejectionProbabilities[k] <- (criticalValues[kMax]/ 
-							prod(stageResults$pValues[1:k]^weights[1:k]))^(1 / weights[kMax])
+					prod(stageResults$pValues[1:k]^weights[1:k]))^(1 / weights[kMax])
 			}
 		}
 	}
@@ -1762,7 +1877,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 	kMax <- design$kMax
 	crpFisherSimulated <- rep(NA_real_, kMax)
 	if (iterations > 0) {
-		seed = .setSeed(seed)	
+		seed <- .setSeed(seed)	
 		if (kMax >= 2) {
 			for (k in 1:min(kMax - 1, stageResults$stage)) {
 				reject <- 0
@@ -1826,9 +1941,14 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 #' 
 getConditionalRejectionProbabilities <- function(stageResults, ...) {
 	
-	stageResults <- .getStageResultsObject(stageResults, functionName = "getConditionalRejectionProbabilities", ...)
+	stageResults <- .getStageResultsObject(stageResults, 
+		functionName = "getConditionalRejectionProbabilities", ...)
 	
 	.stopInCaseOfIllegalStageDefinition(stageResults, ...)
+	
+	if (.isEnrichmentStageResults(stageResults)) {
+		return(.getConditionalRejectionProbabilitiesEnrichment(stageResults = stageResults, ...))
+	}
 	
 	if (.isMultiArmStageResults(stageResults)) {
 		return(.getConditionalRejectionProbabilitiesMultiArm(stageResults = stageResults, ...))
@@ -1842,12 +1962,14 @@ getConditionalRejectionProbabilities <- function(stageResults, ...) {
 	}
 	
 	if (.isTrialDesignFisher(stageResults$.design)) {
-		iterations <- .getOptionalArgument("iterations", ...)
-		if (!is.null(iterations) && iterations > 0) {
-			return(.getConditionalRejectionProbabilitiesFisherSimulated(
-				stageResults = stageResults, ...))
+		simulateCRP <- .getOptionalArgument("simulateCRP", ...)
+		if (!is.null(simulateCRP) && isTRUE(simulateCRP)) {
+			iterations <- .getOptionalArgument("iterations", ...)
+			if (!is.null(iterations) && iterations > 0) {
+				return(.getConditionalRejectionProbabilitiesFisherSimulated(
+						stageResults = stageResults, ...))
+			}
 		}
-		
 		return(.getConditionalRejectionProbabilitiesFisher(
 			stageResults = stageResults, ...))
 	}

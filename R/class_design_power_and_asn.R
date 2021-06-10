@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4222 $
-#:#  Last changed: $Date: 2021-01-19 11:34:53 +0100 (Tue, 19 Jan 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4664 $
+#:#  Last changed: $Date: 2021-03-31 09:30:02 +0200 (Wed, 31 Mar 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 
@@ -59,7 +59,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			callSuper(.design = design, theta = theta, nMax = nMax, ...)
 			theta <<- .assertIsValidThetaRange(thetaRange = theta, thetaAutoSeqEnabled = FALSE)
 			.initPowerAndAverageSampleNumber()			
-			.parameterNames <<- .getParameterNames(design)
+			.parameterNames <<- .getParameterNames(design = design)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 		},
 		
@@ -171,7 +171,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			sided <- .design$sided
 				
 			if (sided == 2) {
-				if (.design$typeOfDesign == "PT"){
+				if (.design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 					futilityBounds[is.na(futilityBounds)] <- 0 
 					decisionMatrix <- matrix(c(-criticalValues - theta * sqrt(nMax * informationRates), 
 								c(-futilityBounds - theta * sqrt(nMax * informationRates[1:(kMax - 1)]), 0),
@@ -191,7 +191,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			
 			probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
 			
-			if (nrow(probs) == 3){
+			if (nrow(probs) == 3) {
 				.averageSampleNumber <- nMax - sum((probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]) *	
 								(informationRates[kMax] - informationRates[1:(kMax - 1)]) * nMax)
 			} else {
@@ -202,7 +202,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			
 			.futilityPerStage <- rep(NA_real_, kMax)
 			if (sided == 2) {
-				if (nrow(probs) == 3){
+				if (nrow(probs) == 3) {
 					.calculatedPower <- sum(probs[3, 1:kMax] - probs[2, 1:kMax] + probs[1, 1:kMax])
 					.rejectPerStage <- probs[3, 1:kMax] - probs[2, 1:kMax] + probs[1, 1:kMax]
 				} else {
@@ -222,7 +222,7 @@ PowerAndAverageSampleNumberResult <- setRefClass("PowerAndAverageSampleNumberRes
 			
 			.earlyStop <- rep(NA_real_, kMax)
 			if (kMax > 1) {
-				if (nrow(probs) == 3){
+				if (nrow(probs) == 3) {
 					.earlyStop <- probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]
 				} else {
 					.earlyStop <- probs[5, 1:(kMax - 1)] - probs[4, 1:(kMax - 1)] + probs[3, 1:(kMax - 1)] - probs[2, 1:(kMax - 1)] + probs[1, 1:(kMax - 1)]

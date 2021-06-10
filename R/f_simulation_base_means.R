@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3700 $
-#:#  Last changed: $Date: 2020-09-25 16:28:28 +0200 (Fri, 25 Sep 2020) $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -52,12 +52,12 @@
 		} else {
 			if (normalApproximation) {
 				value <- (sqrt(informationRates[1]) * testStatisticsPerStage[1] + 
-							sqrt(informationRates[2:stage] - informationRates[1:(stage - 1)]) %*% 
-							testStatisticsPerStage[2:stage]) / sqrt(informationRates[stage])
+					sqrt(informationRates[2:stage] - informationRates[1:(stage - 1)]) %*% 
+					testStatisticsPerStage[2:stage]) / sqrt(informationRates[stage])
 			} else {
 				value <- (sqrt(informationRates[1]) * qnorm(pt(testStatisticsPerStage[1], sampleSizesPerStage[1] - groups)) + 
-							sqrt(informationRates[2:stage] - informationRates[1:(stage - 1)]) %*%
-							qnorm(pt(testStatisticsPerStage[2:stage], sampleSizesPerStage[2:stage] - groups))) / sqrt(informationRates[stage])
+					sqrt(informationRates[2:stage] - informationRates[1:(stage - 1)]) %*%
+					qnorm(pt(testStatisticsPerStage[2:stage], sampleSizesPerStage[2:stage] - groups))) / sqrt(informationRates[stage])
 			}
 		}	
 	
@@ -66,7 +66,7 @@
 		weightsFisher[1] <- 1
 		if (stage > 1) {
 			weightsFisher[2:stage]  <- sqrt(informationRates[2:stage] - 
-							informationRates[1:(stage-1)]) / sqrt(informationRates[1])
+				informationRates[1:(stage-1)]) / sqrt(informationRates[1])
 		}	
 		if (normalApproximation) {
 			value <- prod((1 - pnorm(testStatisticsPerStage[1:stage]))^weightsFisher[1:stage])
@@ -80,13 +80,13 @@
 	} else { 
 		if (!meanRatio) {
 			standardizedEffectEstimate <- overallTestStatistic /
-					sqrt(allocationRatioPlanned * sum(sampleSizesPerStage)) * 
-					(1 + allocationRatioPlanned)
+				sqrt(allocationRatioPlanned * sum(sampleSizesPerStage)) * 
+				(1 + allocationRatioPlanned)
 		} else {
 			standardizedEffectEstimate <- overallTestStatistic /
-					sqrt(allocationRatioPlanned*sum(sampleSizesPerStage)) *
-					sqrt((1 + allocationRatioPlanned) * 
-					(1 + thetaH0^2 * allocationRatioPlanned)) 
+				sqrt(allocationRatioPlanned*sum(sampleSizesPerStage)) *
+				sqrt((1 + allocationRatioPlanned) * 
+				(1 + thetaH0^2 * allocationRatioPlanned)) 
 		} 
 	}
 	
@@ -267,20 +267,24 @@
 		trialStop <- TRUE
 	}
 	if (designNumber <= 2) {
-		if (testStatistic$value >= criticalValues[k]) {
+		if (!is.na(testStatistic$value) && !is.na(criticalValues[k]) &&
+				testStatistic$value >= criticalValues[k]) {
 			simulatedRejections <- 1
 			trialStop <- TRUE
 		} 
-		if (k < kMax && testStatistic$value <= futilityBounds[k]) {
+		if (!is.na(testStatistic$value) && !is.na(futilityBounds[k]) && 
+				k < kMax && testStatistic$value <= futilityBounds[k]) {
 			simulatedFutilityStop <- 1
 			trialStop <- TRUE
 		}
 	} else {
-		if (testStatistic$value <= criticalValues[k]) {
+		if (!is.na(testStatistic$value) && !is.na(criticalValues[k]) && 
+				testStatistic$value <= criticalValues[k]) {
 			simulatedRejections <- 1
 			trialStop <- TRUE
 		} 
-		if (k < kMax && testStatistic$pValuesSeparate[k] >= alpha0Vec[k]) {
+		if (!is.na(testStatistic$pValuesSeparate[k]) && !is.na(alpha0Vec[k]) && 
+				k < kMax && testStatistic$pValuesSeparate[k] >= alpha0Vec[k]) {
 			simulatedFutilityStop <- 1
 			trialStop <- TRUE
 		}
@@ -313,13 +317,13 @@
 #' @inheritParams param_design_with_default  
 #' @inheritParams param_groups
 #' @param normalApproximation The type of computation of the p-values. Default is \code{TRUE}, 
-#' 		  i.e., normally distributed test statistics are generated.
+#'        i.e., normally distributed test statistics are generated.
 #'        If \code{FALSE}, the t test is used for calculating the p-values, 
-#' 		  i.e., t distributed test statistics are generated.
+#'        i.e., t distributed test statistics are generated.
 #' @param meanRatio If \code{TRUE}, the design characteristics for 
 #'        one-sided testing of H0: \code{mu1 / mu2 = thetaH0} are simulated, default is \code{FALSE}.
 #' @inheritParams param_thetaH0
-#' @inheritParams param_alternative
+#' @inheritParams param_alternative_simulation
 #' @inheritParams param_stDevSimulation 
 #' @inheritParams param_directionUpper
 #' @inheritParams param_allocationRatioPlanned
@@ -392,12 +396,12 @@
 #'   \item \code{testStatistic}: The test statistic that is used for the test decision, 
 #'         depends on which design was chosen (group sequential, inverse normal, or Fisher's combination test).  
 #'   \item \code{testStatisticsPerStage}: The test statistic for each stage if only data from
-#' 			the considered stage is taken into account.
+#'         the considered stage is taken into account.
 #'   \item \code{effectEstimate}: Overall simulated standardized effect estimate. 
 #'   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
 #'   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-#' 			selected sample size and effect. The effect is either estimated from the data or can be
-#' 			user defined with \code{thetaH1}.   
+#'         selected sample size and effect. The effect is either estimated from the data or can be
+#'         user defined with \code{thetaH1}.   
 #' }
 #'  
 #' @template return_object_simulation_results
@@ -431,7 +435,7 @@ getSimulationMeans <- function(
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "simulation")
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMeans", 
-			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "showStatistics"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "showStatistics"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMeans", ignore = "showStatistics", ...)
@@ -572,7 +576,8 @@ getSimulationMeans <- function(
 	
 	effect <- alternative - thetaH0 
 	simulationResults$effect <- effect
-	simulationResults$.setParameterType("effect", ifelse(thetaH0 == 0, C_PARAM_NOT_APPLICABLE, C_PARAM_DEFAULT_VALUE))
+	simulationResults$.setParameterType("effect", 
+		ifelse(thetaH0 == 0, C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
 	
 	.setValueAndParameterType(simulationResults, "normalApproximation", normalApproximation, TRUE)
 	.setValueAndParameterType(simulationResults, "meanRatio", meanRatio, FALSE)

@@ -13,7 +13,8 @@
   ylab = NA_character_,
   legendTitle = "Group",
   palette = "Set1",
-  showSource = FALSE
+  showSource = FALSE,
+  plotSettings = NULL
 )
 }
 \arguments{
@@ -48,6 +49,8 @@ Alternatively \code{showSource} can be defined as one of the following character
         returned as character vector (function stops if an error occurs)
 }
 Note: no plot object will be returned if \code{showSource} is a character.}
+
+\item{plotSettings}{An object of class \code{PlotSettings} created by \code{\link{getPlotSettings}}.}
 }
 \value{
 Returns a \code{ggplot2} object.

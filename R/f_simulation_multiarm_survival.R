@@ -14,9 +14,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4107 $
-#:#  Last changed: $Date: 2020-12-11 14:00:27 +0100 (Fri, 11 Dec 2020) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 4940 $
+#:#  Last changed: $Date: 2021-05-28 14:24:52 +0200 (Fr, 28 Mai 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' @include f_simulation_multiarm.R
@@ -212,14 +212,14 @@ NULL
 			if (adaptations[k]) {
 				
 				if (effectMeasure == "testStatistic") {
-					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k], 
+					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(k, overallTestStatistics[, k], 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))				
 				} else if (effectMeasure == "effectEstimate") {
 					if (directionUpper) {
-						selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffects[, k], 
+						selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(k, overallEffects[, k], 
 							typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction, survival = TRUE))
 					} else {
-						selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(1/overallEffects[, k], 
+						selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(k, 1/overallEffects[, k], 
 							typeOfSelection, epsilonValue, rValue, 1/threshold, selectArmsFunction, survival = TRUE))
 					}
 				}
@@ -290,11 +290,13 @@ NULL
 #' 
 #' @description 
 #' Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
-#' for testing survival in a multi-arm treatment groups testing situation. In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
+#' for testing survival in a multi-arm treatment groups testing situation. 
+#' In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
 #' distributed logrank test statistics are simulated. 
 #'
-#' @param omegaMaxVector Range of hazard ratios with highest response for \code{"linear"} and \code{"sigmoidEmax"} model, default is \code{seq(1, 2.6, 0.4)}.
-#' @inheritParams param_intersectionTest 
+#' @param omegaMaxVector Range of hazard ratios with highest response for \code{"linear"} and 
+#'        \code{"sigmoidEmax"} model, default is \code{seq(1, 2.6, 0.4)}.
+#' @inheritParams param_intersectionTest_MultiArm 
 #' @inheritParams param_typeOfSelection
 #' @inheritParams param_effectMeasure 
 #' @inheritParams param_adaptations
@@ -302,10 +304,13 @@ NULL
 #' @inheritParams param_effectMatrix
 #' @inheritParams param_activeArms
 #' @inheritParams param_successCriterion
-#' @param correlationComputation If \code{correlationComputation = "alternative"}, for simulating log-rank statistics in the
-#' many-to-one design, a correlation matrix according to Deng et al. (Biometrics, 2019) accounting for the respective alternative is used;
-#' if \code{correlationComputation = "null"}, a constant correlation matrix valid under the null, i.e., not accounting for the alternative is used, 
-#' default is \code{"alternative"}.
+#' @param correlationComputation If \code{correlationComputation = "alternative"}, 
+#'        for simulating log-rank statistics in the many-to-one design, a correlation 
+#'        matrix according to Deng et al. (Biometrics, 2019) accounting for the 
+#'        respective alternative is used;
+#'        if \code{correlationComputation = "null"}, a constant correlation matrix valid 
+#'        under the null, i.e., not accounting for the alternative is used, 
+#'         default is \code{"alternative"}.
 #' @inheritParams param_typeOfShape
 #' @inheritParams param_typeOfSelection
 #' @inheritParams param_design_with_default 
@@ -328,17 +333,20 @@ NULL
 #' @inheritParams param_showStatistics
 #' 
 #' @details 
-#' At given design the function simulates the power, stopping probabilities, selection probabilities, and expected 
-#' sample size at given number of subjects, parameter configuration, and treatment arm selection rule in the multi-arm situation. 
-#' An allocation ratio can be specified referring to the ratio of number of subjects in the active treatment groups as compared to the control group.
+#' At given design the function simulates the power, stopping probabilities, 
+#' selection probabilities, and expected sample size at given number of subjects, 
+#' parameter configuration, and treatment arm selection rule in the multi-arm situation. 
+#' An allocation ratio can be specified referring to the ratio of number of subjects 
+#' in the active treatment groups as compared to the control group.
 #'  
 #' The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
 #' and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and 
 #' \code{maxNumberOfEventsPerStage} (or \code{calcEventsFunction}) are defined.
 #' 
 #' \code{calcEventsFunction}\cr 
-#' This function returns the number of events at given conditional power and conditional critical value for specified 
-#' testing situation. The function might depend on the variables 
+#' This function returns the number of events at given conditional power 
+#' and conditional critical value for specified testing situation. 
+#' The function might depend on the variables 
 #' \code{stage}, 
 #' \code{selectedArms}, 
 #' \code{plannedEvents}, 
@@ -389,16 +397,16 @@ getSimulationMultiArmSurvival <- function(
 		showStatistics            = FALSE) {
 	
 	if (is.null(design)) {
-		design <- .getDefaultDesign(..., type = "simulation", multiArmEnabled = TRUE)
+		design <- .getDefaultDesign(..., type = "simulation")
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmSurvival", 
-			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, multiArmEnabled = TRUE), "showStatistics"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "showStatistics"), ...)
 	} else {
 		.assertIsTrialDesignInverseNormalOrFisherOrConditionalDunnett(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmSurvival", ignore = "showStatistics", ...)
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}	
 	
-	.assertIsOneSidedDesign(design)
+	.assertIsOneSidedDesign(design, designType = "multi-arm", engineType = "simulation")
 	
 	correlationComputation <- match.arg(correlationComputation)
 	

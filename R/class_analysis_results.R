@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4172 $
-#:#  Last changed: $Date: 2021-01-06 10:48:38 +0100 (Mi, 06 Jan 2021) $
+#:#  File version: $Revision: 4977 $
+#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -97,6 +97,8 @@ ConditionalPowerResults <- setRefClass("ConditionalPowerResults",
 				}
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+				.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
+					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showParametersOfOneGroup(.getGeneratedParameters(), "Output",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
@@ -114,7 +116,7 @@ ConditionalPowerResultsMeans <- setRefClass("ConditionalPowerResultsMeans",
 	fields = list(
 		conditionalPower = "numeric",
 		thetaH1 = "numeric",
-		assumedStDev = "numeric"
+		assumedStDev = "numeric" 
 	),
 	methods = list(
 		
@@ -140,34 +142,18 @@ ConditionalPowerResultsMeans <- setRefClass("ConditionalPowerResultsMeans",
 	)
 )
 
-ConditionalPowerResultsMultiArmMeans <- setRefClass("ConditionalPowerResultsMultiArmMeans",
+ConditionalPowerResultsMultiHypotheses <- setRefClass("ConditionalPowerResultsMultiHypotheses",
 	contains = "ConditionalPowerResults",
 	fields = list(
-		conditionalPower = "matrix",
-		thetaH1 = "numeric",
-		assumedStDevs = "numeric"
+		conditionalPower = "matrix"
 	),
 	methods = list(
 		
 		initialize = function(...) {
 			callSuper(...)
 			
-			if (!is.null(.design) && class(.self) != "ConditionalPowerResults" && 
-				!is.null(.stageResults) &&  
-				grepl("MultiArm", class(.stageResults)) &&
-				!is.null(.stageResults$testStatistics)) {
-				gMax <- nrow(.stageResults$testStatistics)
-				if (is.null(gMax)) {
-					gMax <- 1
-				}
-				
-				if (is.null(thetaH1) || length(thetaH1) == 0 || all(is.na(thetaH1))) {
-					thetaH1 <<- rep(NA_real_, gMax)
-				}
-				if (is.null(assumedStDevs) || length(assumedStDevs) == 0 || all(is.na(assumedStDevs))) {
-					assumedStDevs <<- rep(NA_real_, gMax)
-				}
-				
+			if (.readyForInitialization()) {
+				gMax <- getGMax()
 				kMax <- .design$kMax
 				if (is.null(conditionalPower) || (nrow(conditionalPower) == 0 && ncol(conditionalPower) == 0)) {
 					conditionalPower <<- matrix(rep(NA_real_, gMax * kMax), nrow = gMax, ncol = kMax)
@@ -176,7 +162,69 @@ ConditionalPowerResultsMultiArmMeans <- setRefClass("ConditionalPowerResultsMult
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
-			return("Conditional power results multi-arm means")
+			s <- "Conditional power results"
+			s <- paste0(s, " ", ifelse(grepl("Enrichment", class(.stageResults)), "enrichment", "multi-arm"))
+			if (grepl("Means", class(.self))) {
+				s <- paste0(s, " means")
+			}	
+			else if (grepl("Rates", class(.self))) {
+				s <- paste0(s, " rates")
+			}	
+			else if (grepl("Survival", class(.self))) {
+				s <- paste0(s, " survival")
+			}	
+			return(s)
+		},
+		
+		getGMax = function() {
+			return(.stageResults$getGMax())
+		},
+		
+		.readyForInitialization = function() {
+			if (is.null(.design)) {
+				return(FALSE)
+			}
+			
+			if (length(.design$kMax) != 1) {
+				return(FALSE)
+			}
+			
+			if (class(.self) == "ConditionalPowerResults") {
+				return(FALSE)
+			}
+			
+			if (is.null(.stageResults)) {
+				return(FALSE)
+			}
+			
+			if (is.null(.stageResults$testStatistics)) {
+				return(FALSE)
+			}
+			
+			return(TRUE)
+		}
+	)
+)
+
+ConditionalPowerResultsMultiArmMeans <- setRefClass("ConditionalPowerResultsMultiArmMeans",
+	contains = "ConditionalPowerResultsMultiHypotheses",
+	fields = list(
+		thetaH1 = "numeric",
+		assumedStDevs = "numeric"
+	),
+	methods = list(
+		initialize = function(...) {
+			callSuper(...)
+			
+			if (.readyForInitialization()) {
+				gMax <- getGMax()
+				if (is.null(thetaH1) || length(thetaH1) == 0 || all(is.na(thetaH1))) {
+					thetaH1 <<- rep(NA_real_, gMax)
+				}
+				if (is.null(assumedStDevs) || length(assumedStDevs) == 0 || all(is.na(assumedStDevs))) {
+					assumedStDevs <<- rep(NA_real_, gMax)
+				}
+			}
 		}
 	)
 )
@@ -186,7 +234,7 @@ ConditionalPowerResultsRates <- setRefClass("ConditionalPowerResultsRates",
 	fields = list(
 		conditionalPower = "numeric",
 		pi1 = "numeric", 
-		pi2 = "numeric"
+		pi2 = "numeric" 
 	),
 	methods = list(
 		
@@ -194,7 +242,7 @@ ConditionalPowerResultsRates <- setRefClass("ConditionalPowerResultsRates",
 			callSuper(...)
 			
 			if ((is.null(conditionalPower) || length(conditionalPower) == 0) && 
-				!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
+					!is.null(.design) && !is.null(.design$kMax) && length(.design$kMax) > 0) {
 				conditionalPower <<- rep(NA_real_, .design$kMax)
 			}
 			
@@ -213,42 +261,24 @@ ConditionalPowerResultsRates <- setRefClass("ConditionalPowerResultsRates",
 )
 
 ConditionalPowerResultsMultiArmRates <- setRefClass("ConditionalPowerResultsMultiArmRates",
-	contains = "ConditionalPowerResults",
+	contains = "ConditionalPowerResultsMultiHypotheses",
 	fields = list(
-		conditionalPower = "matrix",
 		piTreatments = "numeric", 
 		piControl = "numeric"
 	),
 	methods = list(
-		
 		initialize = function(...) {
 			callSuper(...)
 			
-			if (!is.null(.design) && class(.self) != "ConditionalPowerResults" && 
-				!is.null(.stageResults) &&  
-				grepl("MultiArm", class(.stageResults)) &&
-				!is.null(.stageResults$testStatistics)) {
-				gMax <- nrow(.stageResults$testStatistics)
-				if (is.null(gMax)) {
-					gMax <- 1
-				}
-				
+			if (.readyForInitialization()) {
+				gMax <- getGMax()
 				if (is.null(piControl) || length(piControl) == 0 || all(is.na(piControl))) {
 					piControl <<- NA_real_
 				}
 				if (is.null(piTreatments) || length(piTreatments) == 0 || all(is.na(piTreatments))) {
 					piTreatments <<- rep(NA_real_, gMax)
 				}
-				
-				kMax <- .design$kMax
-				if (is.null(conditionalPower) || (nrow(conditionalPower) == 0 && ncol(conditionalPower) == 0)) {
-					conditionalPower <<- matrix(rep(NA_real_, gMax * kMax), nrow = gMax, ncol = kMax)
-				}
 			}
-		},
-		
-		.toString = function(startWithUpperCase = FALSE) {
-			return("Conditional power results multi-arm rates")
 		}
 	)
 )
@@ -281,41 +311,54 @@ ConditionalPowerResultsSurvival <- setRefClass("ConditionalPowerResultsSurvival"
 )
 
 ConditionalPowerResultsMultiArmSurvival <- setRefClass("ConditionalPowerResultsMultiArmSurvival",
-	contains = "ConditionalPowerResults",
+	contains = "ConditionalPowerResultsMultiHypotheses",
 	fields = list(
-		conditionalPower = "matrix",
 		thetaH1 = "numeric"
 	),
 	methods = list(
-		
 		initialize = function(...) {
 			callSuper(...)
 			
-			if (!is.null(.design) && class(.self) != "ConditionalPowerResults" && 
-				!is.null(.stageResults) &&  
-				grepl("MultiArm", class(.stageResults)) &&
-				!is.null(.stageResults$testStatistics)) {
-				gMax <- nrow(.stageResults$testStatistics)
-				if (is.null(gMax)) {
-					gMax <- 1
-				}
-				
+			if (.readyForInitialization()) {
+				gMax <- getGMax()
 				if (is.null(thetaH1) || length(thetaH1) == 0 || all(is.na(thetaH1))) {
 					thetaH1 <<- rep(NA_real_, gMax)
 				}
-				
-				kMax <- .design$kMax
-				if (is.null(conditionalPower) || (nrow(conditionalPower) == 0 && ncol(conditionalPower) == 0)) {
-					conditionalPower <<- matrix(rep(NA_real_, gMax * kMax), nrow = gMax, ncol = kMax)
-				}
 			}
-		},
-		
-		.toString = function(startWithUpperCase = FALSE) {
-			return("Conditional power results multi-arm survival")
 		}
 	)
 )
+
+ConditionalPowerResultsEnrichmentMeans <- setRefClass("ConditionalPowerResultsEnrichmentMeans",
+	contains = "ConditionalPowerResultsMultiArmMeans")
+
+
+ConditionalPowerResultsEnrichmentRates <- setRefClass("ConditionalPowerResultsEnrichmentRates",
+	contains = "ConditionalPowerResultsMultiHypotheses",
+	fields = list(
+		piTreatments = "numeric", 
+		piControls = "numeric"
+	),
+	methods = list(
+		initialize = function(...) {
+			callSuper(...)
+			
+			if (.readyForInitialization()) {
+				gMax <- getGMax()
+				if (is.null(piControls) || length(piControls) == 0 || all(is.na(piControls))) {
+					piControls <<- rep(NA_real_, gMax)
+				}
+				if (is.null(piTreatments) || length(piTreatments) == 0 || all(is.na(piTreatments))) {
+					piTreatments <<- rep(NA_real_, gMax)
+				}
+			}
+		}
+	)
+)
+
+
+ConditionalPowerResultsEnrichmentSurvival <- setRefClass("ConditionalPowerResultsEnrichmentSurvival",
+	contains = "ConditionalPowerResultsMultiArmSurvival")
 
 #' 
 #' @name ClosedCombinationTestResults
@@ -339,6 +382,7 @@ ClosedCombinationTestResults <- setRefClass("ClosedCombinationTestResults",
 	fields = list(
 		.plotSettings = "PlotSettings",
 		.design = "TrialDesign",
+		.enrichment = "logical",
 		
 		intersectionTest = "character",
 		
@@ -421,10 +465,15 @@ ClosedCombinationTestResults <- setRefClass("ClosedCombinationTestResults",
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
 				.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
-				.cat(paste0("  (i): results of treatment arm i vs. control group ",
-						(nrow(separatePValues) + 1),"\n"), consoleOutputEnabled = consoleOutputEnabled)
-				.cat("  [i]: hypothesis number", 
-					consoleOutputEnabled = consoleOutputEnabled)
+				if (isTRUE(.enrichment)) {
+					.cat(paste0("  S[i]: population i\n"), consoleOutputEnabled = consoleOutputEnabled)
+					.cat(paste0("  F: full population\n"), consoleOutputEnabled = consoleOutputEnabled)
+				} else {
+					.cat(paste0("  (i): results of treatment arm i vs. control group ",
+							(nrow(separatePValues) + 1),"\n"), consoleOutputEnabled = consoleOutputEnabled)
+					.cat("  [i]: hypothesis number\n", 
+						consoleOutputEnabled = consoleOutputEnabled)
+				}
 			}
 		},
 		
@@ -450,6 +499,21 @@ ClosedCombinationTestResults <- setRefClass("ClosedCombinationTestResults",
 			result <- c()
 			for (number in 1:nrow(indices)) {
 				arms <- .getHypothesisTreatmentArms(number)
+				result <- c(result, paste0(arms, collapse = ", "))
+			}
+			return(result)
+		},
+		
+		.getHypothesisPopulationVariants = function() {
+			result <- c()
+			gMax <- 1
+			for (number in 1:nrow(indices)) {
+				arms <- .getHypothesisTreatmentArms(number)
+				if (number == 1) {
+					gMax <- length(arms)
+				}
+				arms <- paste0("S", arms)
+				arms[arms == paste0("S", gMax)] <- "F"
 				result <- c(result, paste0(arms, collapse = ", "))
 			}
 			return(result)
@@ -509,8 +573,13 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			callSuper(.design = design, .dataInput = dataInput, ...)
 			
 			.plotSettings <<- PlotSettings()
-			.parameterNames <<- .getParameterNames(design)
+			.parameterNames <<- .getParameterNames(design = design, analysisResults = .self)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
+		},
+		
+		.setStageResults = function(stageResults) {
+			.stageResults <<- stageResults
+			.parameterNames <<- .getParameterNames(design = .design, stageResults = stageResults, analysisResults = .self)
 		},
 		
 		getPlotSettings = function() {
@@ -524,13 +593,32 @@ AnalysisResults <- setRefClass("AnalysisResults",
 		.getStageResultParametersToShow = function() {
 			stageResultParametersToShow <- c() 
 			if (.design$kMax > 1) {
-				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$effectSizes") 
+				if (!grepl("Rates", class(.dataInput)) || .dataInput$getNumberOfGroups() > 1) {
+					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$effectSizes") 
+				}
+				
 				if (grepl("Means", class(.dataInput))) {
-					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallStDevs") 
+					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallStDevs")
+				}
+				if (grepl("Rates", class(.dataInput))) {
+					if (.isMultiArmAnalysisResults(.self)) { 
+						stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPiTreatments")
+						stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPiControl")
+					}
+					else if (.isEnrichmentAnalysisResults(.self)) {
+						stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPisTreatment")
+						stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPisControl")
+					} 
+					else {
+						stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPi1")
+						if (.dataInput$getNumberOfGroups() > 1) {
+							stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPi2")
+						}
+					}
 				}
 			}
-			stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$testStatistics") 
-			if (grepl("(MultiArm|Dunnett)", class(.self))) {
+			stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$testStatistics")
+			if (grepl("(MultiArm|Dunnett|Enrichment)", class(.self))) {
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$separatePValues")
 			} else {
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$pValues")
@@ -544,7 +632,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			if (.isTrialDesignInverseNormal(.design)) {
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$combInverseNormal")
 			} else if (.isTrialDesignGroupSequential(.design)) {
-				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallTestStatistics")
+				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallTestStatistics") 
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPValues")
 			}		
 			else if (.isTrialDesignFisher(.design)) {
@@ -567,9 +655,18 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
-				if (.isTrialDesignFisher(.design)) {
-					.showParametersOfOneGroup(c("iterations", "seed"), "Simulation parameters",
-						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+				if (grepl("Fisher", class(.self))) {
+					if (!is.null(.self[["seed"]]) && length(.self$seed) == 1 && !is.na(.self$seed)) {
+						.showParametersOfOneGroup(c("iterations", "seed"), "Simulation parameters",
+							orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					}
+					else if (!is.null(.conditionalPowerResults[["seed"]]) && 
+							length(.conditionalPowerResults$seed) == 1 && 
+							!is.na(.conditionalPowerResults$seed)) {
+						.showParametersOfOneGroup(c(".conditionalPowerResults$iterations", 
+								".conditionalPowerResults$seed"), "Simulation parameters",
+							orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
+					}
 				}
 				.showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
@@ -578,7 +675,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				
 				# show multi-arm parameters
-				if (grepl("(MultiArm|Dunnett)", class(.self))) {
+				if (grepl("(MultiArm|Dunnett|Enrichment)", class(.self))) {
 					
 					if (.isTrialDesignConditionalDunnett(.design)) {
 						.showParametersOfOneGroup(".closedTestResults$conditionalErrorRate", 
@@ -600,11 +697,15 @@ AnalysisResults <- setRefClass("AnalysisResults",
 						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				}
 				
-				if (grepl("(MultiArm|Dunnett)", class(.self))) {
-					.showParametersOfOneGroup(.getGeneratedParameters(), "Further analysis results",
+				generatedParams <- .getGeneratedParameters()
+				generatedParams <- generatedParams[!(generatedParams %in% 
+					c("assumedStDevs", "thetaH1", "pi1", "pi2", "piTreatment", "piTreatments", "piControl", "piControls"))]
+				
+				if (grepl("(MultiArm|Dunnett|Enrichment)", class(.self))) {
+					.showParametersOfOneGroup(generatedParams, "Further analysis results",
 						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				} else {
-					.showParametersOfOneGroup(.getGeneratedParameters(), "Analysis results",
+					.showParametersOfOneGroup(generatedParams, "Analysis results",
 						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				} 
 				
@@ -615,7 +716,13 @@ AnalysisResults <- setRefClass("AnalysisResults",
 					.cat(paste0("  (i): results of treatment arm i vs. control group ",
 							.dataInput$getNumberOfGroups(),"\n"), 
 						consoleOutputEnabled = consoleOutputEnabled)
-				} else if (grepl("Rates", class(.dataInput)) && .dataInput$getNumberOfGroups() == 2) {
+				}
+				else if (.isEnrichmentAnalysisResults(.self)) {
+					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
+					.cat(paste0("  S[i]: population i\n"), consoleOutputEnabled = consoleOutputEnabled)
+					.cat(paste0("  F: full population\n"), consoleOutputEnabled = consoleOutputEnabled)
+				} 
+				else if (grepl("Rates", class(.dataInput)) && .dataInput$getNumberOfGroups() == 2) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
 				}
@@ -627,6 +734,9 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			if (inherits(.self, "AnalysisResultsMultiArm")) {
 				str <- paste0("multi-arm ", str)
 			}
+			else if (inherits(.self, "AnalysisResultsEnrichment")) {
+				str <- paste0("enrichment ", str)
+			}
 			if (startWithUpperCase) {
 				str <- .firstCharacterToUpperCase(str)
 			}
@@ -634,7 +744,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			numberOfGroups <- .dataInput$getNumberOfGroups()
 			str <- paste0(str, " (")
 			
-			str <- paste0(str, tolower(sub("Dataset", "", class(.dataInput))))
+			str <- paste0(str, tolower(sub("Dataset(Enrichment)?", "", class(.dataInput))))
 			if (grepl("Survival", class(.dataInput))) {
 				str <- paste0(str, " data")
 			}
@@ -645,18 +755,22 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				str <- paste0(str, " of ", numberOfGroups, " groups")
 			}
 			
-			if (grepl("GroupSequential", class(.self))) {
-				str <- paste0(str, ", group sequential design")
-			}
-			else if (grepl("InverseNormal", class(.self))) {
-				str <- paste0(str, ", inverse normal combination test design")
-			}
-			else if (grepl("Fisher", class(.self))) {
-				str <- paste0(str, ", Fisher's combination test design")
-			}
-			else if (grepl("Dunnett", class(.self))) {
-				str <- paste0(str, ", conditional Dunnett design")
-			}
+			if (.design$kMax > 1) {
+				if (grepl("GroupSequential", class(.self))) {
+					str <- paste0(str, ", group sequential design")
+				}
+				else if (grepl("InverseNormal", class(.self))) {
+					str <- paste0(str, ", inverse normal combination test design")
+				}
+				else if (grepl("Fisher", class(.self))) {
+					str <- paste0(str, ", Fisher's combination test design")
+				}
+				else if (grepl("Dunnett", class(.self))) {
+					str <- paste0(str, ", conditional Dunnett design")
+				}
+			} else {
+				str <- paste0(str, ", fixed sample size design")
+			}	
 			
 			str <- paste0(str, ")")
 			return(str)
@@ -699,6 +813,58 @@ AnalysisResultsBase <- setRefClass("AnalysisResultsBase",
 )
 
 #' 
+#' @name AnalysisResultsMultiHypotheses
+#' 
+#' @title
+#' Basic Class for Analysis Results Multi-Hypotheses
+#' 
+#' @description
+#' A basic class for multi-hypotheses analysis results.
+#' 
+#' @details 
+#' \code{AnalysisResultsMultiHypotheses} is the basic class for 
+#' \itemize{
+#'   \item \code{\link{AnalysisResultsMultiArm}} and
+#'   \item \code{\link{AnalysisResultsEnrichment}}.
+#' }
+#' 
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include class_analysis_dataset.R
+#' @include class_design.R
+#' @include f_core_constants.R
+#' @include class_analysis_stage_results.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#' 
+AnalysisResultsMultiHypotheses  <- setRefClass("AnalysisResultsMultiHypotheses",
+	contains = "AnalysisResults",
+	fields = list(
+		.closedTestResults = "ClosedCombinationTestResults",
+		thetaH1 = "matrix", # means only
+		assumedStDevs = "matrix", # means only
+		piTreatments = "matrix", # rates only
+		intersectionTest = "character", 
+		varianceOption = "character", 
+		conditionalRejectionProbabilities = "matrix", 
+		conditionalPower = "matrix", 
+		repeatedConfidenceIntervalLowerBounds = "matrix", 
+		repeatedConfidenceIntervalUpperBounds = "matrix", 
+		repeatedPValues = "matrix"
+	),
+	methods = list(
+		initialize = function(design, dataInput, ...) {
+			callSuper(design = design, dataInput = dataInput, ...)
+			for (param in c("thetaH1", "assumedStDevs", "piTreatments")) {
+				.setParameterType(param, C_PARAM_NOT_APPLICABLE)
+			}
+		}
+	)
+)
+
+#' 
 #' @name AnalysisResultsMultiArm
 #' 
 #' @title
@@ -728,27 +894,67 @@ AnalysisResultsBase <- setRefClass("AnalysisResultsBase",
 #' @importFrom methods new
 #' 
 AnalysisResultsMultiArm <- setRefClass("AnalysisResultsMultiArm",
-	contains = "AnalysisResults",
+	contains = "AnalysisResultsMultiHypotheses",
 	fields = list(
-		.closedTestResults = "ClosedCombinationTestResults",
-		thetaH1 = "matrix", # means only
-		assumedStDevs = "matrix", # means only
-		piTreatments = "matrix", # rates only
-		piControl = "matrix", # rates only
-		intersectionTest = "character", 
-		varianceOption = "character", 
-		conditionalRejectionProbabilities = "matrix", 
-		conditionalPower = "matrix", 
-		repeatedConfidenceIntervalLowerBounds = "matrix", 
-		repeatedConfidenceIntervalUpperBounds = "matrix", 
-		repeatedPValues = "matrix"
+		piControl = "matrix" # rates only
 	),
 	methods = list(
 		initialize = function(design, dataInput, ...) {
 			callSuper(design = design, dataInput = dataInput, ...)
-			for (param in c("thetaH1", "assumedStDevs", "piTreatments", "piControl")) {
-				.setParameterType("piControl", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("piControl", C_PARAM_NOT_APPLICABLE)
+		},
+		
+		.getParametersToShow = function() {
+			parametersToShow <- .getVisibleFieldNames()
+			
+			if ("piTreatments" %in% parametersToShow && "piControl" %in% parametersToShow) {
+				index <- which(parametersToShow == "piTreatments")
+				parametersToShow <- parametersToShow[parametersToShow != "piControl"]
+				parametersToShow <- c(parametersToShow[1:index], 
+					"piControl", parametersToShow[(index + 1):length(parametersToShow)])
 			}
+			
+			return(parametersToShow)
+		}
+	)
+)
+
+#' 
+#' @name AnalysisResultsEnrichment
+#' 
+#' @title
+#' Basic Class for Analysis Results Enrichment
+#' 
+#' @description
+#' A basic class for enrichment analysis results.
+#' 
+#' @details 
+#' \code{AnalysisResultsEnrichment} is the basic class for 
+#' \itemize{
+#'   \item \code{\link{AnalysisResultsEnrichmentFisher}} and
+#'   \item \code{\link{AnalysisResultsEnrichmentInverseNormal}}.
+#' }
+#' 
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include class_analysis_dataset.R
+#' @include class_design.R
+#' @include f_core_constants.R
+#' @include class_analysis_stage_results.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#' 
+AnalysisResultsEnrichment <- setRefClass("AnalysisResultsEnrichment",
+	contains = "AnalysisResultsMultiHypotheses",
+	fields = list(
+		piControls = "matrix" # rates only
+	),
+	methods = list(
+		initialize = function(design, dataInput, ...) {
+			callSuper(design = design, dataInput = dataInput, ...)
+			.setParameterType("piControls", C_PARAM_NOT_APPLICABLE)
 		}
 	)
 )
@@ -815,8 +1021,8 @@ as.data.frame.AnalysisResults <- function(x, row.names = NULL, optional = FALSE,
 	parametersToShow <- c(parametersToShow, x$.getGeneratedParameters())
 	
 	parametersToShow <- parametersToShow[!(parametersToShow %in% c(
-					"finalStage", "allocationRatioPlanned", "thetaH0", "thetaH1", "pi1", "pi2"
-				))]
+		"finalStage", "allocationRatioPlanned", "thetaH0", "thetaH1", "pi1", "pi2"
+	))]
 	return(x$.getAsDataFrame(parameterNames = parametersToShow, 
 			tableColumnNames = .getTableColumnNames(design = x$.design)))
 }
@@ -876,6 +1082,15 @@ names.AnalysisResults <- function(x) {
 AnalysisResultsGroupSequential <- setRefClass("AnalysisResultsGroupSequential",
 	contains = "AnalysisResultsBase",
 	fields = list(
+		maxInformation = "integer", 
+		informationEpsilon = "numeric" 
+	),
+	methods = list(
+		initialize = function(design, dataInput, ...) {
+			callSuper(design = design, dataInput = dataInput, ...)
+			.setParameterType("maxInformation", C_PARAM_NOT_APPLICABLE)
+			.setParameterType("informationEpsilon", C_PARAM_NOT_APPLICABLE)
+		}
 	)
 )
 
@@ -903,9 +1118,7 @@ AnalysisResultsGroupSequential <- setRefClass("AnalysisResultsGroupSequential",
 #' @importFrom methods new
 #'
 AnalysisResultsMultiArmGroupSequential <- setRefClass("AnalysisResultsMultiArmGroupSequential",
-	contains = "AnalysisResultsMultiArm",
-	fields = list(
-	)
+	contains = "AnalysisResultsMultiArm"
 )
 
 #' 
@@ -932,9 +1145,7 @@ AnalysisResultsMultiArmGroupSequential <- setRefClass("AnalysisResultsMultiArmGr
 #' @importFrom methods new
 #' 
 AnalysisResultsInverseNormal <- setRefClass("AnalysisResultsInverseNormal",
-	contains = "AnalysisResultsBase",
-	fields = list(
-	)
+	contains = "AnalysisResultsBase"
 )
 
 #' 
@@ -948,7 +1159,7 @@ AnalysisResultsInverseNormal <- setRefClass("AnalysisResultsInverseNormal",
 #' 
 #' @details 
 #' This object cannot be created directly; use \code{\link{getAnalysisResults}} 
-#' with suitable arguments to create the multi-arm analysis results of a inverse normal design.
+#' with suitable arguments to create the multi-arm analysis results of an inverse normal design.
 #' 
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
@@ -961,8 +1172,36 @@ AnalysisResultsInverseNormal <- setRefClass("AnalysisResultsInverseNormal",
 #' @importFrom methods new
 #'
 AnalysisResultsMultiArmInverseNormal <- setRefClass("AnalysisResultsMultiArmInverseNormal",
-	contains = "AnalysisResultsMultiArm",
+	contains = "AnalysisResultsMultiArm"
+)
+
+#' 
+#' @name AnalysisResultsEnrichmentInverseNormal
+#' 
+#' @title
+#' Analysis Results Enrichment Inverse Normal
+#' 
+#' @description
+#' Class for enrichment analysis results based on a inverse normal design.
+#' 
+#' @details 
+#' This object cannot be created directly; use \code{\link{getAnalysisResults}} 
+#' with suitable arguments to create the enrichment analysis results of an inverse normal design.
+#' 
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include class_analysis_dataset.R
+#' @include class_design.R
+#' @include f_core_constants.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#'
+AnalysisResultsEnrichmentInverseNormal <- setRefClass("AnalysisResultsEnrichmentInverseNormal",
+	contains = "AnalysisResultsEnrichment",
 	fields = list(
+		stratifiedAnalysis = "logical"
 	)
 )
 
@@ -1030,9 +1269,40 @@ AnalysisResultsFisher <- setRefClass("AnalysisResultsFisher",
 AnalysisResultsMultiArmFisher <- setRefClass("AnalysisResultsMultiArmFisher",
 	contains = "AnalysisResultsMultiArm",
 	fields = list(
+		conditionalPowerSimulated = "matrix"
+	)
+)
+
+#' 
+#' @name AnalysisResultsMultiArmFisher
+#' 
+#' @title
+#' Analysis Results Multi-Arm Fisher
+#' 
+#' @description
+#' Class for multi-arm analysis results based on a Fisher combination test design.
+#' 
+#' @details 
+#' This object cannot be created directly; use \code{\link{getAnalysisResults}} 
+#' with suitable arguments to create the multi-arm analysis results of a Fisher combination test design.
+#' 
+#' @include class_core_parameter_set.R
+#' @include class_core_plot_settings.R
+#' @include class_analysis_dataset.R
+#' @include class_design.R
+#' @include f_core_constants.R
+#' 
+#' @keywords internal
+#' 
+#' @importFrom methods new
+#'
+AnalysisResultsEnrichmentFisher <- setRefClass("AnalysisResultsEnrichmentFisher",
+	contains = "AnalysisResultsEnrichment",
+	fields = list(
 		conditionalPowerSimulated = "matrix",
 		iterations = "integer",
-		seed = "numeric"
+		seed = "numeric",
+		stratifiedAnalysis = "logical"
 	)
 )
 
@@ -1066,20 +1336,44 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 		nPlanned <- stats::na.omit(x$nPlanned)
 	}
 	
-	if (is.na(allocationRatioPlanned)) {
+	if (is.na(allocationRatioPlanned) && length(x$allocationRatioPlanned) == 1) {
 		allocationRatioPlanned <- x$allocationRatioPlanned
+	}
+
+	if (length(allocationRatioPlanned) != 1) {
+		allocationRatioPlanned <- NA_real_
+	}
+	
+	if ((.isConditionalPowerEnabled(x$nPlanned) || .isConditionalPowerEnabled(nPlanned)) && is.na(allocationRatioPlanned)) {
+		allocationRatioPlanned <- 1
 	}
 	
 	return(list(
-			stageResults = x$.stageResults,
-			nPlanned = nPlanned,
-			allocationRatioPlanned = allocationRatioPlanned
-		))
+		stageResults = x$.stageResults,
+		nPlanned = nPlanned,
+		allocationRatioPlanned = allocationRatioPlanned
+	))
 }
 
-.getConfidenceIntervalData <- function(data, ciName, treatmentArmsToShow = NULL) {
+.getConfidenceIntervalPlotLegendLabels <- function(x, treatmentArmsToShow) {
+	if (.isEnrichmentStageResults(x)) {
+		gMax <- x$.stageResults$getGMax()
+		labels <- paste0("S", treatmentArmsToShow)
+		labels[treatmentArmsToShow == gMax] <- "F"
+		labels <- factor(labels, levels = unique(labels))
+		return(labels)
+	}
+	
+	return(paste0(treatmentArmsToShow, " vs control"))
+}
+
+.getConfidenceIntervalData <- function(x, ciName = c("lower", "upper"), treatmentArmsToShow = NULL) {
+	ciName <- match.arg(ciName)
+	paramName <- ifelse(ciName == "lower", "repeatedConfidenceIntervalLowerBounds", "repeatedConfidenceIntervalUpperBounds")
+	data <- x[[paramName]]
+	
 	if (is.matrix(data) && !is.null(treatmentArmsToShow) && 
-		length(treatmentArmsToShow) > 0 && !any(is.na(treatmentArmsToShow))) {
+			length(treatmentArmsToShow) > 0 && !any(is.na(treatmentArmsToShow))) {
 		data <- data[treatmentArmsToShow, ]
 	}
 	
@@ -1096,7 +1390,7 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 		result <- data.frame(ci = data[, 1])
 		colnames(result) <- ciName
 		result$xValues <- rep(1, groups)
-		result$categories <- paste0(treatmentArmsToShow, " vs control")
+		result$categories <- .getConfidenceIntervalPlotLegendLabels(x, treatmentArmsToShow)
 		if (kMax == 1) {
 			return(result)
 		}
@@ -1105,7 +1399,7 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 			resultPart <- data.frame(ci = data[, stage])
 			colnames(resultPart) <- ciName
 			resultPart$xValues <- rep(stage, groups)
-			resultPart$categories <- paste0(treatmentArmsToShow, " vs control")
+			resultPart$categories <- .getConfidenceIntervalPlotLegendLabels(x, treatmentArmsToShow)
 			result <- rbind(result, resultPart)
 		}
 		return(result)
@@ -1119,7 +1413,7 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 	result <- data.frame(ci = data)
 	colnames(result) <- ciName
 	result$xValues <- 1:kMax
-	result$categories <- rep(paste0(treatmentArmsToShow, " vs control"), kMax)
+	result$categories <- rep(.getConfidenceIntervalPlotLegendLabels(x, treatmentArmsToShow), kMax)
 	return(result)
 }
 
@@ -1141,6 +1435,7 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 #' @param legendTitle The legend title, default is \code{""}.
 #' @inheritParams param_palette
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_grid
 #' @param type The plot type (default = 1). Note that at the moment only one type (the conditional power plot) is available.
@@ -1171,14 +1466,15 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 #' @export
 #' 
 plot.AnalysisResults <- function(x, y, ..., type = 1L,
-	nPlanned = NA_real_, 
-	allocationRatioPlanned = NA_real_,
-	main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-	legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
-	showSource = FALSE, grid = 1) {
+		nPlanned = NA_real_, 
+		allocationRatioPlanned = NA_real_,
+		main = NA_character_, xlab = NA_character_, ylab = NA_character_,
+		legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_, 
+		showSource = FALSE, grid = 1, plotSettings = NULL) {
 	
 	functionCall <- match.call(expand.dots = TRUE)
 	analysisResultsName <- as.character(functionCall$x)[1]
+	.assertIsSingleInteger(grid, "grid", validateType = FALSE)
 	typeNumbers <- .getPlotTypeNumber(type, x)
 	p <- NULL
 	plotList <- list()
@@ -1189,7 +1485,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 			main = main, xlab = xlab, ylab = ylab,
 			legendTitle = legendTitle, palette = palette, legendPosition = legendPosition, 
 			showSource = showSource, functionCall = functionCall, 
-			analysisResultsName = analysisResultsName, ...)
+			analysisResultsName = analysisResultsName, plotSettings = plotSettings, ...)
 		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
 		if (length(typeNumbers) > 1) {
 			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
@@ -1211,9 +1507,65 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 	return(.createPlotResultObject(plotList, grid))
 }
 
+.plotAnalysisResultsRCI <- function(..., 
+		x, y, nPlanned, allocationRatioPlanned, main, xlab, ylab,
+		legendTitle, palette, legendPosition, showSource, plotSettings = NULL) {
+	
+	.warnInCaseOfUnknownArguments(functionName = "plot", ignore = c("treatmentArms", "populations"), ...)
+	
+	if (.isEnrichmentStageResults(x)) {
+		gMax <- x$.stageResults$getGMax()
+		treatmentArmsToShow <- .getPopulationsToShow(x, gMax = gMax, ...)
+	} else {
+		treatmentArmsToShow <- .getTreatmentArmsToShow(x, ...)
+	}
+	 
+	data <- .getConfidenceIntervalData(x, "lower", treatmentArmsToShow)
+	data$upper <- .getConfidenceIntervalData(x, "upper", treatmentArmsToShow)$upper
+	data$yValues <- (data$upper + data$lower) / 2
+	data <- na.omit(data)
+	if (nrow(data) == 0) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"unable to create plot because no RCIs are available in the specified analysis result")
+	}
+	
+	.warnInCaseOfUnusedArgument(nPlanned, "nPlanned", NA_real_, "plot")
+	.warnInCaseOfUnusedArgument(allocationRatioPlanned, "allocationRatioPlanned", NA_real_, "plot")
+	
+	numberOfRemainingSubjects <- ifelse(length(x$nPlanned) > 0 && !all(is.na(x$nPlanned)), 
+		sum(na.omit(x$nPlanned)), NA_real_)
+	
+	plotData <- list(
+		main = "Repeated Confidence Intervals",
+		xlab = "Stage",
+		ylab = "RCI",
+		sub = NA_character_ # subTitle
+	)
+	
+	if (is.na(legendPosition)) {
+		if (!.isMultiHypothesesAnalysisResults(x)) {
+			legendPosition <- ifelse(length(treatmentArmsToShow) == 1 && treatmentArmsToShow == 1, 
+				-1, C_POSITION_RIGHT_CENTER)
+		} else {
+			legendPosition <- C_POSITION_RIGHT_TOP
+		}
+	}
+	
+	if (!is.logical(showSource) || isTRUE(showSource)) {
+		warning("'showSource' != FALSE is not implemented yet for plot type 2 and class ", class(x))
+	}
+	
+	p <- .createAnalysisResultsPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
+		legendTitle = legendTitle, palette = palette, legendPosition = legendPosition,
+		kMax = x$.design$kMax, plotSettings = plotSettings)
+	p <- p + ggplot2::expand_limits(x = c(1, x$.design$kMax))
+	return(p)
+}
+
 .plotAnalysisResults <- function(..., 
 		x, y, type,	nPlanned, allocationRatioPlanned, main, xlab, ylab,
-		legendTitle, palette, legendPosition, showSource, functionCall, analysisResultsName) {
+		legendTitle, palette, legendPosition, showSource, functionCall, 
+		analysisResultsName, plotSettings = NULL) {
 	
 	.assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 	if (!(type %in% c(1, 2))) {
@@ -1224,53 +1576,20 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 	.assertIsValidLegendPosition(legendPosition = legendPosition)
 	
 	if (type == 2) {
-		.warnInCaseOfUnknownArguments(functionName = "plot", ignore = c("treatmentArms"), ...)
-		
-		treatmentArmsToShow <- .getTreatmentArmsToShow(x, ...) 
-		data <- .getConfidenceIntervalData(x$repeatedConfidenceIntervalLowerBounds, "lower", treatmentArmsToShow)
-		data$upper <- .getConfidenceIntervalData(x$repeatedConfidenceIntervalUpperBounds, "upper", treatmentArmsToShow)$upper
-		data$yValues <- (data$upper + data$lower) / 2
-		data <- na.omit(data)
-		if (nrow(data) == 0) {
-			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"unable to create plot because no RCIs are available in the specified analysis result")
-		}
-		
-		.warnInCaseOfUnusedArgument(nPlanned, "nPlanned", NA_real_, "plot")
-		.warnInCaseOfUnusedArgument(allocationRatioPlanned, "allocationRatioPlanned", NA_real_, "plot")
-		
-		numberOfRemainingSubjects <- ifelse(length(x$nPlanned) > 0 && !all(is.na(x$nPlanned)), 
-			sum(na.omit(x$nPlanned)), NA_real_)
-		
-		plotData <- list(
-			main = "Repeated Confidence Intervals",
-			xlab = "Stage",
-			ylab = "RCI",
-			sub = NA_character_ # subTitle
-		)
-		
-		if (is.na(legendPosition)) {
-			if (!.isMultiHypothesesAnalysisResults(x)) {
-				legendPosition <- ifelse(length(treatmentArmsToShow) == 1 && treatmentArmsToShow == 1, 
-					-1, C_POSITION_RIGHT_CENTER)
-			} else {
-				legendPosition <- C_POSITION_RIGHT_CENTER
-			}
-		}
-		
-		if (!is.logical(showSource) || isTRUE(showSource)) {
-			warning("'showSource' != FALSE is not implemented yet for plot type 2 and class ", class(x))
-		}
-		
-		p <- .createAnalysisResultsPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
-			legendTitle = legendTitle, palette = palette, legendPosition = legendPosition,
-			kMax = x$.design$kMax)
-		p <- p + ggplot2::expand_limits(x = c(1, x$.design$kMax))
-		return(p)
+		return(.plotAnalysisResultsRCI(
+			x = x, y = y, nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, 
+			main = main, xlab = xlab, ylab = ylab,
+			legendTitle = legendTitle, palette = palette, 
+			legendPosition = legendPosition, showSource = showSource,
+			plotSettings = plotSettings, ...))
+	}
+	
+	if (!.isConditionalPowerEnabled(x$nPlanned) && !.isConditionalPowerEnabled(nPlanned)) {
+		stop("'nPlanned' must be defined to create conditional power plot")
 	}
 	
 	.warnInCaseOfUnknownArguments(functionName = "plot", 
-		ignore = c("thetaRange", "assumedStDev", "assumedStDevs", "treatmentArms", "pi2", "piTreatmentRange"), 
+		ignore = c("thetaRange", "assumedStDev", "assumedStDevs", "treatmentArms", "populations", "pi2", "piTreatmentRange"), 
 		...)
 	
 	if (is.na(legendPosition)) {
@@ -1291,6 +1610,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 	functionCall$palette <- palette 
 	functionCall$legendPosition <- legendPosition 
 	functionCall$type <- type 
+	functionCall$plotSettings <- plotSettings 
 	functionCall$allocationRatioPlanned <- plotArgs$allocationRatioPlanned 
 	if (.isTrialDesignFisher(x$.design)) {
 		functionCall$iterations <- x$iterations
@@ -1333,6 +1653,12 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 				piControl <- as.numeric(x$piControl)
 			}
 			functionCall$piControl <- piControl
+		} else if (.isEnrichmentAnalysisResults(x)) {
+			piControl <- eval.parent(functionCall$piControl)
+			if (is.null(piControl)) {
+				piControls <- as.numeric(x$piControls)
+			}
+			functionCall$piControls <- piControls
 		} else {
 			pi2 <- eval.parent(functionCall$pi2)
 			if (is.null(pi2)) {
@@ -1353,4 +1679,3 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 	functionCall[[1L]] <- as.name("plot")
 	return(eval.parent(functionCall))
 }
-

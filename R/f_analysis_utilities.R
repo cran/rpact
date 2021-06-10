@@ -13,10 +13,181 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4359 $
-#:#  Last changed: $Date: 2021-02-08 16:26:14 +0100 (Mon, 08 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4977 $
+#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
+
+#' @include f_core_utilities.R
+NULL
+
+.getGMaxFromAnalysisResult <- function(results) {
+	return(nrow(results$.stageResults$testStatistics))
+}
+
+.setNPlanned <- function(results, nPlanned) {
+	design <- results$.design
+	if (design$kMax == 1) {
+		if (.isConditionalPowerEnabled(nPlanned)) {
+			warning("'nPlanned' (", .arrayToString(nPlanned), ") ",
+				"will be ignored because design is fixed", call. = FALSE)
+		}
+		results$.setParameterType("nPlanned", C_PARAM_NOT_APPLICABLE)
+	}
+	.setValueAndParameterType(results, "nPlanned", nPlanned, NA_real_)
+	while (length(results$nPlanned) < design$kMax) {
+		results$nPlanned <- c(NA_real_, results$nPlanned)
+	}
+	if (all(is.na(results$nPlanned))) {
+		results$.setParameterType("nPlanned", C_PARAM_NOT_APPLICABLE)
+	}
+}
+
+.isConditionalPowerEnabled <- function(nPlanned) {
+	return(!is.null(nPlanned) && length(nPlanned) > 0 && !all(is.na(nPlanned)))
+}
+
+.warnInCaseOfUnusedConditionalPowerArgument <- function(results, nPlanned, paramName, paramValues) {
+	if (!.isConditionalPowerEnabled(nPlanned)) {
+		if (length(paramValues) > 0 && !all(is.na(paramValues)) && 
+				results$.getParameterType(paramName) != C_PARAM_GENERATED) {
+			warning("'", paramName, "' (", .arrayToString(paramValues), ") ",
+				"will be ignored because 'nPlanned' is not defined", call. = FALSE)
+		}
+		return(invisible())
+	}
+	if (results$.design$kMax == 1) {
+		if (length(paramValues) > 0 && !all(is.na(paramValues)) && 
+			results$.getParameterType(paramName) != C_PARAM_GENERATED) {
+			warning("'", paramName, "' (", .arrayToString(paramValues), ") ",
+				"will be ignored because design is fixed", call. = FALSE)
+		}
+		return(invisible())
+	}
+}
+
+.setNPlannedAndThetaH1 <- function(results, nPlanned, thetaH1) {
+	.setNPlanned(results, nPlanned)
+	.warnInCaseOfUnusedConditionalPowerArgument(results, nPlanned, "thetaH1", thetaH1)
+	if (!is.matrix(results$thetaH1)) {
+		if (results$.getParameterType("thetaH1") %in% c(C_PARAM_TYPE_UNKNOWN, C_PARAM_NOT_APPLICABLE)) {
+			.setValueAndParameterType(results, "thetaH1", thetaH1, NA_real_)
+		} else {
+			results$thetaH1 <- thetaH1
+			if (results$.getParameterType("thetaH1") == C_PARAM_TYPE_UNKNOWN) {
+				results$.setParameterType("thetaH1", C_PARAM_USER_DEFINED)
+			}
+		}
+	} else {
+		if (results$.getParameterType("thetaH1") %in% c(C_PARAM_TYPE_UNKNOWN, C_PARAM_NOT_APPLICABLE)) {
+			.setValueAndParameterType(results, "thetaH1", 
+				value = matrix(thetaH1, ncol = 1), 
+				defaultValue = matrix(rep(NA_real_, .getGMaxFromAnalysisResult(results)), ncol = 1))
+		} else {
+			results$thetaH1 <- matrix(thetaH1, ncol = 1)
+			if (results$.getParameterType("thetaH1") == C_PARAM_TYPE_UNKNOWN) {
+				results$.setParameterType("thetaH1", C_PARAM_USER_DEFINED)
+			}
+		}
+	}
+}
+
+.setNPlannedAndThetaH1AndAssumedStDev <- function(results, nPlanned, thetaH1, assumedStDev) {
+	.setNPlannedAndThetaH1(results, nPlanned, thetaH1)
+	.warnInCaseOfUnusedConditionalPowerArgument(results, nPlanned, "assumedStDev", assumedStDev)
+	if (results$.getParameterType("assumedStDev") %in% c(C_PARAM_TYPE_UNKNOWN, C_PARAM_NOT_APPLICABLE)) {
+		.setValueAndParameterType(results, "assumedStDev", assumedStDev, NA_real_)
+	} else {
+		results$assumedStDev <- assumedStDev
+		if (results$.getParameterType("assumedStDev") == C_PARAM_TYPE_UNKNOWN) {
+			results$.setParameterType("assumedStDev", C_PARAM_USER_DEFINED)
+		}
+	}
+}
+
+.setNPlannedAndThetaH1AndAssumedStDevs <- function(results, nPlanned, thetaH1, assumedStDevs) {
+	.setNPlannedAndThetaH1(results, nPlanned, thetaH1)
+	.warnInCaseOfUnusedConditionalPowerArgument(results, nPlanned, "assumedStDevs", assumedStDevs)
+	if (results$.getParameterType("assumedStDevs") %in% c(C_PARAM_TYPE_UNKNOWN, C_PARAM_NOT_APPLICABLE)) {
+		.setValueAndParameterType(results, "assumedStDevs",  
+			value = matrix(assumedStDevs, ncol = 1),  
+			defaultValue = matrix(rep(NA_real_, .getGMaxFromAnalysisResult(results)), ncol = 1)) 
+	} else {
+		results$assumedStDevs <- matrix(assumedStDevs, ncol = 1)
+		if (results$.getParameterType("assumedStDevs") == C_PARAM_TYPE_UNKNOWN) {
+			results$.setParameterType("assumedStDevs", C_PARAM_USER_DEFINED)
+		}
+	}
+}
+
+.setNPlannedAndPi <- function(results, nPlanned, piControlName, piControlValues, piTreatments) {
+	.setNPlanned(results, nPlanned)
+	.warnInCaseOfUnusedConditionalPowerArgument(results, nPlanned, piControlName, piControlValues)
+	.warnInCaseOfUnusedConditionalPowerArgument(results, nPlanned, "piTreatments", piTreatments)
+	if (results$.getParameterType(piControlName) %in% c(C_PARAM_TYPE_UNKNOWN, C_PARAM_NOT_APPLICABLE)) {
+		.setValueAndParameterType(results, piControlName, 
+			matrix(piControlValues, ncol = 1), 
+			matrix(rep(NA_real_, .getGMaxFromAnalysisResult(results)), ncol = 1))
+	} else {
+		results[[piControlName]] <- matrix(piControlValues, ncol = 1)
+		if (results$.getParameterType(piControlName) == C_PARAM_TYPE_UNKNOWN) {
+			results$.setParameterType(piControlName, C_PARAM_USER_DEFINED)
+		}
+	}
+	if (results$.getParameterType("piTreatments") == C_PARAM_TYPE_UNKNOWN) {
+		.setValueAndParameterType(results, "piTreatments", 
+			matrix(piTreatments, ncol = 1), 
+			matrix(rep(NA_real_, .getGMaxFromAnalysisResult(results)), ncol = 1))
+	} else {
+		results$piTreatments <- matrix(piTreatments, ncol = 1)
+		if (results$.getParameterType("piTreatments") == C_PARAM_TYPE_UNKNOWN) {
+			results$.setParameterType("piTreatments", C_PARAM_USER_DEFINED)
+		}
+	}
+}
+
+.getSortedSubsets <- function(subsets) {
+	return(subsets[with(data.frame(subsets = subsets, index = as.integer(sub("\\D", "", subsets))), order(index))])
+}
+
+.getAllAvailableSubsets <- function(numbers) {
+	if (length(numbers) == 0) {
+		return(character(0))
+	}
+	results <- paste0(numbers, collapse = "")
+	for (n in numbers) {
+		results <- c(results, .getAllAvailableSubsets(numbers[numbers != n]))
+	}
+	return(.getSortedSubsets(unique(results)))
+}
+
+.createSubsetsByGMax <- function(gMax, ..., stratifiedInput = TRUE, 
+		subsetIdPrefix = "S", restId = ifelse(stratifiedInput, "R", "F")) {
+		
+	.assertIsSingleInteger(gMax, "gMax", validateType = FALSE)
+	.assertIsInClosedInterval(gMax, "gMax", lower = 1, upper = 10)
+	if (gMax == 1) {
+		return(paste0(subsetIdPrefix, 1))
+	}
+	
+	numbers <- 1:(gMax - 1)
+	subsets <- list()
+	if (stratifiedInput) {
+		availableSubsets <- paste0(subsetIdPrefix, .getAllAvailableSubsets(numbers))
+	} else {
+		availableSubsets <- paste0(subsetIdPrefix, numbers)
+	}
+	for (i in numbers) {
+		subset <- availableSubsets[grepl(i, availableSubsets)]
+		subsets[[length(subsets) + 1]] <- subset
+	}
+	if (stratifiedInput) {
+		subsets[[length(subsets) + 1]] <- c(availableSubsets, restId) 
+	} else {
+		subsets[[length(subsets) + 1]] <- restId
+	}
+	return(subsets)
+}
 
 .arraysAreEqual <- function(a1, a2) {
 	if (length(a1) != length(a2)) {
@@ -94,6 +265,18 @@
 	return(numberOfStages)
 }
 
+.getNumberOfSubsetsFromArguments <- function(args, argNames) {
+	numberOfSubsets <- 1
+	for (argName in argNames) {	
+		argValues <- args[[argName]]
+		n <- length(na.omit(argValues))
+		if (n > numberOfSubsets) {
+			numberOfSubsets <- n
+		}
+	}
+	return(numberOfSubsets)
+}
+
 .assertIsValidTreatmentArmArgumentDefined <- function(args, argNames, numberOfGroups, numberOfStages) {
 	tratmentArgNames <- argNames[!grepl(paste0(".*\\D{1}", numberOfGroups, "$"), argNames)]
 	for (argName in tratmentArgNames) {
@@ -118,6 +301,11 @@
 	numberOfGroups <- .getNumberOfGroupsFromArgumentNames(argNames)
 	numberOfStages <- .getNumberOfStagesFromArguments(args, argNames)
 	survivalDataEnabled <- .isDataObjectSurvival(...)
+	enrichmentEnabled <- .isDataObjectEnrichment(...)
+	numberOfSubsets <- 1
+	if (enrichmentEnabled) {
+		numberOfSubsets <- .getNumberOfSubsetsFromArguments(args, argNames)
+	}
 	if (multiArmEnabled) {
 		.assertIsValidTreatmentArmArgumentDefined(args, argNames, numberOfGroups, numberOfStages)
 	}
@@ -158,10 +346,12 @@
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "no valid stages are defined; ",
 						"stages must be defined completely (", .arrayToString(1:numberOfValues), ")")
 				}
-				msg <- ifelse(length(definedStages) == 1,  
-					paste0("only stage ", definedStages, " is defined"), 
-					paste0("only stages ", .arrayToString(definedStages), " are defined"))
-				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, msg, "; stages must be defined completely")
+				if (!enrichmentEnabled) {
+					msg <- ifelse(length(definedStages) == 1,  
+						paste0("only stage ", definedStages, " is defined"), 
+						paste0("only stages ", .arrayToString(definedStages), " are defined"))
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, msg, "; stages must be defined completely")
+				}
 			}
 		}
 		
@@ -180,7 +370,8 @@
 					" followed by a value for a higher stage; NA's must be the last values")
 			}
 		}
-		if (length(naIndices) > 1) { 
+		
+		if (length(naIndices) > 1 && !enrichmentEnabled) { 
 			indexBefore <- naIndices[length(naIndices)]
 			for (i in (length(naIndices) - 1):1) {
 				index <- naIndices[i]
@@ -193,7 +384,7 @@
 			}
 		}
 		
-		if (!survivalDataEnabled) {
+		if (!survivalDataEnabled && !enrichmentEnabled) { 
 			if (!multiArmEnabled) {
 				if (!is.null(naIndicesBefore) && !.equalsRegexpIgnoreCase(argName, "^stages?$")) {
 					if (!.arraysAreEqual(naIndicesBefore, naIndices)) {
@@ -225,31 +416,33 @@
 				"'", argName, "' contains infinite values")
 		}
 		
-		if (!is.numeric(argValues)) {
+		if (!any(grepl(paste0("^", sub("\\d*$","", argName), "$"), C_KEY_WORDS_SUBSETS)) && !is.numeric(argValues)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all data vectors must be numeric ('", 
 				argName, "' is ", class(argValues), ")")
 		}
 		
-		if (length(argValues) > C_KMAX_UPPER_BOUND) {
+		if (length(argValues) > C_KMAX_UPPER_BOUND * numberOfSubsets) {
 			stop(C_EXCEPTION_TYPE_ARGUMENT_LENGTH_OUT_OF_BOUNDS, 
 				"'", argName, "' is out of bounds [1, ", C_KMAX_UPPER_BOUND, "]")
 		}
 	}
 	
-	for (groupNumber in 1:numberOfGroups) {
-		groupVars <- argNames[grepl(paste0("\\D", groupNumber, "$"), argNames)]
-		naIndicesBefore <- NULL
-		for (argName in groupVars) {	
-			argValues <- args[[argName]]
-			naIndices <- which(is.na(argValues))
-			if (!is.null(naIndicesBefore) && !.equalsRegexpIgnoreCase(argName, "^stages?$")) {
-				if (!.arraysAreEqual(naIndicesBefore, naIndices)) {
-					stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-						"inconsistent NA definition for group ", groupNumber, "; ",
-						"if NA's exist, then they are mandatory for each group at the same stage")
+	if (!enrichmentEnabled) { 
+		for (groupNumber in 1:numberOfGroups) {
+			groupVars <- argNames[grepl(paste0("\\D", groupNumber, "$"), argNames)]
+			naIndicesBefore <- NULL
+			for (argName in groupVars) {	
+				argValues <- args[[argName]]
+				naIndices <- which(is.na(argValues))
+				if (!is.null(naIndicesBefore) && !.equalsRegexpIgnoreCase(argName, "^stages?$")) {
+					if (!.arraysAreEqual(naIndicesBefore, naIndices)) {
+						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+							"inconsistent NA definition for group ", groupNumber, "; ",
+							"if NA's exist, then they are mandatory for each group at the same stage")
+					}
 				}
+				naIndicesBefore <- naIndices
 			}
-			naIndicesBefore <- naIndices
 		}
 	}
 	
@@ -310,8 +503,9 @@
 	dataObjectkeyWords <- tolower(C_KEY_WORDS)
 	
 	multiArmKeywords <- tolower(c(
+		C_KEY_WORDS_SUBSETS,
 		C_KEY_WORDS_EVENTS, 
-		C_KEY_WORDS_OVERALL_EVENTS, 
+		C_KEY_WORDS_OVERALL_EVENTS,
 		C_KEY_WORDS_SAMPLE_SIZES, 
 		C_KEY_WORDS_OVERALL_SAMPLE_SIZES, 
 		C_KEY_WORDS_MEANS, 
@@ -321,7 +515,13 @@
 		C_KEY_WORDS_ALLOCATION_RATIOS,
 		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
 		C_KEY_WORDS_LOG_RANKS,
-		C_KEY_WORDS_OVERALL_LOG_RANKS))
+		C_KEY_WORDS_OVERALL_LOG_RANKS
+		))
+	enrichmentKeywords <- tolower(c(
+		C_KEY_WORDS_EXPECTED_EVENTS,
+		C_KEY_WORDS_VARIANCE_EVENTS,
+		C_KEY_WORDS_OVERALL_EXPECTED_EVENTS,
+		C_KEY_WORDS_OVERALL_VARIANCE_EVENTS))
 	unknownArgs <- setdiff(argNamesLower, dataObjectkeyWords)
 	unknownArgsChecked <- unknownArgs
 	unknownArgs <- c()
@@ -329,6 +529,11 @@
 		unknown <- TRUE
 		for (multiArmKeyword in multiArmKeywords) {
 			if (grepl(paste0(multiArmKeyword, "\\d{1,4}"), unknownArg)) {
+				unknown <- FALSE
+			}
+		}
+		for (enrichmentKeyword in enrichmentKeywords) {
+			if (grepl(enrichmentKeyword, unknownArg)) {
 				unknown <- FALSE
 			}
 		}
@@ -368,6 +573,11 @@
 	return(length(matching) > 0)
 }
 
+.isDataObjectEnrichment <- function(...) {
+	return(.isDataObject(..., dataObjectkeyWords = 
+		c(C_KEY_WORDS_SUBSETS, paste0(C_KEY_WORDS_SUBSETS, "1"))))
+}
+
 .isDataObjectMeans <- function(...) {
 	return(.isDataObject(..., dataObjectkeyWords = c(
 		C_KEY_WORDS_MEANS, C_KEY_WORDS_ST_DEVS, 
@@ -379,17 +589,22 @@
 }
 
 .isDataObjectRates <- function(...) {	
-	dataObjectkeyWords1 <- c(C_KEY_WORDS_EVENTS, C_KEY_WORDS_OVERALL_EVENTS)
-	dataObjectkeyWords2 <- c(C_KEY_WORDS_OVERALL_LOG_RANKS, 
+	dataObjectkeyWordsExpected <- c(C_KEY_WORDS_EVENTS, C_KEY_WORDS_OVERALL_EVENTS)
+	dataObjectkeyWordsForbidden <- c(
+		C_KEY_WORDS_OVERALL_LOG_RANKS, 
 		C_KEY_WORDS_LOG_RANKS, 
 		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, 
-		C_KEY_WORDS_ALLOCATION_RATIOS)
+		C_KEY_WORDS_ALLOCATION_RATIOS,
+		C_KEY_WORDS_EXPECTED_EVENTS, 
+		C_KEY_WORDS_VARIANCE_EVENTS, 
+		C_KEY_WORDS_OVERALL_EXPECTED_EVENTS, 
+		C_KEY_WORDS_OVERALL_VARIANCE_EVENTS)
 	
-	dataObjectkeyWords1 <- c(dataObjectkeyWords1, paste0(dataObjectkeyWords1, c(1, 2)))
-	dataObjectkeyWords2 <- c(dataObjectkeyWords2, paste0(dataObjectkeyWords2, c(1, 2)))
+	dataObjectkeyWordsExpected <- c(dataObjectkeyWordsExpected, paste0(dataObjectkeyWordsExpected, c(1, 2)))
+	dataObjectkeyWordsForbidden <- c(dataObjectkeyWordsForbidden, paste0(dataObjectkeyWordsForbidden, c(1, 2)))
 	
-	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords1) &&
-			!.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords2))
+	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWordsExpected) &&
+		!.isDataObject(..., dataObjectkeyWords = dataObjectkeyWordsForbidden))
 }
 
 .isDataObjectSurvival <- function(...) {
@@ -401,5 +616,181 @@
 	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords))
 }
 
+.isDataObjectNonStratifiedEnrichmentSurvival <- function(...) {
+	dataObjectkeyWords <- c(
+		C_KEY_WORDS_EXPECTED_EVENTS, 
+		C_KEY_WORDS_VARIANCE_EVENTS, 
+		C_KEY_WORDS_OVERALL_EXPECTED_EVENTS, 
+		C_KEY_WORDS_OVERALL_VARIANCE_EVENTS
+	)
+	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords))
+}
+
+#' 
+#' @title
+#' Get Wide Format
+#'
+#' @description
+#' Returns the specified dataset as a \code{\link[base]{data.frame}} in so-called wide format.
+#' 
+#' @details
+#' In the wide format (unstacked), the data are presented with each different data variable in a separate column, i.e.,   
+#' the different groups are in separate columns.
+#' 
+#' @seealso 
+#' \code{\link{getLongFormat}} for returning the dataset as a \code{\link[base]{data.frame}} in long format.
+#' 
+#' @return A \code{\link[base]{data.frame}} will be returned.
+#' 
+#' @keywords internal
+#' 
+#' @export
+#' 
+getWideFormat <- function(dataInput) {
+	.assertIsDataset(dataInput)
+	paramNames <- names(dataInput)
+	paramNames <- paramNames[!(paramNames %in% c("groups"))]
+	numberOfSubsets <- dataInput$getNumberOfSubsets()
+	numberOfGroups <- dataInput$getNumberOfGroups(survivalCorrectionEnabled = FALSE)
+	if (numberOfSubsets <= 1) {
+		numberOfStages <- dataInput$getNumberOfStages()
+		df <- data.frame(stages = 1:numberOfStages)
+	} else {
+		numberOfStages <- length(dataInput$subsets) / numberOfGroups / numberOfSubsets
+		df <- data.frame(stages = rep(1:numberOfStages, numberOfSubsets))
+	}
+	for (paramName in paramNames) {
+		if (numberOfGroups == 1) {
+			df[[paramName]] <- dataInput[[paramName]]
+		} else {
+			for (group in 1:numberOfGroups) {
+				if (paramName %in% c("stages", "subsets")) {
+					varName <- paramName
+				} else {
+					varName <- paste0(paramName, group)
+				}
+				df[[varName]] <- dataInput[[paramName]][dataInput$groups == group]
+			}
+		}
+	}
+	return(df)
+}
+
+.getNumberOfStages = function(dataFrame, naOmitEnabled = TRUE) {
+	if (naOmitEnabled) {
+		colNames <- colnames(dataFrame)
+		validColNames <- character(0)
+		for (colName in colNames) {
+			colValues <- dataFrame[, colName]
+			if (length(colValues) > 0 && !all(is.na(colValues))) {
+				validColNames <- c(validColNames, colName)
+			}
+		}
+		subData <- stats::na.omit(dataFrame[, validColNames])
+		numberOfStages <- length(unique(as.character(subData$stage)))
+		if (numberOfStages == 0) {
+			print(dataFrame[, validColNames])
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+				"'dataFrame' seems to contain an invalid column")
+		}
+		return(numberOfStages)
+	}
+	return(length(levels(dataFrame$stage)))
+}
+
+.getWideFormat <- function(dataFrame) {
+	if (!is.data.frame(dataFrame)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataFrame' must be a data.frame (is ", class(dataFrame), ")")
+	}
+	
+	paramNames <- names(dataFrame)
+	paramNames <- paramNames[!(paramNames %in% c("stage", "group", "subset"))]
+	numberOfSubsets <- ifelse(is.factor(dataFrame$subset), 
+		length(levels(dataFrame$subset)), length(unique(na.omit(dataFrame$subset))))
+	numberOfGroups <- ifelse(is.factor(dataFrame$group), 
+		length(levels(dataFrame$group)), length(unique(na.omit(dataFrame$group))))
+	if (numberOfSubsets <= 1) {
+		df <- data.frame(stage = 1:.getNumberOfStages(dataFrame))
+	} else {
+		df <- data.frame(stage = 1:(length(dataFrame$subset) / numberOfGroups))
+	}
+	for (paramName in paramNames) {
+		if (numberOfGroups == 1) {
+			df[[paramName]] <- dataFrame[[paramName]]
+		} else {
+			for (group in 1:numberOfGroups) {
+				varName <- paste0(paramName, group)
+				values <- dataFrame[[paramName]][dataFrame$group == group]
+				df[[varName]] <- values
+			}
+		}
+	}
+	
+	if (numberOfSubsets > 1) {
+		stages <- dataFrame$stage[dataFrame$group == 1]
+		df$stage <- stages#sort(rep(stages, multiplier))
+		
+		subsets <- dataFrame$subset[dataFrame$group == 1]
+		if (nrow(df) != length(subsets)) {
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "something went wrong: ", nrow(df) , " != ", length(subsets))
+		}
+		df$subset <- subsets 
+		df <- .moveColumn(df, "subset", "stage")
+#		df <- df[with(data.frame(subset = df$subset, index = as.integer(sub("\\D", "", df$subset))), order(index)), ]
+	}
+	
+	return(df)
+}
+
+#' 
+#' @title
+#' Get Long Format
+#'
+#' @description
+#' Returns the specified dataset as a \code{\link[base]{data.frame}} in so-called long format.
+#' 
+#' @details
+#' In the long format (narrow, stacked), the data are presented with one column containing 
+#' all the values and another column listing the context of the value, i.e.,   
+#' the data for the different groups are in one column and the dataset contains an additional "group" column.
+#' 
+#' @seealso 
+#' \code{\link{getWideFormat}} for returning the dataset as a \code{\link[base]{data.frame}} in wide format.
+#' 
+#' @return A \code{\link[base]{data.frame}} will be returned.
+#' 
+#' @keywords internal
+#' 
+#' @export
+#' 
+getLongFormat <- function(dataInput) {
+	.assertIsDataset(dataInput)
+	return(as.data.frame(dataInput, niceColumnNamesEnabled = FALSE))
+}
+
+.setConditionalPowerArguments <- function(results, dataInput, nPlanned, allocationRatioPlanned) {
+	.assertIsAnalysisResults(results)
+	.setNPlanned(results, nPlanned)
+	numberOfGroups <- dataInput$getNumberOfGroups()
+	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, numberOfGroups)
+	
+	if (!.isConditionalPowerEnabled(nPlanned) || numberOfGroups == 1) {
+		if (numberOfGroups == 1) {
+			if (length(allocationRatioPlanned) == 1 && !identical(allocationRatioPlanned, 1)) {
+				warning("'allocationRatioPlanned' (", allocationRatioPlanned, ") ",
+					"will be ignored because the specified data has only one group", call. = FALSE)
+			}
+		}
+		else if (!identical(allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)) {
+			warning("'allocationRatioPlanned' (", allocationRatioPlanned, ") ",
+				"will be ignored because 'nPlanned' is not defined", call. = FALSE)
+		}
+		results$.setParameterType("allocationRatioPlanned", C_PARAM_NOT_APPLICABLE)
+		return(invisible(results))
+	}
+	
+	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
+	return(invisible(results))
+}
 
 

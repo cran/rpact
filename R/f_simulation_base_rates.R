@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3681 $
-#:#  Last changed: $Date: 2020-09-24 07:28:22 +0200 (Thu, 24 Sep 2020) $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -422,21 +422,25 @@
 		trialStop <- TRUE
 	}
 	if (designNumber <= 2) {
-		if (testStatistic$value >= criticalValues[k]) {
+		if (!is.na(testStatistic$value) && !is.na(criticalValues[k]) && 
+				testStatistic$value >= criticalValues[k]) {
 			simulatedRejections <- 1
 			trialStop <- TRUE
 		} 
 		# add small number to avoid ties
-		if (k < kMax && testStatistic$value <= futilityBounds[k]) {
+		if (!is.na(testStatistic$value) && !is.na(futilityBounds[k]) && 
+				k < kMax && testStatistic$value <= futilityBounds[k]) {
 			simulatedFutilityStop <- 1
 			trialStop <- TRUE
 		}
 	} else {
-		if (testStatistic$value <= criticalValues[k]) {
+		if (!is.na(testStatistic$value) && !is.na(criticalValues[k]) && 
+				testStatistic$value <= criticalValues[k]) {
 			simulatedRejections <- 1
 			trialStop <- TRUE
 		} 
-		if (k < kMax && testStatistic$pValuesSeparate[k] >= alpha0Vec[k]) {
+		if (!is.na(testStatistic$pValuesSeparate[k]) && !is.na(alpha0Vec[k]) && 
+				k < kMax && testStatistic$pValuesSeparate[k] >= alpha0Vec[k]) {
 			simulatedFutilityStop <- 1
 			trialStop <- TRUE
 		}
@@ -478,7 +482,7 @@
 #' @inheritParams param_conditionalPowerSimulation
 #' @param pi1H1 If specified, the assumed probability in the active treatment group if two treatment groups 
 #'        are considered, or the assumed probability for a one treatment group design, for which the conditional 
-#' 		  power was calculated.	
+#'        power was calculated.	
 #' @param pi2H1 If specified, the assumed probability in the reference group if two treatment groups 
 #'        are considered, for which the conditional power was calculated.  
 #' @inheritParams param_maxNumberOfIterations
@@ -547,7 +551,7 @@
 #'         depends on which design was chosen (group sequential, inverse normal, 
 #'         or Fisher combination test)'
 #'   \item \code{testStatisticsPerStage}: The test statistic for each stage if only data from
-#' 			the considered stage is taken into account. 
+#'         the considered stage is taken into account. 
 #'   \item \code{overallRate1}: The overall rate in treatment group 1.
 #'   \item \code{overallRate2}: The overall rate in treatment group 2.
 #'   \item \code{stagewiseRates1}: The stagewise rate in treatment group 1.
@@ -556,8 +560,8 @@
 #'   \item \code{sampleSizesPerStage2}: The stagewise sample size in treatment group 2.
 #'   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
 #'   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-#' 			selected sample size and effect. The effect is either estimated from the data or can be
-#' 			user defined with \code{pi1H1} and \code{pi2H1}.   
+#'         selected sample size and effect. The effect is either estimated from the data or can be
+#'         user defined with \code{pi1H1} and \code{pi2H1}.   
 #' }
 #'  
 #' @template return_object_simulation_results
@@ -591,7 +595,7 @@ getSimulationRates <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "simulation")
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationRates", 
-			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "showStatistics"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "showStatistics"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationRates", ignore = "showStatistics", ...)
@@ -672,6 +676,8 @@ getSimulationRates <- function(design = NULL, ...,
 	}
 	if (!is.null(calcSubjectsFunction) && (design$kMax == 1)) { 
 		warning("'calcSubjectsFunction' will be ignored for fixed sample design", call. = FALSE)
+	} else if (!is.null(calcSubjectsFunction) && is.function(calcSubjectsFunction)) {
+		simulationResults$calcSubjectsFunction <- calcSubjectsFunction
 	}
 	if (is.na(conditionalPower) && is.null(calcSubjectsFunction)) {
 
@@ -758,7 +764,8 @@ getSimulationRates <- function(design = NULL, ...,
 		}	
 	}	
 	simulationResults$effect <- effect
-	simulationResults$.setParameterType("effect", ifelse(groups == 1 && thetaH0 == 0, C_PARAM_NOT_APPLICABLE, C_PARAM_DEFAULT_VALUE))
+	simulationResults$.setParameterType("effect", 
+		ifelse(groups == 1 && thetaH0 == 0, C_PARAM_NOT_APPLICABLE, C_PARAM_GENERATED))
 	
 	.assertIsIntegerVector(plannedSubjects, "plannedSubjects", validateType = FALSE)
 	if (length(plannedSubjects) != design$kMax) {

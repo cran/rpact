@@ -13,13 +13,12 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4401 $
-#:#  Last changed: $Date: 2021-02-15 17:29:02 +0100 (Mo, 15 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4977 $
+#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 .getAnalysisResultsMeansMultiArm <- function(..., design, dataInput) {
-	
 	if (.isTrialDesignInverseNormal(design)) {
 		return(.getAnalysisResultsMeansInverseNormalMultiArm(design = design, dataInput = dataInput, ...))
 	}
@@ -51,7 +50,7 @@
 	.assertIsTrialDesignInverseNormal(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsMeansInverseNormalMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsMultiArmInverseNormal(design = design, dataInput = dataInput)
 	
@@ -59,8 +58,8 @@
 		intersectionTest = intersectionTest, stage = stage, directionUpper = directionUpper, 
 		normalApproximation = normalApproximation, varianceOption = varianceOption,
 		thetaH0 = thetaH0, 	thetaH1 = thetaH1,	assumedStDevs = assumedStDevs, nPlanned = nPlanned, 
-		allocationRatioPlanned = allocationRatioPlanned, calculateSingleStepAdjusted = calculateSingleStepAdjusted, 
-		tolerance = tolerance)
+		allocationRatioPlanned = allocationRatioPlanned, 
+		calculateSingleStepAdjusted = calculateSingleStepAdjusted, tolerance = tolerance)
 	
 	return(results)
 }
@@ -83,17 +82,15 @@
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsMeansFisherMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsMultiArmFisher(design = design, dataInput = dataInput)
-	.setValueAndParameterType(results, "iterations", as.integer(iterations), C_ITERATIONS_DEFAULT)
-	.setValueAndParameterType(results, "seed", seed, NA_real_)
-	
 	results <- .getAnalysisResultsMeansMultiArmAll(results = results, design = design, dataInput = dataInput, 
 		intersectionTest = intersectionTest, stage = stage, directionUpper = directionUpper, 
 		normalApproximation = normalApproximation, varianceOption = varianceOption,
 		thetaH0 = thetaH0, thetaH1 = thetaH1, assumedStDevs = assumedStDevs,  nPlanned = nPlanned, 
-		allocationRatioPlanned = allocationRatioPlanned, calculateSingleStepAdjusted = calculateSingleStepAdjusted, 
+		allocationRatioPlanned = allocationRatioPlanned, 
+		calculateSingleStepAdjusted = calculateSingleStepAdjusted, 
 		tolerance = tolerance, iterations = iterations, seed = seed)
 	
 	return(results)
@@ -115,7 +112,7 @@
 	.assertIsTrialDesignConditionalDunnett(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsMeansConditionalDunnettMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsConditionalDunnett(design = design, dataInput = dataInput)
 	
@@ -124,7 +121,8 @@
 		stage = stage, directionUpper = directionUpper, normalApproximation = normalApproximation, 
 		varianceOption = varianceOption,
 		thetaH0 = thetaH0, thetaH1 = thetaH1, assumedStDevs = assumedStDevs, nPlanned = nPlanned, 
-		allocationRatioPlanned = allocationRatioPlanned, calculateSingleStepAdjusted = calculateSingleStepAdjusted, 
+		allocationRatioPlanned = allocationRatioPlanned, 
+		calculateSingleStepAdjusted = calculateSingleStepAdjusted, 
 		tolerance = tolerance,
 		iterations = iterations, seed = seed)
 	
@@ -149,51 +147,25 @@
 	normalApproximation <- stageResults$normalApproximation
 	intersectionTest <- stageResults$intersectionTest
 		
-	results$.stageResults <- stageResults
+	results$.setStageResults(stageResults)
 	.logProgress("Stage results calculated", startTime = startTime)
 	numberOfGroups <- dataInput$getNumberOfGroups()
-	gMax <- nrow(stageResults$testStatistics)
-	
-	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, numberOfGroups)
-	
-	thetaH1NA <- all(is.na(thetaH1))
-	assumedStDevsNA <- all(is.na(assumedStDevs))
 	
 	thetaH1 <- .assertIsValidThetaH1ForMultiArm(thetaH1, stageResults, stage, results = results)
-	assumedStDevs <- .assertIsValidAssumedStDevForMultiArm(assumedStDevs, stageResults, stage, results = results)
+	assumedStDevs <- .assertIsValidAssumedStDevForMultiHypotheses(
+		assumedStDevs, stageResults, stage, results = results)
 	
-	.setValueAndParameterType(results, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
-	.setValueAndParameterType(results, "directionUpper", directionUpper, C_DIRECTION_UPPER_DEFAULT)
-	.setValueAndParameterType(results, "normalApproximation", normalApproximation, C_NORMAL_APPROXIMATION_MEANS_DEFAULT)
-	.setValueAndParameterType(results, "varianceOption", varianceOption, C_VARIANCE_OPTION_MULTIARMED_DEFAULT)
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
+	.setValueAndParameterType(results, "intersectionTest", 
+		intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
+	.setValueAndParameterType(results, "directionUpper", 
+		directionUpper, C_DIRECTION_UPPER_DEFAULT)
+	.setValueAndParameterType(results, "normalApproximation", 
+		normalApproximation, C_NORMAL_APPROXIMATION_MEANS_DEFAULT)
+	.setValueAndParameterType(results, "varianceOption", 
+		varianceOption, C_VARIANCE_OPTION_MULTIARMED_DEFAULT)
 	.setValueAndParameterType(results, "thetaH0", thetaH0, C_THETA_H0_MEANS_DEFAULT)
-	if (results$.getParameterType("thetaH1") == C_PARAM_TYPE_UNKNOWN) {
-		.setValueAndParameterType(results, "thetaH1", matrix(thetaH1, ncol = 1), matrix(rep(NA_real_, gMax), ncol = 1))
-	} else {
-		results$thetaH1 <- matrix(thetaH1, ncol = 1)
-	}
-	if (results$.getParameterType("assumedStDevs") == C_PARAM_TYPE_UNKNOWN) {
-		.setValueAndParameterType(results, "assumedStDevs",  matrix(assumedStDevs, ncol = 1),  
-			matrix(rep(NA_real_, gMax), ncol = 1)) 
-	} else {
-		results$assumedStDevs <- matrix(assumedStDevs, ncol = 1)
-	}
-	
-	if (thetaH1NA && !(all(is.na(thetaH1)))) {
-		results$.setParameterType("thetaH1", C_PARAM_GENERATED)
-	}
-	if (assumedStDevsNA && !(all(is.na(assumedStDevs)))) {
-		results$.setParameterType("assumedStDevs", C_PARAM_GENERATED)
-	}
-	
-	.setValueAndParameterType(results, "nPlanned", nPlanned, NA_real_)
-	while (length(results$nPlanned) < design$kMax) {
-		results$nPlanned <- c(NA_real_, results$nPlanned)
-	}
-	if (design$kMax == 1) {
-		results$.setParameterType("nPlanned", C_PARAM_NOT_APPLICABLE)
-	}
+	.setConditionalPowerArguments(results, dataInput, nPlanned, allocationRatioPlanned)
+	.setNPlannedAndThetaH1AndAssumedStDevs(results, nPlanned, thetaH1, assumedStDevs)
 	
 	startTime <- Sys.time()
 	if (!.isTrialDesignConditionalDunnett(design)) {
@@ -203,6 +175,9 @@
 			stageResults = stageResults, design = design, stage = stage)
 	}
 	.logProgress("Closed test calculated", startTime = startTime)
+	
+	results$.setParameterType("seed", C_PARAM_NOT_APPLICABLE)
+	results$.setParameterType("iterations", C_PARAM_NOT_APPLICABLE)
 	
 	if (design$kMax > 1) {
 		
@@ -254,23 +229,25 @@
 		varianceOption = varianceOption, 
 		tolerance = tolerance)
 
+	gMax <- stageResults$getGMax()
 	results$repeatedConfidenceIntervalLowerBounds <- 
 		matrix(rep(NA_real_, gMax * design$kMax), nrow = gMax, ncol = design$kMax) 
 	results$repeatedConfidenceIntervalUpperBounds <- results$repeatedConfidenceIntervalLowerBounds
 	for (k in 1:design$kMax) {
 		for (treatmentArm in 1:gMax) {
-			results$repeatedConfidenceIntervalLowerBounds[treatmentArm, k] <- repeatedConfidenceIntervals[treatmentArm, 1, k]
-			results$repeatedConfidenceIntervalUpperBounds[treatmentArm, k]  <- repeatedConfidenceIntervals[treatmentArm, 2, k]
+			results$repeatedConfidenceIntervalLowerBounds[treatmentArm, k] <- 
+				repeatedConfidenceIntervals[treatmentArm, 1, k]
+			results$repeatedConfidenceIntervalUpperBounds[treatmentArm, k]  <- 
+				repeatedConfidenceIntervals[treatmentArm, 2, k]
 		}
 	}
 	results$.setParameterType("repeatedConfidenceIntervalLowerBounds", C_PARAM_GENERATED)
 	results$.setParameterType("repeatedConfidenceIntervalUpperBounds", C_PARAM_GENERATED)
 	
 	# repeated p-value
-	if (design$kMax > 1) {	
-		results$repeatedPValues <- .getRepeatedPValuesMultiArm(stageResults = stageResults, tolerance = tolerance)	
-		results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
-	}
+	results$repeatedPValues <- .getRepeatedPValuesMultiArm(
+		stageResults = stageResults, tolerance = tolerance)	
+	results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
 
 	return(results)
 }
@@ -291,7 +268,7 @@
 	.assertIsSingleLogical(normalApproximation, "normalApproximation")
 	.assertIsValidVarianceOptionMultiArmed(design, varianceOption)
 	.warnInCaseOfUnknownArguments(functionName = ".getStageResultsMeansMultiArm", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	gMax <- dataInput$getNumberOfGroups() - 1
@@ -306,13 +283,19 @@
 			normalApproximation <- TRUE
 		}
 	}
-	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest, userFunctionCallEnabled)
+	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(
+		design, intersectionTest, userFunctionCallEnabled)
 	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
+	
+	if (intersectionTest == "Dunnett" && varianceOption != "overallPooled" &&	
+			!normalApproximation) {
+		stop("Dunnett t test can only be performed with overall variance estimation, 
+						select 'varianceOption' = \"overallPooled\"", call. = FALSE)
+	}
 	
 	stageResults <- StageResultsMultiArmMeans(
 		design = design,
 		dataInput = dataInput,
-#		intersectionTest = intersectionTest,
 		thetaH0 = thetaH0, 
 		direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
 		normalApproximation = normalApproximation, 
@@ -321,10 +304,11 @@
 		stage = stage
 	)
 	
-	.setValueAndParameterType(stageResults, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
+	.setValueAndParameterType(stageResults, "intersectionTest", 
+		intersectionTest, C_INTERSECTION_TEST_MULTIARMED_DEFAULT)
 	effectSizes <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 	overallStDevs <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallPooledStDevs <- rep(NA_real_, kMax)
+	overallPooledStDevs <- matrix(rep(NA_real_, kMax), 1, kMax)
 	testStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 	overallTestStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 	separatePValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
@@ -336,21 +320,23 @@
 	dimnames(overallPValues) = list(paste("arm ", 1:gMax, sep = ""), paste("stage ", (1:kMax), sep = ""))
 	
 	for (k in 1:stage) {
-		overallPooledStDevs[k] <- sqrt(sum((dataInput$getOverallSampleSizes(stage = k) - 1) * 
-								dataInput$getOverallStDevs(stage = k)^2, na.rm = TRUE) /
-								sum(dataInput$getOverallSampleSizes(stage = k) - 1, na.rm = TRUE))
+		overallPooledStDevs[1, k] <- sqrt(sum((dataInput$getOverallSampleSizes(stage = k) - 1) * 
+			dataInput$getOverallStDevs(stage = k)^2, na.rm = TRUE) /
+			sum(dataInput$getOverallSampleSizes(stage = k) - 1, na.rm = TRUE))
 		
 		if (varianceOption == "overallPooled") {
 			stDev <- sqrt(sum((dataInput$getSampleSizes(stage = k) - 1) * 
 				dataInput$getStDevs(stage = k)^2, na.rm = TRUE) /
 				sum(dataInput$getSampleSizes(stage = k) - 1, na.rm = TRUE))
-			overallStDevForTest <- overallPooledStDevs[k]
+			overallStDevForTest <- overallPooledStDevs[1, k]
 		}
+		
 		for (treatmentArm in 1:gMax) {
 			effectSizes[treatmentArm, k] <- dataInput$getOverallMeans(stage = k, group = treatmentArm) - 
 				dataInput$getOverallMeans(stage = k, group = gMax + 1)
 			
-			overallStDevs[treatmentArm, k] <- sqrt(sum((dataInput$getOverallSampleSize(stage = k, group = c(treatmentArm, gMax + 1)) - 1) * 
+			overallStDevs[treatmentArm, k] <- sqrt(sum((
+				dataInput$getOverallSampleSize(stage = k, group = c(treatmentArm, gMax + 1)) - 1) * 
 				dataInput$getOverallStDev(stage = k, group = c(treatmentArm, gMax + 1))^2, na.rm = TRUE) /
 				sum(dataInput$getOverallSampleSize(stage = k, group = c(treatmentArm, gMax + 1)) - 1))
 			
@@ -368,7 +354,8 @@
 					dataInput$getSampleSizes(stage = k, group = treatmentArm) + 
 					dataInput$getStDevs(stage = k, group = gMax + 1)^2 / 
 					dataInput$getSampleSizes(stage = k, group = gMax + 1))
-				overallTestStatistics[treatmentArm, k] <- (dataInput$getOverallMeans(stage = k, group = treatmentArm) - 
+				overallTestStatistics[treatmentArm, k] <- (
+					dataInput$getOverallMeans(stage = k, group = treatmentArm) - 
 					dataInput$getOverallMeans(stage = k, group = gMax + 1) - thetaH0) / 
 					sqrt(dataInput$getOverallStDevs(stage = k, group = treatmentArm)^2 / 
 					dataInput$getOverallSampleSizes(stage = k, group = treatmentArm) + 
@@ -379,7 +366,8 @@
 					dataInput$getMeans(stage = k, group = gMax + 1) - thetaH0) / stDev /
 					sqrt(1 / dataInput$getSampleSizes(stage = k, group = treatmentArm) + 1 / 
 					dataInput$getSampleSizes(stage = k, group = gMax + 1))
-				overallTestStatistics[treatmentArm, k] <- (dataInput$getOverallMeans(stage = k, group = treatmentArm) - 
+				overallTestStatistics[treatmentArm, k] <- (
+					dataInput$getOverallMeans(stage = k, group = treatmentArm) - 
 					dataInput$getOverallMeans(stage = k, group = gMax + 1) - thetaH0) / 
 					overallStDevForTest /
 					sqrt(1 / dataInput$getOverallSampleSizes(stage = k, group = treatmentArm) + 1 / 
@@ -431,6 +419,8 @@
 			}
 		}
 	}
+
+	.setWeightsToStageResults(design, stageResults)
 	
 	# Calculation of single stage adjusted p-Values and overall test statistics
 	# for determination of RCIs 
@@ -440,11 +430,12 @@
 		combFisher <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 		
 		if (.isTrialDesignInverseNormal(design)) {	
-			weightsInverseNormal <- .getWeightsInverseNormal(design)
+			weightsInverseNormal <- stageResults$weightsInverseNormal
 		}	
-		if (.isTrialDesignFisher(design)) {
-			weightsFisher <- .getWeightsFisher(design) 
+		else if (.isTrialDesignFisher(design)) {
+			weightsFisher <- stageResults$weightsFisher
 		}
+		
 		for (k in 1:stage) {
 			selected <- sum(!is.na(separatePValues[, k]))
 			sampleSizesSelected <- as.numeric(na.omit(
@@ -455,17 +446,19 @@
 								dataInput$getSampleSize(k, gMax + 1)))) 
 			diag(sigma) <- 1
 			for (treatmentArm in 1:gMax) {
-				if ((intersectionTest == "Bonferroni") || (intersectionTest == "Simes")) {
+				if (intersectionTest == "Bonferroni" || intersectionTest == "Simes") {
 					if (.isTrialDesignGroupSequential(design)) {
 						overallPValues[treatmentArm, k] <- min(1, overallPValues[treatmentArm, k]*selected)
 					} else {
-						singleStepAdjustedPValues[treatmentArm, k] <- min(1, separatePValues[treatmentArm, k]*selected)
+						singleStepAdjustedPValues[treatmentArm, k] <- min(1, 
+							separatePValues[treatmentArm, k]*selected)
 					}	
 				} else if (intersectionTest == "Sidak") {
 					if (.isTrialDesignGroupSequential(design)) {
 						overallPValues[treatmentArm, k] <- 1 - (1 - overallPValues[treatmentArm, k])^selected
 					} else {	
-						singleStepAdjustedPValues[treatmentArm, k] <- 1 - (1 - separatePValues[treatmentArm, k])^selected
+						singleStepAdjustedPValues[treatmentArm, k] <- 1 - (1 - 
+							separatePValues[treatmentArm, k])^selected
 					}	
 				} else if (intersectionTest == "Dunnett") {
 					if (!is.na(testStatistics[treatmentArm, k])) {
@@ -475,7 +468,8 @@
 						}
 						singleStepAdjustedPValues[treatmentArm, k] <- 1 - .getMultivariateDistribution(
 							type = ifelse(normalApproximation, "normal", "t"),
-							upper = ifelse(directionUpper, testStatistics[treatmentArm, k], -testStatistics[treatmentArm, k]),  
+							upper = ifelse(directionUpper, 
+								testStatistics[treatmentArm, k], -testStatistics[treatmentArm, k]),  
 							sigma = sigma, df = df)
 					}
 				}
@@ -485,7 +479,8 @@
 						sqrt(sum(weightsInverseNormal[1:k]^2))
 				}
 				else if (.isTrialDesignFisher(design)) {	
-					combFisher[treatmentArm, k] <- prod(singleStepAdjustedPValues[treatmentArm, 1:k]^weightsFisher[1:k])
+					combFisher[treatmentArm, k] <- prod(
+						singleStepAdjustedPValues[treatmentArm, 1:k]^weightsFisher[1:k])
 				}
 			}
 		}
@@ -502,16 +497,10 @@
 		if (.isTrialDesignFisher(design)) {	
 			stageResults$combFisher <- combFisher 
 			stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
-			
-			stageResults$weightsFisher <- weightsFisher
-			stageResults$.setParameterType("weightsFisher", C_PARAM_GENERATED)
 		}
 		else if (.isTrialDesignInverseNormal(design)) {
 			stageResults$combInverseNormal <- combInverseNormal 
 			stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
-			
-			stageResults$weightsInverseNormal <- weightsInverseNormal
-			stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
 		}
 		
 	} else {
@@ -601,6 +590,7 @@
 	
 	# Confidence interval for second stage when using conditional Dunnett test
 	if (.isTrialDesignConditionalDunnett(design)) {
+		startTime <- Sys.time()
 		for (treatmentArm in 1:gMax) {
 			if (!is.na(stageResults$testStatistics[treatmentArm, 2])) {
 				thetaLowLimit <- -1
@@ -669,11 +659,13 @@
 				
 				if (!is.na(repeatedConfidenceIntervals[treatmentArm, 1, 2]) && 
 						!is.na(repeatedConfidenceIntervals[treatmentArm, 2, 2]) &&
-						repeatedConfidenceIntervals[treatmentArm, 1, 2] > repeatedConfidenceIntervals[treatmentArm, 2, 2]) {
+						repeatedConfidenceIntervals[treatmentArm, 1, 2] > 
+						repeatedConfidenceIntervals[treatmentArm, 2, 2]) {
 					repeatedConfidenceIntervals[treatmentArm, , 2] <- rep(NA_real_, 2)
 				}
 			}
 		}
+		.logProgress("Confidence intervals for final stage calculated", startTime = startTime)
 		
 	} else {
 		# Repeated onfidence intervals when using combination tests
@@ -777,8 +769,9 @@
 					}
 					
 					if (!is.na(repeatedConfidenceIntervals[treatmentArm, 1, k]) && 
-						!is.na(repeatedConfidenceIntervals[treatmentArm, 2, k]) &&
-						repeatedConfidenceIntervals[treatmentArm, 1, k] > repeatedConfidenceIntervals[treatmentArm, 2, k]) {
+							!is.na(repeatedConfidenceIntervals[treatmentArm, 2, k]) &&
+							repeatedConfidenceIntervals[treatmentArm, 1, k] > 
+							repeatedConfidenceIntervals[treatmentArm, 2, k]) {
 						repeatedConfidenceIntervals[treatmentArm, , k] <- rep(NA_real_, 2)
 					}
 				}
@@ -803,7 +796,7 @@
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsMeansMultiArmInverseNormal", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	return(.getRepeatedConfidenceIntervalsMeansMultiArmAll(design = design, dataInput = dataInput, 
 		normalApproximation = normalApproximation, varianceOption = varianceOption, 
@@ -824,7 +817,7 @@
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsMeansMultiArmFisher", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	return(.getRepeatedConfidenceIntervalsMeansMultiArmAll(design = design, dataInput = dataInput, 
 		normalApproximation = normalApproximation, varianceOption = varianceOption, 
@@ -845,7 +838,7 @@
 	
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsMeansMultiArmConditionalDunnett", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 
 	return(.getRepeatedConfidenceIntervalsMeansMultiArmAll(design = design, dataInput = dataInput, 
 		normalApproximation = normalApproximation, varianceOption = varianceOption, 
@@ -877,8 +870,16 @@
 		thetaH1 = NA_real_, assumedStDevs = NA_real_,
 		iterations = C_ITERATIONS_DEFAULT, seed = NA_real_) {
 		
+	stDevsH1 <- .getOptionalArgument("stDevsH1", ...)
+	if (!is.null(stDevsH1) && !is.na(stDevsH1)) {
+		if (!is.na(assumedStDevs)) {
+			warning(sQuote("assumedStDevs"), " will be ignored because ", sQuote("stDevsH1"), " is defined", call. = FALSE)
+		}
+		assumedStDevs <- stDevsH1
+	}
+		
 	design <- stageResults$.design
-	gMax <- nrow(stageResults$testStatistics)
+	gMax <- stageResults$getGMax()
 	kMax <- design$kMax
 	
 	results <- ConditionalPowerResultsMultiArmMeans(
@@ -907,8 +908,12 @@
 	.assertIsValidNPlanned(nPlanned, kMax, stage)
 	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")	
 	.assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
-	assumedStDevs <- .assertIsValidAssumedStDevForMultiArm(assumedStDevs, stageResults, stage, results = results)
+	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
+	assumedStDevs <- .assertIsValidAssumedStDevForMultiHypotheses(
+		assumedStDevs, stageResults, stage, results = results)
 	thetaH1 <- .assertIsValidThetaH1ForMultiArm(thetaH1, stageResults, stage, results = results)
+	results$.setParameterType("nPlanned", C_PARAM_USER_DEFINED)
+	
 	if (length(thetaH1) != 1 && length(thetaH1) != gMax) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			sprintf(paste0("length of 'thetaH1' (%s) ", 
@@ -952,7 +957,8 @@
 	}
 	
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-		"'design' must be an instance of TrialDesignInverseNormal, TrialDesignFisher, or TrialDesignConditionalDunnett")
+		"'design' must be an instance of TrialDesignInverseNormal, TrialDesignFisher, or ",
+		"TrialDesignConditionalDunnett")
 }
 
 #
@@ -964,10 +970,10 @@
 	design <- stageResults$.design
 	.assertIsTrialDesignInverseNormal(design)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansMultiArmInverseNormal", 
-		ignore = c("stage", "design"), ...)
+		ignore = c("stage", "design", "stDevsH1"), ...)
 		
 	kMax <- design$kMax	
-	gMax <- nrow(stageResults$testStatistics)	
+	gMax <- stageResults$getGMax()	
 	#results$conditionalPower <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
 
 	weights <- .getWeightsInverseNormal(design)
@@ -975,7 +981,6 @@
 	nPlanned <- c(rep(NA_real_, stage), nPlanned)	
 	nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 	
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	if (length(thetaH1) == 1) {
 		thetaH1 <- rep(thetaH1, gMax)
 		results$.setParameterType("thetaH1", C_PARAM_GENERATED)
@@ -1053,9 +1058,9 @@
 	.assertIsTrialDesignFisher(design)
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansMultiArmFisher", 
-		ignore = c("stage", "design"), ...)
+		ignore = c("stage", "design", "stDevsH1"), ...)
 	kMax <- design$kMax	
-	gMax <- nrow(stageResults$testStatistics)
+	gMax <- stageResults$getGMax()
 	criticalValues <- design$criticalValues
 	weightsFisher <- .getWeightsFisher(design) 
 	
@@ -1063,12 +1068,11 @@
 	
 	results$iterations <- as.integer(iterations) 
 	results$.setParameterType("iterations", C_PARAM_USER_DEFINED)
-	results$.setParameterType("seed", ifelse(is.na(seed), C_PARAM_GENERATED, C_PARAM_USER_DEFINED))
+	results$.setParameterType("seed", ifelse(is.na(seed), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 	results$seed <- .setSeed(seed)
 	results$simulated <- FALSE
 	results$.setParameterType("simulated", C_PARAM_DEFAULT_VALUE)
 	
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	if (length(thetaH1) == 1) {
 		thetaH1 <- rep(thetaH1, gMax)
 		results$.setParameterType("thetaH1", C_PARAM_GENERATED)
@@ -1092,7 +1096,7 @@
 				pValues <- ctr$adjustedStageWisePValues[ctr$indices[,treatmentArm] == 1,][1:stage]
 			} else {
 				pValues <- ctr$adjustedStageWisePValues[ctr$indices[,treatmentArm] == 1,][which.max(
-								ctr$overallAdjustedTestStatistics[ctr$indices[,treatmentArm] == 1,stage]), 1:stage]
+					ctr$overallAdjustedTestStatistics[ctr$indices[,treatmentArm] == 1,stage]), 1:stage]
 			}	
 			if (stage < kMax - 1) {		
 				for (k in (stage + 1):kMax) {
@@ -1114,7 +1118,8 @@
 				result <- 1 - (criticalValues[kMax] / divisor)^(1/weightsFisher[kMax])
 				
 				if (result <= 0 || result >= 1) {
-					warning("Calculation not possible: could not calculate conditional power for stage ", kMax, call. = FALSE)
+					warning("Calculation not possible: could not calculate ",
+						"conditional power for stage ", kMax, call. = FALSE)
 					results$conditionalPower[treatmentArm, kMax] <- NA_real_
 				} else {
 					results$conditionalPower[treatmentArm, kMax] <- 1 - stats::pnorm(stats::qnorm(result) - 
@@ -1131,6 +1136,14 @@
 	
 	results$thetaH1 <- thetaH1
 	results$assumedStDevs <- assumedStDevs
+	
+	if (!results$simulated) {
+		results$iterations <- NA_integer_
+		results$seed <- NA_real_
+		results$.setParameterType("iterations", C_PARAM_NOT_APPLICABLE)
+		results$.setParameterType("seed", C_PARAM_NOT_APPLICABLE)
+	}
+	
 	return(results)	
 }
 
@@ -1143,19 +1156,18 @@
 	design <- stageResults$.design
 	.assertIsTrialDesignConditionalDunnett(design)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerMeansMultiArmConditionalDunnett", 
-		ignore = c("stage", "intersectionTest", "design"), ...)
+		ignore = c("stage", "intersectionTest", "design", "stDevsH1"), ...)
 	
 	if (stage > 1) {
 		warning("Conditional power is only calculated for the first (interim) stage", call. = FALSE)
 	}	
 	
 	kMax <- 2	
-	gMax <- nrow(stageResults$testStatistics)	
+	gMax <- stageResults$getGMax()	
 	
 	nPlanned <- c(rep(NA_real_, stage), nPlanned)	
 	nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 	
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	if (length(thetaH1) == 1) {
 		thetaH1 <- rep(thetaH1, gMax)
 		results$.setParameterType("thetaH1", C_PARAM_GENERATED)
@@ -1203,10 +1215,10 @@
 	
 	design <- stageResults$.design
 	kMax <- design$kMax
-	gMax <- nrow(stageResults$testStatistics)	
+	gMax <- stageResults$getGMax()	
 	intersectionTest <- stageResults$intersectionTest
 	
-	assumedStDevs <- .assertIsValidAssumedStDevForMultiArm(assumedStDevs, stageResults, stage)
+	assumedStDevs <- .assertIsValidAssumedStDevForMultiHypotheses(assumedStDevs, stageResults, stage)
 	
 	if (length(assumedStDevs) == 1) {
 		assumedStDevs <- rep(assumedStDevs, gMax)
@@ -1264,11 +1276,10 @@
 		}
 	}	
 	
-	assumedStDevsPrint <- paste0("(", .arrayToString(sprintf("%.1f", assumedStDevs), encapsulate = FALSE), ")")
-	
 	subTitle <- paste0("Intersection test = ", intersectionTest, 
 		", stage = ", stage, ", # of remaining subjects = ", 
-		sum(nPlanned), ", sd = ", assumedStDevsPrint, ", allocation ratio = ", allocationRatioPlanned)
+		sum(nPlanned), ", sd = ", .formatSubTitleValue(assumedStDevs, "assumedStDevs"), 
+		", allocation ratio = ", .formatSubTitleValue(allocationRatioPlanned, "allocationRatioPlanned"))
 	
 	return(list(
 		treatmentArms = treatmentArms,			

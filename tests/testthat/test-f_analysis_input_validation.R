@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_input_validation.R
-#:#  Creation date: 09 November 2020, 11:45:48
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:44:19
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -74,15 +74,13 @@ test_that("Errors and warnings for calculation of analysis results with dataset 
 	expect_error(getAnalysisResults(design = design3, dataInput = dataExample4,
 		intersectionTest = "Dunnett", varianceOption = "pairwisePooled"),
 		paste0("Illegal argument: variance option ('pairwisePooled') must be 'overallPooled' ",
-			"because conditional Dunnett test was specified as design"), fixed = TRUE)
+		"because conditional Dunnett test was specified as design"), fixed = TRUE)
 
-	expect_warning(getAnalysisResults(design = design1, dataInput = dataExample4,
+	expect_error(getAnalysisResults(design = design1, dataInput = dataExample4,
 		intersectionTest = "Dunnett", varianceOption = "pairwisePooled", nPlanned = c(20, 20)),
 		"Dunnett t test can only be performed with overall variance estimation", fixed = TRUE)
 
-	expect_warning(getConditionalPower(getStageResults(design1, dataInput = dataExample1), 
-		nPlanned = c(20, 20), allocationRatioPlanned = 1.2))
 	expect_error(getConditionalPower(getStageResults(design1, dataInput = dataExample2), 
-		nPlanned = c(20, 20), allocationRatioPlanned = -1))
+		nPlanned = c(20, 20), allocationRatioPlanned = -1))
 })
 

@@ -6,7 +6,7 @@
 \arguments{
 \item{dataInput}{The summary data used for calculating the test results. 
 This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
-and should be created with the function \code{\link{getDataset}}.
+and should be created with the function \code{getDataset}.
 For more information see \code{\link{getDataset}}.}
 }
 \description{

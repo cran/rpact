@@ -17,7 +17,8 @@
   legendTitle = NA_character_,
   palette = "Set1",
   legendPosition = NA_integer_,
-  showSource = FALSE
+  showSource = FALSE,
+  plotSettings = NULL
 )
 }
 \arguments{
@@ -28,17 +29,17 @@
 \item{...}{Optional \link[=param_three_dots_plot]{plot arguments}. Furthermore the following arguments can be defined:
 \itemize{
 \item \code{thetaRange}: A range of assumed effect sizes if testing means or a survival design was specified. 
-            Additionally, if testing means was selected, an assumed standard deviation can be specified (default is 1).
+      Additionally, if testing means was selected, an assumed standard deviation can be specified (default is 1).
 \item \code{piTreatmentRange}: A range of assumed rates pi1 to calculate the conditional power. 
-          Additionally, if a two-sample comparison was selected, pi2 can be specified (default is the value from 
-       \code{getAnalysisResults}). 
+      Additionally, if a two-sample comparison was selected, pi2 can be specified (default is the value from 
+      \code{getAnalysisResults}). 
 \item \code{directionUpper}: Specifies the direction of the alternative, 
-       only applicable for one-sided testing; default is \code{TRUE}
-       which means that larger values of the test statistics yield smaller p-values.
+      only applicable for one-sided testing; default is \code{TRUE}
+      which means that larger values of the test statistics yield smaller p-values.
 \item \code{\link[=param_thetaH0]{thetaH0}}: The null hypothesis value, default is 0 for the normal and the binary case, 
-       it is 1 for the survival case.      
-       For testing a rate in one sample, a value thetaH0 in (0,1) has to be specified for 
-       defining the null hypothesis H0: pi = thetaH0.
+      it is 1 for the survival case.      
+      For testing a rate in one sample, a value thetaH0 in (0,1) has to be specified for 
+      defining the null hypothesis H0: pi = thetaH0.
 }}
 
 \item{type}{The plot type (default = 1). Note that at the moment only one type 
@@ -48,7 +49,8 @@
 The argument must be a vector with length equal to the number of remaining stages and contain 
 the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
 it should contain the planned number of additional events. 
-For multi-arm designs, it is the per-comparison (combined) sample size.}
+For multi-arm designs, it is the per-comparison (combined) sample size. 
+For enrichment designs, it is the (combined) sample size for the considered sub-population.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.}
@@ -91,6 +93,8 @@ Alternatively \code{showSource} can be defined as one of the following character
         returned as character vector (function stops if an error occurs)
 }
 Note: no plot object will be returned if \code{showSource} is a character.}
+
+\item{plotSettings}{An object of class \code{PlotSettings} created by \code{\link{getPlotSettings}}.}
 }
 \value{
 Returns a \code{ggplot2} object.

@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4421 $
-#:#  Last changed: $Date: 2021-02-17 12:26:44 +0100 (Mi, 17 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 #' @include f_core_constants.R
@@ -250,17 +250,10 @@ NULL
 		.assertIsInClosedInterval(design$deltaWT, "deltaWT", lower = -0.5, upper = 1)
 	}
 	else if (design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
-		if (length(design$deltaPT1) == 1 && is.na(design$deltaPT1)) {
-			design$deltaPT1 <- 0
-		}
-		.assertDesignParameterExists(design, "deltaPT1", 0) 
+		.assertDesignParameterExists(design, "deltaPT1", NA_real_)
 		.assertIsSingleNumber(design$deltaPT1, "deltaPT1", naAllowed = FALSE)
 		.assertIsInClosedInterval(design$deltaPT1, "deltaPT1", lower = -0.5, upper = 1)
-		
-		if (length(design$deltaPT0) == 1 && is.na(design$deltaPT0)) {
-			design$deltaPT0 <- 0
-		}
-		.assertDesignParameterExists(design, "deltaPT0", 0) 
+		.assertDesignParameterExists(design, "deltaPT0", NA_real_)
 		.assertIsSingleNumber(design$deltaPT0, "deltaPT0", naAllowed = FALSE)
 		.assertIsInClosedInterval(design$deltaPT0, "deltaPT0", lower = -0.5, upper = 1)
 	}
@@ -429,6 +422,7 @@ NULL
 			"'", C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL, "'")
 	}
 	
+	.assertIsSingleInteger(sided, "sided", naAllowed = FALSE, validateType = FALSE)
 	if (!is.integer(sided) && sided %in% c(1, 2)) {
 		sided <- as.integer(sided)
 	}
@@ -438,6 +432,17 @@ NULL
 	.assertIsSingleCharacter(typeBetaSpending, "typeBetaSpending")
 	.assertIsSingleLogical(bindingFutility, "bindingFutility")
 	.assertIsSingleLogical(twoSidedPower, "twoSidedPower", naAllowed = TRUE)
+	.assertIsSingleNumber(alpha, "alpha", naAllowed = TRUE)
+	.assertIsSingleNumber(beta, "beta", naAllowed = TRUE)
+	.assertIsSingleNumber(deltaWT, "deltaWT", naAllowed = TRUE)
+	.assertIsSingleNumber(deltaPT1, "deltaPT1", naAllowed = TRUE)
+	.assertIsSingleNumber(deltaPT0, "deltaPT0", naAllowed = TRUE)
+	.assertIsSingleNumber(gammaA, "gammaA", naAllowed = TRUE)
+	.assertIsSingleNumber(gammaB, "gammaB", naAllowed = TRUE)
+	.assertIsNumericVector(futilityBounds, "futilityBounds", naAllowed = TRUE)
+	.assertIsNumericVector(informationRates, "informationRates", naAllowed = TRUE)
+	.assertIsNumericVector(userAlphaSpending, "userAlphaSpending", naAllowed = TRUE)
+	.assertIsNumericVector(userBetaSpending, "userBetaSpending", naAllowed = TRUE)
 	
 	design$alpha <- alpha 
 	design$beta <- beta 
@@ -455,6 +460,10 @@ NULL
 	design$userAlphaSpending <- userAlphaSpending 
 	design$userBetaSpending <- userBetaSpending 
 	design$bindingFutility <- bindingFutility
+	if (design$typeOfDesign != C_TYPE_OF_DESIGN_WT_OPTIMUM && optimizationCriterion != C_OPTIMIZATION_CRITERION_DEFAULT) {
+		warning("'optimizationCriterion' (", optimizationCriterion, 
+				") will be ignored because it is only applicable for 'typeOfDesign' = \"", C_TYPE_OF_DESIGN_WT_OPTIMUM, "\"")
+	}	
 	if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
 		.assertIsSingleNumber(constantBoundsHP, "constantBoundsHP")
 		.assertIsInClosedInterval(constantBoundsHP, "constantBoundsHP", lower = 2, upper = NULL)
@@ -686,6 +695,7 @@ NULL
 }
 
 .calculateAlphaSpent <- function(design) {
+	
 	if (design$sided == 2) {
 		if (design$bindingFutility) {
 			decisionMatrix <- matrix(c(-design$criticalValues, -design$futilityBounds, -C_FUTILITY_BOUNDS_DEFAULT,  
@@ -1331,36 +1341,36 @@ getDesignInverseNormal <- function(
 	if (is.na(bindingFutility)) {
 		bindingFutility <- C_BINDING_FUTILITY_DEFAULT
 	} 
-	else if (userFunctionCallEnabled && (typeOfDesign != "PT") && 
-			!((typeBetaSpending == "bsP") || (typeBetaSpending == "bsOF")  || (typeBetaSpending == "bsKD") || 
-				(typeBetaSpending == "bsHSD") || (typeBetaSpending == "bsUser")) &&
+	else if (userFunctionCallEnabled && typeOfDesign != C_TYPE_OF_DESIGN_PT && 
+			!(typeBetaSpending == "bsP" || typeBetaSpending == "bsOF" || typeBetaSpending == "bsKD" || 
+				typeBetaSpending == "bsHSD" || typeBetaSpending == "bsUser") &&
 			((!is.na(kMax) && kMax == 1) || any(is.na(futilityBounds)) || 
 				(!any(is.na(futilityBounds)) && all(futilityBounds == C_FUTILITY_BOUNDS_DEFAULT)))) {
 		warning("'bindingFutility' (", bindingFutility, ") will be ignored", call. = FALSE)
 	}
 	
 	design <- .createDesign(
-			designClass             = designClass,
-			kMax                    = kMax,
-			alpha                   = alpha,  
-			beta                    = beta,  
-			sided                   = sided,  
-			informationRates        = informationRates,
-			futilityBounds  		= futilityBounds,	
-			typeOfDesign            = typeOfDesign,
-			deltaWT                 = deltaWT,
-			deltaPT1                = deltaPT1,
-			deltaPT0                = deltaPT0,
-			optimizationCriterion   = optimizationCriterion,
-			gammaA                  = gammaA,
-			typeBetaSpending        = typeBetaSpending,
-			userAlphaSpending       = userAlphaSpending,  
-			userBetaSpending        = userBetaSpending,
-			gammaB                  = gammaB,
-			bindingFutility         = bindingFutility,
-			constantBoundsHP        = constantBoundsHP,
-			twoSidedPower           = twoSidedPower,
-			tolerance               = tolerance)
+		designClass             = designClass,
+		kMax                    = kMax,
+		alpha                   = alpha,  
+		beta                    = beta,  
+		sided                   = sided,  
+		informationRates        = informationRates,
+		futilityBounds  		= futilityBounds,	
+		typeOfDesign            = typeOfDesign,
+		deltaWT                 = deltaWT,
+		deltaPT1                = deltaPT1,
+		deltaPT0                = deltaPT0,
+		optimizationCriterion   = optimizationCriterion,
+		gammaA                  = gammaA,
+		typeBetaSpending        = typeBetaSpending,
+		userAlphaSpending       = userAlphaSpending,  
+		userBetaSpending        = userBetaSpending,
+		gammaB                  = gammaB,
+		bindingFutility         = bindingFutility,
+		constantBoundsHP        = constantBoundsHP,
+		twoSidedPower           = twoSidedPower,
+		tolerance               = tolerance)
 	
 	if (userFunctionCallEnabled) {
 		.validateBaseParameters(design, twoSidedWarningForDefaultValues = FALSE)
@@ -1385,23 +1395,23 @@ getDesignInverseNormal <- function(
 		if (typeOfDesign != C_TYPE_OF_DESIGN_WT && !is.na(deltaWT)) {
 			warning("'deltaWT' (", deltaWT, ") will be ignored", call. = FALSE)
 		}
-		if ((typeOfDesign != C_TYPE_OF_DESIGN_AS_KD) && 
-				(typeOfDesign != C_TYPE_OF_DESIGN_AS_HSD) && !is.na(gammaA)) {
+		if (typeOfDesign != C_TYPE_OF_DESIGN_AS_KD && 
+				typeOfDesign != C_TYPE_OF_DESIGN_AS_HSD && !is.na(gammaA)) {
 			warning("'gammaA' (", gammaA, ") will be ignored", call. = FALSE)
 		}
-		if ((typeBetaSpending != C_TYPE_OF_DESIGN_BS_KD) && 
-				(typeBetaSpending != C_TYPE_OF_DESIGN_BS_HSD) && !is.na(gammaB)) {
+		if (typeBetaSpending != C_TYPE_OF_DESIGN_BS_KD && 
+				typeBetaSpending != C_TYPE_OF_DESIGN_BS_HSD && !is.na(gammaB)) {
 			warning("'gammaB' (", gammaB, ") will be ignored", call. = FALSE)
 		}
-		if ((typeBetaSpending != C_TYPE_OF_DESIGN_BS_USER) && !is.na(userBetaSpending)) {
+		if (typeBetaSpending != C_TYPE_OF_DESIGN_BS_USER && !is.na(userBetaSpending)) {
 			warning("'userBetaSpending' (", .arrayToString(userBetaSpending), ") will be ignored", call. = FALSE)
 		}
-		if ((typeOfDesign != C_TYPE_OF_DESIGN_AS_USER) && !is.na(userAlphaSpending)) {
+		if (typeOfDesign != C_TYPE_OF_DESIGN_AS_USER && !is.na(userAlphaSpending)) {
 			warning("'userAlphaSpending' (", .arrayToString(userAlphaSpending), ") will be ignored", call. = FALSE)
 		}				
 	}
 	
-	if (design$sided == 2 && design$bindingFutility && (!design$typeOfDesign == "PT")) {
+	if (design$sided == 2 && design$bindingFutility && !design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 		warning("'bindingFutility' will be ignored because the test is defined as two-sided", call. = FALSE)
 		design$bindingFutility <- FALSE
 	}
@@ -1522,7 +1532,7 @@ getDesignInverseNormal <- function(
 #' @param gammaB Parameter for beta spending function.
 #' @inheritParams param_userAlphaSpending
 #' @param userBetaSpending The user defined beta spending. Vector of length \code{kMax} containing the cumulative 
-#' 		  beta-spending up to each interim stage.
+#'        beta-spending up to each interim stage.
 #' @param twoSidedPower For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
 #'        the sample size calculation is performed by considering both tails of the distribution. 
 #'        Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
@@ -1603,7 +1613,7 @@ getDesignGroupSequential <- function(
 	if (twoSidedPower) {
 		n <- .getOneDimensionalRoot(function(n) {
 				stats::pnorm(-stats::qnorm(1 - alpha / 2) - sqrt(n)) - 
-						stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n)) + beta
+					stats::pnorm(stats::qnorm(1 - alpha / 2) - sqrt(n)) + beta
 			}, 
 			lower = 0, 
 			upper = 2 * (stats::qnorm(1 - alpha / 2) + stats::qnorm(1 - beta))^2, 
@@ -1674,7 +1684,7 @@ getDesignCharacteristics <- function(design) {
 	designCharacteristics$.setParameterType("futilityProbabilities", C_PARAM_NOT_APPLICABLE)
 	
 	nFixed <- .getFixedSampleSize(alpha = design$alpha, beta = design$beta, 
-			sided = design$sided, twoSidedPower = design$twoSidedPower)
+		sided = design$sided, twoSidedPower = design$twoSidedPower)
 	designCharacteristics$nFixed <- nFixed
 	designCharacteristics$.setParameterType("nFixed", C_PARAM_GENERATED) 
 	
@@ -1700,7 +1710,7 @@ getDesignCharacteristics <- function(design) {
 	
 	informationRates <- design$informationRates
 	
-	if ((design$typeOfDesign == "PT") && (design$sided == 2)) {
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_PT && design$sided == 2) {
 		design$futilityBounds[is.na(design$futilityBounds)] <- 0 
 		
 		shift <- .getOneDimensionalRoot(function(shift) {

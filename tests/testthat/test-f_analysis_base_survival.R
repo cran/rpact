@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_base_survival.R
-#:#  Creation date: 05 January 2021, 10:37:55
-#:#  File version: $Revision: 4166 $
-#:#  Last changed: $Date: 2021-01-05 13:42:19 +0100 (Tue, 05 Jan 2021) $
+#:#  Creation date: 18 May 2021, 17:40:13
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -25,8 +25,8 @@ context("Testing the Analysis Survival Functionality for the Group Sequential De
 
 test_that("'getAnalysisResults' for a two-stage group sequential design and survival data", {
 	design0 <- getDesignGroupSequential(kMax = 2, alpha = 0.025, 
-			informationRates = c(0.4, 1), bindingFutility = TRUE,
-			typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0))
+		informationRates = c(0.4, 1), bindingFutility = TRUE,
+		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0))
 
 	dataExample0 <- getDataset(
 		overallEvents = c(8, 20),
@@ -60,6 +60,19 @@ test_that("'getAnalysisResults' for a two-stage group sequential design and surv
 	    expect_output(print(x0)$show())
 	    invisible(capture.output(expect_error(summary(x0), NA)))
 	    expect_output(summary(x0)$show())
+	    x0CodeBased <- eval(parse(text = getObjectRCode(x0, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x0CodeBased$thetaH1, x0$thetaH1, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$testActions, x0$testActions, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$conditionalRejectionProbabilities, x0$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$conditionalPower, x0$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$repeatedConfidenceIntervalLowerBounds, x0$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$repeatedConfidenceIntervalUpperBounds, x0$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$repeatedPValues, x0$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$finalStage, x0$finalStage, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$finalPValues, x0$finalPValues, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$finalConfidenceIntervalLowerBounds, x0$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$finalConfidenceIntervalUpperBounds, x0$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x0CodeBased$medianUnbiasedEstimates, x0$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 })
@@ -103,6 +116,19 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	    expect_output(print(x1)$show())
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
+	    x1CodeBased <- eval(parse(text = getObjectRCode(x1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x1CodeBased$thetaH1, x1$thetaH1, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$testActions, x1$testActions, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalRejectionProbabilities, x1$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalPower, x1$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalStage, x1$finalStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalPValues, x1$finalPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -110,7 +136,7 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x2 <- getAnalysisResults(design1, dataExample1, stage = 2, nPlanned = c(40), 
+	x2 <- getAnalysisResults(design1, dataExample1, stage = 2, nPlanned = 40, 
 		allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE) 
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
@@ -130,6 +156,18 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	    expect_output(print(x2)$show())
 	    invisible(capture.output(expect_error(summary(x2), NA)))
 	    expect_output(summary(x2)$show())
+	    x2CodeBased <- eval(parse(text = getObjectRCode(x2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x2CodeBased$testActions, x2$testActions, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalRejectionProbabilities, x2$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalPower, x2$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalStage, x2$finalStage, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalPValues, x2$finalPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x2, thetaRange = seq(1, 2.5, 0.05))
@@ -149,7 +187,7 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	x3 <- getAnalysisResults(design1, dataExample1, thetaH0 = 0.95, stage = 2, 
-		nPlanned = c(40), allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE) 
+		nPlanned = 40, allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE) 
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_))
@@ -168,6 +206,18 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	    expect_output(print(x3)$show())
 	    invisible(capture.output(expect_error(summary(x3), NA)))
 	    expect_output(summary(x3)$show())
+	    x3CodeBased <- eval(parse(text = getObjectRCode(x3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x3CodeBased$testActions, x3$testActions, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$conditionalRejectionProbabilities, x3$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$conditionalPower, x3$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedConfidenceIntervalLowerBounds, x3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedConfidenceIntervalUpperBounds, x3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedPValues, x3$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalStage, x3$finalStage, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalPValues, x3$finalPValues, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalConfidenceIntervalLowerBounds, x3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	plotData2 <- testGetAnalysisResultsPlotData(x3, thetaRange = seq(1, 2.5, 0.05))
@@ -222,6 +272,19 @@ test_that("'getAnalysisResults' for a three-stage ggroup sequential design and s
 	    expect_output(print(x1)$show())
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
+	    x1CodeBased <- eval(parse(text = getObjectRCode(x1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x1CodeBased$thetaH1, x1$thetaH1, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$testActions, x1$testActions, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalRejectionProbabilities, x1$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalPower, x1$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalStage, x1$finalStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalPValues, x1$finalPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -230,7 +293,7 @@ test_that("'getAnalysisResults' for a three-stage ggroup sequential design and s
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	x2 <- getAnalysisResults(design2, dataExample2, thetaH0 = 1.1, stage = 2, 
-		nPlanned = c(40), allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE) 
+		nPlanned = 40, allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE) 
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_))
@@ -249,6 +312,18 @@ test_that("'getAnalysisResults' for a three-stage ggroup sequential design and s
 	    expect_output(print(x2)$show())
 	    invisible(capture.output(expect_error(summary(x2), NA)))
 	    expect_output(summary(x2)$show())
+	    x2CodeBased <- eval(parse(text = getObjectRCode(x2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x2CodeBased$testActions, x2$testActions, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalRejectionProbabilities, x2$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalPower, x2$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalStage, x2$finalStage, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalPValues, x2$finalPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x2, thetaRange = seq(0.4, 1, 0.05))
@@ -305,6 +380,19 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	    expect_output(print(x1)$show())
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
+	    x1CodeBased <- eval(parse(text = getObjectRCode(x1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x1CodeBased$thetaH1, x1$thetaH1, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$testActions, x1$testActions, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalRejectionProbabilities, x1$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalPower, x1$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalStage, x1$finalStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalPValues, x1$finalPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -312,7 +400,7 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x2 <- getAnalysisResults(design3, stage = 1, nPlanned = c(20,40), 
+	x2 <- getAnalysisResults(design3, stage = 1, nPlanned = c(20, 40), 
 		allocationRatioPlanned = 2, thetaH1 = 2, dataExample3, directionUpper = TRUE)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x2' with expected results
@@ -332,6 +420,18 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	    expect_output(print(x2)$show())
 	    invisible(capture.output(expect_error(summary(x2), NA)))
 	    expect_output(summary(x2)$show())
+	    x2CodeBased <- eval(parse(text = getObjectRCode(x2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x2CodeBased$testActions, x2$testActions, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalRejectionProbabilities, x2$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalPower, x2$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalStage, x2$finalStage, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalPValues, x2$finalPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x2, thetaRange = seq(1, 2.5, 0.05))
@@ -351,7 +451,7 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	x3 <- getAnalysisResults(design3, dataExample3, thetaH0 = 0.95, stage = 2, 
-		nPlanned = c(40), allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE)
+		nPlanned = 40, allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_))
@@ -370,6 +470,18 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	    expect_output(print(x3)$show())
 	    invisible(capture.output(expect_error(summary(x3), NA)))
 	    expect_output(summary(x3)$show())
+	    x3CodeBased <- eval(parse(text = getObjectRCode(x3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x3CodeBased$testActions, x3$testActions, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$conditionalRejectionProbabilities, x3$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$conditionalPower, x3$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedConfidenceIntervalLowerBounds, x3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedConfidenceIntervalUpperBounds, x3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedPValues, x3$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalStage, x3$finalStage, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalPValues, x3$finalPValues, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalConfidenceIntervalLowerBounds, x3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	plotData2 <- testGetAnalysisResultsPlotData(x3, thetaRange = seq(1, 2.5, 0.05))
@@ -424,6 +536,19 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	    expect_output(print(x1)$show())
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
+	    x1CodeBased <- eval(parse(text = getObjectRCode(x1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x1CodeBased$thetaH1, x1$thetaH1, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$testActions, x1$testActions, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalRejectionProbabilities, x1$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalPower, x1$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalStage, x1$finalStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalPValues, x1$finalPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -432,7 +557,7 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	x2 <- getAnalysisResults(design4, dataExample4, thetaH0 = 1.1, stage = 2, 
-		nPlanned = c(40), allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE) 
+		nPlanned = 40, allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE) 
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_))
@@ -451,6 +576,18 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	    expect_output(print(x2)$show())
 	    invisible(capture.output(expect_error(summary(x2), NA)))
 	    expect_output(summary(x2)$show())
+	    x2CodeBased <- eval(parse(text = getObjectRCode(x2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x2CodeBased$testActions, x2$testActions, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalRejectionProbabilities, x2$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$conditionalPower, x2$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalStage, x2$finalStage, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalPValues, x2$finalPValues, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x2, thetaRange = seq(0.4, 1, 0.05))
@@ -506,6 +643,18 @@ test_that("'getAnalysisResults' for a three-stage Fisher design and 'bindingFuti
 	    expect_output(print(x1)$show())
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
+	    x1CodeBased <- eval(parse(text = getObjectRCode(x1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x1CodeBased$testActions, x1$testActions, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalRejectionProbabilities, x1$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalPower, x1$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalStage, x1$finalStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalPValues, x1$finalPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 })
@@ -548,6 +697,18 @@ test_that("'getAnalysisResults' for a three-stage Fisher design and 'bindingFuti
 	    expect_output(print(x1)$show())
 	    invisible(capture.output(expect_error(summary(x1), NA)))
 	    expect_output(summary(x1)$show())
+	    x1CodeBased <- eval(parse(text = getObjectRCode(x1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x1CodeBased$testActions, x1$testActions, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalRejectionProbabilities, x1$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$conditionalPower, x1$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalStage, x1$finalStage, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalPValues, x1$finalPValues, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
 	}
 
 })
@@ -564,32 +725,48 @@ test_that("'getAnalysisResults' with a dataset of survival data and without defi
 	# @refFS[Formula]{fs:testStatisticSurvival}
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 
-	analysisResults1 <- getAnalysisResults(data, alpha = 0.05, beta = 0.1, directionUpper = FALSE)
+	analysisResults1 <- getAnalysisResults(data, alpha = 0.05, directionUpper = FALSE)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'analysisResults1' with expected results
 	expect_equal(analysisResults1$thetaH1, 0.57232877, tolerance = 1e-07)
+	expect_equal(analysisResults1$testActions, "reject")
 	expect_equal(analysisResults1$repeatedConfidenceIntervalLowerBounds, 0.33564434, tolerance = 1e-07)
 	expect_equal(analysisResults1$repeatedConfidenceIntervalUpperBounds, 0.97591411, tolerance = 1e-07)
+	expect_equal(analysisResults1$repeatedPValues, 0.042716221, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(analysisResults1), NA)))
 	    expect_output(print(analysisResults1)$show())
 	    invisible(capture.output(expect_error(summary(analysisResults1), NA)))
 	    expect_output(summary(analysisResults1)$show())
+	    analysisResults1CodeBased <- eval(parse(text = getObjectRCode(analysisResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(analysisResults1CodeBased$thetaH1, analysisResults1$thetaH1, tolerance = 1e-05)
+	    expect_equal(analysisResults1CodeBased$testActions, analysisResults1$testActions, tolerance = 1e-05)
+	    expect_equal(analysisResults1CodeBased$repeatedConfidenceIntervalLowerBounds, analysisResults1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(analysisResults1CodeBased$repeatedConfidenceIntervalUpperBounds, analysisResults1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(analysisResults1CodeBased$repeatedPValues, analysisResults1$repeatedPValues, tolerance = 1e-05)
 	}
 
 	# @refFS[Formula]{fs:testStatisticSurvival}
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
-	analysisResults2 <- getAnalysisResults(data, alpha = 0.05, beta = 0.1, sided = 2)
+	analysisResults2 <- getAnalysisResults(data, alpha = 0.05, sided = 2)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'analysisResults2' with expected results
 	expect_equal(analysisResults2$thetaH1, 0.57232877, tolerance = 1e-07)
+	expect_equal(analysisResults2$testActions, "accept")
 	expect_equal(analysisResults2$repeatedConfidenceIntervalLowerBounds, 0.3030255, tolerance = 1e-07)
 	expect_equal(analysisResults2$repeatedConfidenceIntervalUpperBounds, 1.0809654, tolerance = 1e-07)
+	expect_equal(analysisResults2$repeatedPValues, 0.085432442, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(analysisResults2), NA)))
 	    expect_output(print(analysisResults2)$show())
 	    invisible(capture.output(expect_error(summary(analysisResults2), NA)))
 	    expect_output(summary(analysisResults2)$show())
+	    analysisResults2CodeBased <- eval(parse(text = getObjectRCode(analysisResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(analysisResults2CodeBased$thetaH1, analysisResults2$thetaH1, tolerance = 1e-05)
+	    expect_equal(analysisResults2CodeBased$testActions, analysisResults2$testActions, tolerance = 1e-05)
+	    expect_equal(analysisResults2CodeBased$repeatedConfidenceIntervalLowerBounds, analysisResults2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(analysisResults2CodeBased$repeatedConfidenceIntervalUpperBounds, analysisResults2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(analysisResults2CodeBased$repeatedPValues, analysisResults2$repeatedPValues, tolerance = 1e-05)
 	}
 
 })

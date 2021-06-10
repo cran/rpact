@@ -64,13 +64,13 @@ if (require(ggplot2)) plot(designSet, type = 1)
 
 # Example 3 (use of designs instead of design)
 d1 <- getDesignGroupSequential(alpha = 0.05, kMax = 2,
-	 sided = 1, beta = 0.2, typeOfDesign = "asHSD",
-	 gammaA = 0.5, typeBetaSpending = "bsHSD", gammaB = 0.5)
+ 	 sided = 1, beta = 0.2, typeOfDesign = "asHSD",
+ 	 gammaA = 0.5, typeBetaSpending = "bsHSD", gammaB = 0.5)
 d2 <- getDesignGroupSequential(alpha = 0.05, kMax = 4,
-	 sided = 1, beta = 0.2, typeOfDesign = "asP",
-	 typeBetaSpending = "bsP")
+ 	 sided = 1, beta = 0.2, typeOfDesign = "asP",
+ 	 typeBetaSpending = "bsP")
 designSet <- getDesignSet (designs = c(d1, d2),
-	 variedParameters = c("typeOfDesign", "kMax"))
+ 	 variedParameters = c("typeOfDesign", "kMax"))
 \donttest{
 if (require(ggplot2)) plot(designSet, type = 8, nMax = 20)
 } 

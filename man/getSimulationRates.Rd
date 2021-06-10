@@ -71,8 +71,8 @@ default is \code{seq(0.2, 0.5, 0.1)} (power calculations and simulations) or
 groups are considered, default is \code{0.2}.}
 
 \item{plannedSubjects}{\code{plannedSubjects} is a vector of length \code{kMax} (the number of stages of the design) 
-   that determines the number of cumulated (overall) subjects when the interim stages are planned.
-   For two treatment arms, it is the number of subjects for both treatment arms. 
+that determines the number of cumulated (overall) subjects when the interim stages are planned.
+For two treatment arms, it is the number of subjects for both treatment arms. 
 For multi-arm designs, \code{plannedSubjects} refers to the number of subjects per selected active arm.}
 
 \item{directionUpper}{Specifies the direction of the alternative, 
@@ -90,7 +90,7 @@ For multi-arm designs \code{minNumberOfSubjectsPerStage} refers
 to the minimum number of subjects per selected active arm.}
 
 \item{maxNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation, 
-   the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
+the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
 of subjects per stage (i.e., not cumulated), the first element is not taken into account.
 For two treatment arms, it is the number of subjects for both treatment arms. 
 For multi-arm designs \code{maxNumberOfSubjectsPerStage} refers
@@ -106,7 +106,7 @@ hazard ratios) as parameters under which it is calculated and the sample size re
 
 \item{pi1H1}{If specified, the assumed probability in the active treatment group if two treatment groups 
 are considered, or the assumed probability for a one treatment group design, for which the conditional 
-   power was calculated.}
+power was calculated.}
 
 \item{pi2H1}{If specified, the assumed probability in the reference group if two treatment groups 
 are considered, for which the conditional power was calculated.}
@@ -199,7 +199,7 @@ object as \code{\link[base]{data.frame}}. The data frame contains the following 
         depends on which design was chosen (group sequential, inverse normal, 
         or Fisher combination test)'
   \item \code{testStatisticsPerStage}: The test statistic for each stage if only data from
-			the considered stage is taken into account. 
+        the considered stage is taken into account. 
   \item \code{overallRate1}: The overall rate in treatment group 1.
   \item \code{overallRate2}: The overall rate in treatment group 2.
   \item \code{stagewiseRates1}: The stagewise rate in treatment group 1.
@@ -208,8 +208,8 @@ object as \code{\link[base]{data.frame}}. The data frame contains the following 
   \item \code{sampleSizesPerStage2}: The stagewise sample size in treatment group 2.
   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-			selected sample size and effect. The effect is either estimated from the data or can be
-			user defined with \code{pi1H1} and \code{pi2H1}.   
+        selected sample size and effect. The effect is either estimated from the data or can be
+        user defined with \code{pi1H1} and \code{pi2H1}.   
 }
 }
 

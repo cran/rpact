@@ -17,11 +17,15 @@ Collects typical plot settings in an object.
 
 \item{\code{pointSize}}{The point size.}
 
+\item{\code{pointColor}}{The point color, e.g., "red" or "blue".}
+
 \item{\code{mainTitleFontSize}}{The main tile font size.}
 
 \item{\code{axesTextFontSize}}{The text font size.}
 
 \item{\code{legendFontSize}}{The legend font size.}
+
+\item{\code{scalingFactor}}{The scaling factor.}
 }}
 
 \section{Methods}{

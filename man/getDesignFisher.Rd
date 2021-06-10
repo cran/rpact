@@ -25,7 +25,7 @@ that a warning will be displayed if unknown arguments are passed.}
 
 \item{kMax}{The maximum number of stages \code{K}. 
 \code{K = 1, 2, 3, ...} (default is \code{3}).
-The maximum selectable \code{kMax} is \code{10} for group sequential or inverse normal and
+The maximum selectable \code{kMax} is \code{20} for group sequential or inverse normal and
 \code{6} for Fisher combination test designs.}
 
 \item{alpha}{The significance level alpha, default is \code{0.025}.}

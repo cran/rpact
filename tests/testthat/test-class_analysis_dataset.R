@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-class_analysis_dataset.R
-#:#  Creation date: 09 November 2020, 11:42:15
-#:#  File version: $Revision: 4064 $
-#:#  Last changed: $Date: 2020-12-01 17:20:16 +0100 (Di, 01 Dez 2020) $
+#:#  Creation date: 09 June 2021, 14:45:36
+#:#  File version: $Revision: 4977 $
+#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -24,7 +24,6 @@ context("Testing the Class 'Dataset'")
 
 
 test_that("Usage of 'getDataset'", {
-
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeans1 <- getDataset(
@@ -39,6 +38,7 @@ test_that("Usage of 'getDataset'", {
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans1' with expected results
 	expect_equal(datasetOfMeans1$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
 	expect_equal(datasetOfMeans1$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans1$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfMeans1$sampleSizes, c(22, 22, 11, 13, 22, 22, 11, 13))
 	expect_equal(datasetOfMeans1$means, c(1, 1.4, 1.1, 1.5, 1, 3, 1, 2.5), tolerance = 1e-07)
 	expect_equal(datasetOfMeans1$stDevs, c(1, 1, 2, 2, 2, 2, 1.3, 1.3), tolerance = 1e-07)
@@ -50,11 +50,22 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(datasetOfMeans1)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfMeans1), NA)))
 	    expect_output(summary(datasetOfMeans1)$show())
+	    datasetOfMeans1CodeBased <- eval(parse(text = getObjectRCode(datasetOfMeans1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfMeans1CodeBased$stages, datasetOfMeans1$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$groups, datasetOfMeans1$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$subsets, datasetOfMeans1$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$sampleSizes, datasetOfMeans1$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$means, datasetOfMeans1$means, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$stDevs, datasetOfMeans1$stDevs, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$overallSampleSizes, datasetOfMeans1$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$overallMeans, datasetOfMeans1$overallMeans, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans1CodeBased$overallStDevs, datasetOfMeans1$overallStDevs, tolerance = 1e-05)
 	}
-	
+
 	## Comparison of the results of data.frame object 'datasetOfMeans1$.data' with expected results
-	expect_equal(datasetOfMeans1$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
-	expect_equal(datasetOfMeans1$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans1$.data$stage, factor(c(1, 1, 2, 2, 3, 3, 4, 4)))
+	expect_equal(datasetOfMeans1$.data$group, factor(c(1, 2, 1, 2, 1, 2, 1, 2)))
+	expect_equal(datasetOfMeans1$.data$subset, factor(c(NA, NA, NA, NA, NA, NA, NA, NA)))
 	expect_equal(datasetOfMeans1$.data$sampleSize, c(22, 22, 11, 13, 22, 22, 11, 13))
 	expect_equal(datasetOfMeans1$.data$mean, c(1, 1.4, 1.1, 1.5, 1, 3, 1, 2.5), tolerance = 1e-07)
 	expect_equal(datasetOfMeans1$.data$stDev, c(1, 1, 2, 2, 2, 2, 1.3, 1.3), tolerance = 1e-07)
@@ -62,8 +73,8 @@ test_that("Usage of 'getDataset'", {
 	expect_equal(datasetOfMeans1$.data$overallMean, c(1, 1.4, 1.0333333, 1.4371429, 1.02, 2.0403509, 1.0166667, 2.1257143), tolerance = 1e-07)
 	expect_equal(datasetOfMeans1$.data$overallStDev, c(1, 1, 1.3814998, 1.4254175, 1.6391506, 1.8228568, 1.5786638, 1.7387056), tolerance = 1e-07)
 
-	expect_equal(datasetOfMeans1$stages, datasetOfMeans1$.data$stage, tolerance = 1e-07)
-	expect_equal(datasetOfMeans1$groups, datasetOfMeans1$.data$group, tolerance = 1e-07)
+	expect_equal(factor(datasetOfMeans1$stages), datasetOfMeans1$.data$stage, tolerance = 1e-07)
+	expect_equal(factor(datasetOfMeans1$groups), datasetOfMeans1$.data$group, tolerance = 1e-07)
 	expect_equal(datasetOfMeans1$sampleSizes, datasetOfMeans1$.data$sampleSize, tolerance = 1e-07)
 	expect_equal(datasetOfMeans1$means, datasetOfMeans1$.data$mean, tolerance = 1e-07)
 	expect_equal(datasetOfMeans1$stDevs, datasetOfMeans1$.data$stDev, tolerance = 1e-07)
@@ -72,7 +83,7 @@ test_that("Usage of 'getDataset'", {
 	expect_equal(datasetOfMeans1$overallStDevs, datasetOfMeans1$.data$overallStDev, tolerance = 1e-07)
 
 	.skipTestIfDisabled()
-	
+
 	x <- getMultipleStageResultsForDataset(datasetOfMeans1)
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults1' with expected results
@@ -92,6 +103,18 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans1, x$stageResults1$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans2, x$stageResults1$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs1, x$stageResults1$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs2, x$stageResults1$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes1, x$stageResults1$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes2, x$stageResults1$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -113,6 +136,20 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans1, x$stageResults2$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans2, x$stageResults2$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs1, x$stageResults2$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs2, x$stageResults2$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes1, x$stageResults2$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes2, x$stageResults2$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -134,6 +171,20 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans1, x$stageResults3$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans2, x$stageResults3$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs1, x$stageResults3$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs2, x$stageResults3$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes1, x$stageResults3$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes2, x$stageResults3$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 	datasetOfMeans2 <- getDataset(data.frame(
@@ -164,6 +215,18 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans1, x$stageResults1$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans2, x$stageResults1$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs1, x$stageResults1$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs2, x$stageResults1$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes1, x$stageResults1$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes2, x$stageResults1$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -185,6 +248,20 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans1, x$stageResults2$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans2, x$stageResults2$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs1, x$stageResults2$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs2, x$stageResults2$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes1, x$stageResults2$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes2, x$stageResults2$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -206,6 +283,20 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans1, x$stageResults3$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans2, x$stageResults3$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs1, x$stageResults3$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs2, x$stageResults3$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes1, x$stageResults3$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes2, x$stageResults3$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 	datasetOfMeans3 <- getDataset(
@@ -220,6 +311,7 @@ test_that("Usage of 'getDataset'", {
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans3' with expected results
 	expect_equal(datasetOfMeans3$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
 	expect_equal(datasetOfMeans3$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans3$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfMeans3$sampleSizes, c(22, 22, 11, 13, 22, 22, 11, 13))
 	expect_equal(datasetOfMeans3$means, c(1, 1.4, 1.099999, 1.5000004, 1.0000005, 3.0000001, 1.000002, 2.4999979), tolerance = 1e-07)
 	expect_equal(datasetOfMeans3$stDevs, c(1, 1, 2.0000005, 2.0000009, 2.0000005, 1.9999999, 1.2999989, 1.3000023), tolerance = 1e-07)
@@ -231,11 +323,22 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(datasetOfMeans3)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfMeans3), NA)))
 	    expect_output(summary(datasetOfMeans3)$show())
+	    datasetOfMeans3CodeBased <- eval(parse(text = getObjectRCode(datasetOfMeans3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfMeans3CodeBased$stages, datasetOfMeans3$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$groups, datasetOfMeans3$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$subsets, datasetOfMeans3$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$sampleSizes, datasetOfMeans3$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$means, datasetOfMeans3$means, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$stDevs, datasetOfMeans3$stDevs, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$overallSampleSizes, datasetOfMeans3$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$overallMeans, datasetOfMeans3$overallMeans, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans3CodeBased$overallStDevs, datasetOfMeans3$overallStDevs, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfMeans3$.data' with expected results
-	expect_equal(datasetOfMeans3$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
-	expect_equal(datasetOfMeans3$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfMeans3$.data$stage, factor(c(1, 1, 2, 2, 3, 3, 4, 4)))
+	expect_equal(datasetOfMeans3$.data$group, factor(c(1, 2, 1, 2, 1, 2, 1, 2)))
+	expect_equal(datasetOfMeans3$.data$subset, factor(c(NA, NA, NA, NA, NA, NA, NA, NA)))
 	expect_equal(datasetOfMeans3$.data$sampleSize, c(22, 22, 11, 13, 22, 22, 11, 13))
 	expect_equal(datasetOfMeans3$.data$mean, c(1, 1.4, 1.099999, 1.5000004, 1.0000005, 3.0000001, 1.000002, 2.4999979), tolerance = 1e-07)
 	expect_equal(datasetOfMeans3$.data$stDev, c(1, 1, 2.0000005, 2.0000009, 2.0000005, 1.9999999, 1.2999989, 1.3000023), tolerance = 1e-07)
@@ -262,6 +365,18 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans1, x$stageResults1$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans2, x$stageResults1$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs1, x$stageResults1$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs2, x$stageResults1$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes1, x$stageResults1$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes2, x$stageResults1$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -283,6 +398,20 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans1, x$stageResults2$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans2, x$stageResults2$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs1, x$stageResults2$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs2, x$stageResults2$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes1, x$stageResults2$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes2, x$stageResults2$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -304,6 +433,20 @@ test_that("Usage of 'getDataset'", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans1, x$stageResults3$overallMeans1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans2, x$stageResults3$overallMeans2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs1, x$stageResults3$overallStDevs1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs2, x$stageResults3$overallStDevs2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes1, x$stageResults3$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes2, x$stageResults3$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 })
@@ -323,6 +466,7 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans4' with expected results
 	expect_equal(datasetOfMeans4$stages, c(1, 2, 3, 4))
 	expect_equal(datasetOfMeans4$groups, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans4$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfMeans4$sampleSizes, c(22, 11, 22, 11))
 	expect_equal(datasetOfMeans4$means, c(1, 1.1, 1, 1), tolerance = 1e-07)
 	expect_equal(datasetOfMeans4$stDevs, c(1, 2, 2, 1.3), tolerance = 1e-07)
@@ -334,11 +478,22 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_output(print(datasetOfMeans4)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfMeans4), NA)))
 	    expect_output(summary(datasetOfMeans4)$show())
+	    datasetOfMeans4CodeBased <- eval(parse(text = getObjectRCode(datasetOfMeans4, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfMeans4CodeBased$stages, datasetOfMeans4$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$groups, datasetOfMeans4$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$subsets, datasetOfMeans4$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$sampleSizes, datasetOfMeans4$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$means, datasetOfMeans4$means, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$stDevs, datasetOfMeans4$stDevs, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$overallSampleSizes, datasetOfMeans4$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$overallMeans, datasetOfMeans4$overallMeans, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans4CodeBased$overallStDevs, datasetOfMeans4$overallStDevs, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfMeans4$.data' with expected results
-	expect_equal(datasetOfMeans4$.data$stage, c(1, 2, 3, 4))
-	expect_equal(datasetOfMeans4$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans4$.data$stage, factor(c(1, 2, 3, 4)))
+	expect_equal(datasetOfMeans4$.data$group, factor(c(1, 1, 1, 1)))
+	expect_equal(datasetOfMeans4$.data$subset, factor(c(NA, NA, NA, NA)))
 	expect_equal(datasetOfMeans4$.data$sampleSize, c(22, 11, 22, 11))
 	expect_equal(datasetOfMeans4$.data$mean, c(1, 1.1, 1, 1), tolerance = 1e-07)
 	expect_equal(datasetOfMeans4$.data$stDev, c(1, 2, 2, 1.3), tolerance = 1e-07)
@@ -362,6 +517,15 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans, x$stageResults1$overallMeans, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs, x$stageResults1$overallStDevs, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes, x$stageResults1$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -380,6 +544,17 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans, x$stageResults2$overallMeans, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs, x$stageResults2$overallStDevs, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes, x$stageResults2$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -398,6 +573,17 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans, x$stageResults3$overallMeans, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs, x$stageResults3$overallStDevs, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes, x$stageResults3$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 })
@@ -417,6 +603,7 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans5' with expected results
 	expect_equal(datasetOfMeans5$stages, c(1, 2, 3, 4))
 	expect_equal(datasetOfMeans5$groups, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans5$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfMeans5$sampleSizes, c(22, 11, 22, 11))
 	expect_equal(datasetOfMeans5$means, c(1, 1.099, 1.0005, 1.002), tolerance = 1e-07)
 	expect_equal(datasetOfMeans5$stDevs, c(1, 1.9967205, 2.003374, 1.3047847), tolerance = 1e-07)
@@ -428,11 +615,22 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_output(print(datasetOfMeans5)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfMeans5), NA)))
 	    expect_output(summary(datasetOfMeans5)$show())
+	    datasetOfMeans5CodeBased <- eval(parse(text = getObjectRCode(datasetOfMeans5, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfMeans5CodeBased$stages, datasetOfMeans5$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$groups, datasetOfMeans5$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$subsets, datasetOfMeans5$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$sampleSizes, datasetOfMeans5$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$means, datasetOfMeans5$means, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$stDevs, datasetOfMeans5$stDevs, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$overallSampleSizes, datasetOfMeans5$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$overallMeans, datasetOfMeans5$overallMeans, tolerance = 1e-05)
+	    expect_equal(datasetOfMeans5CodeBased$overallStDevs, datasetOfMeans5$overallStDevs, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfMeans5$.data' with expected results
-	expect_equal(datasetOfMeans5$.data$stage, c(1, 2, 3, 4))
-	expect_equal(datasetOfMeans5$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetOfMeans5$.data$stage, factor(c(1, 2, 3, 4)))
+	expect_equal(datasetOfMeans5$.data$group, factor(c(1, 1, 1, 1)))
+	expect_equal(datasetOfMeans5$.data$subset, factor(c(NA, NA, NA, NA)))
 	expect_equal(datasetOfMeans5$.data$sampleSize, c(22, 11, 22, 11))
 	expect_equal(datasetOfMeans5$.data$mean, c(1, 1.099, 1.0005, 1.002), tolerance = 1e-07)
 	expect_equal(datasetOfMeans5$.data$stDev, c(1, 1.9967205, 2.003374, 1.3047847), tolerance = 1e-07)
@@ -456,6 +654,15 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallMeans, x$stageResults1$overallMeans, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallStDevs, x$stageResults1$overallStDevs, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes, x$stageResults1$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -474,6 +681,17 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallMeans, x$stageResults2$overallMeans, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallStDevs, x$stageResults2$overallStDevs, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes, x$stageResults2$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -492,6 +710,17 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallMeans, x$stageResults3$overallMeans, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallStDevs, x$stageResults3$overallStDevs, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes, x$stageResults3$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 })
@@ -563,6 +792,7 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	## Comparison of the results of DatasetRates object 'datasetOfRates1' with expected results
 	expect_equal(datasetOfRates1$stages, c(1, 2, 3, 4))
 	expect_equal(datasetOfRates1$groups, c(1, 1, 1, 1))
+	expect_equal(datasetOfRates1$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfRates1$sampleSizes, c(8, 10, 9, 11))
 	expect_equal(datasetOfRates1$events, c(4, 5, 5, 6))
 	expect_equal(datasetOfRates1$overallSampleSizes, c(8, 18, 27, 38))
@@ -572,11 +802,20 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	    expect_output(print(datasetOfRates1)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfRates1), NA)))
 	    expect_output(summary(datasetOfRates1)$show())
+	    datasetOfRates1CodeBased <- eval(parse(text = getObjectRCode(datasetOfRates1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfRates1CodeBased$stages, datasetOfRates1$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfRates1CodeBased$groups, datasetOfRates1$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfRates1CodeBased$subsets, datasetOfRates1$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfRates1CodeBased$sampleSizes, datasetOfRates1$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates1CodeBased$events, datasetOfRates1$events, tolerance = 1e-05)
+	    expect_equal(datasetOfRates1CodeBased$overallSampleSizes, datasetOfRates1$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates1CodeBased$overallEvents, datasetOfRates1$overallEvents, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates1$.data' with expected results
-	expect_equal(datasetOfRates1$.data$stage, c(1, 2, 3, 4))
-	expect_equal(datasetOfRates1$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetOfRates1$.data$stage, factor(c(1, 2, 3, 4)))
+	expect_equal(datasetOfRates1$.data$group, factor(c(1, 1, 1, 1)))
+	expect_equal(datasetOfRates1$.data$subset, factor(c(NA, NA, NA, NA)))
 	expect_equal(datasetOfRates1$.data$sampleSize, c(8, 10, 9, 11))
 	expect_equal(datasetOfRates1$.data$event, c(4, 5, 5, 6))
 	expect_equal(datasetOfRates1$.data$overallSampleSize, c(8, 18, 27, 38))
@@ -589,14 +828,22 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	expect_equal(x$stageResults1$overallPValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults1$overallEvents, c(4, 9, 14, 20, NA_real_))
 	expect_equal(x$stageResults1$overallSampleSizes, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults1$overallPi1, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$testStatistics, c(-13.929113, -15.573222, -13.098993, -14.818182, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$pValues, c(1, 1, 1, 1, NA_real_))
-	expect_equal(x$stageResults1$effectSizes, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x$stageResults1), NA)))
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallEvents, x$stageResults1$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes, x$stageResults1$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPi1, x$stageResults1$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults2' with expected results
@@ -604,9 +851,9 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	expect_equal(x$stageResults2$overallPValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults2$overallEvents, c(4, 9, 14, 20, NA_real_))
 	expect_equal(x$stageResults2$overallSampleSizes, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults2$overallPi1, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$testStatistics, c(-13.929113, -15.573222, -13.098993, -14.818182, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
-	expect_equal(x$stageResults2$effectSizes, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$combInverseNormal, c(-Inf, -Inf, -Inf, -Inf, NA_real_))
 	expect_equal(x$stageResults2$weightsInverseNormal, c(0.4472136, 0.4472136, 0.4472136, 0.4472136, 0.4472136), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -614,6 +861,16 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallEvents, x$stageResults2$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes, x$stageResults2$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPi1, x$stageResults2$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults3' with expected results
@@ -621,9 +878,9 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	expect_equal(x$stageResults3$overallPValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults3$overallEvents, c(4, 9, 14, 20, NA_real_))
 	expect_equal(x$stageResults3$overallSampleSizes, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults3$overallPi1, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$testStatistics, c(-13.929113, -15.573222, -13.098993, -14.818182, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$pValues, c(1, 1, 1, 1, NA_real_))
-	expect_equal(x$stageResults3$effectSizes, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$combFisher, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults3$weightsFisher, c(1, 1, 1, 1, 1), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -631,6 +888,16 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallEvents, x$stageResults3$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes, x$stageResults3$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPi1, x$stageResults3$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 })
@@ -651,6 +918,7 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	## Comparison of the results of DatasetRates object 'datasetOfRates2' with expected results
 	expect_equal(datasetOfRates2$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
 	expect_equal(datasetOfRates2$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates2$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfRates2$sampleSizes, c(11, 8, 13, 10, 12, 9, 13, 11))
 	expect_equal(datasetOfRates2$events, c(10, 3, 10, 5, 12, 5, 12, 6))
 	expect_equal(datasetOfRates2$overallSampleSizes, c(11, 8, 24, 18, 36, 27, 49, 38))
@@ -660,11 +928,20 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_output(print(datasetOfRates2)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfRates2), NA)))
 	    expect_output(summary(datasetOfRates2)$show())
+	    datasetOfRates2CodeBased <- eval(parse(text = getObjectRCode(datasetOfRates2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfRates2CodeBased$stages, datasetOfRates2$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfRates2CodeBased$groups, datasetOfRates2$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfRates2CodeBased$subsets, datasetOfRates2$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfRates2CodeBased$sampleSizes, datasetOfRates2$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates2CodeBased$events, datasetOfRates2$events, tolerance = 1e-05)
+	    expect_equal(datasetOfRates2CodeBased$overallSampleSizes, datasetOfRates2$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates2CodeBased$overallEvents, datasetOfRates2$overallEvents, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates2$.data' with expected results
-	expect_equal(datasetOfRates2$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
-	expect_equal(datasetOfRates2$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates2$.data$stage, factor(c(1, 1, 2, 2, 3, 3, 4, 4)))
+	expect_equal(datasetOfRates2$.data$group, factor(c(1, 2, 1, 2, 1, 2, 1, 2)))
+	expect_equal(datasetOfRates2$.data$subset, factor(c(NA, NA, NA, NA, NA, NA, NA, NA)))
 	expect_equal(datasetOfRates2$.data$sampleSize, c(11, 8, 13, 10, 12, 9, 13, 11))
 	expect_equal(datasetOfRates2$.data$event, c(10, 3, 10, 5, 12, 5, 12, 6))
 	expect_equal(datasetOfRates2$.data$overallSampleSize, c(11, 8, 24, 18, 36, 27, 49, 38))
@@ -679,6 +956,8 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	expect_equal(x$stageResults1$overallEvents2, c(3, 8, 13, 19, NA_real_))
 	expect_equal(x$stageResults1$overallSampleSizes1, c(11, 24, 36, 49, NA_real_))
 	expect_equal(x$stageResults1$overallSampleSizes2, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults1$overallPi1, c(0.90909091, 0.83333333, 0.88888889, 0.89795918, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults1$overallPi2, c(0.375, 0.44444444, 0.48148148, 0.5, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults1$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
@@ -687,6 +966,18 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallEvents1, x$stageResults1$overallEvents1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallEvents2, x$stageResults1$overallEvents2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes1, x$stageResults1$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes2, x$stageResults1$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPi1, x$stageResults1$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPi2, x$stageResults1$overallPi2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults2' with expected results
@@ -696,6 +987,8 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	expect_equal(x$stageResults2$overallEvents2, c(3, 8, 13, 19, NA_real_))
 	expect_equal(x$stageResults2$overallSampleSizes1, c(11, 24, 36, 49, NA_real_))
 	expect_equal(x$stageResults2$overallSampleSizes2, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults2$overallPi1, c(0.90909091, 0.83333333, 0.88888889, 0.89795918, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults2$overallPi2, c(0.375, 0.44444444, 0.48148148, 0.5, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
@@ -706,6 +999,20 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallEvents1, x$stageResults2$overallEvents1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallEvents2, x$stageResults2$overallEvents2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes1, x$stageResults2$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes2, x$stageResults2$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPi1, x$stageResults2$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPi2, x$stageResults2$overallPi2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults3' with expected results
@@ -715,6 +1022,8 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	expect_equal(x$stageResults3$overallEvents2, c(3, 8, 13, 19, NA_real_))
 	expect_equal(x$stageResults3$overallSampleSizes1, c(11, 24, 36, 49, NA_real_))
 	expect_equal(x$stageResults3$overallSampleSizes2, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults3$overallPi1, c(0.90909091, 0.83333333, 0.88888889, 0.89795918, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults3$overallPi2, c(0.375, 0.44444444, 0.48148148, 0.5, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults3$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
@@ -725,6 +1034,20 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallEvents1, x$stageResults3$overallEvents1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallEvents2, x$stageResults3$overallEvents2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes1, x$stageResults3$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes2, x$stageResults3$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPi1, x$stageResults3$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPi2, x$stageResults3$overallPi2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 })
@@ -749,6 +1072,7 @@ test_that("Creation of a dataset of rates using stage wise data (four groups)", 
 	## Comparison of the results of DatasetRates object 'datasetOfRates3' with expected results
 	expect_equal(datasetOfRates3$stages, c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4))
 	expect_equal(datasetOfRates3$groups, c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4))
+	expect_equal(datasetOfRates3$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfRates3$sampleSizes, c(11, 8, 7, 9, 13, 10, 10, 11, 12, 9, 8, 5, 13, 11, 9, 2))
 	expect_equal(datasetOfRates3$events, c(10, 3, 2, 3, 10, 5, 4, 4, 12, 5, 3, 3, 12, 6, 5, 0))
 	expect_equal(datasetOfRates3$overallSampleSizes, c(11, 8, 7, 9, 24, 18, 17, 20, 36, 27, 25, 25, 49, 38, 34, 27))
@@ -758,11 +1082,20 @@ test_that("Creation of a dataset of rates using stage wise data (four groups)", 
 	    expect_output(print(datasetOfRates3)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfRates3), NA)))
 	    expect_output(summary(datasetOfRates3)$show())
+	    datasetOfRates3CodeBased <- eval(parse(text = getObjectRCode(datasetOfRates3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfRates3CodeBased$stages, datasetOfRates3$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfRates3CodeBased$groups, datasetOfRates3$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfRates3CodeBased$subsets, datasetOfRates3$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfRates3CodeBased$sampleSizes, datasetOfRates3$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates3CodeBased$events, datasetOfRates3$events, tolerance = 1e-05)
+	    expect_equal(datasetOfRates3CodeBased$overallSampleSizes, datasetOfRates3$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates3CodeBased$overallEvents, datasetOfRates3$overallEvents, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates3$.data' with expected results
-	expect_equal(datasetOfRates3$.data$stage, c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4))
-	expect_equal(datasetOfRates3$.data$group, c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4))
+	expect_equal(datasetOfRates3$.data$stage, factor(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4)))
+	expect_equal(datasetOfRates3$.data$group, factor(c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)))
+	expect_equal(datasetOfRates3$.data$subset, factor(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)))
 	expect_equal(datasetOfRates3$.data$sampleSize, c(11, 8, 7, 9, 13, 10, 10, 11, 12, 9, 8, 5, 13, 11, 9, 2))
 	expect_equal(datasetOfRates3$.data$event, c(10, 3, 2, 3, 10, 5, 4, 4, 12, 5, 3, 3, 12, 6, 5, 0))
 	expect_equal(datasetOfRates3$.data$overallSampleSize, c(11, 8, 7, 9, 24, 18, 17, 20, 36, 27, 25, 25, 49, 38, 34, 27))
@@ -786,6 +1119,7 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	## Comparison of the results of DatasetRates object 'datasetOfRates4' with expected results
 	expect_equal(datasetOfRates4$stages, c(1, 1, 2, 2, 3, 3, 4, 4))
 	expect_equal(datasetOfRates4$groups, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates4$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfRates4$sampleSizes, c(11, 8, 13, 10, 12, 9, 13, 11))
 	expect_equal(datasetOfRates4$events, c(10, 3, 10, 5, 12, 5, 12, 6))
 	expect_equal(datasetOfRates4$overallSampleSizes, c(11, 8, 24, 18, 36, 27, 49, 38))
@@ -795,11 +1129,20 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_output(print(datasetOfRates4)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfRates4), NA)))
 	    expect_output(summary(datasetOfRates4)$show())
+	    datasetOfRates4CodeBased <- eval(parse(text = getObjectRCode(datasetOfRates4, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfRates4CodeBased$stages, datasetOfRates4$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfRates4CodeBased$groups, datasetOfRates4$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfRates4CodeBased$subsets, datasetOfRates4$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfRates4CodeBased$sampleSizes, datasetOfRates4$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates4CodeBased$events, datasetOfRates4$events, tolerance = 1e-05)
+	    expect_equal(datasetOfRates4CodeBased$overallSampleSizes, datasetOfRates4$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates4CodeBased$overallEvents, datasetOfRates4$overallEvents, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates4$.data' with expected results
-	expect_equal(datasetOfRates4$.data$stage, c(1, 1, 2, 2, 3, 3, 4, 4))
-	expect_equal(datasetOfRates4$.data$group, c(1, 2, 1, 2, 1, 2, 1, 2))
+	expect_equal(datasetOfRates4$.data$stage, factor(c(1, 1, 2, 2, 3, 3, 4, 4)))
+	expect_equal(datasetOfRates4$.data$group, factor(c(1, 2, 1, 2, 1, 2, 1, 2)))
+	expect_equal(datasetOfRates4$.data$subset, factor(c(NA, NA, NA, NA, NA, NA, NA, NA)))
 	expect_equal(datasetOfRates4$.data$sampleSize, c(11, 8, 13, 10, 12, 9, 13, 11))
 	expect_equal(datasetOfRates4$.data$event, c(10, 3, 10, 5, 12, 5, 12, 6))
 	expect_equal(datasetOfRates4$.data$overallSampleSize, c(11, 8, 24, 18, 36, 27, 49, 38))
@@ -814,6 +1157,8 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	expect_equal(x$stageResults1$overallEvents2, c(3, 8, 13, 19, NA_real_))
 	expect_equal(x$stageResults1$overallSampleSizes1, c(11, 24, 36, 49, NA_real_))
 	expect_equal(x$stageResults1$overallSampleSizes2, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults1$overallPi1, c(0.90909091, 0.83333333, 0.88888889, 0.89795918, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults1$overallPi2, c(0.375, 0.44444444, 0.48148148, 0.5, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults1$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
@@ -822,6 +1167,18 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallEvents1, x$stageResults1$overallEvents1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallEvents2, x$stageResults1$overallEvents2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes1, x$stageResults1$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallSampleSizes2, x$stageResults1$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPi1, x$stageResults1$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPi2, x$stageResults1$overallPi2, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults2' with expected results
@@ -831,6 +1188,8 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	expect_equal(x$stageResults2$overallEvents2, c(3, 8, 13, 19, NA_real_))
 	expect_equal(x$stageResults2$overallSampleSizes1, c(11, 24, 36, 49, NA_real_))
 	expect_equal(x$stageResults2$overallSampleSizes2, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults2$overallPi1, c(0.90909091, 0.83333333, 0.88888889, 0.89795918, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults2$overallPi2, c(0.375, 0.44444444, 0.48148148, 0.5, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
@@ -841,6 +1200,20 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallEvents1, x$stageResults2$overallEvents1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallEvents2, x$stageResults2$overallEvents2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes1, x$stageResults2$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallSampleSizes2, x$stageResults2$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPi1, x$stageResults2$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPi2, x$stageResults2$overallPi2, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults3' with expected results
@@ -850,6 +1223,8 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	expect_equal(x$stageResults3$overallEvents2, c(3, 8, 13, 19, NA_real_))
 	expect_equal(x$stageResults3$overallSampleSizes1, c(11, 24, 36, 49, NA_real_))
 	expect_equal(x$stageResults3$overallSampleSizes2, c(8, 18, 27, 38, NA_real_))
+	expect_equal(x$stageResults3$overallPi1, c(0.90909091, 0.83333333, 0.88888889, 0.89795918, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults3$overallPi2, c(0.375, 0.44444444, 0.48148148, 0.5, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults3$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
@@ -860,6 +1235,20 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallEvents1, x$stageResults3$overallEvents1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallEvents2, x$stageResults3$overallEvents2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes1, x$stageResults3$overallSampleSizes1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallSampleSizes2, x$stageResults3$overallSampleSizes2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPi1, x$stageResults3$overallPi1, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPi2, x$stageResults3$overallPi2, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 })
@@ -882,6 +1271,7 @@ test_that("Creation of a dataset of rates using overall data (three groups)", {
 	## Comparison of the results of DatasetRates object 'datasetOfRates5' with expected results
 	expect_equal(datasetOfRates5$stages, c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4))
 	expect_equal(datasetOfRates5$groups, c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3))
+	expect_equal(datasetOfRates5$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetOfRates5$sampleSizes, c(11, 8, 8, 13, 10, 10, 12, 9, 9, 13, 11, 11))
 	expect_equal(datasetOfRates5$events, c(10, 3, 3, 10, 5, 4, 12, 5, 5, 12, 6, 8))
 	expect_equal(datasetOfRates5$overallSampleSizes, c(11, 8, 8, 24, 18, 18, 36, 27, 27, 49, 38, 38))
@@ -891,11 +1281,20 @@ test_that("Creation of a dataset of rates using overall data (three groups)", {
 	    expect_output(print(datasetOfRates5)$show())
 	    invisible(capture.output(expect_error(summary(datasetOfRates5), NA)))
 	    expect_output(summary(datasetOfRates5)$show())
+	    datasetOfRates5CodeBased <- eval(parse(text = getObjectRCode(datasetOfRates5, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetOfRates5CodeBased$stages, datasetOfRates5$stages, tolerance = 1e-05)
+	    expect_equal(datasetOfRates5CodeBased$groups, datasetOfRates5$groups, tolerance = 1e-05)
+	    expect_equal(datasetOfRates5CodeBased$subsets, datasetOfRates5$subsets, tolerance = 1e-05)
+	    expect_equal(datasetOfRates5CodeBased$sampleSizes, datasetOfRates5$sampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates5CodeBased$events, datasetOfRates5$events, tolerance = 1e-05)
+	    expect_equal(datasetOfRates5CodeBased$overallSampleSizes, datasetOfRates5$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(datasetOfRates5CodeBased$overallEvents, datasetOfRates5$overallEvents, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates5$.data' with expected results
-	expect_equal(datasetOfRates5$.data$stage, c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4))
-	expect_equal(datasetOfRates5$.data$group, c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3))
+	expect_equal(datasetOfRates5$.data$stage, factor(c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4)))
+	expect_equal(datasetOfRates5$.data$group, factor(c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3)))
+	expect_equal(datasetOfRates5$.data$subset, factor(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)))
 	expect_equal(datasetOfRates5$.data$sampleSize, c(11, 8, 8, 13, 10, 10, 12, 9, 9, 13, 11, 11))
 	expect_equal(datasetOfRates5$.data$event, c(10, 3, 3, 10, 5, 4, 12, 5, 5, 12, 6, 8))
 	expect_equal(datasetOfRates5$.data$overallSampleSize, c(11, 8, 8, 24, 18, 18, 36, 27, 27, 49, 38, 38))
@@ -955,6 +1354,7 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	## Comparison of the results of DatasetSurvival object 'datasetSurvival1' with expected results
 	expect_equal(datasetSurvival1$stages, c(1, 2, 3, 4))
 	expect_equal(datasetSurvival1$groups, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival1$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetSurvival1$overallEvents, c(8, 15, 19, 31))
 	expect_equal(datasetSurvival1$overallAllocationRatios, c(1, 1, 1, 2), tolerance = 1e-07)
 	expect_equal(datasetSurvival1$overallLogRanks, c(1.52, 1.9796756, 1.9897802, 2.1096275), tolerance = 1e-07)
@@ -966,11 +1366,22 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_output(print(datasetSurvival1)$show())
 	    invisible(capture.output(expect_error(summary(datasetSurvival1), NA)))
 	    expect_output(summary(datasetSurvival1)$show())
+	    datasetSurvival1CodeBased <- eval(parse(text = getObjectRCode(datasetSurvival1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetSurvival1CodeBased$stages, datasetSurvival1$stages, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$groups, datasetSurvival1$groups, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$subsets, datasetSurvival1$subsets, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$overallEvents, datasetSurvival1$overallEvents, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$overallAllocationRatios, datasetSurvival1$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$overallLogRanks, datasetSurvival1$overallLogRanks, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$events, datasetSurvival1$events, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$allocationRatios, datasetSurvival1$allocationRatios, tolerance = 1e-05)
+	    expect_equal(datasetSurvival1CodeBased$logRanks, datasetSurvival1$logRanks, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetSurvival1$.data' with expected results
-	expect_equal(datasetSurvival1$.data$stage, c(1, 2, 3, 4))
-	expect_equal(datasetSurvival1$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival1$.data$stage, factor(c(1, 2, 3, 4)))
+	expect_equal(datasetSurvival1$.data$group, factor(c(1, 1, 1, 1)))
+	expect_equal(datasetSurvival1$.data$subset, factor(c(NA, NA, NA, NA)))
 	expect_equal(datasetSurvival1$.data$overallEvent, c(8, 15, 19, 31))
 	expect_equal(datasetSurvival1$.data$overallAllocationRatio, c(1, 1, 1, 2), tolerance = 1e-07)
 	expect_equal(datasetSurvival1$.data$overallLogRank, c(1.52, 1.9796756, 1.9897802, 2.1096275), tolerance = 1e-07)
@@ -981,13 +1392,13 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	x <- getMultipleStageResultsForDataset(datasetSurvival1)
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults1' with expected results
-	expect_equal(x$stageResults1$overallLogRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults1$overallTestStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallEvents, c(8, 15, 19, 31, NA_real_))
 	expect_equal(x$stageResults1$overallAllocationRatios, c(1, 1, 1, 2, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults1$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults1$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults1$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults1$testStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$effectSizes, c(2.9294137, 2.7795807, 2.4917213, 2.2339445, NA_real_), tolerance = 1e-07)
@@ -996,16 +1407,27 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallEvents, x$stageResults1$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallAllocationRatios, x$stageResults1$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$events, x$stageResults1$events, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$allocationRatios, x$stageResults1$allocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults2' with expected results
-	expect_equal(x$stageResults2$overallLogRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults2$overallTestStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallEvents, c(8, 15, 19, 31, NA_real_))
 	expect_equal(x$stageResults2$overallAllocationRatios, c(1, 1, 1, 2, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults2$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults2$testStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(2.9294137, 2.7795807, 2.4917213, 2.2339445, NA_real_), tolerance = 1e-07)
@@ -1016,16 +1438,29 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallEvents, x$stageResults2$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallAllocationRatios, x$stageResults2$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$events, x$stageResults2$events, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$allocationRatios, x$stageResults2$allocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults3' with expected results
-	expect_equal(x$stageResults3$overallLogRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults3$overallTestStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallEvents, c(8, 15, 19, 31, NA_real_))
 	expect_equal(x$stageResults3$overallAllocationRatios, c(1, 1, 1, 2, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults3$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults3$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults3$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults3$testStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$effectSizes, c(2.9294137, 2.7795807, 2.4917213, 2.2339445, NA_real_), tolerance = 1e-07)
@@ -1036,10 +1471,23 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallEvents, x$stageResults3$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallAllocationRatios, x$stageResults3$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$events, x$stageResults3$events, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$allocationRatios, x$stageResults3$allocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
-	expect_equal(datasetSurvival1$stages, datasetSurvival1$.data$stage, tolerance = 1e-07)
-	expect_equal(datasetSurvival1$groups, datasetSurvival1$.data$group, tolerance = 1e-07)
+	expect_equal(factor(datasetSurvival1$stages), datasetSurvival1$.data$stage, tolerance = 1e-07)
+	expect_equal(factor(datasetSurvival1$groups), datasetSurvival1$.data$group, tolerance = 1e-07)
 	expect_equal(datasetSurvival1$events, datasetSurvival1$.data$event, tolerance = 1e-07)
 	expect_equal(datasetSurvival1$allocationRatios, datasetSurvival1$.data$allocationRatio, tolerance = 1e-07)
 	expect_equal(datasetSurvival1$logRanks, datasetSurvival1$.data$logRank, tolerance = 1e-07)
@@ -1064,6 +1512,7 @@ test_that("Creation of a dataset of survival data using overall data", {
 	## Comparison of the results of DatasetSurvival object 'datasetSurvival2' with expected results
 	expect_equal(datasetSurvival2$stages, c(1, 2, 3, 4))
 	expect_equal(datasetSurvival2$groups, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival2$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetSurvival2$overallEvents, c(8, 15, 19, 31))
 	expect_equal(datasetSurvival2$overallAllocationRatios, c(1, 1, 1, 2))
 	expect_equal(datasetSurvival2$overallLogRanks, c(1.52, 1.98, 1.99, 2.11), tolerance = 1e-07)
@@ -1075,11 +1524,22 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_output(print(datasetSurvival2)$show())
 	    invisible(capture.output(expect_error(summary(datasetSurvival2), NA)))
 	    expect_output(summary(datasetSurvival2)$show())
+	    datasetSurvival2CodeBased <- eval(parse(text = getObjectRCode(datasetSurvival2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetSurvival2CodeBased$stages, datasetSurvival2$stages, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$groups, datasetSurvival2$groups, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$subsets, datasetSurvival2$subsets, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$overallEvents, datasetSurvival2$overallEvents, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$overallAllocationRatios, datasetSurvival2$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$overallLogRanks, datasetSurvival2$overallLogRanks, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$events, datasetSurvival2$events, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$allocationRatios, datasetSurvival2$allocationRatios, tolerance = 1e-05)
+	    expect_equal(datasetSurvival2CodeBased$logRanks, datasetSurvival2$logRanks, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetSurvival2$.data' with expected results
-	expect_equal(datasetSurvival2$.data$stage, c(1, 2, 3, 4))
-	expect_equal(datasetSurvival2$.data$group, c(1, 1, 1, 1))
+	expect_equal(datasetSurvival2$.data$stage, factor(c(1, 2, 3, 4)))
+	expect_equal(datasetSurvival2$.data$group, factor(c(1, 1, 1, 1)))
+	expect_equal(datasetSurvival2$.data$subset, factor(c(NA, NA, NA, NA)))
 	expect_equal(datasetSurvival2$.data$overallEvent, c(8, 15, 19, 31))
 	expect_equal(datasetSurvival2$.data$overallAllocationRatio, c(1, 1, 1, 2))
 	expect_equal(datasetSurvival2$.data$overallLogRank, c(1.52, 1.98, 1.99, 2.11), tolerance = 1e-07)
@@ -1090,13 +1550,13 @@ test_that("Creation of a dataset of survival data using overall data", {
 	x <- getMultipleStageResultsForDataset(datasetSurvival2)
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults1' with expected results
-	expect_equal(x$stageResults1$overallLogRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults1$overallTestStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallEvents, c(8, 15, 19, 31, NA_real_))
 	expect_equal(x$stageResults1$overallAllocationRatios, c(1, 1, 1, 2, NA_real_))
 	expect_equal(x$stageResults1$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults1$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults1$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults1$testStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults1$effectSizes, c(2.9294137, 2.7800464, 2.4919726, 2.2342616, NA_real_), tolerance = 1e-07)
@@ -1105,16 +1565,27 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_output(print(x$stageResults1)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults1), NA)))
 	    expect_output(summary(x$stageResults1)$show())
+	    x$stageResults1CodeBased <- eval(parse(text = getObjectRCode(x$stageResults1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults1CodeBased$overallTestStatistics, x$stageResults1$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallEvents, x$stageResults1$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallAllocationRatios, x$stageResults1$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$events, x$stageResults1$events, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$allocationRatios, x$stageResults1$allocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults2' with expected results
-	expect_equal(x$stageResults2$overallLogRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults2$overallTestStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallEvents, c(8, 15, 19, 31, NA_real_))
 	expect_equal(x$stageResults2$overallAllocationRatios, c(1, 1, 1, 2, NA_real_))
 	expect_equal(x$stageResults2$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults2$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults2$testStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(2.9294137, 2.7800464, 2.4919726, 2.2342616, NA_real_), tolerance = 1e-07)
@@ -1125,16 +1596,29 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_output(print(x$stageResults2)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults2), NA)))
 	    expect_output(summary(x$stageResults2)$show())
+	    x$stageResults2CodeBased <- eval(parse(text = getObjectRCode(x$stageResults2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults2CodeBased$overallTestStatistics, x$stageResults2$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallEvents, x$stageResults2$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallAllocationRatios, x$stageResults2$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$events, x$stageResults2$events, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$allocationRatios, x$stageResults2$allocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$testStatistics, x$stageResults2$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$overallPValues, x$stageResults2$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
+	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults3' with expected results
-	expect_equal(x$stageResults3$overallLogRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults3$overallTestStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallEvents, c(8, 15, 19, 31, NA_real_))
 	expect_equal(x$stageResults3$overallAllocationRatios, c(1, 1, 1, 2, NA_real_))
 	expect_equal(x$stageResults3$events, c(8, 7, 4, 12, NA_real_))
 	expect_equal(x$stageResults3$allocationRatios, c(1, 1, 1, 3.5833333, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults3$logRanks, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+	expect_equal(x$stageResults3$testStatistics, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$pValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$overallPValues, c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(x$stageResults3$effectSizes, c(2.9294137, 2.7800464, 2.4919726, 2.2342616, NA_real_), tolerance = 1e-07)
@@ -1145,6 +1629,19 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_output(print(x$stageResults3)$show())
 	    invisible(capture.output(expect_error(summary(x$stageResults3), NA)))
 	    expect_output(summary(x$stageResults3)$show())
+	    x$stageResults3CodeBased <- eval(parse(text = getObjectRCode(x$stageResults3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x$stageResults3CodeBased$overallTestStatistics, x$stageResults3$overallTestStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallEvents, x$stageResults3$overallEvents, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallAllocationRatios, x$stageResults3$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$events, x$stageResults3$events, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$allocationRatios, x$stageResults3$allocationRatios, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$testStatistics, x$stageResults3$testStatistics, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$overallPValues, x$stageResults3$overallPValues, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
+	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
 	}
 
 	datasetSurvival3 <- getDataset(
@@ -1159,6 +1656,7 @@ test_that("Creation of a dataset of survival data using overall data", {
 	## Comparison of the results of DatasetSurvival object 'datasetSurvival3' with expected results
 	expect_equal(datasetSurvival3$stages, c(1, 1, 1, 2, 2, 2))
 	expect_equal(datasetSurvival3$groups, c(1, 2, 3, 1, 2, 3))
+	expect_equal(datasetSurvival3$subsets, c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_, NA_character_))
 	expect_equal(datasetSurvival3$overallEvents, c(25, 18, 22, 57, NA_real_, 58))
 	expect_equal(datasetSurvival3$overallAllocationRatios, c(1, 1, 1, 1, NA_real_, 1))
 	expect_equal(datasetSurvival3$overallLogRanks, c(-2.2, -1.99, -2.32, -2.8056692, NA_real_, -3.0911851), tolerance = 1e-07)
@@ -1170,11 +1668,22 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_output(print(datasetSurvival3)$show())
 	    invisible(capture.output(expect_error(summary(datasetSurvival3), NA)))
 	    expect_output(summary(datasetSurvival3)$show())
+	    datasetSurvival3CodeBased <- eval(parse(text = getObjectRCode(datasetSurvival3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(datasetSurvival3CodeBased$stages, datasetSurvival3$stages, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$groups, datasetSurvival3$groups, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$subsets, datasetSurvival3$subsets, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$overallEvents, datasetSurvival3$overallEvents, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$overallAllocationRatios, datasetSurvival3$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$overallLogRanks, datasetSurvival3$overallLogRanks, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$events, datasetSurvival3$events, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$allocationRatios, datasetSurvival3$allocationRatios, tolerance = 1e-05)
+	    expect_equal(datasetSurvival3CodeBased$logRanks, datasetSurvival3$logRanks, tolerance = 1e-05)
 	}
 
 	## Comparison of the results of data.frame object 'datasetSurvival3$.data' with expected results
-	expect_equal(datasetSurvival3$.data$stage, c(1, 1, 1, 2, 2, 2))
-	expect_equal(datasetSurvival3$.data$group, c(1, 2, 3, 1, 2, 3))
+	expect_equal(datasetSurvival3$.data$stage, factor(c(1, 1, 1, 2, 2, 2)))
+	expect_equal(datasetSurvival3$.data$group, factor(c(1, 2, 3, 1, 2, 3)))
+	expect_equal(datasetSurvival3$.data$subset, factor(c(NA, NA, NA, NA, NA, NA)))
 	expect_equal(datasetSurvival3$.data$overallEvent, c(25, 18, 22, 57, NA_real_, 58))
 	expect_equal(datasetSurvival3$.data$overallAllocationRatio, c(1, 1, 1, 1, NA_real_, 1))
 	expect_equal(datasetSurvival3$.data$overallLogRank, c(-2.2, -1.99, -2.32, -2.8056692, NA_real_, -3.0911851), tolerance = 1e-07)
@@ -1411,7 +1920,7 @@ context("Testing that 'getDataset' Throws Exceptions as Expected")
 test_that("Wrong parameter usage of 'getDataset'", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	expect_error(getDataset(), 
-		"Missing argument: data.frame or data vectors expected", fixed = TRUE)
+		"Missing argument: data.frame, data vectors, or datasets expected", fixed = TRUE)
 
 	expect_error(getDataset(1), 
 		"Illegal argument: all parameters must be named", fixed = TRUE)
@@ -1431,6 +1940,692 @@ test_that("Wrong parameter usage of 'getDataset'", {
 			overallEvents3 = c(3, 8, 13, 19),
 			overallEvents1 = c(3, 8, 13, 19)
 		), "Illegal argument: the parameter names must be unique", fixed = TRUE)
+
+})
+
+context("Testing datasets for enrichment designs")
+
+
+test_that("Creation of a dataset of means with subsets", {
+	x <- getDataset(
+		stage = c(1,1,1,1,2,2,2,2,3,3,3,3),
+		subset = c("S1","S2","S12","R","S1","S2","S12","R","S1","S2","S12","R"),
+		sampleSize1 = c(12,14,21,33,33,22,12,14,21,33,33,22),
+		sampleSize2 = c(18,11,21,9,17,18,12,14,21,33,33,22),
+		mean1 = c(107.7,  68.3,  84.9,  77.1, 77.7, 127.4, 107.7, 68.3,  84.9,  77.1, 77.7, 127.4),
+		mean2 = c(165.6,  120.1,  195.9,  162.4, 111.1, 100.9, 107.7,  68.3,  84.9,  77.1, 77.7, 127.4),
+		stDev1 = c(128.5, 124.0, 139.5, 163.5, 133.3, 134.7, 107.7,  68.3,  84.9,  77.1, 77.7, 127.4),
+		stDev2 = c(120.1, 116.8, 185.0, 120.6, 145.6, 133.7, 107.7,  68.3,  84.9,  77.1, 77.7, 127.4)) 
+
+	## Comparison of the results of DatasetMeans object 'x' with expected results
+	expect_equal(x$stages, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3))
+	expect_equal(x$groups, c(1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2))
+	expect_equal(x$subsets, c("S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R"))
+	expect_equal(x$sampleSizes, c(12, 14, 21, 33, 18, 11, 21, 9, 33, 22, 12, 14, 17, 18, 12, 14, 21, 33, 33, 22, 21, 33, 33, 22))
+	expect_equal(x$means, c(107.7, 68.3, 84.9, 77.1, 165.6, 120.1, 195.9, 162.4, 77.7, 127.4, 107.7, 68.3, 111.1, 100.9, 107.7, 68.3, 84.9, 77.1, 77.7, 127.4, 84.9, 77.1, 77.7, 127.4), tolerance = 1e-07)
+	expect_equal(x$stDevs, c(128.5, 124, 139.5, 163.5, 120.1, 116.8, 185, 120.6, 133.3, 134.7, 107.7, 68.3, 145.6, 133.7, 107.7, 68.3, 84.9, 77.1, 77.7, 127.4, 84.9, 77.1, 77.7, 127.4), tolerance = 1e-07)
+	expect_equal(x$overallSampleSizes, c(12, 14, 21, 33, 18, 11, 21, 9, 45, 36, 33, 47, 35, 29, 33, 23, 66, 69, 66, 69, 56, 62, 66, 45))
+	expect_equal(x$overallMeans, c(107.7, 68.3, 84.9, 77.1, 165.6, 120.1, 195.9, 162.4, 85.7, 104.41667, 93.190909, 74.478723, 139.12857, 108.18276, 163.82727, 105.12174, 85.445455, 91.352174, 85.445455, 91.352174, 118.79286, 91.63871, 120.76364, 116.01333), tolerance = 1e-07)
+	expect_equal(x$overallStDevs, c(128.5, 124, 139.5, 163.5, 120.1, 116.8, 185, 120.6, 131.26649, 132.10351, 127.56945, 141.17802, 133.9849, 125.75856, 165.02815, 101.24395, 117.82181, 109.40115, 105.0948, 138.24808, 120.08511, 103.06452, 135.14016, 114.01099), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x), NA)))
+	    expect_output(print(x)$show())
+	    invisible(capture.output(expect_error(summary(x), NA)))
+	    expect_output(summary(x)$show())
+	    xCodeBased <- eval(parse(text = getObjectRCode(x, stringWrapParagraphWidth = NULL)))
+	    expect_equal(xCodeBased$stages, x$stages, tolerance = 1e-05)
+	    expect_equal(xCodeBased$groups, x$groups, tolerance = 1e-05)
+	    expect_equal(xCodeBased$subsets, x$subsets, tolerance = 1e-05)
+	    expect_equal(xCodeBased$sampleSizes, x$sampleSizes, tolerance = 1e-05)
+	    expect_equal(xCodeBased$means, x$means, tolerance = 1e-05)
+	    expect_equal(xCodeBased$stDevs, x$stDevs, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallSampleSizes, x$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallMeans, x$overallMeans, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallStDevs, x$overallStDevs, tolerance = 1e-05)
+	}
+
+	x2 <- getDataset(
+		stages = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
+		subsets = c('S2', 'S12', 'S1', 'R', 'S2', 'S12', 'S1', 'R', 'S2', 'S12', 'S1', 'R'),
+		overallSampleSizes1 = c(14, 21, 12, 33, 36, 33, 45, 47, 69, 66, 66, 69),
+		overallSampleSizes2 = c(11, 21, 18, 9, 29, 33, 35, 23, 62, 66, 56, 45),
+		overallMeans1 = c(68.3, 84.9, 107.7, 77.1, 104.417, 93.191, 85.7, 74.479, 91.352, 85.445, 85.445, 91.352),
+		overallMeans2 = c(120.1, 195.9, 165.6, 162.4, 108.183, 163.827, 139.129, 105.122, 91.639, 120.764, 118.793, 116.013),
+		overallStDevs1 = c(124, 139.5, 128.5, 163.5, 132.104, 127.569, 131.266, 141.178, 109.401, 105.095, 117.822, 138.248),
+		overallStDevs2 = c(116.8, 185, 120.1, 120.6, 125.759, 165.028, 133.985, 101.244, 103.065, 135.14, 120.085, 114.011) 
+	)
+
+	## Comparison of the results of DatasetMeans object 'x2' with expected results
+	expect_equal(x2$stages, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3))
+	expect_equal(x2$groups, c(1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2))
+	expect_equal(x2$subsets, c("S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R"))
+	expect_equal(x2$sampleSizes, c(12, 14, 21, 33, 18, 11, 21, 9, 33, 22, 12, 14, 17, 18, 12, 14, 21, 33, 33, 22, 21, 33, 33, 22))
+	expect_equal(x2$means, c(107.7, 68.3, 84.9, 77.1, 165.6, 120.1, 195.9, 162.4, 77.7, 127.40055, 107.70025, 68.300929, 111.10088, 100.90039, 107.69925, 68.300429, 84.898571, 77.099273, 77.699, 127.39886, 84.899667, 77.100333, 77.701, 127.39905), tolerance = 1e-07)
+	expect_equal(x2$stDevs, c(128.5, 124, 139.5, 163.5, 120.1, 116.8, 185, 120.6, 133.29934, 134.7007, 107.69841, 68.299913, 145.60038, 133.7007, 107.6989, 68.300382, 84.902527, 77.098435, 77.701172, 127.40021, 84.898999, 77.100624, 77.70049, 127.40009), tolerance = 1e-07)
+	expect_equal(x2$overallSampleSizes, c(12, 14, 21, 33, 18, 11, 21, 9, 45, 36, 33, 47, 35, 29, 33, 23, 66, 69, 66, 69, 56, 62, 66, 45))
+	expect_equal(x2$overallMeans, c(107.7, 68.3, 84.9, 77.1, 165.6, 120.1, 195.9, 162.4, 85.7, 104.417, 93.191, 74.479, 139.129, 108.183, 163.827, 105.122, 85.445, 91.352, 85.445, 91.352, 118.793, 91.639, 120.764, 116.013), tolerance = 1e-07)
+	expect_equal(x2$overallStDevs, c(128.5, 124, 139.5, 163.5, 120.1, 116.8, 185, 120.6, 131.266, 132.104, 127.569, 141.178, 133.985, 125.759, 165.028, 101.244, 117.822, 109.401, 105.095, 138.248, 120.085, 103.065, 135.14, 114.011), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x2), NA)))
+	    expect_output(print(x2)$show())
+	    invisible(capture.output(expect_error(summary(x2), NA)))
+	    expect_output(summary(x2)$show())
+	    x2CodeBased <- eval(parse(text = getObjectRCode(x2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x2CodeBased$stages, x2$stages, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$groups, x2$groups, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$subsets, x2$subsets, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$sampleSizes, x2$sampleSizes, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$means, x2$means, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$stDevs, x2$stDevs, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$overallSampleSizes, x2$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$overallMeans, x2$overallMeans, tolerance = 1e-05)
+	    expect_equal(x2CodeBased$overallStDevs, x2$overallStDevs, tolerance = 1e-05)
+	}
+
+	expect_equal(x$sampleSizes, x2$sampleSizes) 
+	expect_equal(x$means, x2$means, tolerance = 1e-05) 
+	expect_equal(x$stDevs, x2$stDevs, tolerance = 1e-05) 
+	expect_equal(x$overallSampleSizes, x2$overallSampleSizes) 
+	expect_equal(x$overallMeans, x2$overallMeans, tolerance = 1e-05) 
+	expect_equal(x$overallStDevs, x2$overallStDevs, tolerance = 1e-05) 
+
+})
+
+test_that("Creation of a dataset of rates with subsets", {
+
+	x <- getDataset(
+		stage = c(1,1,2,2),
+		subset = c("S1","R","S1","R"),
+		sampleSizes1 = c(11, 24, 36, 49),
+		sampleSizes2 = c(8, 18, 27, 38),
+		sampleSizes3 = c(8, 18, 27, 38),
+		events1 = c(10, 20, 32, 44),
+		events2 = c(3, 8, 13, 19),
+		events3 = c(3, 7, 12, 20))
+
+	## Comparison of the results of DatasetRates object 'x' with expected results
+	expect_equal(x$stages, c(1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2))
+	expect_equal(x$groups, c(1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3))
+	expect_equal(x$subsets, c("S1", "R", "S1", "R", "S1", "R", "S1", "R", "S1", "R", "S1", "R"))
+	expect_equal(x$sampleSizes, c(11, 24, 8, 18, 8, 18, 36, 49, 27, 38, 27, 38))
+	expect_equal(x$events, c(10, 20, 3, 8, 3, 7, 32, 44, 13, 19, 12, 20))
+	expect_equal(x$overallSampleSizes, c(11, 24, 8, 18, 8, 18, 47, 73, 35, 56, 35, 56))
+	expect_equal(x$overallEvents, c(10, 20, 3, 8, 3, 7, 42, 64, 16, 27, 15, 27))
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x), NA)))
+	    expect_output(print(x)$show())
+	    invisible(capture.output(expect_error(summary(x), NA)))
+	    expect_output(summary(x)$show())
+	    xCodeBased <- eval(parse(text = getObjectRCode(x, stringWrapParagraphWidth = NULL)))
+	    expect_equal(xCodeBased$stages, x$stages, tolerance = 1e-05)
+	    expect_equal(xCodeBased$groups, x$groups, tolerance = 1e-05)
+	    expect_equal(xCodeBased$subsets, x$subsets, tolerance = 1e-05)
+	    expect_equal(xCodeBased$sampleSizes, x$sampleSizes, tolerance = 1e-05)
+	    expect_equal(xCodeBased$events, x$events, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallSampleSizes, x$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallEvents, x$overallEvents, tolerance = 1e-05)
+	}
+
+})
+
+test_that("Creation of a dataset of survival data with subsets", {
+
+	x <- getDataset(
+		stage = c(1, 1, 2, 2),
+		subset = c("S1","R","S1","R"),
+		events1 = c(10, 20, 32, 44),
+		events2 = c(3, 8, 13, 19),
+		events3 = c(3, 7, 12, 20),
+		logRanks1 = c(2.2, 1.8, 1.9, 2.1),	
+		logRanks2 = c(1.99, 2.01, 2.05, 2.09), 
+		logRanks3 = c(2.32, 2.11, 2.14, 2.17)
+	)
+
+	## Comparison of the results of DatasetSurvival object 'x' with expected results
+	expect_equal(x$stages, c(1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2))
+	expect_equal(x$groups, c(1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3))
+	expect_equal(x$subsets, c("S1", "R", "S1", "R", "S1", "R", "S1", "R", "S1", "R", "S1", "R"))
+	expect_equal(x$overallEvents, c(10, 20, 3, 8, 3, 7, 42, 64, 16, 27, 15, 27))
+	expect_equal(x$overallAllocationRatios, c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+	expect_equal(x$overallLogRanks, c(2.2, 1.8, 1.99, 2.01, 2.32, 2.11, 2.731946, 2.7474586, 2.7095403, 2.8473447, 2.9516097, 2.941998), tolerance = 1e-07)
+	expect_equal(x$events, c(10, 20, 3, 8, 3, 7, 32, 44, 13, 19, 12, 20))
+	expect_equal(x$allocationRatios, c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+	expect_equal(x$logRanks, c(2.2, 1.8, 1.99, 2.01, 2.32, 2.11, 1.9, 2.1, 2.05, 2.09, 2.14, 2.17), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x), NA)))
+	    expect_output(print(x)$show())
+	    invisible(capture.output(expect_error(summary(x), NA)))
+	    expect_output(summary(x)$show())
+	    xCodeBased <- eval(parse(text = getObjectRCode(x, stringWrapParagraphWidth = NULL)))
+	    expect_equal(xCodeBased$stages, x$stages, tolerance = 1e-05)
+	    expect_equal(xCodeBased$groups, x$groups, tolerance = 1e-05)
+	    expect_equal(xCodeBased$subsets, x$subsets, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallEvents, x$overallEvents, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallAllocationRatios, x$overallAllocationRatios, tolerance = 1e-05)
+	    expect_equal(xCodeBased$overallLogRanks, x$overallLogRanks, tolerance = 1e-05)
+	    expect_equal(xCodeBased$events, x$events, tolerance = 1e-05)
+	    expect_equal(xCodeBased$allocationRatios, x$allocationRatios, tolerance = 1e-05)
+	    expect_equal(xCodeBased$logRanks, x$logRanks, tolerance = 1e-05)
+	}
+
+})
+
+test_that("Illegal creation of a dataset of means with subsets", {
+
+	expect_error(getDataset(
+			sampleSize1 = c(NA,   NA),
+			sampleSize2 = c(NA,   NA),
+			mean1       = c(NA,   NA),
+			mean2       = c(NA,   NA),
+			stDev1      = c(NA,   NA),
+			stDev2      = c(NA,   NA)), 
+		"Illegal argument: 'sampleSize1' is NA at first stage; a valid numeric value must be specified at stage 1", fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(12, 21),
+		sampleSize2 = c(18, 21),
+		mean1 = c(107.7, 84.9),
+		mean2 = c(165.6, 195.9),
+		stDev1 = c(128.5, 139.5),
+		stDev2 = c(120.1, 185.0))
+
+	F <- getDataset(
+		sampleSize1 = c(26, NA),
+		sampleSize2 = c(29, NA),
+		mean1 = c(86.48462, NA),
+		mean2 = c(148.34138, NA),
+		stDev1 = c(125.1485, NA),
+		stDev2 = c(118.888, NA))
+
+	expect_error(getDataset(S1 = S1, F = F), 
+		"Conflicting arguments: 'stDev' F (125.148) must be > 'stDev' S1 (128.5) in group 1 at stage 1", fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(12, 21),
+		sampleSize2 = c(30, 21),
+		mean1 = c(107.7, 84.9),
+		mean2 = c(165.6, 195.9),
+		stDev1 = c(128.5, 139.5),
+		stDev2 = c(120.1, 185.0))
+
+	F <- getDataset(
+		sampleSize1 = c(26, NA),
+		sampleSize2 = c(29, NA),
+		mean1 = c(86.48462, NA),
+		mean2 = c(148.34138, NA),
+		stDev1 = c(129.1485, NA),
+		stDev2 = c(122.888, NA))
+
+	expect_error(getDataset(S1 = S1, F = F), 
+		"Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (30) in group 2 at stage 1", fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(   12,   NA),
+		sampleSize2 = c(   18,   NA),
+		mean1       = c(107.7,   NA),
+		mean2       = c(165.6,   NA),
+		stDev1      = c(128.5,   NA),
+		stDev2      = c(120.1,   NA))
+
+	R <- getDataset(
+		sampleSize1 = c(   14,    21),
+		sampleSize2 = c(   11,    21),
+		mean1       = c( 68.3,  84.9),
+		mean2       = c(120.1, 195.9),
+		stDev1      = c(124.0, 139.5),
+		stDev2      = c(116.8, 185.0))
+
+	expect_error(getDataset(S1 = S1, R = R), 
+		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be deselected (NA) ",
+			"but, e.g., 'sampleSize' R is 21 in group 1 at stage 2"), fixed = TRUE)
+
+	## S1
+	expect_error(getDataset(
+			sampleSize1 = c(   12,   NA,    21),
+			sampleSize2 = c(   18,   NA,    21),
+			mean1       = c(107.7,   NA,  84.9),
+			mean2       = c(165.6,   NA, 195.9),
+			stDev1      = c(128.5,   NA, 139.5),
+			stDev2      = c(120.1,   NA, 185.0)), 
+		paste0("Illegal argument: 'sampleSize1' contains a NA at stage 2 followed by a ", 
+			"value for a higher stage; NA's must be the last values"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(   12,    21),
+		sampleSize2 = c(   18,    21),
+		mean1       = c(107.7,  84.9),
+		mean2       = c(165.6, 195.9),
+		stDev1      = c(128.5, 139.5),
+		stDev2      = c(120.1, 185.0))
+
+	R <- getDataset(
+		sampleSize1 = c(   14,   NA,   NA),
+		sampleSize2 = c(   11,   NA,   NA),
+		mean1       = c( 68.3,   NA,   NA),
+		mean2       = c(120.1,   NA,   NA),
+		stDev1      = c(124.0,   NA,   NA),
+		stDev2      = c(116.8,   NA,   NA))
+
+	expect_error(getDataset(S1 = S1, R = R), 
+		paste0("Conflicting arguments: all subsets must have the identical ",
+			"number of stages defined (kMax: S1 = 2, R = 3)"), fixed = TRUE)
+
+	S1N <- getDataset(
+		sampleSize1 = c(   39,    34,   NA), 
+		sampleSize2 = c(   33,    45,   NA), 
+		stDev1      = c(156.5026,  120.084, NA), 
+		stDev2      = c(134.0254, 126.502, NA), 
+		mean1       = c(131.146, 114.4, NA), 
+		mean2       = c(93.191, 85.7, NA))
+
+	S2N <- getDataset(
+		sampleSize1 = c(   32,    NA,   NA), 
+		sampleSize2 = c(   35,    NA,   NA), 
+		stDev1      = c(163.645,  NA, NA), 
+		stDev2      = c(131.888, NA, NA),
+		mean1       = c(123.594, NA, NA), 
+		mean2       = c(78.26, NA, NA)
+	)
+
+	F <- getDataset(
+		sampleSize1 = c(   69,   NA,   NA), 
+		sampleSize2 = c(   80,    NA,   NA), 
+		stDev1      = c(140.4682,  NA, NA), 
+		stDev2      = c(143.9796, NA, NA), 
+		mean1       = c(129.2957, NA, NA), 
+		mean2       = c(82.1875, NA, NA))
+
+	expect_error(getDataset(S1 = S1N, S2 = S2N, F = F), 
+		paste0("Conflicting arguments: 'stDev' F (140.468) must ",
+		"be > 'stDev' S1 (156.503) in group 1 at stage 1"), fixed = TRUE)
+
+	S1N <- getDataset(
+		sampleSize1 = c(   39,    34,   NA), 
+		sampleSize2 = c(   33,    45,   NA), 
+		stDev1      = c(156.5026,  120.084, NA), 
+		stDev2      = c(134.0254, 126.502, NA), 
+		mean1       = c(131.146, 114.4, NA), 
+		mean2       = c(93.191, 85.7, NA))
+
+	S2N <- getDataset(
+		sampleSize1 = c(   32,    NA,   NA), 
+		sampleSize2 = c(   35,    NA,   NA), 
+		stDev1      = c(163.645,  NA, NA), 
+		stDev2      = c(131.888, NA, NA),
+		mean1       = c(123.594, NA, NA), 
+		mean2       = c(78.26, NA, NA)
+	)
+
+	F <- getDataset(
+		sampleSize1 = c(      30, NA, NA), 
+		sampleSize2 = c(      80, NA, NA), 
+		stDev1      = c(164.4682, NA, NA), 
+		stDev2      = c(143.9796, NA, NA), 
+		mean1       = c(129.2957, NA, NA), 
+		mean2       = c( 82.1875, NA, NA))
+
+	expect_error(getDataset(S1 = S1N, S2 = S2N, F = F), 
+		paste0("Conflicting arguments: 'sampleSize' F (30) must ",
+		"be >= 'sampleSize' S1 (39) in group 1 at stage 1"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize2 = c(   12,    33,   21), 
+		sampleSize1 = c(   18,    17,   23), 
+		mean2       = c(107.7,  77.7, 84.9), 
+		mean1       = c(125.6, 111.1, 99.9), 
+		stDev2      = c(128.5, 133.3, 84.9), 
+		stDev1      = c(120.1, 145.6, 74.3))
+
+	S2 <- getDataset(
+		sampleSize2 = c(   14, NA,   NA), 
+		sampleSize1 = c(   11, NA,   NA), 
+		mean2       = c( 68.3, NA,   NA), 
+		mean1       = c(100.1, NA,   NA), 
+		stDev2      = c(124.0, NA,   NA), 
+		stDev1      = c(116.8, NA,   NA))
+
+	S12 <- getDataset(           
+		sampleSize2 = c(    21,    12,    33), 
+		sampleSize1 = c(    21,    17,    31), 
+		mean2       = c(  84.9, 107.7,  77.7), 
+		mean1       = c( 135.9, 117.7,  97.7), 
+		stDev2      = c( 139.5, 107.7,  77.7), 
+		stDev1      = c( 185.0,  92.3,  87.3))
+
+	R <- getDataset(
+		sampleSize2 = c(   33,    33,  NA), 
+		sampleSize1 = c(   19,    19,  NA), 
+		mean2       = c( 77.1,  77.1,  NA), 
+		mean1       = c(142.4, 142.4,  NA), 
+		stDev2      = c(163.5, 163.5,  NA), 
+		stDev1      = c(120.6, 120.6,  NA))
+
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
+		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be deselected ", 
+			"(NA) but, e.g., 'sampleSize' R is 19 in group 1 at stage 2"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize2 = c(   12,    33,   21), 
+		sampleSize1 = c(   18,    17,   23), 
+		mean2       = c(107.7,  77.7, 84.9), 
+		mean1       = c(125.6, 111.1, 99.9), 
+		stDev2      = c(128.5, 133.3, 84.9), 
+		stDev1      = c(120.1, 145.6, 74.3))
+
+	S2 <- getDataset(
+		sampleSize2 = c(   14,    22,   NA), 
+		sampleSize1 = c(   11,    18,   NA), 
+		mean2       = c( 68.3, 127.4,   NA), 
+		mean1       = c(100.1, 110.9,   NA), 
+		stDev2      = c(124.0, 134.7,   NA), 
+		stDev1      = c(116.8, 133.7,   NA))
+
+	S12 <- getDataset(           
+		sampleSize2 = c(    21,   NA,   NA), 
+		sampleSize1 = c(    21,   NA,   NA), 
+		mean2       = c(  84.9,   NA,   NA), 
+		mean1       = c( 135.9,   NA,   NA), 
+		stDev2      = c( 139.5,   NA,   NA), 
+		stDev1      = c( 185.0,   NA,   NA))
+
+	R <- getDataset(
+		sampleSize2 = c(   33,    33,  NA), 
+		sampleSize1 = c(   19,    19,  NA), 
+		mean2       = c( 77.1,  77.1,  NA), 
+		mean1       = c(142.4, 142.4,  NA), 
+		stDev2      = c(163.5, 163.5,  NA), 
+		stDev1      = c(120.6, 120.6,  NA))
+
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), NA)
+
+})
+
+test_that("Illegal creation of a dataset of rates with subsets", {
+
+	S1 <- getDataset(
+		sampleSize1 = c(  22,   31,   37), 
+		sampleSize2 = c(  28,   33,   39), 
+		events1     = c(  17,    16,   17),
+		events2     = c(  18,   21,   19)
+	)
+
+	F <- getDataset(
+		sampleSize1 = c(  46,   54,  NA), 
+		sampleSize2 = c(  49,   62,  NA), 
+		events1     = c(  16,   31,  NA),
+		events2     = c(  29,   35,  NA)
+	)
+
+	expect_error(getDataset(S1 = S1, F = F), 
+		paste0("Conflicting arguments: 'event' F (16) must be >= 'event' S1 (17) in group 1 at stage 1"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(  22,   31,   37), 
+		sampleSize2 = c(  28,   33,   39), 
+		events1     = c(  7,    16,   17),
+		events2     = c(  18,   21,   19)
+	)
+
+	F <- getDataset(
+		sampleSize1 = c(  46,   29,  NA), 
+		sampleSize2 = c(  49,   62,  NA), 
+		events1     = c(  16,   31,  NA),
+		events2     = c(  29,   35,  NA)
+	)
+
+	expect_error(getDataset(S1 = S1, F = F), 
+		paste0("Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (31) in group 1 at stage 2"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(  22,   31,  NA), 
+		sampleSize2 = c(  28,   33,  NA), 
+		events1     = c(  7,    16,  NA),
+		events2     = c(  18,   21,  NA)
+	)
+
+	R <- getDataset(
+		sampleSize1 = c(  24,   23,   37), 
+		sampleSize2 = c(  21,   29,   39), 
+		events1     = c(  9,    15,   10),
+		events2     = c(  11,   14,   19)
+	)
+
+	expect_error(getDataset(S1 = S1, R = R), 
+		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be ",
+		"deselected (NA) but, e.g., 'sampleSize' R is 37 in group 1 at stage 3"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(  84,   94,   25), 
+		sampleSize2 = c(  82,   75,   23), 
+		events1     = c(  21,   28,   13),
+		events2     = c(  32,   23,   20)
+	)
+
+	S2 <- getDataset(
+		sampleSize1 = c(  81,   95,   NA), 
+		sampleSize2 = c(  84,   64,   NA), 
+		events1     = c(  26,   29,   NA),
+		events2     = c(  31,   26,   NA)
+	)
+
+	S3 <- getDataset(
+		sampleSize1 = c(  271,   NA,   NA), 
+		sampleSize2 = c(  74,   NA,   NA), 
+		events1     = c(  16,   NA,   NA),
+		events2     = c(  21,   NA,   NA)
+	)
+
+	F <-  getDataset(
+		sampleSize1 = c( 248,   NA,   NA), 
+		sampleSize2 = c( 254,   NA,   NA), 
+		events1     = c(  75,   NA,   NA),
+		events2     = c(  98,   NA,   NA)
+	)
+
+	expect_error(getDataset(S1 = S1, S2 = S2, S3 = S3, F = F), 
+		paste0("Conflicting arguments: 'sampleSize' F (248) must ",
+		"be >= 'sampleSize' S3 (271) in group 1 at stage 1"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(  47,   33,   37), 
+		sampleSize2 = c(  48,   47,   39), 
+		events1     = c(  18,   13,   17),
+		events2     = c(  12,   11,   9)
+	)
+
+	S2 <- getDataset(
+		sampleSize1 = c(  49,   NA,   NA), 
+		sampleSize2 = c(  45,   NA,   NA), 
+		events1     = c(  12,   NA,   NA),
+		events2     = c(  13,   NA,   NA)
+	)
+
+	S12 <- getDataset(
+		sampleSize1 = c(   35,  42,  NA), 
+		sampleSize2 = c(   36,  47,  NA), 
+		events1     = c(   19,  10,  NA), 
+		events2     = c(   13,  17,  NA)
+	)
+
+	R <- getDataset(
+		sampleSize1 = c( 43,  43,  43), 
+		sampleSize2 = c( 39,  39,  39), 
+		events1     = c( 17,  17,  17),
+		events2     = c( 14,  14,  14)
+	)
+
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
+		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be ",
+		"deselected (NA) but, e.g., 'sampleSize' R is 43 in group 1 at stage 2"), fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(  84,   94,   25), 
+		sampleSize2 = c(  82,   75,   23), 
+		events1     = c(  21,   28,   13),
+		events2     = c(  32,   23,   20)
+	)
+
+	S2 <- getDataset(
+		sampleSize1 = c(  81,   95,   NA), 
+		sampleSize2 = c(  84,   64,   NA), 
+		events1     = c(  26,   29,   NA),
+		events2     = c(  31,   26,   NA)
+	)
+
+	S3 <- getDataset(
+		sampleSize1 = c(  71,   NA,   NA), 
+		sampleSize2 = c(  74,   NA,   NA), 
+		events1     = c(  16,   NA,   NA),
+		events2     = c(  21,   NA,   NA)
+	)
+
+	R <- getDataset(
+		sampleSize1 = c( 12,   NA,   NA), 
+		sampleSize2 = c( 14,   NA,   NA), 
+		events1     = c( 12,   NA,   NA),
+		events2     = c( 14,   NA,   NA)
+	)
+
+	expect_warning(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R), 
+		"The 4 undefined subsets S12, S13, S123, S23 were defined as empty subsets", fixed = TRUE)
+
+	S1 <- getDataset(
+		sampleSize1 = c(  84,   94,   25), 
+		sampleSize2 = c(  82,   75,   23), 
+		events1     = c(  21,   28,   13),
+		events2     = c(  32,   23,   20)
+	)
+
+	S2 <- getDataset(
+		sampleSize1 = c(  81,   95,   NA), 
+		sampleSize2 = c(  84,   64,   NA), 
+		events1     = c(  26,   29,   NA),
+		events2     = c(  31,   26,   NA)
+	)
+
+	S3 <- getDataset(
+		sampleSize1 = c(  71,   NA,   NA), 
+		sampleSize2 = c(  74,   NA,   NA), 
+		events1     = c(  16,   NA,   NA),
+		events2     = c(  21,   NA,   NA)
+	)
+
+	R <- getDataset(
+		sampleSize1 = c( 12,   95,   NA), 
+		sampleSize2 = c( 14,   64,   NA), 
+		events1     = c( 12,   29,   NA),
+		events2     = c( 14,   26,   NA)
+	)
+
+	expect_warning(expect_error(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R), 
+		paste0("Conflicting arguments: if S3 is deselected (NA) then R also must be ", 
+		"deselected (NA) but, e.g., 'sampleSize' R is 95 in group 1 at stage 2"), fixed = TRUE))
+
+})
+
+test_that("Illegal creation of a dataset of survival data with subsets", {
+
+	S1 <- getDataset(
+		events = c(37, 56, 22),
+		logRanks = c(1.66, 1.38, 1.22),
+		allocationRatios = c(1,1,1)
+	)
+
+	F <- getDataset(
+		events = c(66, 55, NA),
+		logRanks = c(1.98, 1.57, NA),
+		allocationRatios = c(1,1, NA)
+	)
+
+	expect_error(getDataset(S1 = S1, F = F), 
+		paste0("Conflicting arguments: 'event' F (55) must be >= ",
+		"'event' S1 (56) in group 1 at stage 2"), fixed = TRUE)
+
+	S1 <- getDataset(
+		overallExpectedEvents = c(13.3, NA, NA),
+		overallEvents = c(16, NA, NA),		
+		overallVarianceEvents = c(2.9, NA, NA),
+		overallAllocationRatios = c(1, NA, NA)
+	)
+
+	R <- getDataset(
+		overallExpectedEvents = c(23.4, 35.4, 43.7),
+		overallEvents = c(27, 38, 47),		
+		overallVarianceEvents = c(3.8, 4.7, 3.4),
+		overallAllocationRatios = c(1, 1, 1)
+	)
+
+	expect_error(getDataset(S1 = S1, R = R), 
+		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must ",
+		"be deselected (NA) but, e.g., 'overallEvent' R is 38 in group 1 at stage 2"), fixed = TRUE)
+
+	S1 <- getDataset(
+		events = c(37, 13, 26),
+		logRanks = -c(1.66, 1.239, 0.785)
+	)
+
+	S2 <- getDataset(
+		events = c(31, 18, NA),
+		logRanks = -c(1.98, 1.064, NA)
+	)
+
+	F <- getDataset(
+		events = c(37, NA, NA),
+		logRanks = -c(2.18, NA, NA)
+	)
+
+	expect_error(getDataset(S1 = S1, S2 = S2, F = F), NA)
+
+	S1 <- getDataset(
+		events = c(37, 13, 26),
+		logRanks = -c(1.66, 1.239, 0.785)
+	)
+
+	S2 <- getDataset(
+		events = c(31, 18, NA),
+		logRanks = -c(1.98, 1.064, NA)
+	)
+
+	F <- getDataset(
+		events = c(30, NA, NA),
+		logRanks = -c(2.18, NA, NA)
+	)
+
+	expect_error(getDataset(S1 = S1, S2 = S2, F = F), 
+		paste0("Conflicting arguments: 'event' F (30) must be ",
+		">= 'event' S1 (37) in group 1 at stage 1"), fixed = TRUE)
+
+	S1 <- getDataset(
+		overallExpectedEvents = c(13.4, 35.4, 43.7),
+		overallEvents = c(16, 37, 47),		
+		overallVarianceEvents = c(2.8, 4.7, 3.4),
+		overallAllocationRatios = c(1, 1, 1)
+	)
+
+	S2 <- getDataset(
+		overallExpectedEvents = c(11.5, 31.1, NA),
+		overallEvents = c(15, 33, NA),		
+		overallVarianceEvents = c(2.2, 4.4, NA),
+		overallAllocationRatios = c(1, 1, 1)
+	)
+
+	S12 <- getDataset(
+		overallExpectedEvents = c(10.1, 29.6, 39.1),
+		overallEvents = c(11, 31, 42),		
+		overallVarianceEvents = c(2.8, 4.7, 3.4),
+		overallAllocationRatios = c(1, 1, 1)
+	)
+
+	R <- getDataset(
+		overallExpectedEvents = c(23.3, NA, NA),
+		overallEvents = c(25, NA, NA),		
+		overallVarianceEvents = c(3.9, NA, NA),
+		overallAllocationRatios = c(1, 1, 1)
+	)
+
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
+		paste0("Conflicting arguments: inconsistent deselction in group 1 at stage 3 ",
+		"(overallEvent, overallExpectedEvent, ...: all or none must be NA)"), fixed = TRUE)
 
 })
 

@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4241 $
-#:#  Last changed: $Date: 2021-01-22 09:44:20 +0100 (Fri, 22 Jan 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 #' Parameter Description: "..."
@@ -35,7 +35,7 @@ NULL
 #' Parameter Description: Maximum Number of Stages
 #' @param kMax The maximum number of stages \code{K}. 
 #'   \code{K = 1, 2, 3, ...} (default is \code{3}).
-#'   The maximum selectable \code{kMax} is \code{10} for group sequential or inverse normal and
+#'   The maximum selectable \code{kMax} is \code{20} for group sequential or inverse normal and
 #'   \code{6} for Fisher combination test designs.  
 #' @name param_kMax
 #' @keywords internal
@@ -79,7 +79,7 @@ NULL
 #' Parameter Description: Type of Design
 #' @param typeOfDesign The type of design. Type of design is one of the following: 
 #'   O'Brien & Fleming (\code{"OF"}), Pocock (\code{"P"}), Wang & Tsiatis Delta class (\code{"WT"}), 
-#'   Pamapallona & Tsiatis (\code{"PT"}),
+#'   Pampallona & Tsiatis (\code{"PT"}),
 #'   Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
 #'   O'Brien & Fleming type alpha spending (\code{"asOF"}), Pocock type alpha spending (\code{"asP"}), 
 #'   Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending (\code{"asHSD"}), 
@@ -126,6 +126,22 @@ NULL
 ##
 ## Sample Size and Power
 ##
+
+#' Parameter Description: Effect Under Alternative 
+#' @param thetaH1 If specified, the value of the alternative under which 
+#'   the conditional power or sample size recalculation calculation is performed. 
+#' @name param_thetaH1
+#' @keywords internal
+NULL
+
+#' Parameter Description: Standard Deviation
+#' @param stDev The standard deviation under which the sample size or power 
+#'   calculation is performed, default is \code{1}. 
+#'   If \code{meanRatio = TRUE} is specified, \code{stDev} defines 
+#'   the coefficient of variation \code{sigma / mu2}. 
+#' @name param_stDev
+#' @keywords internal
+NULL
 
 #' Parameter Description: Lambda (1)
 #' @param lambda1 The assumed hazard rate in the treatment group, there is no default.
@@ -212,7 +228,7 @@ NULL
 #'   Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 #'   Note that the Weibull distribution cannot be used for the piecewise definition of 
 #'   the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
-#' 	 can be specified.
+#'   can be specified.
 #'   This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
 #'   of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
 #'   For example, 
@@ -255,8 +271,15 @@ NULL
 
 #' Parameter Description: Alternative
 #' @param alternative The alternative hypothesis value for testing means. This can be a vector of assumed 
-#'   alternatives, default is \code{seq(0, 1, 0.2)}.
+#'   alternatives, default is \code{seq(0, 1, 0.2)} (power calculations) or \code{seq(0.2, 1, 0.2)} (sample size calculations).
 #' @name param_alternative
+#' @keywords internal
+NULL
+
+#' Parameter Description: Alternative for Simulation
+#' @param alternative The alternative hypothesis value for testing means under which the data is simulated. 
+#' This can be a vector of assumed alternatives, default is \code{seq(0, 1, 0.2)}.
+#' @name param_alternative_simulation
 #' @keywords internal
 NULL
 
@@ -283,6 +306,7 @@ NULL
 #'   the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
 #'   it should contain the planned number of additional events. 
 #'   For multi-arm designs, it is the per-comparison (combined) sample size. 
+#'   For enrichment designs, it is the (combined) sample size for the considered sub-population.
 #' @name param_nPlanned
 #' @keywords internal
 NULL
@@ -313,7 +337,7 @@ NULL
 #' Parameter Description: Data Input
 #' @param dataInput The summary data used for calculating the test results. 
 #'   This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
-#'   and should be created with the function \code{\link{getDataset}}.
+#'   and should be created with the function \code{getDataset}.
 #'   For more information see \code{\link{getDataset}}.
 #' @name param_dataInput
 #' @keywords internal
@@ -404,8 +428,8 @@ NULL
 
 #' Parameter Description: Planned Subjects
 #' @param plannedSubjects \code{plannedSubjects} is a vector of length \code{kMax} (the number of stages of the design) 
-#' 	 that determines the number of cumulated (overall) subjects when the interim stages are planned.
-#' 	 For two treatment arms, it is the number of subjects for both treatment arms. 
+#'   that determines the number of cumulated (overall) subjects when the interim stages are planned.
+#'   For two treatment arms, it is the number of subjects for both treatment arms. 
 #'   For multi-arm designs, \code{plannedSubjects} refers to the number of subjects per selected active arm.
 #' @name param_plannedSubjects
 #' @keywords internal
@@ -413,8 +437,8 @@ NULL
 
 #' Parameter Description: Planned Events
 #' @param plannedEvents \code{plannedEvents} is a vector of length \code{kMax} (the number of stages of the design) 
-#' 	 that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
-#' 	 For two treatment arms, it is the number of events for both treatment arms. 
+#'   that determines the number of cumulated (overall) events in survival designs when the interim stages are planned.
+#'   For two treatment arms, it is the number of events for both treatment arms. 
 #'   For multi-arm designs, \code{plannedEvents} refers to the overall number of events for the selected arms plus control.
 #' @name param_plannedEvents
 #' @keywords internal
@@ -433,7 +457,7 @@ NULL
 
 #' Parameter Description: Maximum Number Of Subjects Per Stage
 #' @param maxNumberOfSubjectsPerStage When performing a data driven sample size recalculation, 
-#' 	 the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
+#'   the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
 #'   of subjects per stage (i.e., not cumulated), the first element is not taken into account.
 #'   For two treatment arms, it is the number of subjects for both treatment arms. 
 #'   For multi-arm designs \code{maxNumberOfSubjectsPerStage} refers
@@ -489,7 +513,7 @@ NULL
 #' @keywords internal
 NULL
 
-#' Parameter Description: ShowStatistics 
+#' Parameter Description: Show Statistics 
 #' @param showStatistics If \code{TRUE}, summary statistics of the simulated data
 #'    are displayed for the \code{print} command, otherwise the output is suppressed, default
 #'    is \code{FALSE}. 
@@ -533,13 +557,6 @@ NULL
 #' @keywords internal
 NULL
 
-#' Parameter Description: Effect Under Alternative 
-#' @param thetaH1 If specified, the value of the alternative under which 
-#'   the conditional power or sample size recalculation calculation is performed. 
-#' @name param_thetaH1
-#' @keywords internal
-NULL
-
 #' Parameter Description: Standard Deviation Under Alternative 
 #' @param stDevH1 If specified, the value of the standard deviation under which 
 #'   the conditional power or sample size recalculation calculation is performed,
@@ -548,18 +565,11 @@ NULL
 #' @keywords internal
 NULL
 
-#' Parameter Description: Standard Deviation
-#' @param stDev The standard deviation under which the conditional power 
-#'   calculation is performed, default is \code{1}. 
-#'   If \code{meanRatio = TRUE} is specified, \code{stDev} defines 
-#'   the coefficient of variation \code{sigma / mu2}. 
-#' @name param_stDev
-#' @keywords internal
-NULL
-
 #' Parameter Description: Standard Deviation for Simulation
 #' @param stDev The standard deviation under which the data is simulated, 
 #' default is \code{1}. 
+#' If \code{meanRatio = TRUE} is specified, \code{stDev} defines 
+#' the coefficient of variation \code{sigma / mu2}. 
 #' @name param_stDevSimulation
 #' @keywords internal
 NULL
@@ -626,9 +636,9 @@ NULL
 #' Parameter Description: Intersection Test
 #' @param intersectionTest Defines the multiple test for the intersection 
 #'   hypotheses in the closed system of hypotheses. 
-#'   Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+#'   Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
 #'   \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.
-#' @name param_intersectionTest
+#' @name param_intersectionTest_MultiArm
 #' @keywords internal
 NULL
 
@@ -704,16 +714,19 @@ NULL
 NULL
 
 #' Parameter Description: Variance Option
-#' @param varianceOption Defines the way to calculate the variance in multiple samples.  
-#'   Three options are available: \code{"overallPooled"}, \code{"pairwisePooled"}, and 
-#'   \code{"notPooled"}, default is \code{"overallPooled"}.
+#' @param varianceOption Defines the way to calculate the variance in multiple treatment arms (> 2) 
+#'   or population enrichment designs for testing means. For multiple arms, three options are available: 
+#'   \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}. 
+#'   For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only), 
+#'   and \code{"notPooled"}, default is \code{"pooled"}.
 #' @name param_varianceOption
 #' @keywords internal
 NULL
 
 #' Parameter Description: Select Arms Function
 #' @param selectArmsFunction Optionally, a function can be entered that defines the way of how treatment arms
-#' are selected. This function has to depend on \code{effectVector} with length \code{activeArms} (see examples).
+#' are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms}
+#' and \code{stage} (see examples).
 #' @name param_selectArmsFunction
 #' @keywords internal
 NULL
@@ -761,5 +774,26 @@ NULL
 #' @param slope If \code{"sigmoidEmax"} is selected, \code{"slope"} can be entered 
 #'   to specify the slope of the sigmoid Emax model, default is 1. 
 #' @name param_slope
+#' @keywords internal
+NULL
+
+#' Parameter Description: Maximum Information
+#' @param maxInformation Positive integer value specifying the maximum information.
+#' @name param_maxInformation
+#' @keywords internal
+NULL
+
+#' Parameter Description: Information Epsilon
+#' @param informationEpsilon Positive integer value specifying the information epsilon, which 
+#'    defines the maximum distance from the observed information to the maximum information that causes the final analysis.
+#'    Updates at the final analysis in case the observed information at the final 
+#'    analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}.
+#' @name param_informationEpsilon
+#' @keywords internal
+NULL
+
+#' Parameter Description: Plot Settings
+#' @param plotSettings An object of class \code{PlotSettings} created by \code{\link{getPlotSettings}}.
+#' @name param_plotSettings
 #' @keywords internal
 NULL

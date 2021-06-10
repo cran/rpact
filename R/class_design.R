@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4135 $
-#:#  Last changed: $Date: 2020-12-17 17:18:06 +0100 (Thu, 17 Dec 2020) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 
@@ -233,7 +233,7 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 	methods = list(
 		initialize = function(design, ...) {
 			callSuper(.design = design, ...)
-			.parameterNames <<- .getParameterNames(design)
+			.parameterNames <<- .getParameterNames(design = design)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 			.initStages()
 		},
@@ -265,10 +265,6 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 			} else {
 				.setParameterType("stages", C_PARAM_NOT_APPLICABLE)
 			}
-		},
-		
-		.getUserDefinedParameters = function() {
-			return("design")
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
@@ -441,7 +437,7 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 	)
 )
 
-#'					
+#'
 #' @name TrialDesignInverseNormal
 #' 
 #' @title
@@ -549,13 +545,24 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 			.initParameterTypes()
 			.initStages()
 		},
-		
-		.pasteComparisonResult = function(name, newValue, oldValue) {
-			return(paste0(name, "_new = ", .arrayToString(newValue), " (", class(newValue), "), ", 
-					name, "_old = ", .arrayToString(oldValue), " (", class(oldValue), ")"))
+
+		.formatComparisonResult = function(x) {
+			if (is.null(x) || length(x) == 0 || !is.numeric(x)) {
+				return(x)
+			}
+			
+			s <- sprintf("%.9f", x)
+			s <- sub("\\.0+", "", s)
+			return(s)
 		},
 		
-		hasChanged = function(kMax, 
+		.pasteComparisonResult = function(name, newValue, oldValue) {
+			return(paste0(name, "_new = ", .arrayToString(.formatComparisonResult(newValue)), " (", class(newValue), "), ", 
+					name, "_old = ", .arrayToString(.formatComparisonResult(oldValue)), " (", class(oldValue), ")"))
+		},
+		
+		hasChanged = function(...,
+				kMax, 
 				alpha, 
 				beta, 
 				sided, 
@@ -588,57 +595,69 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 			if (!identical(alpha, .self$alpha)) return(.pasteComparisonResult("alpha", alpha, .self$alpha))
 			if (!identical(beta, .self$beta)) return(.pasteComparisonResult("beta", beta, .self$beta))
 			if (!identical(sided, .self$sided)) return(.pasteComparisonResult("sided", sided, .self$sided))
-			if (kMax > 1) {
-				if (!identical(typeOfDesign, .self$typeOfDesign)) {
-					return(.pasteComparisonResult("typeOfDesign", typeOfDesign, .self$typeOfDesign))
+			if (!identical(twoSidedPower, .self$twoSidedPower)) {
+				return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
+			}
+			if (kMax == 1) {
+				return(FALSE)
+			}
+			
+			if (!identical(typeOfDesign, .self$typeOfDesign)) {
+				return(.pasteComparisonResult("typeOfDesign", typeOfDesign, .self$typeOfDesign))
+			}
+			if (typeOfDesign == C_TYPE_OF_DESIGN_WT) {
+				if (!identical(deltaWT, .self$deltaWT)) {
+					return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
 				}
-				if (typeOfDesign == C_TYPE_OF_DESIGN_WT) {
-					if (!identical(deltaWT, .self$deltaWT)) {
-						return(.pasteComparisonResult("deltaWT", deltaWT, .self$deltaWT))
-					}
+			}
+			if (typeOfDesign == C_TYPE_OF_DESIGN_PT) {
+				if (!identical(deltaPT1, .self$deltaPT1)) {
+					return(.pasteComparisonResult("deltaPT1", deltaPT1, .self$deltaPT1))
 				}
-				if (typeOfDesign == C_TYPE_OF_DESIGN_PT) {
-					if (!identical(deltaPT1, .self$deltaPT1)) {
-						return(.pasteComparisonResult("deltaPT1", deltaPT1, .self$deltaPT1))
-					}
-					if (!identical(deltaPT0, .self$deltaPT0)) {
-						return(.pasteComparisonResult("deltaPT0", deltaPT0, .self$deltaPT0))
-					}
+				if (!identical(deltaPT0, .self$deltaPT0)) {
+					return(.pasteComparisonResult("deltaPT0", deltaPT0, .self$deltaPT0))
 				}
-				if (!identical(informationRatesTemp, .self$informationRates)) {
-					return(.pasteComparisonResult("informationRates", informationRatesTemp, .self$informationRates))
-				}
-				if (typeBetaSpending == C_TYPE_OF_DESIGN_BS_NONE && !identical(futilityBoundsTemp, .self$futilityBounds)) {
-					return(.pasteComparisonResult("futilityBounds", futilityBoundsTemp, .self$futilityBounds))
-				}
-				if (!identical(optimizationCriterion, .self$optimizationCriterion)) {
-					return(.pasteComparisonResult("optimizationCriterion", optimizationCriterion, .self$optimizationCriterion))
-				}
-				if (!identical(typeBetaSpending, .self$typeBetaSpending)) {
-					return(.pasteComparisonResult("typeBetaSpending", typeBetaSpending, .self$typeBetaSpending))
-				}
-				if (!identical(gammaA, .self$gammaA)) {
-					return(.pasteComparisonResult("gammaA", gammaA, .self$gammaA))
-				}
-				if (!identical(gammaB, .self$gammaB)) {
-					return(.pasteComparisonResult("gammaB", gammaB, .self$gammaB))
-				}
-				if (any(na.omit(futilityBounds) > -6) && !identical(bindingFutility, .self$bindingFutility)) {
-					return(.pasteComparisonResult("bindingFutility", bindingFutility, .self$bindingFutility))
-				}
-				if (!identical(userAlphaSpending, .self$userAlphaSpending)) {
-					return(.pasteComparisonResult("userAlphaSpending", userAlphaSpending, .self$userAlphaSpending))
-				}
-				if (!identical(userBetaSpending, .self$userBetaSpending)) {
-					return(.pasteComparisonResult("userBetaSpending", userBetaSpending, .self$userBetaSpending))
-				}
-				if (!identical(twoSidedPower, .self$twoSidedPower)) {
-					return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
-				}
-				if (typeOfDesign == C_TYPE_OF_DESIGN_HP) {
-					if (!identical(constantBoundsHP, .self$constantBoundsHP)) {
-						return(.pasteComparisonResult("constantBoundsHP", constantBoundsHP, .self$constantBoundsHP))
-					}
+			}
+			if (!identical(informationRatesTemp, .self$informationRates)) {
+				return(.pasteComparisonResult("informationRates", informationRatesTemp, .self$informationRates))
+			}
+			if (.getParameterType("futilityBounds") != C_PARAM_GENERATED &&
+					(!grepl("^as.*", typeOfDesign) || typeBetaSpending == C_TYPE_OF_DESIGN_BS_NONE) && 
+					!identical(futilityBoundsTemp, .self$futilityBounds)) {
+				return(.pasteComparisonResult("futilityBounds", futilityBoundsTemp, .self$futilityBounds))
+			}
+			if (!identical(optimizationCriterion, .self$optimizationCriterion)) {
+				return(.pasteComparisonResult("optimizationCriterion", optimizationCriterion, .self$optimizationCriterion))
+			}
+			if (!identical(typeBetaSpending, .self$typeBetaSpending)) {
+				return(.pasteComparisonResult("typeBetaSpending", typeBetaSpending, .self$typeBetaSpending))
+			}
+			if (!identical(gammaA, .self$gammaA)) {
+				return(.pasteComparisonResult("gammaA", gammaA, .self$gammaA))
+			}
+			if (!identical(gammaB, .self$gammaB)) {
+				return(.pasteComparisonResult("gammaB", gammaB, .self$gammaB))
+			}
+			if ((typeOfDesign == C_TYPE_OF_DESIGN_PT && !identical(bindingFutility, .self$bindingFutility)) || 
+					(!identical(bindingFutility, .self$bindingFutility) &&
+					.getParameterType("futilityBounds") != C_PARAM_NOT_APPLICABLE &&
+					(sided == 1 || !grepl("^as.*", typeOfDesign) || typeBetaSpending == C_TYPE_OF_DESIGN_BS_NONE) &&
+					(any(na.omit(futilityBounds) > -6) || any(na.omit(.self$futilityBounds) > -6)) 
+					)) {
+				return(.pasteComparisonResult("bindingFutility", bindingFutility, .self$bindingFutility))
+			}
+			if (!identical(userAlphaSpending, .self$userAlphaSpending)) {
+				return(.pasteComparisonResult("userAlphaSpending", userAlphaSpending, .self$userAlphaSpending))
+			}
+			if (!identical(userBetaSpending, .self$userBetaSpending)) {
+				return(.pasteComparisonResult("userBetaSpending", userBetaSpending, .self$userBetaSpending))
+			}
+			if (!identical(twoSidedPower, .self$twoSidedPower)) {
+				return(.pasteComparisonResult("twoSidedPower", twoSidedPower, .self$twoSidedPower))
+			}
+			if (typeOfDesign == C_TYPE_OF_DESIGN_HP) {
+				if (!identical(constantBoundsHP, .self$constantBoundsHP)) {
+					return(.pasteComparisonResult("constantBoundsHP", constantBoundsHP, .self$constantBoundsHP))
 				}
 			}
 			return(FALSE)
@@ -798,9 +817,9 @@ TrialDesignConditionalDunnett <- setRefClass(
 #' @inheritParams param_alpha
 #' @param informationAtInterim The information to be expected at interim, default is \code{informationAtInterim = 0.5}.   
 #' @param secondStageConditioning The way the second stage p-values are calculated within the closed system of hypotheses.
-#' 		If \code{secondStageConditioning = FALSE} is specified, the unconditional adjusted p-values are used, otherwise 
-#'  	conditional adjusted p-values are calculated, default is \code{secondStageConditioning = TRUE} 
-#'      (for details, see Koenig et al., 2008).
+#'        If \code{secondStageConditioning = FALSE} is specified, the unconditional adjusted p-values are used, otherwise 
+#'  	  conditional adjusted p-values are calculated, default is \code{secondStageConditioning = TRUE} 
+#'        (for details, see Koenig et al., 2008).
 #'
 #' @details 
 #' For performing the conditional Dunnett test the design must be defined through this function. 
@@ -848,6 +867,7 @@ getDesignConditionalDunnett <- function(alpha = 0.025, # C_ALPHA_DEFAULT
 #' @inheritParams param_nMax
 #' @inheritParams param_plotPointsEnabled
 #' @inheritParams param_showSource
+#' @inheritParams param_plotSettings
 #' @inheritParams param_legendPosition
 #' @inheritParams param_grid
 #' @param type The plot type (default = \code{1}). The following plot types are available:
@@ -870,7 +890,7 @@ getDesignConditionalDunnett <- function(alpha = 0.025, # C_ALPHA_DEFAULT
 #' Note that \code{\link[=param_nMax]{nMax}} is not an argument that it passed to \code{ggplot2}. 
 #' Rather, the underlying calculations (e.g. power for different theta's or average sample size) are based 
 #' on calls to function \code{\link{getPowerAndAverageSampleNumber}} which has argument \code{\link[=param_nMax]{nMax}}. 
-#' I.e. \code{\link[=param_nMax]{nMax}} is not an argument to ggplot2 but to \code{\link{getPowerAndAverageSampleNumber}} 
+#' I.e., \code{\link[=param_nMax]{nMax}} is not an argument to ggplot2 but to \code{\link{getPowerAndAverageSampleNumber}} 
 #' which is called prior to plotting.
 #' 
 #' @seealso \code{\link{plot.TrialDesignSet}} to compare different designs or design parameters visual.
@@ -890,34 +910,28 @@ getDesignConditionalDunnett <- function(alpha = 0.025, # C_ALPHA_DEFAULT
 #' 
 #' @export
 #' 
-plot.TrialDesign = function(x, y, ..., main = NA_character_,
+plot.TrialDesign <- function(x, y, ..., main = NA_character_,
 		xlab = NA_character_, ylab = NA_character_, type = 1L, palette = "Set1",
 		theta = seq(-1, 1, 0.01), nMax = NA_integer_, plotPointsEnabled = NA, 
 		legendPosition = NA_integer_, showSource = FALSE, 
-		grid = 1) {
+		grid = 1, plotSettings = NULL) {
 		
 	fCall = match.call(expand.dots = FALSE)
 	designName <- deparse(fCall$x)
+	.assertIsSingleInteger(grid, "grid", validateType = FALSE)
 	typeNumbers <- .getPlotTypeNumber(type, x)
+	if (is.null(plotSettings)) {
+		plotSettings <- .getGridPlotSettings(x, typeNumbers, grid)
+	}
 	p <- NULL
 	plotList <- list()
-
-	plotSettings <- NULL
-	if (length(typeNumbers) > 3) {
-		plotSettings <- x$.plotSettings
-		if (is.null(plotSettings)) {
-			plotSettings <- PlotSettings()
-		}
-		if (plotSettings$scalingFactor == 1) {
-			plotSettings$scalingFactor <- 0.6
-		}
-	}
 	for (typeNumber in typeNumbers) {
 		p <- .plotTrialDesign(x = x, y = y, main = main,
 			xlab = xlab, ylab = ylab, type = typeNumber, palette = palette,
 			theta = theta, nMax = nMax, plotPointsEnabled = plotPointsEnabled, 
-			legendPosition = legendPosition, showSource = showSource, 
-			designName = designName, plotSettings = plotSettings, ...)
+			legendPosition = .getGridLegendPosition(legendPosition, typeNumbers, grid), 
+			showSource = showSource, designName = designName, 
+			plotSettings = plotSettings, ...)
 		.printPlotShowSourceSeparator(showSource, typeNumber, typeNumbers)
 		if (length(typeNumbers) > 1) {
 			caption <- .getPlotCaption(x, typeNumber, stopIfNotFound = TRUE)
@@ -939,7 +953,7 @@ plot.TrialDesign = function(x, y, ..., main = NA_character_,
 	return(.createPlotResultObject(plotList, grid))
 }
 
-.plotTrialDesign = function(..., x, y, main,
+.plotTrialDesign <- function(..., x, y, main,
 		xlab, ylab, type, palette,
 		theta, nMax, plotPointsEnabled, 
 		legendPosition, showSource, designName, plotSettings = NULL) {

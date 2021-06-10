@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_design_fisher_combination_test.R
-#:#  Creation date: 09 November 2020, 11:48:28
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:47:22
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -39,6 +39,12 @@ test_that("'getDesignFisher' with default parameters: parameters and results are
 	    expect_output(print(designFisher0)$show())
 	    invisible(capture.output(expect_error(summary(designFisher0), NA)))
 	    expect_output(summary(designFisher0)$show())
+	    designFisher0CodeBased <- eval(parse(text = getObjectRCode(designFisher0, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher0CodeBased$alphaSpent, designFisher0$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher0CodeBased$criticalValues, designFisher0$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher0CodeBased$stageLevels, designFisher0$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher0CodeBased$scale, designFisher0$scale, tolerance = 1e-05)
+	    expect_equal(designFisher0CodeBased$nonStochasticCurtailment, designFisher0$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 })
@@ -62,6 +68,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher1)$show())
 	    invisible(capture.output(expect_error(summary(designFisher1), NA)))
 	    expect_output(summary(designFisher1)$show())
+	    designFisher1CodeBased <- eval(parse(text = getObjectRCode(designFisher1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher1CodeBased$alphaSpent, designFisher1$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher1CodeBased$criticalValues, designFisher1$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher1CodeBased$stageLevels, designFisher1$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher1CodeBased$scale, designFisher1$scale, tolerance = 1e-05)
+	    expect_equal(designFisher1CodeBased$nonStochasticCurtailment, designFisher1$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -79,6 +91,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher2)$show())
 	    invisible(capture.output(expect_error(summary(designFisher2), NA)))
 	    expect_output(summary(designFisher2)$show())
+	    designFisher2CodeBased <- eval(parse(text = getObjectRCode(designFisher2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher2CodeBased$alphaSpent, designFisher2$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher2CodeBased$criticalValues, designFisher2$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher2CodeBased$stageLevels, designFisher2$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher2CodeBased$scale, designFisher2$scale, tolerance = 1e-05)
+	    expect_equal(designFisher2CodeBased$nonStochasticCurtailment, designFisher2$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -96,6 +114,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher3)$show())
 	    invisible(capture.output(expect_error(summary(designFisher3), NA)))
 	    expect_output(summary(designFisher3)$show())
+	    designFisher3CodeBased <- eval(parse(text = getObjectRCode(designFisher3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher3CodeBased$alphaSpent, designFisher3$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher3CodeBased$criticalValues, designFisher3$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher3CodeBased$stageLevels, designFisher3$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher3CodeBased$scale, designFisher3$scale, tolerance = 1e-05)
+	    expect_equal(designFisher3CodeBased$nonStochasticCurtailment, designFisher3$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -113,6 +137,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher4)$show())
 	    invisible(capture.output(expect_error(summary(designFisher4), NA)))
 	    expect_output(summary(designFisher4)$show())
+	    designFisher4CodeBased <- eval(parse(text = getObjectRCode(designFisher4, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher4CodeBased$alphaSpent, designFisher4$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher4CodeBased$criticalValues, designFisher4$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher4CodeBased$stageLevels, designFisher4$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher4CodeBased$scale, designFisher4$scale, tolerance = 1e-05)
+	    expect_equal(designFisher4CodeBased$nonStochasticCurtailment, designFisher4$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -130,6 +160,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher5)$show())
 	    invisible(capture.output(expect_error(summary(designFisher5), NA)))
 	    expect_output(summary(designFisher5)$show())
+	    designFisher5CodeBased <- eval(parse(text = getObjectRCode(designFisher5, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher5CodeBased$alphaSpent, designFisher5$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher5CodeBased$criticalValues, designFisher5$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher5CodeBased$stageLevels, designFisher5$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher5CodeBased$scale, designFisher5$scale, tolerance = 1e-05)
+	    expect_equal(designFisher5CodeBased$nonStochasticCurtailment, designFisher5$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -147,6 +183,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher6)$show())
 	    invisible(capture.output(expect_error(summary(designFisher6), NA)))
 	    expect_output(summary(designFisher6)$show())
+	    designFisher6CodeBased <- eval(parse(text = getObjectRCode(designFisher6, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher6CodeBased$alphaSpent, designFisher6$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher6CodeBased$criticalValues, designFisher6$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher6CodeBased$stageLevels, designFisher6$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher6CodeBased$scale, designFisher6$scale, tolerance = 1e-05)
+	    expect_equal(designFisher6CodeBased$nonStochasticCurtailment, designFisher6$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -164,6 +206,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher7)$show())
 	    invisible(capture.output(expect_error(summary(designFisher7), NA)))
 	    expect_output(summary(designFisher7)$show())
+	    designFisher7CodeBased <- eval(parse(text = getObjectRCode(designFisher7, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher7CodeBased$alphaSpent, designFisher7$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher7CodeBased$criticalValues, designFisher7$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher7CodeBased$stageLevels, designFisher7$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher7CodeBased$scale, designFisher7$scale, tolerance = 1e-05)
+	    expect_equal(designFisher7CodeBased$nonStochasticCurtailment, designFisher7$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -181,6 +229,12 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_output(print(designFisher8)$show())
 	    invisible(capture.output(expect_error(summary(designFisher8), NA)))
 	    expect_output(summary(designFisher8)$show())
+	    designFisher8CodeBased <- eval(parse(text = getObjectRCode(designFisher8, stringWrapParagraphWidth = NULL)))
+	    expect_equal(designFisher8CodeBased$alphaSpent, designFisher8$alphaSpent, tolerance = 1e-05)
+	    expect_equal(designFisher8CodeBased$criticalValues, designFisher8$criticalValues, tolerance = 1e-05)
+	    expect_equal(designFisher8CodeBased$stageLevels, designFisher8$stageLevels, tolerance = 1e-05)
+	    expect_equal(designFisher8CodeBased$scale, designFisher8$scale, tolerance = 1e-05)
+	    expect_equal(designFisher8CodeBased$nonStochasticCurtailment, designFisher8$nonStochasticCurtailment, tolerance = 1e-05)
 	}
 
 })
@@ -188,43 +242,43 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 test_that("'getDesignFisher': illegal arguments throw exceptions as expected", {
 
 	expect_error(getDesignFisher(method = C_FISHER_METHOD_USER_DEFINED_ALPHA, 
-			userAlphaSpending = c(0.01, 0.02, 0.023, 0.023, 0.025), kMax = 4), 
+		userAlphaSpending = c(0.01, 0.02, 0.023, 0.023, 0.025), kMax = 4), 
 		paste0("Conflicting arguments: length of 'userAlphaSpending' (5) ", 
-			"must be equal to 'kMax' (4)"), fixed = TRUE)
+		"must be equal to 'kMax' (4)"), fixed = TRUE)
 
 	expect_error(getDesignFisher(method = C_FISHER_METHOD_USER_DEFINED_ALPHA, 
-			userAlphaSpending = c(0.01, 0.02, 0.025), informationRates = c(0.5, 1)),
+		userAlphaSpending = c(0.01, 0.02, 0.025), informationRates = c(0.5, 1)),
 		paste0("Conflicting arguments: length of 'userAlphaSpending' (3) ", 
-			"must be equal to length of 'informationRates' (2)"), fixed = TRUE)
+		"must be equal to length of 'informationRates' (2)"), fixed = TRUE)
 
 	expect_error(getDesignFisher(method = C_FISHER_METHOD_USER_DEFINED_ALPHA, 
-			userAlphaSpending = c(0.01, 0.02, 0.025), informationRates = c(0.4, 1)),
+		userAlphaSpending = c(0.01, 0.02, 0.025), informationRates = c(0.4, 1)),
 		paste0("Conflicting arguments: length of 'userAlphaSpending' (3) ", 
-			"must be equal to length of 'informationRates' (2)"), fixed = TRUE)
+		"must be equal to length of 'informationRates' (2)"), fixed = TRUE)
 
 	expect_error(getDesignFisher(method = C_FISHER_METHOD_USER_DEFINED_ALPHA, 
-			userAlphaSpending = c(0.01, 0.02, 0.023, 0.023, 0.021)),
+		userAlphaSpending = c(0.01, 0.02, 0.023, 0.023, 0.021)),
 		paste0("'userAlphaSpending' = c(0.01, 0.02, 0.023, 0.023, 0.021) must be a vector that ", 
-			"satisfies the following condition: 0 <= alpha_1 <= .. <= alpha_5 <= alpha = 0.021"), fixed = TRUE)
+		"satisfies the following condition: 0 <= alpha_1 <= .. <= alpha_5 <= alpha = 0.021"), fixed = TRUE)
 
 	expect_error(getDesignFisher(method = C_FISHER_METHOD_USER_DEFINED_ALPHA, 
-			userAlphaSpending = c(0.01, 0.02, 0.023), alpha = 0.02),
+		userAlphaSpending = c(0.01, 0.02, 0.023), alpha = 0.02),
 		paste0("'userAlphaSpending' = c(0.01, 0.02, 0.023) must be a vector that ", 
-			"satisfies the following condition: 0 <= alpha_1 <= .. <= alpha_3 <= alpha = 0.02"), fixed = TRUE)
+		"satisfies the following condition: 0 <= alpha_1 <= .. <= alpha_3 <= alpha = 0.02"), fixed = TRUE)
 
 	expect_equal(getDesignFisher(method = C_FISHER_METHOD_USER_DEFINED_ALPHA, 
-			userAlphaSpending = c(0.01, 0.02, 0.023))$alpha, 0.023)
+		userAlphaSpending = c(0.01, 0.02, 0.023))$alpha, 0.023)
 
 	expect_error(getDesignFisher(method = C_FISHER_METHOD_USER_DEFINED_ALPHA), 
 		"Missing argument: parameter 'userAlphaSpending' must be specified in design", fixed = TRUE)
 
 	expect_error(getDesignFisher(kMax = Inf), 
 		paste0("Argument out of bounds: 'kMax' (Inf) is out of bounds [1; ", 
-			C_KMAX_UPPER_BOUND_FISHER, "]"), fixed = TRUE)
+		C_KMAX_UPPER_BOUND_FISHER, "]"), fixed = TRUE)
 
 	expect_error(getDesignFisher(kMax = -Inf), 
 		paste0("Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; ", 
-			C_KMAX_UPPER_BOUND_FISHER, "]"), fixed = TRUE)
+		C_KMAX_UPPER_BOUND_FISHER, "]"), fixed = TRUE)
 
 	expect_error(getDesignFisher(kMax = -Inf), "Argument out of bounds: 'kMax' (-Inf) is out of bounds [1; 6]", fixed = TRUE)
 	expect_error(getDesignFisher(kMax = -10), "Argument out of bounds: 'kMax' (-10) is out of bounds [1; 6]", fixed = TRUE)

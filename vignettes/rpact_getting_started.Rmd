@@ -40,7 +40,7 @@ Confirmatory Adaptive Clinical Trial Design, Simulation, and Analysis.
 
 We recommend three ways to learn how to use `rpact`:
 
-> 1. Use the Shiny app: [shiny.rpact.com](https://rpact.shinyapps.io/public)
+> 1. Use the Shiny app: [shiny.rpact.com](https://www.rpact.com/shiny)
 > 2. Use the Vignettes:
 >    [www.rpact.org/vignettes](https://www.rpact.org/vignettes)
 > 3. Book a training: [www.rpact.com](https://www.rpact.com/services/training)

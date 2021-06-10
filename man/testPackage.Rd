@@ -9,7 +9,7 @@ testPackage(
   ...,
   completeUnitTestSetEnabled = TRUE,
   types = "tests",
-  sourceDirectory = NULL
+  connection = list(token = NULL, secret = NULL)
 )
 }
 \arguments{
@@ -25,7 +25,9 @@ be executed; a subset of all unit tests will be used otherwise.}
 \item{types}{The type(s) of tests to be done. Can be one or more of
 \code{c("tests", "examples", "vignettes")}, default is "tests" only.}
 
-\item{sourceDirectory}{An optional directory to look for \code{.save} files.}
+\item{connection}{A \code{list} where owners of the rpact validation documentation 
+can enter a \code{token} and a \code{secret} to get full access to all unit tests, e.g.,  
+to fulfill regulatory requirements (see \href{https://www.rpact.com}{www.rpact.com} for more information).}
 }
 \value{
 The value of \code{completeUnitTestSetEnabled} will be returned invisible.

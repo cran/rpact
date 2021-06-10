@@ -7,7 +7,7 @@
 getPowerRates(
   design = NULL,
   ...,
-  groups = 2,
+  groups = 2L,
   riskRatio = FALSE,
   thetaH0 = ifelse(riskRatio, 1, 0),
   pi1 = seq(0.2, 0.5, 0.1),

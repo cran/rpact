@@ -38,9 +38,9 @@ that a warning will be displayed if unknown arguments are passed.}
 \item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
 \item{normalApproximation}{The type of computation of the p-values. Default is \code{TRUE}, 
-   i.e., normally distributed test statistics are generated.
+i.e., normally distributed test statistics are generated.
 If \code{FALSE}, the t test is used for calculating the p-values, 
-   i.e., t distributed test statistics are generated.}
+i.e., t distributed test statistics are generated.}
 
 \item{meanRatio}{If \code{TRUE}, the design characteristics for 
 one-sided testing of H0: \code{mu1 / mu2 = thetaH0} are simulated, default is \code{FALSE}.}
@@ -60,15 +60,17 @@ That is, in case of (one-sided) testing of
 For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be specified for 
 defining the null hypothesis H0: \code{pi = thetaH0}.}
 
-\item{alternative}{The alternative hypothesis value for testing means. This can be a vector of assumed 
-alternatives, default is \code{seq(0, 1, 0.2)}.}
+\item{alternative}{The alternative hypothesis value for testing means under which the data is simulated. 
+This can be a vector of assumed alternatives, default is \code{seq(0, 1, 0.2)}.}
 
 \item{stDev}{The standard deviation under which the data is simulated, 
-default is \code{1}.}
+default is \code{1}. 
+If \code{meanRatio = TRUE} is specified, \code{stDev} defines 
+the coefficient of variation \code{sigma / mu2}.}
 
 \item{plannedSubjects}{\code{plannedSubjects} is a vector of length \code{kMax} (the number of stages of the design) 
-   that determines the number of cumulated (overall) subjects when the interim stages are planned.
-   For two treatment arms, it is the number of subjects for both treatment arms. 
+that determines the number of cumulated (overall) subjects when the interim stages are planned.
+For two treatment arms, it is the number of subjects for both treatment arms. 
 For multi-arm designs, \code{plannedSubjects} refers to the number of subjects per selected active arm.}
 
 \item{directionUpper}{Specifies the direction of the alternative, 
@@ -86,7 +88,7 @@ For multi-arm designs \code{minNumberOfSubjectsPerStage} refers
 to the minimum number of subjects per selected active arm.}
 
 \item{maxNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation, 
-   the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
+the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
 of subjects per stage (i.e., not cumulated), the first element is not taken into account.
 For two treatment arms, it is the number of subjects for both treatment arms. 
 For multi-arm designs \code{maxNumberOfSubjectsPerStage} refers
@@ -193,12 +195,12 @@ object as \code{\link[base]{data.frame}}. The data frame contains the following 
   \item \code{testStatistic}: The test statistic that is used for the test decision, 
         depends on which design was chosen (group sequential, inverse normal, or Fisher's combination test).  
   \item \code{testStatisticsPerStage}: The test statistic for each stage if only data from
-			the considered stage is taken into account.
+        the considered stage is taken into account.
   \item \code{effectEstimate}: Overall simulated standardized effect estimate. 
   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-			selected sample size and effect. The effect is either estimated from the data or can be
-			user defined with \code{thetaH1}.   
+        selected sample size and effect. The effect is either estimated from the data or can be
+        user defined with \code{thetaH1}.   
 }
 }
 

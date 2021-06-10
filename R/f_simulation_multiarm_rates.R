@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4064 $
-#:#  Last changed: $Date: 2020-12-01 17:20:16 +0100 (Tue, 01 Dec 2020) $
+#:#  File version: $Revision: 4947 $
+#:#  Last changed: $Date: 2021-05-31 14:31:17 +0200 (Mo, 31 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -194,10 +194,10 @@ NULL
 			if (adaptations[k]) {
 
 				if (effectMeasure == "testStatistic") {
-					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallTestStatistics[, k] + runif(gMax, -1E-5, 1E-5), 
+					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(k, overallTestStatistics[, k] + runif(gMax, -1E-5, 1E-5), 
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))				
 				} else if (effectMeasure == "effectEstimate") {
-					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(overallEffectSizes[, k] + runif(gMax, -1E-5, 1E-5),
+					selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(k, overallEffectSizes[, k] + runif(gMax, -1E-5, 1E-5),
 						typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction))
 				}
 				
@@ -302,7 +302,7 @@ NULL
 #'        under which the sample size recalculation is performed.
 #' @param piControlH1 If specified, the assumed probability in the reference group 
 #'        (if different from \code{piControl}) for which the conditional power was calculated.  
-#' @inheritParams param_intersectionTest 
+#' @inheritParams param_intersectionTest_MultiArm 
 #' @inheritParams param_typeOfSelection
 #' @inheritParams param_effectMeasure 
 #' @inheritParams param_adaptations
@@ -399,16 +399,16 @@ getSimulationMultiArmRates <- function(
 		showStatistics              = FALSE) {
 		
 	if (is.null(design)) {
-		design <- .getDefaultDesign(..., type = "simulation", multiArmEnabled = TRUE)
+		design <- .getDefaultDesign(..., type = "simulation")
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmRates", 
-			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, multiArmEnabled = TRUE), "showStatistics"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "showStatistics"), ...)
 	} else {
 		.assertIsTrialDesignInverseNormalOrFisherOrConditionalDunnett(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationMultiArmRates", ignore = "showStatistics", ...)
 		.warnInCaseOfTwoSidedPowerArgument(...)
 	}	
 	
-	.assertIsOneSidedDesign(design)
+	.assertIsOneSidedDesign(design, designType = "multi-arm", engineType = "simulation")
 	
 	calcSubjectsFunctionIsUserDefined <- !is.null(calcSubjectsFunction) 
 	
@@ -509,26 +509,26 @@ getSimulationMultiArmRates <- function(
 	for (i in 1:cols) {
 		for (j in 1:maxNumberOfIterations) { 
 			stageResults <- .getSimulatedStageRatesMultiArm(
-					design = design,
-					directionUpper = directionUpper,
-					piVector = effectMatrix[i, ], 
-					piControl = piControl, 
-					plannedSubjects = plannedSubjects, 
-					typeOfSelection = typeOfSelection, 
-					effectMeasure = effectMeasure, 
-					adaptations = adaptations, 
-					epsilonValue = epsilonValue, 
-					rValue = rValue, 
-					threshold = threshold, 
-					allocationRatioPlanned = allocationRatioPlanned,
-					minNumberOfSubjectsPerStage = minNumberOfSubjectsPerStage, 
-					maxNumberOfSubjectsPerStage = maxNumberOfSubjectsPerStage, 
-					conditionalPower = conditionalPower, 
-					piH1  = piH1, 
-					piControlH1 = piControlH1,
-					calcSubjectsFunction = calcSubjectsFunction, 
-					calcSubjectsFunctionIsUserDefined = calcSubjectsFunctionIsUserDefined,
-					selectArmsFunction = selectArmsFunction)
+				design = design,
+				directionUpper = directionUpper,
+				piVector = effectMatrix[i, ], 
+				piControl = piControl, 
+				plannedSubjects = plannedSubjects, 
+				typeOfSelection = typeOfSelection, 
+				effectMeasure = effectMeasure, 
+				adaptations = adaptations, 
+				epsilonValue = epsilonValue, 
+				rValue = rValue, 
+				threshold = threshold, 
+				allocationRatioPlanned = allocationRatioPlanned,
+				minNumberOfSubjectsPerStage = minNumberOfSubjectsPerStage, 
+				maxNumberOfSubjectsPerStage = maxNumberOfSubjectsPerStage, 
+				conditionalPower = conditionalPower, 
+				piH1  = piH1, 
+				piControlH1 = piControlH1,
+				calcSubjectsFunction = calcSubjectsFunction, 
+				calcSubjectsFunctionIsUserDefined = calcSubjectsFunctionIsUserDefined,
+				selectArmsFunction = selectArmsFunction)
 			
 			if (.isTrialDesignConditionalDunnett(design)) {
 				closedTest <- .performClosedConditionalDunnettTestForSimulation(stageResults = stageResults, 

@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_design_utilities.R
-#:#  Creation date: 09 November 2020, 11:48:58
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:47:56
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -248,7 +248,7 @@ test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	piecewiseLambda <- c(0.003, 0.003, 0.003)
 	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
-			piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda, kappa = 1))
+		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda, kappa = 1))
 	expect_equal(y, piecewiseLambda[1], tolerance = 5e-04)
 
 })
@@ -274,7 +274,7 @@ test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers
 		"16 - <22" = 0.003, 
 		">=22"      = 0.003)
 	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
-			piecewiseSurvivalTime = piecewiseSurvivalTime, kappa = 1))
+		piecewiseSurvivalTime = piecewiseSurvivalTime, kappa = 1))
 
 	expect_equal(y, 0.003, tolerance = 5e-04)
 

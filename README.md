@@ -18,6 +18,10 @@ Confirmatory Adaptive Clinical Trial Design, Simulation, and Analysis.
       - Assessment of treatment selection strategies in multi-arm trials
   - Adaptive analysis of means, rates, and survival data
   - Adaptive designs and analysis for multi-arm trials
+  - Adaptive analysis tools for enrichment design testing means, rates,
+    and hazard ratios
+  - Automatic boundary recalculations during the trial for analysis with
+    alpha spending approach, including under- and over-running
 
 ## Installation
 
@@ -34,6 +38,15 @@ The documentation is hosted at <https://www.rpact.org>
 ## Vignettes
 
 The vignettes are hosted at <https://www.rpact.org/vignettes>
+
+## The rpact user group
+
+The *rpact project* has an active user group consisting of
+decision-makers and users from the pharmaceutical industry and CROs, who
+meet regularly and, e.g., discuss best practices.
+
+We invite you to be part of the *rpact user group*: benefit from
+know-how, shape open source development in Pharma\!
 
 ## Use on corporate computer systems
 

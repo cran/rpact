@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4237 $
-#:#  Last changed: $Date: 2021-01-21 16:48:14 +0100 (Thu, 21 Jan 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4981 $
+#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 #' @include class_simulation_results.R
@@ -176,8 +176,8 @@ NULL
 #'         log-rank statistic.
 #'   \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
 #'   \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
-#' 			selected sample size and effect. The effect is either estimated from the data or can be
-#' 			user defined with \code{thetaH1}.   
+#'         selected sample size and effect. The effect is either estimated from the data or can be
+#'         user defined with \code{thetaH1}.   
 #' }
 #' 
 #' @section Raw Data:
@@ -251,7 +251,7 @@ getSimulationSurvival <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "simulation")
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationSurvival", 
-			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "showStatistics"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "showStatistics"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSimulationSurvival", ignore = "showStatistics", ...)
@@ -299,7 +299,8 @@ getSimulationSurvival <- function(design = NULL, ...,
 			"because 'lambda2' (", .arrayToString(lambda2), ") is defined separately")
 	}
 	
-	thetaH1 <- .ignoreParameterIfNotUsed("thetaH1", thetaH1, design$kMax > 1, "design is fixed ('kMax' = 1)", "Assumed effect")
+	thetaH1 <- .ignoreParameterIfNotUsed("thetaH1", thetaH1, design$kMax > 1, 
+		"design is fixed ('kMax' = 1)", "Assumed effect")
 	if (is.na(conditionalPower) && !is.na(thetaH1)) {
 		warning("'thetaH1' will be ignored because 'conditionalPower' is not defined", call. = FALSE)	
 	}
@@ -412,8 +413,6 @@ getSimulationSurvival <- function(design = NULL, ...,
 			numberOfResults <- length(simulationResults$hazardRatio)
 			lambdaVec1 <- simulationResults$lambda2 * pwsTimeObject$hazardRatio
 		} else {
-			.setValueAndParameterType(simulationResults, "hazardRatio", 
-				pwsTimeObject$hazardRatio, NA_real_)
 			numberOfResults <- 1
 			lambdaVec1 <- pwsTimeObject$lambda1
 		}

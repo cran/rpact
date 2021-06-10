@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_multiarm_means.R
-#:#  Creation date: 09 November 2020, 11:45:48
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:44:19
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -112,6 +112,14 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_output(print(results1)$show())
 	    invisible(capture.output(expect_error(summary(results1), NA)))
 	    expect_output(summary(results1)$show())
+	    results1CodeBased <- eval(parse(text = getObjectRCode(results1, stringWrapParagraphWidth = NULL)))
+	    expect_equal(results1CodeBased$thetaH1, results1$thetaH1, tolerance = 1e-05)
+	    expect_equal(results1CodeBased$assumedStDevs, results1$assumedStDevs, tolerance = 1e-05)
+	    expect_equal(results1CodeBased$conditionalRejectionProbabilities, results1$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(results1CodeBased$conditionalPower, results1$conditionalPower, tolerance = 1e-05)
+	    expect_equal(results1CodeBased$repeatedConfidenceIntervalLowerBounds, results1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(results1CodeBased$repeatedConfidenceIntervalUpperBounds, results1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(results1CodeBased$repeatedPValues, results1$repeatedPValues, tolerance = 1e-05)
 	}
 
 	.skipTestIfDisabled()
@@ -165,6 +173,14 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_output(print(results2)$show())
 	    invisible(capture.output(expect_error(summary(results2), NA)))
 	    expect_output(summary(results2)$show())
+	    results2CodeBased <- eval(parse(text = getObjectRCode(results2, stringWrapParagraphWidth = NULL)))
+	    expect_equal(results2CodeBased$thetaH1, results2$thetaH1, tolerance = 1e-05)
+	    expect_equal(results2CodeBased$assumedStDevs, results2$assumedStDevs, tolerance = 1e-05)
+	    expect_equal(results2CodeBased$conditionalRejectionProbabilities, results2$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(results2CodeBased$repeatedConfidenceIntervalLowerBounds, results2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(results2CodeBased$repeatedConfidenceIntervalUpperBounds, results2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(results2CodeBased$repeatedPValues, results2$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(results2CodeBased$conditionalPowerSimulated, results2$conditionalPowerSimulated, tolerance = 1e-05)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -216,6 +232,14 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_output(print(results3)$show())
 	    invisible(capture.output(expect_error(summary(results3), NA)))
 	    expect_output(summary(results3)$show())
+	    results3CodeBased <- eval(parse(text = getObjectRCode(results3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(results3CodeBased$thetaH1, results3$thetaH1, tolerance = 1e-05)
+	    expect_equal(results3CodeBased$assumedStDevs, results3$assumedStDevs, tolerance = 1e-05)
+	    expect_equal(results3CodeBased$conditionalRejectionProbabilities, results3$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(results3CodeBased$conditionalPower, results3$conditionalPower, tolerance = 1e-05)
+	    expect_equal(results3CodeBased$repeatedConfidenceIntervalLowerBounds, results3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(results3CodeBased$repeatedConfidenceIntervalUpperBounds, results3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(results3CodeBased$repeatedPValues, results3$repeatedPValues, tolerance = 1e-05)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -267,6 +291,14 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_output(print(results4)$show())
 	    invisible(capture.output(expect_error(summary(results4), NA)))
 	    expect_output(summary(results4)$show())
+	    results4CodeBased <- eval(parse(text = getObjectRCode(results4, stringWrapParagraphWidth = NULL)))
+	    expect_equal(results4CodeBased$thetaH1, results4$thetaH1, tolerance = 1e-05)
+	    expect_equal(results4CodeBased$assumedStDevs, results4$assumedStDevs, tolerance = 1e-05)
+	    expect_equal(results4CodeBased$conditionalRejectionProbabilities, results4$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(results4CodeBased$conditionalPower, results4$conditionalPower, tolerance = 1e-05)
+	    expect_equal(results4CodeBased$repeatedConfidenceIntervalLowerBounds, results4$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(results4CodeBased$repeatedConfidenceIntervalUpperBounds, results4$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(results4CodeBased$repeatedPValues, results4$repeatedPValues, tolerance = 1e-05)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -318,6 +350,14 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_output(print(results5)$show())
 	    invisible(capture.output(expect_error(summary(results5), NA)))
 	    expect_output(summary(results5)$show())
+	    results5CodeBased <- eval(parse(text = getObjectRCode(results5, stringWrapParagraphWidth = NULL)))
+	    expect_equal(results5CodeBased$thetaH1, results5$thetaH1, tolerance = 1e-05)
+	    expect_equal(results5CodeBased$assumedStDevs, results5$assumedStDevs, tolerance = 1e-05)
+	    expect_equal(results5CodeBased$conditionalRejectionProbabilities, results5$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(results5CodeBased$repeatedConfidenceIntervalLowerBounds, results5$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(results5CodeBased$repeatedConfidenceIntervalUpperBounds, results5$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(results5CodeBased$repeatedPValues, results5$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(results5CodeBased$conditionalPowerSimulated, results5$conditionalPowerSimulated, tolerance = 1e-05)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -369,6 +409,14 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_output(print(results6)$show())
 	    invisible(capture.output(expect_error(summary(results6), NA)))
 	    expect_output(summary(results6)$show())
+	    results6CodeBased <- eval(parse(text = getObjectRCode(results6, stringWrapParagraphWidth = NULL)))
+	    expect_equal(results6CodeBased$thetaH1, results6$thetaH1, tolerance = 1e-05)
+	    expect_equal(results6CodeBased$assumedStDevs, results6$assumedStDevs, tolerance = 1e-05)
+	    expect_equal(results6CodeBased$conditionalRejectionProbabilities, results6$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(results6CodeBased$conditionalPower, results6$conditionalPower, tolerance = 1e-05)
+	    expect_equal(results6CodeBased$repeatedConfidenceIntervalLowerBounds, results6$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(results6CodeBased$repeatedConfidenceIntervalUpperBounds, results6$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(results6CodeBased$repeatedPValues, results6$repeatedPValues, tolerance = 1e-05)
 	}
 
 })

@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3635 $
-#:#  Last changed: $Date: 2020-09-14 13:31:28 +0200 (Mon, 14 Sep 2020) $
+#:#  File version: $Revision: 4878 $
+#:#  Last changed: $Date: 2021-05-17 17:39:11 +0200 (Mon, 17 May 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -423,14 +423,14 @@ NULL
 #'
 #' @inheritParams param_kMax
 #' @inheritParams param_alpha
-#' @inheritParams param_sided
 #' @param method \code{"equalAlpha"}, \code{"fullAlpha"}, \code{"noInteraction"}, or \code{"userDefinedAlpha"}, 
 #' default is \code{"equalAlpha"} (for details, see Wassmer, 1999).
 #' @inheritParams param_userAlphaSpending
 #' @param alpha0Vec Stopping for futility bounds for stage-wise p-values.
-#' @param bindingFutility If \code{bindingFutility = TRUE} is specified the calculation of 
-#'   the critical values is affected by the futility bounds (default is \code{TRUE}).
 #' @inheritParams param_informationRates
+#' @inheritParams param_sided
+#' @param bindingFutility If \code{bindingFutility = TRUE} is specified the calculation of 
+#'        the critical values is affected by the futility bounds (default is \code{TRUE}).
 #' @param tolerance The numerical tolerance, default is \code{1e-14}.
 #' @param iterations The number of simulation iterations, e.g.,
 #'        \code{getDesignFisher(iterations = 100000)} checks the validity of the critical values for the default design. 
@@ -531,6 +531,8 @@ getDesignFisher <- function(...,
 		
 	method <- .matchArgument(method, C_FISHER_METHOD_DEFAULT)
 	
+	.assertIsNumericVector(alpha0Vec, "alpha0Vec", naAllowed = TRUE)
+	
 	if (.isDefinedArgument(kMax, argumentExistsValidationEnabled = userFunctionCallEnabled)) {
 		.assertIsValidKMax(kMax, kMaxUpperBound = C_KMAX_UPPER_BOUND_FISHER)
 		
@@ -543,11 +545,15 @@ getDesignFisher <- function(...,
 		sided <- as.integer(sided)
 	}
 	
+	if (sided != 1) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Fisher's combination test only available for one-sided testing")
+	}
+	
 	if (is.na(bindingFutility)) {
 		bindingFutility <- C_BINDING_FUTILITY_FISHER_DEFAULT
 	} else if (userFunctionCallEnabled && 
-			((!is.na(kMax) && kMax == 1) || (!any(is.na(alpha0Vec)) &&
-			all(alpha0Vec == C_ALPHA_0_VEC_DEFAULT)))) {
+			((!is.na(kMax) && kMax == 1) || 
+			(!any(is.na(alpha0Vec)) && all(alpha0Vec == C_ALPHA_0_VEC_DEFAULT)))) {
 		warning("'bindingFutility' (", bindingFutility, ") will be ignored", call. = FALSE)
 	}
 	
@@ -636,6 +642,13 @@ getDesignFisher <- function(...,
 		alpha0Vec <- rep(1, design$kMax - 1)
 	}
 	
+	if (design$method == C_FISHER_METHOD_NO_INTERACTION && !any(is.na(alpha0Vec)) && 
+		all(alpha0Vec == C_ALPHA_0_VEC_DEFAULT)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"for specified 'method' (\"", C_FISHER_METHOD_NO_INTERACTION, 
+			"\") the 'alpha0Vec' must be unequal to ", .arrayToString(alpha0Vec, vectorLookAndFeelEnabled = TRUE))
+	}
+	
 	design$.setParameterType("stageLevels", C_PARAM_GENERATED)
 	design$.setParameterType("alphaSpent", C_PARAM_GENERATED)
 	design$.setParameterType("nonStochasticCurtailment", C_PARAM_GENERATED)
@@ -711,7 +724,7 @@ getDesignFisher <- function(...,
 						callingFunctionInformation = ".getDesignFisher"
 					)
 					design$criticalValues[1] <- alpha1
-					for (k in ((kMax - 1): 2)) {
+					for (k in (design$kMax - 1):2) {
 						design$criticalValues[k] <- design$criticalValues[k + 1] / design$alpha0Vec[k]^(1/design$scale[k])
 					}
 				}
@@ -750,40 +763,40 @@ getDesignFisher <- function(...,
 			)		
 			design$nonStochasticCurtailment <- TRUE
 		}
-		
-		if (userFunctionCallEnabled) {	
-			if (design$method == C_FISHER_METHOD_NO_INTERACTION && abs(size - design$alpha) > 1e-03) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'numerical overflow in computation routine')
-			}
-			
-			if (design$method == C_FISHER_METHOD_EQUAL_ALPHA && 
-					abs(mean(design$stageLevels) - design$stageLevels[1]) > 1e-03) {
-					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'numerical overflow in computation routine')
-			}
-			
-			if (design$kMax > 1) {
-				if (any(design$criticalValues[2:design$kMax] - 
-						design$criticalValues[1:(design$kMax - 1)] > 1e-12)) {
-					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'no calculation possible')
-				} 
-				
-				if (any(design$stageLevels[1:(design$kMax - 1)] > design$alpha)) {
-					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-						"'alpha' (", design$alpha, ") not correctly specified")
-				} 
-			}
-			
-			if (design$method == C_FISHER_METHOD_USER_DEFINED_ALPHA) {
-				if (any(abs(design$alphaSpent - design$userAlphaSpending) > 1e-05)) {
-					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "no calculation possible or ",
-						"'alpha' (", design$alpha, ") not correctly specified")
-				}
-			}
-		}
-		
 	}, error = function(e) {
 		warning("Output may be wrong because an error occured: ", e$message, call. = FALSE)
 	})
+	
+	if (userFunctionCallEnabled) {	
+		if (design$method == C_FISHER_METHOD_NO_INTERACTION && abs(size - design$alpha) > 1e-03) {
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'numerical overflow in computation routine')
+		}
+		
+		if (design$method == C_FISHER_METHOD_EQUAL_ALPHA && !all(is.na(design$stageLevels)) &&
+				abs(mean(na.omit(design$stageLevels)) - design$stageLevels[1]) > 1e-03) {
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'numerical overflow in computation routine')
+		}
+		
+		if (design$kMax > 1) {
+			if (any(na.omit(design$criticalValues[2:design$kMax] - 
+					design$criticalValues[1:(design$kMax - 1)]) > 1e-12)) {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 'no calculation possible')
+			} 
+			
+			if (!all(is.na(design$stageLevels)) && any(na.omit(design$stageLevels[1:(design$kMax - 1)]) > design$alpha)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+					"'alpha' (", design$alpha, ") not correctly specified")
+			} 
+		}
+		
+		if (design$method == C_FISHER_METHOD_USER_DEFINED_ALPHA) {
+			if (any(abs(design$alphaSpent - design$userAlphaSpending) > 1e-05)) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+					"'alpha' (", design$alpha, ") or 'userAlphaSpending' (", 
+					.arrayToString(design$userAlphaSpending), ") not correctly specified")
+			}
+		}
+	}
 	
 	design$.setParameterType("simAlpha", C_PARAM_NOT_APPLICABLE)
 	design$simAlpha <- NA_real_

@@ -49,7 +49,7 @@ of the shape of the Weibull distribution.
 Default is \code{1}, i.e., the exponential survival distribution is used instead of the Weibull distribution.
 Note that the Weibull distribution cannot be used for the piecewise definition of 
 the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa} 
-   can be specified.
+can be specified.
 This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)} 
 of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
 For example, 
@@ -67,7 +67,7 @@ and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample r
 \item{n}{Number of observations.}
 }
 \value{
-Returns a \code{\link[base]{numeric}} value or vector will be returned.
+A \code{\link[base]{numeric}} value or vector will be returned.
 }
 \description{
 Distribution function, quantile function and random number generation for the 

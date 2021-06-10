@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4166 $
-#:#  Last changed: $Date: 2021-01-05 13:42:19 +0100 (Tue, 05 Jan 2021) $
+#:#  File version: $Revision: 4885 $
+#:#  Last changed: $Date: 2021-05-18 16:49:59 +0200 (Di, 18 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1402,7 +1402,7 @@ AccrualTime <- setRefClass("AccrualTime",
 					numberOfSubjects <- numberOfSubjects + 
 						(accrualTime[i + 1] - accrualTime[i]) * accrualIntensity[i]
 				}
-			}
+			}		
 			if (!isTRUE(all.equal(numberOfSubjects, maxNumberOfSubjects, tolerance = 1e-03)) && 
 					absoluteAccrualIntensityEnabled) {
 				stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
@@ -1418,7 +1418,7 @@ AccrualTime <- setRefClass("AccrualTime",
 				!absoluteAccrualIntensityEnabled) {
 				caseIsAllowed <- FALSE
 			} else if (!endOfAccrualIsUserDefined && !maxNumberOfSubjectsIsUserDefined && 
-				followUpTimeMustBeUserDefined && !absoluteAccrualIntensityEnabled) {
+					followUpTimeMustBeUserDefined && !absoluteAccrualIntensityEnabled) {
 				caseIsAllowed <- FALSE
 			}
 			if (!caseIsAllowed) {
@@ -1915,32 +1915,36 @@ AccrualTime <- setRefClass("AccrualTime",
 					.setParameterType("remainingTime", C_PARAM_USER_DEFINED)
 				} else if (length(accrualTime) > 1) {
 					sampleSize <- .getSampleSize()
-					if (length(maxNumberOfSubjects) > 0 && !is.na(maxNumberOfSubjects) && 
-							maxNumberOfSubjects > 0 && maxNumberOfSubjects < sampleSize) {
-						if (length(accrualIntensity) == 1) {
-							.setParameterType("maxNumberOfSubjects", C_PARAM_USER_DEFINED)
-							accrualTime <<- 0
-							.calculateRemainingTime()
-						} else {
-							if (length(accrualTime) == length(accrualIntensity) + 1 && 
-									absoluteAccrualIntensityEnabled) {
-								stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-									"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") disagrees with ",
-									"the defined accrual time and intensity: ",
-									.getFormula(), " = ", sampleSize)
+					if (!isTRUE(all.equal(sampleSize, maxNumberOfSubjects, tolerance = 1e-04))) {
+						if (length(maxNumberOfSubjects) == 1 && !is.na(maxNumberOfSubjects) && 
+								maxNumberOfSubjects > 0 && maxNumberOfSubjects < sampleSize) {
+							if (length(accrualIntensity) == 1 && length(accrualTime) == 1) {
+								.setParameterType("maxNumberOfSubjects", C_PARAM_USER_DEFINED)
+								accrualTime <<- 0
+								.calculateRemainingTime()
 							} else {
-								stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjects' (", 
-									maxNumberOfSubjects, ") ", "must be >= ", sampleSize)
+								if (length(accrualTime) == length(accrualIntensity) + 1 && 
+										absoluteAccrualIntensityEnabled) {
+									stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+										"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") disagrees with ",
+										"the defined accrual time and intensity: ",
+										.getFormula(), " = ", sampleSize)
+								} else {
+									stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjects' (", 
+										maxNumberOfSubjects, ") ", "must be >= ", sampleSize)
+								}
 							}
-						}
-					} else {
-						if ((length(maxNumberOfSubjects) != 1 || is.na(maxNumberOfSubjects)) &&
+						} else {
+							if ((length(maxNumberOfSubjects) != 1 || is.na(maxNumberOfSubjects)) &&
 								absoluteAccrualIntensityEnabled) {
-							maxNumberOfSubjects <<- sampleSize
-							.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
+								maxNumberOfSubjects <<- sampleSize
+								.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
+							}
+							remainingTime <<- accrualTime[length(accrualTime)] - accrualTime[length(accrualTime) - 1]
+							.setParameterType("remainingTime", 
+								ifelse(!isTRUE(all.equal(0, remainingTime, tolerance = 1e-06)), 
+									C_PARAM_GENERATED, C_PARAM_NOT_APPLICABLE))
 						}
-						remainingTime <<- accrualTime[length(accrualTime)] - accrualTime[length(accrualTime) - 1]
-						.setParameterType("remainingTime", C_PARAM_GENERATED)
 					}
 				}
 			}
@@ -1985,6 +1989,9 @@ AccrualTime <- setRefClass("AccrualTime",
 				return(0)
 			}
 			
+			accrualTimeTemp <- accrualTime
+			accrualIntensityTemp <- accrualIntensity
+			
 			sampleSize <- 0
 			for (i in 2:length(accrualTime)) {
 				time <- accrualTime[i] - accrualTime[i - 1]
@@ -1992,71 +1999,81 @@ AccrualTime <- setRefClass("AccrualTime",
 				if (sampleSize >= maxNumberOfSubjects && 
 						length(accrualTime) == length(accrualIntensity)) {
 					
+					if (sampleSize > maxNumberOfSubjects) {
+						accrualTime <<- accrualTime[1:(i - 1)]
+					}
+
 					i2 <- i
 					if (length(accrualTime) == length(accrualIntensity) + 1) {
 						i2 <- i - 1
 					}
-					
-					if (.showWarnings) {
-						
-						n1 <- length(accrualTime) - i + 1
-						if (length(accrualTime) == length(accrualIntensity)) {
-							n1 <- n1 - 1
-						}
-						
-						if (n1 == 1) {
-							warning("Last accrual time value (", 
-								accrualTime[length(accrualTime)], ") ignored", call. = FALSE)
-						} else if (n1 > 1) {
-							warning("Last ", n1, " accrual time values (", 
-								.arrayToString(accrualTime[(length(accrualTime) - n1 + 1):length(accrualTime)]), 
-								") ignored", call. = FALSE)
-						}
-						
-						n2 <- length(accrualIntensity) - i2 + 1
-						if (n2 == 1) {
-							warning("Last accrual intensity value (", 
-								accrualIntensity[length(accrualIntensity)], ") ignored", call. = FALSE)
-						} else if (n2 > 1) {
-							warning("Last ", n2, " accrual intensity values (", 
-								.arrayToString(accrualIntensity[i2:length(accrualIntensity)]), 
-								") ignored", call. = FALSE)
-						}
-					}
-					accrualTime <<- accrualTime[1:(i - 1)]
 					accrualIntensity <<- accrualIntensity[1:(i2 - 1)]
+					
+					while (length(accrualTime) > length(accrualIntensity) + 1) {
+						accrualTime <<- accrualTime[1:(length(accrualTime) - 1)]
+					}
+					
 					sampleSize <- 0
 					if (length(accrualTime) > 1) {
 						sampleSize <- .getSampleSize()
 					}
+					
+					if (.showWarnings) {
+						n1 <- length(accrualTimeTemp) - length(accrualTime)
+						n2 <- length(accrualIntensityTemp) - length(accrualIntensity)
+						
+						if (n1 == 1) {
+							warning("Last accrual time value (", 
+								accrualTimeTemp[length(accrualTimeTemp)], ") ignored", call. = FALSE)
+						} else if (n1 > 1) {
+							warning("Last ", n1, " accrual time values (", 
+								.arrayToString(accrualTimeTemp[(length(accrualTimeTemp) - n1 + 1):length(accrualTimeTemp)]), 
+								") ignored", call. = FALSE)
+						}
+						
+						if (n2 == 1) {
+							warning("Last accrual intensity value (", 
+								accrualIntensityTemp[length(accrualIntensityTemp)], ") ignored", call. = FALSE)
+						} else if (n2 > 1) {
+							warning("Last ", n2, " accrual intensity values (", 
+								.arrayToString(accrualIntensityTemp[i2:length(accrualIntensityTemp)]), 
+								") ignored", call. = FALSE)
+						}
+					}
+					
 					return(sampleSize)
 				}
 			}
 			return(sampleSize)
 		},
 		
-		.calculateRemainingTime = function() {
+		.calculateRemainingTime = function(stopInCaseOfError = TRUE) {
 			.assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects)
 			
-			if (length(accrualIntensity) == 1) {
-				lastAccrualIntensity <- accrualIntensity[1]
-				remainingSubjects <- maxNumberOfSubjects
-			} else {
-				sampleSize <- .calcSampleSize()
-				remainingSubjects <- maxNumberOfSubjects - sampleSize
-				if (remainingSubjects < 0) {
-					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-						"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") ",
-						"is too small for the defined accrual time (minimum = ", sampleSize, ")")
+			sampleSize <- .calcSampleSize()
+			remainingSubjects <- maxNumberOfSubjects - sampleSize
+			if (remainingSubjects < 0) {
+				if (!stopInCaseOfError) {
+					return(invisible())
 				}
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+					"'maxNumberOfSubjects' (", maxNumberOfSubjects, ") ",
+					"is too small for the defined accrual time (minimum = ", sampleSize, ")")
 			}
 			
 			lastAccrualIntensity <- accrualIntensity[length(accrualIntensity)]
 			remainingTime <<- remainingSubjects / lastAccrualIntensity
-			.setParameterType("remainingTime", C_PARAM_GENERATED)
-			accrualTime <<- c(accrualTime, accrualTime[length(accrualTime)] + remainingTime)
-			.setParameterType("accrualTime", C_PARAM_GENERATED)
+			.setParameterType("remainingTime", 
+				ifelse(!isTRUE(all.equal(0, remainingTime, tolerance = 1e-06)), 
+					C_PARAM_GENERATED, C_PARAM_NOT_APPLICABLE))
+			if (length(accrualTime) == length(accrualIntensity)) {
+				accrualTime <<- c(accrualTime, accrualTime[length(accrualTime)] + remainingTime)
+			}
+			#.setParameterType("accrualTime", C_PARAM_GENERATED)
 			if (any(accrualTime < 0)) {
+				if (!stopInCaseOfError) {
+					return(invisible())
+				}
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjects' (", maxNumberOfSubjects, ") ",
 					"is too small for the defined accrual time")
 			}

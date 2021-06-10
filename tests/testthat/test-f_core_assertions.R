@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_core_assertions.R
-#:#  Creation date: 09 November 2020, 11:48:23
-#:#  File version: $Revision: 3854 $
-#:#  Last changed: $Date: 2020-11-09 14:53:50 +0100 (Mon, 09 Nov 2020) $
+#:#  Creation date: 18 May 2021, 17:47:15
+#:#  File version: $Revision: 4888 $
+#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -74,11 +74,11 @@ test_that("Testing '.assertDesignParameterExists'", {
 		"Missing argument: 'defaultValue' must be defined", fixed = TRUE)
 
 	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(), 
-			parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
+		parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
 		"Missing argument: parameter 'kMax' must be specified in design", fixed = TRUE)
 
 	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(kMax = NA_integer_), 
-			parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
+		parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
 		"Missing argument: parameter 'kMax' must be specified in design", fixed = TRUE)
 
 })

@@ -14,9 +14,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4254 $
-#:#  Last changed: $Date: 2021-01-25 18:21:18 +0100 (Mo, 25 Jan 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4947 $
+#:#  Last changed: $Date: 2021-05-31 14:31:17 +0200 (Mo, 31 Mai 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 .getIndicesOfClosedHypothesesSystemForSimulation <- function(gMax) {
@@ -27,8 +27,8 @@
 	return(indices)
 }
 
-.selectTreatmentArms <- function(effectVector, typeOfSelection, epsilonValue, rValue, threshold, 
-		selectArmsFunction, survival = FALSE) {
+.selectTreatmentArms <- function(stage, effectVector, typeOfSelection, 
+		epsilonValue, rValue, threshold, selectArmsFunction, survival = FALSE) {
 	
 	gMax <- length(effectVector)
 	
@@ -49,10 +49,19 @@
 		}
 		selectedArms[effectVector <= threshold] <- FALSE
 	} else {
-		.assertIsValidFunction(fun = selectArmsFunction, 
-			funArgName = "selectArmsFunction",
-			expectedArguments = "effectVector", validateThreeDots = FALSE)
-		selectedArms <- selectArmsFunction(effectVector)
+		functionArgumentNames <- .getFunctionArgumentNames(selectArmsFunction, ignoreThreeDots = TRUE)
+		if (length(functionArgumentNames) == 1) {
+			.assertIsValidFunction(fun = selectArmsFunction, 
+				funArgName = "selectArmsFunction",
+				expectedArguments = c("effectVector"), validateThreeDots = FALSE)
+			selectedArms <- selectArmsFunction(effectVector)
+		} else {
+			.assertIsValidFunction(fun = selectArmsFunction, 
+				funArgName = "selectArmsFunction",
+				expectedArguments = c("effectVector", "stage"), validateThreeDots = FALSE)
+			selectedArms <- selectArmsFunction(effectVector = effectVector, stage = stage)
+		}
+
 		msg <- paste0(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'selectArmsFunction' returned an illegal or undefined result (", .arrayToString(selectedArms),"); ")
 		if (length(selectedArms) != gMax) {
@@ -161,23 +170,19 @@
 						sqrt(sum(weightsInverseNormal[1:k]^2)) 
 				}
 			}
-
 			
-#			if (kMax == 1) {
-#				rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] >= design$criticalValues[k])
-#			} else {
-				if (.isTrialDesignFisher(design)) {
-					rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] <= design$criticalValues[k])
-					if (k < kMax) {
-						futilityIntersections[i, k] <- (adjustedStageWisePValues[i, k] >= design$alpha0Vec[k])
-					}	
-				} else if (.isTrialDesignInverseNormal(design)) {
-					rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] >= design$criticalValues[k])
-					if (k < kMax) {
-						futilityIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] <= design$futilityBounds[k])
-					}	
-				}
-#			}	
+			if (.isTrialDesignFisher(design)) {
+				rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] <= design$criticalValues[k])
+				if (k < kMax) {
+					futilityIntersections[i, k] <- (adjustedStageWisePValues[i, k] >= design$alpha0Vec[k])
+				}	
+			} else if (.isTrialDesignInverseNormal(design)) {
+				rejectedIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] >= design$criticalValues[k])
+				if (k < kMax) {
+					futilityIntersections[i, k] <- (overallAdjustedTestStatistics[i, k] <= design$futilityBounds[k])
+				}	
+			}
+			
 			rejectedIntersections[is.na(rejectedIntersections[, k]), k] <- FALSE
 			
 			if ((k == kMax) && !rejectedIntersections[1, k]) {
@@ -200,6 +205,7 @@
 		} else {
 			successStop[k] <- any(rejected[, k])
 		}
+		
 		if (k < kMax) {
 			futilityStop[k] <- all(futility[stageResults$selectedArms[1:gMax, k], k])
 			if (all(stageResults$selectedArms[1:gMax, k + 1] == FALSE)) {		
@@ -387,8 +393,6 @@
 	
 	endpoint <- match.arg(endpoint)
 	
-	.assertIsTrialDesignInverseNormalOrFisherOrConditionalDunnett(design)
-	
 	.assertIsSinglePositiveInteger(activeArms, "activeArms", naAllowed = FALSE, validateType = FALSE)
 	
 	if (activeArms > 8) {
@@ -465,6 +469,8 @@
 	
 	if (length(typeOfSelection) == 1 && typeOfSelection != "userDefined" && !is.null(selectArmsFunction)) { 
 		warning("'selectArmsFunction' will be ignored because 'typeOfSelection' is not \"userDefined\"", call. = FALSE)
+	} else if (!is.null(selectArmsFunction) && is.function(selectArmsFunction)) {
+		simulationResults$selectArmsFunction <- selectArmsFunction
 	}
 
 	typeOfShape <- .assertIsValidTypeOfShape(typeOfShape)
@@ -482,6 +488,9 @@
 			.assertIsNumericVector(muMaxVector, "muMaxVector")
 		}
 		.setValueAndParameterType(simulationResults, "muMaxVector", muMaxVector, C_ALTERNATIVE_POWER_SIMULATION_DEFAULT)
+		if (typeOfShape == "userDefined") {
+			simulationResults$.setParameterType("muMaxVector", C_PARAM_DERIVED)
+		}
 	}
 	else if (endpoint == "rates") {
 		.assertIsSingleNumber(piH1, "piH1", naAllowed = TRUE)
@@ -517,6 +526,9 @@
 			piMaxVector <- effectMatrix[, 1]
 		}
 		.setValueAndParameterType(simulationResults, "piMaxVector", piMaxVector, C_PI_1_DEFAULT)
+		if (typeOfShape == "userDefined") {
+			simulationResults$.setParameterType("piMaxVector", C_PARAM_DERIVED)
+		}
 	}
 	else if (endpoint == "survival") {
 		
@@ -525,6 +537,9 @@
 			omegaMaxVector <- effectMatrix[, 1]
 		}	
 		.setValueAndParameterType(simulationResults, "omegaMaxVector", omegaMaxVector, C_RANGE_OF_HAZARD_RATIOS_DEFAULT)
+		if (typeOfShape == "userDefined") {
+			simulationResults$.setParameterType("omegaMaxVector", C_PARAM_DERIVED)
+		}
 		
 		.assertIsIntegerVector(plannedEvents, "plannedEvents", validateType = FALSE)
 		if (length(plannedEvents) != kMax) {

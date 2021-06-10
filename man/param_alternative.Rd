@@ -5,7 +5,7 @@
 \title{Parameter Description: Alternative}
 \arguments{
 \item{alternative}{The alternative hypothesis value for testing means. This can be a vector of assumed 
-alternatives, default is \code{seq(0, 1, 0.2)}.}
+alternatives, default is \code{seq(0, 1, 0.2)} (power calculations) or \code{seq(0.2, 1, 0.2)} (sample size calculations).}
 }
 \description{
 Parameter Description: Alternative

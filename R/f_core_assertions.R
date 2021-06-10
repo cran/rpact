@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4401 $
-#:#  Last changed: $Date: 2021-02-15 17:29:02 +0100 (Mo, 15 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4947 $
+#:#  Last changed: $Date: 2021-05-31 14:31:17 +0200 (Mo, 31 Mai 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 .stopWithWrongDesignMessage <- function(design) {
@@ -192,6 +192,18 @@
 
 .isStageResultsMultiArmSurvival <- function(stageResults) {
 	return(class(stageResults) == "StageResultsMultiArmSurvival")
+}
+
+.isStageResultsEnrichmentMeans <- function(stageResults) {
+	return(class(stageResults) == "StageResultsEnrichmentMeans")
+}
+
+.isStageResultsEnrichmentRates <- function(stageResults) {
+	return(class(stageResults) == "StageResultsEnrichmentRates")
+}
+
+.isStageResultsEnrichmentSurvival <- function(stageResults) {
+	return(class(stageResults) == "StageResultsEnrichmentSurvival")
 }
 
 .assertIsStageResults <- function(stageResults) {
@@ -377,15 +389,15 @@
 }
 
 .isDatasetMeans <- function(dataInput) {
-	return(class(dataInput) == "DatasetMeans")
+	return(inherits(dataInput, "DatasetMeans"))
 }
 
 .isDatasetRates <- function(dataInput) {
-	return(class(dataInput) == "DatasetRates")
+	return(inherits(dataInput, "DatasetRates"))
 }
 
 .isDatasetSurvival <- function(dataInput) {
-	return(class(dataInput) == "DatasetSurvival")
+	return(inherits(dataInput, "DatasetSurvival"))
 }
 
 .assertIsNumericVector <- function(x, argumentName, naAllowed = FALSE, noDefaultAvailable = FALSE) {
@@ -738,15 +750,30 @@
 }
 
 .assertIsValidLegendPosition <- function(legendPosition) {
-	if (is.null(legendPosition) || length(legendPosition) == 0 || 
-			(!is.na(legendPosition) && !is.numeric(legendPosition))) {
+	if (is.null(legendPosition) || length(legendPosition) != 1) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"'legendPosition' (", legendPosition, ") must be a valid integer value")
+			"'legendPosition' (", .arrayToString(legendPosition), ") must be a single integer or character value")
 	}
 	
-	if (!is.na(legendPosition) && (legendPosition < -1 || legendPosition > 6)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'legendPosition' (", 
-			legendPosition, ") must be an integer between -1 and 6")
+	if (is.na(legendPosition)) {
+		return(invisible())
+	}
+	
+	if (!is.numeric(legendPosition) && !is.character(legendPosition)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'legendPosition' (", legendPosition, ") must be a single integer or character value")
+	}
+	
+	if (is.numeric(legendPosition)) {
+		.assertIsSingleInteger(legendPosition, "legendPosition", validateType = FALSE)
+		.assertIsInClosedInterval(legendPosition, "legendPosition", lower = -1, upper = 6)
+	} else {
+		validLegendPositions <- c("none", "top", "bottom", "left", "right")
+		if (!(legendPosition %in% validLegendPositions)) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				"'legendPosition' (", legendPosition, ") must be one of the following values: ",
+				.arrayToString(validLegendPositions))
+		}
 	}
 }
 
@@ -906,7 +933,8 @@
 			") must be equal to 'kMax' (", kMax, ") - 1")
 	}
 	
-	.assertValuesAreInsideBounds("futilityBounds", futilityBounds, -6, 6)
+	.assertValuesAreInsideBounds("futilityBounds", futilityBounds, -Inf, 6)
+	
 }
 
 .assertIsValidAlpha0Vec <- function(alpha0Vec, kMax = length(alpha0Vec) - 1, 
@@ -1133,7 +1161,7 @@
 		return(FALSE)
 	}
 	
-	return(sum(na.omit(futilityBounds) == C_FUTILITY_BOUNDS_DEFAULT) == 0)
+	return(any(na.omit(futilityBounds) > C_FUTILITY_BOUNDS_DEFAULT))
 }
 
 .isTrialDesignWithValidAlpha0Vec <- function(design) {
@@ -1151,7 +1179,7 @@
 		return(FALSE)
 	}
 	
-	return(sum(alpha0Vec == C_ALPHA_0_VEC_DEFAULT) == 0)
+	return(any(alpha0Vec != C_ALPHA_0_VEC_DEFAULT))
 }
 
 .assertPackageIsInstalled <- function(packageName) {
@@ -1333,20 +1361,29 @@
 }
 
 .assertIsValidAllocationRatioPlanned <- function(allocationRatioPlanned, numberOfGroups) {
+	if (numberOfGroups == 1) {
+		return(invisible())
+	}
+	
 	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-	.assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+	.assertIsInOpenInterval(allocationRatioPlanned, 
+		"allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
 	if (allocationRatioPlanned != C_ALLOCATION_RATIO_DEFAULT && numberOfGroups == 1) {
 		warning("Planned allocation ratio ", allocationRatioPlanned, " will be ignored ",
-			"because the dataset has only one group", call. = FALSE)
+			"because the specified data has only one group", call. = FALSE)
 	}
 }
 
-.assertIsValidAllocationRatioPlannedSampleSize <- function(allocationRatioPlanned, maxNumberOfSubjects = NA_real_) {
+.assertIsValidAllocationRatioPlannedSampleSize <- function(
+		allocationRatioPlanned, maxNumberOfSubjects = NA_real_) {
+		
 	.assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
+	
 	if (allocationRatioPlanned < 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'allocationRatioPlanned' (", allocationRatioPlanned, ") must be >= 0")
 	}
+	
 	if (length(maxNumberOfSubjects) > 0 && !is.na(maxNumberOfSubjects) && 
 			maxNumberOfSubjects > 0 && allocationRatioPlanned == 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -1357,7 +1394,9 @@
 	}
 }
 
-.assertIsValidThetaH1 <- function(thetaH1, stageResults = NULL, stage = NULL, ..., results = NULL) {
+.assertIsValidThetaH1 <- function(thetaH1, stageResults = NULL, 
+		stage = NULL, ..., results = NULL) {
+		
 	if (is.na(thetaH1) && !is.null(stageResults) && !is.null(stage)) {
 		thetaH1 <- stageResults$effectSizes[stage]
 		if (!is.null(results)) {
@@ -1368,7 +1407,9 @@
 	invisible(thetaH1)
 }
 
-.assertIsValidAssumedStDev <- function(assumedStDev, stageResults = NULL, stage = NULL, ..., results = NULL) {
+.assertIsValidAssumedStDev <- function(assumedStDev, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
+		
 	if (is.na(assumedStDev) && !is.null(stageResults) && !is.null(stage)) {
 		assumedStDev <- stageResults$overallStDevs[stage]
 		if (!is.null(results)) {
@@ -1383,22 +1424,35 @@
 	invisible(assumedStDev)
 }
 
-.assertIsValidThetaH1ForMultiArm <- function(thetaH1, stageResults = NULL, stage = NULL, ..., results = NULL) {
+.assertIsValidThetaH1ForMultiArm <- function(thetaH1, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
+		
 	if (!is.null(stageResults) && all(is.na(thetaH1)) && !is.null(stage)) {
 		thetaH1 <- stageResults$effectSizes[, stage]
 		if (!is.null(results)) {
 			results$.setParameterType("thetaH1", C_PARAM_GENERATED)
 		}
 	}
+
 	.assertIsNumericVector(thetaH1, "thetaH1", naAllowed = TRUE)
 	invisible(thetaH1)
 }
-.assertIsValidAssumedStDevForMultiArm <- function(assumedStDev, stageResults = NULL, stage = NULL, ..., results = NULL) {
+
+.assertIsValidThetaH1ForEnrichment <- function(thetaH1, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
+	invisible(.assertIsValidThetaH1ForMultiArm(thetaH1 = thetaH1, 
+		stageResults = stageResults, stage = stage, results = results))
+}
+
+.assertIsValidAssumedStDevForMultiHypotheses <- function(assumedStDev, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
+		
 	if (!is.null(stageResults) && all(is.na(assumedStDev)) && !is.null(stage)) {
-		if (is.matrix(stageResults$overallStDevs)) {
+		
+		if (is.matrix(stageResults$overallStDevs)) { # inherits(stageResults, "StageResultsMultiArmMeans")
 			assumedStDev <- stageResults$overallStDevs[, stage]
 		} else {
-			assumedStDev <- stageResults$overallPooledStDevs[stage]
+			assumedStDev <- stageResults$overallStDevs[stage]
 		}
 		
 		if (!is.null(results)) {
@@ -1408,15 +1462,16 @@
 	.assertIsNumericVector(assumedStDev, "assumedStDev", naAllowed = TRUE)
 	if (any(assumedStDev <= 0, na.rm = TRUE)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-				"'assumedStDev' (", .arrayToString(assumedStDev), ") must be > 0")
+			"'assumedStDev' (", .arrayToString(assumedStDev), ") must be > 0")
 	}
 	
 	invisible(assumedStDev)
 }
 
-.assertIsValidPiTreatmentsForMultiArm <- function(piTreatments, stageResults = NULL, stage = NULL, ..., results = NULL) {
+.assertIsValidPiTreatmentsForMultiArm <- function(piTreatments, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
 	if (!is.null(stageResults) && all(is.na(piTreatments)) && !is.null(stage)) {
-		piTreatments <- stageResults$piTreatments[, stage]
+		piTreatments <- stageResults$overallPiTreatments[, stage]
 		if (!is.null(results)) {
 			results$.setParameterType("piTreatments", C_PARAM_GENERATED)
 		}
@@ -1426,9 +1481,10 @@
 	invisible(piTreatments)
 }
 
-.assertIsValidPiControlForMultiArm <- function(piControl, stageResults = NULL, stage = NULL, ..., results = NULL) {
-	if (is.na(piControl) && !is.null(stageResults) && !is.null(stage)) {
-		piControl <- stageResults$piControl[, stage]
+.assertIsValidPiControlForMultiArm <- function(piControl, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
+	if (!is.null(stageResults) && is.na(piControl) && !is.null(stage)) {
+		piControl <- stageResults$overallPiControl[, stage]
 		if (!is.null(results)) {
 			results$.setParameterType("piControl", C_PARAM_GENERATED)
 		}
@@ -1436,6 +1492,32 @@
 	.assertIsNumericVector(piControl, "piControl", naAllowed = TRUE)
 	.assertIsInClosedInterval(piControl, "piControl", lower = 0, upper = 1)
 	invisible(piControl)
+}
+
+.assertIsValidPiTreatmentsForEnrichment <- function(piTreatments, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
+	if (!is.null(stageResults) && all(is.na(piTreatments)) && !is.null(stage)) {
+		piTreatments <- stageResults$overallPisTreatment[, stage]
+		if (!is.null(results)) {
+			results$.setParameterType("piTreatments", C_PARAM_GENERATED)
+		}
+	}
+	.assertIsNumericVector(piTreatments, "piTreatments", naAllowed = TRUE)
+	.assertIsInClosedInterval(piTreatments, "piTreatments", lower = 0, upper = 1, naAllowed = TRUE)
+	invisible(piTreatments)
+}
+
+.assertIsValidPiControlForEnrichment <- function(piControls, 
+		stageResults = NULL, stage = NULL, ..., results = NULL) {
+	if (!is.null(stageResults) && all(is.na(piControls)) && !is.null(stage)) {
+		piControls <- stageResults$overallPisControl[, stage]
+		if (!is.null(results)) {
+			results$.setParameterType("piControls", C_PARAM_GENERATED)
+		}
+	}
+	.assertIsNumericVector(piControls, "piControls", naAllowed = TRUE)
+	.assertIsInClosedInterval(piControls, "piControls", lower = 0, upper = 1, naAllowed = TRUE)
+	invisible(piControls)
 }
 
 .isValidValueOrVector <- function(x) {
@@ -1490,6 +1572,15 @@
 	}
 	
 	return(directionUpper)
+}
+
+.assertIsFunction <- function(fun) {
+	if (is.null(fun)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'fun' must be a valid function")
+	}
+	if (!is.function(fun)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'fun' must be a function (is ", class(fun), ")")
+	}
 }
 
 .assertIsValidFunction <- function(fun, ..., 
@@ -1677,11 +1768,13 @@
 	}
 
 	param <- NA_character_
+	paramValues <- NA_real_
 	if (dataInput$isDatasetSurvival()) {
 		if (any(abs(design$informationRates[2:stage] - dataInput$getOverallEventsUpTo(stage)[2:stage] /
 				dataInput$getOverallEventsUpTo(1) * design$informationRates[1]) > 
 				C_ACCEPT_DEVIATION_INFORMATIONRATES)) {
 			param <- "events"
+			paramValues <- dataInput$getOverallEventsUpTo(stage)
 		}
 	} else {
 		if (dataInput$getNumberOfGroups() == 1) {	
@@ -1690,6 +1783,7 @@
 					dataInput$getOverallSampleSizesUpTo(1) * design$informationRates[1]) > 
 					C_ACCEPT_DEVIATION_INFORMATIONRATES)) {
 				param <- "sample sizes"
+				paramValues <- dataInput$getOverallSampleSizesUpTo(stage)
 			}
 		}
 		else if (dataInput$getNumberOfGroups() == 2) {	
@@ -1697,32 +1791,33 @@
 						dataInput$getOverallSampleSizesUpTo(stage)[2:stage] /
 						dataInput$getOverallSampleSizesUpTo(1) * design$informationRates[1]) > 
 						C_ACCEPT_DEVIATION_INFORMATIONRATES) ||
-					any(abs(design$informationRates[2:stage] - 
+				any(abs(design$informationRates[2:stage] - 
 						dataInput$getOverallSampleSizesUpTo(stage,2)[2:stage] / 
 						dataInput$getOverallSampleSizesUpTo(1, 2) * design$informationRates[1]) > 
 						C_ACCEPT_DEVIATION_INFORMATIONRATES)) {
 				param <- "sample sizes"
+				paramValues <- dataInput$getOverallSampleSizesUpTo(stage) + dataInput$getOverallSampleSizesUpTo(stage, 2)
 			}
 		}
 	}
 	if (!is.na(param)) {
-		warning("Observed ", param, " not according to specified information rates in ", 
+		warning("Observed ", param, " (", .arrayToString(paramValues), 
+			") not according to specified information rates (", 
+			.arrayToString(design$informationRates[1:stage]), ") in ", 
 			"group sequential design. ", 
 			"Test procedure might not control Type I error rate", call. = FALSE)
 	}
 }
 
-.assertIsOneSidedForMultiArmAnalysis <- function(design, dataInput) {
-	if (design$sided == 2 && .isMultiArmDataset(dataInput)) {
-		stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-			"multi-arm analysis is only applicable for one-sided testing")
-	}
-}
-
-.assertIsOneSidedDesign <- function(design) {
+.assertIsOneSidedDesign <- function(design, 
+		designType = c("multi-arm", "enrichment"), 
+		engineType = c("simulation", "analysis")) {
+		
 	if (design$sided == 2) {
+		designType <- match.arg(designType)
+		engineType <- match.arg(engineType)
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"multi-arm simulation is only applicable for one-sided testing")
+			designType, " ", engineType, " is only applicable for one-sided testing")
 	}
 }
 
@@ -1734,8 +1829,12 @@
 	return(grepl("MultiArm", class(stageResults)))
 }
 
+.isEnrichmentStageResults <- function(stageResults) {
+	return(grepl("Enrichment", class(stageResults)))
+}
+
 .isMultiHypothesesStageResults <- function(x) {
-	return(.isMultiArmStageResults(x))
+	return(.isMultiArmStageResults(x) || .isEnrichmentStageResults(x))
 }
 
 .isMultiArmAnalysisResults <- function(analysisResults) {
@@ -1743,7 +1842,15 @@
 }
 
 .isMultiHypothesesAnalysisResults <- function(x) {
-	return(.isMultiArmAnalysisResults(x))
+	return(.isMultiArmAnalysisResults(x) || .isEnrichmentAnalysisResults(x))
+}
+
+.isEnrichmentDataset <- function(dataInput) {
+	return(inherits(dataInput, "Dataset") && dataInput$.enrichmentEnabled)
+}
+
+.isEnrichmentAnalysisResults <- function(analysisResults) {
+	return(inherits(analysisResults, "AnalysisResultsEnrichment"))
 }
 
 .isMultiArmSimulationResults <- function(simulationResults) {
@@ -1762,10 +1869,15 @@
 	}
 }
 
-.assertIsStageResultsNonMultiArm <- function(stageResults) {
+.assertIsStageResultsNonMultiHypotheses <- function(stageResults) {
 	if (inherits(stageResults, "StageResults") && .isMultiArmStageResults(stageResults)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'stageResults' must be a non-multi-arm object (is ", class(stageResults), ")")
+	}
+	
+	if (inherits(stageResults, "StageResults") && .isEnrichmentStageResults(stageResults)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"'stageResults' must be a non-enrichment object (is ", class(stageResults), ")")
 	}
 	
 	allowedClasses <- c(
@@ -1779,11 +1891,16 @@
 	}
 }
 
-.assertIsDatasetNonMultiArm <- function(dataInput) {
+.assertIsDatasetNonMultiHypotheses <- function(dataInput) {
 	if (.isMultiArmDataset(dataInput)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"'dataInput' must be a non-multi-arm dataset (has ", dataInput$getNumberOfGroups(), " treatment arms)")
 	}
+	if (.isEnrichmentDataset(dataInput)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+				"'dataInput' must be a non-enrichment dataset (has ", dataInput$getNumberOfSubsets(), " subsets)")
+	}
+	
 }
 
 .assertIsAnalysisResults <- function(analysisResults) {
@@ -1828,6 +1945,20 @@
 	if (.isTrialDesignConditionalDunnett(design) && intersectionTest != "Dunnett") {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "intersection test ('", intersectionTest, "') must be 'Dunnett' ",
 			"because conditional Dunnett test was specified as design")
+	}
+}
+
+.isValidIntersectionTestEnrichment <- function(intersectionTest) {
+	return(!is.null(intersectionTest) && length(intersectionTest) == 1 && !is.na(intersectionTest) && 
+		is.character(intersectionTest) && intersectionTest %in% C_INTERSECTION_TESTS_ENRICHMENT)
+}
+
+.assertIsValidIntersectionTestEnrichment <- function(design, intersectionTest) {
+	.assertIsCharacter(intersectionTest, "intersectionTest")
+	intersectionTest <- intersectionTest[1]
+	if (!.isValidIntersectionTestEnrichment(intersectionTest)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'intersectionTest' (", intersectionTest, ") must be one of ",
+				.arrayToString(C_INTERSECTION_TESTS_ENRICHMENT, encapsulate = TRUE))
 	}
 }
 
@@ -1901,6 +2032,21 @@
 			"because conditional Dunnett test was specified as design")
 	}
 }
+
+
+.isValidVarianceOptionEnrichment <- function(varianceOption) {
+	return(!is.null(varianceOption) && length(varianceOption) == 1 && !is.na(varianceOption) && 
+					is.character(varianceOption) && varianceOption %in% C_VARIANCE_OPTIONS_ENRICHMENT)
+}
+
+
+.assertIsValidVarianceOptionEnrichment <- function(design, varianceOption) {
+	if (!.isValidVarianceOptionEnrichment(varianceOption)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'varianceOption' should be one of ",
+				.arrayToString(C_VARIANCE_OPTIONS_ENRICHMENT, encapsulate = TRUE))
+	}
+}
+
 
 .assertIsValidSummaryIntervalFormat <- function(intervalFormat) {
 	.assertIsSingleCharacter(intervalFormat, "intervalFormat") # "[%s; %s]"
@@ -2140,5 +2286,13 @@
 	}
 	.assertIsInClosedInterval(plannedSubjects, "plannedSubjects", lower = 1, upper = NULL)
 	.assertValuesAreStrictlyIncreasing(plannedSubjects, "plannedSubjects")
+}
+
+.isAlphaSpendingDesign <- function(design) {
+	if (!.isTrialDesignInverseNormalOrGroupSequential(design)) {
+		return(FALSE)
+	}
+	
+	return(grepl("^as", design$typeOfDesign))
 }
 

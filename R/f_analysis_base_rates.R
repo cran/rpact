@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 3814 $
-#:#  Last changed: $Date: 2020-10-30 17:12:19 +0100 (Fri, 30 Oct 2020) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4977 $
+#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 # @title
@@ -59,7 +59,7 @@
 	.assertIsTrialDesignInverseNormal(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsRatesInverseNormal", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsInverseNormal(design = design, dataInput = dataInput)
 	
@@ -82,7 +82,7 @@
 	.assertIsTrialDesignGroupSequential(design)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsRatesGroupSequential", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsGroupSequential(design = design, dataInput = dataInput)
 	
@@ -107,7 +107,7 @@
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.warnInCaseOfUnknownArguments(functionName = ".getAnalysisResultsRatesFisher", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	results <- AnalysisResultsFisher(design = design, dataInput = dataInput)
 	.setValueAndParameterType(results, "iterations", as.integer(iterations), C_ITERATIONS_DEFAULT)
@@ -136,10 +136,9 @@
 	stageResults <- .getStageResultsRates(design = design, dataInput = dataInput, 
 		stage = stage, thetaH0 = thetaH0, directionUpper = directionUpper, 
 		normalApproximation = normalApproximation)
-	results$.stageResults <- stageResults
+	results$.setStageResults(stageResults)
 	.logProgress("Stage results calculated", startTime = startTime)
 	
-	.assertIsValidAllocationRatioPlanned(allocationRatioPlanned, dataInput$getNumberOfGroups())
 	
 	pi1User <- pi1
 	.assertIsSingleNumber(pi1, "pi1", naAllowed = TRUE)
@@ -164,30 +163,25 @@
 	} else {
 		if (!all(is.na(pi2))) {
 			warning("'pi2' (", .arrayToString(pi2), ") will be ignored ", 
-				"because the specified data input has only one group", call. = FALSE)
+				"because the specified data has only one group", call. = FALSE)
 		}
 		results$pi2 <- NA_real_
 		results$.setParameterType("pi2", C_PARAM_NOT_APPLICABLE)
 	}
+	.warnInCaseOfUnusedConditionalPowerArgument(results, nPlanned, "pi1", pi1)
+	.warnInCaseOfUnusedConditionalPowerArgument(results, nPlanned, "pi2", pi2)
 	
 	.setValueAndParameterType(results, "directionUpper", directionUpper, C_DIRECTION_UPPER_DEFAULT)
 	.setValueAndParameterType(results, "normalApproximation", normalApproximation, C_NORMAL_APPROXIMATION_RATES_DEFAULT)
-	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	.setValueAndParameterType(results, "thetaH0", thetaH0, C_THETA_H0_RATES_DEFAULT)
-	.setValueAndParameterType(results, "nPlanned", nPlanned, NA_real_)	
-	while (length(results$nPlanned) < design$kMax) {
-		results$nPlanned <- c(NA_real_, results$nPlanned)
-	}
-	if (design$kMax == 1) {
-		results$.setParameterType("nPlanned", C_PARAM_NOT_APPLICABLE)
-	}
+	.setConditionalPowerArguments(results, dataInput, nPlanned, allocationRatioPlanned)
+	
+	#  test actions 
+	results$testActions <- getTestActions(stageResults = stageResults)
+	results$.setParameterType("testActions", C_PARAM_GENERATED)
 	
 	if (design$kMax > 1) {
 	
-		#  test actions 
-		results$testActions <- getTestActions(stageResults = stageResults)
-		results$.setParameterType("testActions", C_PARAM_GENERATED)
-		
 		# conditional power
 		startTime <- Sys.time()
 		if (.isTrialDesignFisher(design)) {
@@ -198,6 +192,10 @@
 				results$conditionalPowerSimulated <- results$.conditionalPowerResults$conditionalPower
 				results$.setParameterType("conditionalPower", C_PARAM_NOT_APPLICABLE)
 				results$.setParameterType("conditionalPowerSimulated", C_PARAM_GENERATED)
+				results$.setParameterType("seed", results$.conditionalPowerResults$.getParameterType("seed"))
+				results$seed <- results$.conditionalPowerResults$seed
+				results$.setParameterType("iterations", results$.conditionalPowerResults$.getParameterType("iterations"))
+				results$iterations <- results$.conditionalPowerResults$iterations
 			} else {
 				results$conditionalPower <- results$.conditionalPowerResults$conditionalPower
 				results$conditionalPowerSimulated <- numeric(0)
@@ -215,8 +213,21 @@
 		
 		# CRP - conditional rejection probabilities
 		startTime <- Sys.time()
-		results$conditionalRejectionProbabilities <- getConditionalRejectionProbabilities(
-			stageResults = stageResults)
+		if (.isTrialDesignFisher(design) && isTRUE(.getOptionalArgument("simulateCRP", ...))) {
+			results$.setParameterType("seed", ifelse(is.na(seed), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+			seed <- results$.conditionalPowerResults$seed
+			crp <- getConditionalRejectionProbabilities(
+				stageResults = stageResults, iterations = iterations, seed = seed)
+			results$conditionalRejectionProbabilities <- crp$crpFisherSimulated
+			paramTypeSeed <- results$.conditionalPowerResults$.getParameterType("seed")
+			if (paramTypeSeed != C_PARAM_TYPE_UNKNOWN) {
+				results$.setParameterType("seed", paramTypeSeed)
+			}
+			results$seed <- seed
+		} else {
+			results$conditionalRejectionProbabilities <- 
+				getConditionalRejectionProbabilities(stageResults = stageResults) 
+		}
 		results$.setParameterType("conditionalRejectionProbabilities", C_PARAM_GENERATED)
 		.logProgress("Conditional rejection probabilities (CRP) calculated", startTime = startTime)
 	}
@@ -232,14 +243,14 @@
 	results$.setParameterType("repeatedConfidenceIntervalUpperBounds", C_PARAM_GENERATED)
 	.logProgress("Repeated confidence interval calculated", startTime = startTime)
 	
+	# repeated p-value
+	startTime <- Sys.time()
+	results$repeatedPValues <- getRepeatedPValues(
+		stageResults = stageResults, tolerance = tolerance)
+	results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
+	.logProgress("Repeated p-values calculated", startTime = startTime)
+	
 	if (design$kMax > 1) {
-			
-		# repeated p-value
-		startTime <- Sys.time()
-		results$repeatedPValues <- getRepeatedPValues(
-			stageResults = stageResults, tolerance = tolerance)
-		results$.setParameterType("repeatedPValues", C_PARAM_GENERATED)
-		.logProgress("Repeated p-values calculated", startTime = startTime)
 		
 		# final p-value
 		startTime <- Sys.time()
@@ -298,7 +309,7 @@
 		userFunctionCallEnabled = userFunctionCallEnabled)
 	.assertIsSingleLogical(normalApproximation, "normalApproximation")
 	.warnInCaseOfUnknownArguments(functionName = "getStageResultsRates", 
-		ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
+		ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), ...)
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design, stage = stage)
 
 	effectSizes <- rep(NA_real_, design$kMax)
@@ -502,49 +513,83 @@
 	}
 
 	direction <- ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER)
+	
+	stageResults <- StageResultsRates(
+		design = design,
+		dataInput = dataInput,
+		stage = as.integer(stage),
+		overallTestStatistics = .fillWithNAs(overallTestStatistics, design$kMax), 
+		overallPValues = .fillWithNAs(overallPValues, design$kMax),
+		effectSizes = effectSizes,			
+		overallEvents = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax),
+		overallSampleSizes = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax),
+		testStatistics = testStatistics, 
+		pValues = pValues, 
+		combInverseNormal = combInverseNormal, 
+		combFisher = combFisher, 
+		weightsInverseNormal = weightsInverseNormal, 
+		weightsFisher = weightsFisher, 
+		thetaH0 = thetaH0, 
+		direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
+		normalApproximation = normalApproximation
+	)
+	
 	if (dataInput$getNumberOfGroups() == 1) {
-		stageResults <- StageResultsRates(
-			design = design,
-			dataInput = dataInput,
-			stage = as.integer(stage),
-			overallTestStatistics = .fillWithNAs(overallTestStatistics, design$kMax), 
-			overallPValues = .fillWithNAs(overallPValues, design$kMax),
-			effectSizes = effectSizes,			
-			overallEvents = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax),
-			overallSampleSizes = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax),
-			testStatistics = testStatistics, 
-			pValues = pValues, 
-			combInverseNormal = combInverseNormal, 
-			combFisher = combFisher, 
-			weightsInverseNormal = weightsInverseNormal, 
-			weightsFisher = weightsFisher, 
-			thetaH0 = thetaH0, 
-			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
-			normalApproximation = normalApproximation
-		)
+#		stageResults <- StageResultsRates(
+#			design = design,#
+#			dataInput = dataInput,#
+#			stage = as.integer(stage),#
+#			overallTestStatistics = .fillWithNAs(overallTestStatistics, design$kMax), #
+#			overallPValues = .fillWithNAs(overallPValues, design$kMax),#
+#			effectSizes = effectSizes,		#	
+#			overallEvents = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax),
+#			overallSampleSizes = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax),
+#			testStatistics = testStatistics, #
+#			pValues = pValues, #
+#			combInverseNormal = combInverseNormal, #
+#			combFisher = combFisher, #
+#			weightsInverseNormal = weightsInverseNormal, #
+#			weightsFisher = weightsFisher, #
+#			thetaH0 = thetaH0, #
+#			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), #
+#			normalApproximation = normalApproximation#
+#		)
+		stageResults$overallEvents <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax)
+		stageResults$overallSampleSizes <- .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax)
+		stageResults$overallPi1 <- stageResults$overallEvents / stageResults$overallSampleSizes
+		stageResults$.setParameterType("overallPi1", C_PARAM_GENERATED)
 	}
 	else if (dataInput$getNumberOfGroups() == 2) {
-		stageResults <- StageResultsRates(
-			design = design,
-			dataInput = dataInput,
-			stage = as.integer(stage),
-			overallTestStatistics = .fillWithNAs(overallTestStatistics, design$kMax), 
-			overallPValues = .fillWithNAs(overallPValues, design$kMax), 
-			effectSizes = effectSizes,
-			overallEvents1 = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax),
-			overallEvents2 = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 2), design$kMax),
-			overallSampleSizes1 = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax),
-			overallSampleSizes2 = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 2), design$kMax),
-			testStatistics = testStatistics, 
-			pValues = pValues, 
-			combInverseNormal = combInverseNormal, 
-			combFisher = combFisher, 
-			weightsInverseNormal = weightsInverseNormal, 
-			weightsFisher = weightsFisher, 
-			thetaH0 = thetaH0, 
-			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
-			normalApproximation = normalApproximation
-		)
+#		stageResults <- StageResultsRates(
+#			design = design,
+#			dataInput = dataInput,
+#			stage = as.integer(stage),
+#			overallTestStatistics = .fillWithNAs(overallTestStatistics, design$kMax), 
+#			overallPValues = .fillWithNAs(overallPValues, design$kMax), 
+#			effectSizes = effectSizes,
+#			overallEvents1 = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax),
+#			overallEvents2 = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 2), design$kMax),
+#			overallSampleSizes1 = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax),
+#			overallSampleSizes2 = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 2), design$kMax),
+#			testStatistics = testStatistics, 
+#			pValues = pValues, 
+#			combInverseNormal = combInverseNormal, 
+#			combFisher = combFisher, 
+#			weightsInverseNormal = weightsInverseNormal, 
+#			weightsFisher = weightsFisher, 
+#			thetaH0 = thetaH0, 
+#			direction = ifelse(directionUpper, C_DIRECTION_UPPER, C_DIRECTION_LOWER), 
+#			normalApproximation = normalApproximation
+#		)
+		
+		stageResults$overallEvents1 <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group <- 1), design$kMax)
+		stageResults$overallEvents2 <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group <- 2), design$kMax)
+		stageResults$overallSampleSizes1 <- .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax)
+		stageResults$overallSampleSizes2 <- .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 2), design$kMax)
+		stageResults$overallPi1 <- stageResults$overallEvents1 / stageResults$overallSampleSizes1
+		stageResults$overallPi2 <- stageResults$overallEvents2 / stageResults$overallSampleSizes2
+		stageResults$.setParameterType("overallPi1", C_PARAM_GENERATED)
+		stageResults$.setParameterType("overallPi2", C_PARAM_GENERATED)
 	}
 	
 	if (.isTrialDesignFisher(design)) {	
@@ -724,7 +769,7 @@
 		
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsRatesGroupSequential", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	return(.getRepeatedConfidenceIntervalsRatesAll(design = design, dataInput = dataInput, 
 		normalApproximation = normalApproximation, directionUpper = directionUpper, 
@@ -740,7 +785,7 @@
 		
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsRatesInverseNormal", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 
 	return(.getRepeatedConfidenceIntervalsRatesAll(design = design, dataInput = dataInput,   
 		normalApproximation = normalApproximation, directionUpper = directionUpper, 
@@ -756,7 +801,7 @@
 		
 	.warnInCaseOfUnknownArguments(functionName = 
 		".getRepeatedConfidenceIntervalsRatesFisher", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	return(.getRepeatedConfidenceIntervalsRatesAll(design = design, dataInput = dataInput,   
 		normalApproximation = normalApproximation, directionUpper = directionUpper, 
@@ -773,7 +818,7 @@
 	.assertIsTrialDesignGroupSequential(design)
 	.assertIsValidStage(stage, design$kMax)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerRatesGroupSequential", 
-		ignore = c("design", "stageResultsName"), ...)
+		ignore = c("design", "stageResultsName", "grid", "pi1H1", "pi2H1"), ...)
 	
 	kMax <- design$kMax	
 	conditionalPower <- rep(NA_real_, kMax)
@@ -895,7 +940,7 @@
 	.assertIsTrialDesignInverseNormal(design)
 	.assertIsValidStage(stage, design$kMax)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerRatesInverseNormal", 
-		ignore = c("design", "stageResultsName"), ...)
+		ignore = c("design", "stageResultsName", "grid", "pi1H1", "pi2H1"), ...)
 	
 	kMax <- design$kMax	
 	conditionalPower <- rep(NA_real_, kMax)
@@ -1020,7 +1065,7 @@
 	.assertIsValidStage(stage, design$kMax)
 	.assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
 	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerRatesFisher", 
-		ignore = c("design", "stageResultsName"), ...)
+		ignore = c("design", "stageResultsName", "grid", "pi1H1", "pi2H1"), ...)
 	
 	kMax <- design$kMax
 	conditionalPower <- rep(NA_real_, kMax)
@@ -1110,6 +1155,22 @@
 .getConditionalPowerRates <- function(..., stageResults, nPlanned, 
 		allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT, pi1 = NA_real_, pi2 = NA_real_) {
 	
+	pi1H1 <- .getOptionalArgument("pi1H1", ...)
+	if (!is.null(pi1H1) && !is.na(pi1H1)) {
+		if (!is.na(pi1)) {
+			warning(sQuote("pi1"), " will be ignored because ", sQuote("pi1H1"), " is defined", call. = FALSE)
+		}
+		pi1 <- pi1H1
+	}		
+	
+	pi2H1 <- .getOptionalArgument("pi2H1", ...)
+	if (!is.null(pi2H1) && !is.na(pi2H1)) {
+		if (!is.na(pi2)) {
+			warning(sQuote("pi2"), " will be ignored because ", sQuote("pi2H1"), " is defined", call. = FALSE)
+		}
+		pi2 <- pi2H1
+	}
+		
 	stage <- stageResults$stage
 	pi1 <- .assertIsValidPi1(pi1, stageResults, stage)
 	
@@ -1160,9 +1221,10 @@
 	results$conditionalPower <- cp$conditionalPower
 	results$.setParameterType("nPlanned", C_PARAM_GENERATED)
 	results$.setParameterType("conditionalPower", C_PARAM_GENERATED)
-	results$.setParameterType("allocationRatioPlanned", C_PARAM_USER_DEFINED)
-	results$.setParameterType("pi1", C_PARAM_DEFAULT_VALUE)
-	results$.setParameterType("pi2", C_PARAM_DEFAULT_VALUE)
+	results$.setParameterType("allocationRatioPlanned", 
+		ifelse(allocationRatioPlanned == C_ALLOCATION_RATIO_DEFAULT, C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+	results$.setParameterType("pi1", ifelse(is.na(pi1), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+	results$.setParameterType("pi2", ifelse(is.na(pi2), C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
 	
 	return(results)
 }
@@ -1182,8 +1244,8 @@
 	.assertIsValidPi(pi2, "pi2")
 	piTreatmentRange <- .assertIsValidPiTreatmentRange(piTreatmentRange = piTreatmentRange)
 	
-	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerPlotSurvival", 
-		ignore = c("iterations", "seed", "stageResultsName"), ...)
+	.warnInCaseOfUnknownArguments(functionName = ".getConditionalPowerPlotRates", 
+		ignore = c("iterations", "seed", "stageResultsName", "grid"), ...)
 
 	condPowerValues <- rep(NA, length(piTreatmentRange)) 
 	likelihoodValues <- rep(NA, length(piTreatmentRange))	
@@ -1199,21 +1261,21 @@
 			
 			for (i in seq(along = piTreatmentRange)) {
 				if (.isTrialDesignGroupSequential(design)) {
-					condPowerValues[i] <- .getConditionalPowerRatesGroupSequential(..., 
+					condPowerValues[i] <- .getConditionalPowerRatesGroupSequential(
 						stageResults = stageResults, nPlanned = nPlanned, 
 						allocationRatioPlanned = allocationRatioPlanned, 
 						pi1 = piTreatmentRange[i], pi2 = pi2)$conditionalPower[design$kMax]
 				}
 				
 				if (.isTrialDesignInverseNormal(design)) {
-					condPowerValues[i] <- .getConditionalPowerRatesInverseNormal(..., 
+					condPowerValues[i] <- .getConditionalPowerRatesInverseNormal(
 						stageResults = stageResults, nPlanned = nPlanned, 
 						allocationRatioPlanned = allocationRatioPlanned, 
 						pi1 = piTreatmentRange[i], pi2 = pi2)$conditionalPower[design$kMax]
 				}
 				
 				if (.isTrialDesignFisher(design)) {
-					condPowerValues[i] <- .getConditionalPowerRatesFisher(..., 
+					condPowerValues[i] <- .getConditionalPowerRatesFisher(
 						stageResults = stageResults, nPlanned = nPlanned, 
 						allocationRatioPlanned = allocationRatioPlanned, 
 						pi1 = piTreatmentRange[i], pi2 = pi2)$conditionalPower[design$kMax]
@@ -1240,21 +1302,21 @@
 		withCallingHandlers(
 			for (i in seq(along = piTreatmentRange)) {
 				if (.isTrialDesignGroupSequential(design)) {
-					condPowerValues[i] <- .getConditionalPowerRatesGroupSequential(..., 
+					condPowerValues[i] <- .getConditionalPowerRatesGroupSequential(
 						stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
 						allocationRatioPlanned = allocationRatioPlanned, 
 						pi1 = piTreatmentRange[i], pi2 = pi2)$conditionalPower[design$kMax]
 				}
 				
 				if (.isTrialDesignInverseNormal(design)) {
-					condPowerValues[i] <- .getConditionalPowerRatesInverseNormal(..., 
+					condPowerValues[i] <- .getConditionalPowerRatesInverseNormal(
 						stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
 						allocationRatioPlanned = allocationRatioPlanned,  
 						pi1 = piTreatmentRange[i], pi2 = pi2)$conditionalPower[design$kMax]
 				}
 				
 				if (.isTrialDesignFisher(design)) {
-					condPowerValues[i] <- .getConditionalPowerRatesFisher(..., 
+					condPowerValues[i] <- .getConditionalPowerRatesFisher(
 						stageResults = stageResults, stage = stage, nPlanned = nPlanned, 
 						allocationRatioPlanned = allocationRatioPlanned,  
 						pi1 = piTreatmentRange[i], pi2 = pi2)$conditionalPower[design$kMax]
@@ -1282,7 +1344,8 @@
 		subTitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned))
 	} else {
 		subTitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned), 
-			", pi2 = ", pi2, ", allocation ratio = ", allocationRatioPlanned)
+			", pi2 = ", .formatSubTitleValue(pi2, "pi2"), 
+			", allocation ratio = ", .formatSubTitleValue(allocationRatioPlanned, "allocationRatioPlanned"))
 	}
 	
 	return(list(
@@ -1550,7 +1613,7 @@
 
 			finalConfidenceInterval[1] <- .getRootThetaRates(
 				design = design, dataInput = dataInput, stage = 1, 
-				directionUpper = C_DIRECTION_UPPER_DEFAULT, normalApproximation = T, 
+				directionUpper = C_DIRECTION_UPPER_DEFAULT, normalApproximation = TRUE, 
 				firstParameterName = "combInverseNormal", 
 				secondValue = stats::qnorm(1 - design$alpha/design$sided), tolerance = tolerance,
 				acceptResultsOutOfTolerance = TRUE,
@@ -1558,7 +1621,7 @@
 			
 			finalConfidenceInterval[2] <- .getRootThetaRates(
 				design = design, dataInput = dataInput, stage = 1, 
-				directionUpper = FALSE, normalApproximation = T, 
+				directionUpper = FALSE, normalApproximation = TRUE, 
 				firstParameterName = "combInverseNormal", 
 				secondValue = stats::qnorm(1 - design$alpha/design$sided), tolerance = tolerance,
 				acceptResultsOutOfTolerance = TRUE,
@@ -1662,7 +1725,7 @@
 	stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
 	.assertIsValidThetaH0DataInput(thetaH0, dataInput)
 	.warnInCaseOfUnknownArguments(functionName = "getFinalConfidenceIntervalRates", 
-		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "stage"), ...)
+		ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), "stage"), ...)
 	
 	if (design$kMax == 1) {
 		return(list(

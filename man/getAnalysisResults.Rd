@@ -12,7 +12,9 @@ getAnalysisResults(
   thetaH0 = NA_real_,
   nPlanned = NA_real_,
   allocationRatioPlanned = 1,
-  stage = NA_integer_
+  stage = NA_integer_,
+  maxInformation = NULL,
+  informationEpsilon = NULL
 )
 }
 \arguments{
@@ -20,7 +22,7 @@ getAnalysisResults(
 
 \item{dataInput}{The summary data used for calculating the test results. 
 This is either an element of \code{DatasetMeans}, of \code{DatasetRates}, or of \code{DatasetSurvival} 
-and should be created with the function \code{\link{getDataset}}.
+and should be created with the function \code{getDataset}.
 For more information see \code{\link{getDataset}}.}
 
 \item{...}{Further arguments to be passed to methods (cf. separate functions in "See Also" below), e.g.,
@@ -45,15 +47,25 @@ For more information see \code{\link{getDataset}}.}
   \item{\code{seed}}{Seed for simulating the power for Fisher's combination test. 
       See above, default is a random seed.}
   \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
-      hypotheses in the closed system of hypotheses when testing multiple treatment arms. 
-      Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
-      \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
+      hypotheses in the closed system of hypotheses when testing multiple hypotheses. 
+      Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+      \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.
+      Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only), 
+      \code{"Bonferroni"}, \code{"Simes"}, and \code{"Sidak"}, default is \code{"Simes"}.}
   \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
-      for testing means. Three options are available: \code{"overallPooled"}, 
-       \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.}
+       or population enrichment designs for testing means. For multiple arms, three options are available: 
+       \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}. 
+      For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only),
+      and \code{"notPooled"}, default is \code{"pooled"}.}
   \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The 
-      assumed effect size or assumed rates to calculate the conditional power in multi-arm trials.
-      You can specify a value or a vector with elements referring to the treatment arms.}
+      assumed effect size or assumed rates to calculate the conditional power in multi-arm trials
+      or enrichment designs. For survival designs, \code{thetaH1} refers to the hazard ratio.
+      You can specify a value or a vector with elements referring to the 
+      treatment arms or the sub-populations, respectively. If not specified, the conditional
+      power is calculated under the assumption of observed effect sizes, standard deviations, rates, or hazard ratios.}
+  \item{\code{stratifiedAnalysis}}{For enrichment designs, typically a stratified analysis should be chosen.
+      For testing means and rates, also a non-stratified analysis based on overall data can be performed. 
+      For survival data, only a stratified analysis is possible (see Brannath et al., 2009), default is \code{TRUE}.}
 }}
 
 \item{directionUpper}{Specifies the direction of the alternative, 
@@ -79,12 +91,20 @@ defining the null hypothesis H0: \code{pi = thetaH0}.}
 The argument must be a vector with length equal to the number of remaining stages and contain 
 the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
 it should contain the planned number of additional events. 
-For multi-arm designs, it is the per-comparison (combined) sample size.}
+For multi-arm designs, it is the per-comparison (combined) sample size. 
+For enrichment designs, it is the (combined) sample size for the considered sub-population.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.}
 
 \item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
+
+\item{maxInformation}{Positive integer value specifying the maximum information.}
+
+\item{informationEpsilon}{Positive integer value specifying the information epsilon, which 
+defines the maximum distance from the observed information to the maximum information that causes the final analysis.
+Updates at the final analysis in case the observed information at the final 
+analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}.}
 }
 \value{
 Returns an \code{\link{AnalysisResults}} object.
@@ -108,7 +128,8 @@ conditional rejection probability (CRP), conditional power, Repeated Confidence 
 repeated overall p-values, and final stage p-values, median unbiased effect estimates, 
 and final confidence intervals. 
 
-For designs with more than two treatments arms (multi-arm designs) a closed combination test is performed.
+For designs with more than two treatments arms (multi-arm designs) or enrichment designs 
+a closed combination test is performed.
 That is, additionally the statistics to be used in a closed testing procedure are provided.
  
 The conditional power is calculated only if effect size and sample size 
@@ -122,7 +143,7 @@ A final stage p-value for Fisher's combination test is calculated only if a two-
 For Fisher's combination test, the conditional power for more than one remaining stages is estimated via simulation.     
 
 Final stage p-values, median unbiased effect estimates, and final confidence intervals are not calculated
-for multi-arm designs.
+for multi-arm and enrichment designs.
 }
 \section{How to get help for generic functions}{
 
@@ -137,24 +158,23 @@ obtain the specific help documentation linked above by typing \code{?plot.Analys
 
 \section{Note on the dependency of \code{mnormt}}{
 
-If \code{intersectionTest = "Dunnett"} or the design is a conditional Dunnett design and
-the dataset is a multi-arm dataset, 
-\code{rpact} uses the R package \href{https://cran.r-project.org/package=mnormt}{mnormt}
+If \code{intersectionTest = "Dunnett"} or \code{intersectionTest = "SpiessensDebois"}, or the design is a conditional Dunnett design and
+the dataset is a multi-arm or enrichment dataset, \code{rpact} uses the R package \href{https://cran.r-project.org/package=mnormt}{mnormt}
 to calculate the analysis results.
 }
 
 \examples{
 \donttest{
-# Example 1
+# Example 1 One-Sample Test
 # Perform an analysis within a three-stage group sequential design with 
 # O'Brien & Fleming boundaries and one-sample data with a continuous outcome 
 # where H0: mu = 1.2 is to be tested
  
 dsnGS <- getDesignGroupSequential()
 dataMeans <- getDataset(
-    n = c(30, 30),
-    means = c(1.96, 1.76),
-    stDevs = c(1.92, 2.01))
+    n = c(30,30),
+    means = c(1.96,1.76),
+    stDevs = c(1.92,2.01))
 getAnalysisResults(design = dsnGS, dataInput = dataMeans, thetaH0 = 1.2)
 
 # You can obtain the results when performing an inverse normal combination test 
@@ -163,13 +183,13 @@ getAnalysisResults(design = dsnGS, dataInput = dataMeans, thetaH0 = 1.2)
 dsnIN <- getDesignInverseNormal()
 getAnalysisResults(design = dsnIN, dataInput = dataMeans, thetaH0 = 1.2)
 
-# Example 2
+# Example 2 Multi-Arm Design
 # In a four-stage combination test design with O'Brien & Fleming boundaries 
 # at the first stage the second treatment arm was dropped. With the Bonferroni 
 # intersection test, the results together with the CRP, conditional power 
 # (assuming a total of 40 subjects for each comparison and effect sizes 0.5 
 # and 0.8 for treatment arm 1 and 3, respectively, and standard deviation 1.2),
-# and repeated RCIs and p-values of a closed adaptive test procedure are 
+# RCIs and p-values of a closed adaptive test procedure are 
 # obtained as follows with the given data (treatment arm 4 refers to the 
 # reference group (displayed with summary and plot commands):
    
@@ -198,11 +218,46 @@ y <- getAnalysisResults(design, dataInput = data,
     nPlanned = c(40), thetaH1 = c(0.5, NA, 0.8), assumedStDevs = 1.2,  stage = 1)  
 summary(y)
 plot(y, thetaRange = c(0,0.4))
+
+# Example 3 Enrichment Design
+# Perform an two-stage enrichment design analysis with O'Brien & Fleming boundaries
+# where one sub-population (S1) and a full population (F) are considered as primary
+# analysis sets. At interim, S1 is selected for further analysis and the sample 
+# size is increased accordingly. With the Spiessens & Debois intersection test, 
+# the results of a closed adaptive test procedure together with the CRP, repeated  
+# RCIs and p-values are obtained as follows with the given data (displayed with 
+# summary and plot commands):
+
+design <- getDesignInverseNormal(kMax = 2, typeOfDesign = "OF")
+dataS1 <- getDataset(
+means1 = c(13.2, 12.8),
+    means2 = c(11.1, 10.8),
+    stDev1 = c(3.4, 3.3),
+    stDev2 = c(2.9, 3.5),
+    n1 = c(21, 42),
+    n2 = c(19, 39))
+dataNotS1 <- getDataset(
+    means1 = c(11.8, NA),
+    means2 = c(10.5, NA),
+    stDev1 = c(3.6, NA),
+    stDev2 = c(2.7, NA),
+    n1 = c(15, NA),
+    n2 = c(13, NA))
+dataBoth <- getDataset(S1 = dataS1, R = dataNotS1)
+	
+x <- getAnalysisResults(design, dataInput = dataBoth, 
+    intersectionTest = "SpiessensDebois",
+    varianceOption = "pooledFromFull",
+    stratifiedAnalysis = TRUE)
+summary(x)
+plot(x, type = 2)
 }
 
 }
 \seealso{
-
+\itemize{
+  \item \code{\link{getObservedInformationRates}} for recalculation the observed information rates.
+}
 
 Other analysis functions: 
 \code{\link{getClosedCombinationTestResults}()},

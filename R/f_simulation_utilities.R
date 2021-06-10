@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision$
-#:#  Last changed: $Date$
-#:#  Last changed by: $Author$
+#:#  File version: $Revision: 4863 $
+#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 .getSimulationParametersFromRawData <- function(data, ..., variantName = c("alternative", "pi1"), 

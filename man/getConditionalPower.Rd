@@ -11,15 +11,16 @@ getConditionalPower(stageResults, ..., nPlanned, allocationRatioPlanned = 1)
 
 \item{...}{Further (optional) arguments to be passed:
 \describe{
-  \item{\code{thetaH1} and \code{assumedStDev} or \code{pi1}, \code{pi2}}{The 
-      assumed effect size or assumed rates to calculate the 
-      conditional power. Depending on the type of dataset, either \code{thetaH1} (means and survival) 
-      or \code{pi1}, \code{pi2} (rates) can be specified. 
-      For testing means, an assumed standard deviation can be specified, default is \code{1}.}
+  \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The 
+     assumed effect size or assumed rates to calculate the conditional power in multi-arm trials
+     or enrichment designs. For survival designs, \code{thetaH1} refers to the hazard ratio.
+     You can specify a value or a vector with elements referring to the 
+     treatment arms or the sub-populations, respectively.
+     For testing means, an assumed standard deviation can be specified, default is \code{1}.}
   \item{\code{iterations}}{Iterations for simulating the power for Fisher's combination test. 
       If the power for more than one remaining stages is to be determined for Fisher's combination test, 
       it is estimated via simulation with specified \cr 
-         \code{iterations}, the default value is \code{10000}.}
+      \code{iterations}, the default value is \code{10000}.}
   \item{\code{seed}}{Seed for simulating the power for Fisher's combination test. 
       See above, default is a random seed.}
 }}
@@ -28,7 +29,8 @@ getConditionalPower(stageResults, ..., nPlanned, allocationRatioPlanned = 1)
 The argument must be a vector with length equal to the number of remaining stages and contain 
 the combined sample size from both treatment groups if two groups are considered. For survival outcomes, 
 it should contain the planned number of additional events. 
-For multi-arm designs, it is the per-comparison (combined) sample size.}
+For multi-arm designs, it is the per-comparison (combined) sample size. 
+For enrichment designs, it is the (combined) sample size for the considered sub-population.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.}

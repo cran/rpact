@@ -73,7 +73,7 @@ to specify the slope of the sigmoid Emax model, default is 1.}
 
 \item{intersectionTest}{Defines the multiple test for the intersection 
 hypotheses in the closed system of hypotheses. 
-Five options are available: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
 \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.}
 
 \item{directionUpper}{Specifies the direction of the alternative, 
@@ -113,8 +113,8 @@ exceeds \code{threshold}, default is \code{-Inf}.
 a separate threshold condition over the treatment arms.}
 
 \item{plannedSubjects}{\code{plannedSubjects} is a vector of length \code{kMax} (the number of stages of the design) 
-   that determines the number of cumulated (overall) subjects when the interim stages are planned.
-   For two treatment arms, it is the number of subjects for both treatment arms. 
+that determines the number of cumulated (overall) subjects when the interim stages are planned.
+For two treatment arms, it is the number of subjects for both treatment arms. 
 For multi-arm designs, \code{plannedSubjects} refers to the number of subjects per selected active arm.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups 
@@ -128,7 +128,7 @@ For multi-arm designs \code{minNumberOfSubjectsPerStage} refers
 to the minimum number of subjects per selected active arm.}
 
 \item{maxNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation, 
-   the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
+the vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number 
 of subjects per stage (i.e., not cumulated), the first element is not taken into account.
 For two treatment arms, it is the number of subjects for both treatment arms. 
 For multi-arm designs \code{maxNumberOfSubjectsPerStage} refers
@@ -157,7 +157,8 @@ recalculation. By default, sample size recalculation is performed with condition
 \code{minNumberOfSubjectsPerStage} and \code{maxNumberOfSubjectsPerStage} (see details and examples).}
 
 \item{selectArmsFunction}{Optionally, a function can be entered that defines the way of how treatment arms
-are selected. This function has to depend on \code{effectVector} with length \code{activeArms} (see examples).}
+are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms}
+and \code{stage} (see examples).}
 
 \item{showStatistics}{If \code{TRUE}, summary statistics of the simulated data
 are displayed for the \code{print} command, otherwise the output is suppressed, default

@@ -57,29 +57,45 @@ The different dataset types \code{DatasetMeans}, of \code{DatasetRates}, or
     \code{getDataset(events =, logRanks =, allocationRatios =)} where 
     \code{events}, \code{logRanks}, and \code{allocation ratios} are the stagewise events, 
     (one-sided) logrank statistics, and allocation ratios. 
-	  \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}} 
-	  for more than one comparison is created by adding subsequent digits to the variable names. 
-	  The system can analyze these data in a multi-arm many-to-one comparison setting where the
-	  group with the highest index represents the control group.		  		
+  \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}} 
+    for more than one comparison is created by adding subsequent digits to the variable names. 
+    The system can analyze these data in a multi-arm many-to-one comparison setting where the
+    group with the highest index represents the control group.		  		
 }
 Prefix \code{overall[Capital case of first letter of variable name]...} for the variable 
 names enables entering the overall results and calculates stagewise statistics.
 
+\code{n} can be used in place of \code{samplesizes}. 
+ 
 Note that in survival design usually the overall events and logrank test statistics are provided
 in the output, so \cr
 \code{getDataset(overallEvents=, overallLogRanks =, overallAllocationRatios =)} \cr
 is the usual command for entering survival data. Note also that for \code{overallLogranks} also the
 z scores from a Cox regression can be used.
 
-For multi-arm designs the index refers to the considered comparison. For example,\cr
+For multi-arm designs, the index refers to the considered comparison. For example,\cr
 \code{
-	getDataset(events1=c(13, 33), logRanks1 = c(1.23, 1.55), events2 = c(16, NA), logRanks2 = c(1.55, NA))
+  getDataset(events1=c(13, 33), logRanks1 = c(1.23, 1.55), events2 = c(16, NA), logRanks2 = c(1.55, NA))
 } \cr
 refers to the case where one active arm (1) is considered at both stages whereas active arm 2  
 was dropped at interim. Number of events and logrank statistics are entered for the corresponding
 comparison to control (see Examples). 
 
-\code{n} can be used in place of \code{samplesizes}.
+For enrichment designs, the comparison of two samples is provided for an unstratified  
+(sub-population wise) or stratified data input.\cr
+For unstratified (sub-population wise) data input the data sets are defined for the sub-populations 
+S1, S2, ..., F, where F refers to the full populations. Use of \code{getDataset(S1 = , S2, ..., F = )} 
+defines the data set to be used in \code{\link{getAnalysisResults}} (see examples)\cr
+For stratified data input the data sets are defined for the strata S1, S12, S2, ..., R, where R 
+refers to the remainder of the strata such that the union of all sets is the full population. 
+Use of \code{getDataset(S1 = , S12 = , S2, ..., R = )} defines the data set to be used in 
+\code{\link{getAnalysisResults}} (see examples)\cr
+For survival data, for enrichment designs the log-rank statistics should be entered as stratified
+log-rank statistics in order to provide strong control of Type I error rate. For stratified data input,
+the variables to be specified in \code{getDataset()} are \code{events}, \code{expectedEvents}, 
+\code{varianceEvents}, and \code{allocationRatios} or \code{overallEvents}, \code{overallExpectedEvents}, 
+\code{overallVarianceEvents}, and \code{overallAllocationRatios}. From this, (stratified) log-rank tests are 
+calculated.
 }
 \examples{
 # Create a Dataset of Means (one group):
@@ -104,8 +120,8 @@ as.data.frame(datasetOfMeans)
 datasetOfMeans <- getDataset(
     n1 = c(22, 11, 22, 11),
     n2 = c(22, 13, 22, 13),
-    means1 = c(1, 1.1, 1, 1),
-    means2 = c(1.4, 1.5, 3, 2.5),
+    means1  = c(1, 1.1, 1, 1),
+    means2  = c(1.4, 1.5, 3, 2.5),
     stDevs1 = c(1, 2, 2, 1.3),
     stDevs2 = c(1, 2, 2, 1.3)
 )
@@ -114,8 +130,8 @@ datasetOfMeans
 datasetOfMeans <- getDataset(
     overallSampleSizes1 = c(22, 33, 55, 66),
     overallSampleSizes2 = c(22, 35, 57, 70),
-    overallMeans1 = c(1, 1.033, 1.020, 1.017),
-    overallMeans2 = c(1.4, 1.437, 2.040, 2.126),
+    overallMeans1  = c(1, 1.033, 1.020, 1.017),
+    overallMeans2  = c(1.4, 1.437, 2.040, 2.126),
     overallStDevs1 = c(1, 1.38, 1.64, 1.58),
     overallStDevs2 = c(1, 1.43, 1.82, 1.74)
 )
@@ -123,10 +139,10 @@ datasetOfMeans
 
 df <- data.frame(
     stages = 1:4,
-    n1 = c(22, 11, 22, 11),
-    n2 = c(22, 13, 22, 13),
-    means1 = c(1, 1.1, 1, 1),
-    means2 = c(1.4, 1.5, 3, 2.5),
+    n1      = c(22, 11, 22, 11),
+    n2      = c(22, 13, 22, 13),
+    means1  = c(1, 1.1, 1, 1),
+    means2  = c(1.4, 1.5, 3, 2.5),
     stDevs1 = c(1, 2, 2, 1.3),
     stDevs2 = c(1, 2, 2, 1.3)
 )
@@ -136,12 +152,12 @@ datasetOfMeans
 # Create a Dataset of Means (three groups) where the comparison of 
 # treatment arm 1 to control is dropped at the second interim stage:
 datasetOfMeans <- getDataset(
-   overallN1 = c(22, 33, NA),
-   overallN2 = c(20, 34, 56),
-   overallN3 = c(22, 31, 52),
-   overallMeans1 = c(1.64, 1.54, NA),
-   overallMeans2 = c(1.7, 1.5, 1.77),
-   overallMeans3 = c(2.5, 2.06, 2.99),
+   overallN1      = c(22, 33, NA),
+   overallN2      = c(20, 34, 56),
+   overallN3      = c(22, 31, 52),
+   overallMeans1  = c(1.64, 1.54, NA),
+   overallMeans2  = c(1.7, 1.5, 1.77),
+   overallMeans3  = c(2.5, 2.06, 2.99),
    overallStDevs1 = c(1.5, 1.9, NA),
    overallStDevs2 = c(1.3, 1.3, 1.1),
    overallStDevs3 = c(1, 1.3, 1.8))
@@ -156,8 +172,8 @@ datasetOfRates
 
 # Create a Dataset of Rates (two groups):
 datasetOfRates <- getDataset(
-    n2 = c(8, 10, 9, 11),
-    n1 = c(11, 13, 12, 13),
+    n2      = c(8, 10, 9, 11),
+    n1      = c(11, 13, 12, 13),
     events2 = c(3, 5, 5, 6),
     events1 = c(10, 10, 12, 12)
 )
@@ -166,9 +182,9 @@ datasetOfRates
 # Create a Dataset of Rates (three groups) where the comparison of 
 # treatment arm 2 to control is dropped at the first interim stage:
 datasetOfRates <- getDataset(
-    overallN1 = c(22, 33, 44),
-    overallN2 = c(20, NA, NA),
-    overallN3 = c(20, 34, 44),
+    overallN1      = c(22, 33, 44),
+    overallN2      = c(20, NA, NA),
+    overallN3      = c(20, 34, 44),
     overallEvents1 = c(11, 14, 22),
     overallEvents2 = c(17, NA, NA),
     overallEvents3 = c(17, 19, 33))
@@ -186,16 +202,77 @@ datasetSurvival
 # arm 2 was dropped at the first interim stage, and treatment arm 4
 # at the second.
 datasetSurvival <- getDataset(
-    overallEvents1 = c(18, 45, 56),
-    overallEvents2 = c(22, NA, NA),
-    overallEvents3 = c(12, 41, 56),
-    overallEvents4 = c(27, 56, NA),
+    overallEvents1   = c(18, 45, 56),
+    overallEvents2   = c(22, NA, NA),
+    overallEvents3   = c(12, 41, 56),
+    overallEvents4   = c(27, 56, NA),
     overallLogRanks1 = c(1.52, 1.98, 1.99),
     overallLogRanks2 = c(3.43, NA, NA),
     overallLogRanks3 = c(1.45, 1.67, 1.87),
     overallLogRanks4 = c(1.12, 1.33, NA)
 )
 datasetSurvival
+
+# Enrichment: Stratified and unstratified data input
+# The following data are from one study. Only the first 
+# (stratified) data input enables a stratified analysis. 
+
+# Stratified data input
+S1 <- getDataset(
+    sampleSize1 = c(18, 17), 
+    sampleSize2 = c(12, 33), 
+    mean1       = c(125.6, 111.1), 
+    mean2       = c(107.7, 77.7), 
+    stDev1      = c(120.1, 145.6),
+    stDev2      = c(128.5, 133.3)) 
+S2 <- getDataset(
+    sampleSize1 = c(11, NA), 
+    sampleSize2 = c(14, NA), 
+    mean1       = c(100.1, NA), 
+    mean2      = c( 68.3, NA), 
+    stDev1      = c(116.8, NA),
+    stDev2      = c(124.0, NA)) 
+S12 <- getDataset(           
+    sampleSize1 = c(21, 17), 
+    sampleSize2 = c(21, 12), 
+    mean1       = c(135.9, 117.7), 
+    mean2       = c(84.9, 107.7), 
+    stDev1      = c(185.0, 92.3),
+    stDev2      = c(139.5, 107.7)) 
+R <- getDataset(
+    sampleSize1 = c(19, NA), 
+    sampleSize2 = c(33, NA), 
+    mean1       = c(142.4, NA), 
+    mean2       = c(77.1, NA), 
+    stDev1      = c(120.6, NA),
+    stDev2      = c(163.5, NA)) 
+dataEnrichment <- getDataset(S1 = S1, S2 = S2, S12 = S12, R = R)
+dataEnrichment
+
+# Unstratified data input
+S1N <- getDataset(
+    sampleSize1 = c(39, 34), 
+    sampleSize2 = c(33, 45), 
+    stDev1      = c(156.503, 120.084), 
+    stDev2      = c(134.025, 126.502), 
+    mean1       = c(131.146, 114.4), 
+    mean2       = c(93.191, 85.7))
+S2N <- getDataset(
+    sampleSize1 = c(32, NA), 
+    sampleSize2 = c(35, NA), 
+    stDev1      = c(163.645, NA), 
+    stDev2      = c(131.888, NA),
+    mean1       = c(123.594, NA), 
+    mean2       = c(78.26, NA))
+F <- getDataset(
+    sampleSize1 = c(69, NA), 
+    sampleSize2 = c(80, NA), 
+    stDev1      = c(165.468, NA), 
+    stDev2      = c(143.979, NA), 
+    mean1       = c(129.296, NA), 
+    mean2       = c(82.187, NA))
+dataEnrichmentN <- getDataset(S1 = S1N, S2 = S2N, F = F)
+dataEnrichmentN
 }
 
 }

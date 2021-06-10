@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4442 $
-#:#  Last changed: $Date: 2021-02-19 11:15:11 +0100 (Fr, 19 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4896 $
+#:#  Last changed: $Date: 2021-05-20 14:43:39 +0200 (Thu, 20 May 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 .addEffectScaleBoundaryDataToDesignPlan <- function(designPlan) {
@@ -109,7 +109,7 @@
 				design$informationRates %*% t(maxNumberOfSubjects) - designPlan$groups)
 		
 		criticalValues[criticalValues > 50] <- NA_real_     #   outside validated range
-		if (any(is.na(criticalValues))){
+		if (any(is.na(criticalValues))) {
 			warning("At least one computation of efficacy boundaries on effect scale not performed due to too small df", call. = FALSE) 
 		}
 		
@@ -129,7 +129,7 @@
 				sqrt(design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects))
 		}
 		if (!.isTrialDesignFisher(design) && design$sided == 2 && 
-				(design$typeOfDesign == "PT")) {
+				design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			futilityBoundsEffectScaleLower <- thetaH0 - futilityBounds * stDev / 
 					sqrt(design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects))
 		}	
@@ -146,7 +146,7 @@
 				design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects)))
 		}
 		if (!.isTrialDesignFisher(design) && design$sided == 2 && 
-				(design$typeOfDesign == "PT")) {
+				design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			futilityBoundsEffectScaleLower <- thetaH0 - futilityBounds * stDev * 
 					(1 + allocationRatioPlanned) / (sqrt(allocationRatioPlanned * 
 					design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects)))
@@ -167,7 +167,7 @@
 
 		}
 		if (!.isTrialDesignFisher(design) && design$sided == 2 && 
-				(design$typeOfDesign == "PT")) {
+				design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			futilityBoundsEffectScaleLower <- thetaH0 - futilityBounds * stDev * 
 					sqrt(1 + 1 / allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned)) /
 					(sqrt(design$informationRates[1:(design$kMax - 1)] %*% t(maxNumberOfSubjects)))
@@ -237,7 +237,7 @@
 					futilityBounds * sqrt(thetaH0 * (1 - thetaH0)) / 
 					sqrt(n1[1:(design$kMax - 1), j])
 			}
-			if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == "PT") {
+			if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 				futilityBoundsEffectScaleLower[, j] <- thetaH0 - (2 * directionUpper[j] - 1) * 
 						futilityBounds * sqrt(thetaH0 * (1 - thetaH0)) / 
 						sqrt(n1[1:(design$kMax - 1), j])
@@ -308,7 +308,7 @@
 			}
 		}
 		
-		if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == "PT") {
+		if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			boundaries <- -futilityBounds
 			for (j in (1:nParameters)) {
 				n1 <- allocationRatioPlanned[j] * design$informationRates * 
@@ -391,7 +391,7 @@
 				}	
 			}
 		}
-		if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == "PT") {
+		if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			boundaries <- -futilityBounds
 			for (j in (1:nParameters)) {
 				n1 <- allocationRatioPlanned[j] * design$informationRates * maxNumberOfSubjects[j] / 
@@ -473,7 +473,7 @@
 				(1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] * 
 				eventsPerStage[1:(design$kMax - 1), j])))
 		}
-		if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == "PT") {
+		if (!.isTrialDesignFisher(design) && design$sided == 2 && design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
 			futilityBoundsEffectScaleLower[, j] <- thetaH0 * (exp(-(2*directionUpper[j] - 1) * futilityBounds *
 				(1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] * 
 				eventsPerStage[1:(design$kMax - 1), j])))
@@ -539,7 +539,7 @@ getSampleSizeMeans <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "sampleSize")
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeMeans", 
-			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = FALSE), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeMeans", ...)
@@ -555,7 +555,9 @@ getSampleSizeMeans <- function(design = NULL, ...,
 }
 
 .warnInCaseOfTwoSidedPowerArgument <- function(...) {
-	if ("twoSidedPower" %in% names(list(...))) {
+	args <- list(...)
+	argNames <- names(args)
+	if ("twoSidedPower" %in% argNames) {
 		warning("'twoSidedPower' can only be defined in 'design'", call. = FALSE)
 	}
 }
@@ -619,7 +621,7 @@ getSampleSizeRates <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "sampleSize")
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeRates", 
-			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = FALSE), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeRates", ...)
@@ -736,7 +738,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "sampleSize", ignore = c("accountForObservationTimes"))
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", 
-			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), "accountForObservationTimes"), ...)
+			ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = FALSE), "accountForObservationTimes"), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", ..., ignore = c("accountForObservationTimes"))
@@ -873,14 +875,14 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 					stop(expectionMessage, call. = FALSE)
 				}
 				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-						"'additionalAccrual' could not be found, change accrual time specification", call. = FALSE)
+					"'additionalAccrual' could not be found, change accrual time specification", call. = FALSE)
 			}
 			
 			# define lower bound for maxNumberOfSubjects
 			maxNumberOfSubjectsLower <- ceiling(max(na.omit(c(sampleSize$eventsFixed, 
 				as.vector(sampleSize$eventsPerStage)))))
 			if (is.na(maxNumberOfSubjectsLower)) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'maxNumberOfSubjectsLower' could not be found", call. = FALSE)
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjectsLower' could not be found", call. = FALSE)
 			}
 		
 			# check whether accrual time already fulfills requirement 
@@ -894,7 +896,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 				fut <- 2 * abs(fut)  
 				iterations <- iterations + 1
 				if (iterations > 50) {
-					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "search algorithm failed", call. = FALSE)
+					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "search algorithm failed to end", call. = FALSE)
 				}
 			}
 			while (!is.na(fut) && fut > followUpTime && maxSearchIterations >= 0) {
@@ -936,7 +938,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 					(1 - dropoutRate2)^((accrualSetup$accrualTime[length(accrualSetup$accrualTime)] + 
 					additionalAccrual) / dropoutTime)) /  
 					(allocationRatioPlanned + 1))
-				
+			
 				prec <- 1
 				maxSearchIterations <- 50
 				while (prec > 1e-04 && maxSearchIterations >= 0) {
@@ -963,7 +965,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 				}
 			} else {
 				maxNumberOfSubjectsTarget <- .getOneDimensionalRootBisectionMethod(
-					f = function(x) {
+					fun = function(x) {
 						fut <- .getSampleSizeSurvival(design = design, 
 							typeOfComputation = typeOfComputation, 
 							thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1, 
@@ -1162,8 +1164,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	}
 	
 	if (design$sided == 2 && thetaH0 != 1) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-				"two-sided case is implemented for superiority testing only (i.e., thetaH0 = 1)")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+			"two-sided case is implemented for superiority testing only (i.e., thetaH0 = 1)")
 	}
 	
 	if (thetaH0 <= 0) { 
@@ -1173,13 +1175,13 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	
 	if (!(typeOfComputation %in% c("Schoenfeld", "Freedman", "HsiehFreedman"))) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"computation type ('", typeOfComputation, "') must be one of the following: ", 
-				"'Schoenfeld', 'Freedman', or 'HsiehFreedman' ")
+			"computation type ('", typeOfComputation, "') must be one of the following: ", 
+			"'Schoenfeld', 'Freedman', or 'HsiehFreedman' ")
 	}
 	
 	if (typeOfComputation != "Schoenfeld" && thetaH0 != 1) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-				"Freedman test calculation is possible only for superiority testing (thetaH0 != 1)")
+			"Freedman test calculation is possible only for superiority testing (thetaH0 != 1)")
 	}
 	
 	if (is.numeric(accrualTime) && all(is.na(accrualTime))) {
@@ -1224,6 +1226,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	.setValueAndParameterType(designPlan, "dropoutRate1", dropoutRate1, C_DROP_OUT_RATE_1_DEFAULT)
 	.setValueAndParameterType(designPlan, "dropoutRate2", dropoutRate2, C_DROP_OUT_RATE_2_DEFAULT)
 	.setValueAndParameterType(designPlan, "dropoutTime", dropoutTime, C_DROP_OUT_TIME_DEFAULT)
+	.setValueAndParameterType(designPlan, "kappa", kappa, 1)
 	
 	designPlan$.setSampleSizeObject(objectType)
 	
@@ -1566,7 +1569,12 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			}
 			
 			designPlan$informationRates <- sampleSizeSequential$informationRates
-			designPlan$.setParameterType("informationRates", C_PARAM_GENERATED)
+			if (ncol(designPlan$informationRates) == 1 && 
+					identical(designPlan$informationRates[, 1], designPlan$.design$informationRates)) {
+				designPlan$.setParameterType("informationRates", C_PARAM_NOT_APPLICABLE)
+			} else {
+				designPlan$.setParameterType("informationRates", C_PARAM_GENERATED)
+			}
 			
 			designPlan$maxNumberOfSubjects <- sampleSizeSequential$maxNumberOfSubjects
 			designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
@@ -1662,7 +1670,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			}
 			
 			if (any(designPlan$accrualIntensity < 0)) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"'accrualIntensityRelative' (", 
 					.arrayToString(designPlan$accrualIntensity), ") must be >= 0")
 			}
@@ -1725,10 +1733,6 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 			warning("Follow-up time could not be calculated for pi1 = ",
 				.arrayToString(designPlan$pi1[indices]),
 				call. = FALSE)
-		}
-		
-		if (designPlan$.design$kMax == 1) {
-			designPlan$.setParameterType("kappa", C_PARAM_NOT_APPLICABLE)
 		}
 		
 		if (designPlan$.getParameterType("accountForObservationTimes") != C_PARAM_USER_DEFINED) {
@@ -2418,7 +2422,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 	}
 	
 	if (length(piecewiseSurvivalTime) < 2) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "length of 'piecewiseSurvivalTime' (", 
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "length of 'piecewiseSurvivalTime' (", 
 				length(piecewiseSurvivalTime), ") must be > 1")
 	}
 	
@@ -2694,7 +2698,7 @@ getEventProbabilities <- function(time, ...,
 		dropoutTime            = dropoutTime, 
 		maxNumberOfSubjects    = maxNumberOfSubjects)
 	
-	eventProbabilities$.setParameterType("time", C_PARAM_GENERATED)
+	eventProbabilities$.setParameterType("time", C_PARAM_USER_DEFINED)
 	eventProbabilities$.setParameterType("accrualTime", 
 		accrualSetup$.getParameterType("accrualTime"))
 	eventProbabilities$.setParameterType("accrualIntensity", 
@@ -2826,7 +2830,7 @@ getNumberOfSubjects <- function(time, ...,
 		numberOfSubjects = numberOfSubjects
 	)
 	
-	result$.setParameterType("time", C_PARAM_GENERATED)
+	result$.setParameterType("time", C_PARAM_USER_DEFINED)
 	result$.setParameterType("accrualTime", accrualSetup$.getParameterType("accrualTime"))
 	result$.setParameterType("accrualIntensity", accrualSetup$.getParameterType("accrualIntensity"))
 	result$.setParameterType("maxNumberOfSubjects", accrualSetup$.getParameterType("maxNumberOfSubjects"))
@@ -2866,7 +2870,7 @@ getNumberOfSubjects <- function(time, ...,
 	
 	if (length(densityIntervals) > 1 && length(accrualIntensity) > 1 && 
 			length(densityIntervals) != length(accrualIntensity)) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'densityIntervals' (", .arrayToString(densityIntervals), 
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'densityIntervals' (", .arrayToString(densityIntervals), 
 			") and 'accrualIntensity' (", .arrayToString(accrualIntensity), ") must have same length")
 	}
 	
@@ -3139,7 +3143,7 @@ getNumberOfSubjects <- function(time, ...,
 		} else {
 			
 			if (length(maxNumberOfSubjects) > 1) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"length of user defined 'maxNumberOfSubjects' (", 
 					.arrayToString(maxNumberOfSubjects), ") must be 1")
 			}
@@ -3381,7 +3385,7 @@ getNumberOfSubjects <- function(time, ...,
 				}
 				
 				if (is.na(designPlan$followUpTime)) {
-					stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 						"'followUpTime' must be defined because 'designPlan$.calculateFollowUpTime' = FALSE")
 				}
 				
@@ -3498,7 +3502,12 @@ getNumberOfSubjects <- function(time, ...,
 	designPlan$.setParameterType("maxNumberOfSubjects1", C_PARAM_GENERATED)
 	designPlan$.setParameterType("maxNumberOfSubjects2", C_PARAM_GENERATED)
 	
-	designPlan$.setParameterType("informationRates", C_PARAM_GENERATED)
+	if (ncol(designPlan$informationRates) == 1 && 
+		identical(designPlan$informationRates[, 1], designPlan$.design$informationRates)) {
+		designPlan$.setParameterType("informationRates", C_PARAM_NOT_APPLICABLE)
+	} else {
+		designPlan$.setParameterType("informationRates", C_PARAM_GENERATED)
+	}
 	designPlan$.setParameterType("numberOfSubjects", C_PARAM_GENERATED)
 	designPlan$.setParameterType("eventsPerStage", C_PARAM_GENERATED)
 	
@@ -3678,7 +3687,7 @@ getNumberOfSubjects <- function(time, ...,
 		}
 		
 		if (!normalApproximation && design$sided == 2) {
-			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"exact sample size calculation not available for two-sided testing")
 		}
 	}
@@ -3708,11 +3717,11 @@ getNumberOfSubjects <- function(time, ...,
 		}
 		
 		if (design$sided == 2 && ((thetaH0 != 0 && !riskRatio) || (thetaH0 != 1 && riskRatio))) {
-			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "two-sided case is implemented only for superiority testing")
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "two-sided case is implemented only for superiority testing")
 		}
 		
 		if (!normalApproximation) {
-			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 				"only normal approximation case is implemented for two groups")
 		}
 		
@@ -3832,7 +3841,7 @@ getNumberOfSubjects <- function(time, ...,
 #' @export
 #' 
 getPowerMeans <- function(design = NULL, ..., 
-		groups = 2, 
+		groups = 2L, 
 		normalApproximation = FALSE, 
 		meanRatio = FALSE, 
 		thetaH0 = ifelse(meanRatio, 1, 0), 
@@ -3848,7 +3857,7 @@ getPowerMeans <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "power")
 		.warnInCaseOfUnknownArguments(functionName = "getPowerMeans", 
-			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), ...)
 	} else {
 		.warnInCaseOfUnknownArguments(functionName = "getPowerMeans", ...)
 		.assertIsTrialDesign(design)
@@ -3973,7 +3982,7 @@ getPowerMeans <- function(design = NULL, ...,
 #' @export
 #' 
 getPowerRates <- function(design = NULL, ..., 
-		groups = 2, 
+		groups = 2L, 
 		riskRatio = FALSE, 
 		thetaH0 = ifelse(riskRatio, 1, 0), 
 		pi1 = seq(0.2, 0.5, 0.1),          # C_PI_1_DEFAULT
@@ -3986,7 +3995,7 @@ getPowerRates <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "power")
 		.warnInCaseOfUnknownArguments(functionName = "getPowerRates", 
-			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), ...)
 	} else {
 		.warnInCaseOfUnknownArguments(functionName = "getPowerRates", ...)
 		.assertIsTrialDesign(design)
@@ -4079,7 +4088,7 @@ getPowerRates <- function(design = NULL, ...,
 .getNumberOfSubjectsInner <- function(..., timeValue, accrualTime, accrualIntensity, maxNumberOfSubjects) {
 	.assertIsSingleNumber(timeValue, "timeValue")
 	if (length(accrualTime) != length(accrualIntensity)) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "length of 'accrualTime' (", length(accrualIntensity), ") ",
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "length of 'accrualTime' (", length(accrualIntensity), ") ",
 				"must be equel to length of 'accrualIntensity' (", length(accrualIntensity), ")")
 	}
 	
@@ -4204,7 +4213,7 @@ getPowerSurvival <- function(design = NULL, ...,
 	if (is.null(design)) {
 		design <- .getDefaultDesign(..., type = "power")
 		.warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", 
-			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design), ...)
+			ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), ...)
 	} else {
 		.assertIsTrialDesign(design)
 		.warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", ...)

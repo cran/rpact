@@ -22,7 +22,8 @@ The following generics (R generic functions) are available for this result objec
 }
 }
 \description{
-Calculates and returns the results from the closed combination test.
+Calculates and returns the results from the closed combination test in multi-arm
+and population enrichment designs.
 }
 \section{How to get help for generic functions}{
 

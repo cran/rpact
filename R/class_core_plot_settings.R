@@ -13,10 +13,49 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4443 $
-#:#  Last changed: $Date: 2021-02-22 09:13:17 +0100 (Mon, 22 Feb 2021) $
+#:#  File version: $Revision: 4863 $
+#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
+
+#' 
+#' @title
+#' Get Plot Settings
+#' 
+#' @description
+#' Returns a plot settings object.
+#' 
+#' @param lineSize The line size, default is \code{0.8}.
+#' @param pointSize The point size, default is \code{3}.
+#' @param pointColor The point color (character), default is \code{NA_character_}.
+#' @param mainTitleFontSize The main title font size, default is \code{14}.
+#' @param axesTextFontSize The axes text font size, default is \code{10}.
+#' @param legendFontSize The legend font size, default is \code{11}.
+#' @param scalingFactor The scaling factor, default is \code{1}.
+#' 
+#' @details
+#' Returns an object of class \code{PlotSettings} that collects typical plot settings.
+#' 
+#' @export 
+#' 
+#' @keywords internal
+#' 
+getPlotSettings <- function(
+		lineSize = 0.8, 
+		pointSize = 3, 
+		pointColor = NA_character_,
+		mainTitleFontSize = 14,
+		axesTextFontSize = 10,
+		legendFontSize = 11, 
+		scalingFactor = 1) {
+	return(PlotSettings(lineSize = lineSize, 
+		pointSize = pointSize, 
+		pointColor = pointColor,
+		mainTitleFontSize = mainTitleFontSize, 
+		axesTextFontSize = axesTextFontSize, 
+		legendFontSize = legendFontSize, 
+		scalingFactor = scalingFactor))
+}
 
 #' 
 #' @name PlotSettings
@@ -29,9 +68,11 @@
 #' 
 #' @field lineSize The line size.
 #' @field pointSize The point size.
+#' @field pointColor The point color, e.g., "red" or "blue".
 #' @field mainTitleFontSize The main tile font size.
 #' @field axesTextFontSize The text font size.
 #' @field legendFontSize The legend font size.
+#' @field scalingFactor The scaling factor.
 #' 
 #' @details
 #' Collects typical plot settings in an object.
@@ -51,6 +92,7 @@ PlotSettings <- setRefClass("PlotSettings",
 		.legendFontSize = "numeric",
 		lineSize = "numeric",
 		pointSize = "numeric",
+		pointColor = "character",
 		mainTitleFontSize = "numeric",
 		axesTextFontSize = "numeric",
 		legendFontSize = "numeric",
@@ -61,6 +103,7 @@ PlotSettings <- setRefClass("PlotSettings",
 		initialize = function(
 				lineSize = 0.8, 
 				pointSize = 3, 
+				pointColor = NA_character_,
 				mainTitleFontSize = 14,
 				axesTextFontSize = 10,
 				legendFontSize = 11, 
@@ -69,6 +112,7 @@ PlotSettings <- setRefClass("PlotSettings",
 			callSuper(
 				lineSize = lineSize, 
 				pointSize = pointSize, 
+				pointColor = pointColor,
 				mainTitleFontSize = mainTitleFontSize, 
 				axesTextFontSize = axesTextFontSize, 
 				legendFontSize = legendFontSize, 
@@ -81,11 +125,24 @@ PlotSettings <- setRefClass("PlotSettings",
 			.parameterNames <<- list(
 				"lineSize" = "Line size",
 				"pointSize" = "Point size",
+				"pointColor" = "Point color",
 				"mainTitleFontSize" = "Main title font size",
 				"axesTextFontSize" = "Axes text font size",
 				"legendFontSize" = "Legend font size",
 				"scalingFactor" = "Scaling factor"
 			)
+		},
+		
+		clone = function() {
+			return(PlotSettings(
+				lineSize = .self$lineSize,
+				pointSize = .self$pointSize,
+				pointColor = .self$pointColor,
+				mainTitleFontSize = .self$mainTitleFontSize,
+				axesTextFontSize = .self$axesTextFontSize,
+				legendFontSize = .self$legendFontSize,
+				scalingFactor = .self$scalingFactor
+			))
 		},
 		
 		show = function(showType = 1, digits = NA_integer_) {
@@ -149,10 +206,10 @@ PlotSettings <- setRefClass("PlotSettings",
 		
 		setAxesAppearance = function(p) {
 			"Sets the font size and face of the axes titles and texts"
-			p <- p + ggplot2::theme(axis.title.x = ggplot2::element_text(size = scaleSize(axesTextFontSize + 1), face = "bold"))
-			p <- p + ggplot2::theme(axis.title.y = ggplot2::element_text(size = scaleSize(axesTextFontSize + 1), face = "bold"))
-			p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(size = scaleSize(axesTextFontSize)))
-			p <- p + ggplot2::theme(axis.text.y = ggplot2::element_text(size = scaleSize(axesTextFontSize)))
+			p <- p + ggplot2::theme(axis.title.x = ggplot2::element_text(size = scaleSize(.self$axesTextFontSize + 1), face = "bold"))
+			p <- p + ggplot2::theme(axis.title.y = ggplot2::element_text(size = scaleSize(.self$axesTextFontSize + 1), face = "bold"))
+			p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(size = scaleSize(.self$axesTextFontSize)))
+			p <- p + ggplot2::theme(axis.text.y = ggplot2::element_text(size = scaleSize(.self$axesTextFontSize)))
 			return(p)
 		},
 		
@@ -210,7 +267,7 @@ PlotSettings <- setRefClass("PlotSettings",
 							lineBreakIndex = scaleSize(.legendLineBreakIndex))) 
 				}
 				p <- p + ggplot2::theme(legend.title = ggplot2::element_text(
-						colour = "black", size = scaleSize(legendFontSize + 1), face = "bold"))
+						colour = "black", size = scaleSize(.self$legendFontSize + 1), face = "bold"))
 			} else {
 				p <- p + ggplot2::theme(legend.title = ggplot2::element_blank())
 				p <- p + ggplot2::labs(colour = NULL)
@@ -219,13 +276,13 @@ PlotSettings <- setRefClass("PlotSettings",
 		},
 		
 		setLegendLabelSize = function(p) {
-			p <- p + ggplot2::theme(legend.text = ggplot2::element_text(size = scaleSize(legendFontSize)))
+			p <- p + ggplot2::theme(legend.text = ggplot2::element_text(size = scaleSize(.self$legendFontSize)))
 			return(p)
 		},
 		
 		setLegendPosition = function(p, legendPosition) {
 			.assertIsValidLegendPosition(legendPosition)
-			
+
 			switch(as.character(legendPosition),
 				'-1' = {
 					p <- p + ggplot2::theme(legend.position = "none")
@@ -264,21 +321,23 @@ PlotSettings <- setRefClass("PlotSettings",
 		},
 		
 		adjustPointSize = function(adjustingValue) {
-			pointSize <<- .pointSize + adjustingValue
+			.assertIsInClosedInterval(adjustingValue, "adjustingValue", lower = 0.1, upper = 2)
+			.self$pointSize <<- .self$.pointSize * adjustingValue
 		},
 		
 		adjustLegendFontSize = function(adjustingValue) {
 			"Adjusts the legend font size, e.g., run \\cr
 			\\code{adjustLegendFontSize(-2)} # makes the font size 2 points smaller"
-			legendFontSize <<- .legendFontSize + adjustingValue
+			.assertIsInClosedInterval(adjustingValue, "adjustingValue", lower = 0.1, upper = 2)
+			.self$legendFontSize <<- .self$.legendFontSize * adjustingValue
 		},
 		
 		scaleSize = function(size, pointEnabled = FALSE) {
 			if (pointEnabled) {
-				return(size * scalingFactor^2)
+				return(size * .self$scalingFactor^2)
 			}
 			
-			return(size * scalingFactor)
+			return(size * .self$scalingFactor)
 		},
 		
 		setMainTitle = function(p, mainTitle, subtitle = NA_character_) {
@@ -288,16 +347,18 @@ PlotSettings <- setRefClass("PlotSettings",
 				p <- p + ggplot2::ggtitle(mainTitle, subtitle = subtitle)
 				targetWidth = 130
 				subtitleFontSize <- targetWidth / nchar(subtitle) * 8 
-				if (subtitleFontSize > scaleSize(mainTitleFontSize) - 2) {
-					subtitleFontSize <- scaleSize(mainTitleFontSize) - 2
+				if (subtitleFontSize > scaleSize(.self$mainTitleFontSize) - 2) {
+					subtitleFontSize <- scaleSize(.self$mainTitleFontSize) - 2
 				}
 				p <- p + ggplot2::theme(
-					plot.title = ggplot2::element_text(hjust = 0.5, size = scaleSize(mainTitleFontSize), face = "bold"), 
-					plot.subtitle = ggplot2::element_text(hjust = 0.5, size = scaleSize(subtitleFontSize)))
+					plot.title = ggplot2::element_text(hjust = 0.5, 
+						size = scaleSize(.self$mainTitleFontSize), face = "bold"), 
+					plot.subtitle = ggplot2::element_text(hjust = 0.5, 
+						size = scaleSize(subtitleFontSize)))
 			} else {
 				p <- p + ggplot2::ggtitle(mainTitle)
 				p <- p + ggplot2::theme(plot.title = ggplot2::element_text(
-						hjust = 0.5, size = scaleSize(mainTitleFontSize), face = "bold"))				
+						hjust = 0.5, size = scaleSize(.self$mainTitleFontSize), face = "bold"))				
 			}
 			
 			return(p)
@@ -346,18 +407,34 @@ PlotSettings <- setRefClass("PlotSettings",
 			return(p)
 		},
 		
+		plotPoints = function(p, pointBorder, ..., mapping = NULL) {
+			
+			# plot white border around the points
+			if (pointBorder > 0) {
+				p <- p + ggplot2::geom_point(mapping = mapping, 
+					color = "white", size = scaleSize(.self$pointSize, TRUE), alpha = 1, 
+					shape = 21, stroke = pointBorder / 2.25, show.legend = FALSE)
+			}
+			
+			if (!is.null(.self$pointColor) && length(.self$pointColor) == 1 && !is.na(.self$pointColor)) {
+				p <- p + ggplot2::geom_point(mapping = mapping, 
+					color = .self$pointColor, size = scaleSize(.self$pointSize, TRUE), alpha = 1, 
+					shape = 19, show.legend = FALSE)
+			} else {
+				p <- p + ggplot2::geom_point(mapping = mapping, 
+					size = scaleSize(.self$pointSize, TRUE), alpha = 1, 
+					shape = 19, show.legend = FALSE)
+			}
+			return(p)
+		},
+		
 		plotValues = function(p, ..., plotLineEnabled = TRUE, 
 				plotPointsEnabled = TRUE, pointBorder = 4) {
 			if (plotLineEnabled) {
-				p <- p + ggplot2::geom_line(size = scaleSize(lineSize))
+				p <- p + ggplot2::geom_line(size = scaleSize(.self$lineSize))
 			}
 			if (plotPointsEnabled) {
-				# plot white border around the points
-				if (pointBorder > 0) {
-					p <- p + ggplot2::geom_point(color = "white", size = scaleSize(pointSize, TRUE), alpha = 1, 
-						shape = 21, stroke = pointBorder / 2.25, show.legend = FALSE)
-				}
-				p <- p + ggplot2::geom_point(size = scaleSize(pointSize, TRUE), show.legend = FALSE)	
+				p <- plotPoints(p, pointBorder)
 			}
 			return(p)
 		},
@@ -365,16 +442,10 @@ PlotSettings <- setRefClass("PlotSettings",
 		mirrorYValues = function(p, yValues, plotLineEnabled = TRUE, 
 				plotPointsEnabled = TRUE, pointBorder = 4) {
 			if (plotLineEnabled) {
-				p <- p + ggplot2::geom_line(ggplot2::aes(y = -yValues), size = scaleSize(lineSize))
+				p <- p + ggplot2::geom_line(ggplot2::aes(y = -yValues), size = scaleSize(.self$lineSize))
 			}
 			if (plotPointsEnabled) {
-				# plot white border around the points
-				if (pointBorder > 0) {
-					p <- p + ggplot2::geom_point(ggplot2::aes(y = -yValues), 
-						color = "white", size = scaleSize(pointSize - 1), alpha = 1, 
-						shape = 21, stroke = scaleSize(pointBorder / 2.25))
-				}
-				p <- p + ggplot2::geom_point(ggplot2::aes(y = -yValues), size = scaleSize(pointSize, TRUE))
+				p <- plotPoints(p, pointBorder, mapping = ggplot2::aes(y = -yValues))
 			}
 			return(p)
 		},

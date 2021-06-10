@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4311 $
-#:#  Last changed: $Date: 2021-02-03 11:38:47 +0100 (Mi, 03 Feb 2021) $
+#:#  File version: $Revision: 4885 $
+#:#  Last changed: $Date: 2021-05-18 16:49:59 +0200 (Di, 18 Mai 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -23,7 +23,7 @@ NULL
 
 .getDefaultDesign <- function(..., 
 		type = c("sampleSize", "power", "simulation", "analysis"), 
-		ignore = c(), multiArmEnabled = FALSE) {
+		ignore = c()) {
 		
 	type <- match.arg(type)
 	
@@ -33,22 +33,21 @@ NULL
 	} else {
 		ignore <- c(ignore, "alpha")
 	}
+	
 	beta <- .getOptionalArgument("beta", ...)
 	if (is.null(beta)) {
 		beta <- NA_real_
 	} else {
 		ignore <- c(ignore, "beta")
 	}
-	if (!multiArmEnabled) {
-		sided <- .getOptionalArgument("sided", ...)
-		if (is.null(sided)) {
-			sided <- 1L
-		} else {
-			ignore <- c(ignore, "sided")
-		}
-	} else {
+	
+	sided <- .getOptionalArgument("sided", ...)
+	if (is.null(sided)) {
 		sided <- 1L
+	} else {
+		ignore <- c(ignore, "sided")
 	}
+	
 	twoSidedPower <- .getOptionalArgument("twoSidedPower", ...)
 	if (is.null(twoSidedPower)) {
 		if (type %in% c("power", "simulation") && sided == 2) {
@@ -59,7 +58,7 @@ NULL
 	} else {
 		ignore <- c(ignore, "twoSidedPower")
 	}
-	if (type == "analysis" || multiArmEnabled) {
+	if (type %in% c("analysis")) {
 		design <- getDesignInverseNormal(kMax = 1, alpha = alpha, beta = beta, 
 			sided = sided, twoSidedPower = twoSidedPower)
 	} else {
@@ -69,17 +68,19 @@ NULL
 	return(design)
 }
 
-.getDesignArgumentsToIgnoreAtUnknownArgumentCheck <- function(design, multiArmEnabled = FALSE) {
+.getDesignArgumentsToIgnoreAtUnknownArgumentCheck <- function(design, powerCalculationEnabled = FALSE) {
+
 	if (design$kMax > 1) {
 		return(character(0))
 	}
 	
-	if (multiArmEnabled) {
-		return(c("alpha", "beta", "twoSidedPower"))
+	if (powerCalculationEnabled) {
+		return(c("alpha", "sided"))
 	}
 	
 	return(c("alpha", "beta", "sided", "twoSidedPower"))
 }
+
 
 .getValidatedFutilityBounds <- function(design, kMaxLowerBound = 1, 
 		writeToDesign = TRUE, twoSidedWarningForDefaultValues = TRUE) {
@@ -101,6 +102,9 @@ NULL
 		kMaxLowerBound, writeToDesign, twoSidedWarningForDefaultValues = TRUE) {
 	
 	parameterValues <- design[[parameterName]]
+	if (length(parameterValues) > 1) {
+		.assertIsNumericVector(parameterValues, parameterName, naAllowed = FALSE)
+	}
 	
 	kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
 	if (.isDefinedArgument(parameterValues) && .isDefinedArgument(design$kMax)) {
@@ -113,7 +117,8 @@ NULL
 		}
 	}
 	
-	if (design$sided == 2 && .isDefinedArgument(parameterValues) && !(design$typeOfDesign == "PT") &&
+	if (design$sided == 2 && .isDefinedArgument(parameterValues) && 
+			(!.isTrialDesignInverseNormalOrGroupSequential(design) || design$typeOfDesign != C_TYPE_OF_DESIGN_PT) &&
 			(twoSidedWarningForDefaultValues && !all(is.na(parameterValues)) || 
 			(!twoSidedWarningForDefaultValues && any(na.omit(parameterValues) != defaultValue)))) {
 		
@@ -193,7 +198,7 @@ NULL
 		return(FALSE)
 	}
 	
-	if (!.isBetaSpendingDesignType(design$typeBetaSpending) && design$typeOfDesign != "PT") {
+	if (!.isBetaSpendingDesignType(design$typeBetaSpending) && design$typeOfDesign != C_TYPE_OF_DESIGN_PT) {
 		return(FALSE)
 	}
 	
@@ -611,7 +616,7 @@ NULL
 #' In this case, no piecewise definition is possible, i.e., only piecewiseLambda
 #' (as a single value) and kappa need to be specified. 
 #' 
-#' @return Returns a \code{\link[base]{numeric}} value or vector will be returned.
+#' @return A \code{\link[base]{numeric}} value or vector will be returned.
 #' 
 #' @examples
 #' # Calculate probabilties for a range of time values for a 
@@ -874,7 +879,13 @@ getMedianByPi <- function(piValue,
 		design <- paramaterSet$.design
 		designParametersToShow <- c()
 		if (design$kMax > 1) {
-			designParametersToShow <- c(designParametersToShow, ".design$informationRates")
+			if (is.null(paramaterSet[[".stageResults"]]) || .isTrialDesignGroupSequential(design)) {
+				designParametersToShow <- c(designParametersToShow, ".design$informationRates")
+			} else if (.isTrialDesignInverseNormal(design)) {
+				designParametersToShow <- c(designParametersToShow, ".stageResults$weightsInverseNormal")
+			} else if (.isTrialDesignFisher(design)) {
+				designParametersToShow <- c(designParametersToShow, ".stageResults$weightsFisher")
+			}
 		}
 		designParametersToShow <- c(designParametersToShow, ".design$criticalValues")
 		if (design$kMax > 1) {
@@ -885,14 +896,20 @@ getMedianByPi <- function(piValue,
 			}
 			designParametersToShow <- c(designParametersToShow, ".design$alphaSpent")
 			designParametersToShow <- c(designParametersToShow, ".design$stageLevels")
-		} else {
-			if (design$sided == 2) {
-				designParametersToShow <- c(designParametersToShow, ".design$twoSidedPower")
-			}
+		} 
+		if (design$sided == 2 && !grepl("Analysis|Simulation", class(paramaterSet)) &&
+				(!inherits(paramaterSet, "TrialDesignPlan") || paramaterSet$.isSampleSizeObject())) {
+			designParametersToShow <- c(designParametersToShow, ".design$twoSidedPower")
 		}
 		designParametersToShow <- c(designParametersToShow, ".design$alpha")
-		designParametersToShow <- c(designParametersToShow, ".design$beta")
+		if (!grepl("Analysis|Simulation", class(paramaterSet)) &&
+				(!inherits(paramaterSet, "TrialDesignPlan") || paramaterSet$.isSampleSizeObject())) {
+			designParametersToShow <- c(designParametersToShow, ".design$beta")
+		}
+		
 		designParametersToShow <- c(designParametersToShow, ".design$sided")
 	}
 	return(designParametersToShow)
 }
+
+

@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4391 $
-#:#  Last changed: $Date: 2021-02-12 15:23:10 +0100 (Fr, 12 Feb 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 4895 $
+#:#  Last changed: $Date: 2021-05-20 11:05:36 +0200 (Thu, 20 May 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 C_LOG_LEVEL_TRACE <- "TRACE"
@@ -104,18 +104,26 @@ C_DIRECTION_LOWER = "lower"
 C_DIRECTION_UPPER = "upper"
 
 # 
-# Constants used in 'f_analysis_multiarm' 
+# Constants used in 'f_analysis_multiarm' and 'f_analysis_enrichment'
 # 
 C_INTERSECTION_TEST_MULTIARMED_DEFAULT <- "Dunnett"
+C_INTERSECTION_TEST_ENRICHMENT_DEFAULT <- "Simes"
 C_INTERSECTION_TESTS_MULTIARMED <- c(
 	"Bonferroni",
 	"Simes",
 	"Sidak",
 	"Dunnett",
 	"Hierarchical")
+C_INTERSECTION_TESTS_ENRICHMENT <- c(
+	"Bonferroni",
+	"Simes",
+	"Sidak",
+	"SpiessensDebois") 
 C_VARIANCE_OPTION_DUNNETT <- "overallPooled" 
 C_VARIANCE_OPTION_MULTIARMED_DEFAULT <- "overallPooled" 
 C_VARIANCE_OPTIONS_MULTIARMED <- c("overallPooled", "pairwisePooled", "notPooled") 
+C_VARIANCE_OPTION_ENRICHMENT_DEFAULT <- "pooled" 
+C_VARIANCE_OPTIONS_ENRICHMENT <- c("pooled", "notPooled","pooledFromFull") 
 C_STRATIFIED_ANALYSIS_DEFAULT <- TRUE
 
 # 
@@ -371,7 +379,11 @@ C_PARAMETER_NAMES <- list(
 	stDevs = "Standard deviations",
 	overallEvents = "Overall events",
 	overallAllocationRatios = "Overall allocation ratios",
-	overallLogRanks = "Overall log-ranks",
+
+	expectedEvents = "Expected events",
+	varianceEvents = "Variance of events",
+	overallExpectedEvents = "Overall expected events",
+	overallVarianceEvents = "Overall variance of events",
 	
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constants",
@@ -381,7 +393,7 @@ C_PARAMETER_NAMES <- list(
 	finalStage = "Final stage",
 	informationRates = "Information rates", 
 	criticalValues = "Critical values",
-	stageLevels = "Stage levels", 
+	stageLevels = "Stage levels (one-sided)", 
 	alphaSpent = "Cumulative alpha spending",
 	tolerance = "Tolerance",
 	method = "Method",
@@ -414,8 +426,8 @@ C_PARAMETER_NAMES <- list(
 	shift = "Shift",
 	inflationFactor = "Inflation factor",
 	information = "Informations",
-	rejectionProbabilities = "Rejection probabilities",
-	futilityProbabilities = "Futility probabilities",
+	rejectionProbabilities = "Rejection probabilities under H1",
+	futilityProbabilities = "Futility probabilities under H1",
 	averageSampleNumber1 = "Ratio expected vs fixed sample size under H1",
 	averageSampleNumber01 = "Ratio expected vs fixed sample size under a value between H0 and H1",
 	averageSampleNumber0 = "Ratio expected vs fixed sample size under H0",
@@ -426,8 +438,10 @@ C_PARAMETER_NAMES <- list(
 	stDevH1 = "Assumed standard deviation under alternative",
 	assumedStDev = "Assumed standard deviation",
 	assumedStDevs = "Assumed standard deviations",
-	pi1 = "pi(1)",
-	pi2 = "pi(2)",
+	pi1 = "Assumed treatment rate",
+	pi2 = "Assumed control rate",
+	overallPi1 = "Overall treatment rate",
+	overallPi2 = "Overall control rate",
 	pi1H1 = "pi(1) under H1",
 	pi2H1 = "pi(2) under H1",
 	nPlanned = "Planned sample size",
@@ -435,6 +449,13 @@ C_PARAMETER_NAMES <- list(
 	piControl = "Assumed control rate",
 	piControls = "Assumed control rate",
 	piTreatments = "Assumed treatment rate",
+	
+	overallPiControl = "Overall control rate",
+	overallPiTreatments = "Overall treatment rate",
+	
+	overallPisControl = "Overall control rate",
+	overallPisTreatment = "Overall treatment rate",
+	
 	effectSizes = "Overall effect sizes",
 	testStatistics = "Test statistics",
 	pValues = "p-values",
@@ -443,8 +464,8 @@ C_PARAMETER_NAMES <- list(
 	conditionalPowerAchieved = "Conditional power (achieved)",
 	conditionalPowerSimulated = "Conditional power (simulated)",
 	conditionalRejectionProbabilities = "Conditional rejection probability",
-	repeatedConfidenceIntervalLowerBounds = "RCIs (lower)",
-	repeatedConfidenceIntervalUpperBounds = "RCIs (upper)",
+	repeatedConfidenceIntervalLowerBounds = "Repeated confidence intervals (lower)",
+	repeatedConfidenceIntervalUpperBounds = "Repeated confidence intervals (upper)",
 	repeatedPValues = "Repeated p-values",
 	finalPValues = "Final p-value",
 	finalConfidenceIntervalLowerBounds = "Final CIs (lower)",
@@ -458,15 +479,15 @@ C_PARAMETER_NAMES <- list(
 	overallPValues = "Overall p-values", 
 	overallMeans = "Overall means", 
 	overallMeans1 = "Overall means (1)", 
-	overallMeans2 = "Overall means (2)", 
+	overallMeans2 = "Overall means (2)",
 	overallStDevs1 = "Overall standard deviations (1)", 
 	overallStDevs2 = "Overall standard deviations (2)", 
-	overallStDevs = "Overall standard deviations", 
+	overallStDevs = "Overall (pooled) standard deviations",
 	testStatistics = "Test statistics", 
 	combInverseNormal = "Combination test statistics", # Inverse normal combination
 	combFisher = "Combination test statistics",        # Fisher combination
-	weightsFisher = "Weights Fisher", 
-	weightsInverseNormal = "Weights inverse normal",
+	weightsFisher = "Fixed weights", 
+	weightsInverseNormal = "Fixed weights",
 	
 	overallLogRanks = "Overall log-ranks",
 	overallEvents = "Overall number of events",
@@ -565,9 +586,7 @@ C_PARAMETER_NAMES <- list(
 	criticalValuesPValueScale = "Local one-sided significance levels",
 	".design$stageLevels" = "Local one-sided significance levels",
 	futilityBoundsEffectScale = "Futility bounds (treatment effect scale)",
-	futilityBoundsEffectScaleLower = "Lower futility bounds (treatment effect scale)",
-	futilityBoundsEffectScaleUpper = "Upper futility bounds (treatment effect scale)",
-	futilityBoundsPValueScale = "Futility bounds (1-sided p-value scale)",
+	futilityBoundsPValueScale = "Futility bounds (one-sided p-value scale)",
 	
 	analysisTime = "Analysis time",
 	eventsPerStage1 = "Observed # events by stage (1)",
@@ -606,7 +625,7 @@ C_PARAMETER_NAMES <- list(
 	singleStepAdjustedPValues = "Single step adjusted p-values",
 	intersectionTest = "Intersection test",
 	varianceOption = "Variance option",
-	overallPooledStDevs = "Overall pooled standard deviations",
+	overallPooledStDevs = "Overall (pooled) standard deviations",
 	optimumAllocationRatio = "Optimum allocation ratio",
 	
 	rejected = "Rejected",
@@ -651,10 +670,17 @@ C_PARAMETER_NAMES <- list(
 	selectArmsFunction = "Select arms function",
 	numberOfActiveArms = "Number of active arms",
 	
-	correlationComputation = "Correlation computation method"
+	correlationComputation = "Correlation computation method",
+	
+	subsets = "Subsets",
+	subset = "Subset",
+	stratifiedAnalysis = "Stratified analysis",
+	
+	maxInformation = "Maximum information",
+	informationEpsilon = "Information epsilon"
 )
 
-.getParameterNames <- function(design = NULL, designPlan = NULL) {
+.getParameterNames <- function(..., design = NULL, designPlan = NULL, stageResults = NULL, analysisResults = NULL) {
 	parameterNames <- C_PARAMETER_NAMES
 	
 	if (!is.null(design) && !is.na(design$bindingFutility) && !design$bindingFutility) {
@@ -679,6 +705,12 @@ C_PARAMETER_NAMES <- list(
 		parameterNames$studyDuration <- "Study duration"
 	}
 	
+	if (!is.null(analysisResults) && identical(analysisResults$.design$kMax, 1L)) {
+		parameterNames$repeatedConfidenceIntervalLowerBounds <- "Confidence intervals (lower)"
+		parameterNames$repeatedConfidenceIntervalUpperBounds <- "Confidence intervals (upper)"
+		parameterNames$repeatedPValues = "Overall p-values"
+	}
+	
 	if (!is.null(designPlan) && 
 			(inherits(designPlan, "TrialDesignPlanMeans") || 
 				inherits(designPlan, "SimulationResultsMeans")) && 
@@ -688,6 +720,10 @@ C_PARAMETER_NAMES <- list(
 	
 	if (!is.null(design) && class(design) != "TrialDesign" && design$sided == 2) {
 		parameterNames$criticalValuesPValueScale <- "Local two-sided significance levels"
+	}
+	
+	if (!is.null(stageResults) && stageResults$isOneSampleDataset()) {
+		parameterNames$overallStDevs <- "Overall standard deviations"
 	}
 	
 	return(parameterNames)
@@ -704,8 +740,12 @@ C_TABLE_COLUMN_NAMES <- list(
 	stDevs = "Standard deviation",
 	overallEvents = "Overall event",
 	overallAllocationRatios = "Overall allocation ratio",
-	overallLogRanks = "Overall log-rank",
 	overallMeans = "Overall mean",
+	
+	expectedEvents = "Expected event",
+	varianceEvents = "Variance of event",
+	overallExpectedEvents = "Overall expected event",
+	overallVarianceEvents = "Overall variance of event",
 	
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constant",
@@ -752,8 +792,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	shift = "Shift",
 	inflationFactor = "Inflation factor",
 	information = "Information",
-	rejectionProbabilities = "Rejection probability",
-	futilityProbabilities = "Futility probability",
+	rejectionProbabilities = "Rejection probability under H1",
+	futilityProbabilities = "Futility probability under H1",
 	averageSampleNumber1 = "Ratio expected vs fixed sample size under H1",
 	averageSampleNumber01 = "Ratio expected vs fixed sample size under a value between H0 and H1",
 	averageSampleNumber0 = "Ratio expected vs fixed sample size under H0",
@@ -770,6 +810,13 @@ C_TABLE_COLUMN_NAMES <- list(
 	piControl = "Assumed control rate",
 	piControls = "Assumed control rate",
 	piTreatments = "Assumed treatment rate",
+	
+	overallPiControl = "Overall control rate",
+	overallPiTreatments = "Overall treatment rate",
+
+	overallPisControl = "Overall control rate",
+	overallPisTreatment = "Overall treatment rate",
+	
 	stages = "Stage",
 	effectSizes = "Overall effect size",
 	testStatistics = "Test statistic",
@@ -779,8 +826,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	conditionalPowerAchieved = "Conditional power (achieved)",
 	conditionalPowerSimulated = "Conditional power (simulated)",
 	conditionalRejectionProbabilities = "Conditional rejection probabilities",
-	repeatedConfidenceIntervalLowerBounds = "RCI (lower)",
-	repeatedConfidenceIntervalUpperBounds = "RCI (upper)",
+	repeatedConfidenceIntervalLowerBounds = "Repeated confidence interval (lower)",
+	repeatedConfidenceIntervalUpperBounds = "Repeated confidence interval (upper)",
 	repeatedPValues = "Repeated p-value",
 	finalPValues = "Final p-value",
 	finalConfidenceIntervalLowerBounds = "Final CI (lower)",
@@ -796,12 +843,12 @@ C_TABLE_COLUMN_NAMES <- list(
 	overallMeans2 = "Overall mean (2)", 
 	overallStDevs1 = "Overall standard deviation (1)", 
 	overallStDevs2 = "Overall standard deviation (2)", 
-	overallStDevs = "Overall standard deviation", 
+	overallStDevs = "Overall (pooled) standard deviation", 
 	testStatistics = "Test statistic", 
 	combInverseNormal = "Inverse Normal Combination", 
 	combFisher = "Fisher Combination", 
-	weightsFisher = "Weight Fisher", 
-	weightsInverseNormal = "Weight Inverse Normal",
+	weightsFisher = "Fixed weight", 
+	weightsInverseNormal = "Fixed weight",
 	
 	overallLogRanks = "Overall log-rank",
 	overallEvents = "Overall # events",
@@ -901,9 +948,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	criticalValuesPValueScale = "Local one-sided significance level",
 	".design$stageLevels" = "Local one-sided significance level",
 	futilityBoundsEffectScale = "Futility bound (treatment effect scale)",
-	futilityBoundsEffectScaleLower = "Lower futility bound (treatment effect scale)",
-	futilityBoundsEffectScaleUpper = "Upper futility bound (treatment effect scale)",
-	futilityBoundsPValueScale = "Futility bound (1-sided p-value scale)",
+	futilityBoundsPValueScale = "Futility bound (one-sided p-value scale)",
 	
 	delayedResponseAllowed = "Delayed response allowed",
 	delayedResponseEnabled = "Delayed response enabled",
@@ -935,6 +980,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	singleStepAdjustedPValues = "Single step adjusted p-value",
 	intersectionTest = "Intersection test",
 	varianceOption = "Variance option",
+	overallPooledStDevs = "Overall (pooled) standard deviation",
 	optimumAllocationRatio = "Optimum allocation ratio",
 	
 	rejected = "Rejected",
@@ -979,7 +1025,14 @@ C_TABLE_COLUMN_NAMES <- list(
 	selectArmsFunction = "Select arms fun",
 	numberOfActiveArms = "Number of active arms",
 	
-	correlationComputation = "Correlation computation"
+	correlationComputation = "Correlation computation",
+	
+	subsets = "Subset",
+	subset = "Subset",
+	stratifiedAnalysis = "Stratified analysis",
+	
+	maxInformation = "Maximum information",
+	informationEpsilon = "Information epsilon"
 )
 
 .getTableColumnNames <- function(design = NULL, designPlan = NULL) {
@@ -1028,7 +1081,6 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	assumedStDev = ".formatStDevs",
 	assumedStDevs = ".formatStDevs",
 	overallAllocationRatios = ".formatRatios",
-	overallLogRanks = ".formatTestStatistics",
 	allocationRatioPlanned = ".formatRatios",
 	
 	alpha = ".formatProbabilities",
@@ -1046,10 +1098,10 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	
 	constantBoundsHP = ".formatCriticalValues",
 	
-	nMax = ".formatCriticalValues", 
-	nFixed = ".formatCriticalValues",
-	nFixed1 = ".formatCriticalValues",
-	nFixed2 = ".formatCriticalValues", 
+	nMax = ".formatSampleSizes",
+	nFixed = ".formatSampleSizes",
+	nFixed1 = ".formatSampleSizes",
+	nFixed2 = ".formatSampleSizes",
 	shift = ".formatProbabilities",
 	inflationFactor = ".formatProbabilities",
 	information = ".formatRates",
@@ -1069,7 +1121,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	conditionalPower = ".formatConditionalPower", 
 	conditionalPowerAchieved = ".formatConditionalPower",
 	conditionalPowerSimulated = ".formatConditionalPower", 
-	conditionalRejectionProbabilities = ".formatProbabilities",
+	conditionalRejectionProbabilities = ".formatProbabilities", 
 	repeatedConfidenceIntervalLowerBounds = ".formatMeans",
 	repeatedConfidenceIntervalUpperBounds = ".formatMeans",
 	repeatedPValues = ".formatRepeatedPValues", 
@@ -1147,6 +1199,11 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	studyDurationH1 = ".formatDurations",
 	expectedNumberOfSubjectsH1 = ".formatSampleSizes",
 	
+	expectedEvents = ".formatEvents",
+	varianceEvents = ".formatEvents",
+	overallExpectedEvents = ".formatEvents",
+	overallVarianceEvents = ".formatEvents",
+	
 	events = ".formatEvents",
 	expectedNumberOfEvents = ".formatEvents",
 	expectedNumberOfEventsPerStage = ".formatEvents",
@@ -1161,8 +1218,6 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	criticalValuesEffectScaleUpper = ".formatCriticalValues",
 	criticalValuesPValueScale = ".formatProbabilities",
 	futilityBoundsEffectScale = ".formatCriticalValues",
-	futilityBoundsEffectScaleLower = ".formatCriticalValues",
-	futilityBoundsEffectScaleUpper = ".formatCriticalValues",
 	futilityBoundsPValueScale = ".formatProbabilities",
 	
 	median1 = ".formatRatesDynamic",
@@ -1192,6 +1247,12 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	piControl = ".formatRates",
 	piControls = ".formatRates",
 	piTreatments = ".formatRates",
+
+	overallPiControl = ".formatRates",
+	overallPiTreatments = ".formatRates",
+
+	overallPisControl = ".formatRates",
+	overallPisTreatment = ".formatRates",
 	
 	adjustedStageWisePValues = ".formatPValues",
 	overallAdjustedTestStatistics = ".formatTestStatisticsFisher", # will be set in class ClosedCombinationTestResults
@@ -1220,8 +1281,11 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	omegaMaxVector = ".formatRates",
 	muMaxVector = ".formatMeans",
 	
-	numberOfEvents = "formatEvents",
-	numberOfActiveArms = ".formatRates"
+	numberOfEvents = ".formatEvents",
+	numberOfActiveArms = ".formatRates",
+	
+	maxInformation = ".formatHowItIs",
+	informationEpsilon = ".formatProbabilities"
 )
 
 .getParameterFormatFunctions <- function() {
