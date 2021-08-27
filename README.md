@@ -54,7 +54,9 @@ Please [contact](https://www.rpact.com/contact) us to learn how to use
 `rpact` on FDA/GxP-compliant validated corporate computer systems and
 how to get a copy of the formal validation documentation that is
 customized and licensed for exclusive use by your company, e.g., to
-fulfill regulatory requirements.
+fulfill regulatory requirements. The validation documentation contains
+the personal access data for performing the installation qualification
+with `testPackage()`.
 
 > [www.rpact.com/contact](https://www.rpact.com/contact)
 

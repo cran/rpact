@@ -21,7 +21,9 @@
  */
 
 #include <Rcpp.h>
+#include <cmath>
 #include "f_utilities.h"
+
 using namespace Rcpp;
 
 double dnorm2(const double x, const double mean, const double stDev) {
@@ -31,19 +33,19 @@ double dnorm2(const double x, const double mean, const double stDev) {
 	return inv_sqrt_2pi / stDev * exp(-0.5f * a * a);
 }
 
-double getDensityValue(double x, int k, NumericVector informationRates,
+double getDensityValue(const double x, int k, NumericVector informationRates,
 		NumericVector epsilonVec, NumericVector x2, NumericVector dn2, int n) {
 
 	k--;
-	double part1 = sqrt(informationRates[k - 1] / epsilonVec[k - 1]);
-	double sqrtInfRates1 = sqrt(informationRates[k - 1]);
-	double sqrtInfRates2 = sqrt(informationRates[k - 2]);
+	double part1 = sqrt((double) informationRates[k - 1] / epsilonVec[k - 1]);
+	double sqrtInfRates1 = sqrt((double) informationRates[k - 1]);
+	double sqrtInfRates2 = sqrt((double) informationRates[k - 2]);
 
 	const double mean = 0;
 	const double stDev = 1;
 
 	double prod1 = x * sqrtInfRates1;
-	double divisor = sqrt(epsilonVec[k - 1]);
+	double divisor = sqrt((double) epsilonVec[k - 1]);
 	double resultValue = 0;
 	for (int i = 0; i < n; i++) {
 		double dnormValue = dnorm2((prod1 - (x2[i] * sqrtInfRates2)) / divisor,
@@ -55,27 +57,29 @@ double getDensityValue(double x, int k, NumericVector informationRates,
 	return resultValue;
 }
 
-NumericVector getDensityValues(NumericVector x, int k,
-		NumericVector informationRates, NumericVector epsilonVec,
-		NumericVector x2, NumericVector dn2) {
+NumericVector getDensityValues(const NumericVector x, const int k,
+		const NumericVector informationRates, const NumericVector epsilonVec,
+		const NumericVector x2, const NumericVector dn2) {
 
-	int n = x.size();
+	const int n = x.size();
 	NumericVector results = NumericVector(n, NA_REAL);
 	for (int i = 0; i < n; i++) {
 		if (k == 2) {
-			results[i] = dnorm2(x[i], 0.0, 1.0);
+			results[i] = dnorm2((double) x[i], 0.0, 1.0);
 		} else {
-			results[i] = getDensityValue(x[i], k, informationRates, epsilonVec, x2, dn2, n);
+			results[i] = getDensityValue((double) x[i], k, informationRates, epsilonVec, x2, dn2, n);
 		}
 	}
 	return results;
 }
 
-NumericVector getW(double dx) {
-	NumericVector vec = NumericVector::create(492, 1296, 162, 1632, 162, 1296);
-	vec = vectorMultiply(vec, dx / 840);
-	vec = rep(vec, 15); // M %/% 6 = 91 %/% 6 = 15
-	double x = 246.0 * dx / 840.0;
+// [[Rcpp::export]]
+NumericVector getW(double dx, const int M) {
+	NumericVector vec = NumericVector::create(492.0, 1296.0, 162.0, 1632.0, 162.0, 1296.0);
+	vec = vec * dx / 840;
+	int repFactor = (int) ((double) M / 6); // 15
+	vec = rep(vec, repFactor); // M %/% 6 = 91 %/% 6 = 15
+	const double x = 246.0 * dx / 840.0;
 	NumericVector result = NumericVector(vec.size() + 1, NA_REAL);
 	result[0] = x;
 	for (int i = 1; i < vec.size(); i++) {
@@ -93,15 +97,18 @@ double getSeqValue(int paramIndex, int k,
 	int kIndex = k - 1;
 	NumericVector vec = NumericVector(x.size(), NA_REAL);
 	for (int i = 0; i < x.size(); i++) {
-		vec[i] = (decisionMatrix(paramIndex, kIndex) * sqrt(informationRates[kIndex]) -
-			x[i] * sqrt(informationRates[kIndex - 1])) / sqrt(epsilonVec[kIndex]);
+		double value = decisionMatrix(paramIndex, kIndex);
+		vec[i] = (value * sqrt((double) informationRates[kIndex]) -
+			x[i] * sqrt((double) informationRates[kIndex - 1])) / sqrt((double) epsilonVec[kIndex]);
 	}
 	vec = pnorm(as<NumericVector>(vec));
 	return vectorProduct(vec, dn);
 }
 
 double getDxValue(NumericMatrix decisionMatrix, int k, int M, int rowIndex) {
-	return (decisionMatrix(rowIndex + 1, k - 2) - decisionMatrix(rowIndex, k - 2)) / (M - 1);
+	double a = decisionMatrix(rowIndex + 1, k - 2);
+	double b = decisionMatrix(rowIndex, k - 2);
+	return (a - b) / (M - 1);
 }
 
 NumericVector getXValues(NumericMatrix decisionMatrix, int k, int M, int rowIndex) {
@@ -114,25 +121,22 @@ NumericVector getXValues(NumericMatrix decisionMatrix, int k, int M, int rowInde
 }
 
 // [[Rcpp::export]]
-NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
+NumericMatrix getGroupSequentialProbabilitiesCpp(
+		NumericMatrix decisionMatrix,
 		NumericVector informationRates) {
 
-	double C_UPPER_BOUNDS_DEFAULT = 8;
-	double C_CONST_NEWTON_COTES = 15;
-	double C_FUTILITY_BOUNDS_DEFAULT = -6;
+	const double C_UPPER_BOUNDS_DEFAULT = 8;
+	const double C_FUTILITY_BOUNDS_DEFAULT = -6;
 
 	NumericMatrix decMatrix(Rcpp::clone(decisionMatrix));
 
 	for (int i = 0; i < decMatrix.nrow(); i++) {
 		for (int j = 0; j < decMatrix.ncol(); j++) {
-			if (decMatrix(i, j) >= C_UPPER_BOUNDS_DEFAULT) {
+			if (!R_IsNA(decMatrix(i, j)) && decMatrix(i, j) >= C_UPPER_BOUNDS_DEFAULT) {
 				decMatrix(i, j) = C_UPPER_BOUNDS_DEFAULT;
 			}
 		}
 	}
-
-	// number of grid points with constant of Newton Cotes algorithm (n * 6 + 1)
-	int M = C_CONST_NEWTON_COTES * 6 + 1;
 
 	// maximum number of stages
 	int kMax = informationRates.size();
@@ -159,11 +163,16 @@ NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
 
 		for (int i = 0; i < decMatrix.nrow(); i++) {
 			for (int j = 0; j < decMatrix.ncol(); j++) {
-				if (decMatrix(i, j) <= C_FUTILITY_BOUNDS_DEFAULT) {
+				if (!R_IsNA(decMatrix(i, j)) && decMatrix(i, j) <= C_FUTILITY_BOUNDS_DEFAULT) {
 					decMatrix(i, j) = C_FUTILITY_BOUNDS_DEFAULT;
 				}
 			}
 		}
+
+		const int C_CONST_NEWTON_COTES = 15;
+
+		// number of grid points with constant of Newton Cotes algorithm (n * 6 + 1)
+		const int M = C_CONST_NEWTON_COTES * 6 + 1;
 
 		// density values in recursion
 		NumericVector dn2 = NumericVector(M, NA_REAL);
@@ -175,7 +184,7 @@ NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
 			double dx = getDxValue(decMatrix, k, M, 0);
 
 			NumericVector x = getXValues(decMatrix, k, M, 0);
-			NumericVector w = getW(dx);
+			NumericVector w = getW(dx, M);
 			NumericVector densityValues = getDensityValues(x, k, informationRates, epsilonVec, x2, dn2);
 			NumericVector dn = vectorMultiply(w, densityValues);
 
@@ -194,11 +203,16 @@ NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
 
 		for (int i = 0; i < decMatrix.nrow(); i++) {
 			for (int j = 0; j < decMatrix.ncol(); j++) {
-				if (decMatrix(i, j) <= -C_UPPER_BOUNDS_DEFAULT) {
+				if (!R_IsNA(decMatrix(i, j)) && decMatrix(i, j) <= -C_UPPER_BOUNDS_DEFAULT) {
 					decMatrix(i, j) = -C_UPPER_BOUNDS_DEFAULT;
 				}
 			}
 		}
+
+		const int C_CONST_NEWTON_COTES = 8;
+
+		// number of grid points with constant of Newton Cotes algorithm (n * 6 + 1)
+		const int M = C_CONST_NEWTON_COTES * 6 + 1;
 
 		// density values in recursion
 		NumericVector dn2 = NumericVector(2 * M, NA_REAL);
@@ -214,8 +228,8 @@ NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
 			NumericVector x1 = getXValues(decMatrix, k, M, 2);
 			NumericVector x = concat(x0, x1);
 
-			NumericVector w0 = getW(dx0);
-			NumericVector w1 = getW(dx1);
+			NumericVector w0 = getW(dx0, M);
+			NumericVector w1 = getW(dx1, M);
 			NumericVector w = concat(w0, w1);
 
 			NumericVector densityValues = getDensityValues(x, k, informationRates, epsilonVec, x2, dn2);
@@ -239,3 +253,168 @@ NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
 	return probs;
 }
 
+// [[Rcpp::export]]
+List getDesignGroupSequentialPampallonaTsiatisCpp(
+		double tolerance, double beta, double alpha, double kMax, double deltaPT0,
+		double deltaPT1, NumericVector informationRates, int sided,
+		bool bindingFutility) {
+
+    NumericVector futilityBounds(kMax);
+    NumericVector rejectionBounds(kMax);
+    NumericMatrix probs(5, kMax);
+    int rows = sided == 1 ? 2 : 4;
+    double size;
+    double prec2 = 1;
+    double cLower2 = 0;
+    double cUpper2 = 10;
+    double c2m;
+    double delst;
+    double power;
+    double prec1 = 1;
+    double cUpper1 = 10;
+    double cLower1 = 0;
+    NumericMatrix helper(rows, kMax);
+    NumericVector sqrtInformationRates = sqrt(informationRates);
+    NumericVector deltaPT0KMaxInformationRates = pow(informationRates * kMax, deltaPT0 - 0.5);
+    NumericVector deltaPT1KMaxInformationRates = pow(informationRates * kMax, deltaPT1 - 0.5);
+
+    double pow1 = pow(kMax, deltaPT0 - 0.5);
+    double pow2 = pow(kMax, deltaPT1 - 0.5);
+
+    if (bindingFutility) {
+        NumericMatrix decisionMatrix(rows, kMax);
+        while (prec2 > tolerance) {
+            c2m = (cLower2 + cUpper2) / 2;
+            prec1 = 1;
+            cUpper1 = 10;
+            cLower1 = 0;
+            double c1m;
+            while (prec1 > tolerance) {
+                c1m = (cLower1 + cUpper1) / 2;
+                delst = c2m * pow1 + c1m * pow2;
+                futilityBounds = sqrtInformationRates * delst - deltaPT0KMaxInformationRates * c2m;
+                rejectionBounds = deltaPT1KMaxInformationRates * c1m;
+                for (int i = 0; i < futilityBounds.length(); i++) {
+                    if (futilityBounds[i] > rejectionBounds[i]) {
+                    	futilityBounds[i] = rejectionBounds[i];
+                    }
+                    if (sided == 2 && futilityBounds[i] < 0) {
+                    	futilityBounds[i] = 0;
+                    }
+                }
+
+                if (sided == 1) {
+                    decisionMatrix.row(0) = futilityBounds;
+                    decisionMatrix.row(1) = rejectionBounds;
+                } else {
+                    decisionMatrix.row(0) = -rejectionBounds;
+                    decisionMatrix.row(1) = -futilityBounds;
+                    decisionMatrix.row(2) = futilityBounds;
+                    decisionMatrix.row(3) = rejectionBounds;
+                }
+
+                probs = getGroupSequentialProbabilitiesCpp(decisionMatrix, informationRates);
+
+                if (sided == 1) {
+                	size = sum(probs.row(2) - probs.row(1));
+                } else {
+                	size = sum(probs.row(4) - probs.row(3) + probs.row(0));
+                }
+
+                if (size < alpha) {
+                    cUpper1 = c1m;
+                } else {
+                	cLower1 = c1m;
+                }
+                prec1 = cUpper1 - cLower1;
+            }
+
+            for (int i = 0; i < rows; i++) {
+            	helper.row(i) = sqrtInformationRates * delst;
+            }
+
+            NumericMatrix decisionMatrixH1 = matrixSub(decisionMatrix, helper);
+            probs = getGroupSequentialProbabilitiesCpp(decisionMatrixH1, informationRates);
+
+            if (sided == 1) {
+            	power = sum(probs.row(2) - probs.row(1));
+            } else {
+            	power = sum(probs.row(4) - probs.row(3) + probs.row(0));
+            }
+
+            if (power > 1.0 - beta) {
+                cUpper2 = c2m;
+            } else {
+            	cLower2 = c2m;
+            }
+            prec2 = cUpper2 - cLower2;
+        }
+    } else {
+    	double c1m = 0;
+        while (prec1 > tolerance) {
+            c1m = (cLower1 + cUpper1) / 2;
+            rejectionBounds = deltaPT1KMaxInformationRates * c1m;
+            NumericMatrix decisionMatrix(2, kMax);
+
+            if (sided == 1) {
+            	decisionMatrix.row(0) = rep(-6, kMax);
+            } else {
+            	decisionMatrix.row(0) = -rejectionBounds;
+            }
+
+            decisionMatrix.row(1) = rejectionBounds;
+            probs = getGroupSequentialProbabilitiesCpp(decisionMatrix, informationRates);
+            size = sum(probs.row(2) - probs.row(1));
+            if (sided != 1) size += sum(probs.row(0));
+            if (size < alpha) {
+                cUpper1 = c1m;
+            } else {
+            	cLower1 = c1m;
+            }
+            prec1 = cUpper1 - cLower1;
+        }
+        rejectionBounds = deltaPT1KMaxInformationRates * c1m;
+        while (prec2 > tolerance) {
+            c2m = (cLower2 + cUpper2) / 2;
+            delst = c2m * pow1 + c1m * pow2;
+            futilityBounds = sqrtInformationRates * delst - deltaPT0KMaxInformationRates * c2m;
+            for (int i = 0; i < futilityBounds.length(); i++) {
+                if (futilityBounds[i] > rejectionBounds[i]) {
+                	futilityBounds[i] = rejectionBounds[i];
+                }
+            }
+            NumericMatrix decisionMatrix(rows,kMax);
+
+            if (sided == 1) {
+                decisionMatrix.row(0) = futilityBounds;
+                decisionMatrix.row(1) = rejectionBounds;
+            } else {
+                for (int i = 0; i < futilityBounds.length(); i++) {
+                    if (futilityBounds[i] < 0) {
+                    	futilityBounds[i] = 0;
+                    }
+                }
+                decisionMatrix.row(0) = -rejectionBounds;
+                decisionMatrix.row(1) = -futilityBounds;
+                decisionMatrix.row(2) = futilityBounds;
+                decisionMatrix.row(3) = rejectionBounds;
+            }
+              for(int i = 0; i < helper.nrow();i++) {
+              	helper.row(i) = sqrtInformationRates * delst;
+              }
+
+			NumericMatrix decisionMatrixH1 = matrixSub(decisionMatrix,helper);
+            probs = getGroupSequentialProbabilitiesCpp(decisionMatrixH1, informationRates);
+
+            if (sided == 1) power = sum(probs.row(2) - probs.row(1));
+            else power = sum(probs.row(4) + probs.row(0) - probs.row(3));
+            if (power > 1 - beta) {
+                cUpper2 = c2m;
+            } else {
+                cLower2 = c2m;
+            }
+            prec2 = cUpper2 - cLower2;
+        }
+    }
+    return List::create(futilityBounds, rejectionBounds, probs);
+}

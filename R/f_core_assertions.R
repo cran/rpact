@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4947 $
-#:#  Last changed: $Date: 2021-05-31 14:31:17 +0200 (Mo, 31 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5164 $
+#:#  Last changed: $Date: 2021-08-16 16:52:35 +0200 (Mo, 16 Aug 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .stopWithWrongDesignMessage <- function(design) {
@@ -1826,11 +1826,16 @@
 }
 
 .isMultiArmStageResults <- function(stageResults) {
-	return(grepl("MultiArm", class(stageResults)))
+	return(inherits(stageResults, "StageResults") && grepl("MultiArm", class(stageResults)))
 }
 
 .isEnrichmentStageResults <- function(stageResults) {
-	return(grepl("Enrichment", class(stageResults)))
+	return(inherits(stageResults, "StageResults") && grepl("Enrichment", class(stageResults)))
+}
+
+.isEnrichmentConditionalPowerResults <- function(conditionalPowerResults) {
+	return(inherits(conditionalPowerResults, "ConditionalPowerResults") && 
+		grepl("Enrichment", class(conditionalPowerResults)))
 }
 
 .isMultiHypothesesStageResults <- function(x) {
@@ -1950,7 +1955,7 @@
 
 .isValidIntersectionTestEnrichment <- function(intersectionTest) {
 	return(!is.null(intersectionTest) && length(intersectionTest) == 1 && !is.na(intersectionTest) && 
-		is.character(intersectionTest) && intersectionTest %in% C_INTERSECTION_TESTS_ENRICHMENT)
+					is.character(intersectionTest) && intersectionTest %in% C_INTERSECTION_TESTS_ENRICHMENT)
 }
 
 .assertIsValidIntersectionTestEnrichment <- function(design, intersectionTest) {
@@ -1960,6 +1965,7 @@
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'intersectionTest' (", intersectionTest, ") must be one of ",
 				.arrayToString(C_INTERSECTION_TESTS_ENRICHMENT, encapsulate = TRUE))
 	}
+	return(intersectionTest)
 }
 
 .ignoreParameterIfNotUsed <- function(paramName, paramValue, requirementLogical, requirementFailedReason,
@@ -2139,6 +2145,7 @@
 	}
 }
 
+
 .assertIsValidTypeOfShape <- function(typeOfShape) {
 	.assertIsCharacter(typeOfShape, "typeOfShape")
 	typeOfShape <- typeOfShape[1]
@@ -2275,6 +2282,123 @@
 	
 	return(effectMatrix)
 }
+
+
+.assertIsValidEffectListMeans <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
+	
+	if (missing(x) || is.null(x) || length(x) == 0) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid list")
+	}
+	
+	if (!is.list(x)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", class(x), ") must be a valid list")
+	}
+	
+	if (!naAllowed && any(is.na(x))) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", .arrayToString(x), ") must not contain NA's")
+	}
+	
+	if (!is.numeric(x$effects)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (!is.numeric(x$stDevs)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (!is.numeric(x$prevalences)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (abs(sum(x$prevalences) - 1) > 1E-4) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Prevalences in ", argumentName, " must sum to 1")
+	}
+	
+	if (!is.na(expectedNumberOfColumns) && length(x$subGroups) != expectedNumberOfColumns) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a list having elements with ", expectedNumberOfColumns, " columns")
+	}
+}
+	
+	
+.assertIsValidEffectListRates <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
+	
+	if (missing(x) || is.null(x) || length(x) == 0) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid list")
+	}
+	
+	if (!is.list(x)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", class(x), ") must be a valid list")
+	}
+	
+	if (!naAllowed && any(is.na(x))) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", .arrayToString(x), ") must not contain NA's")
+	}
+	
+	if (!is.numeric(x$piTreatment)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (!is.numeric(x$piControl)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (!is.numeric(x$prevalences)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (abs(sum(x$prevalences) - 1) > 1E-4) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Prevalences in ", argumentName, " must sum to 1")
+	}	
+
+	if (!is.na(expectedNumberOfColumns) && length(x$subGroups) != expectedNumberOfColumns) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a list having elements with ", expectedNumberOfColumns, " columns")
+	}
+}
+
+
+.assertIsValidEffectListSurvival <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
+	
+	if (missing(x) || is.null(x) || length(x) == 0) {
+		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid list")
+	}
+	
+	if (!is.list(x)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", class(x), ") must be a valid list")
+	}
+	
+	if (!naAllowed && any(is.na(x))) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", .arrayToString(x), ") must not contain NA's")
+	}
+	
+	if (!is.numeric(x$effects)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (!is.numeric(x$prevalences)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a valid numeric list")
+	}
+	
+	if (abs(sum(x$prevalences) - 1) > 1E-4) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Prevalences in ", argumentName, " must sum to 1")
+	}	
+	
+	if (!is.na(expectedNumberOfColumns) && length(x$subGroups) != expectedNumberOfColumns) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
+				.arrayToString(x), ") must be a list having elements with ", expectedNumberOfColumns, " columns")
+	}
+}
+
+	
 
 .assertIsValidPlannedSubjects <- function(plannedSubjects, kMax) {
 	

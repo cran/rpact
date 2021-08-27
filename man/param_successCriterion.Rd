@@ -6,8 +6,8 @@
 \arguments{
 \item{successCriterion}{Defines when the study is stopped for efficacy at interim. 
 Two options are available: \code{"all"} stops the trial 
-if the efficacy criterion is fulfilled for all selected treatment arms, 
-\code{"atLeastOne"} stops if at least one of the selected treatment arms is shown to be 
+if the efficacy criterion is fulfilled for all selected treatment arms/populations, 
+\code{"atLeastOne"} stops if at least one of the selected treatment arms/populations is shown to be 
 superior to control at interim, default is \code{"all"}.}
 }
 \description{

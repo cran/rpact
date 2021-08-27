@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5078 $
+#:#  Last changed: $Date: 2021-07-22 11:58:46 +0200 (Do, 22 Jul 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' @title
@@ -170,7 +170,7 @@ getAnalysisResults <- function(
 					stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Recalculation of the information rates not possible at stage 1")
 				}
 				
-				message("Calculate alpha values that has actually been spent ",
+				message("Calculate alpha values that have actually been spent ",
 					"at earlier interim analyses at stage ", (stageFromData - 1))
 				observedInformationRatesBefore <- getObservedInformationRates(
 					dataInput, maxInformation = maxInformation, 
@@ -189,7 +189,7 @@ getAnalysisResults <- function(
 					stringWrapParagraphWidth = NULL)))
 		
 				userAlphaSpending <- designBefore$alphaSpent
-				message("Use alpha values that has actually been spent at earlier interim analyses (", 
+				message("Use alpha values that have actually been spent at earlier interim analyses (", 
 					.arrayToString(userAlphaSpending), ") ",
 					"and spend all remaining alpha at the final analysis")
 				observedInformationRates <- getObservedInformationRates(

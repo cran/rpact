@@ -1,6 +1,6 @@
 
 #:#
-#:#  *Simulation of multiarm design with time to event data*
+#:#  *Simulation of multi-arm design with time to event data*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -14,8 +14,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4940 $
-#:#  Last changed: $Date: 2021-05-28 14:24:52 +0200 (Fr, 28 Mai 2021) $
+#:#  File version: $Revision: 5164 $
+#:#  Last changed: $Date: 2021-08-16 16:52:35 +0200 (Mo, 16 Aug 2021) $
 #:#  Last changed by: $Author: wassmer $
 #:# 
 
@@ -115,16 +115,16 @@ NULL
 	
 	kMax <- length(plannedEvents)	
 	gMax <- length(omegaVector)	
-	simSurvival <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallEffects <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	eventsPerStage <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	singleEventsPerStage <- matrix(rep(NA_real_, (gMax + 1) * kMax), gMax + 1, kMax)
-	testStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallTestStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	separatePValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	simSurvival <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	overallEffects <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	eventsPerStage <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	singleEventsPerStage <- matrix(NA_real_, nrow = gMax + 1, ncol = kMax)
+	testStatistics <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	overallTestStatistics <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	separatePValues <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	conditionalCriticalValue <- rep(NA_real_, kMax - 1) 
 	conditionalPowerPerStage <- rep(NA_real_, kMax)
-	selectedArms <- matrix(rep(FALSE, gMax * kMax), gMax, kMax)
+	selectedArms <- matrix(FALSE, nrow = gMax, ncol = kMax)
 	selectedArms[, 1] <- TRUE
 	adjustedPValues <- rep(NA_real_, kMax)
 	
@@ -148,7 +148,7 @@ NULL
 						(allocationRatioPlanned * sum(omegaVector[selectedArms[, k]]) + 1)
 				}	
 				if (eventsPerStage[treatmentArm, k] > 0) {
-					testStatistics[treatmentArm, k] <- rnorm(1, 0, 1)
+					testStatistics[treatmentArm, k] <- stats::rnorm(1, 0, 1)
 				}
 			}	
 		}
@@ -289,8 +289,8 @@ NULL
 #' Get Simulation Multi-Arm Survival
 #' 
 #' @description 
-#' Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
-#' for testing survival in a multi-arm treatment groups testing situation. 
+#' Returns the simulated power, stopping and selection probabilities, conditional power, and  
+#' expected sample size for testing hazard ratios in a multi-arm treatment groups testing situation. 
 #' In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
 #' distributed logrank test statistics are simulated. 
 #'
@@ -476,15 +476,15 @@ getSimulationMultiArmSurvival <- function(
 	
 	simulatedSelections <- array(0, dim = c(kMax, cols, gMax))
 	simulatedRejections <- array(0, dim = c(kMax, cols, gMax))
-	simulatedNumberOfActiveArms <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
+	simulatedNumberOfActiveArms <- matrix(0, nrow = kMax, ncol = cols)
 	simulatedSingleEventsPerStage <- array(0, dim = c(kMax, cols, gMax + 1))
-	simulatedOverallEventsPerStage <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
-	simulatedSuccessStopping <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
-	simulatedFutilityStopping <- matrix(0, cols*(kMax - 1), nrow = kMax - 1, ncol = cols)
-	simulatedConditionalPower <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
+	simulatedOverallEventsPerStage <- matrix(0, nrow = kMax, ncol = cols)
+	simulatedSuccessStopping <- matrix(0, nrow = kMax, ncol = cols)
+	simulatedFutilityStopping <- matrix(0, nrow = kMax - 1, ncol = cols)
+	simulatedConditionalPower <- matrix(0, nrow = kMax, ncol = cols)
 	simulatedRejectAtLeastOne <- rep(0, cols)
 	expectedNumberOfEvents <- rep(0, cols)
-	iterations <- matrix(0, kMax, cols)
+	iterations <- matrix(0, nrow = kMax, ncol = cols)
 	probabilityVector <- rep(NA_real_, cols)
 	
 	len <- maxNumberOfIterations * kMax * gMax * cols 
@@ -550,7 +550,7 @@ getSimulationMultiArmSurvival <- function(
 					design = design, indices = indices, 
 					criticalValuesDunnett = criticalValuesDunnett, successCriterion = successCriterion)
 			} else {
-				closedTest <- .performClosedCombinationTestForSimulation(stageResults = stageResults, 
+				closedTest <- .performClosedCombinationTestForSimulationMultiArm(stageResults = stageResults, 
 					design = design, indices = indices, 
 					intersectionTest = intersectionTest, successCriterion = successCriterion)
 			}	

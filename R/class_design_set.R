@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -812,7 +812,9 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 		designSetName = NA_character_, plotSettings = NULL) {
 	
 	.assertGgplotIsInstalled()
-	.assertIsSingleCharacter(main, "main", naAllowed = TRUE)
+	if (!is.call(main) && !isS4(main)) {
+		.assertIsSingleCharacter(main, "main", naAllowed = TRUE)
+	}
 	.assertIsSingleCharacter(xlab, "xlab", naAllowed = TRUE)
 	.assertIsSingleCharacter(ylab, "ylab", naAllowed = TRUE)
 	.assertIsSingleCharacter(palette, "palette", naAllowed = TRUE)
@@ -827,7 +829,7 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 	.assertIsTrialDesign(designMaster)
 	
 	if (type == 1) {
-		main <- ifelse(is.na(main), "Boundaries", main)
+		main <- if (!is.call(main) && !isS4(main) && is.na(main)) "Boundaries" else main
 		xParameterName <- "informationRates"
 		yParameterNames <- c("criticalValues")
 		if (designMaster$sided == 1 || (.isTrialDesignInverseNormalOrGroupSequential(designMaster) && 
@@ -846,13 +848,13 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 	}
 		
 	else if (type == 3) {
-		main <- ifelse(is.na(main), "Stage Levels", main)
+		main <- if (!is.call(main) && !isS4(main) && is.na(main)) "Stage Levels" else main
 		xParameterName <- "informationRates"
 		yParameterNames <- "stageLevels"
 	} 
 	
 	else if (type == 4) {
-		main <- ifelse(is.na(main), "Error Spending", main)
+		main <- if (!is.call(main) && !isS4(main) && is.na(main)) "Error Spending" else main
 		xParameterName <- "informationRates"
 		yParameterNames <- c("alphaSpent")
 		if (!.isTrialDesignFisher(designMaster) && 
@@ -864,43 +866,45 @@ plot.TrialDesignSet <- function(x, y, ..., type = 1L, main = NA_character_,
 	}
 	
 	else if (type == 5) {
-		if (is.na(main)) {
-			main <- bquote(atop(bold('Power and Early Stopping'), 
-					atop('(N'['max']*'='*.(nMax)*')')))
+		if (!is.call(main) && !isS4(main) && is.na(main)) {
+			main <- PlotSubTitleItems(title = "Power and Early Stopping")
+			main$add("N", nMax, "max")
 		}
 		xParameterName <- "theta"
 		yParameterNames <- c("overallEarlyStop", "calculatedPower")
 	}
 	
 	else if (type == 6) { 
-		if (is.na(main)) {
-			main <- bquote(atop(bold('Average Sample Size and Power / Early Stop'), 
-					atop('(N'['max']*'='*.(nMax)*")")))
+		if (!is.call(main) && !isS4(main) && is.na(main)) {
+			main <- PlotSubTitleItems(title = "Average Sample Size and Power / Early Stop")
+			main$add("N", nMax, "max")
 		}
 		xParameterName <- "theta"
 		yParameterNames <- c("averageSampleNumber", "overallEarlyStop", "calculatedPower") 
 	} 
 	
 	else if (type == 7) { 
-		if (is.na(main)) {
-			main <- bquote(atop(bold('Power'), atop('(N'['max']*'='*.(nMax)*")")))
+		if (!is.call(main) && !isS4(main) && is.na(main)) {
+			main <- PlotSubTitleItems(title = "Power")
+			main$add("N", nMax, "max")
 		}
 		xParameterName <- "theta"
 		yParameterNames <- "calculatedPower"
 	} 
 	
 	else if (type == 8) {
-		if (is.na(main)) {
-			main <- bquote(atop(bold('Early Stopping'), atop('(N'['max']*'='*.(nMax)*")")))
+		if (!is.call(main) && !isS4(main) && is.na(main)) {
+			main <- PlotSubTitleItems(title = "Early Stopping")
+			main$add("N", nMax, "max")
 		}
 		xParameterName <- "theta"
 		yParameterNames <- "overallEarlyStop"
 	} 
 	
 	else if (type == 9) {
-		if (is.na(main)) {
-			main <- bquote(atop(bold('Average Sample Size'), 
-					atop('(N'['max']*'='*.(nMax)*")")))
+		if (!is.call(main) && !isS4(main) && is.na(main)) {
+			main <- PlotSubTitleItems(title = "Average Sample Size")
+			main$add("N", nMax, "max")
 		}
 		xParameterName <- "theta"
 		yParameterNames <- "averageSampleNumber" 

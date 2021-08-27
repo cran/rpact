@@ -1,5 +1,5 @@
 #:#
-#:#  *RPACT constants*
+#:#  *Constants*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4895 $
-#:#  Last changed: $Date: 2021-05-20 11:05:36 +0200 (Thu, 20 May 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5164 $
+#:#  Last changed: $Date: 2021-08-16 16:52:35 +0200 (Mo, 16 Aug 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 C_LOG_LEVEL_TRACE <- "TRACE"
@@ -116,7 +116,7 @@ C_INTERSECTION_TESTS_MULTIARMED <- c(
 	"Hierarchical")
 C_INTERSECTION_TESTS_ENRICHMENT <- c(
 	"Bonferroni",
-	"Simes",
+	"Simes",	
 	"Sidak",
 	"SpiessensDebois") 
 C_VARIANCE_OPTION_DUNNETT <- "overallPooled" 
@@ -159,6 +159,7 @@ C_FOLLOW_UP_TIME_DEFAULT <- 6L
 #
 
 C_ACTIVE_ARMS_DEFAULT <- 3L
+C_POPULATIONS_DEFAULT <- 3L
 C_TYPES_OF_SELECTION <- c("best", "rBest", "epsilon", "all", "userDefined")
 C_TYPE_OF_SELECTION_DEFAULT <- C_TYPES_OF_SELECTION[1]
 C_TYPES_OF_SHAPE <- c("linear", "sigmoidEmax", "userDefined")
@@ -504,7 +505,7 @@ C_PARAMETER_NAMES <- list(
 	earlyStop = "Early stop",
 	rejectPerStage = "Reject per stage",
 	futilityPerStage = "Futility stop per stage",
-	overallEarlyStop = "Overall Early stop",
+	overallEarlyStop = "Early stop",
 	overallReject = "Overall reject",
 	overallFutility = "Overall futility",
 	
@@ -567,7 +568,7 @@ C_PARAMETER_NAMES <- list(
 	eventsNotAchieved = "Events not achieved",
 	subjects = "Subjects",
 	overallReject = "Overall reject",
-	futilityStop = "Futility stop",
+	futilityStop = "Overall futility stop",
 	studyDuration = "Expected study duration",
 	maxStudyDuration = "Maximal study duration",
 	directionUpper = "Direction upper",
@@ -650,6 +651,8 @@ C_PARAMETER_NAMES <- list(
 	rejectAtLeastOne = "Reject at least one",
 	selectedArms = "Selected arms",
 	rejectedArmsPerStage = "Rejected arms per stage",
+	selectedPopulations = "Selected populations",
+	rejectedPopulationsPerStage = "Rejected populations per stage",
 	successPerStage = "Success per stage",
 	effectEstimate = "Effect estimate",
 	subjectsControlArm = "Subjects (control arm)",
@@ -663,12 +666,16 @@ C_PARAMETER_NAMES <- list(
 	omegaMaxVector = "omega_max",
 	muMaxVector = "mu_max",
 	activeArms = "Active arms",
+	populations = "Populations",
 	
 	numberOfEvents = "Number of events",
 	calcSubjectsFunction = "Calculate subjects function",
 	calcEventsFunction = "Calculate events function",
 	selectArmsFunction = "Select arms function",
 	numberOfActiveArms = "Number of active arms",
+	selectPopulationsFunction = "Select populations function",
+	numberOfPopulations = "Number of populations",
+	
 	
 	correlationComputation = "Correlation computation method",
 	
@@ -677,7 +684,12 @@ C_PARAMETER_NAMES <- list(
 	stratifiedAnalysis = "Stratified analysis",
 	
 	maxInformation = "Maximum information",
-	informationEpsilon = "Information epsilon"
+	informationEpsilon = "Information epsilon",
+	
+	effectList = "Effect list",
+	subGroups = "Sub-groups",
+	prevalences = "Prevalences",
+	effects = "Effects"
 )
 
 .getParameterNames <- function(..., design = NULL, designPlan = NULL, stageResults = NULL, analysisResults = NULL) {
@@ -865,7 +877,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	earlyStop = "Early stop",
 	rejectPerStage = "Reject per stage",
 	futilityPerStage = "Futility stop per stage",
-	overallEarlyStop = "Overall Early stop",
+	overallEarlyStop = "Early stop",
 	overallReject = "Overall reject",
 	overallFutility = "Overall futility",
 	
@@ -929,7 +941,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	expectedNumberOfEventsPerStage = "Expected # events by stage",
 	eventsNotAchieved = "Events not achieved",
 	subjects = "Subjects",
-	futilityStop = "Futility stop",
+	futilityStop = "Overall futility stop",
 	studyDuration = "Expected study duration",
 	maxStudyDuration = "Maximal study duration",
 	directionUpper = "Direction upper",
@@ -1032,7 +1044,12 @@ C_TABLE_COLUMN_NAMES <- list(
 	stratifiedAnalysis = "Stratified analysis",
 	
 	maxInformation = "Maximum information",
-	informationEpsilon = "Information epsilon"
+	informationEpsilon = "Information epsilon",
+	
+	effectList = "Effect list",
+	subGroups = "Sub-group",
+	prevalences = "Prevalence",
+	effects = "Effect"
 )
 
 .getTableColumnNames <- function(design = NULL, designPlan = NULL) {
@@ -1209,7 +1226,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	expectedNumberOfEventsPerStage = ".formatEvents",
 	eventsNotAchieved = ".formatRates", 
 	subjects = ".formatSampleSizes",
-	futilityStop = ".formatSimulationResults", 
+	futilityStop = ".formatProbabilities", 
 	studyDuration = ".formatDurations",
 	maxStudyDuration = ".formatDurations",
 		

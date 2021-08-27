@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  File version: $Revision: 5055 $
+#:#  Last changed: $Date: 2021-07-15 07:58:17 +0200 (Thu, 15 Jul 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -393,6 +393,8 @@ getSimulationSurvival <- function(design = NULL, ...,
 	simulationResults$.piecewiseSurvivalTime <- pwsTimeObject
 	simulationResults$hazardRatio <- pwsTimeObject$hazardRatio
 	simulationResults$.setParameterType("hazardRatio", pwsTimeObject$.getParameterType("hazardRatio"))
+	simulationResults$.setParameterType("eventTime", pwsTimeObject$.getParameterType("eventTime"))
+	simulationResults$eventTime <- pwsTimeObject$eventTime
 	
 	if (.isLambdaBasedSimulationEnabled(pwsTimeObject)) {
 		
@@ -491,7 +493,6 @@ getSimulationSurvival <- function(design = NULL, ...,
 	.setValueAndParameterType(simulationResults, "dropoutRate1", dropoutRate1, C_DROP_OUT_RATE_1_DEFAULT)
 	.setValueAndParameterType(simulationResults, "dropoutRate2", dropoutRate2, C_DROP_OUT_RATE_2_DEFAULT)
 	.setValueAndParameterType(simulationResults, "dropoutTime", dropoutTime, C_DROP_OUT_TIME_DEFAULT)
-	.setValueAndParameterType(simulationResults, "eventTime", eventTime, C_EVENT_TIME_DEFAULT)
 	.setValueAndParameterType(simulationResults, "thetaH0", thetaH0, C_THETA_H0_SURVIVAL_DEFAULT)
 	.setValueAndParameterType(simulationResults, "allocation1", allocation1, C_ALLOCATION_1_DEFAULT)
 	.setValueAndParameterType(simulationResults, "allocation2", allocation2, C_ALLOCATION_2_DEFAULT)

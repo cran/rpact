@@ -23,10 +23,18 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+//#include <iostream>
+using namespace std;
+
 #ifndef PKG_RPACT_H
 #define PKG_RPACT_H
 
+
 NumericVector vectorSum(NumericVector x, NumericVector y);
+
+NumericVector vectorSub(NumericVector x, NumericVector y);
+
+double vectorSum(NumericVector x);
 
 NumericVector vectorSqrt(NumericVector x);
 
@@ -44,6 +52,8 @@ NumericVector vectorPow(NumericVector x, NumericVector y);
 
 NumericVector vectorPow(double x, NumericVector y);
 
+NumericVector vectorPow2(NumericVector y, double exp);
+
 NumericVector vectorRepEachValue(NumericVector x, int kMax);
 
 double vectorProduct(NumericVector x);
@@ -57,6 +67,18 @@ void vectorSumC(int i, int j, int kMax, double* x, NumericMatrix y);
 void vectorInitC(int i, int kMax, double* x, double value);
 
 NumericVector concat(NumericVector a, NumericVector b);
+
+NumericMatrix matrixAdd(NumericMatrix x, NumericMatrix y);
+
+NumericMatrix matrixSub(NumericMatrix x, NumericMatrix y);
+
+NumericMatrix matrixMultiply(NumericMatrix x, double y);
+
+NumericVector repInt(int x, int y);
+
+std::string toString(const double i);
+
+std::string vectorToString(NumericVector x);
 
 void logDebug(std::string s);
 

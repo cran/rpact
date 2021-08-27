@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4977 $
-#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -223,14 +223,14 @@
 	.setValueAndParameterType(stageResults, "stratifiedAnalysis", stratifiedAnalysis, C_STRATIFIED_ANALYSIS_DEFAULT)
 	.setValueAndParameterType(stageResults, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_ENRICHMENT_DEFAULT)
 	
-	overallSampleSizes1 <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallSampleSizes2 <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallRates1 <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallRates2 <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	overallSampleSizes1 <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	overallSampleSizes2 <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	overallRates1 <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	overallRates2 <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	overallEvents <- rep(NA_real_, kMax)
-	testStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallTestStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	separatePValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	testStatistics <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	overallTestStatistics <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	separatePValues <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 
 	dimnames(testStatistics) = list(paste("population ", 1:gMax, sep = ""), paste("stage ", (1:kMax), sep = ""))
 	dimnames(separatePValues) = list(paste("population ", 1:gMax, sep = ""), paste("stage ", (1:kMax), sep = ""))
@@ -268,9 +268,9 @@
 	
 	# Calculation of single stage adjusted p-Values and overall test statistics
 	# for determination of RCIs 
-	singleStepAdjustedPValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	combInverseNormal <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	combFisher <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	singleStepAdjustedPValues <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	combInverseNormal <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	combFisher <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	
 	if (.isTrialDesignInverseNormal(design)) {	
 		weightsInverseNormal <- stageResults$weightsInverseNormal
@@ -1070,7 +1070,7 @@
 		}
 	}	
 	
-	subTitle <- paste0("Intersection test = ", intersectionTest, 
+	subtitle <- paste0("Intersection test = ", intersectionTest, 
 		", stage = ", stage, ", # of remaining subjects = ", 
 		sum(nPlanned), ", control rate = ", .formatSubTitleValue(piControls, "piControls") , 
 		", allocation ratio = ", .formatSubTitleValue(allocationRatioPlanned, "allocationRatioPlanned"))
@@ -1083,7 +1083,7 @@
 		main = C_PLOT_MAIN_CONDITIONAL_POWER_WITH_LIKELIHOOD,
 		xlab = "Treatment rate",
 		ylab = C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD,
-		sub = subTitle
+		sub = subtitle
 	))
 }
 

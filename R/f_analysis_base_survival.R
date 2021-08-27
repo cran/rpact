@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4878 $
-#:#  Last changed: $Date: 2021-05-17 17:39:11 +0200 (Mon, 17 May 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -938,7 +938,7 @@
 		}
 	}
 
-	subTitle <- paste0("Stage = ", stage, ", maximum number of remaining events = ", 
+	subtitle <- paste0("Stage = ", stage, ", maximum number of remaining events = ", 
 		sum(nPlanned), ", allocation ratio = ", .formatSubTitleValue(allocationRatioPlanned, "allocationRatioPlanned"))
 	
 	return(list(
@@ -948,7 +948,7 @@
 		main = C_PLOT_MAIN_CONDITIONAL_POWER_WITH_LIKELIHOOD,
 		xlab = "Hazard ratio",
 		ylab = C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD,
-		sub = subTitle
+		sub = subtitle
 	))
 }	
 

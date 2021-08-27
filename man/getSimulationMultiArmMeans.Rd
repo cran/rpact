@@ -58,7 +58,7 @@ of effect sizes for the treatment group with highest response.
 If \code{"userDefined"} is selected, \code{"effectMatrix"} has to be entered.}
 
 \item{muMaxVector}{Range of effect sizes for the treatment group with highest response 
-for \code{"linear"} and \code{"sigmoidEmax"} model, default is \code{seq(0,1,0.2)}.}
+for \code{"linear"} and \code{"sigmoidEmax"} model, default is \code{seq(0, 1, 0.2)}.}
 
 \item{gED50}{If \code{"sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
 to specify the ED50 of the sigmoid Emax model.}
@@ -79,22 +79,22 @@ the coefficient of variation \code{sigma / mu2}.}
 \item{adaptations}{A vector of length \code{kMax - 1} indicating whether or not an adaptation takes 
 place at interim k, default is \code{rep(TRUE, kMax - 1)}.}
 
-\item{typeOfSelection}{The way the treatment arms are selected at interim. 
+\item{typeOfSelection}{The way the treatment arms or populations are selected at interim. 
 Five options are available: \code{"best"}, \code{"rbest"}, \code{"epsilon"}, \code{"all"}, and \code{"userDefined"},
 default is \code{"best"}.\cr
-For \code{"rbest"} (select the \code{rValue} best treatment arms), the parameter \code{rValue} has to be specified,
-for \code{"epsilon"} (select treatment arm not worse than epsilon compared to the best), the parameter
+For \code{"rbest"} (select the \code{rValue} best treatment arms/populations), the parameter \code{rValue} has to be specified,
+for \code{"epsilon"} (select treatment arm/population not worse than epsilon compared to the best), the parameter
 \code{epsilonValue} has to be specified.
-If \code{"userDefined"} is selected, \code{"selectArmsFunction"} has to be specified.}
+If \code{"userDefined"} is selected, \code{"selectArmsFunction"} or \code{"selectPopulationsFunction"} has to be specified.}
 
-\item{effectMeasure}{Criterion for treatment arm selection, either based on test statistic 
+\item{effectMeasure}{Criterion for treatment arm/population selection, either based on test statistic 
 (\code{"testStatistic"}) or effect estimate (difference for means and rates or ratio for survival) (\code{"effectEstimate"}), 
 default is \code{"effectEstimate"}.}
 
 \item{successCriterion}{Defines when the study is stopped for efficacy at interim. 
 Two options are available: \code{"all"} stops the trial 
-if the efficacy criterion is fulfilled for all selected treatment arms, 
-\code{"atLeastOne"} stops if at least one of the selected treatment arms is shown to be 
+if the efficacy criterion is fulfilled for all selected treatment arms/populations, 
+\code{"atLeastOne"} stops if at least one of the selected treatment arms/populations is shown to be 
 superior to control at interim, default is \code{"all"}.}
 
 \item{epsilonValue}{For \code{"epsilon"} (select treatment arm not worse than 
@@ -174,8 +174,8 @@ The following generics (R generic functions) are available for this object:
 }
 }
 \description{
-Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
-for testing means in a multi-arm treatment groups testing situation.
+Returns the simulated power, stopping and selection probabilities, conditional power,  
+and expected sample size for testing means in a multi-arm treatment groups testing situation.
 }
 \details{
 At given design the function simulates the power, stopping probabilities, selection probabilities, 

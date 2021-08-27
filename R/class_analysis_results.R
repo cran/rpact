@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4977 $
-#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -839,7 +839,7 @@ AnalysisResultsBase <- setRefClass("AnalysisResultsBase",
 #' 
 #' @importFrom methods new
 #' 
-AnalysisResultsMultiHypotheses  <- setRefClass("AnalysisResultsMultiHypotheses",
+AnalysisResultsMultiHypotheses <- setRefClass("AnalysisResultsMultiHypotheses",
 	contains = "AnalysisResults",
 	fields = list(
 		.closedTestResults = "ClosedCombinationTestResults",
@@ -877,7 +877,6 @@ AnalysisResultsMultiHypotheses  <- setRefClass("AnalysisResultsMultiHypotheses",
 #' \code{AnalysisResultsMultiArm} is the basic class for 
 #' \itemize{
 #'   \item \code{\link{AnalysisResultsMultiArmFisher}}, 
-#'   \item \code{\link{AnalysisResultsMultiArmGroupSequential}}, 
 #'   \item \code{\link{AnalysisResultsMultiArmInverseNormal}}, and
 #'   \item \code{\link{AnalysisResultsConditionalDunnett}}.
 #' }
@@ -1092,33 +1091,6 @@ AnalysisResultsGroupSequential <- setRefClass("AnalysisResultsGroupSequential",
 			.setParameterType("informationEpsilon", C_PARAM_NOT_APPLICABLE)
 		}
 	)
-)
-
-#' 
-#' @name AnalysisResultsMultiArmGroupSequential
-#' 
-#' @title
-#' Analysis Results Multi-Arm Group Sequential
-#' 
-#' @description
-#' Class for multi-arm analysis results based on a group sequential design.
-#' 
-#' @details 
-#' This object cannot be created directly; use \code{\link{getAnalysisResults}} 
-#' with suitable arguments to create the multi-arm analysis results of a group sequential design.
-#' 
-#' @include class_core_parameter_set.R
-#' @include class_core_plot_settings.R
-#' @include class_analysis_dataset.R
-#' @include class_design.R
-#' @include f_core_constants.R
-#' 
-#' @keywords internal
-#' 
-#' @importFrom methods new
-#'
-AnalysisResultsMultiArmGroupSequential <- setRefClass("AnalysisResultsMultiArmGroupSequential",
-	contains = "AnalysisResultsMultiArm"
 )
 
 #' 
@@ -1539,7 +1511,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		main = "Repeated Confidence Intervals",
 		xlab = "Stage",
 		ylab = "RCI",
-		sub = NA_character_ # subTitle
+		sub = NA_character_ # subtitle
 	)
 	
 	if (is.na(legendPosition)) {

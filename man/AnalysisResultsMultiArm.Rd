@@ -11,7 +11,6 @@ A basic class for multi-arm analysis results.
 \code{AnalysisResultsMultiArm} is the basic class for 
 \itemize{
   \item \code{\link{AnalysisResultsMultiArmFisher}}, 
-  \item \code{\link{AnalysisResultsMultiArmGroupSequential}}, 
   \item \code{\link{AnalysisResultsMultiArmInverseNormal}}, and
   \item \code{\link{AnalysisResultsConditionalDunnett}}.
 }

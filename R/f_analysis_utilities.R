@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4977 $
-#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  File version: $Revision: 5120 $
+#:#  Last changed: $Date: 2021-08-05 14:59:47 +0200 (Thu, 05 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -384,8 +384,8 @@ NULL
 			}
 		}
 		
-		if (!survivalDataEnabled && !enrichmentEnabled) { 
-			if (!multiArmEnabled) {
+		if (!enrichmentEnabled) {
+			if (!multiArmEnabled && !survivalDataEnabled) {
 				if (!is.null(naIndicesBefore) && !.equalsRegexpIgnoreCase(argName, "^stages?$")) {
 					if (!.arraysAreEqual(naIndicesBefore, naIndices)) {
 						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
@@ -397,8 +397,8 @@ NULL
 			} else {
 				groupNumber <- .getGroupNumberFromArgumentName(argName)
 				if (!is.null(naIndicesBefore[[as.character(groupNumber)]]) && 
-					!.equalsRegexpIgnoreCase(argName, "^stages?$") &&
-					!.isControlGroupArgument(argName, numberOfGroups)) {
+						!.equalsRegexpIgnoreCase(argName, "^stages?$") &&
+						!.isControlGroupArgument(argName, numberOfGroups)) {
 					if (!.arraysAreEqual(naIndicesBefore[[as.character(groupNumber)]], naIndices)) {
 						stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
 							"values of treatment ", groupNumber, " not correctly specified; ",

@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4977 $
-#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  File version: $Revision: 5130 $
+#:#  Last changed: $Date: 2021-08-10 08:14:31 +0200 (Di, 10 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -462,10 +462,27 @@ resetLogLevel <- function() {
 	result <- ""
 	for (name in names(a)) {
 		value <- a[[name]]
-		if (encapsulate) {
-			value <- paste0("'", value, "'")
+		
+		if (is.list(value)) {
+			value <- .listToString(value, 
+				separator = separator, 
+				listLookAndFeelEnabled = listLookAndFeelEnabled, 
+				encapsulate = encapsulate)
+			if (!listLookAndFeelEnabled) {
+				value <- paste0("{", value, "}")
+			}
+		} else {
+			if (length(value) > 1) {
+				value <- .arrayToString(value, separator = separator, 
+					encapsulate = encapsulate)
+				value <-  paste0("(", value, ")")
+			} else if (encapsulate) {
+				value <- sQuote(value)
+			}
 		}
+		
 		entry <- paste(name, "=", value)
+		
 		if (nchar(result) > 0) {
 			result <- paste(result, entry, sep = ", ")
 		} else {
@@ -1050,7 +1067,7 @@ resetLogLevel <- function() {
 
 .downloadUnitTests <- function(testFileTargetDirectory, ..., token, secret, 
 		method = "auto", mode = "wb", cacheOK = TRUE, extra = getOption("download.file.extra"),
-		cleanOldFiles = TRUE, connectionType = c("ftp", "http")) {
+		cleanOldFiles = TRUE, connectionType = c("http", "ftp")) {
 		
 	.assertIsSingleCharacter(testFileTargetDirectory, "testFileTargetDirectory")
 	.assertIsSingleCharacter(token, "token")
@@ -1120,7 +1137,7 @@ resetLogLevel <- function() {
 		}
 		
 		startTime <- Sys.time()
-		message("Start to download ", length(testFiles), " unit test files. Please wait...")
+		message("Start to download ", length(testFiles), " unit test files (http). Please wait...")
 		for (testFile in testFiles) {
 			result <- download.file(url = paste0(baseUrl, "testthat/", testFile), 
 				destfile = file.path(testthatSubDirectory, testFile), quiet = TRUE)
@@ -1128,6 +1145,7 @@ resetLogLevel <- function() {
 		message(length(testFiles), " unit test files downloaded successfully (needed ", 
 			.getRuntimeString(startTime, runtimeUnits = "secs"), ")")
 	}, error = function(e) {
+		.logDebug(e$message)
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
 			"failed to download unit test files (http): illegal 'token' / 'secret' or rpact version ", version, " unknown")
 	}, finally = {
@@ -1182,7 +1200,7 @@ resetLogLevel <- function() {
 		}
 		
 		startTime <- Sys.time()
-		message("Start to download ", length(testFiles), " unit test files. Please wait...")
+		message("Start to download ", length(testFiles), " unit test files (ftp). Please wait...")
 		for (testFile in testFiles) {
 			result <- download.file(url = paste0(baseUrl, "testthat/", testFile), 
 				destfile = file.path(testthatSubDirectory, testFile), 
@@ -1194,8 +1212,9 @@ resetLogLevel <- function() {
 		message(length(testFiles), " unit test files downloaded successfully (needed ", 
 			.getRuntimeString(startTime, runtimeUnits = "secs"), ")")
 	}, error = function(e) {
+		.logDebug(e$message)
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-			"failed to download unit test files: illegal 'token' / 'secret' or rpact version ", version, " unknown")
+			"failed to download unit test files (ftp): illegal 'token' / 'secret' or rpact version ", version, " unknown")
 	}, finally = {
 		if (file.exists(indexFile)) {
 			tryCatch({
@@ -1222,7 +1241,7 @@ resetLogLevel <- function() {
 		"cacheEnabled" = TRUE, 
 		"extra" = getOption("download.file.extra"),
 		"cleanOldFiles" = TRUE,
-		"connectionType" = "ftp"
+		"connectionType" = "http"
 	)
 	
 	value <- connection[[name]]
@@ -1290,7 +1309,12 @@ testPackage <- function(outDir = ".", ...,
 	on.exit(Sys.setenv("RPACT_COMPLETE_UNIT_TEST_SET_ENABLED" = temp), add = TRUE)
 	Sys.setenv("RPACT_COMPLETE_UNIT_TEST_SET_ENABLED" = completeUnitTestSetEnabled)
 	
-	setLogLevel(C_LOG_LEVEL_DISABLED)
+	debug <- .getOptionalArgument("debug", ...)
+	if (!is.null(debug) && length(debug) == 1 && isTRUE(as.logical(debug))) {
+		setLogLevel(C_LOG_LEVEL_DEBUG)
+	} else {
+		setLogLevel(C_LOG_LEVEL_DISABLED)
+	}
 	on.exit(resetLogLevel(), add = TRUE)
 
 	token <- .getConnectionArgument(connection, "token")
@@ -1299,7 +1323,7 @@ testPackage <- function(outDir = ".", ...,
 	
 	if (completeUnitTestSetEnabled && fullTestEnabled) {
 		cat("Run all tests. Please wait...\n")
-		cat("Have a break - it will take 25 minutes or more.\n")
+		cat("Have a break - it takes about 25 to 30 minutes.\n")
 		cat("Exceution of all available unit tests startet at ", 
 			format(startTime, "%H:%M (%d-%B-%Y)"), "\n", sep = "")
 	} else if (!fullTestEnabled) {
@@ -1402,8 +1426,8 @@ testPackage <- function(outDir = ".", ...,
 		cat("-------------------------------------------------------------------------\n")
 		cat("Note that only a small subset of all available unit tests were executed.\n")
 		cat("You need a personal 'token' and 'secret' to perform all unit tests.\n")
-		cat("You can find these data in the validation documentation licensed for your \n")
-		cat("company/organization.\n")
+		cat("You can find these data in the appendix of the validation documentation \n")
+		cat("licensed for your company/organization.\n")
 	}
 	else if (!completeUnitTestSetEnabled) {
 		cat("Note that only a small subset of all available unit tests were executed.\n")

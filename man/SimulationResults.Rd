@@ -14,7 +14,7 @@ A class for simulation results.
   \item \code{\link{SimulationResultsRates}},  
   \item \code{\link{SimulationResultsSurvival}},
   \item \code{\link{SimulationResultsMultiArmMeans}}, 
-  \item \code{\link{SimulationResultsMultiArmRates}}, and 
+  \item \code{\link{SimulationResultsMultiArmRates}}, and  
   \item \code{\link{SimulationResultsMultiArmSurvival}}.
 }
 }

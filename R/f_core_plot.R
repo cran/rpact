@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4970 $
-#:#  Last changed: $Date: 2021-06-08 07:58:23 +0200 (Di, 08 Jun 2021) $
+#:#  File version: $Revision: 5175 $
+#:#  Last changed: $Date: 2021-08-18 07:44:45 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -30,6 +30,8 @@
 	if (is.null(obj) || length(type) == 0) {
 		return(NA_character_)
 	}
+	
+	.assertIsSingleInteger(type, "type", validateType = FALSE)
 	
 	if (inherits(obj, "TrialDesignPlan")) {
 		if (type == 1) {
@@ -904,6 +906,11 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (!is.na(nMax) && is.null(yParameterName3) && xParameterName == "informationRates") {
 		xAxisLabel <- "Sample Size"
 		data$xValues <- data$xValues * nMax
+		tryCatch({
+			data$xValues <- as.numeric(.formatSampleSizes(data$xValues))
+		}, error = function(e) {
+			warning("Failed to format sample sizes on x-axis: ", e$message)
+		})
 	}
 	
 	# add zero point to data
@@ -1142,6 +1149,9 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	} else {
 		data <- data[, c("xValues", "yValues")]
 	}
+	
+	data$yValues[!is.na(data$yValues) & is.infinite(data$yValues)] <- NA_real_
+	data <- data[!is.na(data$yValues), ]
 	
 	if (categoryEnabled && groupEnabled) {
 		p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["xValues"]], y = .data[["yValues"]], 

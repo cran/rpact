@@ -23,6 +23,12 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+std::string toString(const double i) {
+    std::ostringstream ostr;
+    ostr << i;
+    return ostr.str();
+}
+
 NumericVector vectorSum(NumericVector x, NumericVector y) {
 	int n = x.size();
 	NumericVector result = NumericVector(n, NA_REAL);
@@ -32,11 +38,33 @@ NumericVector vectorSum(NumericVector x, NumericVector y) {
 	return result;
 }
 
+NumericVector vectorSub(NumericVector x, NumericVector y) {
+	int n = x.size();
+	NumericVector result = NumericVector(n, NA_REAL);
+	for (int i = 0; i < n; i++) {
+		result[i] = x[i] - y[i];
+	}
+	return result;
+}
+
+double vectorSum(NumericVector x) {
+    int n = x.size();
+    if (n <= 1) {
+        return n == 0 ? 0 : x[0];
+    }
+
+    double s = x[0];
+    for (int i = 1; i < n; i++) {
+        s += x[i];
+    }
+    return s;
+}
+
 NumericVector vectorSqrt(NumericVector x) {
 	int n = x.size();
 	NumericVector result = NumericVector(n, NA_REAL);
 	for (int i = 0; i < n; i++) {
-		result[i] = sqrt(x[i]);
+		result[i] = sqrt((double) x[i]);
 	}
 	return result;
 }
@@ -70,15 +98,6 @@ NumericVector vectorDivide(NumericVector x, NumericVector y) {
 	return result;
 }
 
-NumericVector vectorMultiply(NumericVector x, double multiplier) {
-	int n = x.size();
-	NumericVector result = NumericVector(n, NA_REAL);
-	for (int i = 0; i < n; i++) {
-		result[i] = x[i] * multiplier;
-	}
-	return result;
-}
-
 NumericVector vectorMultiply(NumericVector x, NumericVector y) {
 	int n = x.size();
 	NumericVector result = NumericVector(n, NA_REAL);
@@ -92,7 +111,7 @@ NumericVector vectorPow(NumericVector x, NumericVector y) {
 	int n = x.size();
 	NumericVector result = NumericVector(n, NA_REAL);
 	for (int i = 0; i < n; i++) {
-		result[i] = pow(x[i], y[i]);
+		result[i] = pow((double) x[i], (double) y[i]);
 	}
 	return result;
 }
@@ -101,7 +120,16 @@ NumericVector vectorPow(double x, NumericVector y) {
 	int n = y.size();
 	NumericVector result = NumericVector(n, NA_REAL);
 	for (int i = 0; i < n; i++) {
-		result[i] = pow(x, y[i]);
+		result[i] = pow(x, (double) y[i]);
+	}
+	return result;
+}
+
+NumericVector vectorPow2(NumericVector y, double exp) {
+	int n = y.size();
+	NumericVector result = NumericVector(n, NA_REAL);
+	for (int i = 0; i < n; i++) {
+		result[i] = pow((double) y[i], exp);
 	}
 	return result;
 }
@@ -165,6 +193,61 @@ NumericVector concat(NumericVector a, NumericVector b) {
 		a.insert( a.end(), b[i] );
 	}
 	return a;
+}
+
+NumericMatrix matrixAdd(NumericMatrix x, NumericMatrix y) {
+	NumericMatrix result(x.nrow(),x.ncol());
+    for (int i = 0; i < x.nrow(); ++i) {
+        for (int j = 0; j < x.ncol(); ++j) {
+            result(i,j) = x(i,j) + y(i,j);
+        }
+    }
+    return result;
+}
+
+NumericMatrix matrixSub(NumericMatrix x, NumericMatrix y) {
+	NumericMatrix result(x.nrow(), x.ncol());
+    for (int i = 0; i < x.nrow(); ++i) {
+        for (int j = 0; j < x.ncol(); ++j) {
+            result(i, j) = x(i, j) - y(i, j);
+        }
+    }
+    return result;
+}
+
+NumericMatrix matrixMultiply(NumericMatrix x, double y) {
+	NumericMatrix result(x.nrow(),x.ncol());
+    for (int i = 0; i < x.nrow(); ++i) {
+        for (int j = 0; j < x.ncol(); ++j) {
+            result(i,j) = x(i,j) * y;
+        }
+    }
+    return result;
+}
+
+NumericVector repInt(int x, int y) {
+	NumericVector result(y);
+	for (int i = 0; i < y ; i++) {
+		result[i] = x;
+	}
+	return result;
+}
+
+std::string vectorToString(const NumericVector x) {
+	if (x.length() == 0) {
+		return "[]";
+	}
+
+	std::ostringstream os;
+	os << "[";
+	for (int i = 0; i < x.length(); i++) {
+		os << x[i];
+		if (i + 1 < x.length()) {
+			os << ", ";
+		}
+	}
+	os << "]";
+	return os.str();
 }
 
 void logDebug(std::string s) {

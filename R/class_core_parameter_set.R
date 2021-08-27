@@ -13,163 +13,13 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4952 $
-#:#  Last changed: $Date: 2021-06-01 14:13:33 +0200 (Tue, 01 Jun 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
 #' @include f_core_constants.R
 NULL
-
-PlotSubTitleItem <- setRefClass("PlotSubTitleItem",
-	fields = list(
-		title = "character",
-		subscript = "character",
-		value = "numeric"
-	),
-	methods = list(
-		toQuote = function() {
-			if (!is.null(subscript) && length(subscript) == 1 && !is.na(subscript)) {
-				return(bquote(' '*.(title)[.(subscript)] == .(value)))
-			}
-			
-			return(bquote(' '*.(title) == .(value)))
-		}
-	)
-)
-
-PlotSubTitleItems <- setRefClass("PlotSubTitleItems",
-	fields = list(
-		title = "character",
-		subTitle = "character",
-		items = "list"
-	),
-	methods = list(
-		initialize = function(...) {
-			callSuper(...)
-			items <<- list()
-		},
-		
-		addItem = function(item) {
-			items <<- c(items, item)
-		},
-		
-		add = function(title, value, subscript = NA_character_) {
-			titleTemp <- title
-			if (length(items) == 0) {
-				titleTemp <- .firstCharacterToUpperCase(titleTemp)
-			}
-			
-			titleTemp <- paste0(' ', titleTemp)
-			if (length(subscript) > 0 && !is.na(subscript)) {
-				subscript <- paste0(as.character(subscript), ' ')
-			} else {
-				titleTemp <- paste0(titleTemp, ' ')
-			}
-			addItem(PlotSubTitleItem(title = titleTemp, subscript = subscript, value = value))
-		},
-		
-		toQuote = function() {
-			quotedItems <- .getQuotedItems()
-			if (is.null(quotedItems)) {
-				if (length(subTitle) > 0) {
-					return(bquote(atop(bold(.(title)), 
-						atop(.(subTitle)))))
-				}
-				
-				return(title)
-			}
-			
-			if (length(subTitle) > 0) {
-				return(bquote(atop(bold(.(title)), 
-							atop(.(subTitle)*','~.(quotedItems)))))
-			}
-			
-			return(bquote(atop(bold(.(title)), 
-				atop(.(quotedItems)))))
-		},
-		
-		.getQuotedItems = function() {
-			item1 <- NULL
-			item2 <- NULL
-			item3 <- NULL
-			item4 <- NULL
-			if (length(items) > 0) {
-				item1 <- items[[1]]
-			}
-			if (length(items) > 1) {
-				item2 <- items[[2]]
-			}
-			if (length(items) > 2) {
-				item3 <- items[[3]]
-			}
-			if (length(items) > 3) {
-				item4 <- items[[4]]
-			}
-			
-			if (!is.null(item1) && !is.null(item2) && !is.null(item3) && !is.null(item4)) {
-				if (length(item1$subscript) == 1 && !is.na(item1$subscript) &&
-					length(item2$subscript) == 1 && !is.na(item2$subscript)) {
-					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
-				}
-				
-				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
-					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
-				}
-				
-				if (length(item2$subscript) == 1 && !is.na(item2$subscript)) {
-					return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
-				}
-				
-				return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
-			}
-			
-			if (!is.null(item1) && !is.null(item2) && !is.null(item3)) {
-				if (length(item1$subscript) == 1 && !is.na(item1$subscript) &&
-						length(item2$subscript) == 1 && !is.na(item2$subscript)) {
-					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
-				}
-				
-				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
-					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
-				}
-				
-				if (length(item2$subscript) == 1 && !is.na(item2$subscript)) {
-					return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
-				}
-				
-				return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
-			}
-			
-			if (!is.null(item1) && !is.null(item2)) {
-				if (length(item1$subscript) == 1 && !is.na(item1$subscript) &&
-						length(item2$subscript) == 1 && !is.na(item2$subscript)) {
-					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*''))
-				}
-
-				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
-					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title) == .(item2$value)*''))
-				}
-				
-				if (length(item2$subscript) == 1 && !is.na(item2$subscript)) {
-					return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*''))
-				}
-				
-				return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title) == .(item2$value)*''))
-			}
-			
-			if (!is.null(item1)) {
-				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
-					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*''))
-				}
-				
-				return(bquote(' '*.(item1$title) == .(item1$value)*''))
-			}
-			
-			return(NULL)
-		}
-	)
-)
 
 #' 
 #' @name FieldSet
@@ -330,6 +180,7 @@ FieldSet <- setRefClass("FieldSet",
 #' The parameter set implements basic functions for a set of parameters.
 #' 
 #' @include f_core_constants.R
+#' @include f_parameter_set_utilities.R
 #' 
 #' @keywords internal
 #' 
@@ -491,30 +342,6 @@ ParameterSet <- setRefClass("ParameterSet",
 			return(paste0("[", .getParameterType(parameterName), "]"))
 		},
 		
-		.isMatrix = function(param) {
-			if (missing(param) || is.null(param) || is.list(param)) {
-				return(FALSE)
-			}
-			
-			return(is.matrix(param))
-		},
-		
-		.isArray = function(param) {
-			if (missing(param) || is.null(param) || is.list(param)) {
-				return(FALSE)
-			}
-			
-			return(is.array(param))
-		},
-		
-		.isVector = function(param) {
-			if (missing(param) || is.null(param) || is.list(param)) {
-				return(FALSE)
-			}
-			
-			return(length(param) > 1)
-		},
-		
 		.showAllParameters = function(consoleOutputEnabled = TRUE) {
 			parametersToShow <- .getVisibleFieldNamesOrdered()
 			for (parameter in parametersToShow) {
@@ -588,59 +415,46 @@ ParameterSet <- setRefClass("ParameterSet",
 				invisible(output)				
 			}
 		},
-		
+
 		.showParameter = function(parameterName, showParameterType = FALSE, consoleOutputEnabled = TRUE) {
 			tryCatch({
-				param <- .getParameterValueFormatted(parameterName = parameterName)
+				params <- .getParameterValueFormatted(obj = .self, parameterName = parameterName)
+				if (is.null(params) || !is.list(params)) {
+					return(invisible(""))
+				}
+				
+				if (!is.null(names(params)) && "paramValue" %in% names(params)) {
+					return(.showParameterSingle(param = params, 
+						parameterName = parameterName, 
+						showParameterType = showParameterType, 
+						consoleOutputEnabled = consoleOutputEnabled))
+				}
+				
 				output <- ""
-				if (!is.null(param)) {
-					if (param$type == "array" && length(dim(param$paramValue)) == 3) {
-						numberOfEntries <- dim(param$paramValue)[3]
-						numberOfRows <- dim(param$paramValue)[1]
-						index <- 1
-						for (i in 1:numberOfEntries) {
-							for (j in 1:numberOfRows) { 
-								output <- paste0(output, .showParameterFormatted(paramName = param$paramName, 
-									paramValue = param$paramValue[j, , i], 
-									paramValueFormatted = param$paramValueFormatted[[index]], 
-									showParameterType = showParameterType,
-									category = i,
-									matrixRow = ifelse(numberOfRows == 1, NA_integer_, j), 
-									consoleOutputEnabled = consoleOutputEnabled,
-									paramNameRaw = parameterName,
-									numberOfCategories = numberOfEntries))
-								index <- index + 1
-							}
+				for (i in 1:length(params)) {
+					param <- params[[i]]
+					category <- NULL
+					parts <- strsplit(param$paramName, "$", fixed = TRUE)[[1]]
+					if (length(parts) == 2) {
+						parameterName <- parts[1]
+						param$paramName <- parameterName
+						
+						category <- parts[2]
+						categoryCaption <- .parameterNames[[category]]
+						if (is.null(categoryCaption)) {
+							categoryCaption <- paste0("%", category, "%")
 						}
-					} else if (param$type %in% c("matrix", "array")) {
-						n <- length(param$paramValueFormatted)
-						for (i in 1:n) {
-							paramValue <- param$paramValue 
-							if (is.array(paramValue) && 
-								length(dim(paramValue)) == 3 && 
-								dim(paramValue)[3] == 1) {
-								paramValue <- paramValue[i, , 1]
-							}
-							else if (dim(paramValue)[1] > 1 || dim(paramValue)[2] > 1) {
-								paramValue <- paramValue[i, ]
-							}
-							
-							output <- paste0(output, .showParameterFormatted(paramName = param$paramName, 
-								paramValue = paramValue, 
-								paramValueFormatted = param$paramValueFormatted[[i]], 
-								showParameterType = showParameterType,
-								matrixRow = ifelse(n == 1, NA_integer_, i), 
-								consoleOutputEnabled = consoleOutputEnabled,
-								paramNameRaw = parameterName,
-								numberOfCategories = n))
-						}
+						category <- categoryCaption
+					}
+					outputPart <- .showParameterSingle(param = param, 
+						parameterName = parameterName,
+						category = category,
+						showParameterType = showParameterType, 
+						consoleOutputEnabled = consoleOutputEnabled)
+					if (nchar(output) > 0) {
+						output <- paste0(output, "\n", outputPart)
 					} else {
-						output <- .showParameterFormatted(paramName = param$paramName, 
-							paramValue = param$paramValue, 
-							paramValueFormatted = param$paramValueFormatted, 
-							showParameterType = showParameterType, 
-							consoleOutputEnabled = consoleOutputEnabled, 
-							paramNameRaw = parameterName)
+						output <- outputPart
 					}
 				}
 				return(invisible(output))
@@ -649,6 +463,77 @@ ParameterSet <- setRefClass("ParameterSet",
 					warning("Failed to show parameter '", parameterName, "': ", e$message)
 				}
 			})
+		},
+		
+		.showParameterSingle = function(
+				param, 
+				parameterName, ...,
+				category = NULL,
+				showParameterType = FALSE, 
+				consoleOutputEnabled = TRUE) {
+			
+			if (is.null(param)) {
+				return(invisible(""))
+			}
+			
+			output <- ""
+			tryCatch({
+				if (param$type == "array" && length(dim(param$paramValue)) == 3) {
+					numberOfEntries <- dim(param$paramValue)[3]
+					numberOfRows <- dim(param$paramValue)[1]
+					index <- 1
+					for (i in 1:numberOfEntries) {
+						for (j in 1:numberOfRows) { 
+							output <- paste0(output, .showParameterFormatted(paramName = param$paramName, 
+								paramValue = param$paramValue[j, , i], 
+								paramValueFormatted = param$paramValueFormatted[[index]], 
+								showParameterType = showParameterType,
+								category = i,
+								matrixRow = ifelse(numberOfRows == 1, NA_integer_, j), 
+								consoleOutputEnabled = consoleOutputEnabled,
+								paramNameRaw = parameterName,
+								numberOfCategories = numberOfEntries))
+							index <- index + 1
+						}
+					}
+				} else if (param$type %in% c("matrix", "array")) {
+					n <- length(param$paramValueFormatted)
+					for (i in 1:n) {
+						paramValue <- param$paramValue 
+						if (is.array(paramValue) && 
+								length(dim(paramValue)) == 3 && 
+								dim(paramValue)[3] == 1) {
+							paramValue <- paramValue[i, , 1]
+						}
+						else if (dim(paramValue)[1] > 1 || dim(paramValue)[2] > 1) {
+							paramValue <- paramValue[i, ]
+						}
+						
+						output <- paste0(output, .showParameterFormatted(paramName = param$paramName, 
+							paramValue = paramValue, 
+							paramValueFormatted = param$paramValueFormatted[[i]], 
+							showParameterType = showParameterType,
+							category = category,
+							matrixRow = ifelse(n == 1, NA_integer_, i), 
+							consoleOutputEnabled = consoleOutputEnabled,
+							paramNameRaw = parameterName,
+							numberOfCategories = n))
+					}
+				} else {
+					output <- .showParameterFormatted(paramName = param$paramName, 
+						paramValue = param$paramValue, 
+						paramValueFormatted = param$paramValueFormatted, 
+						showParameterType = showParameterType, 
+						category = category,
+						consoleOutputEnabled = consoleOutputEnabled, 
+						paramNameRaw = parameterName)
+				}
+			}, error = function(e) {
+				if (consoleOutputEnabled) {
+					warning("Failed to show single parameter '", parameterName, "': ", e$message)
+				}
+			})
+			return(invisible(output))
 		},
 		
 		.extractParameterNameAndValue = function(parameterName) {
@@ -664,121 +549,6 @@ ParameterSet <- setRefClass("ParameterSet",
 			return(list(parameterName = parameterName, paramValue = paramValue))
 		},
 		
-		.getMatrixFormatted = function(paramValueFormatted) {
-			if (!is.matrix(paramValueFormatted)) {
-				return(list(
-					paramValueFormatted = matrix(as.character(paramValueFormatted), ncol = 1),
-					type = "matrix"
-				))
-			} 
-			
-			matrixFormatted <- paramValueFormatted
-			paramValueFormatted <- .arrayToString(matrixFormatted[1, ])
-			type <- "vector"
-			if (nrow(matrixFormatted) > 1 && ncol(matrixFormatted) > 0) {
-				type <- "matrix"
-				paramValueFormatted <- list(paramValueFormatted)
-				for (i in 2:nrow(matrixFormatted)) {
-					paramValueFormatted <- c(paramValueFormatted, 
-						.arrayToString(matrixFormatted[i, ]))
-				}
-			}
-			return(list(
-				paramValueFormatted = paramValueFormatted,
-				type = type
-			))
-		},
-		
-		.getParameterValueFormatted = function(parameterName) {
-			tryCatch({
-				result <- .extractParameterNameAndValue(parameterName)
-				parameterName <- result$parameterName
-				paramValue <- result$paramValue
-
-				if (isS4(paramValue)) {
-					return(NULL)
-				}
-
-				if (is.function(paramValue)) {
-					valueStr <- ifelse(.getParameterType(parameterName) == C_PARAM_USER_DEFINED, "user defined", "default")
-					return(list(
-						paramName = parameterName,
-						paramValue = valueStr,
-						paramValueFormatted = valueStr,
-						type = "function"
-					))
-				}
-				
-				paramValueFormatted <- paramValue
-				
-				if (.getParameterType(parameterName) == C_PARAM_USER_DEFINED &&
-						(!is.numeric(paramValue) || identical(paramValue, round(paramValue)))) {
-					if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeOfDesign") {
-						paramValueFormatted <- C_TYPE_OF_DESIGN_LIST[[paramValue]]
-					}
-					if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeBetaSpending") {
-						paramValueFormatted <- C_TYPE_OF_DESIGN_BS_LIST[[paramValue]]
-					}
-				} else {
-					formatFunctionName <- .parameterFormatFunctions[[parameterName]]
-					if (!is.null(formatFunctionName)) {
-						paramValueFormatted <- eval(call(formatFunctionName, paramValueFormatted))
-						if (.isArray(paramValue) && length(dim(paramValue)) == 2) {
-							paramValueFormatted <- matrix(paramValueFormatted, ncol = ncol(paramValue))
-						}
-					}
-					else if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeOfDesign") {
-						paramValueFormatted <- C_TYPE_OF_DESIGN_LIST[[paramValue]] 
-					}
-					else if (inherits(.self, C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) && parameterName == "typeBetaSpending") {
-						paramValueFormatted <- C_TYPE_OF_DESIGN_BS_LIST[[paramValue]]
-					}
-				}
-				
-				type <- "vector"
-				if (.isArray(paramValue) && length(dim(paramValue)) == 3) {
-					arrayFormatted <- paramValueFormatted
-					numberOfEntries <- dim(arrayFormatted)[3]
-					m <- .getMatrixFormatted(arrayFormatted[, , 1])
-					paramValueFormatted <- m$paramValueFormatted
-					type <- m$type
-					if (numberOfEntries > 1) {
-						type <- "array"
-						for (i in 2:numberOfEntries) {
-							m <- .getMatrixFormatted(arrayFormatted[, , i])
-							paramValueFormatted <- c(paramValueFormatted, m$paramValueFormatted)
-						}
-					}
-				}
-				
-				else if (.isMatrix(paramValue) || .isArray(paramValue)) {
-					m <- .getMatrixFormatted(paramValueFormatted)
-					paramValueFormatted <- m$paramValueFormatted
-					type <- m$type
-				}
-				
-				else if (.isVector(paramValue)) {
-					paramValueFormatted <- .arrayToString(paramValueFormatted)
-				}
-				
-				else if (parameterName == "sided") {
-					paramValueFormatted <- ifelse(paramValue == 1, "one-sided", "two-sided")
-				}
-				
-				return(list(
-					paramName = parameterName,
-					paramValue = paramValue,
-					paramValueFormatted = paramValueFormatted,
-					type = type
-				))
-			}, error = function(e) {
-				.logError(paste0("Error in '.getParameterValueFormatted'. ",
-					"Failed to show parameter '%s' (class '%s'): %s"), parameterName, class(.self), e)
-			})
-		
-			return(NULL)
-		},
-		
 		.showUnknownParameters = function(consoleOutputEnabled = TRUE) {
 			params <- .getUndefinedParameters()
 			if (length(params) > 0) {
@@ -788,7 +558,7 @@ ParameterSet <- setRefClass("ParameterSet",
 		},
 		
 		.showParameterFormatted = function(paramName, paramValue, ..., paramValueFormatted = NA_character_,
-				showParameterType = FALSE, category = NA_integer_, matrixRow = NA_integer_, consoleOutputEnabled = TRUE,
+				showParameterType = FALSE, category = NULL, matrixRow = NA_integer_, consoleOutputEnabled = TRUE,
 				paramNameRaw = NA_character_, numberOfCategories = NA_integer_) {
 			if (!is.na(paramNameRaw)) {
 				paramCaption <- .parameterNames[[paramNameRaw]]
@@ -799,7 +569,7 @@ ParameterSet <- setRefClass("ParameterSet",
 			if (is.null(paramCaption)) {
 				paramCaption <- paste0("%", paramName, "%")
 			}
-			if (!is.na(category)) {
+			if (!is.null(category) && !is.na(category)) {
 				if (inherits(.self, "SimulationResultsMultiArmSurvival") && 
 						paramName == "singleNumberOfEventsPerStage") {
 					if (!is.na(numberOfCategories) && numberOfCategories == category) {
@@ -807,10 +577,18 @@ ParameterSet <- setRefClass("ParameterSet",
 					}
 					paramCaption <- paste0(paramCaption, " {", category, "}")
 				} else {
-					paramCaption <- paste0(paramCaption, " (", category, ")")
+					if (paramName == "effectList") {
+						paramCaption <- paste0(paramCaption, " [", category, "]")
+					} else {
+						paramCaption <- paste0(paramCaption, " (", category, ")")
+					}
 				}
 				if (!is.na(matrixRow)) {
-					paramCaption <- paste0(paramCaption, " [", matrixRow, "]")
+					if (paramName == "effectList") {
+						paramCaption <- paste0(paramCaption, " (", matrixRow, ")")
+					} else {
+						paramCaption <- paste0(paramCaption, " [", matrixRow, "]")
+					}
 				}
 			}
 			else if (!is.na(matrixRow)) {
@@ -1419,8 +1197,6 @@ setMethod("t", "FieldSet",
 #' specify the heading level. The default is \code{options("rpact.print.heading.base.number" = "0")}, i.e., the 
 #' top headings start with \code{##} in Markdown. \code{options("rpact.print.heading.base.number" = "-1")} means
 #' that all headings will be written bold but are not explicit defined as header. 
-#' 
-#' @param x The object that inherits from \code{\link{ParameterSet}}.
 #' 
 #' @export
 #' 

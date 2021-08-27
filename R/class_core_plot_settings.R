@@ -13,10 +13,219 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4863 $
-#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
+
+PlotSubTitleItem <- setRefClass("PlotSubTitleItem",
+	fields = list(
+		title = "character",
+		subscript = "character",
+		value = "numeric"
+	),
+	methods = list(
+		initialize = function(..., title, subscript = NA_character_, value) {
+			callSuper(title = trimws(title), subscript = trimws(subscript), value = value, ...)
+		},
+		
+		show = function() {
+			cat(toString(), "\n")
+		},
+		
+		toQuote = function() {
+			if (!is.null(subscript) && length(subscript) == 1 && !is.na(subscript)) {
+				return(bquote(' '*.(title)[.(subscript)] == .(value)))
+			}
+			
+			return(bquote(' '*.(title) == .(value)))
+		},
+		
+		toString = function() {
+			valueStr <- value
+			if (is.numeric(value)) {
+				valueStr <- round(value, 3)
+			}
+			
+			if (!is.null(subscript) && length(subscript) == 1 && !is.na(subscript)) {
+				if (grepl("^(\\d+)|max|min$", subscript)) {
+					return(paste0(title, "_", subscript, " = ", valueStr))
+				}
+				return(paste0(title, "(", trimws(subscript), ") = ", valueStr))
+			}
+			
+			return(paste(title, "=", valueStr))
+		}
+	)
+)
+
+PlotSubTitleItems <- setRefClass("PlotSubTitleItems",
+	fields = list(
+		title = "character",
+		subtitle = "character",
+		items = "list"
+	),
+	methods = list(
+		initialize = function(...) {
+			callSuper(...)
+			items <<- list()
+		},
+		
+		show = function() {
+			cat(title, "\n")
+			if (length(subtitle) == 1 && !is.na(subtitle)) {
+				cat(subtitle, "\n")
+			}
+			s <- toString()
+			if (length(s) == 1 && !is.na(s) && nchar(s) > 0) {
+				cat(s, "\n")
+			}
+		},
+		
+		addItem = function(item) {
+			items <<- c(items, item)
+		},
+		
+		add = function(title, value, subscript = NA_character_) {
+			titleTemp <- title
+			if (length(items) == 0) {
+				titleTemp <- .firstCharacterToUpperCase(titleTemp)
+			}
+			
+			titleTemp <- paste0(' ', titleTemp)
+			if (length(subscript) == 1 && !is.na(subscript)) {
+				subscript <- paste0(as.character(subscript), ' ')
+			} else {
+				titleTemp <- paste0(titleTemp, ' ')
+			}
+			addItem(PlotSubTitleItem(title = titleTemp, subscript = subscript, value = value))
+		},
+		
+		toString = function() {
+			if (is.null(items) || length(items) == 0) {
+				return(NA_character_)
+			}
+			
+			s <- character(0)
+			for (item in items) {
+				s <- c(s, item$toString())
+			}
+			return(paste0(s, collapse = ", "))
+		},
+		
+		toHtml = function() {		
+			htmlStr <- title
+			if (length(subtitle) == 1 && !is.na(subtitle)) {
+				htmlStr <- paste0(htmlStr, '<br><sup>', subtitle, '</sup>')
+			}
+			s <- toString()
+			if (length(s) == 1 && !is.na(s) && nchar(s) > 0) {
+				htmlStr <- paste0(htmlStr, '<br><sup>', s, '</sup>')
+			}
+			return(htmlStr)
+		},
+		
+		toQuote = function() {
+			quotedItems <- .getQuotedItems()
+			if (is.null(quotedItems)) {
+				if (length(subtitle) > 0) {
+					return(bquote(atop(bold(.(title)), 
+								atop(.(subtitle)))))
+				}
+				
+				return(title)
+			}
+			
+			if (length(subtitle) > 0) {
+				return(bquote(atop(bold(.(title)), 
+							atop(.(subtitle)*','~.(quotedItems)))))
+			}
+			
+			return(bquote(atop(bold(.(title)), 
+						atop(.(quotedItems)))))
+		},
+		
+		.getQuotedItems = function() {
+			item1 <- NULL
+			item2 <- NULL
+			item3 <- NULL
+			item4 <- NULL
+			if (length(items) > 0) {
+				item1 <- items[[1]]
+			}
+			if (length(items) > 1) {
+				item2 <- items[[2]]
+			}
+			if (length(items) > 2) {
+				item3 <- items[[3]]
+			}
+			if (length(items) > 3) {
+				item4 <- items[[4]]
+			}
+			
+			if (!is.null(item1) && !is.null(item2) && !is.null(item3) && !is.null(item4)) {
+				if (length(item1$subscript) == 1 && !is.na(item1$subscript) &&
+					length(item2$subscript) == 1 && !is.na(item2$subscript)) {
+					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
+				}
+				
+				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
+					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
+				}
+				
+				if (length(item2$subscript) == 1 && !is.na(item2$subscript)) {
+					return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
+				}
+				
+				return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*','~.(item4$title) == .(item4$value)*''))
+			}
+			
+			if (!is.null(item1) && !is.null(item2) && !is.null(item3)) {
+				if (length(item1$subscript) == 1 && !is.na(item1$subscript) &&
+					length(item2$subscript) == 1 && !is.na(item2$subscript)) {
+					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
+				}
+				
+				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
+					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
+				}
+				
+				if (length(item2$subscript) == 1 && !is.na(item2$subscript)) {
+					return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
+				}
+				
+				return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title) == .(item2$value)*','~.(item3$title) == .(item3$value)*''))
+			}
+			
+			if (!is.null(item1) && !is.null(item2)) {
+				if (length(item1$subscript) == 1 && !is.na(item1$subscript) &&
+					length(item2$subscript) == 1 && !is.na(item2$subscript)) {
+					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*''))
+				}
+				
+				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
+					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*','~.(item2$title) == .(item2$value)*''))
+				}
+				
+				if (length(item2$subscript) == 1 && !is.na(item2$subscript)) {
+					return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title)[.(item2$subscript)] == .(item2$value)*''))
+				}
+				
+				return(bquote(' '*.(item1$title) == .(item1$value)*','~.(item2$title) == .(item2$value)*''))
+			}
+			
+			if (!is.null(item1)) {
+				if (length(item1$subscript) == 1 && !is.na(item1$subscript)) {
+					return(bquote(' '*.(item1$title)[.(item1$subscript)] == .(item1$value)*''))
+				}
+				
+				return(bquote(' '*.(item1$title) == .(item1$value)*''))
+			}
+			
+			return(NULL)
+		}
+	)
+)
 
 #' 
 #' @title
@@ -90,6 +299,7 @@ PlotSettings <- setRefClass("PlotSettings",
 		.legendLineBreakIndex = "numeric",
 		.pointSize = "numeric",
 		.legendFontSize = "numeric",
+		.htmlTitle = "character",
 		lineSize = "numeric",
 		pointSize = "numeric",
 		pointColor = "character",
@@ -121,6 +331,7 @@ PlotSettings <- setRefClass("PlotSettings",
 			.legendLineBreakIndex <<- 15
 			.pointSize <<- pointSize
 			.legendFontSize <<- legendFontSize
+			.htmlTitle <<- NA_character_
 			
 			.parameterNames <<- list(
 				"lineSize" = "Line size",
@@ -217,19 +428,22 @@ PlotSettings <- setRefClass("PlotSettings",
 		setAxesLabels = function(p, xAxisLabel = NULL, yAxisLabel1 = NULL, yAxisLabel2 = NULL, 
 				xlab = NA_character_, ylab = NA_character_, 
 				scalingFactor1 = 1, scalingFactor2 = 1) {
-				
-			if (is.call(xlab) || !is.na(xlab)) {
-				xAxisLabel <- xlab
-			} else if (xAxisLabel == "Theta") {
-				xAxisLabel <- bquote(bold("Theta"~Theta))
-			}
 			
-			if (xAxisLabel == "pi1") {
-				xAxisLabel <- bquote(bold('pi'['1']))
-			} else if (xAxisLabel == "pi2") {
-				xAxisLabel <- bbquote(bold('pi'['2']))
-			} else if (xAxisLabel == "Theta") {
-				xAxisLabel <- bquote(bold("Theta"~Theta))
+			if (is.null(xAxisLabel) && !is.na(xlab)) {
+				xAxisLabel <- xlab
+			}
+				
+			plotLabsType <- getOption("rpact.plot.labs.type", "quote")
+			if (plotLabsType == "quote" && !is.null(xAxisLabel)) {
+				if (xAxisLabel == "Theta") {
+					xAxisLabel <- bquote(bold("Theta"~Theta))
+				} else if (xAxisLabel == "pi1") {
+					xAxisLabel <- bquote(bold('pi'['1']))
+				} else if (xAxisLabel == "pi2") {
+					xAxisLabel <- bbquote(bold('pi'['2']))
+				} else if (xAxisLabel == "Theta") {
+					xAxisLabel <- bquote(bold("Theta"~Theta))
+				}
 			}
 
 			p <- p + ggplot2::xlab(xAxisLabel)
@@ -343,22 +557,65 @@ PlotSettings <- setRefClass("PlotSettings",
 		setMainTitle = function(p, mainTitle, subtitle = NA_character_) {
 			"Sets the main title"
 			
-			if (!is.na(subtitle)) {
-				p <- p + ggplot2::ggtitle(mainTitle, subtitle = subtitle)
+			caption <- NA_character_
+			if (!is.null(mainTitle) && inherits(mainTitle, "PlotSubTitleItems")) {
+				plotLabsType <- getOption("rpact.plot.labs.type", "quote")
+				if (plotLabsType == "quote") {
+					mainTitle <- mainTitle$toQuote()
+				} else {
+					items <- mainTitle
+					mainTitle <- items$title
+					if (length(items$subtitle) == 1 && !is.na(items$subtitle)) {
+						if (length(subtitle) == 1 && !is.na(subtitle)) {
+							subtitle <- paste0(subtitle, ", ", items$subtitle)
+						} else {
+							subtitle <- items$subtitle
+						}
+					}
+					s <- items$toString()
+					if (length(s) == 1 && !is.na(s) && nchar(s) > 0) {
+						plotLabsCaptionEnabled <- as.logical(getOption("rpact.plot.labs.caption.enabled", "true"))
+						if (isTRUE(plotLabsCaptionEnabled)) {
+							caption <- s
+						} else {
+							if (length(subtitle) == 1 && !is.na(subtitle)) {
+								subtitle <- paste0(subtitle, ", ", s)
+							} else {
+								subtitle <- s
+							}
+						}
+					}
+					
+					if (plotLabsType == "html") {
+						.htmlTitle <<- items$toHtml()
+					}
+				}
+			}
+			
+			subtitleFontSize <- NA_real_
+			if (length(subtitle) == 1 && !is.na(subtitle)) {
+				if (is.na(caption)) {
+					caption <- ggplot2::waiver()
+				}
+				p <- p + ggplot2::labs(title = mainTitle, subtitle = subtitle, caption = caption)
 				targetWidth = 130
 				subtitleFontSize <- targetWidth / nchar(subtitle) * 8 
 				if (subtitleFontSize > scaleSize(.self$mainTitleFontSize) - 2) {
 					subtitleFontSize <- scaleSize(.self$mainTitleFontSize) - 2
 				}
-				p <- p + ggplot2::theme(
-					plot.title = ggplot2::element_text(hjust = 0.5, 
-						size = scaleSize(.self$mainTitleFontSize), face = "bold"), 
-					plot.subtitle = ggplot2::element_text(hjust = 0.5, 
-						size = scaleSize(subtitleFontSize)))
+			} else if (length(caption) == 1 && !is.na(caption)) {
+				p <- p + ggplot2::labs(title = mainTitle, caption = caption)
 			} else {
 				p <- p + ggplot2::ggtitle(mainTitle)
-				p <- p + ggplot2::theme(plot.title = ggplot2::element_text(
-						hjust = 0.5, size = scaleSize(.self$mainTitleFontSize), face = "bold"))				
+			}
+
+			p <- p + ggplot2::theme(plot.title = ggplot2::element_text(
+					hjust = 0.5, size = scaleSize(.self$mainTitleFontSize), face = "bold"))			
+			
+			if (!is.na(subtitleFontSize)) {
+				p <- p + ggplot2::theme(
+					plot.subtitle = ggplot2::element_text(hjust = 0.5, 
+						size = scaleSize(subtitleFontSize)))
 			}
 			
 			return(p)

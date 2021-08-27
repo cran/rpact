@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4977 $
-#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1341,9 +1341,9 @@
 	}
 	
 	if (stageResults$isOneSampleDataset()) {
-		subTitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned))
+		subtitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned))
 	} else {
-		subTitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned), 
+		subtitle <- paste0("Stage = ", stage, ", # of remaining subjects = ", sum(nPlanned), 
 			", pi2 = ", .formatSubTitleValue(pi2, "pi2"), 
 			", allocation ratio = ", .formatSubTitleValue(allocationRatioPlanned, "allocationRatioPlanned"))
 	}
@@ -1355,7 +1355,7 @@
 		main = C_PLOT_MAIN_CONDITIONAL_POWER_WITH_LIKELIHOOD,
 		xlab = "pi1",
 		ylab = C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD,
-		sub = subTitle
+		sub = subtitle
 	))
 }	
 

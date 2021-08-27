@@ -15,8 +15,8 @@
 #:#  
 #:#  File name: test-f_simulation_multiarm_survival.R
 #:#  Creation date: 18 May 2021, 17:48:35
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
+#:#  File version: $Revision: 5020 $
+#:#  Last changed: $Date: 2021-07-06 08:58:14 +0200 (Di, 06 Jul 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -1336,11 +1336,13 @@ test_that("'getSimulationMultiArmSurvival': comparison of base and multi-arm, in
 	allocationRatioPlanned <- 1
 	design <- getDesignInverseNormal(typeOfDesign = "WT", deltaWT = 0.05, futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.8, 1))
 
-	x <- getSimulationMultiArmSurvival(design, activeArms = 1, omegaMaxVector = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), 
+	x <- getSimulationMultiArmSurvival(design, activeArms = 1, omegaMaxVector = 1/seq(1, 1.8, 0.4), 
+		plannedEvents = c(20, 40, 60), 
 		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
 		maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234)
 
-	y <- getSimulationSurvival(design, pi2 = 0.2, hazardRatio = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500, 
+	y <- getSimulationSurvival(design, pi2 = 0.2, hazardRatio = 1/seq(1, 1.8, 0.4), 
+		plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500, 
 		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
 		maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234)
 

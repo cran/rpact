@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4863 $
-#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -987,10 +987,21 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	
 	srcCmd <- NULL
 	
+	reducedParam <- NULL
+	if (type %in% c(1:4)) {
+		reducedParam <- .warnInCaseOfUnusedValuesForPlotting(designPlan)
+	}
+	
 	if (type == 1) { # Boundary plot
 		if (.isTrialDesignPlanSurvival(designPlan)) {
 			
-			main <- ifelse(is.na(main), "Boundaries Z Scale", main)
+			if (is.na(main)) {
+				main <- PlotSubTitleItems(title = "Boundaries Z Scale")
+				.addPlotSubTitleItems(designPlan, designMaster, main, type)
+				if (!is.null(reducedParam)) {
+					main$add(reducedParam$title, reducedParam$value, reducedParam$subscript)
+				}
+			}
 
 			if (designMaster$sided == 1) {
 				designPlan <- data.frame(
@@ -1030,6 +1041,14 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 				type = type, showSource = showSource)
 			
 		} else {
+			if (is.na(main)) {
+				main <- PlotSubTitleItems(title = "Boundaries")
+				.addPlotSubTitleItems(designPlan, designMaster, main, type)
+				if (!is.null(reducedParam)) {
+					main$add(reducedParam$title, reducedParam$value, reducedParam$subscript)
+				}
+			}
+			
 			designSet <- TrialDesignSet(design = designMaster, singleDesign = TRUE)
 			designSet$.plotSettings <- designPlan$.plotSettings
 			designPlanName <- paste0(designPlanName, "$.design")
@@ -1043,15 +1062,12 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	}
 	
 	else if (type == 2) { # Effect Scale Boundary plot
-		reducedParam <- .warnInCaseOfUnusedValuesForPlotting(designPlan)
-		
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Boundaries Effect Scale")
-			.addPlotSubTitleItems(designPlan, designMaster, items, type)
+			main <- PlotSubTitleItems(title = "Boundaries Effect Scale")
+			.addPlotSubTitleItems(designPlan, designMaster, main, type)
 			if (!is.null(reducedParam)) {
-				items$add(reducedParam$title, reducedParam$value, reducedParam$subscript)
+				main$add(reducedParam$title, reducedParam$value, reducedParam$subscript)
 			}
-			main <- items$toQuote()
 		}
 		
 		if (is.na(ylab)) {
@@ -1172,9 +1188,11 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	
 	else if (type == 3) { # Stage Levels
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Boundaries p Values Scale")
-			.addPlotSubTitleItems(designPlan, designMaster, items, type)
-			main <- items$toQuote()
+			main <- PlotSubTitleItems(title = "Boundaries p Values Scale")
+			.addPlotSubTitleItems(designPlan, designMaster, main, type)
+			if (!is.null(reducedParam)) {
+				main$add(reducedParam$title, reducedParam$value, reducedParam$subscript)
+			}
 		}
 		
 		if (.isTrialDesignPlanSurvival(designPlan)) {
@@ -1203,9 +1221,11 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	
 	else if (type == 4) { # Alpha Spending
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Error Spending")
-			.addPlotSubTitleItems(designPlan, designMaster, items, type)
-			main <- items$toQuote()
+			main <- PlotSubTitleItems(title = "Error Spending")
+			.addPlotSubTitleItems(designPlan, designMaster, main, type)
+			if (!is.null(reducedParam)) {
+				main$add(reducedParam$title, reducedParam$value, reducedParam$subscript)
+			}
 		}
 		if (.isTrialDesignPlanSurvival(designPlan)) {
 			xParameterName <- "eventsPerStage"
@@ -1238,9 +1258,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		
 		if (designPlan$.isSampleSizeObject()) { 
 			if (is.na(main)) {
-				items <- PlotSubTitleItems(title = "Sample Size")
-				.addPlotSubTitleItems(designPlan, designMaster, items, type)
-				main <- items$toQuote()
+				main <- PlotSubTitleItems(title = "Sample Size")
+				.addPlotSubTitleItems(designPlan, designMaster, main, type)
 			}
 			
 			yAxisScalingEnabled <- TRUE
@@ -1319,9 +1338,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 					plotSettings = plotSettings, ...))
 		} else {
 			if (is.na(main)) {
-				items <- PlotSubTitleItems(title = "Overall Power and Early Stopping")
-				.addPlotSubTitleItems(designPlan, designMaster, items, type)
-				main <- items$toQuote()
+				main <- PlotSubTitleItems(title = "Overall Power and Early Stopping")
+				.addPlotSubTitleItems(designPlan, designMaster, main, type)
 			}
 			if (.isTrialDesignPlanSurvival(designPlan)) {
 				xParameterName <- "hazardRatio"
@@ -1375,9 +1393,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		
 		if (is.na(main)) {
 			titlePart <- ifelse(.isTrialDesignPlanSurvival(designPlan), "Number of Events", "Sample Size")
-			items <- PlotSubTitleItems(title = paste0("Expected ", titlePart, " and Power / Early Stop"))
-			.addPlotSubTitleItems(designPlan, designMaster, items, type)
-			main <- items$toQuote()
+			main <- PlotSubTitleItems(title = paste0("Expected ", titlePart, " and Power / Early Stop"))
+			.addPlotSubTitleItems(designPlan, designMaster, main, type)
 		}
 		
 		if (.isTrialDesignPlanSurvival(designPlan)) {
@@ -1406,9 +1423,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		.assertIsValidVariedParameterVectorForPlotting(designPlan, type) 
 		
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Overall Power")
-			.addPlotSubTitleItems(designPlan, designMaster, items, type)
-			main <- items$toQuote()
+			main <- PlotSubTitleItems(title = "Overall Power")
+			.addPlotSubTitleItems(designPlan, designMaster, main, type)
 		}
 		
 		if (.isTrialDesignPlanSurvival(designPlan)) {
@@ -1431,9 +1447,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		.assertIsValidVariedParameterVectorForPlotting(designPlan, type) 
 		
 		if (is.na(main)) {
-			items <- PlotSubTitleItems(title = "Overall Early Stopping")
-			.addPlotSubTitleItems(designPlan, designMaster, items, type)
-			main <- items$toQuote()
+			main <- PlotSubTitleItems(title = "Overall Early Stopping")
+			.addPlotSubTitleItems(designPlan, designMaster, main, type)
 		}
 		
 		if (.isTrialDesignPlanSurvival(designPlan)) {
@@ -1457,12 +1472,11 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		
 		if (is.na(main)) {
 			if (.isTrialDesignPlanSurvival(designPlan)) {
-				items <- PlotSubTitleItems(title = "Expected Number of Events")
+				main <- PlotSubTitleItems(title = "Expected Number of Events")
 			} else {
-				items <- PlotSubTitleItems(title = "Expected Sample Size")
+				main <- PlotSubTitleItems(title = "Expected Sample Size")
 			}
-			.addPlotSubTitleItems(designPlan, designMaster, items, type)
-			main <- items$toQuote()
+			.addPlotSubTitleItems(designPlan, designMaster, main, type)
 		}
 		
 		if (.isTrialDesignPlanSurvival(designPlan)) {
@@ -1491,9 +1505,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		if (type == 10) { # Study Duration
 			.assertIsValidVariedParameterVectorForPlotting(designPlan, type)
 			if (is.na(main)) {
-				items <- PlotSubTitleItems(title = "Study Duration")
-				.addPlotSubTitleItems(designPlan, designMaster, items, type)
-				main <- items$toQuote()
+				main <- PlotSubTitleItems(title = "Study Duration")
+				.addPlotSubTitleItems(designPlan, designMaster, main, type)
 			}
 			xParameterName <- "hazardRatio"
 			yParameterNames <- "studyDuration"
@@ -1507,9 +1520,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		else if (type == 11) {
 			.assertIsValidVariedParameterVectorForPlotting(designPlan, type)
 			if (is.na(main)) {
-				items <- PlotSubTitleItems(title = "Expected Number of Subjects")
-				.addPlotSubTitleItems(designPlan, designMaster, items, type)
-				main <- items$toQuote()
+				main <- PlotSubTitleItems(title = "Expected Number of Subjects")
+				.addPlotSubTitleItems(designPlan, designMaster, main, type)
 			}
 			xParameterName <- "hazardRatio"
 			yParameterNames <- "expectedNumberOfSubjects" 
@@ -1523,9 +1535,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 		else if (type == 12) { # Analysis Time
 			.assertIsValidVariedParameterVectorForPlotting(designPlan, type)
 			if (is.na(main)) {
-				items <- PlotSubTitleItems(title = "Analysis Time")
-				.addPlotSubTitleItems(designPlan, designMaster, items, type)
-				main <- items$toQuote()
+				main <- PlotSubTitleItems(title = "Analysis Time")
+				.addPlotSubTitleItems(designPlan, designMaster, main, type)
 			}
 			
 			xParameterName <- "hazardRatio"
@@ -1658,23 +1669,22 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
 	
 	if (is.na(main)) {
 		if (type == 13) {
-			items <- PlotSubTitleItems(title = "Cumulative Distribution Function")
+			main <- PlotSubTitleItems(title = "Cumulative Distribution Function")
 		} else {
-			items <- PlotSubTitleItems(title = "Survival Function")
+			main <- PlotSubTitleItems(title = "Survival Function")
 		}
-		.addPlotSubTitleItems(designPlan, designMaster, items, type)
+		.addPlotSubTitleItems(designPlan, designMaster, main, type)
 		if (!piecewiseSurvivalEnabled) {
 			if (designPlan$.piecewiseSurvivalTime$.isLambdaBased(minNumberOfLambdas = 1)) {
-				items$add("lambda", round(designPlan$lambda1[1],4), 1)
-				items$add("lambda", round(designPlan$lambda2,4), 2)
+				main$add("lambda", round(designPlan$lambda1[1],4), 1)
+				main$add("lambda", round(designPlan$lambda2,4), 2)
 			} else {
-				items$add("pi", round(designPlan$pi1[1],3), 1)
-				items$add("pi", round(designPlan$pi2,3), 2)
+				main$add("pi", round(designPlan$pi1[1],3), 1)
+				main$add("pi", round(designPlan$pi2,3), 2)
 			}
 		} else if (length(designPlan$hazardRatio) == 1) {
-			items$add("Hazard Ratio", round(designPlan$hazardRatio[1],3))
+			main$add("Hazard Ratio", round(designPlan$hazardRatio[1],3))
 		}
-		main <- items$toQuote()
 	}
 	
 	if (!piecewiseSurvivalEnabled || (length(designPlan$piecewiseSurvivalTime) == 1 && 

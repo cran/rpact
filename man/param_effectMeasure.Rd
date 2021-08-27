@@ -4,7 +4,7 @@
 \alias{param_effectMeasure}
 \title{Parameter Description: Effect Measure}
 \arguments{
-\item{effectMeasure}{Criterion for treatment arm selection, either based on test statistic 
+\item{effectMeasure}{Criterion for treatment arm/population selection, either based on test statistic 
 (\code{"testStatistic"}) or effect estimate (difference for means and rates or ratio for survival) (\code{"effectEstimate"}), 
 default is \code{"effectEstimate"}.}
 }

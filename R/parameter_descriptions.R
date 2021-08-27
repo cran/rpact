@@ -1,5 +1,5 @@
 #:#
-#:#  *RPACT parameters*
+#:#  *Parameters*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5174 $
+#:#  Last changed: $Date: 2021-08-17 18:07:14 +0200 (Di, 17 Aug 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' Parameter Description: "..."
@@ -630,8 +630,9 @@ NULL
 
 
 ##
-## Multi-Arm Designs
+## Multi-Arm and Enrichment Designs
 ##
+
 
 #' Parameter Description: Intersection Test
 #' @param intersectionTest Defines the multiple test for the intersection 
@@ -642,20 +643,29 @@ NULL
 #' @keywords internal
 NULL
 
+#' Parameter Description: Intersection Test
+#' @param intersectionTest Defines the multiple test for the intersection 
+#'   hypotheses in the closed system of hypotheses. 
+#'   Four options are available in enrichment designs: \code{"SpiessensDebois"}, \code{"Bonferroni"}, \code{"Simes"}, 
+#'   and \code{"Sidak"}, default is \code{"Simes"}.
+#' @name param_intersectionTest_Enrichment
+#' @keywords internal
+NULL
+
 #' Parameter Description: Type of Selection
-#' @param typeOfSelection The way the treatment arms are selected at interim. 
+#' @param typeOfSelection The way the treatment arms or populations are selected at interim. 
 #'   Five options are available: \code{"best"}, \code{"rbest"}, \code{"epsilon"}, \code{"all"}, and \code{"userDefined"},
 #'   default is \code{"best"}.\cr
-#'   For \code{"rbest"} (select the \code{rValue} best treatment arms), the parameter \code{rValue} has to be specified,
-#'   for \code{"epsilon"} (select treatment arm not worse than epsilon compared to the best), the parameter
+#'   For \code{"rbest"} (select the \code{rValue} best treatment arms/populations), the parameter \code{rValue} has to be specified,
+#'   for \code{"epsilon"} (select treatment arm/population not worse than epsilon compared to the best), the parameter
 #'   \code{epsilonValue} has to be specified.
-#'   If \code{"userDefined"} is selected, \code{"selectArmsFunction"} has to be specified.
+#'   If \code{"userDefined"} is selected, \code{"selectArmsFunction"} or \code{"selectPopulationsFunction"} has to be specified.
 #' @name param_typeOfSelection
 #' @keywords internal
 NULL
 
 #' Parameter Description: Effect Measure
-#' @param effectMeasure Criterion for treatment arm selection, either based on test statistic 
+#' @param effectMeasure Criterion for treatment arm/population selection, either based on test statistic 
 #'   (\code{"testStatistic"}) or effect estimate (difference for means and rates or ratio for survival) (\code{"effectEstimate"}), 
 #'   default is \code{"effectEstimate"}.
 #' @name param_effectMeasure
@@ -685,17 +695,30 @@ NULL
 #' @keywords internal
 NULL
 
+#' Parameter Description: Effect List
+#' @param effectList List of effect sizes with columns and number of rows 
+#'   reflecting the different situations to consider.
+#' @name param_effectList
+#' @keywords internal
+NULL
+
 #' Parameter Description: Active Arms
 #' @param activeArms The number of active treatment arms to be compared with control, default is 3. 
 #' @name param_activeArms
 #' @keywords internal
 NULL
 
+#' Parameter Description: Populations
+#' @param populations The number of populations in a two-sample comparison, default is 3. 
+#' @name param_populations
+#' @keywords internal
+NULL
+
 #' Parameter Description: Success Criterion
 #' @param successCriterion Defines when the study is stopped for efficacy at interim. 
 #'   Two options are available: \code{"all"} stops the trial 
-#'   if the efficacy criterion is fulfilled for all selected treatment arms, 
-#'   \code{"atLeastOne"} stops if at least one of the selected treatment arms is shown to be 
+#'   if the efficacy criterion is fulfilled for all selected treatment arms/populations, 
+#'   \code{"atLeastOne"} stops if at least one of the selected treatment arms/populations is shown to be 
 #'   superior to control at interim, default is \code{"all"}. 
 #' @name param_successCriterion
 #' @keywords internal
@@ -728,6 +751,23 @@ NULL
 #' are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms}
 #' and \code{stage} (see examples).
 #' @name param_selectArmsFunction
+#' @keywords internal
+NULL
+
+#' Parameter Description: Select Populations Function
+#' @param selectPopulationsFunction Optionally, a function can be entered that defines the way of how populations
+#' are selected. This function is allowed to depend on \code{effectVector} with length \code{populations}
+#' and \code{stage} (see examples).
+#' @name param_selectPopulationsFunction
+#' @keywords internal
+NULL
+
+#' Parameter Description: Stratified Analysis
+#' @param stratifiedAnalysis For enrichment designs, typically a stratified analysis should be chosen.
+#' For testing rates, also a non-stratified analysis based on overall data can be performed. 
+#' For survival data, only a stratified analysis is possible (see Brannath et al., 2009), 
+#' default is \code{TRUE}.
+#' @name param_stratifiedAnalysis
 #' @keywords internal
 NULL
 
@@ -787,7 +827,7 @@ NULL
 #' @param informationEpsilon Positive integer value specifying the information epsilon, which 
 #'    defines the maximum distance from the observed information to the maximum information that causes the final analysis.
 #'    Updates at the final analysis in case the observed information at the final 
-#'    analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}.
+#'    analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}, default is 0.
 #' @name param_informationEpsilon
 #' @keywords internal
 NULL

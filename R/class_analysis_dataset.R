@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  File version: $Revision: 5175 $
+#:#  Last changed: $Date: 2021-08-18 07:44:45 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -560,6 +560,15 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 		return(.getDatasetExample(exampleType = exampleType))
 	}
 	
+	if (length(args) == 1 && !is.null(args[[1]]) && is.list(args[[1]]) && !is.data.frame(args[[1]])) {
+		return(.getDatasetMeansFromModelsByStage(emmeansResults = args[[1]]))
+	}
+	
+	emmeansResults <- .getDatasetMeansModelObjectsList(args)
+	if (!is.null(emmeansResults) && length(emmeansResults) > 0) {
+		return(.getDatasetMeansFromModelsByStage(emmeansResults = emmeansResults))
+	}
+	
 	dataFrame <- .getDataFrameFromArgs(...)
 	
 	if (is.null(dataFrame)) {
@@ -604,6 +613,107 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 	}
 	
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "failed to identify dataset type")
+}
+
+.getDatasetMeansModelObjectsList <- function(args) {
+	if (is.null(args) || length(args) == 0 || !is.list(args)) {
+		return(NULL)
+	}
+	
+	emmeansResults <- list()
+	for (arg in args) {
+		if (inherits(arg, "emmGrid")) {
+			emmeansResults[[length(emmeansResults) + 1]] <- arg
+		}
+	}
+	if (length(emmeansResults) == 0) {
+		return(NULL)
+	}
+	
+	argNames <- names(args)
+	for (i in 1:length(args)) {
+		arg <- args[[i]]
+		if (!inherits(arg, "emmGrid")) {
+			argName <- argNames[i]
+			argInfo <- ""
+			if (length(argName) == 1 && argName != "") {
+				argInfo <- paste0(sQuote(argName), " ")
+			}
+			argInfo <- paste0(argInfo, "(", .arrayToString(arg), ")")
+			warning("Argument ", argInfo, " will be ignored because only 'emmGrid' objects will be respected")
+		}
+	}
+	
+	return(emmeansResults)
+}
+
+.getDatasetMeansFromModelsByStage <- function(emmeansResults) {
+	if (is.null(emmeansResults)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, sQuote(emmeansResults), " must be a non-empty list")
+	}
+	if (!is.list(emmeansResults)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, sQuote(emmeansResults), " must be a list")
+	}
+	if (length(emmeansResults) == 0) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, sQuote(emmeansResults), " must be not empty")
+	}
+	
+	for (stage in 1:length(emmeansResults)) {
+		if (!inherits(emmeansResults[[stage]], "emmGrid")) { 
+			stop(sprintf(paste0("%s%s must contain %s objects created by emmeans(x), ",
+				"where x is a linear model result (one object per stage; class is %s at stage %s)"), 
+				C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, sQuote("emmeansResults"), sQuote("emmGrid"),
+				class(emmeansResults[[stage]]), stage))
+		}
+	}
+	
+	stages <- integer(0)
+	groups <- integer(0)
+	means <- numeric(0)
+	stDevs <- numeric(0)
+	sampleSizes <- numeric(0)
+	
+	for (stage in 1:length(emmeansResults)) {
+		emmeansResult <- emmeansResults[[stage]]
+		emmeansResultsSummary <- summary(emmeansResult)
+		emmeansResultsList <- as.list(emmeansResult)
+		
+		if (is.null(emmeansResultsSummary[["emmean"]])) {
+			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+				"the objects in summary(emmeansResults) must contain the field 'emmean'")
+		}
+		for (expectedField in c("sigma", "extras")) {
+			if (is.null(emmeansResultsList[[expectedField]])) {
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+					"the objects in as.list(emmeansResults) must contain the field ", sQuote(expectedField))
+			}
+		}
+		
+		numberOfGroups <- length(emmeansResultsSummary$emmean)
+		rpactGroupNumbers <- 1
+		if (numberOfGroups > 1) {
+			rpactGroupNumbers <- c(2:numberOfGroups, rpactGroupNumbers)
+		}
+		for (group in 1:length(emmeansResultsSummary$emmean)) {
+			stages <- c(stages, stage)
+			groups <- c(groups, group)
+			rpactGroupNumber <- rpactGroupNumbers[group]
+			means <- c(means, emmeansResultsSummary$emmean[rpactGroupNumber])
+			stDevs <- c(stDevs, emmeansResultsList$sigma)
+			sampleSizes <- c(sampleSizes, emmeansResultsList$extras[rpactGroupNumber, ])
+		}
+	}
+	
+	data <- data.frame(
+		stages = stages,
+		groups = groups,
+		means = means,
+		stDevs = stDevs,
+		sampleSizes = sampleSizes
+	)
+	dataWide <- stats::reshape(data = data, direction = "wide", idvar = "stages", timevar = "groups")
+	colnames(dataWide) <- gsub("\\.", "", colnames(dataWide))
+	return(getDataset(dataWide))
 }
 
 .optionalArgsContainsDatasets <- function(...) {
@@ -777,7 +887,7 @@ getDataset <- function(..., floatingPointNumbersEnabled = FALSE) {
 		row <- dataFrame[i, paramNames]
 		if (any(is.na(row)) && !all(is.na(row))) {
 			stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
-				gettextf(paste0("inconsistent deselction in group %s at stage %s (", 
+				gettextf(paste0("inconsistent deselection in group %s at stage %s (", 
 					"%s: all or none must be NA)"), 
 					dataFrame$group[i], dataFrame$stage[i], .arrayToString(paramNames, maxCharacters = 40)))
 		}
@@ -2782,7 +2892,7 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 					
 					allocationRatios <<- .getValuesByParameterName(
 						dataFrame, C_KEY_WORDS_ALLOCATION_RATIOS,
-						defaultValues = .getAllocationRatioDefaultValues(stages, events, logRanks))
+						defaultValues = .getAllocationRatioDefaultValues(stages, events, expectedEvents))
 					.validateValues(allocationRatios, "allocationRatios")
 				}
 				else if (.paramExists(dataFrame, C_KEY_WORDS_OVERALL_EXPECTED_EVENTS) ||
@@ -2795,7 +2905,7 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 					
 					overallAllocationRatios <<- .getValuesByParameterName(
 						dataFrame, parameterNameVariants = C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
-						defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallLogRanks))
+						defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallExpectedEvents))
 					.validateValues(overallAllocationRatios, "overallAllocationRatios")
 				}
 				
@@ -3151,7 +3261,8 @@ DatasetSurvival <- setRefClass("DatasetSurvival",
 					) /	(events[2:kMax] / overallEvents[2:kMax])
 			if (any(stats::na.omit(result) <= 0)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"overall allocation ratios not correctly specified, must be > 0") 
+					"overall allocation ratios not correctly specified: ",
+					"one or more calculated stage-wise allocation ratios <= 0") 
 			}	
 			return(result)
 		},
@@ -3245,7 +3356,7 @@ DatasetEnrichmentSurvival <- setRefClass("DatasetEnrichmentSurvival",
 				
 				overallAllocationRatios <<- .getValuesByParameterName(
 					dataFrame, parameterNameVariants = C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS,
-					defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallLogRanks))
+					defaultValues = .getAllocationRatioDefaultValues(stages, overallEvents, overallExpectedEvents))
 				.validateValues(overallAllocationRatios, "overallAllocationRatios")
 			}
 			else if (.paramExists(dataFrame, C_KEY_WORDS_EXPECTED_EVENTS) ||
@@ -3272,7 +3383,7 @@ DatasetEnrichmentSurvival <- setRefClass("DatasetEnrichmentSurvival",
 				
 				allocationRatios <<- .getValuesByParameterName(
 					dataFrame, parameterNameVariants = C_KEY_WORDS_ALLOCATION_RATIOS,
-					defaultValues = .getAllocationRatioDefaultValues(stages, events, logRanks))
+					defaultValues = .getAllocationRatioDefaultValues(stages, events, expectedEvents))
 				.validateValues(allocationRatios, "allocationRatios")
 			}
 			

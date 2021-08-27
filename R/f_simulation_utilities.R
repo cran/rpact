@@ -1,5 +1,5 @@
 #:#
-#:#  *Simulation of multiarm design with combination test and conditional error approach*
+#:#  *Simulation of multi-arm design with combination test and conditional error approach*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4863 $
-#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5147 $
+#:#  Last changed: $Date: 2021-08-12 14:11:48 +0200 (Thu, 12 Aug 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .getSimulationParametersFromRawData <- function(data, ..., variantName = c("alternative", "pi1"), 
@@ -32,11 +32,11 @@
 	
 	variantLevels <- sort(unique(na.omit(data[[variantName]])))
 	numberOfVariants <- length(variantLevels)
-	sampleSizes <- matrix(0, kMax, numberOfVariants)
-	rejectPerStage <- matrix(0, kMax, numberOfVariants)
-	futilityPerStage <- matrix(0, kMax - 1, numberOfVariants)
+	sampleSizes <- matrix(0, nrow = kMax, ncol = numberOfVariants)
+	rejectPerStage <- matrix(0,nrow = kMax, ncol = numberOfVariants)
+	futilityPerStage <- matrix(0, nrow = kMax - 1, ncol = numberOfVariants)
 	expectedNumberOfSubjects <- rep(0, numberOfVariants)
-	conditionalPowerAchieved <- matrix(NA_real_, kMax, numberOfVariants)	
+	conditionalPowerAchieved <- matrix(NA_real_, nrow = kMax, ncol = numberOfVariants)	
 	
 	index <- 1
 	for (variantValue in variantLevels) {

@@ -14,8 +14,8 @@
  *
  * Contact us for information about our services: info@rpact.com
  *
- * File version: $Revision: 4496 $
- * Last changed: $Date: 2021-03-03 07:59:16 +0100 (Mi, 03 Mrz 2021) $
+ * File version: $Revision: 5023 $
+ * Last changed: $Date: 2021-07-06 11:23:10 +0200 (Tue, 06 Jul 2021) $
  * Last changed by: $Author: pahlke $
  *
  */
@@ -38,7 +38,7 @@ double findObservationTime(
 		numberOfEvents = 0;
 		for (int i = 0; i < numberOfSubjects; i++) {
 			if (accrualTime[i] + survivalTime[i] < upperBound &&
-					(R_IsNA(dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
+					(R_IsNA((double) dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
 				numberOfEvents = numberOfEvents + 1;
 			}
 		}
@@ -60,7 +60,7 @@ double findObservationTime(
 		numberOfEvents = 0;
 		for (int i = 0; i < numberOfSubjects; i++) {
 			if (accrualTime[i] + survivalTime[i] <= time &&
-					(R_IsNA(dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
+					(R_IsNA((double) dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
 				numberOfEvents = numberOfEvents + 1;
 			}
 		}
@@ -121,14 +121,14 @@ List logRankTest(NumericVector accrualTime, NumericVector survivalTime,
 			}
 
 			if (treatmentGroup[i] > 0 && accrualTime[i] + survivalTime[i] < time &&
-					(R_IsNA(dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
+					(R_IsNA((double) dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
 				event[i] = true;
 			} else {
 				event[i] = false;
 			}
 
 			if (treatmentGroup[i] > 0 && accrualTime[i] + dropoutTime[i] < time &&
-					!R_IsNA(dropoutTime[i]) && dropoutTime[i] < survivalTime[i]) {
+					!R_IsNA((double) dropoutTime[i]) && dropoutTime[i] < survivalTime[i]) {
 				dropoutEvent[i] = true;
 			} else {
 				dropoutEvent[i] = false;
@@ -232,6 +232,16 @@ NumericVector getIndependentIncrements(int stage, NumericVector eventsPerStage, 
 	return independentIncrements;
 }
 
+// ::Rf_pnorm5 identical to R::pnorm
+double getNormalDistribution(double p) {
+	return R::pnorm(p, 0.0, 1.0, 1, 0); // p, mu, sigma, lt, lg
+}
+
+// ::Rf_qnorm5 identical to R::qnorm
+double getNormalQuantile(double p) {
+	return R::qnorm(p, 0.0, 1.0, 1, 0); // p, mu, sigma, lt, lg
+}
+
 // Get Test Statistics
 // @param designNumber The design number:
 //        1: Group sequential design
@@ -258,10 +268,10 @@ NumericVector getTestStatistics(int stage, int designNumber, NumericVector infor
 		const IntegerVector indices1 = seq(0, stage - 2);
 		const IntegerVector indices2 = seq(1, stage - 1);
 
-		double value = (sqrt(informationRates[0]) * independentIncrements[0] +
+		double value = (sqrt((double) informationRates[0]) * independentIncrements[0] +
 			vectorProduct(vectorSqrt(informationRates[indices2] - informationRates[indices1]),
 					independentIncrements[indices2])) /
-			sqrt(informationRates[stage - 1]);
+			sqrt((double) informationRates[stage - 1]);
 
 		return NumericVector::create(value, NA_REAL);
 	}
@@ -281,13 +291,13 @@ NumericVector getTestStatistics(int stage, int designNumber, NumericVector infor
 
 		weightFisher[indices2] = vectorDivide(
 				vectorSqrt(informationRates[indices2] - informationRates[indices1]),
-				sqrt(informationRates[0]));
+				sqrt((double) informationRates[0]));
 	}
 
 	const IntegerVector indices0 = seq(0, stage - 1);
 	double value = vectorProduct(vectorPow(1 - pnorm(as<NumericVector>(independentIncrements[indices0])),
 			as<NumericVector>(weightFisher[indices0])));
-	double pValueSeparate = 1 - ::Rf_pnorm5(independentIncrements[stage - 1], 0.0, 1.0, 1, 0);
+	double pValueSeparate = 1 - getNormalDistribution((double) independentIncrements[stage - 1]);
 
 	return NumericVector::create(value, pValueSeparate);
 }
@@ -317,7 +327,7 @@ NumericVector getRecalculatedEventSizes(int designNumber, int stage, int kMax,
 	// Used effect size is either estimated from test statistic of pre-fixed
 	double estimatedTheta;
 	if (R_IsNA(thetaH1)) {
-		estimatedTheta = exp(logRankOverStages[stage - 2] *
+		estimatedTheta = exp((double) logRankOverStages[stage - 2] *
 			(1 + allocation1 / allocation2) / sqrt(allocation1 /
 			allocation2 * eventsPerStage[stage - 2]));
 	} else {
@@ -330,21 +340,20 @@ NumericVector getRecalculatedEventSizes(int designNumber, int stage, int kMax,
 	// Conditional critical value to reject the null hypotheses at the last stage of the trial
 	double conditionalCriticalValue;
 	if (designNumber == 3) { // Fisher design
-		conditionalCriticalValue = ::Rf_qnorm5(
-			1 - pow(criticalValues[stage - 1] / testStatisticOverStages[stage - 2],
+		conditionalCriticalValue = getNormalQuantile(
+			1 - pow((double) criticalValues[stage - 1] / testStatisticOverStages[stage - 2],
 				1
 				/
-				sqrt(
+				sqrt((double)
 					(informationRates[stage - 1] - informationRates[stage - 2])
 					/
 					informationRates[0]
 				)
-			)
-		, 0.0, 1.0, 1, 0);
+			));
 	} else {
-		conditionalCriticalValue = (sqrt(informationRates[stage - 1]) * criticalValues[stage - 1] -
-				testStatisticOverStages[stage - 2] * sqrt(informationRates[stage - 2])) /
-			sqrt(informationRates[stage - 1] - informationRates[stage - 2]);
+		conditionalCriticalValue = (sqrt((double) informationRates[stage - 1]) * criticalValues[stage - 1] -
+				testStatisticOverStages[stage - 2] * sqrt((double) informationRates[stage - 2])) /
+			sqrt((double) informationRates[stage - 1] - informationRates[stage - 2]);
 	}
 
 	if (!R_IsNA(conditionalPower)) {
@@ -353,7 +362,7 @@ NumericVector getRecalculatedEventSizes(int designNumber, int stage, int kMax,
 		theta = max(NumericVector::create(1 + 1E-12, estimatedTheta));
 
 		requiredStageEvents = pow(max(NumericVector::create(0,
-			conditionalCriticalValue + ::Rf_qnorm5(conditionalPower, 0.0, 1.0, 1, 0))), 2) *
+			conditionalCriticalValue + getNormalQuantile(conditionalPower))), 2) *
 			pow(1 + allocation1 / allocation2, 2) * allocation2 / allocation1 /
 			pow(log(theta), 2);
 
@@ -437,8 +446,8 @@ NumericMatrix getSimulationStepResultsSurvival(
 			double theta = recalculatedEventSizes[2];
 
 			conditionalPowerAchieved[k - 1] =
-				1 - ::Rf_pnorm5(conditionalCriticalValue - log(theta) * sqrt(requiredStageEvents - eventsPerStage[k - 2]) *
-				sqrt(allocation1 / allocation2) / (1 + allocation1 / allocation2), 0.0, 1.0, 1, 0);
+				1 - getNormalDistribution(conditionalCriticalValue - log(theta) * sqrt(requiredStageEvents - eventsPerStage[k - 2]) *
+				sqrt(allocation1 / allocation2) / (1 + allocation1 / allocation2));
 		} else {
 			conditionalPowerAchieved[k - 1] = NA_REAL;
 		}
@@ -480,7 +489,7 @@ NumericMatrix getSimulationStepResultsSurvival(
 			}
 		} else { // all other designs
 			if ((sided == 1 && testStatistic[0] >= criticalValues[k - 1]) ||
-					(sided == 2 && std::abs(testStatistic[0]) >= criticalValues[k - 1])) {
+					(sided == 2 && std::abs((double) testStatistic[0]) >= criticalValues[k - 1])) {
 				rejections[k - 1]++;
 				trialStopEventCounter++;
 			}
@@ -676,7 +685,7 @@ bool isPiecewiseExponentialSurvivalEnabled(NumericVector lambdaVec2) {
 		return false;
 	}
 	for (int i = 0; i < lambdaVec2.size(); i++) {
-		if (R_IsNA(lambdaVec2[i])) {
+		if (R_IsNA((double) lambdaVec2[i])) {
 			return false;
 		}
 	}
@@ -816,7 +825,7 @@ List getSimulationSurvivalCpp(
 		double lambda2 = NA_REAL;
 
 		if (!pwExpEnabled) {
-			if (R_IsNA(pi1Vec[pi1Index])) {
+			if (R_IsNA((double) pi1Vec[pi1Index])) {
 				lambda1 = lambdaVec1[pi1Index];
 				lambda2 = lambdaVec2[0];
 			} else {
@@ -838,11 +847,11 @@ List getSimulationSurvivalCpp(
 			if (!pwExpEnabled) {
 				survivalDataSet = getExtendedSurvivalDataSet(
 					treatmentGroup, maxNumberOfSubjects,
-					lambda1, lambda2, phi[0], phi[1], kappa);
+					lambda1, lambda2, (double) phi[0], (double) phi[1], kappa);
 			} else {
 				survivalDataSet = getExtendedSurvivalDataSet(treatmentGroup,
 						maxNumberOfSubjects, piecewiseSurvivalTime,
-						cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, phi[0], phi[1]);
+						cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, (double) phi[0], (double) phi[1]);
 			}
 
 			NumericVector survivalTime = survivalDataSet(_, 0);

@@ -1,5 +1,5 @@
 #:#
-#:#  *Simulation of multiarm design with binary data*
+#:#  *Simulation of multi-arm design with binary data*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4947 $
-#:#  Last changed: $Date: 2021-05-31 14:31:17 +0200 (Mo, 31 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5164 $
+#:#  Last changed: $Date: 2021-08-16 16:52:35 +0200 (Mo, 16 Aug 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 #' @include f_simulation_multiarm.R
@@ -85,18 +85,18 @@ NULL
 	
 	kMax <- length(plannedSubjects)	
 	gMax <- length(piVector)	
-	simRates <- matrix(rep(NA_real_, (gMax + 1) * kMax), gMax + 1, kMax)
-	overallEffectSizes <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	subjectsPerStage <- matrix(rep(NA_real_, (gMax + 1) * kMax), gMax + 1, kMax)
-	testStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	overallTestStatistics <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
-	separatePValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	simRates <- matrix(NA_real_, nrow = gMax + 1, ncol = kMax)
+	overallEffectSizes <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	subjectsPerStage <- matrix(NA_real_, nrow = gMax + 1, ncol = kMax)
+	testStatistics <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	overallTestStatistics <- matrix(NA_real_, nrow = gMax, ncol = kMax)
+	separatePValues <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	conditionalCriticalValue <- rep(NA_real_, kMax - 1) 
 	conditionalPowerPerStage <- rep(NA_real_, kMax)
-	selectedArms <- matrix(rep(FALSE, (gMax + 1)* kMax), gMax + 1, kMax)
+	selectedArms <- matrix(FALSE, nrow = gMax + 1, ncol = kMax)
 	selectedArms[, 1] <- TRUE
 	adjustedPValues <- rep(NA_real_, kMax)
-	overallRates <- matrix(rep(NA_real_, gMax* kMax), gMax, kMax)
+	overallRates <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	overallRatesControl <- rep(NA_real_, kMax)
 	
 	if (.isTrialDesignFisher(design)) {
@@ -112,7 +112,7 @@ NULL
 		} else {
 			subjectsPerStage[gMax + 1, k] <- trunc((plannedSubjects[k] - plannedSubjects[k - 1]) / allocationRatioPlanned)
 		}
-		simRates[gMax + 1, k] <- rbinom(1, subjectsPerStage[gMax + 1, k], piControl) / subjectsPerStage[gMax + 1, k]
+		simRates[gMax + 1, k] <- stats::rbinom(1, subjectsPerStage[gMax + 1, k], piControl) / subjectsPerStage[gMax + 1, k]
 		
 		for (treatmentArm in (1:gMax)) {
 			if (selectedArms[treatmentArm, k]) {
@@ -123,7 +123,7 @@ NULL
 					subjectsPerStage[treatmentArm, k] <- plannedSubjects[k] - plannedSubjects[k - 1]
 				}	
 								
-				simRates[treatmentArm, k] <- rbinom(1, subjectsPerStage[treatmentArm, k], piVector[treatmentArm]) / 
+				simRates[treatmentArm, k] <- stats::rbinom(1, subjectsPerStage[treatmentArm, k], piVector[treatmentArm]) / 
 					subjectsPerStage[treatmentArm, k]
 				
 				rm <-  (subjectsPerStage[treatmentArm, k] * simRates[treatmentArm, k] + 
@@ -290,8 +290,8 @@ NULL
 #' Get Simulation Multi-Arm Rates
 #' 
 #' @description 
-#' Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
-#' for testing rates in a multi-arm treatment groups testing situation. 
+#' Returns the simulated power, stopping and selection probabilities, conditional power,  
+#' and expected sample size for testing rates in a multi-arm treatment groups testing situation. 
 #'
 #' @param piMaxVector Range of assumed probabilities for the treatment group with 
 #'        highest response for \code{"linear"} and \code{"sigmoidEmax"} model, 
@@ -474,14 +474,14 @@ getSimulationMultiArmRates <- function(
 	
 	simulatedSelections <- array(0, dim = c(kMax, cols, gMax + 1))
 	simulatedRejections <- array(0, dim = c(kMax, cols, gMax))
-	simulatedNumberOfActiveArms <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
+	simulatedNumberOfActiveArms <- matrix(0, nrow = kMax, ncol = cols)
 	simulatedSubjectsPerStage <- array(0, dim = c(kMax, cols, gMax + 1))
-	simulatedSuccessStopping <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)
-	simulatedFutilityStopping <- matrix(0, cols*(kMax - 1), nrow = kMax - 1, ncol = cols)
-	simulatedConditionalPower <- matrix(0, cols * kMax, nrow = kMax, ncol = cols)	
+	simulatedSuccessStopping <- matrix(0, nrow = kMax, ncol = cols)
+	simulatedFutilityStopping <- matrix(0, nrow = kMax - 1, ncol = cols)
+	simulatedConditionalPower <- matrix(0, nrow = kMax, ncol = cols)	
 	simulatedRejectAtLeastOne <- rep(0, cols)
 	expectedNumberOfSubjects <- rep(0, cols)
-	iterations <- matrix(0, kMax, cols)
+	iterations <- matrix(0, nrow = kMax, ncol = cols)
 	
 	len <- maxNumberOfIterations * kMax * gMax * cols 
 	
@@ -535,7 +535,7 @@ getSimulationMultiArmRates <- function(
 					design = design, indices = indices, 
 					criticalValuesDunnett = criticalValuesDunnett, successCriterion = successCriterion)
 			} else {
-				closedTest <- .performClosedCombinationTestForSimulation(stageResults = stageResults, 
+				closedTest <- .performClosedCombinationTestForSimulationMultiArm(stageResults = stageResults, 
 					design = design, indices = indices, 
 					intersectionTest = intersectionTest, successCriterion = successCriterion)
 			}	

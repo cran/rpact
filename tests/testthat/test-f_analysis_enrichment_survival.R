@@ -14,16 +14,16 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_enrichment_survival.R
-#:#  Creation date: 09 June 2021, 13:02:39
-#:#  File version: $Revision: 4977 $
-#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  Creation date: 25 June 2021, 11:27:32
+#:#  File version: $Revision: 5020 $
+#:#  Last changed: $Date: 2021-07-06 08:58:14 +0200 (Di, 06 Jul 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
 context("Testing Analysis Enrichment Survival Function")
 
 
-test_that("'getAnalysisResults': One Sub-Population", {
+test_that("'getAnalysisResults': enrichment survival, one sub-population, non-stratified analysis, select S1 at second, gMax = 2", {
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -36,21 +36,6 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentSurvival}
 	# @refFS[Formula]{fs:testStatisticEnrichmentSurvival}
-	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.025, 
-		informationRates = c(0.4, 0.7, 1), bindingFutility = FALSE, beta = 0.1)
-
-	design2 <- getDesignFisher(kMax = 3, method = "equalAlpha", alpha = 0.025, informationRates = c(0.4, 0.7, 1))
-
-	###   Test Enrich 1 Survival, non-stratified analysis
-	#  Select S1 at second, gMax = 2
-
-	#dataInput1 <- getDataset(
-	#	stage = c(1,1,2,2,3,3),
-	#	subset = c("S1","F","S1","F","S1","F"),
-	#	events = c(37, 66, 35, 55, 22, NA),
-	#	logRanks = c(1.66, 1.98, 1.38, 1.57, 1.22, NA)
-	#)
-
 	S1 <- getDataset(
 		events = c(37, 35, 22),
 		logRanks = c(1.66, 1.38, 1.22),
@@ -80,15 +65,15 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	    expect_equal(dataInput1CodeBased$logRanks, dataInput1$logRanks, tolerance = 1e-05)
 	}
 
+	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.025, 
+		informationRates = c(0.4, 0.7, 1), bindingFutility = FALSE, beta = 0.1)
+
 	x1 <- getAnalysisResults(design = design1, 
 		dataInput = dataInput1,
 		directionUpper = TRUE,
 		stage = 3,
-		#nPlanned = 30,
-		#thetaH1 = c(1.6, 1.8),
 		allocationRatioPlanned = 1,
 		intersectionTest = "SpiessensDebois")
-
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x1' with expected results
 	expect_equal(x1$thetaH1[1, ], 1.6657832, tolerance = 1e-07)
@@ -116,17 +101,15 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
 	}
+
 	.skipTestIfDisabled()
 
 	x2 <- getAnalysisResults(design = design1, 
 		dataInput = dataInput1,
 		directionUpper = TRUE,
 		stage = 3,
-		#nPlanned = 30,
-		#thetaH1 = c(1.6, 1.8),
 		allocationRatioPlanned = 1,
 		intersectionTest = "Sidak")
-
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x2' with expected results
 	expect_equal(x2$thetaH1[1, ], 1.6657832, tolerance = 1e-07)
@@ -154,16 +137,17 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
 	}
+
+	design2 <- getDesignFisher(kMax = 3, method = "equalAlpha", alpha = 0.025, informationRates = c(0.4, 0.7, 1))
+
 	x3 <- getAnalysisResults(design = design2, 
 		dataInput = dataInput1,
 		stratifiedAnalysis = TRUE,
 		directionUpper = TRUE,
 		stage = 2,
 		nPlanned = 30,
-		#thetaH1 = c(1.6, 1.8),
 		allocationRatioPlanned = 1,
 		intersectionTest = "SpiessensDebois")
-
 
 	## Comparison of the results of AnalysisResultsEnrichmentFisher object 'x3' with expected results
 	expect_equal(x3$thetaH1[1, ], 1.6607445, tolerance = 1e-07)
@@ -191,9 +175,23 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	    expect_equal(x3CodeBased$repeatedConfidenceIntervalUpperBounds, x3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$repeatedPValues, x3$repeatedPValues, tolerance = 1e-05)
 	}
-	###   Test Enrich 2 Survival, stratified data input
-	#  Select S1 at first, gMax = 2
 
+})
+
+test_that("'getAnalysisResults': enrichment survival, one sub-population, stratified data input, select S1 at first, gMax = 2", {
+
+	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISpiessensEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSpiessensDeboisEnrichmentSurvival}
+	# @refFS[Formula]{fs:computeRCIsEnrichment}
+	# @refFS[Formula]{fs:conditionalPowerEnrichment}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
+	# @refFS[Formula]{fs:stratifiedTestEnrichmentSurvival}
+	# @refFS[Formula]{fs:testStatisticEnrichmentSurvival}
 	S1 <- getDataset(
 		overallExpectedEvents = c(13.4, 35.4, 43.7),
 		overallEvents = c(16, 38, 47),	
@@ -227,7 +225,8 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	    expect_equal(dataInput2CodeBased$varianceEvents, dataInput2$varianceEvents, tolerance = 1e-05)
 	}
 
-	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.025, 
+	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", 
+		typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.025, 
 		informationRates = c(0.4, 0.7, 1), bindingFutility = FALSE, beta = 0.1)
 
 	x4 <- getAnalysisResults(design = design1, 
@@ -266,7 +265,9 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	}
 })
 
-test_that("'getAnalysisResults': Two Sub-Populations, G = 3", {
+test_that("'getAnalysisResults': enrichment survival, two sub-populations, non-stratified analysis, select S1 and S2 at first IA, select S1 at second, gMax = 3", {
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
@@ -280,11 +281,6 @@ test_that("'getAnalysisResults': Two Sub-Populations, G = 3", {
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
 	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
-	.skipTestIfDisabled()
-
-	###   Test Enrich 3 Survival, non-stratified analysis
-	#  Select S1 and S2 at first IA, select S1 at second, gMax = 3 
-
 	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.02, 
 		informationRates = c(0.4, 0.7, 1), bindingFutility = FALSE, beta = 0.1)
 
@@ -325,7 +321,6 @@ test_that("'getAnalysisResults': Two Sub-Populations, G = 3", {
 		directionUpper = FALSE,
 		stage = 2,
 		nPlanned = 30,
-	#	thetaH1 = 0.4,
 		allocationRatioPlanned = 1,
 		intersectionTest = "Sidak")
 
@@ -362,9 +357,22 @@ test_that("'getAnalysisResults': Two Sub-Populations, G = 3", {
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
 	}
-	###   Test Enrich 4 Survival, stratified analysis
-	#  Select S1 and S2 at first IA, select S1 at second, gMax = 3 
+})
 
+test_that("'getAnalysisResults': enrichment survival, two sub-populations, stratified analysis, select S1 and S2 at first IA, select S1 at second, gMax = 3", {
+
+	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISpiessensEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSpiessensDeboisEnrichmentRates}
+	# @refFS[Formula]{fs:computeRCIsEnrichment}
+	# @refFS[Formula]{fs:conditionalPowerEnrichment}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
+	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
+	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
 	S1 <- getDataset(
 		overallExpectedEvents = c(13.4, 35.4, 43.7),
 		overallEvents = c(16, 37, 47),	
@@ -412,6 +420,9 @@ test_that("'getAnalysisResults': Two Sub-Populations, G = 3", {
 	    expect_equal(dataInput4CodeBased$varianceEvents, dataInput4$varianceEvents, tolerance = 1e-05)
 	}
 
+	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.02, 
+		informationRates = c(0.4, 0.7, 1), bindingFutility = FALSE, beta = 0.1)
+
 	x2 <- getAnalysisResults(design = design1, 
 		dataInput = dataInput4,
 		stratifiedAnalysis = TRUE,
@@ -421,8 +432,6 @@ test_that("'getAnalysisResults': Two Sub-Populations, G = 3", {
 		thetaH1 = 2,
 		allocationRatioPlanned = 1,
 		intersectionTest = "Sidak")
-
-	x2
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x2' with expected results
 	expect_equal(x2$conditionalRejectionProbabilities[1, ], c(0.04301093, 0.0010677592, NA_real_), tolerance = 1e-07)

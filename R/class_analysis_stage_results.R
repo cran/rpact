@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  File version: $Revision: 5177 $
+#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -1307,7 +1307,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 	p <- plotSettings$hideGridLines(p)
 	
 	# set main title
-	mainTitle <- ifelse(is.na(main), plotData$main, main)
+	mainTitle <- ifelse(!is.call(main) && !isS4(main) && is.na(main), plotData$main, main)
 	p <- plotSettings$setMainTitle(p, mainTitle, subtitle = plotData$sub)
 	
 	# set legend

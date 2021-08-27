@@ -14,16 +14,16 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-f_analysis_enrichment_rates.R
-#:#  Creation date: 18 May 2021, 17:43:03
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
+#:#  Creation date: 25 June 2021, 09:31:31
+#:#  File version: $Revision: 5020 $
+#:#  Last changed: $Date: 2021-07-06 08:58:14 +0200 (Di, 06 Jul 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
 context("Testing Analysis Enrichment Rates Function")
 
 
-test_that("'getAnalysisResults': One Sub-Population", {
+test_that("'getAnalysisResults': enrichment rates, one sub-population, non-stratified input, select S1 at second IA, directionUpper = FALSE, gMax = 2", {
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -36,9 +36,6 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
 	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
-	###   Test Enrich 1 Rates, non-stratified input 
-	#  Select S1 at second IA, directionUpper = FALSE, gMax = 2
-
 	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, typeOfDesign = "P", informationRates = c(0.4,0.7,1))
 
 	S1 <- getDataset(
@@ -148,23 +145,25 @@ test_that("'getAnalysisResults': One Sub-Population", {
 	    expect_equal(x2CodeBased$piControls, x2$piControls, tolerance = 1e-05)
 	}
 
+})
+
+test_that("'getAnalysisResults': enrichment rates, one sub-population, stratified input, select S1 at second IA, directionUpper = FALSE, gMax = 2", {
+
 	.skipTestIfDisabled()
 
-	###   Test Enrich 2 Rates, stratified input
-	#  Select S1 at second IA, directionUpper = FALSE, gMax = 2
-
+	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISpiessensEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSpiessensDeboisEnrichmentRates}
+	# @refFS[Formula]{fs:computeRCIsEnrichment}
+	# @refFS[Formula]{fs:conditionalPowerEnrichment}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
+	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
+	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
 	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.4,0.7,1))
-
-	design2 <- getDesignFisher(kMax = 3, alpha = 0.02, alpha0Vec = c(0.7,0.5), method = "equalAlpha", 
-		bindingFutility = TRUE, informationRates = c(0.4,0.7,1))
-
-	#dataInput1 <- getDataset(
-	#	stage = c(1,1,2,2,3,3),
-	#	subset = c("S1","R","S1","R","S1","R"),
-	#	sampleSize1 = c(22, 24, 31, 23, 37, NA),
-	#	sampleSize2 = c(28, 21, 33, 29, 39, NA),
-	#	event1 = c(7, 9, 16, 15, 17, NA),
-	#	event2 = c(18, 11, 21, 14, 19, NA))
 
 	S1 <- getDataset(
 		sampleSize1 = c(  22,   31,   37), 
@@ -271,7 +270,9 @@ test_that("'getAnalysisResults': One Sub-Population", {
 
 })
 
-test_that("'getAnalysisResults': More Sub-Populations, G = 3 and 4", {
+test_that("'getAnalysisResults': enrichment rates, more sub-populations, select S1 and S2 at first IA, select S1 at second, directionUpper = TRUE, gMax = 3", {
+
+	.skipTestIfDisabled()
 
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
@@ -285,15 +286,6 @@ test_that("'getAnalysisResults': More Sub-Populations, G = 3 and 4", {
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
 	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
-	.skipTestIfDisabled()
-
-	###   Test Enrich 3 Rates
-	#  Select S1 and S2 at first IA, select S1 at second, directionUpper = TRUE, gMax = 3 
-
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.4,0.7,1))
-
-	design2 <- getDesignFisher(kMax = 3, method = "equalAlpha", alpha = 0.05, informationRates = c(0.4, 0.7, 1))
-
 	S1 <- getDataset(
 		sampleSize1 = c(  47,   33,   37), 
 		sampleSize2 = c(  48,   47,   39), 
@@ -337,6 +329,8 @@ test_that("'getAnalysisResults': More Sub-Populations, G = 3 and 4", {
 	    expect_equal(dataInput3CodeBased$overallEvents, dataInput3$overallEvents, tolerance = 1e-05)
 	}
 
+	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.4,0.7,1))
+
 	x1 <- getAnalysisResults(design1, dataInput3, 
 		directionUpper = TRUE,
 		stratifiedAnalysis = FALSE,
@@ -377,6 +371,8 @@ test_that("'getAnalysisResults': More Sub-Populations, G = 3 and 4", {
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
 	}
+
+	design2 <- getDesignFisher(kMax = 3, method = "equalAlpha", alpha = 0.05, informationRates = c(0.4, 0.7, 1))
 
 	x2 <- getAnalysisResults(design2, dataInput3, 
 		directionUpper = TRUE,
@@ -423,9 +419,22 @@ test_that("'getAnalysisResults': More Sub-Populations, G = 3 and 4", {
 	    expect_equal(x2CodeBased$piControls, x2$piControls, tolerance = 1e-05)
 	}
 
-	###   Test Enrich 4 Rates, non-stratified input
-	#  Select S1 and S2 at first IA, select S1 at second, directionUpper = FALSE, gMax = 4 
+})
 
+test_that("'getAnalysisResults': enrichment rates, more sub-populations, non-stratified input, select S1 and S2 at first IA, select S1 at second, directionUpper = FALSE, gMax = 4", {
+
+	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISpiessensEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSpiessensDeboisEnrichmentRates}
+	# @refFS[Formula]{fs:computeRCIsEnrichment}
+	# @refFS[Formula]{fs:conditionalPowerEnrichment}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
+	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
+	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
 	S1 <- getDataset(
 		sampleSize1 = c(  84,   94,   25), 
 		sampleSize2 = c(  82,   75,   23), 
@@ -476,20 +485,8 @@ test_that("'getAnalysisResults': More Sub-Populations, G = 3 and 4", {
 	    expect_equal(dataInput4CodeBased$overallEvents, dataInput4$overallEvents, tolerance = 1e-05)
 	}
 
-	expect_warning(dataInput5 <- getDataset(S1 = S1, S2 = S2, S3 = S3, R = R))
-
-	## Comparison of the results of DatasetRates object 'dataInput5' with expected results
-	expect_equal(dataInput5$overallSampleSizes, c(84, 81, 71, NA_real_, NA_real_, NA_real_, NA_real_, 12, 82, 84, 74, NA_real_, NA_real_, NA_real_, NA_real_, 14, 178, 176, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 157, 148, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 203, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 180, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(dataInput5$overallEvents, c(21, 26, 16, NA_real_, NA_real_, NA_real_, NA_real_, 12, 32, 31, 21, NA_real_, NA_real_, NA_real_, NA_real_, 14, 49, 55, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 55, 57, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 62, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 75, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
-	    invisible(capture.output(expect_error(print(dataInput5), NA)))
-	    expect_output(print(dataInput5)$show())
-	    invisible(capture.output(expect_error(summary(dataInput5), NA)))
-	    expect_output(summary(dataInput5)$show())
-	    dataInput5CodeBased <- eval(parse(text = getObjectRCode(dataInput5, stringWrapParagraphWidth = NULL)))
-	    expect_equal(dataInput5CodeBased$overallSampleSizes, dataInput5$overallSampleSizes, tolerance = 1e-05)
-	    expect_equal(dataInput5CodeBased$overallEvents, dataInput5$overallEvents, tolerance = 1e-05)
-	}
+	expect_warning(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R),
+		"The 4 undefined subsets S12, S13, S123, S23 were defined as empty subsets", fixed = TRUE)
 
 	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "asKD", gammaA = 2, informationRates = c(0.4,0.7,1))
 

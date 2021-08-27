@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4868 $
-#:#  Last changed: $Date: 2021-05-12 14:13:07 +0200 (Mi, 12 Mai 2021) $
-#:#  Last changed by: $Author: wassmer $
+#:#  File version: $Revision: 5135 $
+#:#  Last changed: $Date: 2021-08-10 14:03:00 +0200 (Tue, 10 Aug 2021) $
+#:#  Last changed by: $Author: pahlke $
 #:# 
 
 SummaryItem <- setRefClass("SummaryItem",
@@ -354,7 +354,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 					smoothedZeroFormat = smoothedZeroFormat, 
 					formatRepeatedPValues = formatRepeatedPValues)
 				
-				if (parameterName1 %in% c("piControl")) {
+				if (parameterName1 %in% c("piControl", "overallPiControl")) {
 					valuesToShow <- .getInnerValues(valuesToShow, transpose = TRUE)
 				} else {
 					valuesToShow <- .getInnerValues(valuesToShow, transpose = transpose)
@@ -542,6 +542,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 			return(
 				.isEnrichmentAnalysisResults(parameterSet) || 
 				.isEnrichmentStageResults(parameterSet) ||
+				.isEnrichmentConditionalPowerResults(parameterSet) ||
 				(inherits(parameterSet, "ClosedCombinationTestResults") && 
 					isTRUE(parameterSet$.enrichment)))
 		},
@@ -1629,10 +1630,10 @@ SummaryFactory <- setRefClass("SummaryFactory",
 	header <- .addAllocationRatioToHeader(designPlan, header)
 	
 	if (settings$survivalEnabled) {
-		if (!is.null(designPlan[["eventTime"]])) {
+		if (!is.null(designPlan[["eventTime"]]) && !is.na(designPlan[["eventTime"]])) {
 			header <- .concatenateSummaryText(header, paste0("event time = ", 
-				.arrayToString(designPlan$accrualTime, 
-				vectorLookAndFeelEnabled = (length(designPlan$accrualTime) > 1))))
+				.arrayToString(designPlan$eventTime, 
+				vectorLookAndFeelEnabled = (length(designPlan$eventTime) > 1))))
 		}
 		if (!is.null(designPlan[["accrualTime"]])) {
 			header <- .concatenateSummaryText(header, paste0("accrual time = ", 
@@ -1886,7 +1887,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 			summaryFactory$addParameter(stageResults, parameterName = treatmentRateParamName, 
 				parameterCaption = "Overall treatment rate", roundDigits = digitsGeneral)
 			summaryFactory$addParameter(stageResults, parameterName = controlRateParamName, 
-				parameterCaption = "Overall control rate", roundDigits = digitsGeneral)
+				parameterCaption = "Overall control rate", roundDigits = digitsGeneral, enforceFirstCase = TRUE)
 		}
 	}
 	

@@ -1,5 +1,5 @@
 #:#
-#:#  *RPACT design utilities*
+#:#  *Design utilities*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4885 $
-#:#  Last changed: $Date: 2021-05-18 16:49:59 +0200 (Di, 18 Mai 2021) $
+#:#  File version: $Revision: 5162 $
+#:#  Last changed: $Date: 2021-08-16 10:44:08 +0200 (Mo, 16 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -58,7 +58,7 @@ NULL
 	} else {
 		ignore <- c(ignore, "twoSidedPower")
 	}
-	if (type %in% c("analysis")) {
+	if (type %in% c("analysis", "simulation")) {
 		design <- getDesignInverseNormal(kMax = 1, alpha = alpha, beta = beta, 
 			sided = sided, twoSidedPower = twoSidedPower)
 	} else {
@@ -102,10 +102,11 @@ NULL
 		kMaxLowerBound, writeToDesign, twoSidedWarningForDefaultValues = TRUE) {
 	
 	parameterValues <- design[[parameterName]]
-	if (length(parameterValues) > 1) {
-		.assertIsNumericVector(parameterValues, parameterName, naAllowed = FALSE)
-	}
 	
+	if (length(parameterValues) > 1) {
+		.assertIsNumericVector(parameterValues, parameterName, naAllowed = TRUE)
+	}
+		
 	kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
 	if (.isDefinedArgument(parameterValues) && .isDefinedArgument(design$kMax)) {
 		if (.isTrialDesignFisher(design)) {
@@ -770,6 +771,8 @@ getLambdaByPi <- function(piValue,
 		kappa = 1) {
 	.assertIsValidPi(piValue, "pi")
 	.assertIsValidKappa(kappa)
+	.assertIsSingleNumber(eventTime, "eventTime")
+	.assertIsInOpenInterval(eventTime, "eventTime", lower = 0, upper = NULL)
 	for (value in piValue) {
 		if (value > 1 - 1e-16 && value < 1 + 1e-16) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'pi' must be != 1")
@@ -781,6 +784,7 @@ getLambdaByPi <- function(piValue,
 #' @rdname utilitiesForSurvivalTrials
 #' @export
 getLambdaByMedian <- function(median, kappa = 1) {
+	.assertIsNumericVector(median, "median")
 	.assertIsValidKappa(kappa)
 	return(log(2)^(1 / kappa) / median)
 }
@@ -793,6 +797,8 @@ getHazardRatioByPi <- function(pi1, pi2,
 	.assertIsValidPi(pi1, "pi1")
 	.assertIsValidPi(pi2, "pi2")
 	.assertIsValidKappa(kappa)
+	.assertIsSingleNumber(eventTime, "eventTime")
+	.assertIsInOpenInterval(eventTime, "eventTime", lower = 0, upper = NULL)
 	return((getLambdaByPi(pi1, eventTime, kappa) / getLambdaByPi(pi2, eventTime, kappa))^kappa)
 }
 
@@ -803,6 +809,8 @@ getPiByLambda <- function(lambda,
 		kappa = 1) {
 	.assertIsValidLambda(lambda)
 	.assertIsValidKappa(kappa)
+	.assertIsSingleNumber(eventTime, "eventTime")
+	.assertIsInOpenInterval(eventTime, "eventTime", lower = 0, upper = NULL)
 	x <- exp(-(lambda * eventTime)^kappa)
 	if (any(x < 1e-15)) {
 		warning("Calculation of pi (1) by lambda (", .arrayToString(round(lambda, 4)), 
@@ -817,7 +825,10 @@ getPiByLambda <- function(lambda,
 getPiByMedian <- function(median, 
 		eventTime = 12L, # C_EVENT_TIME_DEFAULT 
 		kappa = 1) {
+	.assertIsNumericVector(median, "median")
 	.assertIsValidKappa(kappa)
+	.assertIsSingleNumber(eventTime, "eventTime")
+	.assertIsInOpenInterval(eventTime, "eventTime", lower = 0, upper = NULL)
 	return(1 - 2^(-(eventTime / median)^kappa))
 }
 
@@ -835,6 +846,9 @@ getMedianByPi <- function(piValue,
 		eventTime = 12L, # C_EVENT_TIME_DEFAULT 
 		kappa = 1) {
 	.assertIsValidPi(piValue, "piValue")
+	.assertIsSingleNumber(eventTime, "eventTime")
+	.assertIsInOpenInterval(eventTime, "eventTime", lower = 0, upper = NULL)
+	.assertIsValidKappa(kappa)
 	getMedianByLambda(getLambdaByPi(piValue, eventTime, kappa), kappa)
 }
 

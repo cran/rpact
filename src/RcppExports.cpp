@@ -5,6 +5,23 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
+// getW
+NumericVector getW(double dx, const int M);
+RcppExport SEXP _rpact_getW(SEXP dxSEXP, SEXP MSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type dx(dxSEXP);
+    Rcpp::traits::input_parameter< const int >::type M(MSEXP);
+    rcpp_result_gen = Rcpp::wrap(getW(dx, M));
+    return rcpp_result_gen;
+END_RCPP
+}
 // getGroupSequentialProbabilitiesCpp
 NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix, NumericVector informationRates);
 RcppExport SEXP _rpact_getGroupSequentialProbabilitiesCpp(SEXP decisionMatrixSEXP, SEXP informationRatesSEXP) {
@@ -14,6 +31,25 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type decisionMatrix(decisionMatrixSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
     rcpp_result_gen = Rcpp::wrap(getGroupSequentialProbabilitiesCpp(decisionMatrix, informationRates));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialPampallonaTsiatisCpp
+List getDesignGroupSequentialPampallonaTsiatisCpp(double tolerance, double beta, double alpha, double kMax, double deltaPT0, double deltaPT1, NumericVector informationRates, int sided, bool bindingFutility);
+RcppExport SEXP _rpact_getDesignGroupSequentialPampallonaTsiatisCpp(SEXP toleranceSEXP, SEXP betaSEXP, SEXP alphaSEXP, SEXP kMaxSEXP, SEXP deltaPT0SEXP, SEXP deltaPT1SEXP, SEXP informationRatesSEXP, SEXP sidedSEXP, SEXP bindingFutilitySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< double >::type deltaPT0(deltaPT0SEXP);
+    Rcpp::traits::input_parameter< double >::type deltaPT1(deltaPT1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< int >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialPampallonaTsiatisCpp(tolerance, beta, alpha, kMax, deltaPT0, deltaPT1, informationRates, sided, bindingFutility));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -85,7 +121,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_rpact_getW", (DL_FUNC) &_rpact_getW, 2},
     {"_rpact_getGroupSequentialProbabilitiesCpp", (DL_FUNC) &_rpact_getGroupSequentialProbabilitiesCpp, 2},
+    {"_rpact_getDesignGroupSequentialPampallonaTsiatisCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialPampallonaTsiatisCpp, 9},
     {"_rpact_getRandomSurvivalDistribution", (DL_FUNC) &_rpact_getRandomSurvivalDistribution, 2},
     {"_rpact_getRandomPiecewiseExponentialDistribution", (DL_FUNC) &_rpact_getRandomPiecewiseExponentialDistribution, 3},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},

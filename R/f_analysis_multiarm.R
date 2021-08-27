@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4949 $
-#:#  Last changed: $Date: 2021-05-31 17:20:36 +0200 (Mo, 31 Mai 2021) $
+#:#  File version: $Revision: 5147 $
+#:#  Last changed: $Date: 2021-08-12 14:11:48 +0200 (Thu, 12 Aug 2021) $
 #:#  Last changed by: $Author: wassmer $
 #:# 
 
@@ -212,10 +212,10 @@
 	kMax <- design$kMax
 	indices <- .getIndicesOfClosedHypothesesSystem(gMax = gMax)
 	
-	adjustedStageWisePValues <- matrix(rep(NA_real_, kMax * (2^gMax - 1)), 2^gMax - 1, kMax)
-	adjustedOverallPValues <- matrix(rep(NA_real_, kMax * (2^gMax - 1)), 2^gMax - 1, kMax)
-	overallAdjustedTestStatistics <- matrix(rep(NA_real_, kMax * (2^gMax - 1)), 2^gMax - 1, kMax)
-	rejected <- matrix(rep(NA, gMax * kMax), gMax, kMax)
+	adjustedStageWisePValues <- matrix(NA_real_, nrow = 2^gMax - 1, ncol = kMax)
+	adjustedOverallPValues <- matrix(NA_real_, nrow = 2^gMax - 1, ncol = kMax)
+	overallAdjustedTestStatistics <- matrix(NA_real_, nrow = 2^gMax - 1, ncol = kMax)
+	rejected <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	
 	colnames(adjustedStageWisePValues) = paste("stage ", (1:kMax), sep = "")
 	colnames(overallAdjustedTestStatistics) = paste("stage ", (1:kMax), sep = "")
@@ -428,7 +428,7 @@ getClosedCombinationTestResults <- function(stageResults) {
 	design <- stageResults$.design
 	gMax <- stageResults$getGMax()
 	kMax <- design$kMax
-	repeatedPValues <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax) 
+	repeatedPValues <- matrix(NA_real_, nrow = gMax, ncol = kMax) 
 	
 	if (.isTrialDesignInverseNormal(design)) {
 		if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
@@ -930,7 +930,7 @@ getClosedConditionalDunnettTestResults <- function(stageResults, ..., stage = st
 	}
 	
 	gMax <- stageResults$getGMax()	
-	conditionalRejectionProbabilities <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	conditionalRejectionProbabilities <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	weights <- .getWeightsInverseNormal(design)
 	informationRates <- design$informationRates
 	
@@ -993,7 +993,7 @@ getClosedConditionalDunnettTestResults <- function(stageResults, ..., stage = st
 	weights <- .getWeightsFisher(design) 
 	intersectionTest <- stageResults$intersectionTest
 	
-	conditionalRejectionProbabilities <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	conditionalRejectionProbabilities <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	
 	if (design$bindingFutility) {
 		alpha0Vec <- design$alpha0Vec
@@ -1053,7 +1053,7 @@ getClosedConditionalDunnettTestResults <- function(stageResults, ..., stage = st
 	
 	kMax <- 2	
 	gMax <- stageResults$getGMax()	
-	conditionalRejectionProbabilities <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	conditionalRejectionProbabilities <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 
 	ctr <- getClosedConditionalDunnettTestResults(stageResults = stageResults, design = design) 
 	stage <- 1

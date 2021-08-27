@@ -15,8 +15,8 @@
 #:#  
 #:#  File name: test-f_design_utilities.R
 #:#  Creation date: 18 May 2021, 17:47:56
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
+#:#  File version: $Revision: 5049 $
+#:#  Last changed: $Date: 2021-07-14 10:50:40 +0200 (Mi, 14 Jul 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -238,7 +238,6 @@ test_that("'ppwexp' and 'qpwexp' produce corresponding results ('piecewiseSurviv
 	y <- qpwexp(quantile, s = piecewiseSurvivalTime)
 
 	expect_equal(y, time, tolerance = 1e-06)
-
 })
 
 test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers are as expected", {
@@ -249,7 +248,7 @@ test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers
 	piecewiseLambda <- c(0.003, 0.003, 0.003)
 	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda, kappa = 1))
-	expect_equal(y, piecewiseLambda[1], tolerance = 5e-04)
+	expect_equal(y, piecewiseLambda[1], tolerance = 0.005)
 
 })
 
@@ -261,8 +260,7 @@ test_that("'rpwexp': test that mean random numbers are as expected", {
 	piecewiseLambda <- c(0.003, 0.003, 0.003)
 	y <- 1 / mean(rpwexp(5000, s = piecewiseSurvivalTime, lambda = piecewiseLambda, kappa = 1))
 
-	expect_equal(y, piecewiseLambda[1], tolerance = 5e-04)
-
+	expect_equal(y, piecewiseLambda[1], tolerance = 0.005)
 })
 
 test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers are as expected ('piecewiseSurvivalTime' defined as list)", {
@@ -276,7 +274,7 @@ test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers
 	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, kappa = 1))
 
-	expect_equal(y, 0.003, tolerance = 5e-04)
+	expect_equal(y, 0.003, tolerance = 0.005)
 
 })
 
@@ -290,7 +288,7 @@ test_that("'rpwexp': test that mean random numbers are as expected ('piecewiseSu
 		">=22"      = 0.003)
 	y <- 1 / mean(rpwexp(5000, s = piecewiseSurvivalTime, kappa = 1))
 
-	expect_equal(y, 0.003, tolerance = 5e-04)
+	expect_equal(y, 0.003, tolerance = 0.005)
 
 })
 

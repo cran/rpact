@@ -15,8 +15,8 @@
 #:#  
 #:#  File name: test-f_simulation_base_survival.R
 #:#  Creation date: 18 May 2021, 17:48:09
-#:#  File version: $Revision: 4895 $
-#:#  Last changed: $Date: 2021-05-20 11:05:36 +0200 (Thu, 20 May 2021) $
+#:#  File version: $Revision: 5169 $
+#:#  Last changed: $Date: 2021-08-17 07:54:37 +0200 (Tue, 17 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -2160,7 +2160,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	)
 
 	x4 <- getSimulationSurvival(
-		pi2 = getPiByLambda(x1$.piecewiseSurvivalTime$lambda2, x1$eventTime),
+		pi2 = getPiByLambda(x1$.piecewiseSurvivalTime$lambda2, 12L),
 		hazardRatio = c(0.65, 0.7),
 		plannedEvents = 98,
 		maxNumberOfSubjects = 120,
@@ -2198,7 +2198,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 		maxNumberOfIterations = 1000,
 		sided = 1, alpha = 0.1, seed = 123
 	)
-
 
 	## Pairwise comparison of the results of x1 with the results of x2, x3, x4, x5, x6, and x7
 	expect_equal(x2$maxNumberOfIterations, x1$maxNumberOfIterations)
@@ -2307,7 +2306,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x4$dropoutRate1, x1$dropoutRate1)
 	expect_equal(x4$dropoutRate2, x1$dropoutRate2)
 	expect_equal(x4$dropoutTime, x1$dropoutTime)
-	expect_equal(x4$eventTime, x1$eventTime)
+#	expect_equal(x4$eventTime, x1$eventTime)
 	expect_equal(x4$thetaH0, x1$thetaH0)
 	expect_equal(x4$allocation1, x1$allocation1)
 	expect_equal(x4$allocation2, x1$allocation2)

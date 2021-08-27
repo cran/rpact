@@ -13,9 +13,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5151 $
+#:#  Last changed: $Date: 2021-08-12 16:11:43 +0200 (Thu, 12 Aug 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .getTestStatisticsMeans <- function(..., designNumber, informationRates, groups, normalApproximation, 
@@ -39,7 +39,7 @@
 		if (normalApproximation) {
 			value <- overallTestStatistic
 		} else {
-			value <- qnorm(pt(overallTestStatistic, sum(sampleSizesPerStage) - groups))
+			value <- stats::qnorm(pt(overallTestStatistic, sum(sampleSizesPerStage) - groups))
 		}
 
 	} else if (designNumber == 2L) {
@@ -47,7 +47,7 @@
 			if (normalApproximation) {
 				value <- testStatisticsPerStage[1]
 			} else {
-				value <- qnorm(pt(testStatisticsPerStage[1], sampleSizesPerStage[1] - groups))
+				value <- stats::qnorm(pt(testStatisticsPerStage[1], sampleSizesPerStage[1] - groups))
 			}	
 		} else {
 			if (normalApproximation) {
@@ -628,14 +628,14 @@ getSimulationMeans <- function(
 	criticalValues <- design$criticalValues
 	kMax <- design$kMax
 	cols <- length(alternative)
-	sampleSizes <- matrix(0, kMax, cols)
-	rejectPerStage <- matrix(0, kMax, cols)
+	sampleSizes <- matrix(0, nrow = kMax, ncol = cols)
+	rejectPerStage <- matrix(0, nrow = kMax, ncol = cols)
 	overallReject <- rep(0, cols)
 	futilityPerStage <- matrix(0, kMax - 1, cols)
 	futilityStop <- rep(0, cols)
-	iterations <- matrix(0, kMax, cols)
+	iterations <- matrix(0, nrow = kMax, ncol = cols)
 	expectedNumberOfSubjects <- rep(0, cols)
-	conditionalPowerAchieved <- matrix(NA_real_, kMax, cols)	
+	conditionalPowerAchieved <- matrix(NA_real_, nrow = kMax, ncol = cols)	
 	
 	len <- length(alternative) * maxNumberOfIterations * kMax
 	dataIterationNumber <- rep(NA_real_, len)

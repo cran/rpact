@@ -7,7 +7,7 @@
 \item{informationEpsilon}{Positive integer value specifying the information epsilon, which 
 defines the maximum distance from the observed information to the maximum information that causes the final analysis.
 Updates at the final analysis in case the observed information at the final 
-analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}.}
+analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}, default is 0.}
 }
 \description{
 Parameter Description: Information Epsilon

@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4981 $
-#:#  Last changed: $Date: 2021-06-10 11:58:01 +0200 (Do, 10 Jun 2021) $
+#:#  File version: $Revision: 5153 $
+#:#  Last changed: $Date: 2021-08-13 07:07:11 +0200 (Fr, 13 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -22,8 +22,7 @@
 NULL
 
 .getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
-	
-	if (Sys.getenv("RPACT_GS_PROBS_CLASSIC") %in% c("", "FALSE")) {
+	if (Sys.getenv("RPACT_ENGINE_CLASSIC_R") %in% c("", "FALSE")) {
 		return(getGroupSequentialProbabilitiesCpp(decisionMatrix, informationRates))	
 	}
 	
@@ -76,6 +75,7 @@ NULL
 					
 			seq2 <- stats::pnorm((decisionMatrix[2, k] * informationRatesSqrt[k] - x * 
 				informationRatesSqrt[k - 1]) / epsilonVecSqrt[k]) %*% dn
+
 			x2 <- x
 			dn2 <- dn
 			probs[, k] <- c(seq1, seq2, probs[2, k - 1] - probs[1, k - 1])
@@ -504,23 +504,23 @@ NULL
 	}
 	
 	scale <- .getOneDimensionalRoot(function(scale) {
-			design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
-			if (design$sided == 2) {
-				decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
-				probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
-				return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - design$alpha)
+		design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
+		if (design$sided == 2) {
+			decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
+			probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
+			return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - design$alpha)
+		} else {
+			if (design$bindingFutility) {
+				decisionMatrix <- matrix(c(design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
+					design$criticalValues), nrow = 2, byrow = TRUE)
 			} else {
-				if (design$bindingFutility) {
-					decisionMatrix <- matrix(c(design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT, 
-						design$criticalValues), nrow = 2, byrow = TRUE)
-				} else {
-					decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
-						design$criticalValues), nrow = 2, byrow = TRUE)
-				}
-				probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
-				return(sum(probs[3, ] - probs[2, ]) - design$alpha)
-			}									 
-		}, lower = 0, upper = 8, tolerance = design$tolerance, 
+				decisionMatrix <- matrix(c(rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax), 
+					design$criticalValues), nrow = 2, byrow = TRUE)
+			}
+			probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
+			return(sum(probs[3, ] - probs[2, ]) - design$alpha)
+		}									 
+	}, lower = 0, upper = 8, tolerance = design$tolerance, 
 		callingFunctionInformation = ".getDesignGroupSequentialWangAndTsiatis")
 	design$criticalValues <- scale * design$informationRates^(design$deltaWT - 0.5)
 	
@@ -530,6 +530,45 @@ NULL
 }
 
 .getDesignGroupSequentialPampallonaTsiatis <- function(design) {	
+	if (!(Sys.getenv("RPACT_GS_PT_CLASSIC_R") %in% c("", "FALSE"))) {
+		return(.getDesignGroupSequentialPampallonaTsiatisSlow(design))	
+	}
+	
+	cppResultList <- getDesignGroupSequentialPampallonaTsiatisCpp(
+		design$tolerance, design$beta, design$alpha, design$kMax, 
+		design$deltaPT0, design$deltaPT1, design$informationRates, 
+		design$sided, design$bindingFutility)
+	futilityBounds <- cppResultList[[1]]
+	rejectionBounds <- cppResultList[[2]]
+	probs <- cppResultList[[3]]
+	
+	if (design$sided == 1) {
+		design$betaSpent <- cumsum(probs[1, ])
+		design$power <- cumsum(probs[3, ] - probs[2, ])	
+	} else {
+		design$betaSpent <- cumsum(probs[3, ] - probs[2, ])
+		if (design$twoSidedPower) {
+			design$power <- cumsum(probs[5, ] - probs[4, ] + probs[1, ])
+		} else {
+			design$power <- cumsum(probs[5, ] - probs[4, ])
+		}	
+	}
+	design$.setParameterType("betaSpent", C_PARAM_GENERATED)
+	design$.setParameterType("power", C_PARAM_GENERATED)
+		
+	design$futilityBounds <- futilityBounds[1:(design$kMax - 1)]	
+	design$criticalValues <- rejectionBounds
+	design$.setParameterType("futilityBounds", C_PARAM_GENERATED)
+	design$.setParameterType("criticalValues", C_PARAM_GENERATED)
+	
+	.calculateAlphaSpent(design)
+
+	design$futilityBounds[design$futilityBounds == 0]  <- NA_real_
+
+	return(invisible(design))
+}
+
+.getDesignGroupSequentialPampallonaTsiatisSlow <- function(design) {	
 	deltaPT1 <- design$deltaPT1
 	deltaPT0 <- design$deltaPT0
 	informationRates <- design$informationRates
@@ -539,11 +578,11 @@ NULL
 		if (design$bindingFutility) {
 			prec2 <- 1
 			cLower2 <- 0
-			cUpper2 <- 8
+			cUpper2 <- 10
 			while (prec2 > design$tolerance) { 
 				c2m <- (cLower2 + cUpper2) / 2
 				prec1 <- 1
-				cUpper1 <- 8
+				cUpper1 <- 10
 				cLower1 <- 0
 				while (prec1 > design$tolerance) {
 					c1m <- (cLower1 + cUpper1) / 2
@@ -567,7 +606,7 @@ NULL
 			}
 		} else {
 			prec1 <- 1
-			cUpper1 <- 8
+			cUpper1 <- 10
 			cLower1 <- 0
 			while (prec1 > design$tolerance) {
 				c1m <- (cLower1 + cUpper1) / 2
@@ -681,7 +720,7 @@ NULL
 		design$.setParameterType("power", C_PARAM_GENERATED)	
 	}	
 	
-	design$futilityBounds <- futilityBounds[1 : (design$kMax - 1)]	
+	design$futilityBounds <- futilityBounds[1:(design$kMax - 1)]	
 	design$criticalValues <- rejectionBounds
 	
 	design$.setParameterType("futilityBounds", C_PARAM_GENERATED)
@@ -1068,7 +1107,7 @@ NULL
 					scale <- (cLower2 + cUpper2) / 2
 					futilityBounds[k] <- scale 
 					decisionMatrix <- matrix(c(futilityBounds - sqrt(design$informationRates) * shift, 
-									design$criticalValues - sqrt(design$informationRates) * shift), nrow = 2, byrow = TRUE)
+						design$criticalValues - sqrt(design$informationRates) * shift), nrow = 2, byrow = TRUE)
 					probs <- .getGroupSequentialProbabilities(decisionMatrix[, 1:k], design$informationRates[1:k])
 					ifelse(sum(probs[1, ]) < design$userBetaSpending[k], cLower2 <- scale, cUpper2 <- scale)
 					ifelse (iteration > 0, prec2 <- cUpper2 - cLower2, prec2 <- 0)
@@ -1084,7 +1123,8 @@ NULL
 			if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
 				alphaSpendingValue <- design$userAlphaSpending[1]
 			} else {
-				alphaSpendingValue <- .getSpendingValue(design$alpha, design$informationRates[1], design$sided, design$typeOfDesign, design$gammaA)
+				alphaSpendingValue <- .getSpendingValue(design$alpha, 
+					design$informationRates[1], design$sided, design$typeOfDesign, design$gammaA)
 			}	
 			design$criticalValues[1] <- stats::qnorm(1 - alphaSpendingValue / design$sided)
 			futilityBounds[1] <- stats::qnorm(design$userBetaSpending[1]) + sqrt(design$informationRates[1]) * shift 
@@ -1488,7 +1528,7 @@ getDesignInverseNormal <- function(
 			design$.setParameterType("futilityBounds", C_PARAM_NOT_APPLICABLE)
 		} 
 		else if (userFunctionCallEnabled && 
-				any(design$futilityBounds > design$criticalValues[1:(design$kMax - 1)] - 0.1, na.rm = TRUE)) {
+				any(design$futilityBounds > design$criticalValues[1:(design$kMax - 1)] - 0.01, na.rm = TRUE)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 				"'futilityBounds' (", .arrayToString(design$futilityBounds), ") too extreme for this situation")
 		}
@@ -1662,7 +1702,7 @@ getDesignCharacteristics <- function(design) {
 }
 
 .getDesignCharacteristics <- function(..., design, userFunctionCallEnabled = FALSE) {
-	
+
 	.assertIsTrialDesignInverseNormalOrGroupSequential(design)
 	.assertDesignParameterExists(design, "sided", C_SIDED_DEFAULT)
 	.assertIsValidSidedParameter(design$sided)	
@@ -1672,9 +1712,14 @@ getDesignCharacteristics <- function(design) {
 	}
 	
 	design$informationRates <- .getValidatedInformationRates(design, writeToDesign = FALSE)	
+	
+	if (design$typeOfDesign == C_TYPE_OF_DESIGN_PT && design$sided == 2 && design$kMax == 2) {
+		design$futilityBounds[is.na(design$futilityBounds)]  <- 0  ##  otherwise .getValidatedFutilityBounds returns -6 !
+	}	
+	
 	design$futilityBounds <- .getValidatedFutilityBounds(design, 
 			writeToDesign = FALSE, twoSidedWarningForDefaultValues = FALSE)
-	
+
 	designCharacteristics <- TrialDesignCharacteristics(design = design)
 	
 	designCharacteristics$rejectionProbabilities <- rep(NA_real_, design$kMax)
@@ -1711,6 +1756,7 @@ getDesignCharacteristics <- function(design) {
 	informationRates <- design$informationRates
 	
 	if (design$typeOfDesign == C_TYPE_OF_DESIGN_PT && design$sided == 2) {
+
 		design$futilityBounds[is.na(design$futilityBounds)] <- 0 
 		
 		shift <- .getOneDimensionalRoot(function(shift) {
@@ -1855,7 +1901,8 @@ getDesignCharacteristics <- function(design) {
 	designCharacteristics$inflationFactor <- shift / nFixed
 	designCharacteristics$.setParameterType("inflationFactor", C_PARAM_GENERATED) 
 	
-	if ((designCharacteristics$inflationFactor > 4) || (designCharacteristics$inflationFactor < 1 - 1e-08)) {
+	if (is.na(designCharacteristics$inflationFactor) || 
+			(designCharacteristics$inflationFactor > 4) || (designCharacteristics$inflationFactor < 1 - 1e-08)) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "Inflation factor cannot be calculated")
 	}
 	

@@ -7,7 +7,8 @@
 kable.ParameterSet(x)
 }
 \arguments{
-\item{x}{The object that inherits from \code{\link{ParameterSet}}.}
+\item{x}{A \code{ParameterSet}. If x does not inherit from class \code{\link{ParameterSet}}, 
+\code{knitr::kable(x)} will be returned.}
 }
 \description{
 The \code{kable()} function returns the output of the specified object formatted in Markdown.

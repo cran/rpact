@@ -104,7 +104,7 @@ design, default is \code{1}. For multi-arm designs, it is the allocation ratio r
 \item{informationEpsilon}{Positive integer value specifying the information epsilon, which 
 defines the maximum distance from the observed information to the maximum information that causes the final analysis.
 Updates at the final analysis in case the observed information at the final 
-analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}.}
+analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}, default is 0.}
 }
 \value{
 Returns an \code{\link{AnalysisResults}} object.
@@ -183,7 +183,22 @@ getAnalysisResults(design = dsnGS, dataInput = dataMeans, thetaH0 = 1.2)
 dsnIN <- getDesignInverseNormal()
 getAnalysisResults(design = dsnIN, dataInput = dataMeans, thetaH0 = 1.2)
 
-# Example 2 Multi-Arm Design
+
+# Example 2 Use Function Approach with Time to Event Data
+# Perform an analysis within a use function approach according to an 
+# O'Brien & Fleming type use function and survival data where  
+# where H0: hazard ratio = 1 is to be tested. The events were observed
+# over time and maxInformation = 120, informationEpsilon = 5 specifies 
+# that 116 > 120 - 5 observed events defines the final analysis.
+ 
+design <- getDesignGroupSequential(typeOfDesign = "asOF")  
+dataSurvival <- getDataset(
+		overallEvents = c(33, 72, 116),
+		overallLogRanks = c(1.33, 1.88, 1.902))
+getAnalysisResults(design, dataInput = dataSurvival, maxInformation = 120,
+	informationEpsilon = 5)
+ 
+# Example 3 Multi-Arm Design
 # In a four-stage combination test design with O'Brien & Fleming boundaries 
 # at the first stage the second treatment arm was dropped. With the Bonferroni 
 # intersection test, the results together with the CRP, conditional power 
@@ -219,7 +234,7 @@ y <- getAnalysisResults(design, dataInput = data,
 summary(y)
 plot(y, thetaRange = c(0,0.4))
 
-# Example 3 Enrichment Design
+# Example 4 Enrichment Design
 # Perform an two-stage enrichment design analysis with O'Brien & Fleming boundaries
 # where one sub-population (S1) and a full population (F) are considered as primary
 # analysis sets. At interim, S1 is selected for further analysis and the sample 

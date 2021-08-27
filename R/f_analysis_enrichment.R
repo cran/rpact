@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4949 $
-#:#  Last changed: $Date: 2021-05-31 17:20:36 +0200 (Mo, 31 Mai 2021) $
+#:#  File version: $Revision: 5147 $
+#:#  Last changed: $Date: 2021-08-12 14:11:48 +0200 (Thu, 12 Aug 2021) $
 #:#  Last changed by: $Author: wassmer $
 #:# 
 
@@ -213,7 +213,7 @@
 	}
 	
 	gMax <- stageResults$getGMax()	
-	conditionalRejectionProbabilities <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	conditionalRejectionProbabilities <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	weights <- .getWeightsInverseNormal(design)
 	informationRates <- design$informationRates
 	
@@ -276,7 +276,7 @@
 	weights <- .getWeightsFisher(design) 
 	intersectionTest <- stageResults$intersectionTest
 	
-	conditionalRejectionProbabilities <- matrix(rep(NA_real_, gMax * kMax), gMax, kMax)
+	conditionalRejectionProbabilities <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 	
 	if (design$bindingFutility) {
 		alpha0Vec <- design$alpha0Vec

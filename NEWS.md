@@ -1,4 +1,15 @@
 
+# rpact 3.1.1
+
+* Performance of two-sided Pampallona & Tsiatis design improved
+* 12 example datasets added
+* Sample sizes in plots now have the same format as in print output; format can be changed using setOutputFormat()
+* getDataset supports emmeans result objects as input
+* Print output of simulation results improved
+* Added dependency on R >= 3.5.0 because serialized objects in serialize/load version 3 cannot be read in older versions of R
+* Plot label interface for configuration via the rpact Shiny app implemented
+* Minor improvements
+
 # rpact 3.1.0
 
 ## New features
@@ -22,7 +33,7 @@
 * Repeated p-values: in search algorithm, upper bound of significance level corrected when considering binding futility bounds
 * testPackage: the default call is now running only a small subset of all available unit tests; with the new 
   argument 'connection' the owners of the rpact validation documentation 
-  can enter a \code{token} and a \code{secret} to get full access to all unit tests
+  can enter a 'token' and a 'secret' to get full access to all unit tests
 * Scaling of grid plots improved
 * Minor improvements
 

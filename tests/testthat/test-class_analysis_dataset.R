@@ -14,9 +14,9 @@
 #:#  Contact us for information about our services: info@rpact.com
 #:#  
 #:#  File name: test-class_analysis_dataset.R
-#:#  Creation date: 09 June 2021, 14:45:36
-#:#  File version: $Revision: 4977 $
-#:#  Last changed: $Date: 2021-06-09 15:58:25 +0200 (Wed, 09 Jun 2021) $
+#:#  Creation date: 25 June 2021, 09:14:02
+#:#  File version: $Revision: 5119 $
+#:#  Last changed: $Date: 2021-08-05 14:59:38 +0200 (Thu, 05 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:#  
 
@@ -2110,7 +2110,7 @@ test_that("Creation of a dataset of survival data with subsets", {
 
 })
 
-test_that("Illegal creation of a dataset of means with subsets", {
+test_that("Illegal creation of a dataset of means with subsets: invalid sample size", {
 
 	expect_error(getDataset(
 			sampleSize1 = c(NA,   NA),
@@ -2120,6 +2120,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 			stDev1      = c(NA,   NA),
 			stDev2      = c(NA,   NA)), 
 		"Illegal argument: 'sampleSize1' is NA at first stage; a valid numeric value must be specified at stage 1", fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of means with subsets: too small standard deviation (one subset)", {
 
 	S1 <- getDataset(
 		sampleSize1 = c(12, 21),
@@ -2140,6 +2144,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 	expect_error(getDataset(S1 = S1, F = F), 
 		"Conflicting arguments: 'stDev' F (125.148) must be > 'stDev' S1 (128.5) in group 1 at stage 1", fixed = TRUE)
 
+})
+
+test_that("Illegal creation of a dataset of means with subsets: too small sample size in F (one group)", {
+
 	S1 <- getDataset(
 		sampleSize1 = c(12, 21),
 		sampleSize2 = c(30, 21),
@@ -2158,6 +2166,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 
 	expect_error(getDataset(S1 = S1, F = F), 
 		"Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (30) in group 2 at stage 1", fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of means with subsets: wrong deselection (one group)", {
 
 	S1 <- getDataset(
 		sampleSize1 = c(   12,   NA),
@@ -2178,6 +2190,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 	expect_error(getDataset(S1 = S1, R = R), 
 		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be deselected (NA) ",
 			"but, e.g., 'sampleSize' R is 21 in group 1 at stage 2"), fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of means with subsets: inconsistent number of stages", {
 
 	## S1
 	expect_error(getDataset(
@@ -2210,6 +2226,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 		paste0("Conflicting arguments: all subsets must have the identical ",
 			"number of stages defined (kMax: S1 = 2, R = 3)"), fixed = TRUE)
 
+})
+
+test_that("Illegal creation of a dataset of means with subsets: too small standard deviation in F (two subsets)", {
+
 	S1N <- getDataset(
 		sampleSize1 = c(   39,    34,   NA), 
 		sampleSize2 = c(   33,    45,   NA), 
@@ -2239,6 +2259,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 		paste0("Conflicting arguments: 'stDev' F (140.468) must ",
 		"be > 'stDev' S1 (156.503) in group 1 at stage 1"), fixed = TRUE)
 
+})
+
+test_that("Illegal creation of a dataset of means with subsets: too small sample size in F (two subsets)", {
+
 	S1N <- getDataset(
 		sampleSize1 = c(   39,    34,   NA), 
 		sampleSize2 = c(   33,    45,   NA), 
@@ -2267,6 +2291,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 	expect_error(getDataset(S1 = S1N, S2 = S2N, F = F), 
 		paste0("Conflicting arguments: 'sampleSize' F (30) must ",
 		"be >= 'sampleSize' S1 (39) in group 1 at stage 1"), fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of means with subsets: wrong deselection (three subsets)", {
 
 	S1 <- getDataset(
 		sampleSize2 = c(   12,    33,   21), 
@@ -2304,6 +2332,10 @@ test_that("Illegal creation of a dataset of means with subsets", {
 		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be deselected ", 
 			"(NA) but, e.g., 'sampleSize' R is 19 in group 1 at stage 2"), fixed = TRUE)
 
+})
+
+test_that("Valid creation of a dataset of means with subsets: no error occurs", {
+
 	S1 <- getDataset(
 		sampleSize2 = c(   12,    33,   21), 
 		sampleSize1 = c(   18,    17,   23), 
@@ -2340,7 +2372,7 @@ test_that("Illegal creation of a dataset of means with subsets", {
 
 })
 
-test_that("Illegal creation of a dataset of rates with subsets", {
+test_that("Illegal creation of a dataset of rates with subsets: too small number of events in F (one subset)", {
 
 	S1 <- getDataset(
 		sampleSize1 = c(  22,   31,   37), 
@@ -2359,6 +2391,10 @@ test_that("Illegal creation of a dataset of rates with subsets", {
 	expect_error(getDataset(S1 = S1, F = F), 
 		paste0("Conflicting arguments: 'event' F (16) must be >= 'event' S1 (17) in group 1 at stage 1"), fixed = TRUE)
 
+})
+
+test_that("Illegal creation of a dataset of rates with subsets: too small sample size in F (one subset)", {
+
 	S1 <- getDataset(
 		sampleSize1 = c(  22,   31,   37), 
 		sampleSize2 = c(  28,   33,   39), 
@@ -2375,6 +2411,10 @@ test_that("Illegal creation of a dataset of rates with subsets", {
 
 	expect_error(getDataset(S1 = S1, F = F), 
 		paste0("Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (31) in group 1 at stage 2"), fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (one subset)", {
 
 	S1 <- getDataset(
 		sampleSize1 = c(  22,   31,  NA), 
@@ -2393,6 +2433,10 @@ test_that("Illegal creation of a dataset of rates with subsets", {
 	expect_error(getDataset(S1 = S1, R = R), 
 		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be ",
 		"deselected (NA) but, e.g., 'sampleSize' R is 37 in group 1 at stage 3"), fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of rates with subsets: too small sample size in F (three subsets)", {
 
 	S1 <- getDataset(
 		sampleSize1 = c(  84,   94,   25), 
@@ -2426,6 +2470,10 @@ test_that("Illegal creation of a dataset of rates with subsets", {
 		paste0("Conflicting arguments: 'sampleSize' F (248) must ",
 		"be >= 'sampleSize' S3 (271) in group 1 at stage 1"), fixed = TRUE)
 
+})
+
+test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (three subsets)", {
+
 	S1 <- getDataset(
 		sampleSize1 = c(  47,   33,   37), 
 		sampleSize2 = c(  48,   47,   39), 
@@ -2458,6 +2506,10 @@ test_that("Illegal creation of a dataset of rates with subsets", {
 		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be ",
 		"deselected (NA) but, e.g., 'sampleSize' R is 43 in group 1 at stage 2"), fixed = TRUE)
 
+})
+
+test_that("Creation of a dataset of rates with subsets: empty subsets", {
+
 	S1 <- getDataset(
 		sampleSize1 = c(  84,   94,   25), 
 		sampleSize2 = c(  82,   75,   23), 
@@ -2488,6 +2540,10 @@ test_that("Illegal creation of a dataset of rates with subsets", {
 
 	expect_warning(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R), 
 		"The 4 undefined subsets S12, S13, S123, S23 were defined as empty subsets", fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (R)", {
 
 	S1 <- getDataset(
 		sampleSize1 = c(  84,   94,   25), 
@@ -2523,7 +2579,7 @@ test_that("Illegal creation of a dataset of rates with subsets", {
 
 })
 
-test_that("Illegal creation of a dataset of survival data with subsets", {
+test_that("Illegal creation of a dataset of survival data with subsets: too small number of events (one group)", {
 
 	S1 <- getDataset(
 		events = c(37, 56, 22),
@@ -2540,6 +2596,10 @@ test_that("Illegal creation of a dataset of survival data with subsets", {
 	expect_error(getDataset(S1 = S1, F = F), 
 		paste0("Conflicting arguments: 'event' F (55) must be >= ",
 		"'event' S1 (56) in group 1 at stage 2"), fixed = TRUE)
+
+})
+
+test_that("Illegal creation of a dataset of survival data with subsets: wrong deselection (one group)", {
 
 	S1 <- getDataset(
 		overallExpectedEvents = c(13.3, NA, NA),
@@ -2559,6 +2619,10 @@ test_that("Illegal creation of a dataset of survival data with subsets", {
 		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must ",
 		"be deselected (NA) but, e.g., 'overallEvent' R is 38 in group 1 at stage 2"), fixed = TRUE)
 
+})
+
+test_that("Creation of a dataset of survival data with subsets: no error occurs", {
+
 	S1 <- getDataset(
 		events = c(37, 13, 26),
 		logRanks = -c(1.66, 1.239, 0.785)
@@ -2575,6 +2639,10 @@ test_that("Illegal creation of a dataset of survival data with subsets", {
 	)
 
 	expect_error(getDataset(S1 = S1, S2 = S2, F = F), NA)
+
+})
+
+test_that("Illegal creation of a dataset of survival data with subsets: too small number of events (two groups)", {
 
 	S1 <- getDataset(
 		events = c(37, 13, 26),
@@ -2595,37 +2663,55 @@ test_that("Illegal creation of a dataset of survival data with subsets", {
 		paste0("Conflicting arguments: 'event' F (30) must be ",
 		">= 'event' S1 (37) in group 1 at stage 1"), fixed = TRUE)
 
+})
+
+test_that("Illegal creation of a dataset of survival data with subsets: inconsistent deselection", {
+
+	expect_error(getDataset(
+					overallExpectedEvents = c(13.4, 35.4, 43.7),
+					overallEvents = c(16, 37, 47),		
+					overallVarianceEvents = c(2.8, 4.7, 3.4),
+					overallAllocationRatios = c(1, 1, NA)
+			), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
+					"mandatory for each parameter at the same stage"), fixed = TRUE)
+	
 	S1 <- getDataset(
-		overallExpectedEvents = c(13.4, 35.4, 43.7),
-		overallEvents = c(16, 37, 47),		
-		overallVarianceEvents = c(2.8, 4.7, 3.4),
-		overallAllocationRatios = c(1, 1, 1)
+			overallExpectedEvents = c(13.4, 35.4, 43.7),
+			overallEvents = c(16, 37, 47),		
+			overallVarianceEvents = c(2.8, 4.7, 3.4),
+			overallAllocationRatios = c(1, 1, 1)
 	)
-
+	
+	expect_error(getDataset(
+					overallExpectedEvents = c(11.5, 31.1, NA),
+					overallEvents = c(15, 33, NA),		
+					overallVarianceEvents = c(2.2, 4.4, NA),
+					overallAllocationRatios = c(1, 1, 1)
+			), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
+					"mandatory for each parameter at the same stage"), fixed = TRUE)
+	
 	S2 <- getDataset(
-		overallExpectedEvents = c(11.5, 31.1, NA),
-		overallEvents = c(15, 33, NA),		
-		overallVarianceEvents = c(2.2, 4.4, NA),
-		overallAllocationRatios = c(1, 1, 1)
+			overallExpectedEvents = c(11.5, 31.1, NA),
+			overallEvents = c(15, 33, NA),		
+			overallVarianceEvents = c(2.2, 4.4, NA),
+			overallAllocationRatios = c(1, 1, NA)
 	)
-
+	
 	S12 <- getDataset(
-		overallExpectedEvents = c(10.1, 29.6, 39.1),
-		overallEvents = c(11, 31, 42),		
-		overallVarianceEvents = c(2.8, 4.7, 3.4),
-		overallAllocationRatios = c(1, 1, 1)
+			overallExpectedEvents = c(10.1, 29.6, 39.1),
+			overallEvents = c(11, 31, 42),		
+			overallVarianceEvents = c(2.8, 4.7, 3.4),
+			overallAllocationRatios = c(1, 1, 1)
 	)
-
+	
 	R <- getDataset(
-		overallExpectedEvents = c(23.3, NA, NA),
-		overallEvents = c(25, NA, NA),		
-		overallVarianceEvents = c(3.9, NA, NA),
-		overallAllocationRatios = c(1, 1, 1)
+			overallExpectedEvents = c(23.3, NA, NA),
+			overallEvents = c(25, NA, NA),		
+			overallVarianceEvents = c(3.9, NA, NA),
+			overallAllocationRatios = c(1, NA, NA)
 	)
-
-	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
-		paste0("Conflicting arguments: inconsistent deselction in group 1 at stage 3 ",
-		"(overallEvent, overallExpectedEvent, ...: all or none must be NA)"), fixed = TRUE)
+	
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), NA)
 
 })
 

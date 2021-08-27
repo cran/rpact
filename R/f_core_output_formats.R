@@ -1,5 +1,5 @@
 #:#
-#:#  *RPACT output formats*
+#:#  *Output formats*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -13,8 +13,8 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4049 $
-#:#  Last changed: $Date: 2020-11-30 10:44:36 +0100 (Mon, 30 Nov 2020) $
+#:#  File version: $Revision: 5163 $
+#:#  Last changed: $Date: 2021-08-16 15:05:56 +0200 (Mo, 16 Aug 2021) $
 #:#  Last changed by: $Author: pahlke $
 #:# 
 
@@ -44,8 +44,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	"rpact.output.format.ratio" = "digits = 3", 
 	"rpact.output.format.st.dev" = "digits = 4", 
 	"rpact.output.format.duration" = "digits = 2, nsmall = 2", 
-	"rpact.output.format.time" = "digits = 2, nsmall = 2",
-	"rpact.output.format.simulation.result" = "digits = 3, trimSingleZeroes = TRUE"
+	"rpact.output.format.time" = "digits = 2, nsmall = 2"
 )
 
 .getFormattedValue <- function(value, ..., digits, nsmall = NA_integer_, 
@@ -672,25 +671,6 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 3))
 }
 
-# 
-# @title 
-# Format Simulation Output
-# 
-# @description 
-# Formats the output of simulations.
-# 
-# @details
-# Digits = 3
-# 
-.formatSimulationResults <- function(value) {
-	x <- .getOptionBasedFormattedValue("rpact.output.format.simulation.results", 
-		value = value, digits = 3, trimSingleZeroes = TRUE)
-	if (!is.null(x)) {
-		return(x)
-	}
-	return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 3))
-}
-
 .formatHowItIs <- function(value) {
 	return(format(value, scientific = FALSE))
 }
@@ -1111,7 +1091,6 @@ getOutputFormat <- function(parameterName = NA_character_, ...,
 	if (key == "rpact.output.format.st.dev") { return(".formatStDevs") }
 	if (key == "rpact.output.format.duration") { return(".formatDurations") }
 	if (key == "rpact.output.format.time") { return(".formatTime") }
-	if (key == "rpact.output.format.simulation.result") { return(".formatSimulationResults") }
 	return(NULL)
 }
 

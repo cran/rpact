@@ -1,6 +1,6 @@
 
 #:#
-#:#  *Simulation of multiarm design with combination test and conditional error approach*
+#:#  *Simulation of multi-arm design with combination test and conditional error approach*
 #:# 
 #:#  This file is part of the R package rpact: 
 #:#  Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -14,9 +14,9 @@
 #:# 
 #:#  Contact us for information about our services: info@rpact.com
 #:# 
-#:#  File version: $Revision: 4947 $
-#:#  Last changed: $Date: 2021-05-31 14:31:17 +0200 (Mo, 31 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
+#:#  File version: $Revision: 5147 $
+#:#  Last changed: $Date: 2021-08-12 14:11:48 +0200 (Thu, 12 Aug 2021) $
+#:#  Last changed by: $Author: wassmer $
 #:# 
 
 .getIndicesOfClosedHypothesesSystemForSimulation <- function(gMax) {
@@ -77,7 +77,7 @@
 	return(selectedArms)
 }
 
-.performClosedCombinationTestForSimulation <- function(..., 
+.performClosedCombinationTestForSimulationMultiArm <- function(..., 
 		stageResults, design, indices, intersectionTest, successCriterion) {
 
 	if (.isTrialDesignGroupSequential(design) && (design$kMax > 1)) {
@@ -88,13 +88,13 @@
 	gMax <- nrow(stageResults$testStatistics)
 	kMax <- design$kMax
 	
-	adjustedStageWisePValues <- matrix(rep(NA_real_, kMax * (2^gMax - 1)), 2^gMax - 1, kMax)
-	overallAdjustedTestStatistics <- matrix(rep(NA_real_, kMax * (2^gMax - 1)), 2^gMax - 1, kMax)
-	rejected <- matrix(rep(FALSE, gMax * kMax), gMax, kMax)
-	rejectedIntersections <- matrix(rep(FALSE, kMax * nrow(indices)), nrow(indices), kMax)
-	futility <- matrix(rep(FALSE, gMax * (kMax - 1)), gMax, kMax - 1)
-	futilityIntersections <- matrix(rep(FALSE, (kMax - 1) * nrow(indices)), nrow(indices), kMax - 1)
-	rejectedIntersectionsBefore <- matrix(rep(FALSE, nrow(indices)), nrow(indices), 1)
+	adjustedStageWisePValues <- matrix(NA_real_, nrow = 2^gMax - 1, ncol = kMax)
+	overallAdjustedTestStatistics <- matrix(NA_real_, nrow = 2^gMax - 1, ncol = kMax)
+	rejected <- matrix(FALSE, nrow = gMax, ncol = kMax)
+	rejectedIntersections <- matrix(FALSE,nrow =  nrow(indices), ncol = kMax)
+	futility <- matrix(FALSE, nrow = gMax, ncol = kMax - 1)
+	futilityIntersections <- matrix(FALSE, nrow = nrow(indices), ncol = kMax - 1)
+	rejectedIntersectionsBefore <- matrix(FALSE, nrow = nrow(indices), ncol = 1)
 	successStop <- rep(FALSE, kMax)
 	futilityStop <- rep(FALSE, kMax - 1)
 	
@@ -256,10 +256,10 @@
 	
 	frac <- rep(stageResults$allocationRatioPlanned, gMax) / (1 + stageResults$allocationRatioPlanned)
 	
-	conditionalErrorRate <- matrix(rep(NA_real_, 2 * (2^gMax - 1)), 2^gMax - 1, 2)
-	secondStagePValues <- matrix(rep(NA_real_, 2 * (2^gMax - 1)), 2^gMax - 1, 2)
-	rejected <- matrix(rep(FALSE, gMax * 2), gMax, 2)
-	rejectedIntersections <- matrix(rep(FALSE, kMax * nrow(indices)), nrow(indices), kMax)
+	conditionalErrorRate <- matrix(NA_real_, nrow = 2^gMax - 1, ncol = 2)
+	secondStagePValues <- matrix(NA_real_, nrow = 2^gMax - 1, ncol = 2)
+	rejected <- matrix(FALSE, nrow = gMax, ncol = 2)
+	rejectedIntersections <- matrix(FALSE, nrow = nrow(indices), ncol = kMax)
 	futilityStop <- FALSE
 	successStop <- rep(FALSE, kMax)
 	
@@ -460,6 +460,7 @@
 	
 	intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest, userFunctionCallEnabled = TRUE)
 	.assertIsValidIntersectionTestMultiArm(design, intersectionTest)
+	
 	typeOfSelection <- .assertIsValidTypeOfSelection(typeOfSelection, rValue, epsilonValue, activeArms)
 	if (length(typeOfSelection) == 1 && typeOfSelection == "userDefined" && 
 			!is.null(threshold) && length(threshold) == 1 && threshold != -Inf) {
