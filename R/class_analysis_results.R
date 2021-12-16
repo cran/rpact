@@ -1,22 +1,22 @@
-#:#
-#:#  *Analysis result classes*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5177 $
-#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:# 
+## |
+## |  *Analysis result classes*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5577 $
+## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  Last changed by: $Author: pahlke $
+## | 
 
 #'
 #' @name ConditionalPowerResults
@@ -699,7 +699,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				
 				generatedParams <- .getGeneratedParameters()
 				generatedParams <- generatedParams[!(generatedParams %in% 
-					c("assumedStDevs", "thetaH1", "pi1", "pi2", "piTreatment", "piTreatments", "piControl", "piControls"))]
+					c("assumedStDevs", "thetaH1", "pi1", "pi2", "piTreatments", "piTreatments", "piControl", "piControls"))]
 				
 				if (grepl("(MultiArm|Dunnett|Enrichment)", class(.self))) {
 					.showParametersOfOneGroup(generatedParams, "Further analysis results",

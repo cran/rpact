@@ -1,22 +1,22 @@
-#:#
-#:#  *Core utilities*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5130 $
-#:#  Last changed: $Date: 2021-08-10 08:14:31 +0200 (Di, 10 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:# 
+## |
+## |  *Core utilities*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5639 $
+## |  Last changed: $Date: 2021-12-10 11:59:33 +0100 (Fri, 10 Dec 2021) $
+## |  Last changed by: $Author: pahlke $
+## | 
 
 #' @include f_core_constants.R
 NULL
@@ -32,6 +32,15 @@ utils::globalVariables(".parallelComputingArguments")
 .getLogicalEnvironmentVariable <- function(variableName) {
 	result <- as.logical(Sys.getenv(variableName))
 	return(ifelse(is.na(result), FALSE, result))
+}
+
+.getPackageName <- function(functionName) {
+    .assertIsSingleCharacter(functionName, "functionName")
+    tryCatch({
+        return(environmentName(environment(get(functionName))))
+    }, error = function(e) {
+        return(NA_character_)
+    })
 }
 
 #'
@@ -300,13 +309,13 @@ resetLogLevel <- function() {
 # 
 # @keywords internal
 #
-.getOptionalArgument <- function(optionalArgumentName, ...) {
+.getOptionalArgument <- function(optionalArgumentName, ..., optionalArgumentDefaultValue = NULL) {
 	args <- list(...)
 	if (optionalArgumentName %in% names(args)) {
 		return(args[[optionalArgumentName]])
 	}
 	
-	return(NULL)
+	return(optionalArgumentDefaultValue)
 }
 
 .isUndefinedArgument <- function(arg) {		
@@ -368,12 +377,53 @@ resetLogLevel <- function() {
 	
 }
 
-.arrayToString <- function(x, separator = ", ", 
+.getConcatenatedValues <- function(x, separator = ", ",  mode = c("csv", "vector", "and", "or")) {
+	if (is.null(x) || length(x) <= 1) {
+		return(x)
+	}
+	
+	mode <- match.arg(mode)
+	if (mode %in% c("csv", "vector")) {
+		result <- paste(x, collapse = separator)
+		if (mode == "vector") {
+			result <- paste0("c(", result, ")")
+		}
+		return(result)
+	}
+	
+	if (length(x) == 2) {
+		return(paste(x, collapse = paste0(" ", mode, " ")))
+	}
+	
+	space <- ifelse(grepl(" $", separator), "", " ")
+	part1 <- x[1:length(x) - 1]
+	part2 <- x[length(x)]
+	return(paste0(paste(part1, collapse = separator), separator, space, mode, " ", part2))
+}
+
+#.getConcatenatedValues(1)
+#.getConcatenatedValues(1:2)
+#.getConcatenatedValues(1:3)
+#.getConcatenatedValues(1, mode = "vector")
+#.getConcatenatedValues(1:2, mode = "vector")
+#.getConcatenatedValues(1:3, mode = "vector")
+#.getConcatenatedValues(1, mode = "and")
+#.getConcatenatedValues(1:2, mode = "and")
+#.getConcatenatedValues(1:3, mode = "and")
+#.getConcatenatedValues(1, mode = "or")
+#.getConcatenatedValues(1:2, mode = "or")
+#.getConcatenatedValues(1:3, mode = "or")
+#.getConcatenatedValues(1, mode = "or", separator = ";")
+#.getConcatenatedValues(1:2, mode = "or", separator = ";")
+#.getConcatenatedValues(1:3, mode = "or", separator = ";")
+
+.arrayToString <- function(x, ..., separator = ", ", 
 		vectorLookAndFeelEnabled = FALSE, 
 		encapsulate = FALSE,
 		digits = 3,
 		maxLength = 80L,
-		maxCharacters = 160L) {
+		maxCharacters = 160L, 
+		mode = c("csv", "vector", "and", "or")) {
 		
 	if (!is.na(digits) && digits < 0) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'digits' (", digits, ") must be >= 0")
@@ -402,7 +452,12 @@ resetLogLevel <- function() {
 		} else {
 			indices <- which(!is.na(x))
 		}
-		x[indices] <- round(x[indices], digits)
+		x[indices] <- as.character(round(x[indices], digits))
+	}
+	
+	mode <- match.arg(mode)
+	if (mode == "csv" && vectorLookAndFeelEnabled) {
+		mode <- "vector"
 	}
 	
 	if (is.matrix(x) && nrow(x) > 1 && ncol(x) > 1) {
@@ -414,11 +469,7 @@ resetLogLevel <- function() {
 			}
 			result <- c(result, paste0("(", paste(row, collapse = separator), ")"))
 		}
-		result <- paste(result, collapse = separator)
-		if (vectorLookAndFeelEnabled) {
-			result <- paste0("c(", result, ")")
-		}
-		return(result)
+		return(.getConcatenatedValues(result, separator = separator, mode = mode))
 	}
 	
 	if (encapsulate) {
@@ -429,11 +480,7 @@ resetLogLevel <- function() {
 		x <- c(x[1:maxLength], "...")
 	}
 	
-	s <- paste(x, collapse = separator)
-	if (vectorLookAndFeelEnabled && length(x) > 1) {
-		s <- paste0("c(", s, ")")
-	}
-	
+	s <- .getConcatenatedValues(x, separator = separator, mode = mode)
 	if (nchar(s) > maxCharacters && length(x) > 1) {
 		s <- x[1]
 		index <- 2
@@ -1065,9 +1112,10 @@ resetLogLevel <- function() {
 	return(substr(line, indexStart, indexEnd))
 }
 
+# testFileTargetDirectory <- "D:/R/_temp/test_debug"
 .downloadUnitTests <- function(testFileTargetDirectory, ..., token, secret, 
 		method = "auto", mode = "wb", cacheOK = TRUE, extra = getOption("download.file.extra"),
-		cleanOldFiles = TRUE, connectionType = c("http", "ftp")) {
+		cleanOldFiles = TRUE, connectionType = c("http", "ftp", "pkg")) {
 		
 	.assertIsSingleCharacter(testFileTargetDirectory, "testFileTargetDirectory")
 	.assertIsSingleCharacter(token, "token")
@@ -1094,11 +1142,66 @@ resetLogLevel <- function() {
 			testthatSubDirectory = testthatSubDirectory, 
 			token = token, secret = secret, method = method, mode = mode, 
 			cacheOK = cacheOK, extra = extra))
-	} else {
+	} else if (connectionType == "http") {
 		suppressWarnings(.downloadUnitTestsViaHttp(testFileTargetDirectory = testFileTargetDirectory, 
 			testthatSubDirectory = testthatSubDirectory, 
 			token = token, secret = secret))
+	} else if (connectionType == "pkg") {
+		.prepareUnitTestFiles(extra, testFileTargetDirectory, token, secret)
 	}
+}
+
+.prepareUnitTestFiles <- function(packageSource, testFileTargetDirectory, token, secret) {
+	if (is.null(packageSource)) {
+		return(invisible())
+	}
+
+	.assertIsValidCipher("token", token)
+	.assertIsValidCipher("secret", secret)
+	
+	.assertIsSingleCharacter(packageSource, "packageSource")
+	if (!file.exists(packageSource)) {
+		warning(sQuote("packageSource"), " (", packageSource, ") does not exist")
+	}
+	
+	if (!grepl("\\.tar\\.gz$", packageSource)) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "file ", sQuote(packageSource), " must have a .tar.gz extension")
+	}
+	
+	unlinkFile <- FALSE
+	if (grepl("^http", packageSource)) {
+		tempFile <- tempfile(fileext = ".tar.gz")
+		if (utils::download.file(packageSource, tempFile) != 0) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, sQuote(packageSource), " seems to be an invalid URL")
+		}
+		packageSource <- tempFile
+		unlinkFile <- TRUE
+	}
+	
+	testthatTempDirectory <- NULL
+	tryCatch({	
+		contentLines <- utils::untar(packageSource, list = TRUE)
+		if (!("rpact/DESCRIPTION" %in% contentLines) || !("rpact/tests/testthat/" %in% contentLines)) {
+			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "file ", sQuote(packageSource), " is not an rpact package source file")
+		}
+		
+		testthatTempDirectory <- file.path(testFileTargetDirectory, "temp")
+		utils::untar(packageSource, files = c("rpact/tests/testthat.R", 
+				"rpact/tests/testthat/"), exdir = testthatTempDirectory)
+		testthatTempSubDirectory <- file.path(testthatTempDirectory, "rpact", "tests")
+		testFiles <- list.files(testthatTempSubDirectory, pattern = "\\.R$", recursive = TRUE)
+		for (testFile in testFiles) {
+			file.copy(file.path(testthatTempSubDirectory, testFile), file.path(testFileTargetDirectory, testFile))
+		}
+		message(length(testFiles), " extracted from ", sQuote(packageSource), " and copied to ", sQuote(testFileTargetDirectory))
+	}, finally = {
+		if (!is.null(testthatTempDirectory)) {
+			unlink(testthatTempDirectory, recursive = TRUE)
+		}
+		if (unlinkFile) {
+			unlink(packageSource)
+		}
+	})
 }
 
 .downloadUnitTestsViaHttp <- function(testFileTargetDirectory, ..., testthatSubDirectory, token, secret) {
@@ -1106,6 +1209,13 @@ resetLogLevel <- function() {
 	tryCatch({
 		version <- utils::packageVersion("rpact")
 		baseUrl <- paste0("http://", token, ":", secret, "@unit.tests.rpact.com/", version, "/tests/")
+		
+		if (!dir.exists(testFileTargetDirectory)) {
+			dir.create(testFileTargetDirectory)
+		} 
+		if (!dir.exists(testthatSubDirectory)) {
+			dir.create(testthatSubDirectory)
+		} 
 		
 		testthatBaseFile <- system.file("tests", "testthat.R", package = "rpact")
 		if (file.exists(testthatBaseFile)) {
@@ -1291,7 +1401,7 @@ testPackage <- function(outDir = ".", ...,
 		completeUnitTestSetEnabled = TRUE, 
 		types = "tests", 
 		connection = list(token = NULL, secret = NULL)) {
-	
+
 	.assertTestthatIsInstalled()
 	.assertMnormtIsInstalled()
 		
@@ -1319,7 +1429,9 @@ testPackage <- function(outDir = ".", ...,
 
 	token <- .getConnectionArgument(connection, "token")
 	secret <- .getConnectionArgument(connection, "secret")
-	fullTestEnabled <- (!is.null(token) && !is.null(secret))
+	fullTestEnabled <- (!is.null(token) && !is.null(secret) &&
+		length(token) == 1 && length(secret) == 1 &&
+		!is.na(token) && !is.na(secret))
 	
 	if (completeUnitTestSetEnabled && fullTestEnabled) {
 		cat("Run all tests. Please wait...\n")
@@ -1583,7 +1695,11 @@ printCitation <- function(inclusiveR = TRUE) {
 
 .readLinesFromFile <- function(inputFileName) {
 	content <- .readContentFromFile(inputFileName)	
-	return(strsplit(content, "\r\n", fixed = TRUE)[[1]])
+	
+	# Windows: CR (Carriage Return \r) and LF (LineFeed \n) pair
+	# OSX, Linux: LF (LineFeed \n)
+	
+	return(strsplit(content, split = "(\r?\n)|(\r\n?)")[[1]])
 }
 
 .readContentFromFile <- function(inputFileName) {
@@ -1931,9 +2047,12 @@ getParameterName <- function(obj, parameterCaption) {
 	if (is.null(x)) {
 		return("NULL")
 	}
-	
+    
 	if (length(x) == 0) {
-		if (is.character(x)) {
+		if (is.list(x)) {
+			return("list()")
+		}
+		else if (is.character(x)) {
 			return("character(0)")
 		}
 		else if (is.integer(x)) {
@@ -1966,6 +2085,15 @@ getParameterName <- function(obj, parameterCaption) {
 		}
 		return("NA")
 	}
+    
+    if (is.list(x)) {
+        params <- c()
+        for (paramName in names(x)) {
+            paramValue <- x[[paramName]]
+            params <- c(params, paste0(paramName, " = ", .getArgumentValueRCode(x = paramValue, name = paramName)))
+        }
+        return(paste0("list(", paste0(params, collapse = ", "), ")"))
+    }
 	
 	leadingZeroAdded <- FALSE
 	expectedResult <- ""
@@ -1993,7 +2121,7 @@ getParameterName <- function(obj, parameterCaption) {
 	if (leadingZeroAdded || length(x) > 1) {
 		expectedResult <- paste0("c(", expectedResult, ")")
 	}
-	if (is.matrix(x) && name == "effectMatrix") {
+	if (is.matrix(x) && grepl("effectMatrix|effects|piTreatments|hazardRatios", name)) {
 		expectedResult <- paste0("matrix(", expectedResult, ", ncol = ", ncol(x), ")")
 	}
 	return(expectedResult)
@@ -2097,44 +2225,62 @@ getObjectRCode <- function(obj, ...,
 	}
 	if (!inherits(obj, "ConditionalPowerResults") &&
 			!is.null(obj[[".design"]]) && (is.null(leadingArguments) || !any(grepl("design", leadingArguments)))) {
-		preconditionDesign <- getObjectRCode(obj$.design, prefix = "design <- ", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth)
+		preconditionDesign <- getObjectRCode(obj$.design, prefix = "design <- ",
+			includeDefaultParameters = includeDefaultParameters,
+			stringWrapParagraphWidth = stringWrapParagraphWidth,
+			newArgumentValues = newArgumentValues)
 		if (paste0(preconditionDesign, collapse = " ") != "design <- getDesignGroupSequential(kMax = 1)") {
 			precondition <- c(precondition, preconditionDesign)
 			leadingArguments <- c(leadingArguments, "design = design")
 		}
 	}
 	if (!is.null(obj[[".dataInput"]]) && (is.null(leadingArguments) || !any(grepl("data", leadingArguments)))) {
-		precondition <- c(precondition, getObjectRCode(obj$.dataInput, prefix = "data <- ", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth))
+		precondition <- c(precondition, getObjectRCode(obj$.dataInput, prefix = "data <- ",
+			includeDefaultParameters = includeDefaultParameters,
+			stringWrapParagraphWidth = stringWrapParagraphWidth,
+			newArgumentValues = newArgumentValues))
 		leadingArguments <- c(leadingArguments, "dataInput = data")
 	}
 	if (!is.null(obj[["calcSubjectsFunction"]]) && 
 			(is.null(leadingArguments) || !any(grepl("calcSubjectsFunction", leadingArguments))) &&
 			obj$.getParameterType("calcSubjectsFunction") == C_PARAM_USER_DEFINED) {
 		precondition <- c(precondition, getObjectRCode(obj$calcSubjectsFunction, prefix = "calcSubjectsFunction <- ", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth))
+			includeDefaultParameters = includeDefaultParameters,
+			stringWrapParagraphWidth = stringWrapParagraphWidth,
+			newArgumentValues = newArgumentValues))
 	}
 	if (!is.null(obj[["calcEventsFunction"]]) && 
 			(is.null(leadingArguments) || !any(grepl("calcEventsFunction", leadingArguments))) &&
 			obj$.getParameterType("calcEventsFunction") == C_PARAM_USER_DEFINED) {
 		precondition <- c(precondition, getObjectRCode(obj$calcEventsFunction, prefix = "calcEventsFunction <- ", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth))
+			includeDefaultParameters = includeDefaultParameters,
+			stringWrapParagraphWidth = stringWrapParagraphWidth,
+			newArgumentValues = newArgumentValues))
 	}
 	if (!is.null(obj[["selectArmsFunction"]]) && 
 			(is.null(leadingArguments) || !any(grepl("selectArmsFunction", leadingArguments))) &&
 			!is.null(obj[["typeOfSelection"]]) && obj$typeOfSelection == "userDefined") {
 		precondition <- c(precondition, getObjectRCode(obj$selectArmsFunction, prefix = "selectArmsFunction <- ", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth))
+			includeDefaultParameters = includeDefaultParameters,,
+			stringWrapParagraphWidth = stringWrapParagraphWidth,
+			newArgumentValues = newArgumentValues))
 		leadingArguments <- c(leadingArguments, "selectArmsFunction = selectArmsFunction")
 	}
 	if (inherits(obj, "ConditionalPowerResults") &&
 			!is.null(obj[[".stageResults"]]) && 
 			(is.null(leadingArguments) || !any(grepl("stageResults", leadingArguments)))) {
 		precondition <- c(precondition, getObjectRCode(obj$.stageResults, prefix = "stageResults <- ", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth))
+			includeDefaultParameters = includeDefaultParameters, 
+			stringWrapParagraphWidth = stringWrapParagraphWidth,
+			newArgumentValues = newArgumentValues))
 		leadingArguments <- c(leadingArguments, "stageResults = stageResults")
 	}
+    
+    if (grepl("SimulationResultsEnrichment(Means|Rates|Survival)", class(obj))) {
+        precondition <- c(precondition, paste0("effectList <- ",
+            .getArgumentValueRCode(obj$effectList, "effectList")))
+    }
+    
 	if ("TrialDesignPlanMeans" == class(obj)) {
 		if (obj$.isSampleSizeObject()) {
 			functionName <- "getSampleSizeMeans"
@@ -2192,6 +2338,15 @@ getObjectRCode <- function(obj, ...,
 	else if (inherits(obj, "SimulationResultsMultiArmSurvival")) {
 		functionName <- "getSimulationMultiArmSurvival"
 	}
+	else if (inherits(obj, "SimulationResultsEnrichmentMeans")) {
+		functionName <- "getSimulationEnrichmentMeans"
+	}
+	else if (inherits(obj, "SimulationResultsEnrichmentRates")) {
+		functionName <- "getSimulationEnrichmentRates"
+	}
+	else if (inherits(obj, "SimulationResultsEnrichmentSurvival")) {
+		functionName <- "getSimulationEnrichmentSurvival"
+	}
 	else if (inherits(obj, "PiecewiseSurvivalTime")) {
 		functionName <- "getPiecewiseSurvivalTime"
 	}
@@ -2215,13 +2370,18 @@ getObjectRCode <- function(obj, ...,
 	}
 	else if (inherits(obj, "SummaryFactory")) {
 		return(getObjectRCode(obj$object, prefix = "summary(", postfix = ")", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth))
+			includeDefaultParameters = includeDefaultParameters,,
+			stringWrapParagraphWidth = stringWrapParagraphWidth,
+			newArgumentValues = newArgumentValues))
 	}
 	else {
 		stop("Runtime issue: function 'getObjectRCode' is not implemented for class ", class(obj))
 	}
 	
 	objNames <- names(obj)
+    
+    objNames <- objNames[objNames != "effectList"]
+    
 	if (inherits(obj, "ParameterSet")) {
 		if (includeDefaultParameters) {
 			objNames <- obj$.getInputParameters()
@@ -2283,6 +2443,7 @@ getObjectRCode <- function(obj, ...,
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", 
 				illegalArgumentValueNames , "' is not a valid ", functionName, "() argument")
 		}
+		
 		defaultParams <- newArgumentValueNames[!(newArgumentValueNames %in% objNames)]
 		objNames <- c(objNames, defaultParams)
 	}
@@ -2298,13 +2459,14 @@ getObjectRCode <- function(obj, ...,
 	}
 	
 	if (inherits(obj, "Dataset")) {
-		lines <- .getDatasetArgumentsRCodeLines(obj, complete = FALSE)
+		lines <- .getDatasetArgumentsRCodeLines(obj, complete = FALSE, digits = NA_integer_)
 		argumentsRCode <- paste0(lines, collapse = ", ")
 	} else {
 		argumentsRCode <- ""
 		arguments <- c()
 		if (length(objNames) > 0) {
 			for (name in objNames) {
+                
 				if (grepl("^\\.conditionalPowerResults\\$", name)) {
 					name <- sub("^\\.conditionalPowerResults\\$", "", name)
 					value <- obj$.conditionalPowerResults[[name]]
@@ -2477,3 +2639,60 @@ getObjectRCode <- function(obj, ...,
 	}
 	return(rCode)
 }
+
+.getQNorm <- function(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE, epsilon = C_QNORM_EPSILON) {
+    if (any(p < -1e-07 | p > 1 + 1e-07, na.rm = TRUE)) {
+        warning("Tried to get qnorm() from ", .arrayToString(p), " which is out of interval (0, 1)")
+    }
+     
+    p[p <= 0] <- epsilon
+    p[p > 1] <- 1
+
+    result <- stats::qnorm(p, mean = mean, sd = sd, lower.tail = lower.tail, log.p = log.p)
+    
+    result[result < -C_QNORM_THRESHOLD] <- C_QNORM_MINIMUM
+    result[result >  C_QNORM_THRESHOLD] <- C_QNORM_MAXIMUM
+    
+    return(result)
+}
+
+.getOneMinusQNorm <- function(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE, ..., epsilon = C_QNORM_EPSILON) {
+    if (all(is.na(p))) {
+        return(p)
+    }
+    
+    if (any(p < -1e-07 | p > 1 + 1e-07, na.rm = TRUE)) {
+        warning("Tried to get 1 - qnorm() from ", .arrayToString(p), " which is out of interval (0, 1)")
+    }
+    
+    p[p <= 0] <- epsilon
+    p[p > 1] <- 1
+    
+    indices <- p < 0.5
+    indices[is.na(indices)] <- FALSE
+    
+    result <- rep(NA_real_, length(p))
+    if (is.matrix(p)) {
+        result <- matrix(result, ncol = ncol(p))
+    }
+        
+    if (any(indices)) {
+        result[indices] <- -stats::qnorm(p[indices], 
+            mean = mean, sd = sd, lower.tail = lower.tail, log.p = log.p)
+    }
+    
+    # prevent values that are close to 1 from becoming Inf, see qnorm(1)
+    # example: 1 - 1e-17 = 1 in R, i.e., qnorm(1 - 1e-17) = Inf
+    # on the other hand: qnorm(1e-323) = -38.44939
+    if (any(!indices)) {
+        result[!indices] <- stats::qnorm(1 - p[!indices], 
+            mean = mean, sd = sd, lower.tail = lower.tail, log.p = log.p)
+    }
+    
+    result[result < -C_QNORM_THRESHOLD] <- C_QNORM_MINIMUM
+    result[result >  C_QNORM_THRESHOLD] <- C_QNORM_MAXIMUM
+ 
+    return(result)
+}
+
+

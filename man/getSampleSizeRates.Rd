@@ -26,11 +26,11 @@ that a warning will be displayed if unknown arguments are passed.}
 
 \item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
-\item{normalApproximation}{If \code{FALSE}, the sample size 
-for the case of one treatment group is calculated exactly using the binomial distribution, 
+\item{normalApproximation}{If \code{FALSE}, the sample size
+for the case of one treatment group is calculated exactly using the binomial distribution,
 default is \code{TRUE}.}
 
-\item{riskRatio}{If \code{TRUE}, the sample size for one-sided 
+\item{riskRatio}{If \code{TRUE}, the sample size for one-sided
 testing of H0: \code{pi1 / pi2 = thetaH0} is calculated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value, 
@@ -78,13 +78,13 @@ Returns the sample size for testing rates in one or two samples.
 }
 \details{
 At given design the function calculates the stage-wise (non-cumulated) and maximum sample size for testing rates.
-In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
-If a null hypothesis value thetaH0 != 0 for testing the difference of two rates 
-thetaH0 != 1 for testing the risk ratio is specified, the sample size 
+In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified.
+If a null hypothesis value thetaH0 != 0 for testing the difference of two rates
+thetaH0 != 1 for testing the risk ratio is specified, the sample size
 formula according to Farrington & Manning (Statistics in Medicine, 1990) is used.
-Critical bounds and stopping for futility bounds are provided at the effect scale 
-(rate, rate difference, or rate ratio, respectively) for each sample size calculation separately. 
-For the two-sample case, the calculation here is performed at fixed pi2 as given as argument 
+Critical bounds and stopping for futility bounds are provided at the effect scale
+(rate, rate difference, or rate ratio, respectively) for each sample size calculation separately.
+For the two-sample case, the calculation here is performed at fixed pi2 as given as argument
 in the function.
 }
 \section{How to get help for generic functions}{

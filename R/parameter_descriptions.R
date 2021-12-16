@@ -1,22 +1,22 @@
-#:#
-#:#  *Parameters*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5174 $
-#:#  Last changed: $Date: 2021-08-17 18:07:14 +0200 (Di, 17 Aug 2021) $
-#:#  Last changed by: $Author: wassmer $
-#:# 
+## |
+## |  *Parameters*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5612 $
+## |  Last changed: $Date: 2021-12-02 17:34:44 +0100 (Do, 02 Dez 2021) $
+## |  Last changed by: $Author: wassmer $
+## | 
 
 #' Parameter Description: "..."
 #' @param ... Ensures that all arguments (starting from the "...") are to be named and 
@@ -79,15 +79,15 @@ NULL
 #' Parameter Description: Type of Design
 #' @param typeOfDesign The type of design. Type of design is one of the following: 
 #'   O'Brien & Fleming (\code{"OF"}), Pocock (\code{"P"}), Wang & Tsiatis Delta class (\code{"WT"}), 
-#'   Pampallona & Tsiatis (\code{"PT"}),
-#'   Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
+#'   Pampallona & Tsiatis (\code{"PT"}), Haybittle & Peto ("HP"), 
+#'   Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
 #'   O'Brien & Fleming type alpha spending (\code{"asOF"}), Pocock type alpha spending (\code{"asP"}), 
 #'   Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending (\code{"asHSD"}), 
-#'   user defined alpha spending (\code{"asUser"}), default is \code{"OF"}.
+#'   user defined alpha spending (\code{"asUser"}), no early efficacy stop (\code{"noEarlyEfficacy"}), 
+#'   default is \code{"OF"}.
 #' @name param_typeOfDesign
 #' @keywords internal
 NULL
-
 
 #' Parameter Description: Design
 #' @param design The trial design.
@@ -293,7 +293,6 @@ NULL
 #' @keywords internal
 NULL
 
-# used to create the analysis results
 #' Parameter Description: Stage
 #' @param stage The stage number (optional). Default: total number of existing stages in the data input.
 #' @name param_stage
@@ -486,7 +485,7 @@ NULL
 NULL
 
 #' Parameter Description: Maximum Number Of Iterations
-#' @param maxNumberOfIterations The number of simulation iterations, default is 1000.
+#' @param maxNumberOfIterations The number of simulation iterations, default is \code{1000}.
 #' @name param_maxNumberOfIterations
 #' @keywords internal
 NULL
@@ -680,7 +679,7 @@ NULL
 NULL
 
 #' Parameter Description: Threshold
-#' @param threshold Selection criterion: treatment arm is selected only if \code{effectMeasure} 
+#' @param threshold Selection criterion: treatment arm / population is selected only if \code{effectMeasure} 
 #'   exceeds \code{threshold}, default is \code{-Inf}. 
 #'   \code{threshold} can also be a vector of length \code{activeArms} referring to 
 #'   a separate threshold condition over the treatment arms. 
@@ -697,19 +696,19 @@ NULL
 
 #' Parameter Description: Effect List
 #' @param effectList List of effect sizes with columns and number of rows 
-#'   reflecting the different situations to consider.
+#'   reflecting the different situations to consider (see examples).
 #' @name param_effectList
 #' @keywords internal
 NULL
 
 #' Parameter Description: Active Arms
-#' @param activeArms The number of active treatment arms to be compared with control, default is 3. 
+#' @param activeArms The number of active treatment arms to be compared with control, default is \code{3}. 
 #' @name param_activeArms
 #' @keywords internal
 NULL
 
 #' Parameter Description: Populations
-#' @param populations The number of populations in a two-sample comparison, default is 3. 
+#' @param populations The number of populations in a two-sample comparison, default is \code{3}. 
 #' @name param_populations
 #' @keywords internal
 NULL
@@ -790,28 +789,28 @@ NULL
 NULL
 
 #' Parameter Description: RValue
-#' @param rValue For \code{"rbest"} (select the \code{rValue} best treatment arms), 
+#' @param rValue For \code{typeOfSelection = "rbest"} (select the \code{rValue} best treatment arms / populations), 
 #'   the parameter \code{rValue} has to be specified.
 #' @name param_rValue
 #' @keywords internal
 NULL
 
 #' Parameter Description: EpsilonValue
-#' @param epsilonValue For \code{"epsilon"} (select treatment arm not worse than 
+#' @param epsilonValue For \code{typeOfSelection = "epsilon"} (select treatment arm / population not worse than 
 #'   epsilon compared to the best), the parameter \code{epsilonValue} has to be specified.
 #' @name param_epsilonValue
 #' @keywords internal
 NULL
 
 #' Parameter Description: G ED50
-#' @param gED50 If \code{"sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
+#' @param gED50 If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
 #'   to specify the ED50 of the sigmoid Emax model.
 #' @name param_gED50
 #' @keywords internal
 NULL
 
 #' Parameter Description: Slope
-#' @param slope If \code{"sigmoidEmax"} is selected, \code{"slope"} can be entered 
+#' @param slope If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"slope"} can be entered 
 #'   to specify the slope of the sigmoid Emax model, default is 1. 
 #' @name param_slope
 #' @keywords internal
@@ -824,10 +823,11 @@ NULL
 NULL
 
 #' Parameter Description: Information Epsilon
-#' @param informationEpsilon Positive integer value specifying the information epsilon, which 
+#' @param informationEpsilon Positive integer value specifying the absolute information epsilon, which 
 #'    defines the maximum distance from the observed information to the maximum information that causes the final analysis.
 #'    Updates at the final analysis in case the observed information at the final 
 #'    analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}, default is 0.
+#'    Alternatively, a floating-point number > 0 and < 1 can be specified to define a relative information epsilon.
 #' @name param_informationEpsilon
 #' @keywords internal
 NULL

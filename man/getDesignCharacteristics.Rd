@@ -25,9 +25,9 @@ The following generics (R generic functions) are available for this result objec
 Calculates the characteristics of a design and returns it.
 }
 \details{
-Calculates the inflation factor (IF), 
-the expected reduction in sample size under H1, under H0, and under a value in between H0 and H1. 
-Furthermore, absolute information values are calculated 
+Calculates the inflation factor (IF),
+the expected reduction in sample size under H1, under H0, and under a value in between H0 and H1.
+Furthermore, absolute information values are calculated
 under the prototype case testing H0: mu = 0 against H1: mu = 1.
 }
 \section{How to get help for generic functions}{

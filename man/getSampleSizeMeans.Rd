@@ -26,11 +26,11 @@ that a warning will be displayed if unknown arguments are passed.}
 
 \item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
-\item{normalApproximation}{The type of computation of the p-values. If \code{TRUE}, the variance is 
-assumed to be known, default is \code{FALSE}, i.e., the calculations are performed 
+\item{normalApproximation}{The type of computation of the p-values. If \code{TRUE}, the variance is
+assumed to be known, default is \code{FALSE}, i.e., the calculations are performed
 with the t distribution.}
 
-\item{meanRatio}{If \code{TRUE}, the sample size for 
+\item{meanRatio}{If \code{TRUE}, the sample size for
 one-sided testing of H0: \code{mu1 / mu2 = thetaH0} is calculated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value, 
@@ -76,12 +76,12 @@ The following generics (R generic functions) are available for this result objec
 Returns the sample size for testing means in one or two samples.
 }
 \details{
-At given design the function calculates the stage-wise (non-cumulated) and maximum 
+At given design the function calculates the stage-wise (non-cumulated) and maximum
 sample size for testing means.
-In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
-A null hypothesis value thetaH0 != 0 for testing the difference of two means or  
+In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified.
+A null hypothesis value thetaH0 != 0 for testing the difference of two means or
 thetaH0 != 1 for testing the ratio of two means can be specified.
-Critical bounds and stopping for futility bounds are provided at the effect scale 
+Critical bounds and stopping for futility bounds are provided at the effect scale
 (mean, mean difference, or mean ratio, respectively) for each sample size calculation separately.
 }
 \section{How to get help for generic functions}{

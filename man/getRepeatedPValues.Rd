@@ -15,22 +15,22 @@ that a warning will be displayed if unknown arguments are passed.}
 \item{tolerance}{The numerical tolerance, default is \code{1e-06}.}
 }
 \value{
-Returns a \code{\link[base]{numeric}} vector of length \code{kMax} or in case of multi-arm stage results   
-a \code{\link[base]{matrix}} (each column represents a stage, each row a comparison) 
+Returns a \code{\link[base]{numeric}} vector of length \code{kMax} or in case of multi-arm stage results
+a \code{\link[base]{matrix}} (each column represents a stage, each row a comparison)
 containing the repeated p values.
 }
 \description{
 Calculates the repeated p-values for a given test results.
 }
 \details{
-The repeated p-value at a given stage of the trial is defined as the smallest 
+The repeated p-value at a given stage of the trial is defined as the smallest
 significance level under which at given test design the test results
-obtain rejection of the null hypothesis. It can be calculated at each 
-stage of the trial and can thus be used as a monitoring tool. 
+obtain rejection of the null hypothesis. It can be calculated at each
+stage of the trial and can thus be used as a monitoring tool.
 
 The repeated p-values are provided up to the specified stage.
 
-In multi-arm trials, the repeated p-values are defined separately for each 
+In multi-arm trials, the repeated p-values are defined separately for each
 treatment comparison within the closed testing procedure.
 }
 \section{Note on the dependency of \code{mnormt}}{

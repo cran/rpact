@@ -4,7 +4,7 @@
 \alias{param_activeArms}
 \title{Parameter Description: Active Arms}
 \arguments{
-\item{activeArms}{The number of active treatment arms to be compared with control, default is 3.}
+\item{activeArms}{The number of active treatment arms to be compared with control, default is \code{3}.}
 }
 \description{
 Parameter Description: Active Arms

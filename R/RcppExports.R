@@ -13,15 +13,19 @@ getDesignGroupSequentialPampallonaTsiatisCpp <- function(tolerance, beta, alpha,
     .Call(`_rpact_getDesignGroupSequentialPampallonaTsiatisCpp`, tolerance, beta, alpha, kMax, deltaPT0, deltaPT1, informationRates, sided, bindingFutility)
 }
 
-getRandomSurvivalDistribution <- function(rate, kappa) {
-    .Call(`_rpact_getRandomSurvivalDistribution`, rate, kappa)
-}
-
-getRandomPiecewiseExponentialDistribution <- function(cdfValues, piecewiseLambda, piecewiseSurvivalTime) {
-    .Call(`_rpact_getRandomPiecewiseExponentialDistribution`, cdfValues, piecewiseLambda, piecewiseSurvivalTime)
-}
-
 getSimulationSurvivalCpp <- function(designNumber, kMax, sided, criticalValues, informationRates, conditionalPower, plannedEvents, thetaH1, minNumberOfEventsPerStage, maxNumberOfEventsPerStage, directionUpper, allocation1, allocation2, accrualTime, treatmentGroup, thetaH0, futilityBounds, alpha0Vec, pi1Vec, pi2, eventTime, piecewiseSurvivalTime, cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, phi, maxNumberOfSubjects, maxNumberOfIterations, maxNumberOfRawDatasetsPerStage, kappa) {
     .Call(`_rpact_getSimulationSurvivalCpp`, designNumber, kMax, sided, criticalValues, informationRates, conditionalPower, plannedEvents, thetaH1, minNumberOfEventsPerStage, maxNumberOfEventsPerStage, directionUpper, allocation1, allocation2, accrualTime, treatmentGroup, thetaH0, futilityBounds, alpha0Vec, pi1Vec, pi2, eventTime, piecewiseSurvivalTime, cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, phi, maxNumberOfSubjects, maxNumberOfIterations, maxNumberOfRawDatasetsPerStage, kappa)
+}
+
+getStratifiedLogRankTestCpp <- function(survivalDataSet, time, directionUpper, thetaH0 = 1.0) {
+    .Call(`_rpact_getStratifiedLogRankTestCpp`, survivalDataSet, time, directionUpper, thetaH0)
+}
+
+getSimulationStratifiedLogRankCpp <- function(kMax, criticalValues, lambda2, lambda1, prevalences, directionUpper, maxNumberOfSubjects, accrualTime, plannedEvents, allocation1, allocation2, maxIterations, survivalDataSet) {
+    .Call(`_rpact_getSimulationStratifiedLogRankCpp`, kMax, criticalValues, lambda2, lambda1, prevalences, directionUpper, maxNumberOfSubjects, accrualTime, plannedEvents, allocation1, allocation2, maxIterations, survivalDataSet)
+}
+
+getCipheredValue <- function(x) {
+    .Call(`_rpact_getCipheredValue`, x)
 }
 

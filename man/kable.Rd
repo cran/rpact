@@ -4,10 +4,12 @@
 \alias{kable}
 \title{Create tables in Markdown}
 \usage{
-kable(x)
+kable(x, ...)
 }
 \arguments{
 \item{x}{The object that inherits from \code{\link{ParameterSet}}.}
+
+\item{...}{Other arguments (see \code{\link[knitr]{kable}}).}
 }
 \description{
 The \code{kable()} function returns a single table for a single object that inherits from class \code{\link{ParameterSet}}.

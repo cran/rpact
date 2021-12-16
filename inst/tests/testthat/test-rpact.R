@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-rpact.R
-#:#  Creation date: 21 April 2021, 15:04:49
-#:#  File version: $Revision: 4863 $
-#:#  Last changed: $Date: 2021-05-11 19:50:08 +0200 (Di, 11 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-rpact.R
+## |  Creation date: 21 April 2021, 15:04:49
+## |  File version: $Revision: 5577 $
+## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  Last changed by: $Author: pahlke $
+## |  
 
 
 context("Testing the rpact package")
@@ -144,13 +144,7 @@ test_that("Testing generic functions: no errors occur", {
 	
 	stageResults <- getStageResults(design, dataset)
 	
-	# workaround to deactivate warnings during test execution
-	currentWarningOption <- getOption("warn")
-	options(warn = -1)
-	
-	designPlan <- getSampleSizeMeans(design)
-	
-	options(warn = currentWarningOption)
+	suppressWarnings(designPlan <- getSampleSizeMeans(design))
 	
 	simulationResults <- getSimulationSurvival(design, 
 		maxNumberOfSubjects = 1200, plannedEvents = c(50, 100, 150, 200), seed = 12345)
@@ -242,11 +236,7 @@ test_that("Testing generic functions: no errors occur", {
 	expect_is(as.matrix(piecewiseSurvivalTime), "matrix")
 	expect_is(as.matrix(accrualTime), "matrix")
 	
-	# workaround to deactivate warnings during test execution
-	currentWarningOption <- getOption("warn")
-	options(warn = -1)
-	analysisResults <- getAnalysisResults(design, dataset)
-	options(warn = currentWarningOption)
+	suppressWarnings(analysisResults <- getAnalysisResults(design, dataset))
 	expect_vector(names(analysisResults))
 	expect_output(print(analysisResults))
 	expect_output(summary(analysisResults)$show())

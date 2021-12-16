@@ -16,46 +16,46 @@ For more information see \code{\link{getDataset}}.}
 
 \item{...}{Further (optional) arguments to be passed:
 \describe{
-  \item{\code{thetaH0}}{The null hypothesis value, 
-      default is \code{0} for the normal and the binary case (testing means and rates, respectively), 
-      it is \code{1} for the survival case (testing the hazard ratio).\cr\cr 
+  \item{\code{thetaH0}}{The null hypothesis value,
+      default is \code{0} for the normal and the binary case (testing means and rates, respectively),
+      it is \code{1} for the survival case (testing the hazard ratio).\cr\cr
       For non-inferiority designs, \code{thetaH0} is the non-inferiority bound.
       That is, in case of (one-sided) testing of
       \itemize{
-        \item \emph{means}: a value \code{!= 0} 
+        \item \emph{means}: a value \code{!= 0}
             (or a value \code{!= 1} for testing the mean ratio) can be specified.
-        \item \emph{rates}: a value \code{!= 0} 
+        \item \emph{rates}: a value \code{!= 0}
             (or a value \code{!= 1} for testing the risk ratio \code{pi1 / pi2}) can be specified.
-        \item \emph{survival data}: a bound for testing H0: 
+        \item \emph{survival data}: a bound for testing H0:
             \code{hazard ratio = thetaH0 != 1} can be specified.
       }
-      For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be specified for 
+      For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be specified for
       defining the null hypothesis H0: \code{pi = thetaH0}.}
-  \item{\code{normalApproximation}}{The 
-      type of computation of the p-values. Default is \code{FALSE} for 
-      testing means (i.e., the t test is used) and \code{TRUE} for testing rates and the hazard ratio. 
-      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
+  \item{\code{normalApproximation}}{The
+      type of computation of the p-values. Default is \code{FALSE} for
+      testing means (i.e., the t test is used) and \code{TRUE} for testing rates and the hazard ratio.
+      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test
       (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
-      In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
-  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
-      the t test assuming that the variances are equal or the t test without assuming this, 
+      In the survival setting, \code{normalApproximation = FALSE} has no effect.}
+  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either
+      the t test assuming that the variances are equal or the t test without assuming this,
       i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
-  \item{\code{directionUpper}}{The direction of one-sided testing. 
-      Default is \code{TRUE} which means that larger values of the 
+  \item{\code{directionUpper}}{The direction of one-sided testing.
+      Default is \code{TRUE} which means that larger values of the
       test statistics yield smaller p-values.}
-  \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
-      hypotheses in the closed system of hypotheses when testing multiple hypotheses. 
-      Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+  \item{\code{intersectionTest}}{Defines the multiple test for the intersection
+      hypotheses in the closed system of hypotheses when testing multiple hypotheses.
+      Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"},
       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.
-      Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only), 
+      Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only),
       \code{"Bonferroni"}, \code{"Simes"}, and \code{"Sidak"}, default is \code{"Simes"}.}
-  \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
-       or population enrichment designs for testing means. For multiple arms, three options are available: 
-      \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}. 
-      For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only), 
+  \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)
+       or population enrichment designs for testing means. For multiple arms, three options are available:
+      \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.
+      For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only),
       and \code{"notPooled"}, default is \code{"pooled"}.}
   \item{\code{stratifiedAnalysis}}{For enrichment designs, typically a stratified analysis should be chosen.
-    For testing means and rates, also a non-stratified analysis based on overall data can be performed. 
+    For testing means and rates, also a non-stratified analysis based on overall data can be performed.
     For survival data, only a stratified analysis is possible (see Brannath et al., 2009), default is \code{TRUE}.}
 }}
 

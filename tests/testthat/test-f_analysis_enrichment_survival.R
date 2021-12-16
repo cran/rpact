@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_analysis_enrichment_survival.R
-#:#  Creation date: 25 June 2021, 11:27:32
-#:#  File version: $Revision: 5020 $
-#:#  Last changed: $Date: 2021-07-06 08:58:14 +0200 (Di, 06 Jul 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_analysis_enrichment_survival.R
+## |  Creation date: 08 December 2021, 09:05:31
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Analysis Enrichment Survival Function")
 
@@ -63,6 +63,13 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, non-st
 	    expect_equal(dataInput1CodeBased$events, dataInput1$events, tolerance = 1e-05)
 	    expect_equal(dataInput1CodeBased$allocationRatios, dataInput1$allocationRatios, tolerance = 1e-05)
 	    expect_equal(dataInput1CodeBased$logRanks, dataInput1$logRanks, tolerance = 1e-05)
+	    expect_type(names(dataInput1), "character")
+	    df <- as.data.frame(dataInput1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.025, 
@@ -100,6 +107,13 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, non-st
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -119,9 +133,9 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, non-st
 	expect_equal(x2$conditionalPower[1, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x2$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[1, ], c(0.76355966, 0.87078132, 0.95099133), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.8840835, 0.96064864, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.88408367, 0.96064864, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[1, ], c(3.9015478, 3.1815164, 2.9283489), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(2.9984281, 2.606883, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(2.9984283, 2.606883, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[1, ], c(0.09262834, 0.044241863, 0.02067471), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[2, ], c(0.090100155, 0.044241863, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -136,6 +150,13 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, non-st
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design2 <- getDesignFisher(kMax = 3, method = "equalAlpha", alpha = 0.025, informationRates = c(0.4, 0.7, 1))
@@ -174,6 +195,13 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, non-st
 	    expect_equal(x3CodeBased$repeatedConfidenceIntervalLowerBounds, x3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$repeatedConfidenceIntervalUpperBounds, x3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$repeatedPValues, x3$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -223,6 +251,13 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, strati
 	    expect_equal(dataInput2CodeBased$allocationRatios, dataInput2$allocationRatios, tolerance = 1e-05)
 	    expect_equal(dataInput2CodeBased$expectedEvents, dataInput2$expectedEvents, tolerance = 1e-05)
 	    expect_equal(dataInput2CodeBased$varianceEvents, dataInput2$varianceEvents, tolerance = 1e-05)
+	    expect_type(names(dataInput2), "character")
+	    df <- as.data.frame(dataInput2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", 
@@ -262,6 +297,13 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, strati
 	    expect_equal(x4CodeBased$repeatedConfidenceIntervalLowerBounds, x4$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$repeatedConfidenceIntervalUpperBounds, x4$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$repeatedPValues, x4$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 })
 
@@ -314,6 +356,13 @@ test_that("'getAnalysisResults': enrichment survival, two sub-populations, non-s
 	    expect_equal(dataInput3CodeBased$events, dataInput3$events, tolerance = 1e-05)
 	    expect_equal(dataInput3CodeBased$allocationRatios, dataInput3$allocationRatios, tolerance = 1e-05)
 	    expect_equal(dataInput3CodeBased$logRanks, dataInput3$logRanks, tolerance = 1e-05)
+	    expect_type(names(dataInput3), "character")
+	    df <- as.data.frame(dataInput3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x1 <- getAnalysisResults(design = design1, 
@@ -335,12 +384,12 @@ test_that("'getAnalysisResults': enrichment survival, two sub-populations, non-s
 	expect_equal(x1$conditionalPower[1, ], c(NA_real_, NA_real_, 0.48733039), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower[2, ], c(NA_real_, NA_real_, 0.54365075), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower[3, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(0.23870487, 0.23701871, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[2, ], c(0.18637801, 0.22932101, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[3, ], c(0.3010136, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(0.23870488, 0.23701869, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[2, ], c(0.18637801, 0.22932092, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[3, ], c(0.30101343, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(1.406238, 1.2861572, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[2, ], c(1.2936975, 1.2386982, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[3, ], c(1.1356925, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[3, ], c(1.1356924, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[1, ], c(0.09262834, 0.074349301, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[2, ], c(0.090100155, 0.074349301, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[3, ], c(0.082670093, NA_real_, NA_real_), tolerance = 1e-07)
@@ -356,6 +405,13 @@ test_that("'getAnalysisResults': enrichment survival, two sub-populations, non-s
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 })
 
@@ -418,6 +474,13 @@ test_that("'getAnalysisResults': enrichment survival, two sub-populations, strat
 	    expect_equal(dataInput4CodeBased$allocationRatios, dataInput4$allocationRatios, tolerance = 1e-05)
 	    expect_equal(dataInput4CodeBased$expectedEvents, dataInput4$expectedEvents, tolerance = 1e-05)
 	    expect_equal(dataInput4CodeBased$varianceEvents, dataInput4$varianceEvents, tolerance = 1e-05)
+	    expect_type(names(dataInput4), "character")
+	    df <- as.data.frame(dataInput4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design1 <- getDesignInverseNormal(kMax = 3, typeOfDesign = "asP", typeBetaSpending = "bsKD", gammaB = 1.3, alpha = 0.02, 
@@ -440,12 +503,12 @@ test_that("'getAnalysisResults': enrichment survival, two sub-populations, strat
 	expect_equal(x2$conditionalPower[1, ], c(NA_real_, NA_real_, 0.12050895), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower[2, ], c(NA_real_, NA_real_, 0.12050895), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower[3, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[1, ], c(0.62578554, 0.64439018, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.75127376, 0.66639105, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[3, ], c(0.96321384, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[1, ], c(0.62578554, 0.64439023, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.75127376, 0.66639091, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[3, ], c(0.96321371, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[1, ], c(4.9893102, 2.8192192, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(6.2314391, 3.0969281, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[3, ], c(3.5981378, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(6.2314391, 3.096928, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[3, ], c(3.5981379, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[1, ], c(0.13298203, 0.13298203, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[2, ], c(0.092701773, 0.092701773, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[3, ], c(0.031299575, NA_real_, NA_real_), tolerance = 1e-07)
@@ -460,6 +523,13 @@ test_that("'getAnalysisResults': enrichment survival, two sub-populations, strat
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

@@ -34,21 +34,24 @@ Confirmatory Adaptive Clinical Trial Design, Simulation, and Analysis.
     +   Assessment of treatment selection strategies in multi-arm trials
 *	Adaptive analysis of means, rates, and survival data
 *	Adaptive designs and analysis for multi-arm trials
+*   Simulation and analysis for enrichment designs testing means, rates,
+    and hazard ratios
 
 
 ## Learn to use rpact
 
 We recommend three ways to learn how to use `rpact`:
 
-> 1. Use the Shiny app: [shiny.rpact.com](https://www.rpact.com/shiny)
+> 1. Use the Shiny app: [shiny.rpact.com](https://www.rpact.com/products#public-rpact-shiny-app)
 > 2. Use the Vignettes:
->    [www.rpact.org/vignettes](https://www.rpact.org/vignettes)
-> 3. Book a training: [www.rpact.com](https://www.rpact.com/services/training)
+>    [www.rpact.com/vignettes](https://www.rpact.com/vignettes)
+> 3. Book a training:
+>    [www.rpact.com](https://www.rpact.com/services#learning-and-training)
 
 ### Vignettes
 
 The vignettes are hosted at
-[www.rpact.org/vignettes](https://www.rpact.org/vignettes) and cover the
+[www.rpact.com/vignettes](https://www.rpact.com/vignettes) and cover the
 following topics:
 
 1. Defining group-sequential boundaries
@@ -78,7 +81,12 @@ following topics:
 19. How to create simulation result (one- and multi-arm) plots
 20. Simulating multi-arm designs with a continuous endpoint
 21. Analysis of a multi-arm design with a binary endpoint
-
+22. Step-by-Step rpact Tutorial
+23. Planning and Analyzing a Group-Sequential Multi-Arm-Multi-Stage Design with
+    Binary Endpoint using rpact
+24. Two-arm analysis for continuous data with covariates from raw data
+    (*exclusive*)
+25. How to install the latest developer version (*exclusive*)
 
 ## User Concept
 
@@ -104,7 +112,7 @@ The most important `rpact` functions have intuitive names:
 * `getDesignCharacteristics()`
 * `getSampleSize`[`Means`/`Rates`/`Survival`]`()`
 * `getPower`[`Means`/`Rates`/`Survival`]`()`
-* `getSimulation`[`Means`/`Rates`/`Survival`]`()`
+* `getSimulation`[`MultiArm`/`Enrichment`]``[`Means`/`Rates`/`Survival`]`()`
 * `getDataSet()`
 * `getAnalysisResults()`
 * `getStageResults()`

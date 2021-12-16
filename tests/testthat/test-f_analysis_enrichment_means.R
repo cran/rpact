@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_analysis_enrichment_means.R
-#:#  Creation date: 25 June 2021, 11:25:19
-#:#  File version: $Revision: 5052 $
-#:#  Last changed: $Date: 2021-07-14 16:04:12 +0200 (Mi, 14 Jul 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_analysis_enrichment_means.R
+## |  Creation date: 08 December 2021, 09:03:08
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Analysis Enrichment Means Function (one sub-population)")
 
@@ -66,6 +66,13 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_equal(dataInput1CodeBased$overallSampleSizes, dataInput1$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(dataInput1CodeBased$overallMeans, dataInput1$overallMeans, tolerance = 1e-05)
 	    expect_equal(dataInput1CodeBased$overallStDevs, dataInput1$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(dataInput1), "character")
+	    df <- as.data.frame(dataInput1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, futilityBounds = c(-0.5,0), 
@@ -106,6 +113,13 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -154,6 +168,13 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 	    expect_equal(dataInput2CodeBased$overallSampleSizes, dataInput2$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(dataInput2CodeBased$overallMeans, dataInput2$overallMeans, tolerance = 1e-05)
 	    expect_equal(dataInput2CodeBased$overallStDevs, dataInput2$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(dataInput2), "character")
+	    df <- as.data.frame(dataInput2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design2 <- getDesignFisher(kMax = 3, alpha = 0.02, alpha0Vec = c(0.7,0.5), method = "fullAlpha", 
@@ -194,6 +215,13 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, futilityBounds = c(-0.5,0), 
@@ -233,6 +261,13 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 	    expect_equal(x3CodeBased$repeatedConfidenceIntervalLowerBounds, x3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$repeatedConfidenceIntervalUpperBounds, x3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$repeatedPValues, x3$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -312,6 +347,13 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_equal(x4CodeBased$repeatedConfidenceIntervalLowerBounds, x4$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$repeatedConfidenceIntervalUpperBounds, x4$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$repeatedPValues, x4$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x5 <- getAnalysisResults(design = design1, dataInput = dataInput1,	
@@ -353,6 +395,13 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_equal(x5CodeBased$repeatedConfidenceIntervalLowerBounds, x5$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$repeatedConfidenceIntervalUpperBounds, x5$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$repeatedPValues, x5$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x6 <- getAnalysisResults(design = design1, dataInput = dataInput1,	
@@ -394,6 +443,13 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_equal(x6CodeBased$repeatedConfidenceIntervalLowerBounds, x6$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$repeatedConfidenceIntervalUpperBounds, x6$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$repeatedPValues, x6$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -469,6 +525,13 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, Fisher design,
 	    expect_equal(x7CodeBased$repeatedConfidenceIntervalLowerBounds, x7$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$repeatedConfidenceIntervalUpperBounds, x7$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$repeatedPValues, x7$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x8 <- getAnalysisResults(design = design2, dataInput = dataInput1,	
@@ -510,6 +573,13 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, Fisher design,
 	    expect_equal(x8CodeBased$repeatedConfidenceIntervalLowerBounds, x8$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$repeatedConfidenceIntervalUpperBounds, x8$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$repeatedPValues, x8$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -576,6 +646,13 @@ test_that("'getAnalysisResults': stratified analysis, select S1 and S2 at first 
 	    expect_equal(dataInput1CodeBased$overallSampleSizes, dataInput1$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(dataInput1CodeBased$overallMeans, dataInput1$overallMeans, tolerance = 1e-05)
 	    expect_equal(dataInput1CodeBased$overallStDevs, dataInput1$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(dataInput1), "character")
+	    df <- as.data.frame(dataInput1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -636,6 +713,13 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_equal(dataInput2CodeBased$overallSampleSizes, dataInput2$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(dataInput2CodeBased$overallMeans, dataInput2$overallMeans, tolerance = 1e-05)
 	    expect_equal(dataInput2CodeBased$overallStDevs, dataInput2$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(dataInput2), "character")
+	    df <- as.data.frame(dataInput2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x1 <- getAnalysisResults(design = design1, dataInput = dataInput2,	
@@ -684,6 +768,13 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -734,6 +825,13 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x3 <- getAnalysisResults(design = design2, dataInput = dataInput2,	
@@ -782,6 +880,13 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_equal(x3CodeBased$repeatedConfidenceIntervalLowerBounds, x3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$repeatedConfidenceIntervalUpperBounds, x3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$repeatedPValues, x3$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x4 <- getAnalysisResults(design = design2, dataInput = dataInput2,	
@@ -824,6 +929,13 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_equal(x4CodeBased$repeatedConfidenceIntervalLowerBounds, x4$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$repeatedConfidenceIntervalUpperBounds, x4$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$repeatedPValues, x4$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -892,6 +1004,13 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_equal(dataInput3CodeBased$overallSampleSizes, dataInput3$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(dataInput3CodeBased$overallMeans, dataInput3$overallMeans, tolerance = 1e-05)
 	    expect_equal(dataInput3CodeBased$overallStDevs, dataInput3$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(dataInput3), "character")
+	    df <- as.data.frame(dataInput3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, typeOfDesign = "WT", 
@@ -929,8 +1048,8 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[4, ], c(-132.10549, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(126.35235, 72.344345, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[2, ], c(134.38127, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[3, ], c(98.363258, 46.507218, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[4, ], c(1.5054887, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[3, ], c(98.363257, 46.507217, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[4, ], c(1.5054896, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[1, ], c(0.5, 0.35403281, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[2, ], c(0.5, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[3, ], c(0.5, 0.26324129, NA_real_), tolerance = 1e-07)
@@ -948,7 +1067,15 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalLowerBounds, x1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedConfidenceIntervalUpperBounds, x1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$repeatedPValues, x1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
+
 })
 
 test_that("'getAnalysisResults': stratified analysis, gMax = 4", {
@@ -1045,6 +1172,13 @@ test_that("'getAnalysisResults': stratified analysis, gMax = 4", {
 	    expect_equal(dataInput4CodeBased$overallSampleSizes, dataInput4$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(dataInput4CodeBased$overallMeans, dataInput4$overallMeans, tolerance = 1e-05)
 	    expect_equal(dataInput4CodeBased$overallStDevs, dataInput4$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(dataInput4), "character")
+	    df <- as.data.frame(dataInput4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, typeOfDesign = "WT", 
@@ -1081,9 +1215,9 @@ test_that("'getAnalysisResults': stratified analysis, gMax = 4", {
 	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[3, ], c(-122.68924, -91.731817, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[4, ], c(-97.969856, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[1, ], c(28.41771, 15.834301, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(30.295342, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[3, ], c(25.470801, 9.1408915, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[4, ], c(3.3693132, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(30.295343, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[3, ], c(25.470801, 9.1408918, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[4, ], c(3.369313, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[1, ], c(0.096549841, 0.052699984, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[2, ], c(0.096549841, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[3, ], c(0.096549841, 0.042135201, NA_real_), tolerance = 1e-07)
@@ -1101,6 +1235,13 @@ test_that("'getAnalysisResults': stratified analysis, gMax = 4", {
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalLowerBounds, x2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedConfidenceIntervalUpperBounds, x2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$repeatedPValues, x2$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

@@ -2,9 +2,12 @@
 % Please edit documentation in R/class_simulation_results.R
 \name{getData}
 \alias{getData}
+\alias{getData.SimulationResults}
 \title{Get Simulation Data}
 \usage{
 getData(x)
+
+getData.SimulationResults(x)
 }
 \arguments{
 \item{x}{A \code{\link{SimulationResults}} object created by \code{\link{getSimulationMeans}},\cr 

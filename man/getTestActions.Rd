@@ -12,7 +12,7 @@ getTestActions(stageResults, ...)
 \item{...}{Only available for backward compatibility.}
 }
 \value{
-Returns a \code{\link[base]{character}} vector of length \code{kMax} 
+Returns a \code{\link[base]{character}} vector of length \code{kMax}
 Returns a \code{\link[base]{numeric}} vector of length \code{kMax}containing the test actions of each stage.
 }
 \description{

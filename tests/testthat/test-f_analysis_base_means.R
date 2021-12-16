@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_analysis_base_means.R
-#:#  Creation date: 18 May 2021, 17:36:23
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_analysis_base_means.R
+## |  Creation date: 08 December 2021, 08:59:16
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Analysis Means Functionality for One Treatment")
 
@@ -50,8 +50,8 @@ test_that("'getAnalysisResults' for two-stage group sequential design and a data
 	expect_equal(result$testActions, c("continue", NA_character_))
 	expect_equal(result$conditionalRejectionProbabilities, c(0.094509305, NA_real_), tolerance = 1e-07)
 	expect_equal(result$conditionalPower, c(NA_real_, 0.048907456), tolerance = 1e-07)
-	expect_equal(result$repeatedConfidenceIntervalLowerBounds, c(0.17801057, NA_real_), tolerance = 1e-07)
-	expect_equal(result$repeatedConfidenceIntervalUpperBounds, c(0.72198924, NA_real_), tolerance = 1e-07)
+	expect_equal(result$repeatedConfidenceIntervalLowerBounds, c(0.17801061, NA_real_), tolerance = 1e-07)
+	expect_equal(result$repeatedConfidenceIntervalUpperBounds, c(0.72198944, NA_real_), tolerance = 1e-07)
 	expect_equal(result$repeatedPValues, c(0.085336561, NA_real_), tolerance = 1e-07)
 	expect_equal(result$finalStage, NA_integer_)
 	expect_equal(result$finalPValues, c(NA_real_, NA_real_))
@@ -75,6 +75,13 @@ test_that("'getAnalysisResults' for two-stage group sequential design and a data
 	    expect_equal(resultCodeBased$finalConfidenceIntervalLowerBounds, result$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(resultCodeBased$finalConfidenceIntervalUpperBounds, result$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(resultCodeBased$medianUnbiasedEstimates, result$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result), "character")
+	    df <- as.data.frame(result)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -135,6 +142,13 @@ test_that("'getAnalysisResults' for three-stage group sequential design and a da
 	    expect_equal(resultCodeBased$finalConfidenceIntervalLowerBounds, result$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(resultCodeBased$finalConfidenceIntervalUpperBounds, result$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(resultCodeBased$medianUnbiasedEstimates, result$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result), "character")
+	    df <- as.data.frame(result)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -195,6 +209,13 @@ test_that("'getAnalysisResults' for group sequential design and a dataset of one
 	    expect_equal(result1CodeBased$finalConfidenceIntervalLowerBounds, result1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$finalConfidenceIntervalUpperBounds, result1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$medianUnbiasedEstimates, result1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result1), "character")
+	    df <- as.data.frame(result1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -239,6 +260,13 @@ test_that("'getStageResults' for group sequential design and a dataset of one me
 	    expect_equal(stageResults1CodeBased$testStatistics, stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(stageResults1CodeBased$pValues, stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(stageResults1CodeBased$effectSizes, stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(stageResults1), "character")
+	    df <- as.data.frame(stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
@@ -302,6 +330,13 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	    expect_equal(stageResults2CodeBased$effectSizes, stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults2CodeBased$combInverseNormal, stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(stageResults2CodeBased$weightsInverseNormal, stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(stageResults2), "character")
+	    df <- as.data.frame(stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
@@ -362,6 +397,13 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	    expect_equal(result2CodeBased$finalConfidenceIntervalLowerBounds, result2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$finalConfidenceIntervalUpperBounds, result2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$medianUnbiasedEstimates, result2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result2), "character")
+	    df <- as.data.frame(result2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design3 <- getDesignFisher(kMax = 4, alpha = 0.025, alpha0Vec = rep(0.4, 3), bindingFutility = TRUE)
@@ -397,6 +439,13 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	    expect_equal(stageResults3CodeBased$effectSizes, stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults3CodeBased$combFisher, stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(stageResults3CodeBased$weightsFisher, stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(stageResults3), "character")
+	    df <- as.data.frame(stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Formula]{fs:testStatisticOneMean}
@@ -438,6 +487,13 @@ test_that("'getAnalysisResults' for inverse normal and Fisher designs and a data
 	    expect_equal(result3CodeBased$finalConfidenceIntervalLowerBounds, result3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$finalConfidenceIntervalUpperBounds, result3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$medianUnbiasedEstimates, result3$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result3), "character")
+	    df <- as.data.frame(result3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -479,6 +535,13 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	    expect_equal(stageResults1CodeBased$testStatistics, stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(stageResults1CodeBased$pValues, stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(stageResults1CodeBased$effectSizes, stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(stageResults1), "character")
+	    df <- as.data.frame(stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetStageResultsPlotData(stageResults1, stage = 2, nPlanned = c(30, 20), 
@@ -539,6 +602,13 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	    expect_equal(result1CodeBased$finalConfidenceIntervalLowerBounds, result1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$finalConfidenceIntervalUpperBounds, result1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$medianUnbiasedEstimates, result1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result1), "character")
+	    df <- as.data.frame(result1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design5 <- getDesignInverseNormal(kMax = 4, alpha = 0.025,  typeOfDesign = "WT", deltaWT = 0.4)
@@ -572,6 +642,13 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	    expect_equal(stageResults2CodeBased$effectSizes, stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults2CodeBased$combInverseNormal, stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(stageResults2CodeBased$weightsInverseNormal, stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(stageResults2), "character")
+	    df <- as.data.frame(stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData2 <- testGetStageResultsPlotData(stageResults2, stage = 2, nPlanned = c(30, 20), 
@@ -632,6 +709,13 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	    expect_equal(result2CodeBased$finalConfidenceIntervalLowerBounds, result2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$finalConfidenceIntervalUpperBounds, result2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$medianUnbiasedEstimates, result2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result2), "character")
+	    df <- as.data.frame(result2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design6 <- getDesignFisher(kMax = 4, alpha = 0.025)
@@ -665,6 +749,13 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	    expect_equal(stageResults3CodeBased$effectSizes, stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults3CodeBased$combFisher, stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(stageResults3CodeBased$weightsFisher, stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(stageResults3), "character")
+	    df <- as.data.frame(stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -708,6 +799,13 @@ test_that("'getAnalysisResults' for different designs and a dataset of one mean 
 	    expect_equal(result3CodeBased$finalConfidenceIntervalUpperBounds, result3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$medianUnbiasedEstimates, result3$medianUnbiasedEstimates, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$conditionalPowerSimulated, result3$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(result3), "character")
+	    df <- as.data.frame(result3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -775,6 +873,13 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	    expect_equal(resultCodeBased$finalConfidenceIntervalLowerBounds, result$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(resultCodeBased$finalConfidenceIntervalUpperBounds, result$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(resultCodeBased$medianUnbiasedEstimates, result$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result), "character")
+	    df <- as.data.frame(result)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -838,6 +943,13 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	    expect_equal(result1CodeBased$finalConfidenceIntervalLowerBounds, result1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$finalConfidenceIntervalUpperBounds, result1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$medianUnbiasedEstimates, result1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result1), "character")
+	    df <- as.data.frame(result1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -884,6 +996,13 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	    expect_equal(result4CodeBased$finalConfidenceIntervalLowerBounds, result4$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result4CodeBased$finalConfidenceIntervalUpperBounds, result4$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result4CodeBased$medianUnbiasedEstimates, result4$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result4), "character")
+	    df <- as.data.frame(result4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -933,6 +1052,13 @@ test_that("'getAnalysisResults' for a group sequential design and a dataset of t
 	    expect_equal(result7CodeBased$finalConfidenceIntervalLowerBounds, result7$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result7CodeBased$finalConfidenceIntervalUpperBounds, result7$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result7CodeBased$medianUnbiasedEstimates, result7$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result7), "character")
+	    df <- as.data.frame(result7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -995,6 +1121,13 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	    expect_equal(result2CodeBased$finalConfidenceIntervalLowerBounds, result2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$finalConfidenceIntervalUpperBounds, result2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$medianUnbiasedEstimates, result2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result2), "character")
+	    df <- as.data.frame(result2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -1041,6 +1174,13 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	    expect_equal(result5CodeBased$finalConfidenceIntervalLowerBounds, result5$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result5CodeBased$finalConfidenceIntervalUpperBounds, result5$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result5CodeBased$medianUnbiasedEstimates, result5$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result5), "character")
+	    df <- as.data.frame(result5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -1087,6 +1227,13 @@ test_that("'getAnalysisResults' for an inverse normal design and a dataset of tw
 	    expect_equal(result8CodeBased$finalConfidenceIntervalLowerBounds, result8$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result8CodeBased$finalConfidenceIntervalUpperBounds, result8$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result8CodeBased$medianUnbiasedEstimates, result8$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result8), "character")
+	    df <- as.data.frame(result8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1150,6 +1297,13 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	    expect_equal(result3CodeBased$finalConfidenceIntervalUpperBounds, result3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$medianUnbiasedEstimates, result3$medianUnbiasedEstimates, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$conditionalPowerSimulated, result3$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(result3), "character")
+	    df <- as.data.frame(result3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1193,6 +1347,13 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	    expect_equal(result6CodeBased$finalConfidenceIntervalLowerBounds, result6$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result6CodeBased$finalConfidenceIntervalUpperBounds, result6$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result6CodeBased$medianUnbiasedEstimates, result6$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result6), "character")
+	    df <- as.data.frame(result6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1239,6 +1400,13 @@ test_that("'getAnalysisResults' for a Fisher design and a dataset of two means p
 	    expect_equal(result9CodeBased$finalConfidenceIntervalLowerBounds, result9$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result9CodeBased$finalConfidenceIntervalUpperBounds, result9$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result9CodeBased$medianUnbiasedEstimates, result9$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result9), "character")
+	    df <- as.data.frame(result9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1307,6 +1475,13 @@ test_that("Check that the conditional power is as expected for different designs
 	    expect_equal(result1CodeBased$finalConfidenceIntervalLowerBounds, result1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$finalConfidenceIntervalUpperBounds, result1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result1CodeBased$medianUnbiasedEstimates, result1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result1), "character")
+	    df <- as.data.frame(result1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design12 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, 
@@ -1348,6 +1523,13 @@ test_that("Check that the conditional power is as expected for different designs
 	    expect_equal(stageResultsCodeBased$effectSizes, stageResults$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResultsCodeBased$combInverseNormal, stageResults$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(stageResultsCodeBased$weightsInverseNormal, stageResults$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(stageResults), "character")
+	    df <- as.data.frame(stageResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getConditionalPowerMeans}
@@ -1365,6 +1547,13 @@ test_that("Check that the conditional power is as expected for different designs
 	    expect_output(summary(conditionalPower)$show())
 	    conditionalPowerCodeBased <- eval(parse(text = getObjectRCode(conditionalPower, stringWrapParagraphWidth = NULL)))
 	    expect_equal(conditionalPowerCodeBased$conditionalPower, conditionalPower$conditionalPower, tolerance = 1e-05)
+	    expect_type(names(conditionalPower), "character")
+	    df <- as.data.frame(conditionalPower)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(conditionalPower)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	conditionalPowerPlot <- .getConditionalPowerPlot(stageResults = stageResults,
@@ -1425,6 +1614,13 @@ test_that("Check that the conditional power is as expected for different designs
 	    expect_equal(result2CodeBased$finalConfidenceIntervalLowerBounds, result2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$finalConfidenceIntervalUpperBounds, result2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result2CodeBased$medianUnbiasedEstimates, result2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(result2), "character")
+	    df <- as.data.frame(result2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1473,6 +1669,13 @@ test_that("Check that the conditional power is as expected for different designs
 	    expect_equal(result3CodeBased$finalConfidenceIntervalUpperBounds, result3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$medianUnbiasedEstimates, result3$medianUnbiasedEstimates, tolerance = 1e-05)
 	    expect_equal(result3CodeBased$conditionalPowerSimulated, result3$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(result3), "character")
+	    df <- as.data.frame(result3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(result3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1529,6 +1732,13 @@ test_that("'getStageResults' for an inverse normal design and one or two treatme
 	    expect_equal(stageResults1CodeBased$effectSizes, stageResults1$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults1CodeBased$combInverseNormal, stageResults1$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(stageResults1CodeBased$weightsInverseNormal, stageResults1$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(stageResults1), "character")
+	    df <- as.data.frame(stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	dataExample9 <- getDataset(
@@ -1583,6 +1793,13 @@ test_that("'getStageResults' for an inverse normal design and one or two treatme
 	    expect_equal(stageResults2CodeBased$effectSizes, stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults2CodeBased$combInverseNormal, stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(stageResults2CodeBased$weightsInverseNormal, stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(stageResults2), "character")
+	    df <- as.data.frame(stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1637,6 +1854,13 @@ test_that("'getStageResults' for a Fisher design and one or two treatments", {
 	    expect_equal(stageResults3CodeBased$effectSizes, stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults3CodeBased$combFisher, stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(stageResults3CodeBased$weightsFisher, stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(stageResults3), "character")
+	    df <- as.data.frame(stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	dataExample11 <- getDataset(
@@ -1691,6 +1915,13 @@ test_that("'getStageResults' for a Fisher design and one or two treatments", {
 	    expect_equal(stageResults4CodeBased$effectSizes, stageResults4$effectSizes, tolerance = 1e-05)
 	    expect_equal(stageResults4CodeBased$combFisher, stageResults4$combFisher, tolerance = 1e-05)
 	    expect_equal(stageResults4CodeBased$weightsFisher, stageResults4$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(stageResults4), "character")
+	    df <- as.data.frame(stageResults4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(stageResults4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1730,6 +1961,13 @@ test_that("'getAnalysisResults' with a dataset of means and without defining a d
 	    expect_equal(analysisResults1CodeBased$repeatedConfidenceIntervalLowerBounds, analysisResults1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(analysisResults1CodeBased$repeatedConfidenceIntervalUpperBounds, analysisResults1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(analysisResults1CodeBased$repeatedPValues, analysisResults1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(analysisResults1), "character")
+	    df <- as.data.frame(analysisResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(analysisResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 })
 

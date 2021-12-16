@@ -4,7 +4,7 @@
 \alias{param_epsilonValue}
 \title{Parameter Description: EpsilonValue}
 \arguments{
-\item{epsilonValue}{For \code{"epsilon"} (select treatment arm not worse than 
+\item{epsilonValue}{For \code{typeOfSelection = "epsilon"} (select treatment arm / population not worse than 
 epsilon compared to the best), the parameter \code{epsilonValue} has to be specified.}
 }
 \description{

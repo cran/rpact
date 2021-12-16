@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-class_time.R
-#:#  Creation date: 18 May 2021, 17:36:21
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-class_time.R
+## |  Creation date: 08 December 2021, 08:59:14
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Class 'PiecewiseSurvivalTime'")
 
@@ -68,6 +68,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime1CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime1$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime1CodeBased$delayedResponseAllowed, pwSurvivalTime1$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime1CodeBased$delayedResponseEnabled, pwSurvivalTime1$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime1), "character")
+	    df <- as.data.frame(pwSurvivalTime1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime2 <- getPiecewiseSurvivalTime(lambda2 = 0.5, lambda1 = 0.4)
@@ -105,6 +112,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime2CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime2$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseAllowed, pwSurvivalTime2$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseEnabled, pwSurvivalTime2$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime2), "character")
+	    df <- as.data.frame(pwSurvivalTime2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -144,6 +158,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime2CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime2$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseAllowed, pwSurvivalTime2$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseEnabled, pwSurvivalTime2$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime2), "character")
+	    df <- as.data.frame(pwSurvivalTime2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime2 <- getPiecewiseSurvivalTime(pi2 = 0.5, pi1 = 0.4)
@@ -181,6 +202,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime2CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime2$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseAllowed, pwSurvivalTime2$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseEnabled, pwSurvivalTime2$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime2), "character")
+	    df <- as.data.frame(pwSurvivalTime2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime3 <- getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), lambda2 = 0.4)
@@ -218,6 +246,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime3CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime3$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime3CodeBased$delayedResponseAllowed, pwSurvivalTime3$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime3CodeBased$delayedResponseEnabled, pwSurvivalTime3$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime3), "character")
+	    df <- as.data.frame(pwSurvivalTime3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime8 <- getPiecewiseSurvivalTime( pi2 = 0.4, pi1 = 0.3)
@@ -255,6 +290,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime8CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime8$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime8CodeBased$delayedResponseAllowed, pwSurvivalTime8$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime8CodeBased$delayedResponseEnabled, pwSurvivalTime8$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime8), "character")
+	    df <- as.data.frame(pwSurvivalTime8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime9 <- getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), pi2 = 0.3)
@@ -292,6 +334,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime9CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime9$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime9CodeBased$delayedResponseAllowed, pwSurvivalTime9$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime9CodeBased$delayedResponseEnabled, pwSurvivalTime9$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime9), "character")
+	    df <- as.data.frame(pwSurvivalTime9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime10 <- getPiecewiseSurvivalTime(median2 = 1.386294, hazardRatio = 0.8)
@@ -329,6 +378,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime10CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime10$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime10CodeBased$delayedResponseAllowed, pwSurvivalTime10$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime10CodeBased$delayedResponseEnabled, pwSurvivalTime10$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime10), "character")
+	    df <- as.data.frame(pwSurvivalTime10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime11 <- getPiecewiseSurvivalTime(median2 = 1.386294, lambda1 = 0.4)
@@ -366,6 +422,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime11CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime11$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime11CodeBased$delayedResponseAllowed, pwSurvivalTime11$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime11CodeBased$delayedResponseEnabled, pwSurvivalTime11$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime11), "character")
+	    df <- as.data.frame(pwSurvivalTime11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime12 <- getPiecewiseSurvivalTime(median2 = 5, median1 = 6)
@@ -403,6 +466,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime12CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime12$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime12CodeBased$delayedResponseAllowed, pwSurvivalTime12$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime12CodeBased$delayedResponseEnabled, pwSurvivalTime12$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime12), "character")
+	    df <- as.data.frame(pwSurvivalTime12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime13 <- getPiecewiseSurvivalTime(median2 = 1.386294, lambda1 = c(0.3, 0.4))
@@ -440,6 +510,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime13CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime13$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime13CodeBased$delayedResponseAllowed, pwSurvivalTime13$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime13CodeBased$delayedResponseEnabled, pwSurvivalTime13$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime13), "character")
+	    df <- as.data.frame(pwSurvivalTime13)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime13)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime14 <- getPiecewiseSurvivalTime(median2 = 5, median1 = c(6:8))
@@ -477,6 +554,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime14CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime14$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime14CodeBased$delayedResponseAllowed, pwSurvivalTime14$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime14CodeBased$delayedResponseEnabled, pwSurvivalTime14$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime14), "character")
+	    df <- as.data.frame(pwSurvivalTime14)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime14)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime15 <- getPiecewiseSurvivalTime(median2 = 2, hazardRatio = 0.8)
@@ -514,6 +598,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime15CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime15$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime15CodeBased$delayedResponseAllowed, pwSurvivalTime15$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime15CodeBased$delayedResponseEnabled, pwSurvivalTime15$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime15), "character")
+	    df <- as.data.frame(pwSurvivalTime15)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime15)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime16 <- getPiecewiseSurvivalTime(median1 = c(2, 2), hazardRatio = c(1.4, 1.4))
@@ -551,6 +642,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime16CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime16$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime16CodeBased$delayedResponseAllowed, pwSurvivalTime16$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime16CodeBased$delayedResponseEnabled, pwSurvivalTime16$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime16), "character")
+	    df <- as.data.frame(pwSurvivalTime16)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime16)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime17 <- getPiecewiseSurvivalTime(median1 = c(2, 3), median2 = 4)
@@ -588,6 +686,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime17CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime17$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime17CodeBased$delayedResponseAllowed, pwSurvivalTime17$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime17CodeBased$delayedResponseEnabled, pwSurvivalTime17$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime17), "character")
+	    df <- as.data.frame(pwSurvivalTime17)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime17)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime18 <- getPiecewiseSurvivalTime(median1 = c(2, 3), lambda2 = 0.4)
@@ -625,6 +730,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime18CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime18$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime18CodeBased$delayedResponseAllowed, pwSurvivalTime18$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime18CodeBased$delayedResponseEnabled, pwSurvivalTime18$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime18), "character")
+	    df <- as.data.frame(pwSurvivalTime18)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime18)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime19 <- getPiecewiseSurvivalTime(pi1 = 0.45) 
@@ -662,6 +774,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime19CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime19$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime19CodeBased$delayedResponseAllowed, pwSurvivalTime19$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime19CodeBased$delayedResponseEnabled, pwSurvivalTime19$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime19), "character")
+	    df <- as.data.frame(pwSurvivalTime19)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime19)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime20 <- getPiecewiseSurvivalTime(median1 = c(2, 4), hazardRatio = c(1.4, 0.7))
@@ -699,6 +818,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime20CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime20$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime20CodeBased$delayedResponseAllowed, pwSurvivalTime20$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime20CodeBased$delayedResponseEnabled, pwSurvivalTime20$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime20), "character")
+	    df <- as.data.frame(pwSurvivalTime20)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime20)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime21 <- getPiecewiseSurvivalTime(median1 = 3, hazardRatio = 0.8)
@@ -736,6 +862,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_equal(pwSurvivalTime21CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime21$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime21CodeBased$delayedResponseAllowed, pwSurvivalTime21$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime21CodeBased$delayedResponseEnabled, pwSurvivalTime21$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime21), "character")
+	    df <- as.data.frame(pwSurvivalTime21)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime21)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	expect_error(getPiecewiseSurvivalTime(median2 = 1.386294, lambda2 = 0.4, hazardRatio = 0.8)) 
@@ -846,6 +979,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	    expect_equal(pwSurvivalTime10CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime10$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime10CodeBased$delayedResponseAllowed, pwSurvivalTime10$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime10CodeBased$delayedResponseEnabled, pwSurvivalTime10$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime10), "character")
+	    df <- as.data.frame(pwSurvivalTime10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime11 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = 0, lambda2 = 0.025, hazardRatio = 0.8)
@@ -883,6 +1023,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	    expect_equal(pwSurvivalTime11CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime11$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime11CodeBased$delayedResponseAllowed, pwSurvivalTime11$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime11CodeBased$delayedResponseEnabled, pwSurvivalTime11$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime11), "character")
+	    df <- as.data.frame(pwSurvivalTime11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime12 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6), lambda2 = c(0.025, 0.01), hazardRatio = c(0.8, 0.9))
@@ -920,6 +1067,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	    expect_equal(pwSurvivalTime12CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime12$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime12CodeBased$delayedResponseAllowed, pwSurvivalTime12$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime12CodeBased$delayedResponseEnabled, pwSurvivalTime12$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime12), "character")
+	    df <- as.data.frame(pwSurvivalTime12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime13 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6), lambda2 = c(0.025, 0.01), hazardRatio = c(0.8, 0.9), delayedResponseAllowed = TRUE)
@@ -957,6 +1111,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	    expect_equal(pwSurvivalTime13CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime13$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime13CodeBased$delayedResponseAllowed, pwSurvivalTime13$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime13CodeBased$delayedResponseEnabled, pwSurvivalTime13$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime13), "character")
+	    df <- as.data.frame(pwSurvivalTime13)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime13)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# case 2.2: error expected
@@ -1106,6 +1267,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_equal(pwSurvivalTime4CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime4$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime4CodeBased$delayedResponseAllowed, pwSurvivalTime4$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime4CodeBased$delayedResponseEnabled, pwSurvivalTime4$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime4), "character")
+	    df <- as.data.frame(pwSurvivalTime4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime5 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = TRUE)
@@ -1143,6 +1311,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_equal(pwSurvivalTime5CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime5$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime5CodeBased$delayedResponseAllowed, pwSurvivalTime5$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime5CodeBased$delayedResponseEnabled, pwSurvivalTime5$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime5), "character")
+	    df <- as.data.frame(pwSurvivalTime5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime6 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - <x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = TRUE)
@@ -1180,6 +1355,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_equal(pwSurvivalTime6CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime6$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime6CodeBased$delayedResponseAllowed, pwSurvivalTime6$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime6CodeBased$delayedResponseEnabled, pwSurvivalTime6$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime6), "character")
+	    df <- as.data.frame(pwSurvivalTime6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime7 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = FALSE)
@@ -1217,6 +1399,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_equal(pwSurvivalTime7CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime7$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime7CodeBased$delayedResponseAllowed, pwSurvivalTime7$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime7CodeBased$delayedResponseEnabled, pwSurvivalTime7$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime7), "character")
+	    df <- as.data.frame(pwSurvivalTime7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime8 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - <x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = FALSE)
@@ -1254,6 +1443,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_equal(pwSurvivalTime8CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime8$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime8CodeBased$delayedResponseAllowed, pwSurvivalTime8$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime8CodeBased$delayedResponseEnabled, pwSurvivalTime8$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime8), "character")
+	    df <- as.data.frame(pwSurvivalTime8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	expect_warning(getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("<6" = 0.025), hazardRatio = 0.8), 
@@ -1324,6 +1520,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime4CodeBased$maxNumberOfSubjects, accrualTime4$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime4CodeBased$remainingTime, accrualTime4$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime4CodeBased$piecewiseAccrualEnabled, accrualTime4$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime4), "character")
+	    df <- as.data.frame(accrualTime4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime5 <- getAccrualTime(accrualTime = c(0, 24, 30), 
@@ -1358,6 +1561,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime5CodeBased$maxNumberOfSubjects, accrualTime5$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime5CodeBased$remainingTime, accrualTime5$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime5CodeBased$piecewiseAccrualEnabled, accrualTime5$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime5), "character")
+	    df <- as.data.frame(accrualTime5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime6 <- getAccrualTime(accrualTime = c(0, 24, 30), 
@@ -1392,6 +1602,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime6CodeBased$maxNumberOfSubjects, accrualTime6$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime6CodeBased$remainingTime, accrualTime6$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime6CodeBased$piecewiseAccrualEnabled, accrualTime6$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime6), "character")
+	    df <- as.data.frame(accrualTime6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime8 <- getAccrualTime(accrualTime = 0, accrualIntensity = 15, maxNumberOfSubjects = 1000)
@@ -1425,6 +1642,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime8CodeBased$maxNumberOfSubjects, accrualTime8$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime8CodeBased$remainingTime, accrualTime8$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime8CodeBased$piecewiseAccrualEnabled, accrualTime8$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime8), "character")
+	    df <- as.data.frame(accrualTime8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime9 <- getAccrualTime(accrualTime = c(0, 5), accrualIntensity = 15)
@@ -1458,6 +1682,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime9CodeBased$maxNumberOfSubjects, accrualTime9$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime9CodeBased$remainingTime, accrualTime9$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime9CodeBased$piecewiseAccrualEnabled, accrualTime9$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime9), "character")
+	    df <- as.data.frame(accrualTime9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime10 <- getAccrualTime(accrualTime = 0, accrualIntensity = 15, maxNumberOfSubjects = 10)
@@ -1491,6 +1722,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime10CodeBased$maxNumberOfSubjects, accrualTime10$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime10CodeBased$remainingTime, accrualTime10$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime10CodeBased$piecewiseAccrualEnabled, accrualTime10$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime10), "character")
+	    df <- as.data.frame(accrualTime10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime11 <- getAccrualTime(accrualTime = c(0, 5), accrualIntensity = 15, maxNumberOfSubjects = 75)
@@ -1524,6 +1762,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime11CodeBased$maxNumberOfSubjects, accrualTime11$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime11CodeBased$remainingTime, accrualTime11$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime11CodeBased$piecewiseAccrualEnabled, accrualTime11$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime11), "character")
+	    df <- as.data.frame(accrualTime11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime12 <- getAccrualTime(accrualTime = c(0, 6, 15, 25), accrualIntensity = c(22, 0, 33))
@@ -1557,6 +1802,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime12CodeBased$maxNumberOfSubjects, accrualTime12$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime12CodeBased$remainingTime, accrualTime12$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime12CodeBased$piecewiseAccrualEnabled, accrualTime12$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime12), "character")
+	    df <- as.data.frame(accrualTime12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime13 <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(22, 33), maxNumberOfSubjects = 1000)
@@ -1590,6 +1842,13 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_equal(accrualTime13CodeBased$maxNumberOfSubjects, accrualTime13$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime13CodeBased$remainingTime, accrualTime13$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime13CodeBased$piecewiseAccrualEnabled, accrualTime13$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime13), "character")
+	    df <- as.data.frame(accrualTime13)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime13)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1629,6 +1888,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime1CodeBased$maxNumberOfSubjects, accrualTime1$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime1CodeBased$remainingTime, accrualTime1$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime1CodeBased$piecewiseAccrualEnabled, accrualTime1$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime1), "character")
+	    df <- as.data.frame(accrualTime1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime2 <- getAccrualTime(list(
@@ -1665,6 +1931,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime2CodeBased$maxNumberOfSubjects, accrualTime2$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime2CodeBased$remainingTime, accrualTime2$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime2CodeBased$piecewiseAccrualEnabled, accrualTime2$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime2), "character")
+	    df <- as.data.frame(accrualTime2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1701,6 +1974,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime3CodeBased$maxNumberOfSubjects, accrualTime3$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime3CodeBased$remainingTime, accrualTime3$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime3CodeBased$piecewiseAccrualEnabled, accrualTime3$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime3), "character")
+	    df <- as.data.frame(accrualTime3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime4 <- getAccrualTime(list(
@@ -1737,6 +2017,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime4CodeBased$maxNumberOfSubjects, accrualTime4$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime4CodeBased$remainingTime, accrualTime4$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime4CodeBased$piecewiseAccrualEnabled, accrualTime4$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime4), "character")
+	    df <- as.data.frame(accrualTime4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime5 <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(22, 33)) 
@@ -1770,6 +2057,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime5CodeBased$maxNumberOfSubjects, accrualTime5$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime5CodeBased$remainingTime, accrualTime5$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime5CodeBased$piecewiseAccrualEnabled, accrualTime5$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime5), "character")
+	    df <- as.data.frame(accrualTime5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime6 <- getAccrualTime(list(
@@ -1805,6 +2099,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime6CodeBased$maxNumberOfSubjects, accrualTime6$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime6CodeBased$remainingTime, accrualTime6$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime6CodeBased$piecewiseAccrualEnabled, accrualTime6$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime6), "character")
+	    df <- as.data.frame(accrualTime6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime7 <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(0.22, 0.33)) 
@@ -1838,6 +2139,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime7CodeBased$maxNumberOfSubjects, accrualTime7$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime7CodeBased$remainingTime, accrualTime7$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime7CodeBased$piecewiseAccrualEnabled, accrualTime7$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime7), "character")
+	    df <- as.data.frame(accrualTime7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime8 <- getAccrualTime(list(
@@ -1873,6 +2181,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime8CodeBased$maxNumberOfSubjects, accrualTime8$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime8CodeBased$remainingTime, accrualTime8$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime8CodeBased$piecewiseAccrualEnabled, accrualTime8$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime8), "character")
+	    df <- as.data.frame(accrualTime8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime9 <- getAccrualTime(accrualTime = c(0, 6), 
@@ -1907,6 +2222,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime9CodeBased$maxNumberOfSubjects, accrualTime9$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime9CodeBased$remainingTime, accrualTime9$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime9CodeBased$piecewiseAccrualEnabled, accrualTime9$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime9), "character")
+	    df <- as.data.frame(accrualTime9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime10 <- getAccrualTime(list(
@@ -1943,6 +2265,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime10CodeBased$maxNumberOfSubjects, accrualTime10$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime10CodeBased$remainingTime, accrualTime10$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime10CodeBased$piecewiseAccrualEnabled, accrualTime10$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime10), "character")
+	    df <- as.data.frame(accrualTime10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime12 <- getAccrualTime(list(
@@ -1979,6 +2308,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime12CodeBased$maxNumberOfSubjects, accrualTime12$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime12CodeBased$remainingTime, accrualTime12$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime12CodeBased$piecewiseAccrualEnabled, accrualTime12$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime12), "character")
+	    df <- as.data.frame(accrualTime12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime13 <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(22, 33)) 
@@ -2012,6 +2348,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime13CodeBased$maxNumberOfSubjects, accrualTime13$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime13CodeBased$remainingTime, accrualTime13$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime13CodeBased$piecewiseAccrualEnabled, accrualTime13$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime13), "character")
+	    df <- as.data.frame(accrualTime13)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime13)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime14 <- getAccrualTime(list(
@@ -2047,6 +2390,13 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_equal(accrualTime14CodeBased$maxNumberOfSubjects, accrualTime14$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(accrualTime14CodeBased$remainingTime, accrualTime14$remainingTime, tolerance = 1e-05)
 	    expect_equal(accrualTime14CodeBased$piecewiseAccrualEnabled, accrualTime14$piecewiseAccrualEnabled, tolerance = 1e-05)
+	    expect_type(names(accrualTime14), "character")
+	    df <- as.data.frame(accrualTime14)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(accrualTime14)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2172,6 +2522,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': mixed arguments", {
 	    expect_equal(pwSurvivalTime1CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime1$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime1CodeBased$delayedResponseAllowed, pwSurvivalTime1$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime1CodeBased$delayedResponseEnabled, pwSurvivalTime1$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime1), "character")
+	    df <- as.data.frame(pwSurvivalTime1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime2 <- getPiecewiseSurvivalTime(lambda1 = 0.01873371, median2 = 29.6)
@@ -2209,6 +2566,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': mixed arguments", {
 	    expect_equal(pwSurvivalTime2CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime2$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseAllowed, pwSurvivalTime2$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime2CodeBased$delayedResponseEnabled, pwSurvivalTime2$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime2), "character")
+	    df <- as.data.frame(pwSurvivalTime2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pwSurvivalTime3 <- getPiecewiseSurvivalTime(median1 = 37, lambda2 = 0.02341713)
@@ -2246,6 +2610,13 @@ test_that("Testing 'getPiecewiseSurvivalTime': mixed arguments", {
 	    expect_equal(pwSurvivalTime3CodeBased$piecewiseSurvivalEnabled, pwSurvivalTime3$piecewiseSurvivalEnabled, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime3CodeBased$delayedResponseAllowed, pwSurvivalTime3$delayedResponseAllowed, tolerance = 1e-05)
 	    expect_equal(pwSurvivalTime3CodeBased$delayedResponseEnabled, pwSurvivalTime3$delayedResponseEnabled, tolerance = 1e-05)
+	    expect_type(names(pwSurvivalTime3), "character")
+	    df <- as.data.frame(pwSurvivalTime3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(pwSurvivalTime3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	expect_warning(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), pi1 = 0.3),

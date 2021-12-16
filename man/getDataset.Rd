@@ -2,9 +2,12 @@
 % Please edit documentation in R/class_analysis_dataset.R
 \name{getDataset}
 \alias{getDataset}
+\alias{getDataSet}
 \title{Get Dataset}
 \usage{
 getDataset(..., floatingPointNumbersEnabled = FALSE)
+
+getDataSet(..., floatingPointNumbersEnabled = FALSE)
 }
 \arguments{
 \item{...}{A \code{data.frame} or some data vectors defining the dataset.}
@@ -36,26 +39,26 @@ The different dataset types \code{DatasetMeans}, of \code{DatasetRates}, or
 \itemize{
   \item An element of \code{\link{DatasetMeans}} for one sample is created by \cr
     \code{getDataset(sampleSizes =, means =, stDevs =)} where \cr
-    \code{sampleSizes}, \code{means}, \code{stDevs} are vectors with stagewise sample sizes, 
+    \code{sampleSizes}, \code{means}, \code{stDevs} are vectors with stage-wise sample sizes, 
     means and standard deviations of length given by the number of available stages.
   \item An element of \code{\link{DatasetMeans}} for two samples is created by \cr
     \code{getDataset(sampleSizes1 =, sampleSizes2 =, means1 =, means2 =, } \cr
     \code{stDevs1 =, stDevs2 =)} where 
     \code{sampleSizes1}, \code{sampleSizes2}, \code{means1}, \code{means2}, 
     \code{stDevs1}, \code{stDevs2} are vectors with 
-    stagewise sample sizes, means and standard deviations for the two treatment groups 
+    stage-wise sample sizes, means and standard deviations for the two treatment groups 
     of length given by the number of available stages.
   \item An element of \code{\link{DatasetRates}} for one sample is created by \cr
     \code{getDataset(sampleSizes =, events =)} where \code{sampleSizes}, \code{events} are vectors 
-    with stagewise sample sizes and events of length given by the number of available stages.
+    with stage-wise sample sizes and events of length given by the number of available stages.
   \item An element of \code{\link{DatasetRates}} for two samples is created by \cr
     \code{getDataset(sampleSizes1 =, sampleSizes2 =, events1 =, events2 =)} where 
     \code{sampleSizes1}, \code{sampleSizes2}, \code{events1}, \code{events2} 
-    are vectors with stagewise sample sizes 
+    are vectors with stage-wise sample sizes 
     and events  for the two treatment groups of length given by the number of available stages.
   \item An element of \code{\link{DatasetSurvival}} is created by \cr
     \code{getDataset(events =, logRanks =, allocationRatios =)} where 
-    \code{events}, \code{logRanks}, and \code{allocation ratios} are the stagewise events, 
+    \code{events}, \code{logRanks}, and \code{allocation ratios} are the stage-wise events, 
     (one-sided) logrank statistics, and allocation ratios. 
   \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}} 
     for more than one comparison is created by adding subsequent digits to the variable names. 
@@ -63,11 +66,11 @@ The different dataset types \code{DatasetMeans}, of \code{DatasetRates}, or
     group with the highest index represents the control group.		  		
 }
 Prefix \code{overall[Capital case of first letter of variable name]...} for the variable 
-names enables entering the overall results and calculates stagewise statistics.
+names enables entering the overall (cumulative) results and calculates stage-wise statistics.
 
 \code{n} can be used in place of \code{samplesizes}. 
  
-Note that in survival design usually the overall events and logrank test statistics are provided
+Note that in survival design usually the overall (cumulative) events and logrank test statistics are provided
 in the output, so \cr
 \code{getDataset(overallEvents=, overallLogRanks =, overallAllocationRatios =)} \cr
 is the usual command for entering survival data. Note also that for \code{overallLogranks} also the

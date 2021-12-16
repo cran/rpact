@@ -1,22 +1,22 @@
-#:#
-#:#  *Stage results classes*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5177 $
-#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:# 
+## |
+## |  *Stage results classes*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5615 $
+## |  Last changed: $Date: 2021-12-06 09:29:15 +0100 (Mo, 06 Dez 2021) $
+## |  Last changed by: $Author: wassmer $
+## | 
 
 .getStageResultsClassNames <- function() {
 	return(c("StageResultsMeans", 
@@ -973,13 +973,13 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 	stageResults <- data.frame(
 		Stage = c(x$stages, x$stages),
 		Group = c(group1, group2),
-		"Overall Mean" = c(x$overallMeans1, x$overallMeans2),
-		"Overall StDev" = c(x$overallStDevs1, x$overallStDevs2),
-		"Overall test statistics" = c(x$overallTestStatistics, empty),
+		"Cumulative Mean" = c(x$overallMeans1, x$overallMeans2),
+		"Cumulative stDev" = c(x$overallStDevs1, x$overallStDevs2),
+		"Cumulative test statistics" = c(x$overallTestStatistics, empty),
 		"Overall p-value" = c(x$overallPValues, empty),
-		"Overall StdDev" = c(x$overallStDevs, empty),
-		"Test statistic" = c(x$testStatistics, empty),
-		"p-value" = c(x$pValues, empty),
+		"Cumulative stDev" = c(x$overallStDevs, empty),
+		"Stage-wise test statistic" = c(x$testStatistics, empty),
+		"Stage-wise p-value" = c(x$pValues, empty),
 		"Comb Inverse Normal" = c(x$combInverseNormal, empty),
 		"Comb Fisher" = c(x$combFisher, empty),
 		"Weights Fisher" = c(x$weightsFisher, empty),

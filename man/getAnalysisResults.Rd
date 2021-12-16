@@ -27,44 +27,44 @@ For more information see \code{\link{getDataset}}.}
 
 \item{...}{Further arguments to be passed to methods (cf. separate functions in "See Also" below), e.g.,
 \describe{
-  \item{\code{thetaH1} and \code{assumedStDev} or \code{pi1}, \code{pi2}}{The 
-      assumed effect size or assumed rates to calculate the 
-      conditional power. Depending on the type of dataset, either \code{thetaH1} (means and survival) 
+  \item{\code{thetaH1} and \code{assumedStDev} or \code{pi1}, \code{pi2}}{The
+      assumed effect size or assumed rates to calculate the
+      conditional power. Depending on the type of dataset, either \code{thetaH1} (means and survival)
       or \code{pi1}, \code{pi2} (rates) can be specified.
       For testing means, an assumed standard deviation can be specified, default is \code{1}.}
-  \item{\code{normalApproximation}}{The type of computation of the p-values. Default is \code{FALSE} for 
-      testing means (i.e., the t test is used) and \code{TRUE} for testing rates and the hazard ratio. 
-      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
+  \item{\code{normalApproximation}}{The type of computation of the p-values. Default is \code{FALSE} for
+      testing means (i.e., the t test is used) and \code{TRUE} for testing rates and the hazard ratio.
+      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test
       (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
-      In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
-  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
-      the t test assuming that the variances are equal or the t test without assuming this, 
+      In the survival setting, \code{normalApproximation = FALSE} has no effect.}
+  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either
+      the t test assuming that the variances are equal or the t test without assuming this,
       i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
-  \item{\code{iterations}}{Iterations for simulating the power for Fisher's combination test. 
-      If the power for more than one remaining stages is to be determined for 
+  \item{\code{iterations}}{Iterations for simulating the power for Fisher's combination test.
+      If the power for more than one remaining stages is to be determined for
       Fisher's combination test, it is estimated via simulation with specified \cr
       \code{iterations}, the default is \code{1000}.}
-  \item{\code{seed}}{Seed for simulating the power for Fisher's combination test. 
+  \item{\code{seed}}{Seed for simulating the power for Fisher's combination test.
       See above, default is a random seed.}
-  \item{\code{intersectionTest}}{Defines the multiple test for the intersection 
-      hypotheses in the closed system of hypotheses when testing multiple hypotheses. 
-      Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"}, 
+  \item{\code{intersectionTest}}{Defines the multiple test for the intersection
+      hypotheses in the closed system of hypotheses when testing multiple hypotheses.
+      Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonferroni"}, \code{"Simes"},
       \code{"Sidak"}, and \code{"Hierarchical"}, default is \code{"Dunnett"}.
-      Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only), 
+      Four options are available in population enrichment designs: \code{"SpiessensDebois"} (one subset only),
       \code{"Bonferroni"}, \code{"Simes"}, and \code{"Sidak"}, default is \code{"Simes"}.}
-  \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)   
-       or population enrichment designs for testing means. For multiple arms, three options are available: 
-       \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}. 
+  \item{\code{varianceOption}}{Defines the way to calculate the variance in multiple treatment arms (> 2)
+       or population enrichment designs for testing means. For multiple arms, three options are available:
+       \code{"overallPooled"}, \code{"pairwisePooled"}, and \code{"notPooled"}, default is \code{"overallPooled"}.
       For enrichment designs, the options are: \code{"pooled"}, \code{"pooledFromFull"} (one subset only),
       and \code{"notPooled"}, default is \code{"pooled"}.}
-  \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The 
+  \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The
       assumed effect size or assumed rates to calculate the conditional power in multi-arm trials
       or enrichment designs. For survival designs, \code{thetaH1} refers to the hazard ratio.
-      You can specify a value or a vector with elements referring to the 
+      You can specify a value or a vector with elements referring to the
       treatment arms or the sub-populations, respectively. If not specified, the conditional
       power is calculated under the assumption of observed effect sizes, standard deviations, rates, or hazard ratios.}
   \item{\code{stratifiedAnalysis}}{For enrichment designs, typically a stratified analysis should be chosen.
-      For testing means and rates, also a non-stratified analysis based on overall data can be performed. 
+      For testing means and rates, also a non-stratified analysis based on overall data can be performed.
       For survival data, only a stratified analysis is possible (see Brannath et al., 2009), default is \code{TRUE}.}
 }}
 
@@ -101,10 +101,11 @@ design, default is \code{1}. For multi-arm designs, it is the allocation ratio r
 
 \item{maxInformation}{Positive integer value specifying the maximum information.}
 
-\item{informationEpsilon}{Positive integer value specifying the information epsilon, which 
+\item{informationEpsilon}{Positive integer value specifying the absolute information epsilon, which 
 defines the maximum distance from the observed information to the maximum information that causes the final analysis.
 Updates at the final analysis in case the observed information at the final 
-analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}, default is 0.}
+analysis is smaller ("under-running") than the planned maximum information \code{maxInformation}, default is 0.
+Alternatively, a floating-point number > 0 and < 1 can be specified to define a relative information epsilon.}
 }
 \value{
 Returns an \code{\link{AnalysisResults}} object.
@@ -122,25 +123,25 @@ The following generics (R generic functions) are available for this result objec
 Calculates and returns the analysis results for the specified design and data.
 }
 \details{
-Given a design and a dataset, at given stage the function calculates the test results 
-(effect sizes, stage-wise test statistics and p-values, overall p-values and test statistics, 
-conditional rejection probability (CRP), conditional power, Repeated Confidence Intervals (RCIs), 
-repeated overall p-values, and final stage p-values, median unbiased effect estimates, 
-and final confidence intervals. 
+Given a design and a dataset, at given stage the function calculates the test results
+(effect sizes, stage-wise test statistics and p-values, overall p-values and test statistics,
+conditional rejection probability (CRP), conditional power, Repeated Confidence Intervals (RCIs),
+repeated overall p-values, and final stage p-values, median unbiased effect estimates,
+and final confidence intervals.
 
-For designs with more than two treatments arms (multi-arm designs) or enrichment designs 
+For designs with more than two treatments arms (multi-arm designs) or enrichment designs
 a closed combination test is performed.
 That is, additionally the statistics to be used in a closed testing procedure are provided.
- 
-The conditional power is calculated only if effect size and sample size 
-is specified. Median unbiased effect estimates and confidence intervals are calculated if 
-a group sequential design or an inverse normal combination test design was chosen, i.e., it is not applicable 
-for Fisher's p-value combination test design. 
-For the inverse normal combination test design with more than two stages, a warning informs that the validity 
-of the confidence interval is theoretically shown only if no sample size change was performed.  
+
+The conditional power is calculated only if effect size and sample size
+is specified. Median unbiased effect estimates and confidence intervals are calculated if
+a group sequential design or an inverse normal combination test design was chosen, i.e., it is not applicable
+for Fisher's p-value combination test design.
+For the inverse normal combination test design with more than two stages, a warning informs that the validity
+of the confidence interval is theoretically shown only if no sample size change was performed.
 
 A final stage p-value for Fisher's combination test is calculated only if a two-stage design was chosen.
-For Fisher's combination test, the conditional power for more than one remaining stages is estimated via simulation.     
+For Fisher's combination test, the conditional power for more than one remaining stages is estimated via simulation.
 
 Final stage p-values, median unbiased effect estimates, and final confidence intervals are not calculated
 for multi-arm and enrichment designs.

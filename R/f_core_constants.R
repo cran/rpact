@@ -1,22 +1,22 @@
-#:#
-#:#  *Constants*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5164 $
-#:#  Last changed: $Date: 2021-08-16 16:52:35 +0200 (Mo, 16 Aug 2021) $
-#:#  Last changed by: $Author: wassmer $
-#:# 
+## |
+## |  *Constants*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5644 $
+## |  Last changed: $Date: 2021-12-10 14:14:55 +0100 (Fr, 10 Dez 2021) $
+## |  Last changed by: $Author: pahlke $
+## | 
 
 C_LOG_LEVEL_TRACE <- "TRACE"
 C_LOG_LEVEL_DEBUG <- "DEBUG"
@@ -27,7 +27,7 @@ C_LOG_LEVEL_PROGRESS <- "PROGRESS"
 C_LOG_LEVEL_DISABLED <- "DISABLED"
 
 C_SUMMARY_OUTPUT_SIZE_DEFAULT <- "large"
-C_SUMMARY_LIST_ITEM_PREFIX_DEFAULT = " "
+C_SUMMARY_LIST_ITEM_PREFIX_DEFAULT = "  "
 
 # used in 'class_core_plot_settings.R'
 C_POSITION_OUTSIDE_PLOT <- 0
@@ -102,6 +102,11 @@ C_EXCEPTION_TYPE_INCOMPLETE_ARGUMENTS = "Incomplete associated arguments: "
 
 C_DIRECTION_LOWER = "lower"
 C_DIRECTION_UPPER = "upper"
+
+C_QNORM_EPSILON <- 1e-323 # a value between 1e-323 and 1e-16
+C_QNORM_MAXIMUM <- -stats::qnorm(C_QNORM_EPSILON)
+C_QNORM_MINIMUM <- -C_QNORM_MAXIMUM
+C_QNORM_THRESHOLD <- 38
 
 # 
 # Constants used in 'f_analysis_multiarm' and 'f_analysis_enrichment'
@@ -206,6 +211,7 @@ C_TYPE_OF_DESIGN_AS_OF <- "asOF"    # O'Brien & Fleming type alpha spending
 C_TYPE_OF_DESIGN_AS_KD <- "asKD"    # Kim & DeMets alpha spending
 C_TYPE_OF_DESIGN_AS_HSD <- "asHSD"  # Hwang, Shi & DeCani alpha spending
 C_TYPE_OF_DESIGN_AS_USER <- "asUser" # user defined alpha spending
+C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY <- "noEarlyEfficacy" # no early efficacy stop
 C_DEFAULT_TYPE_OF_DESIGN <- C_TYPE_OF_DESIGN_OF # the default type of design
 
 C_TYPE_OF_DESIGN_LIST <- list(
@@ -219,7 +225,8 @@ C_TYPE_OF_DESIGN_LIST <- list(
 	"asOF" = "O'Brien & Fleming type alpha spending", 
 	"asKD" = "Kim & DeMets alpha spending", 
 	"asHSD" = "Hwang, Shi & DeCani alpha spending", 
-	"asUser" = "user defined alpha spending")
+	"asUser" = "User defined alpha spending",
+	"noEarlyEfficacy" = "No early efficacy stop")
 
 C_PLOT_SHOW_SOURCE_ARGUMENTS <- c("commands", "axes", "test", "validate")
 
@@ -238,7 +245,8 @@ C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD <- "Conditional power / Likelihood
 		C_TYPE_OF_DESIGN_AS_OF,
 		C_TYPE_OF_DESIGN_AS_KD,
 		C_TYPE_OF_DESIGN_AS_HSD,
-		C_TYPE_OF_DESIGN_AS_USER
+		C_TYPE_OF_DESIGN_AS_USER,
+		C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY
 	))
 }
 
@@ -254,7 +262,6 @@ C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD <- "Conditional power / Likelihood
 	return(typeOfDesign %in% c(C_TYPE_OF_DESIGN_AS_P, C_TYPE_OF_DESIGN_AS_OF, 
 					C_TYPE_OF_DESIGN_AS_KD,C_TYPE_OF_DESIGN_AS_HSD))
 }
-
 
 # 
 # Type of beta spending design is one of the following: 
@@ -279,6 +286,8 @@ C_TYPE_OF_DESIGN_BS_LIST <- list(
 	"bsHSD" = "Hwang, Shi & DeCani beta spending", 
 	"bsUser" = "user defined beta spending"
 )
+
+C_CIPHERS <- list(token = "310818669631424001", secret = "9318655074497250732")
 
 .getBetaSpendingDesignTypes <- function() {
 	return(c(
@@ -314,7 +323,7 @@ C_TYPE_OF_DESIGN_BS_LIST <- list(
 }
 
 ##
-#:# -------------------------------------------
+## -------------------------------------------
 ##
 
 C_OPTIMIZATION_CRITERION_ASNH1 <- "ASNH1"
@@ -339,7 +348,7 @@ C_OPTIMIZATION_CRITERION_DEFAULT <- C_OPTIMIZATION_CRITERION_ASNH1
 }
 
 ##
-#:# -------------------------------------------
+## -------------------------------------------
 ##
 
 C_FISHER_METHOD_FULL_ALPHA <- "fullAlpha"
@@ -366,7 +375,7 @@ C_FISHER_METHOD_DEFAULT <- C_FISHER_METHOD_EQUAL_ALPHA
 }
 
 ##
-#:# -------------------------------------------
+## -------------------------------------------
 ##
 
 C_PARAMETER_NAMES <- list(
@@ -378,13 +387,13 @@ C_PARAMETER_NAMES <- list(
 	sampleSizes = "Sample sizes",
 	means = "Means",
 	stDevs = "Standard deviations",
-	overallEvents = "Overall events",
-	overallAllocationRatios = "Overall allocation ratios",
+	overallEvents = "Cumulative events",
+	overallAllocationRatios = "Cumulative allocation ratios",
 
 	expectedEvents = "Expected events",
 	varianceEvents = "Variance of events",
-	overallExpectedEvents = "Overall expected events",
-	overallVarianceEvents = "Overall variance of events",
+	overallExpectedEvents = "Cumulative expected events",
+	overallVarianceEvents = "Cumulative variance of events",
 	
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constants",
@@ -441,25 +450,28 @@ C_PARAMETER_NAMES <- list(
 	assumedStDevs = "Assumed standard deviations",
 	pi1 = "Assumed treatment rate",
 	pi2 = "Assumed control rate",
-	overallPi1 = "Overall treatment rate",
-	overallPi2 = "Overall control rate",
+	overallPi1 = "Cumulative treatment rate",
+	overallPi2 = "Cumulative control rate",
 	pi1H1 = "pi(1) under H1",
 	pi2H1 = "pi(2) under H1",
 	nPlanned = "Planned sample size",
 	
 	piControl = "Assumed control rate",
-	piControls = "Assumed control rate",
-	piTreatments = "Assumed treatment rate",
+	piControls = "Assumed control rates",
+	piTreatment = "Assumed treatment rate",
+	piTreatments = "Assumed treatment rates",
+    piTreatmentH1 = "pi(treatment) under H1",
+    piTreatmentsH1 = "pi(treatment) under H1",
 	
-	overallPiControl = "Overall control rate",
-	overallPiTreatments = "Overall treatment rate",
+	overallPiControl = "Cumulative control rate",
+	overallPiTreatments = "Cumulative treatment rate",
 	
-	overallPisControl = "Overall control rate",
-	overallPisTreatment = "Overall treatment rate",
+	overallPisControl = "Cumulative control rate",
+	overallPisTreatment = "Cumulative treatment rate",
 	
-	effectSizes = "Overall effect sizes",
-	testStatistics = "Test statistics",
-	pValues = "p-values",
+	effectSizes = "Cumulative effect sizes",
+	testStatistics = "Stage-wise test statistics",
+	pValues = "Stage-wise p-values",
 	testActions = "Actions",
 	conditionalPower = "Conditional power",
 	conditionalPowerAchieved = "Conditional power (achieved)",
@@ -473,28 +485,28 @@ C_PARAMETER_NAMES <- list(
 	finalConfidenceIntervalUpperBounds = "Final CIs (upper)",
 	medianUnbiasedEstimates = "Median unbiased estimate",
 	
-	overallSampleSizes = "Overall sample sizes",
-	overallSampleSizes1 = "Overall sample sizes (1)",
-	overallSampleSizes2 = "Overall sample sizes (2)",
+	overallSampleSizes = "Cumulative sample sizes",
+	overallSampleSizes1 = "Cumulative sample sizes (1)",
+	overallSampleSizes2 = "Cumulative sample sizes (2)",
 	overallTestStatistics = "Overall test statistics", 
 	overallPValues = "Overall p-values", 
-	overallMeans = "Overall means", 
-	overallMeans1 = "Overall means (1)", 
-	overallMeans2 = "Overall means (2)",
-	overallStDevs1 = "Overall standard deviations (1)", 
-	overallStDevs2 = "Overall standard deviations (2)", 
-	overallStDevs = "Overall (pooled) standard deviations",
-	testStatistics = "Test statistics", 
+	overallMeans = "Cumulative means", 
+	overallMeans1 = "Cumulative means (1)", 
+	overallMeans2 = "Cumulative means (2)",
+	overallStDevs1 = "Cumulative standard deviations (1)", 
+	overallStDevs2 = "Cumulative standard deviations (2)", 
+	overallStDevs = "Cumulative (pooled) standard deviations",
+	testStatistics = "Stage-wise test statistics", 
 	combInverseNormal = "Combination test statistics", # Inverse normal combination
 	combFisher = "Combination test statistics",        # Fisher combination
 	weightsFisher = "Fixed weights", 
 	weightsInverseNormal = "Fixed weights",
 	
 	overallLogRanks = "Overall log-ranks",
-	overallEvents = "Overall number of events",
-	overallEvents1 = "Overall number of events (1)",
-	overallEvents2 = "Overall number of events (2)",
-	overallAllocationRatios = "Overall allocation ratios",
+	overallEvents = "Cumulative number of events",
+	overallEvents1 = "Cumulative number of events (1)",
+	overallEvents2 = "Cumulative number of events (2)",
+	overallAllocationRatios = "Cumulative allocation ratios",
 	events = "Number of events",
 	allocationRatios = "Allocation ratios",
 	logRanks = "Log-ranks",
@@ -530,6 +542,7 @@ C_PARAMETER_NAMES <- list(
 	
 	omega = "Probability of an event",
 	hazardRatio = "Hazard ratio",
+	hazardRatios = "Hazard ratios",
 	
 	typeOfComputation = "Type of computation",
 	accountForObservationTimes = "Account for observation times",
@@ -552,7 +565,7 @@ C_PARAMETER_NAMES <- list(
 	
 	twoSidedPower = "Two-sided power",
 	
-	plannedEvents = "Planned cumulative overall events",
+	plannedEvents = "Planned cumulative events",
 	plannedSubjects = "Planned cumulative subjects", # per arm (multi-arm); overall (base)
 	minNumberOfEventsPerStage = "Minimum number of events per stage",
 	maxNumberOfEventsPerStage = "Maximum number of events per stage",
@@ -615,7 +628,7 @@ C_PARAMETER_NAMES <- list(
 	absoluteAccrualIntensityEnabled = "Absolute accrual intensity is enabled",
 	
 	time = "Time",
-	overallEventProbabilities = "Overall event probabilities",
+	overallEventProbabilities = "Cumulative event probabilities",
 	eventProbabilities1 = "Event probabilities (1)",
 	eventProbabilities2 = "Event probabilities (2)",
 	
@@ -626,7 +639,7 @@ C_PARAMETER_NAMES <- list(
 	singleStepAdjustedPValues = "Single step adjusted p-values",
 	intersectionTest = "Intersection test",
 	varianceOption = "Variance option",
-	overallPooledStDevs = "Overall (pooled) standard deviations",
+	overallPooledStDevs = "Cumulative (pooled) standard deviations",
 	optimumAllocationRatio = "Optimum allocation ratio",
 	
 	rejected = "Rejected",
@@ -689,10 +702,17 @@ C_PARAMETER_NAMES <- list(
 	effectList = "Effect list",
 	subGroups = "Sub-groups",
 	prevalences = "Prevalences",
-	effects = "Effects"
+	effects = "Effects",
+	situation = "Situation"
 )
 
-.getParameterNames <- function(..., design = NULL, designPlan = NULL, stageResults = NULL, analysisResults = NULL) {
+.getParameterNames <- function(..., 
+        design = NULL, 
+        designPlan = NULL, 
+        stageResults = NULL, 
+        analysisResults = NULL,
+        dataset = NULL) {
+        
 	parameterNames <- C_PARAMETER_NAMES
 	
 	if (!is.null(design) && !is.na(design$bindingFutility) && !design$bindingFutility) {
@@ -734,8 +754,9 @@ C_PARAMETER_NAMES <- list(
 		parameterNames$criticalValuesPValueScale <- "Local two-sided significance levels"
 	}
 	
-	if (!is.null(stageResults) && stageResults$isOneSampleDataset()) {
-		parameterNames$overallStDevs <- "Overall standard deviations"
+	if ((!is.null(stageResults) && stageResults$isOneSampleDataset()) ||
+            (!is.null(dataset) && inherits(dataset, "DatasetMeans"))) {
+		parameterNames$overallStDevs <- "Cumulative standard deviations"
 	}
 	
 	return(parameterNames)
@@ -750,14 +771,14 @@ C_TABLE_COLUMN_NAMES <- list(
 	sampleSizes = "Sample size",
 	means = "Mean",
 	stDevs = "Standard deviation",
-	overallEvents = "Overall event",
-	overallAllocationRatios = "Overall allocation ratio",
-	overallMeans = "Overall mean",
+	overallEvents = "Cumulative event",
+	overallAllocationRatios = "Cumulative allocation ratio",
+	overallMeans = "Cumulative mean",
 	
 	expectedEvents = "Expected event",
 	varianceEvents = "Variance of event",
-	overallExpectedEvents = "Overall expected event",
-	overallVarianceEvents = "Overall variance of event",
+	overallExpectedEvents = "Cumulative expected event",
+	overallVarianceEvents = "Cumulative variance of event",
 	
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constant",
@@ -820,18 +841,21 @@ C_TABLE_COLUMN_NAMES <- list(
 	nPlanned = "Planned sample size",
 	
 	piControl = "Assumed control rate",
-	piControls = "Assumed control rate",
-	piTreatments = "Assumed treatment rate",
+	piControls = "Assumed control rates",
+	piTreatment = "Assumed treatment rate",
+	piTreatments = "Assumed treatment rates",
+    piTreatmentH1 = "pi(treatment) under H1",
+    piTreatmentsH1 = "pi(treatment) under H1",
 	
-	overallPiControl = "Overall control rate",
-	overallPiTreatments = "Overall treatment rate",
+	overallPiControl = "Cumulative control rate",
+	overallPiTreatments = "Cumulative treatment rate",
 
-	overallPisControl = "Overall control rate",
-	overallPisTreatment = "Overall treatment rate",
+	overallPisControl = "Cumulative control rate",
+	overallPisTreatment = "Cumulative treatment rate",
 	
 	stages = "Stage",
 	effectSizes = "Overall effect size",
-	testStatistics = "Test statistic",
+	testStatistics = "Stage-wise test statistic",
 	pValues = "p-value",
 	testActions = "Action",
 	conditionalPower = "Conditional power",
@@ -846,16 +870,16 @@ C_TABLE_COLUMN_NAMES <- list(
 	finalConfidenceIntervalUpperBounds = "Final CI (upper)",
 	medianUnbiasedEstimates = "Median unbiased estimate",
 	
-	overallSampleSizes = "Overall sample size",
-	overallSampleSizes1 = "Overall sample size (1)",
-	overallSampleSizes2 = "Overall sample size (2)",
+	overallSampleSizes = "Cumulative sample size",
+	overallSampleSizes1 = "Cumulative sample size (1)",
+	overallSampleSizes2 = "Cumulative sample size (2)",
 	overallTestStatistics = "Overall test statistic", 
 	overallPValues = "Overall p-value", 
-	overallMeans1 = "Overall mean (1)", 
-	overallMeans2 = "Overall mean (2)", 
-	overallStDevs1 = "Overall standard deviation (1)", 
-	overallStDevs2 = "Overall standard deviation (2)", 
-	overallStDevs = "Overall (pooled) standard deviation", 
+	overallMeans1 = "Cumulative mean (1)", 
+	overallMeans2 = "Cumulative mean (2)", 
+	overallStDevs1 = "Cumulative standard deviation (1)", 
+	overallStDevs2 = "Cumulative standard deviation (2)", 
+	overallStDevs = "Cumulative (pooled) standard deviation", 
 	testStatistics = "Test statistic", 
 	combInverseNormal = "Inverse Normal Combination", 
 	combFisher = "Fisher Combination", 
@@ -863,10 +887,10 @@ C_TABLE_COLUMN_NAMES <- list(
 	weightsInverseNormal = "Fixed weight",
 	
 	overallLogRanks = "Overall log-rank",
-	overallEvents = "Overall # events",
-	overallEvents1 = "Overall # events (1)",
-	overallEvents2 = "Overall # events (2)",
-	overallAllocationRatios = "Overall allocation ratio",
+	overallEvents = "Cumulative # events",
+	overallEvents1 = "Cumulative # events (1)",
+	overallEvents2 = "Cumulative # events (2)",
+	overallAllocationRatios = "Cumulative allocation ratio",
 	events = "# events", 
 	allocationRatios = "Allocation ratio",
 	logRanks = "Log-rank",
@@ -902,6 +926,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	
 	omega = "Probability of an event",
 	hazardRatio = "Hazard ratio",
+	hazardRatios = "Hazard ratios",
 	
 	typeOfComputation = "Type of computation",
 	accountForObservationTimes = "Account for observation times",
@@ -981,7 +1006,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	absoluteAccrualIntensityEnabled = "Absolute accrual intensity is enabled",
 	
 	time = "Time",
-	overallEventProbabilities = "Overall event probability",
+	overallEventProbabilities = "Cumulative event probability",
 	eventProbabilities1 = "Event probability (1)",
 	eventProbabilities2 = "Event probability (2)",
 	
@@ -992,7 +1017,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	singleStepAdjustedPValues = "Single step adjusted p-value",
 	intersectionTest = "Intersection test",
 	varianceOption = "Variance option",
-	overallPooledStDevs = "Overall (pooled) standard deviation",
+	overallPooledStDevs = "Cumulative (pooled) standard deviation",
 	optimumAllocationRatio = "Optimum allocation ratio",
 	
 	rejected = "Rejected",
@@ -1029,7 +1054,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	piMaxVector = "pi_max",
 	omegaMaxVector = "omega_max",
 	muMaxVector = "mu_max",
-	activeArms = "Active arms",
+	activeArms = "Active arm",
+    populations = "Population",
 	
 	numberOfEvents = "Number of events",
 	calcSubjectsFunction = "Calc subjects fun",
@@ -1049,7 +1075,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	effectList = "Effect list",
 	subGroups = "Sub-group",
 	prevalences = "Prevalence",
-	effects = "Effect"
+	effects = "Effect",
+	situation = "Situation"
 )
 
 .getTableColumnNames <- function(design = NULL, designPlan = NULL) {
@@ -1191,6 +1218,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	
 	omega = ".formatRates",
 	hazardRatio = ".formatRates",
+	hazardRatios = ".formatRates",
 	
 	pi1 = ".formatRates",
 	pi2 = ".formatRates",
@@ -1263,7 +1291,10 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	
 	piControl = ".formatRates",
 	piControls = ".formatRates",
+	piTreatment = ".formatRates",
 	piTreatments = ".formatRates",
+    piTreatmentH1 = ".formatRates",
+    piTreatmentsH1 = ".formatRates",
 
 	overallPiControl = ".formatRates",
 	overallPiTreatments = ".formatRates",

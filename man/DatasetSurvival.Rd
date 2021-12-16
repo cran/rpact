@@ -18,9 +18,9 @@ with suitable arguments to create a dataset of survival data.
 
 \item{\code{stages}}{The stage numbers.}
 
-\item{\code{overallEvents}}{The overall events.}
+\item{\code{overallEvents}}{The cumulative events.}
 
-\item{\code{overallAllocationRatios}}{The overall allocations ratios.}
+\item{\code{overallAllocationRatios}}{The cumulative allocations ratios.}
 
 \item{\code{overallLogRanks}}{The overall logrank test statistics.}
 

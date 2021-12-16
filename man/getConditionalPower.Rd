@@ -11,17 +11,17 @@ getConditionalPower(stageResults, ..., nPlanned, allocationRatioPlanned = 1)
 
 \item{...}{Further (optional) arguments to be passed:
 \describe{
-  \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The 
+  \item{\code{thetaH1} and \code{assumedStDevs} or \code{piTreatments}, \code{piControl}}{The
      assumed effect size or assumed rates to calculate the conditional power in multi-arm trials
      or enrichment designs. For survival designs, \code{thetaH1} refers to the hazard ratio.
-     You can specify a value or a vector with elements referring to the 
+     You can specify a value or a vector with elements referring to the
      treatment arms or the sub-populations, respectively.
      For testing means, an assumed standard deviation can be specified, default is \code{1}.}
-  \item{\code{iterations}}{Iterations for simulating the power for Fisher's combination test. 
-      If the power for more than one remaining stages is to be determined for Fisher's combination test, 
-      it is estimated via simulation with specified \cr 
+  \item{\code{iterations}}{Iterations for simulating the power for Fisher's combination test.
+      If the power for more than one remaining stages is to be determined for Fisher's combination test,
+      it is estimated via simulation with specified \cr
       \code{iterations}, the default value is \code{10000}.}
-  \item{\code{seed}}{Seed for simulating the power for Fisher's combination test. 
+  \item{\code{seed}}{Seed for simulating the power for Fisher's combination test.
       See above, default is a random seed.}
 }}
 
@@ -53,7 +53,7 @@ Calculates and returns the conditional power.
 \details{
 The conditional power is calculated only if the effect size and the sample size is specified.
 
-For Fisher's combination test, the conditional power for more than one remaining stages is 
+For Fisher's combination test, the conditional power for more than one remaining stages is
 estimated via simulation.
 }
 \section{How to get help for generic functions}{

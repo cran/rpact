@@ -44,7 +44,7 @@ and \code{sided} can be directly entered as argument where necessary.}
 \item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{activeArms}{The number of active treatment arms to be compared with control, default is 3.}
+\item{activeArms}{The number of active treatment arms to be compared with control, default is \code{3}.}
 
 \item{effectMatrix}{Matrix of effect sizes with \code{activeArms} columns and number of rows 
 reflecting the different situations to consider.}
@@ -57,13 +57,13 @@ For \code{"linear"} and \code{"sigmoidEmax"}, \code{"muMaxVector"} specifies the
 of effect sizes for the treatment group with highest response.    
 If \code{"userDefined"} is selected, \code{"effectMatrix"} has to be entered.}
 
-\item{omegaMaxVector}{Range of hazard ratios with highest response for \code{"linear"} and 
+\item{omegaMaxVector}{Range of hazard ratios with highest response for \code{"linear"} and
 \code{"sigmoidEmax"} model, default is \code{seq(1, 2.6, 0.4)}.}
 
-\item{gED50}{If \code{"sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
+\item{gED50}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
 to specify the ED50 of the sigmoid Emax model.}
 
-\item{slope}{If \code{"sigmoidEmax"} is selected, \code{"slope"} can be entered 
+\item{slope}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"slope"} can be entered 
 to specify the slope of the sigmoid Emax model, default is 1.}
 
 \item{intersectionTest}{Defines the multiple test for the intersection 
@@ -96,21 +96,21 @@ if the efficacy criterion is fulfilled for all selected treatment arms/populatio
 \code{"atLeastOne"} stops if at least one of the selected treatment arms/populations is shown to be 
 superior to control at interim, default is \code{"all"}.}
 
-\item{correlationComputation}{If \code{correlationComputation = "alternative"}, 
-for simulating log-rank statistics in the many-to-one design, a correlation 
-matrix according to Deng et al. (Biometrics, 2019) accounting for the 
+\item{correlationComputation}{If \code{correlationComputation = "alternative"},
+for simulating log-rank statistics in the many-to-one design, a correlation
+matrix according to Deng et al. (Biometrics, 2019) accounting for the
 respective alternative is used;
-if \code{correlationComputation = "null"}, a constant correlation matrix valid 
-under the null, i.e., not accounting for the alternative is used, 
+if \code{correlationComputation = "null"}, a constant correlation matrix valid
+under the null, i.e., not accounting for the alternative is used,
  default is \code{"alternative"}.}
 
-\item{epsilonValue}{For \code{"epsilon"} (select treatment arm not worse than 
+\item{epsilonValue}{For \code{typeOfSelection = "epsilon"} (select treatment arm / population not worse than 
 epsilon compared to the best), the parameter \code{epsilonValue} has to be specified.}
 
-\item{rValue}{For \code{"rbest"} (select the \code{rValue} best treatment arms), 
+\item{rValue}{For \code{typeOfSelection = "rbest"} (select the \code{rValue} best treatment arms / populations), 
 the parameter \code{rValue} has to be specified.}
 
-\item{threshold}{Selection criterion: treatment arm is selected only if \code{effectMeasure} 
+\item{threshold}{Selection criterion: treatment arm / population is selected only if \code{effectMeasure} 
 exceeds \code{threshold}, default is \code{-Inf}. 
 \code{threshold} can also be a vector of length \code{activeArms} referring to 
 a separate threshold condition over the treatment arms.}
@@ -143,7 +143,7 @@ hazard ratios) as parameters under which it is calculated and the sample size re
 \item{thetaH1}{If specified, the value of the alternative under which 
 the conditional power or sample size recalculation calculation is performed.}
 
-\item{maxNumberOfIterations}{The number of simulation iterations, default is 1000.}
+\item{maxNumberOfIterations}{The number of simulation iterations, default is \code{1000}.}
 
 \item{seed}{The seed to reproduce the simulation, default is a random seed.}
 
@@ -172,36 +172,36 @@ The following generics (R generic functions) are available for this object:
 }
 }
 \description{
-Returns the simulated power, stopping and selection probabilities, conditional power, and  
-expected sample size for testing hazard ratios in a multi-arm treatment groups testing situation. 
+Returns the simulated power, stopping and selection probabilities, conditional power, and
+expected sample size for testing hazard ratios in a multi-arm treatment groups testing situation.
 In contrast to \code{getSimulationSurvival()} (where survival times are simulated), normally
 distributed logrank test statistics are simulated.
 }
 \details{
-At given design the function simulates the power, stopping probabilities, 
-selection probabilities, and expected sample size at given number of subjects, 
-parameter configuration, and treatment arm selection rule in the multi-arm situation. 
-An allocation ratio can be specified referring to the ratio of number of subjects 
+At given design the function simulates the power, stopping probabilities,
+selection probabilities, and expected sample size at given number of subjects,
+parameter configuration, and treatment arm selection rule in the multi-arm situation.
+An allocation ratio can be specified referring to the ratio of number of subjects
 in the active treatment groups as compared to the control group.
- 
+
 The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
-and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and 
+and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and
 \code{maxNumberOfEventsPerStage} (or \code{calcEventsFunction}) are defined.
 
-\code{calcEventsFunction}\cr 
-This function returns the number of events at given conditional power 
-and conditional critical value for specified testing situation. 
-The function might depend on the variables 
-\code{stage}, 
-\code{selectedArms}, 
-\code{plannedEvents}, 
-\code{directionUpper}, 
-\code{allocationRatioPlanned}, 
-\code{minNumberOfEventsPerStage}, 
-\code{maxNumberOfEventsPerStage}, 
-\code{conditionalPower}, 
-\code{conditionalCriticalValue}, and 
-\code{overallEffects}. 
+\code{calcEventsFunction}\cr
+This function returns the number of events at given conditional power
+and conditional critical value for specified testing situation.
+The function might depend on the variables
+\code{stage},
+\code{selectedArms},
+\code{plannedEvents},
+\code{directionUpper},
+\code{allocationRatioPlanned},
+\code{minNumberOfEventsPerStage},
+\code{maxNumberOfEventsPerStage},
+\code{conditionalPower},
+\code{conditionalCriticalValue}, and
+\code{overallEffects}.
 The function has to contain the three-dots argument '...' (see examples).
 }
 \section{How to get help for generic functions}{

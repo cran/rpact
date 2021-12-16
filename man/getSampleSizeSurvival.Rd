@@ -109,10 +109,10 @@ intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
 Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
 i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.}
 
-\item{followUpTime}{The assumed (additional) follow-up time for the study, default is \code{6}. 
+\item{followUpTime}{The assumed (additional) follow-up time for the study, default is \code{6}.
 The total study duration is \code{accrualTime + followUpTime}.}
 
-\item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified, 
+\item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified,
 the follow-up time for the required number of events is determined.}
 
 \item{dropoutRate1}{The assumed drop-out rate in the treatment group, default is \code{0}.}
@@ -138,23 +138,23 @@ The following generics (R generic functions) are available for this result objec
 Returns the sample size for testing the hazard ratio in a two treatment groups survival design.
 }
 \details{
-At given design the function calculates the number of events and an estimate for the 
-necessary number of subjects for testing the hazard ratio in a survival design. 
-It also calculates the time when the required events are expected under the given 
-assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times 
-and constant or non-constant piecewise accrual). 
-Additionally, an allocation ratio = \code{n1 / n2} can be specified where \code{n1} and \code{n2} are the number 
-of subjects in the two treatment groups. 
+At given design the function calculates the number of events and an estimate for the
+necessary number of subjects for testing the hazard ratio in a survival design.
+It also calculates the time when the required events are expected under the given
+assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times
+and constant or non-constant piecewise accrual).
+Additionally, an allocation ratio = \code{n1 / n2} can be specified where \code{n1} and \code{n2} are the number
+of subjects in the two treatment groups.
 
-Optional argument \code{accountForObservationTimes}: if \code{accountForObservationTimes = TRUE}, the number of 
-subjects is calculated assuming specific accrual and follow-up time, default is \code{TRUE}. 
+Optional argument \code{accountForObservationTimes}: if \code{accountForObservationTimes = TRUE}, the number of
+subjects is calculated assuming specific accrual and follow-up time, default is \code{TRUE}.
 
-The formula of Kim & Tsiatis (Biometrics, 1990) 
-is used to calculate the expected number of events under the alternative 
-(see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized 
+The formula of Kim & Tsiatis (Biometrics, 1990)
+is used to calculate the expected number of events under the alternative
+(see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized
 to piecewise survival times and non-constant piecewise accrual over time.\cr
 
-Optional argument \code{accountForObservationTimes}: if \code{accountForObservationTimes = FALSE}, 
+Optional argument \code{accountForObservationTimes}: if \code{accountForObservationTimes = FALSE},
 only the event rates are used for the calculation of the maximum number of subjects.
 }
 \section{Piecewise survival time}{

@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-class_analysis_dataset.R
-#:#  Creation date: 25 June 2021, 09:14:02
-#:#  File version: $Revision: 5119 $
-#:#  Last changed: $Date: 2021-08-05 14:59:38 +0200 (Thu, 05 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-class_analysis_dataset.R
+## |  Creation date: 08 December 2021, 08:59:06
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Class 'Dataset'")
 
@@ -60,6 +60,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(datasetOfMeans1CodeBased$overallSampleSizes, datasetOfMeans1$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans1CodeBased$overallMeans, datasetOfMeans1$overallMeans, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans1CodeBased$overallStDevs, datasetOfMeans1$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(datasetOfMeans1), "character")
+	    df <- as.data.frame(datasetOfMeans1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfMeans1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfMeans1$.data' with expected results
@@ -115,6 +122,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -150,6 +164,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -185,6 +206,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	datasetOfMeans2 <- getDataset(data.frame(
@@ -227,6 +255,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -262,6 +297,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -297,6 +339,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	datasetOfMeans3 <- getDataset(
@@ -333,6 +382,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(datasetOfMeans3CodeBased$overallSampleSizes, datasetOfMeans3$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans3CodeBased$overallMeans, datasetOfMeans3$overallMeans, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans3CodeBased$overallStDevs, datasetOfMeans3$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(datasetOfMeans3), "character")
+	    df <- as.data.frame(datasetOfMeans3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfMeans3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfMeans3$.data' with expected results
@@ -377,6 +433,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -412,6 +475,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -447,6 +517,13 @@ test_that("Usage of 'getDataset'", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -488,6 +565,13 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_equal(datasetOfMeans4CodeBased$overallSampleSizes, datasetOfMeans4$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans4CodeBased$overallMeans, datasetOfMeans4$overallMeans, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans4CodeBased$overallStDevs, datasetOfMeans4$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(datasetOfMeans4), "character")
+	    df <- as.data.frame(datasetOfMeans4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfMeans4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfMeans4$.data' with expected results
@@ -526,6 +610,13 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -555,6 +646,13 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -584,6 +682,13 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -625,6 +730,13 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_equal(datasetOfMeans5CodeBased$overallSampleSizes, datasetOfMeans5$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans5CodeBased$overallMeans, datasetOfMeans5$overallMeans, tolerance = 1e-05)
 	    expect_equal(datasetOfMeans5CodeBased$overallStDevs, datasetOfMeans5$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(datasetOfMeans5), "character")
+	    df <- as.data.frame(datasetOfMeans5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfMeans5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfMeans5$.data' with expected results
@@ -663,6 +775,13 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults2' with expected results
@@ -692,6 +811,13 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsMeans object 'x$stageResults3' with expected results
@@ -721,6 +847,13 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -810,6 +943,13 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	    expect_equal(datasetOfRates1CodeBased$events, datasetOfRates1$events, tolerance = 1e-05)
 	    expect_equal(datasetOfRates1CodeBased$overallSampleSizes, datasetOfRates1$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfRates1CodeBased$overallEvents, datasetOfRates1$overallEvents, tolerance = 1e-05)
+	    expect_type(names(datasetOfRates1), "character")
+	    df <- as.data.frame(datasetOfRates1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfRates1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates1$.data' with expected results
@@ -844,6 +984,13 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	    expect_equal(x$stageResults1CodeBased$overallPi1, x$stageResults1$overallPi1, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults2' with expected results
@@ -854,7 +1001,7 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	expect_equal(x$stageResults2$overallPi1, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$testStatistics, c(-13.929113, -15.573222, -13.098993, -14.818182, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
-	expect_equal(x$stageResults2$combInverseNormal, c(-Inf, -Inf, -Inf, -Inf, NA_real_))
+	expect_equal(x$stageResults2$combInverseNormal, c(-38.449394, -54.375655, -66.596305, -76.898789, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$weightsInverseNormal, c(0.4472136, 0.4472136, 0.4472136, 0.4472136, 0.4472136), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x$stageResults2), NA)))
@@ -871,6 +1018,13 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	    expect_equal(x$stageResults2CodeBased$pValues, x$stageResults2$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults3' with expected results
@@ -898,6 +1052,13 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	    expect_equal(x$stageResults3CodeBased$pValues, x$stageResults3$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -936,6 +1097,13 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_equal(datasetOfRates2CodeBased$events, datasetOfRates2$events, tolerance = 1e-05)
 	    expect_equal(datasetOfRates2CodeBased$overallSampleSizes, datasetOfRates2$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfRates2CodeBased$overallEvents, datasetOfRates2$overallEvents, tolerance = 1e-05)
+	    expect_type(names(datasetOfRates2), "character")
+	    df <- as.data.frame(datasetOfRates2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfRates2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates2$.data' with expected results
@@ -978,6 +1146,13 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults2' with expected results
@@ -992,7 +1167,7 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	expect_equal(x$stageResults2$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$combInverseNormal, c(-Inf, -Inf, -Inf, -Inf, NA_real_))
+	expect_equal(x$stageResults2$combInverseNormal, c(-38.449394, -54.375655, -66.596305, -76.898789, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$weightsInverseNormal, c(0.4472136, 0.4472136, 0.4472136, 0.4472136, 0.4472136), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x$stageResults2), NA)))
@@ -1013,6 +1188,13 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults3' with expected results
@@ -1048,6 +1230,13 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1090,6 +1279,13 @@ test_that("Creation of a dataset of rates using stage wise data (four groups)", 
 	    expect_equal(datasetOfRates3CodeBased$events, datasetOfRates3$events, tolerance = 1e-05)
 	    expect_equal(datasetOfRates3CodeBased$overallSampleSizes, datasetOfRates3$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfRates3CodeBased$overallEvents, datasetOfRates3$overallEvents, tolerance = 1e-05)
+	    expect_type(names(datasetOfRates3), "character")
+	    df <- as.data.frame(datasetOfRates3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfRates3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates3$.data' with expected results
@@ -1137,6 +1333,13 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_equal(datasetOfRates4CodeBased$events, datasetOfRates4$events, tolerance = 1e-05)
 	    expect_equal(datasetOfRates4CodeBased$overallSampleSizes, datasetOfRates4$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfRates4CodeBased$overallEvents, datasetOfRates4$overallEvents, tolerance = 1e-05)
+	    expect_type(names(datasetOfRates4), "character")
+	    df <- as.data.frame(datasetOfRates4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfRates4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates4$.data' with expected results
@@ -1179,6 +1382,13 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_equal(x$stageResults1CodeBased$testStatistics, x$stageResults1$testStatistics, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults2' with expected results
@@ -1193,7 +1403,7 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	expect_equal(x$stageResults2$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$combInverseNormal, c(-Inf, -Inf, -Inf, -Inf, NA_real_))
+	expect_equal(x$stageResults2$combInverseNormal, c(-38.449394, -54.375655, -66.596305, -76.898789, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$weightsInverseNormal, c(0.4472136, 0.4472136, 0.4472136, 0.4472136, 0.4472136), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x$stageResults2), NA)))
@@ -1214,6 +1424,13 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsRates object 'x$stageResults3' with expected results
@@ -1249,6 +1466,13 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1289,6 +1513,13 @@ test_that("Creation of a dataset of rates using overall data (three groups)", {
 	    expect_equal(datasetOfRates5CodeBased$events, datasetOfRates5$events, tolerance = 1e-05)
 	    expect_equal(datasetOfRates5CodeBased$overallSampleSizes, datasetOfRates5$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(datasetOfRates5CodeBased$overallEvents, datasetOfRates5$overallEvents, tolerance = 1e-05)
+	    expect_type(names(datasetOfRates5), "character")
+	    df <- as.data.frame(datasetOfRates5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetOfRates5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetOfRates5$.data' with expected results
@@ -1376,6 +1607,13 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_equal(datasetSurvival1CodeBased$events, datasetSurvival1$events, tolerance = 1e-05)
 	    expect_equal(datasetSurvival1CodeBased$allocationRatios, datasetSurvival1$allocationRatios, tolerance = 1e-05)
 	    expect_equal(datasetSurvival1CodeBased$logRanks, datasetSurvival1$logRanks, tolerance = 1e-05)
+	    expect_type(names(datasetSurvival1), "character")
+	    df <- as.data.frame(datasetSurvival1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetSurvival1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetSurvival1$.data' with expected results
@@ -1418,6 +1656,13 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults2' with expected results
@@ -1451,6 +1696,13 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults3' with expected results
@@ -1484,6 +1736,13 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	expect_equal(factor(datasetSurvival1$stages), datasetSurvival1$.data$stage, tolerance = 1e-07)
@@ -1534,6 +1793,13 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_equal(datasetSurvival2CodeBased$events, datasetSurvival2$events, tolerance = 1e-05)
 	    expect_equal(datasetSurvival2CodeBased$allocationRatios, datasetSurvival2$allocationRatios, tolerance = 1e-05)
 	    expect_equal(datasetSurvival2CodeBased$logRanks, datasetSurvival2$logRanks, tolerance = 1e-05)
+	    expect_type(names(datasetSurvival2), "character")
+	    df <- as.data.frame(datasetSurvival2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetSurvival2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetSurvival2$.data' with expected results
@@ -1576,6 +1842,13 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_equal(x$stageResults1CodeBased$pValues, x$stageResults1$pValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$overallPValues, x$stageResults1$overallPValues, tolerance = 1e-05)
 	    expect_equal(x$stageResults1CodeBased$effectSizes, x$stageResults1$effectSizes, tolerance = 1e-05)
+	    expect_type(names(x$stageResults1), "character")
+	    df <- as.data.frame(x$stageResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults2' with expected results
@@ -1609,6 +1882,13 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_equal(x$stageResults2CodeBased$effectSizes, x$stageResults2$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$combInverseNormal, x$stageResults2$combInverseNormal, tolerance = 1e-05)
 	    expect_equal(x$stageResults2CodeBased$weightsInverseNormal, x$stageResults2$weightsInverseNormal, tolerance = 1e-05)
+	    expect_type(names(x$stageResults2), "character")
+	    df <- as.data.frame(x$stageResults2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of StageResultsSurvival object 'x$stageResults3' with expected results
@@ -1642,6 +1922,13 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_equal(x$stageResults3CodeBased$effectSizes, x$stageResults3$effectSizes, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$combFisher, x$stageResults3$combFisher, tolerance = 1e-05)
 	    expect_equal(x$stageResults3CodeBased$weightsFisher, x$stageResults3$weightsFisher, tolerance = 1e-05)
+	    expect_type(names(x$stageResults3), "character")
+	    df <- as.data.frame(x$stageResults3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x$stageResults3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	datasetSurvival3 <- getDataset(
@@ -1678,6 +1965,13 @@ test_that("Creation of a dataset of survival data using overall data", {
 	    expect_equal(datasetSurvival3CodeBased$events, datasetSurvival3$events, tolerance = 1e-05)
 	    expect_equal(datasetSurvival3CodeBased$allocationRatios, datasetSurvival3$allocationRatios, tolerance = 1e-05)
 	    expect_equal(datasetSurvival3CodeBased$logRanks, datasetSurvival3$logRanks, tolerance = 1e-05)
+	    expect_type(names(datasetSurvival3), "character")
+	    df <- as.data.frame(datasetSurvival3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(datasetSurvival3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	## Comparison of the results of data.frame object 'datasetSurvival3$.data' with expected results
@@ -1982,6 +2276,13 @@ test_that("Creation of a dataset of means with subsets", {
 	    expect_equal(xCodeBased$overallSampleSizes, x$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(xCodeBased$overallMeans, x$overallMeans, tolerance = 1e-05)
 	    expect_equal(xCodeBased$overallStDevs, x$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x2 <- getDataset(
@@ -2020,6 +2321,13 @@ test_that("Creation of a dataset of means with subsets", {
 	    expect_equal(x2CodeBased$overallSampleSizes, x2$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$overallMeans, x2$overallMeans, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$overallStDevs, x2$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	expect_equal(x$sampleSizes, x2$sampleSizes) 
@@ -2064,6 +2372,13 @@ test_that("Creation of a dataset of rates with subsets", {
 	    expect_equal(xCodeBased$events, x$events, tolerance = 1e-05)
 	    expect_equal(xCodeBased$overallSampleSizes, x$overallSampleSizes, tolerance = 1e-05)
 	    expect_equal(xCodeBased$overallEvents, x$overallEvents, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2106,6 +2421,13 @@ test_that("Creation of a dataset of survival data with subsets", {
 	    expect_equal(xCodeBased$events, x$events, tolerance = 1e-05)
 	    expect_equal(xCodeBased$allocationRatios, x$allocationRatios, tolerance = 1e-05)
 	    expect_equal(xCodeBased$logRanks, x$logRanks, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2189,7 +2511,7 @@ test_that("Illegal creation of a dataset of means with subsets: wrong deselectio
 
 	expect_error(getDataset(S1 = S1, R = R), 
 		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be deselected (NA) ",
-			"but, e.g., 'sampleSize' R is 21 in group 1 at stage 2"), fixed = TRUE)
+			"but, e.g., ", sQuote("sampleSize"), " R is 21 in group 1 at stage 2"), fixed = TRUE)
 
 })
 
@@ -2330,7 +2652,7 @@ test_that("Illegal creation of a dataset of means with subsets: wrong deselectio
 
 	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
 		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be deselected ", 
-			"(NA) but, e.g., 'sampleSize' R is 19 in group 1 at stage 2"), fixed = TRUE)
+			"(NA) but, e.g., ", sQuote("sampleSize"), " R is 19 in group 1 at stage 2"), fixed = TRUE)
 
 })
 
@@ -2432,7 +2754,7 @@ test_that("Illegal creation of a dataset of rates with subsets: wrong deselectio
 
 	expect_error(getDataset(S1 = S1, R = R), 
 		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be ",
-		"deselected (NA) but, e.g., 'sampleSize' R is 37 in group 1 at stage 3"), fixed = TRUE)
+		"deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 37 in group 1 at stage 3"), fixed = TRUE)
 
 })
 
@@ -2504,7 +2826,7 @@ test_that("Illegal creation of a dataset of rates with subsets: wrong deselectio
 
 	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
 		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be ",
-		"deselected (NA) but, e.g., 'sampleSize' R is 43 in group 1 at stage 2"), fixed = TRUE)
+		"deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 43 in group 1 at stage 2"), fixed = TRUE)
 
 })
 
@@ -2539,7 +2861,7 @@ test_that("Creation of a dataset of rates with subsets: empty subsets", {
 	)
 
 	expect_warning(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R), 
-		"The 4 undefined subsets S12, S13, S123, S23 were defined as empty subsets", fixed = TRUE)
+		"The 4 undefined subsets S12, S13, S23, S123 were defined as empty subsets", fixed = TRUE)
 
 })
 
@@ -2575,7 +2897,7 @@ test_that("Illegal creation of a dataset of rates with subsets: wrong deselectio
 
 	expect_warning(expect_error(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R), 
 		paste0("Conflicting arguments: if S3 is deselected (NA) then R also must be ", 
-		"deselected (NA) but, e.g., 'sampleSize' R is 95 in group 1 at stage 2"), fixed = TRUE))
+		"deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 95 in group 1 at stage 2"), fixed = TRUE))
 
 })
 
@@ -2617,7 +2939,7 @@ test_that("Illegal creation of a dataset of survival data with subsets: wrong de
 
 	expect_error(getDataset(S1 = S1, R = R), 
 		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must ",
-		"be deselected (NA) but, e.g., 'overallEvent' R is 38 in group 1 at stage 2"), fixed = TRUE)
+		"be deselected (NA) but, e.g., ", sQuote("overallEvent"), " R is 38 in group 1 at stage 2"), fixed = TRUE)
 
 })
 
@@ -2668,49 +2990,49 @@ test_that("Illegal creation of a dataset of survival data with subsets: too smal
 test_that("Illegal creation of a dataset of survival data with subsets: inconsistent deselection", {
 
 	expect_error(getDataset(
-					overallExpectedEvents = c(13.4, 35.4, 43.7),
-					overallEvents = c(16, 37, 47),		
-					overallVarianceEvents = c(2.8, 4.7, 3.4),
-					overallAllocationRatios = c(1, 1, NA)
-			), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
-					"mandatory for each parameter at the same stage"), fixed = TRUE)
-	
+		overallExpectedEvents = c(13.4, 35.4, 43.7),
+		overallEvents = c(16, 37, 47),		
+		overallVarianceEvents = c(2.8, 4.7, 3.4),
+		overallAllocationRatios = c(1, 1, NA)
+	), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
+		"mandatory for each parameter at the same stage"), fixed = TRUE)
+
 	S1 <- getDataset(
-			overallExpectedEvents = c(13.4, 35.4, 43.7),
-			overallEvents = c(16, 37, 47),		
-			overallVarianceEvents = c(2.8, 4.7, 3.4),
-			overallAllocationRatios = c(1, 1, 1)
+		overallExpectedEvents = c(13.4, 35.4, 43.7),
+		overallEvents = c(16, 37, 47),		
+		overallVarianceEvents = c(2.8, 4.7, 3.4),
+		overallAllocationRatios = c(1, 1, 1)
 	)
-	
+
 	expect_error(getDataset(
-					overallExpectedEvents = c(11.5, 31.1, NA),
-					overallEvents = c(15, 33, NA),		
-					overallVarianceEvents = c(2.2, 4.4, NA),
-					overallAllocationRatios = c(1, 1, 1)
-			), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
-					"mandatory for each parameter at the same stage"), fixed = TRUE)
-	
+		overallExpectedEvents = c(11.5, 31.1, NA),
+		overallEvents = c(15, 33, NA),		
+		overallVarianceEvents = c(2.2, 4.4, NA),
+		overallAllocationRatios = c(1, 1, 1)
+	), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
+		"mandatory for each parameter at the same stage"), fixed = TRUE)
+
 	S2 <- getDataset(
-			overallExpectedEvents = c(11.5, 31.1, NA),
-			overallEvents = c(15, 33, NA),		
-			overallVarianceEvents = c(2.2, 4.4, NA),
-			overallAllocationRatios = c(1, 1, NA)
+		overallExpectedEvents = c(11.5, 31.1, NA),
+		overallEvents = c(15, 33, NA),		
+		overallVarianceEvents = c(2.2, 4.4, NA),
+		overallAllocationRatios = c(1, 1, NA)
 	)
-	
+
 	S12 <- getDataset(
-			overallExpectedEvents = c(10.1, 29.6, 39.1),
-			overallEvents = c(11, 31, 42),		
-			overallVarianceEvents = c(2.8, 4.7, 3.4),
-			overallAllocationRatios = c(1, 1, 1)
+		overallExpectedEvents = c(10.1, 29.6, 39.1),
+		overallEvents = c(11, 31, 42),		
+		overallVarianceEvents = c(2.8, 4.7, 3.4),
+		overallAllocationRatios = c(1, 1, 1)
 	)
-	
+
 	R <- getDataset(
-			overallExpectedEvents = c(23.3, NA, NA),
-			overallEvents = c(25, NA, NA),		
-			overallVarianceEvents = c(3.9, NA, NA),
-			overallAllocationRatios = c(1, NA, NA)
+		overallExpectedEvents = c(23.3, NA, NA),
+		overallEvents = c(25, NA, NA),		
+		overallVarianceEvents = c(3.9, NA, NA),
+		overallAllocationRatios = c(1, NA, NA)
 	)
-	
+
 	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), NA)
 
 })

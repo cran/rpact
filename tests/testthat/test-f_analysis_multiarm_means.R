@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_analysis_multiarm_means.R
-#:#  Creation date: 18 May 2021, 17:44:19
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_analysis_multiarm_means.R
+## |  Creation date: 08 December 2021, 09:06:01
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Analysis Means Functionality for Three or More Treatments")
 
@@ -98,12 +98,12 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	expect_equal(results1$conditionalPower[1, ], c(NA_real_, NA_real_, 0.42712247, 0.6790579), tolerance = 1e-05)
 	expect_equal(results1$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(results1$conditionalPower[3, ], c(NA_real_, NA_real_, 0.82244694, 0.94484021), tolerance = 1e-05)
-	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[1, ], c(-16.56757, -4.6627973, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[2, ], c(-20.940705, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[3, ], c(-13.521691, 0.049006954, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[1, ], c(-16.567569, -4.6627981, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[2, ], c(-20.940706, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[3, ], c(-13.521691, 0.049006945, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedConfidenceIntervalUpperBounds[1, ], c(46.567569, 28.528695, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedConfidenceIntervalUpperBounds[2, ], c(40.140706, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results1$repeatedConfidenceIntervalUpperBounds[3, ], c(48.521691, 32.491815, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$repeatedConfidenceIntervalUpperBounds[3, ], c(48.521691, 32.491814, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedPValues[1, ], c(0.5, 0.08542716, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedPValues[2, ], c(0.5, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedPValues[3, ], c(0.5, 0.017966281, NA_real_, NA_real_), tolerance = 1e-05)
@@ -120,6 +120,13 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_equal(results1CodeBased$repeatedConfidenceIntervalLowerBounds, results1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results1CodeBased$repeatedConfidenceIntervalUpperBounds, results1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results1CodeBased$repeatedPValues, results1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results1), "character")
+	    df <- as.data.frame(results1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -181,6 +188,13 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_equal(results2CodeBased$repeatedConfidenceIntervalUpperBounds, results2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results2CodeBased$repeatedPValues, results2$repeatedPValues, tolerance = 1e-05)
 	    expect_equal(results2CodeBased$conditionalPowerSimulated, results2$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(results2), "character")
+	    df <- as.data.frame(results2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -240,6 +254,13 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_equal(results3CodeBased$repeatedConfidenceIntervalLowerBounds, results3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results3CodeBased$repeatedConfidenceIntervalUpperBounds, results3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results3CodeBased$repeatedPValues, results3$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results3), "character")
+	    df <- as.data.frame(results3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -277,12 +298,12 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	expect_equal(results4$conditionalPower[1, ], c(NA_real_, NA_real_, 0.44302928, 0.69082025), tolerance = 1e-05)
 	expect_equal(results4$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(results4$conditionalPower[3, ], c(NA_real_, NA_real_, 0.83889182, 0.95069292), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[1, ], c(-44.802158, -28.113846, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[1, ], c(-44.802158, -28.113845, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[2, ], c(-38.432721, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[3, ], c(-46.786808, -32.10754, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(14.802158, 4.2854677, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[2, ], c(19.232722, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[3, ], c(11.786808, -0.41764291, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(14.802158, 4.2854678, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[2, ], c(19.232721, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[3, ], c(11.786808, -0.41764222, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[1, ], c(0.5, 0.078823932, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[2, ], c(0.5, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[3, ], c(0.5, 0.015272156, NA_real_, NA_real_), tolerance = 1e-05)
@@ -299,6 +320,13 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_equal(results4CodeBased$repeatedConfidenceIntervalLowerBounds, results4$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results4CodeBased$repeatedConfidenceIntervalUpperBounds, results4$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results4CodeBased$repeatedPValues, results4$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results4), "character")
+	    df <- as.data.frame(results4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -358,6 +386,13 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_equal(results5CodeBased$repeatedConfidenceIntervalUpperBounds, results5$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results5CodeBased$repeatedPValues, results5$repeatedPValues, tolerance = 1e-05)
 	    expect_equal(results5CodeBased$conditionalPowerSimulated, results5$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(results5), "character")
+	    df <- as.data.frame(results5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -417,6 +452,13 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	    expect_equal(results6CodeBased$repeatedConfidenceIntervalLowerBounds, results6$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results6CodeBased$repeatedConfidenceIntervalUpperBounds, results6$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results6CodeBased$repeatedPValues, results6$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results6), "character")
+	    df <- as.data.frame(results6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

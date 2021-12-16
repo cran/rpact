@@ -27,7 +27,7 @@ that a warning will be displayed if unknown arguments are passed.}
 
 \item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
-\item{riskRatio}{If \code{TRUE}, the power for one-sided 
+\item{riskRatio}{If \code{TRUE}, the power for one-sided
 testing of H0: \code{pi1 / pi2 = thetaH0} is calculated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value, 
@@ -80,15 +80,15 @@ The following generics (R generic functions) are available for this result objec
 Returns the power, stopping probabilities, and expected sample size for testing rates in one or two samples at given sample sizes.
 }
 \details{
-At given design the function calculates the power, stopping probabilities, and expected sample size, 
+At given design the function calculates the power, stopping probabilities, and expected sample size,
 for testing rates for given maximum sample size.
-The sample sizes over the stages are calculated according to the specified information rate in the design. 
-In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified. 
-If a null hypothesis value thetaH0 != 0 for testing the difference of two rates 
-or \code{thetaH0 != 1} for testing the risk ratio is specified, the  
+The sample sizes over the stages are calculated according to the specified information rate in the design.
+In a two treatment groups design, additionally, an allocation ratio = n1/n2 can be specified.
+If a null hypothesis value thetaH0 != 0 for testing the difference of two rates
+or \code{thetaH0 != 1} for testing the risk ratio is specified, the
 formulas according to Farrington & Manning (Statistics in Medicine, 1990) are used (only one-sided testing).
-Critical bounds and stopping for futility bounds are provided at the effect scale (rate, rate difference, or rate ratio, respectively). 
-For the two-sample case, the calculation here is performed at fixed pi2 as given as argument in the function.  
+Critical bounds and stopping for futility bounds are provided at the effect scale (rate, rate difference, or rate ratio, respectively).
+For the two-sample case, the calculation here is performed at fixed pi2 as given as argument in the function.
 Note that the power calculation for rates is always based on the normal approximation.
 }
 \section{How to get help for generic functions}{

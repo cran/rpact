@@ -34,8 +34,8 @@ The following generics (R generic functions) are available for this result objec
 Calculates and returns the results from the closed conditional Dunnett test.
 }
 \details{
-For performing the conditional Dunnett test the design must be defined through the function 
-\code{\link{getDesignConditionalDunnett}}.\cr 
+For performing the conditional Dunnett test the design must be defined through the function
+\code{\link{getDesignConditionalDunnett}}.\cr
 See Koenig et al. (2008) and Wassmer & Brannath (2016), chapter 11 for details of the test procedure.
 }
 \section{How to get help for generic functions}{

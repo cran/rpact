@@ -29,8 +29,8 @@ intensity \code{0.1} (for details see \code{\link{getAccrualTime}}).}
 Must be one of \code{"auto"}, \code{"absolute"}, or \code{"relative"}; default is \code{"auto"},
 i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code{"absolute"}.}
 
-\item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified, 
-the end of accrual at specified \code{accrualIntensity} for the specified number of 
+\item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified,
+the end of accrual at specified \code{accrualIntensity} for the specified number of
 subjects is determined or \code{accrualIntensity} is calculated at fixed end of accrual.}
 }
 \value{
@@ -51,7 +51,7 @@ Returns the number of recruited subjects at given time vector.
 \details{
 Calculate number of subjects over time range at given accrual time vector
 and accrual intensity. Intensity can either be defined in absolute or
-relative terms (for the latter, \code{maxNumberOfSubjects} needs to be defined)\cr 
+relative terms (for the latter, \code{maxNumberOfSubjects} needs to be defined)\cr
 The function is used by \code{\link{getSampleSizeSurvival}}.
 }
 \section{How to get help for generic functions}{

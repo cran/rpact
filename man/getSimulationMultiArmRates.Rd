@@ -45,7 +45,7 @@ and \code{sided} can be directly entered as argument where necessary.}
 \item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{activeArms}{The number of active treatment arms to be compared with control, default is 3.}
+\item{activeArms}{The number of active treatment arms to be compared with control, default is \code{3}.}
 
 \item{effectMatrix}{Matrix of effect sizes with \code{activeArms} columns and number of rows 
 reflecting the different situations to consider.}
@@ -58,17 +58,17 @@ For \code{"linear"} and \code{"sigmoidEmax"}, \code{"muMaxVector"} specifies the
 of effect sizes for the treatment group with highest response.    
 If \code{"userDefined"} is selected, \code{"effectMatrix"} has to be entered.}
 
-\item{piMaxVector}{Range of assumed probabilities for the treatment group with 
-highest response for \code{"linear"} and \code{"sigmoidEmax"} model, 
+\item{piMaxVector}{Range of assumed probabilities for the treatment group with
+highest response for \code{"linear"} and \code{"sigmoidEmax"} model,
 default is \code{seq(0, 1, 0.2)}.}
 
-\item{piControl}{If specified, the assumed probability in the control arm 
+\item{piControl}{If specified, the assumed probability in the control arm
 for simulation and under which the sample size recalculation is performed.}
 
-\item{gED50}{If \code{"sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
+\item{gED50}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"gED50"} has to be entered 
 to specify the ED50 of the sigmoid Emax model.}
 
-\item{slope}{If \code{"sigmoidEmax"} is selected, \code{"slope"} can be entered 
+\item{slope}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"slope"} can be entered 
 to specify the slope of the sigmoid Emax model, default is 1.}
 
 \item{intersectionTest}{Defines the multiple test for the intersection 
@@ -101,13 +101,13 @@ if the efficacy criterion is fulfilled for all selected treatment arms/populatio
 \code{"atLeastOne"} stops if at least one of the selected treatment arms/populations is shown to be 
 superior to control at interim, default is \code{"all"}.}
 
-\item{epsilonValue}{For \code{"epsilon"} (select treatment arm not worse than 
+\item{epsilonValue}{For \code{typeOfSelection = "epsilon"} (select treatment arm / population not worse than 
 epsilon compared to the best), the parameter \code{epsilonValue} has to be specified.}
 
-\item{rValue}{For \code{"rbest"} (select the \code{rValue} best treatment arms), 
+\item{rValue}{For \code{typeOfSelection = "rbest"} (select the \code{rValue} best treatment arms / populations), 
 the parameter \code{rValue} has to be specified.}
 
-\item{threshold}{Selection criterion: treatment arm is selected only if \code{effectMeasure} 
+\item{threshold}{Selection criterion: treatment arm / population is selected only if \code{effectMeasure} 
 exceeds \code{threshold}, default is \code{-Inf}. 
 \code{threshold} can also be a vector of length \code{activeArms} referring to 
 a separate threshold condition over the treatment arms.}
@@ -142,13 +142,13 @@ the conditional power will be calculated under the observed effect size. Optiona
 \code{stDevH1} (for simulating means), \code{pi1H1} and \code{pi2H1} (for simulating rates), or \code{thetaH1} (for simulating
 hazard ratios) as parameters under which it is calculated and the sample size recalculation is performed.}
 
-\item{piH1}{If specified, the assumed probability in the active treatment arm(s) 
+\item{piH1}{If specified, the assumed probability in the active treatment arm(s)
 under which the sample size recalculation is performed.}
 
-\item{piControlH1}{If specified, the assumed probability in the reference group 
+\item{piControlH1}{If specified, the assumed probability in the reference group
 (if different from \code{piControl}) for which the conditional power was calculated.}
 
-\item{maxNumberOfIterations}{The number of simulation iterations, default is 1000.}
+\item{maxNumberOfIterations}{The number of simulation iterations, default is \code{1000}.}
 
 \item{seed}{The seed to reproduce the simulation, default is a random seed.}
 
@@ -177,33 +177,33 @@ The following generics (R generic functions) are available for this object:
 }
 }
 \description{
-Returns the simulated power, stopping and selection probabilities, conditional power,  
+Returns the simulated power, stopping and selection probabilities, conditional power,
 and expected sample size for testing rates in a multi-arm treatment groups testing situation.
 }
 \details{
-At given design the function simulates the power, stopping probabilities, 
-selection probabilities, and expected sample size at given number of subjects, 
-parameter configuration, and treatment arm selection rule in the multi-arm situation. 
-An allocation ratio can be specified referring to the ratio of number of 
+At given design the function simulates the power, stopping probabilities,
+selection probabilities, and expected sample size at given number of subjects,
+parameter configuration, and treatment arm selection rule in the multi-arm situation.
+An allocation ratio can be specified referring to the ratio of number of
 subjects in the active treatment groups as compared to the control group.
- 
+
 The definition of \code{pi1H1} and/or \code{piControl} makes only sense if \code{kMax} > 1
-and if \code{conditionalPower}, \code{minNumberOfSubjectsPerStage}, and 
+and if \code{conditionalPower}, \code{minNumberOfSubjectsPerStage}, and
 \code{maxNumberOfSubjectsPerStage} (or \code{calcSubjectsFunction}) are defined.
-  
-\code{calcSubjectsFunction}\cr 
-This function returns the number of subjects at given conditional power and 
-conditional critical value for specified testing situation. 
-The function might depend on the variables 
+
+\code{calcSubjectsFunction}\cr
+This function returns the number of subjects at given conditional power and
+conditional critical value for specified testing situation.
+The function might depend on the variables
 \code{stage},
-\code{selectedArms},  
-\code{directionUpper}, 
-\code{plannedSubjects}, 
-\code{allocationRatioPlanned}, 
-\code{minNumberOfSubjectsPerStage}, 
-\code{maxNumberOfSubjectsPerStage}, 
-\code{conditionalPower}, 
-\code{conditionalCriticalValue}, 
+\code{selectedArms},
+\code{directionUpper},
+\code{plannedSubjects},
+\code{allocationRatioPlanned},
+\code{minNumberOfSubjectsPerStage},
+\code{maxNumberOfSubjectsPerStage},
+\code{conditionalPower},
+\code{conditionalCriticalValue},
 \code{overallRates},
 \code{overallRatesControl},
 \code{piH1}, and

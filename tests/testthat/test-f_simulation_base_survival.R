@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_simulation_base_survival.R
-#:#  Creation date: 18 May 2021, 17:48:09
-#:#  File version: $Revision: 5169 $
-#:#  Last changed: $Date: 2021-08-17 07:54:37 +0200 (Tue, 17 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_simulation_base_survival.R
+## |  Creation date: 08 December 2021, 09:09:34
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Simulation Survival Function")
 
@@ -57,7 +57,6 @@ test_that("'getSimulationSurvival': configuration 1", {
 	expect_lte(object = simulationResults$overallReject[3], expected = 1)
 	expect_lte(object = simulationResults$overallReject[4], expected = 1)
 	expect_equal(simulationResults$rejectPerStage[1, ], c(0.01, 0.41, 0.81, 1), tolerance = 1e-07)
-	expect_equal(simulationResults$futilityStop, c(0, 0, 0, 0))
 	expect_equal(simulationResults$earlyStop, c(0, 0, 0, 0))
 	expect_equal(simulationResults$expectedNumberOfSubjects, c(200, 200, 200, 200))
 	expect_equal(simulationResults$expectedNumberOfEvents, c(50, 50, 50, 50))
@@ -79,11 +78,17 @@ test_that("'getSimulationSurvival': configuration 1", {
 	    expect_equal(simulationResultsCodeBased$iterations, simulationResults$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$overallReject, simulationResults$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$rejectPerStage, simulationResults$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultsCodeBased$futilityStop, simulationResults$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$futilityPerStage, simulationResults$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$earlyStop, simulationResults$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfSubjects, simulationResults$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -182,6 +187,13 @@ test_that("'getSimulationSurvival': configuration 2", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 })
 
@@ -278,6 +290,13 @@ test_that("'getSimulationSurvival': configuration 3", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -369,6 +388,13 @@ test_that("'getSimulationSurvival': configuration 4", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -466,6 +492,13 @@ test_that("'getSimulationSurvival': configuration 5", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -493,17 +526,15 @@ test_that("'getSimulationSurvival': configuration 6", {
 		"15 - <21" = 0.01, 
 		">=21"      = 0.007)
 
-	# workaround to deactivate warnings during test execution
-	currentWarningOption <- getOption("warn")
-	options(warn = -1)
-	simulationResults <- getSimulationSurvival(design = design, 
+	suppressWarnings(simulationResults <- getSimulationSurvival(design = design, 
 		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
 		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
 		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
 		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
 		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
-		seed = 1234567890)
+		seed = 1234567890))
+
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$accrualIntensity, c(12.380952, 24.761905, 24.761905), tolerance = 1e-07)
@@ -544,7 +575,7 @@ test_that("'getSimulationSurvival': configuration 6", {
 	    expect_output(print(simulationResults)$show())
 	    invisible(capture.output(expect_error(summary(simulationResults), NA)))
 	    expect_output(summary(simulationResults)$show())
-	    simulationResultsCodeBased <- eval(parse(text = getObjectRCode(simulationResults, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simulationResultsCodeBased <- eval(parse(text = getObjectRCode(simulationResults, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simulationResultsCodeBased$accrualIntensity, simulationResults$accrualIntensity, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$lambda1, simulationResults$lambda1, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$analysisTime, simulationResults$analysisTime, tolerance = 1e-05)
@@ -561,9 +592,14 @@ test_that("'getSimulationSurvival': configuration 6", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-	options(warn = currentWarningOption)
-	
 	expect_warning(getSimulationSurvival(design = design, 
 		directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20, 
 		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
@@ -683,6 +719,13 @@ test_that("'getSimulationSurvival': configuration 7", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -766,6 +809,13 @@ test_that("'getSimulationSurvival': configuration 8", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -850,6 +900,13 @@ test_that("'getSimulationSurvival': configuration 9; ", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -946,6 +1003,13 @@ test_that("'getSimulationSurvival': configuration 10; ", {
 	    expect_equal(simulationResultsCodeBased$expectedNumberOfEvents, simulationResults$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$eventsPerStage, simulationResults$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultsCodeBased$conditionalPowerAchieved, simulationResults$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResults), "character")
+	    df <- as.data.frame(simulationResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResults)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1110,7 +1174,6 @@ test_that("'getSimulationSurvival': Fixed sample size with minimum required defi
 	expect_equal(simulationResult$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(simulationResult$overallReject, c(0.01, 0.3, 0.68, 0.95), tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], c(0.01, 0.3, 0.68, 0.95), tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$earlyStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$expectedNumberOfSubjects, c(200, 200, 199.71, 196.74), tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfEvents, c(40, 40, 40, 40))
@@ -1132,11 +1195,17 @@ test_that("'getSimulationSurvival': Fixed sample size with minimum required defi
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1161,7 +1230,6 @@ test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subj
 	expect_equal(simulationResult$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(simulationResult$overallReject, c(0.02, 0.28, 0.77, 0.96), tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], c(0.02, 0.28, 0.77, 0.96), tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$earlyStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$expectedNumberOfSubjects, c(200, 200, 200, 200))
 	expect_equal(simulationResult$expectedNumberOfEvents, c(40, 40, 40, 40))
@@ -1182,11 +1250,17 @@ test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subj
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1211,7 +1285,6 @@ test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subj
 	expect_equal(simulationResult$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(simulationResult$overallReject, c(0.01, 0.28, 0.72, 0.96), tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], c(0.01, 0.28, 0.72, 0.96), tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$earlyStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$expectedNumberOfSubjects, c(200, 200, 200, 200))
 	expect_equal(simulationResult$expectedNumberOfEvents, c(40, 40, 40, 40))
@@ -1232,11 +1305,17 @@ test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subj
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1261,7 +1340,6 @@ test_that("'getSimulationSurvival': Determine maximum number of Subjects if the 
 	expect_equal(simulationResult$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(simulationResult$overallReject, c(0.04, 0.33, 0.75, 0.95), tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], c(0.04, 0.33, 0.75, 0.95), tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$earlyStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$expectedNumberOfSubjects, c(240, 240, 239.63, 237.56), tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfEvents, c(40, 40, 40, 40))
@@ -1283,11 +1361,17 @@ test_that("'getSimulationSurvival': Determine maximum number of Subjects if the 
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1312,7 +1396,6 @@ test_that("'getSimulationSurvival': Specify accrual time as a list", {
 	expect_equal(simulationResult$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(simulationResult$overallReject, c(0.01, 0.28, 0.72, 0.96), tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], c(0.01, 0.28, 0.72, 0.96), tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$earlyStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$expectedNumberOfSubjects, c(200, 200, 200, 200))
 	expect_equal(simulationResult$expectedNumberOfEvents, c(40, 40, 40, 40))
@@ -1333,11 +1416,17 @@ test_that("'getSimulationSurvival': Specify accrual time as a list", {
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1363,7 +1452,6 @@ test_that("'getSimulationSurvival': Specify accrual time as a list, if maximum n
 	expect_equal(simulationResult$iterations[1, ], c(100, 100, 100, 100))
 	expect_equal(simulationResult$overallReject, c(0.04, 0.33, 0.75, 0.95), tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], c(0.04, 0.33, 0.75, 0.95), tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$earlyStop, c(0, 0, 0, 0))
 	expect_equal(simulationResult$expectedNumberOfSubjects, c(240, 240, 239.63, 237.56), tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfEvents, c(40, 40, 40, 40))
@@ -1385,11 +1473,17 @@ test_that("'getSimulationSurvival': Specify accrual time as a list, if maximum n
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1421,7 +1515,6 @@ test_that("'getSimulationSurvival': Specify effect size for a two-stage group de
 	expect_equal(simulationResult$overallReject, 0.27, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0.03, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.24, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0.03, tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 199.9841, tolerance = 1e-07)
@@ -1449,13 +1542,19 @@ test_that("'getSimulationSurvival': Specify effect size for a two-stage group de
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1531,6 +1630,13 @@ test_that("'getSimulationSurvival': As above, but with a three-stage O'Brien and
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1562,7 +1668,6 @@ test_that("'getSimulationSurvival': Effect size is based on event rate at specif
 	expect_equal(simulationResult$overallReject, 0.52, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0.08, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.44, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0.08, tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 199.9752, tolerance = 1e-07)
@@ -1590,13 +1695,19 @@ test_that("'getSimulationSurvival': Effect size is based on event rate at specif
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1626,7 +1737,6 @@ test_that("'getSimulationSurvival': Effect size is based on hazard rate for the 
 	expect_equal(simulationResult$overallReject, 0.49, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0.06, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.43, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0.06, tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 199.73, tolerance = 1e-07)
@@ -1652,13 +1762,19 @@ test_that("'getSimulationSurvival': Effect size is based on hazard rate for the 
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1687,7 +1803,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	expect_equal(simulationResult$overallReject, 0.32, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.28, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 199.7404, tolerance = 1e-07)
@@ -1711,13 +1826,19 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
@@ -1741,7 +1862,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	expect_equal(simulationResult$overallReject, 0.32, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.28, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 199.7404, tolerance = 1e-07)
@@ -1765,13 +1885,19 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1787,6 +1913,7 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
+	expect_equal(simulationResult$hazardRatio, 1.5, tolerance = 1e-07)
 	expect_equal(simulationResult$analysisTime[1, ], 12.106711, tolerance = 1e-07)
 	expect_equal(simulationResult$analysisTime[2, ], 16.150578, tolerance = 1e-07)
 	expect_equal(simulationResult$studyDuration, 16.020702, tolerance = 1e-07)
@@ -1799,7 +1926,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	expect_equal(simulationResult$overallReject, 0.32, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.28, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 199.7404, tolerance = 1e-07)
@@ -1815,6 +1941,7 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_output(summary(simulationResult)$show())
 	    simulationResultCodeBased <- eval(parse(text = getObjectRCode(simulationResult, stringWrapParagraphWidth = NULL)))
 	    expect_equal(simulationResultCodeBased$accrualIntensity, simulationResult$accrualIntensity, tolerance = 1e-05)
+	    expect_equal(simulationResultCodeBased$hazardRatio, simulationResult$hazardRatio, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$analysisTime, simulationResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$studyDuration, simulationResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsNotAchieved, simulationResult$eventsNotAchieved, tolerance = 1e-05)
@@ -1822,13 +1949,19 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	pws <- list("0 - <5"  = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
@@ -1852,7 +1985,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	expect_equal(simulationResult$overallReject, 0.32, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.28, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0.04, tolerance = 1e-07)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 199.7404, tolerance = 1e-07)
@@ -1876,13 +2008,19 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
@@ -1892,6 +2030,7 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
+	expect_equal(simulationResult$hazardRatio, c(1, 1, 1.5), tolerance = 1e-07)
 	expect_equal(simulationResult$analysisTime[1, ], 12.973056, tolerance = 1e-07)
 	expect_equal(simulationResult$analysisTime[2, ], 17.030809, tolerance = 1e-07)
 	expect_equal(simulationResult$studyDuration, 17.030809, tolerance = 1e-07)
@@ -1904,7 +2043,6 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	expect_equal(simulationResult$overallReject, 0.06, tolerance = 1e-07)
 	expect_equal(simulationResult$rejectPerStage[1, ], 0)
 	expect_equal(simulationResult$rejectPerStage[2, ], 0.06, tolerance = 1e-07)
-	expect_equal(simulationResult$futilityStop, 0)
 	expect_equal(simulationResult$futilityPerStage[1, ], 0)
 	expect_equal(simulationResult$earlyStop, 0)
 	expect_equal(simulationResult$expectedNumberOfSubjects, 200)
@@ -1920,6 +2058,7 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_output(summary(simulationResult)$show())
 	    simulationResultCodeBased <- eval(parse(text = getObjectRCode(simulationResult, stringWrapParagraphWidth = NULL)))
 	    expect_equal(simulationResultCodeBased$accrualIntensity, simulationResult$accrualIntensity, tolerance = 1e-05)
+	    expect_equal(simulationResultCodeBased$hazardRatio, simulationResult$hazardRatio, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$analysisTime, simulationResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$studyDuration, simulationResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsNotAchieved, simulationResult$eventsNotAchieved, tolerance = 1e-05)
@@ -1927,13 +2066,19 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_equal(simulationResultCodeBased$iterations, simulationResult$iterations, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$overallReject, simulationResult$overallReject, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$rejectPerStage, simulationResult$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(simulationResultCodeBased$futilityStop, simulationResult$futilityStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$futilityPerStage, simulationResult$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$earlyStop, simulationResult$earlyStop, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfSubjects, simulationResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$expectedNumberOfEvents, simulationResult$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$eventsPerStage, simulationResult$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(simulationResultCodeBased$conditionalPowerAchieved, simulationResult$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(simulationResult), "character")
+	    df <- as.data.frame(simulationResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(simulationResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2019,6 +2164,13 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 	    expect_equal(resultsWithSSR1CodeBased$expectedNumberOfEvents, resultsWithSSR1$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(resultsWithSSR1CodeBased$eventsPerStage, resultsWithSSR1$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(resultsWithSSR1CodeBased$conditionalPowerAchieved, resultsWithSSR1$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(resultsWithSSR1), "character")
+	    df <- as.data.frame(resultsWithSSR1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(resultsWithSSR1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# If thetaH1 is unspecified, the observed hazard ratio estimate 
@@ -2092,6 +2244,13 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 	    expect_equal(resultsWithSSR2CodeBased$expectedNumberOfEvents, resultsWithSSR2$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(resultsWithSSR2CodeBased$eventsPerStage, resultsWithSSR2$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(resultsWithSSR2CodeBased$conditionalPowerAchieved, resultsWithSSR2$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(resultsWithSSR2), "character")
+	    df <- as.data.frame(resultsWithSSR2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(resultsWithSSR2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# Compare it with design without event size recalculation
@@ -2198,6 +2357,7 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 		maxNumberOfIterations = 1000,
 		sided = 1, alpha = 0.1, seed = 123
 	)
+
 
 	## Pairwise comparison of the results of x1 with the results of x2, x3, x4, x5, x6, and x7
 	expect_equal(x2$maxNumberOfIterations, x1$maxNumberOfIterations)
@@ -2306,7 +2466,6 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	expect_equal(x4$dropoutRate1, x1$dropoutRate1)
 	expect_equal(x4$dropoutRate2, x1$dropoutRate2)
 	expect_equal(x4$dropoutTime, x1$dropoutTime)
-#	expect_equal(x4$eventTime, x1$eventTime)
 	expect_equal(x4$thetaH0, x1$thetaH0)
 	expect_equal(x4$allocation1, x1$allocation1)
 	expect_equal(x4$allocation2, x1$allocation2)

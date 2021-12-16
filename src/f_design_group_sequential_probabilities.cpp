@@ -14,9 +14,9 @@
  *
  * Contact us for information about our services: info@rpact.com
  *
- * File version: $Revision$
- * Last changed: $Date$
- * Last changed by: $Author$
+ * File version: $Revision: 5327 $
+ * Last changed: $Date: 2021-09-24 08:38:02 +0200 (Fr, 24 Sep 2021) $
+ * Last changed by: $Author: pahlke $
  *
  */
 

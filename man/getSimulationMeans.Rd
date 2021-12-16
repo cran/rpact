@@ -37,12 +37,12 @@ that a warning will be displayed if unknown arguments are passed.}
 
 \item{groups}{The number of treatment groups (1 or 2), default is \code{2}.}
 
-\item{normalApproximation}{The type of computation of the p-values. Default is \code{TRUE}, 
+\item{normalApproximation}{The type of computation of the p-values. Default is \code{TRUE},
 i.e., normally distributed test statistics are generated.
-If \code{FALSE}, the t test is used for calculating the p-values, 
+If \code{FALSE}, the t test is used for calculating the p-values,
 i.e., t distributed test statistics are generated.}
 
-\item{meanRatio}{If \code{TRUE}, the design characteristics for 
+\item{meanRatio}{If \code{TRUE}, the design characteristics for
 one-sided testing of H0: \code{mu1 / mu2 = thetaH0} are simulated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value, 
@@ -109,7 +109,7 @@ the conditional power or sample size recalculation calculation is performed.}
 the conditional power or sample size recalculation calculation is performed,
 default is the value of \code{stDev}.}
 
-\item{maxNumberOfIterations}{The number of simulation iterations, default is 1000.}
+\item{maxNumberOfIterations}{The number of simulation iterations, default is \code{1000}.}
 
 \item{seed}{The seed to reproduce the simulation, default is a random seed.}
 
@@ -134,34 +134,34 @@ The following generics (R generic functions) are available for this object:
 }
 }
 \description{
-Returns the simulated power, stopping probabilities, conditional power, and expected sample size 
+Returns the simulated power, stopping probabilities, conditional power, and expected sample size
 for testing means in a one or two treatment groups testing situation.
 }
 \details{
-At given design the function simulates the power, stopping probabilities, conditional power, and expected 
-sample size at given number of subjects and parameter configuration. 
-Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number 
+At given design the function simulates the power, stopping probabilities, conditional power, and expected
+sample size at given number of subjects and parameter configuration.
+Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number
 of subjects in the two treatment groups.
 
 The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
-and if \code{conditionalPower}, \code{minNumberOfSubjectsPerStage}, and 
+and if \code{conditionalPower}, \code{minNumberOfSubjectsPerStage}, and
 \code{maxNumberOfSubjectsPerStage} (or \code{calcSubjectsFunction}) are defined.
- 
-\code{calcSubjectsFunction}\cr 
-This function returns the number of subjects at given conditional power and conditional critical value for specified 
-testing situation. The function might depend on variables 
-\code{stage}, 
-\code{meanRatio}, 
-\code{thetaH0}, 
-\code{groups}, 
-\code{plannedSubjects}, 
-\code{sampleSizesPerStage}, 
-\code{directionUpper}, 
-\code{allocationRatioPlanned}, 
-\code{minNumberOfSubjectsPerStage}, 
-\code{maxNumberOfSubjectsPerStage}, 
-\code{conditionalPower}, 
-\code{conditionalCriticalValue}, 
+
+\code{calcSubjectsFunction}\cr
+This function returns the number of subjects at given conditional power and conditional critical value for specified
+testing situation. The function might depend on variables
+\code{stage},
+\code{meanRatio},
+\code{thetaH0},
+\code{groups},
+\code{plannedSubjects},
+\code{sampleSizesPerStage},
+\code{directionUpper},
+\code{allocationRatioPlanned},
+\code{minNumberOfSubjectsPerStage},
+\code{maxNumberOfSubjectsPerStage},
+\code{conditionalPower},
+\code{conditionalCriticalValue},
 \code{thetaH1}, and
 \code{stDevH1}.
 The function has to contain the three-dots argument '...' (see examples).
@@ -170,7 +170,7 @@ The function has to contain the three-dots argument '...' (see examples).
 
 The summary statistics "Simulated data" contains the following parameters: median [range]; mean +/-sd\cr
 
-\code{$show(showStatistics = FALSE)} or \code{$setShowStatistics(FALSE)} can be used to disable 
+\code{$show(showStatistics = FALSE)} or \code{$setShowStatistics(FALSE)} can be used to disable
 the output of the aggregated simulated data.\cr
 
 Example 1: \cr
@@ -182,25 +182,25 @@ Example 2: \cr
 \code{simulationResults$setShowStatistics(FALSE)}\cr
 \code{simulationResults}\cr
 
-\code{\link{getData}} can be used to get the aggregated simulated data from the 
+\code{\link{getData}} can be used to get the aggregated simulated data from the
 object as \code{\link[base]{data.frame}}. The data frame contains the following columns:
 \enumerate{
   \item \code{iterationNumber}: The number of the simulation iteration.
   \item \code{stageNumber}: The stage.
   \item \code{alternative}: The alternative hypothesis value.
-  \item \code{numberOfSubjects}: The number of subjects under consideration when the 
+  \item \code{numberOfSubjects}: The number of subjects under consideration when the
         (interim) analysis takes place.
-  \item \code{rejectPerStage}: 1 if null hypothesis can be rejected, 0 otherwise. 
+  \item \code{rejectPerStage}: 1 if null hypothesis can be rejected, 0 otherwise.
   \item \code{futilityPerStage}: 1 if study should be stopped for futility, 0 otherwise.
-  \item \code{testStatistic}: The test statistic that is used for the test decision, 
-        depends on which design was chosen (group sequential, inverse normal, or Fisher's combination test).  
+  \item \code{testStatistic}: The test statistic that is used for the test decision,
+        depends on which design was chosen (group sequential, inverse normal, or Fisher's combination test).
   \item \code{testStatisticsPerStage}: The test statistic for each stage if only data from
         the considered stage is taken into account.
-  \item \code{effectEstimate}: Overall simulated standardized effect estimate. 
-  \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
-  \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
+  \item \code{effectEstimate}: Overall simulated standardized effect estimate.
+  \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.
+  \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for
         selected sample size and effect. The effect is either estimated from the data or can be
-        user defined with \code{thetaH1}.   
+        user defined with \code{thetaH1}.
 }
 }
 

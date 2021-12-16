@@ -30,7 +30,7 @@ The maximum selectable \code{kMax} is \code{20} for group sequential or inverse 
 
 \item{alpha}{The significance level alpha, default is \code{0.025}.}
 
-\item{method}{\code{"equalAlpha"}, \code{"fullAlpha"}, \code{"noInteraction"}, or \code{"userDefinedAlpha"}, 
+\item{method}{\code{"equalAlpha"}, \code{"fullAlpha"}, \code{"noInteraction"}, or \code{"userDefinedAlpha"},
 default is \code{"equalAlpha"} (for details, see Wassmer, 1999).}
 
 \item{userAlphaSpending}{The user defined alpha spending. 
@@ -44,13 +44,13 @@ default is \code{(1:kMax) / kMax}.}
 
 \item{sided}{Is the alternative one-sided (\code{1}) or two-sided (\code{2}), default is \code{1}.}
 
-\item{bindingFutility}{If \code{bindingFutility = TRUE} is specified the calculation of 
+\item{bindingFutility}{If \code{bindingFutility = TRUE} is specified the calculation of
 the critical values is affected by the futility bounds (default is \code{TRUE}).}
 
 \item{tolerance}{The numerical tolerance, default is \code{1e-14}.}
 
 \item{iterations}{The number of simulation iterations, e.g.,
-\code{getDesignFisher(iterations = 100000)} checks the validity of the critical values for the default design. 
+\code{getDesignFisher(iterations = 100000)} checks the validity of the critical values for the design.
 The default value of \code{iterations} is 0, i.e., no simulation will be executed.}
 
 \item{seed}{Seed for simulating the power for Fisher's combination test. See above, default is a random seed.}
@@ -71,8 +71,8 @@ The following generics (R generic functions) are available for this result objec
 Performs Fisher's combination test and returns critical values for this design.
 }
 \details{
-\code{getDesignFisher} calculates the critical values and stage levels for 
-Fisher's combination test as described in Bauer (1989), Bauer and Koehne (1994), 
+\code{getDesignFisher} calculates the critical values and stage levels for
+Fisher's combination test as described in Bauer (1989), Bauer and Koehne (1994),
 Bauer and Roehmel (1995), and Wassmer (1999) for equally and unequally sized stages.
 }
 \section{How to get help for generic functions}{

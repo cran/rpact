@@ -5,7 +5,13 @@
 \alias{summary.ParameterSet}
 \title{Parameter Set Summary}
 \usage{
-\method{summary}{ParameterSet}(object, ..., type = 1, digits = NA_integer_)
+\method{summary}{ParameterSet}(
+  object,
+  ...,
+  type = 1,
+  digits = NA_integer_,
+  output = c("all", "title", "overview", "body")
+)
 }
 \arguments{
 \item{object}{A \code{\link{ParameterSet}} object.}

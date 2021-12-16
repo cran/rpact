@@ -1,6 +1,6 @@
 /**
  *
- * -- Simulation of survival data with group sequential and combination test --
+ * -- Simulation utilities --
  *
  * This file is part of the R package rpact:
  * Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -23,12 +23,12 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//#include <iostream>
-using namespace std;
-
 #ifndef PKG_RPACT_H
 #define PKG_RPACT_H
 
+std::string getCipheredValue(String x);
+
+IntegerVector getOrder(SEXP x, bool desc = false);
 
 NumericVector vectorSum(NumericVector x, NumericVector y);
 
@@ -49,8 +49,6 @@ NumericVector vectorMultiply(NumericVector x, double multiplier);
 NumericVector vectorMultiply(NumericVector x, NumericVector y);
 
 NumericVector vectorPow(NumericVector x, NumericVector y);
-
-NumericVector vectorPow(double x, NumericVector y);
 
 NumericVector vectorPow2(NumericVector y, double exp);
 
@@ -76,10 +74,21 @@ NumericMatrix matrixMultiply(NumericMatrix x, double y);
 
 NumericVector repInt(int x, int y);
 
-std::string toString(const double i);
-
 std::string vectorToString(NumericVector x);
+
+double secant(std::function<double(double)> f, double x0, double x1, double tolerance, int maxIter);
+
+double max(NumericVector x);
+
+double min(NumericVector x);
+
+NumericVector range(int from, int to);
+
+NumericVector rangeVector(NumericVector x, int from, int to);
+
+NumericVector append(NumericVector x, NumericVector y);
 
 void logDebug(std::string s);
 
 #endif
+

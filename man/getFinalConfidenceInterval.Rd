@@ -25,13 +25,13 @@ For more information see \code{\link{getDataset}}.}
 \item{...}{Further (optional) arguments to be passed:
 \describe{
   \item{\code{normalApproximation}}{
-      The type of computation of the p-values. Default is \code{FALSE} for 
-      testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio. 
-      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test 
+      The type of computation of the p-values. Default is \code{FALSE} for
+      testing means (i.e., the t test is used) and TRUE for testing rates and the hazard ratio.
+      For testing rates, if \code{normalApproximation = FALSE} is specified, the binomial test
       (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
-      In the survival setting, \code{normalApproximation = FALSE} has no effect.}  
-  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either 
-      the t test assuming that the variances are equal or the t test without assuming this, 
+      In the survival setting, \code{normalApproximation = FALSE} has no effect.}
+  \item{\code{equalVariances}}{The type of t test. For testing means in two treatment groups, either
+      the t test assuming that the variances are equal or the t test without assuming this,
       i.e., the test of Welch-Satterthwaite is calculated, default is \code{TRUE}.}
 }}
 
@@ -59,29 +59,29 @@ defining the null hypothesis H0: \code{pi = thetaH0}.}
 \item{stage}{The stage number (optional). Default: total number of existing stages in the data input.}
 }
 \value{
-Returns a \code{\link[base]{list}} containing 
+Returns a \code{\link[base]{list}} containing
 \itemize{
-  \item \code{finalStage}, 
-  \item \code{medianUnbiased}, 
-  \item \code{finalConfidenceInterval}, 
-  \item \code{medianUnbiasedGeneral}, and 
+  \item \code{finalStage},
+  \item \code{medianUnbiased},
+  \item \code{finalConfidenceInterval},
+  \item \code{medianUnbiasedGeneral}, and
   \item \code{finalConfidenceIntervalGeneral}.
 }
 }
 \description{
-Returns the final confidence interval for the parameter of interest. 
-It is based on the prototype case, i.e., the test for testing a mean for 
+Returns the final confidence interval for the parameter of interest.
+It is based on the prototype case, i.e., the test for testing a mean for
 normally distributed variables.
 }
 \details{
-Depending on \code{design} and \code{dataInput} the final confidence interval and median unbiased estimate 
-that is based on the stagewise ordering of the sample space will be calculated and returned.
-Additionally, a non-standardized ("general") version is provided, 
-the estimated standard deviation must be used to obtain 
+Depending on \code{design} and \code{dataInput} the final confidence interval and median unbiased estimate
+that is based on the stage-wise ordering of the sample space will be calculated and returned.
+Additionally, a non-standardized ("general") version is provided,
+the estimated standard deviation must be used to obtain
 the confidence interval for the parameter of interest.
-  
-For the inverse normal combination test design with more than two 
-stages, a warning informs that the validity of the confidence interval is theoretically shown only if 
+
+For the inverse normal combination test design with more than two
+stages, a warning informs that the validity of the confidence interval is theoretically shown only if
 no sample size change was performed.
 }
 \examples{

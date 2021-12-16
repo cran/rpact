@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_analysis_multiarm_survival.R
-#:#  Creation date: 18 May 2021, 17:46:08
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_analysis_multiarm_survival.R
+## |  Creation date: 08 December 2021, 09:07:40
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Analysis Survival Functionality for Three or More Treatments")
 
@@ -97,6 +97,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results1CodeBased$repeatedConfidenceIntervalLowerBounds, results1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results1CodeBased$repeatedConfidenceIntervalUpperBounds, results1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results1CodeBased$repeatedPValues, results1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results1), "character")
+	    df <- as.data.frame(results1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -131,9 +138,9 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results2$conditionalRejectionProbabilities[2, ], c(0.17669226, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$conditionalPower[1, ], c(NA_real_, NA_real_, 0.96373388), tolerance = 1e-05)
 	expect_equal(results2$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909699, 1.0883374, NA_real_), tolerance = 1e-05)
-	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657799, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results2$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761954, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909611, 1.088337, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657731, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761955, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$repeatedConfidenceIntervalUpperBounds[2, ], c(8.8634059, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$repeatedPValues[1, ], c(0.069951918, 0.0087766935, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$repeatedPValues[2, ], c(0.069951918, NA_real_, NA_real_), tolerance = 1e-05)
@@ -149,6 +156,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results2CodeBased$repeatedConfidenceIntervalLowerBounds, results2$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results2CodeBased$repeatedConfidenceIntervalUpperBounds, results2$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results2CodeBased$repeatedPValues, results2$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results2), "character")
+	    df <- as.data.frame(results2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -182,7 +196,7 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results3$conditionalPower[1, ], c(NA_real_, NA_real_, 0.9565118), tolerance = 1e-05)
 	expect_equal(results3$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(results3$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83933393, 1.0895056, NA_real_), tolerance = 1e-05)
-	expect_equal(results3$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73682316, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results3$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73682329, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results3$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9250602, 4.2563039, NA_real_), tolerance = 1e-05)
 	expect_equal(results3$repeatedConfidenceIntervalUpperBounds[2, ], c(8.8604482, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results3$repeatedPValues[1, ], c(0.082919001, 0.010252978, NA_real_), tolerance = 1e-05)
@@ -199,6 +213,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results3CodeBased$repeatedConfidenceIntervalLowerBounds, results3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results3CodeBased$repeatedConfidenceIntervalUpperBounds, results3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results3CodeBased$repeatedPValues, results3$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results3), "character")
+	    df <- as.data.frame(results3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -231,9 +252,9 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results4$conditionalRejectionProbabilities[2, ], c(0.15727093, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$conditionalPower[1, ], c(NA_real_, NA_real_, 0.95618769), tolerance = 1e-05)
 	expect_equal(results4$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909699, 1.0883374, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657799, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761954, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909611, 1.088337, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657731, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761955, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[2, ], c(8.8634059, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[1, ], c(0.083499788, 0.010318782, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[2, ], c(0.083499788, NA_real_, NA_real_), tolerance = 1e-05)
@@ -249,6 +270,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results4CodeBased$repeatedConfidenceIntervalLowerBounds, results4$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results4CodeBased$repeatedConfidenceIntervalUpperBounds, results4$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results4CodeBased$repeatedPValues, results4$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results4), "character")
+	    df <- as.data.frame(results4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -299,6 +327,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results5CodeBased$repeatedConfidenceIntervalLowerBounds, results5$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results5CodeBased$repeatedConfidenceIntervalUpperBounds, results5$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results5CodeBased$repeatedPValues, results5$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results5), "character")
+	    df <- as.data.frame(results5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -349,6 +384,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results6CodeBased$repeatedConfidenceIntervalLowerBounds, results6$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results6CodeBased$repeatedConfidenceIntervalUpperBounds, results6$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results6CodeBased$repeatedPValues, results6$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results6), "character")
+	    df <- as.data.frame(results6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -399,6 +441,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results7CodeBased$repeatedConfidenceIntervalLowerBounds, results7$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results7CodeBased$repeatedConfidenceIntervalUpperBounds, results7$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results7CodeBased$repeatedPValues, results7$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results7), "character")
+	    df <- as.data.frame(results7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -449,6 +498,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results8CodeBased$repeatedConfidenceIntervalLowerBounds, results8$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results8CodeBased$repeatedConfidenceIntervalUpperBounds, results8$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results8CodeBased$repeatedPValues, results8$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results8), "character")
+	    df <- as.data.frame(results8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -499,6 +555,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results9CodeBased$repeatedConfidenceIntervalLowerBounds, results9$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results9CodeBased$repeatedConfidenceIntervalUpperBounds, results9$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results9CodeBased$repeatedPValues, results9$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results9), "character")
+	    df <- as.data.frame(results9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -549,6 +612,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results10CodeBased$repeatedConfidenceIntervalLowerBounds, results10$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results10CodeBased$repeatedConfidenceIntervalUpperBounds, results10$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results10CodeBased$repeatedPValues, results10$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results10), "character")
+	    df <- as.data.frame(results10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -581,9 +651,9 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results11$conditionalRejectionProbabilities[2, ], c(0.17669226, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$conditionalPower[1, ], c(NA_real_, NA_real_, 0.96373388), tolerance = 1e-05)
 	expect_equal(results11$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436262, 0.23385271, NA_real_), tolerance = 1e-05)
-	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[2, ], c(0.1128237, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results11$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917587, 0.91883308, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436219, 0.23385276, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11282335, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917585, 0.91883311, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3576308, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$repeatedPValues[1, ], c(0.069951918, 0.0087766935, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$repeatedPValues[2, ], c(0.069951918, NA_real_, NA_real_), tolerance = 1e-05)
@@ -599,6 +669,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results11CodeBased$repeatedConfidenceIntervalLowerBounds, results11$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results11CodeBased$repeatedConfidenceIntervalUpperBounds, results11$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results11CodeBased$repeatedPValues, results11$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results11), "character")
+	    df <- as.data.frame(results11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -634,7 +711,7 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results12$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14440308, 0.23494562, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11286087, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1914212, 0.91784736, NA_real_), tolerance = 1e-05)
-	expect_equal(results12$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3571778, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results12$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3571777, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedPValues[1, ], c(0.082919001, 0.010252978, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedPValues[2, ], c(0.082919001, NA_real_, NA_real_), tolerance = 1e-05)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -649,6 +726,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results12CodeBased$repeatedConfidenceIntervalLowerBounds, results12$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results12CodeBased$repeatedConfidenceIntervalUpperBounds, results12$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results12CodeBased$repeatedPValues, results12$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results12), "character")
+	    df <- as.data.frame(results12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -681,9 +765,9 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results13$conditionalRejectionProbabilities[2, ], c(0.15727093, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results13$conditionalPower[1, ], c(NA_real_, NA_real_, 0.95618769), tolerance = 1e-05)
 	expect_equal(results13$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436262, 0.23385271, NA_real_), tolerance = 1e-05)
-	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[2, ], c(0.1128237, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results13$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917587, 0.91883308, NA_real_), tolerance = 1e-05)
+	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436219, 0.23385276, NA_real_), tolerance = 1e-05)
+	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11282335, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results13$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917585, 0.91883311, NA_real_), tolerance = 1e-05)
 	expect_equal(results13$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3576308, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results13$repeatedPValues[1, ], c(0.083499788, 0.010318782, NA_real_), tolerance = 1e-05)
 	expect_equal(results13$repeatedPValues[2, ], c(0.083499788, NA_real_, NA_real_), tolerance = 1e-05)
@@ -699,6 +783,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results13CodeBased$repeatedConfidenceIntervalLowerBounds, results13$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results13CodeBased$repeatedConfidenceIntervalUpperBounds, results13$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results13CodeBased$repeatedPValues, results13$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results13), "character")
+	    df <- as.data.frame(results13)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results13)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -749,6 +840,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results14CodeBased$repeatedConfidenceIntervalLowerBounds, results14$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results14CodeBased$repeatedConfidenceIntervalUpperBounds, results14$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results14CodeBased$repeatedPValues, results14$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results14), "character")
+	    df <- as.data.frame(results14)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results14)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -799,6 +897,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results15CodeBased$repeatedConfidenceIntervalLowerBounds, results15$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results15CodeBased$repeatedConfidenceIntervalUpperBounds, results15$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results15CodeBased$repeatedPValues, results15$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results15), "character")
+	    df <- as.data.frame(results15)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results15)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -849,6 +954,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results16CodeBased$repeatedConfidenceIntervalLowerBounds, results16$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results16CodeBased$repeatedConfidenceIntervalUpperBounds, results16$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results16CodeBased$repeatedPValues, results16$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results16), "character")
+	    df <- as.data.frame(results16)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results16)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -899,6 +1011,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results17CodeBased$repeatedConfidenceIntervalLowerBounds, results17$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results17CodeBased$repeatedConfidenceIntervalUpperBounds, results17$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results17CodeBased$repeatedPValues, results17$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results17), "character")
+	    df <- as.data.frame(results17)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results17)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -949,6 +1068,13 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	    expect_equal(results18CodeBased$repeatedConfidenceIntervalLowerBounds, results18$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(results18CodeBased$repeatedConfidenceIntervalUpperBounds, results18$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(results18CodeBased$repeatedPValues, results18$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(results18), "character")
+	    df <- as.data.frame(results18)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(results18)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

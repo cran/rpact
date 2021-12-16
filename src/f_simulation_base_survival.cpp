@@ -14,77 +14,16 @@
  *
  * Contact us for information about our services: info@rpact.com
  *
- * File version: $Revision: 5023 $
- * Last changed: $Date: 2021-07-06 11:23:10 +0200 (Tue, 06 Jul 2021) $
+ * File version: $Revision: 5620 $
+ * Last changed: $Date: 2021-12-06 17:15:42 +0100 (Mo, 06 Dez 2021) $
  * Last changed by: $Author: pahlke $
  *
  */
 
 #include <Rcpp.h>
 #include "f_utilities.h"
+#include "f_simulation_survival_utilities.h"
 using namespace Rcpp;
-
-double findObservationTime(
-		NumericVector accrualTime,
-		NumericVector survivalTime,
-		NumericVector dropoutTime,
-		double requiredStageEvents) {
-
-	int numberOfSubjects = accrualTime.size();
-
-	double upperBound = 1;
-	double numberOfEvents;
-	while (true) {
-		numberOfEvents = 0;
-		for (int i = 0; i < numberOfSubjects; i++) {
-			if (accrualTime[i] + survivalTime[i] < upperBound &&
-					(R_IsNA((double) dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
-				numberOfEvents = numberOfEvents + 1;
-			}
-		}
-		upperBound = 2 * upperBound;
-		if (numberOfEvents > requiredStageEvents || upperBound > 1E12) {
-			break;
-		}
-	}
-
-	if (upperBound > 1E12) {
-		return NA_REAL;
-	}
-
-	double lower = 0;
-	double upper = upperBound;
-	double time;
-	while (true) {
-		time = (lower + upper) / 2;
-		numberOfEvents = 0;
-		for (int i = 0; i < numberOfSubjects; i++) {
-			if (accrualTime[i] + survivalTime[i] <= time &&
-					(R_IsNA((double) dropoutTime[i]) || dropoutTime[i] > survivalTime[i])) {
-				numberOfEvents = numberOfEvents + 1;
-			}
-		}
-
-		if (numberOfEvents >= requiredStageEvents) {
-			upper = time;
-		} else {
-			lower = time;
-		}
-
-		if (upper - lower < 1E-05) {
-			break;
-		}
-	}
-
-	if (numberOfEvents > requiredStageEvents) {
-		time -= 1E-05;
-	}
-	else if (numberOfEvents < requiredStageEvents) {
-		time += 1E-05;
-	}
-
-	return time;
-}
 
 // Log Rank Test
 //
@@ -92,7 +31,7 @@ double findObservationTime(
 // i.e., it determines whether an event or a dropout
 // was observed, calculates the time under risk, and the logrank statistic.
 //
-// @param accrualTime An integer vector
+// @param accrualTime An double vector
 //
 List logRankTest(NumericVector accrualTime, NumericVector survivalTime,
 		NumericVector dropoutTime, IntegerVector treatmentGroup,
@@ -230,16 +169,6 @@ NumericVector getIndependentIncrements(int stage, NumericVector eventsPerStage, 
 		vectorSqrt(eventsPerStage[indices2] - eventsPerStage[indices1]));
 
 	return independentIncrements;
-}
-
-// ::Rf_pnorm5 identical to R::pnorm
-double getNormalDistribution(double p) {
-	return R::pnorm(p, 0.0, 1.0, 1, 0); // p, mu, sigma, lt, lg
-}
-
-// ::Rf_qnorm5 identical to R::qnorm
-double getNormalQuantile(double p) {
-	return R::qnorm(p, 0.0, 1.0, 1, 0); // p, mu, sigma, lt, lg
 }
 
 // Get Test Statistics
@@ -551,14 +480,6 @@ NumericMatrix getSimulationStepResultsSurvival(
 	return result;
 }
 
-/**
- * Weibull: (-log(1 - runif(0.0, 1.0)))^(1 / kappa) / rate
- */
-// [[Rcpp::export]]
-double getRandomSurvivalDistribution(double rate, double kappa) {
-	return pow(-log(1 - R::runif(0.0, 1.0)), 1 / kappa) / rate;
-}
-
 NumericMatrix getExtendedSurvivalDataSet(IntegerVector treatmentGroup, int maxNumberOfSubjects,
 		double lambda1, double lambda2, double phi1, double phi2, double kappa) {
 
@@ -586,44 +507,6 @@ NumericMatrix getExtendedSurvivalDataSet(IntegerVector treatmentGroup, int maxNu
 	return result;
 }
 
-// [[Rcpp::export]]
-double getRandomPiecewiseExponentialDistribution(NumericVector cdfValues, NumericVector piecewiseLambda,
-		NumericVector piecewiseSurvivalTime) {
-
-	double y;
-	NumericVector s;
-	double p = R::runif(0.0, 1.0);
-	int n = piecewiseSurvivalTime.size();
-
-	if (n == 0) {
-		return -log(1 - p) / piecewiseLambda[0];
-	}
-
-	for (int i = 0; i < n; i++) {
-		if (p <= cdfValues[i]) {
-			if (i == 0) {
-				return -log(1 - p) / piecewiseLambda[0];
-			}
-
-			y = piecewiseLambda[0] * piecewiseSurvivalTime[0];
-			if (i > 1) {
-				s = vectorSum(piecewiseSurvivalTime[seq(1, i - 1)], -piecewiseSurvivalTime[seq(0, i - 2)]);
-				y += vectorProduct(piecewiseLambda[seq(1, i - 1)], s);
-			}
-			return piecewiseSurvivalTime[i - 1] - (log(1 - p) + y) / piecewiseLambda[i];
-		}
-	}
-
-	if (n == 1) {
-		return piecewiseSurvivalTime[0] - (log(1 - p) + piecewiseLambda[0] *
-				piecewiseSurvivalTime[0]) / piecewiseLambda[1];
-	}
-
-	s = vectorSum(piecewiseSurvivalTime[seq(1, n - 1)], -piecewiseSurvivalTime[seq(0, n - 2)]);
-	y = piecewiseLambda[0] * piecewiseSurvivalTime[0] + vectorProduct(piecewiseLambda[seq(1, n - 1)], s);
-	return piecewiseSurvivalTime[n - 1] - (log(1 - p) + y) / piecewiseLambda[n];
-}
-
 NumericMatrix getExtendedSurvivalDataSet(IntegerVector treatmentGroup,
 		int maxNumberOfSubjects, NumericVector piecewiseSurvivalTime,
 		NumericVector cdfValues1, NumericVector cdfValues2,
@@ -637,13 +520,13 @@ NumericMatrix getExtendedSurvivalDataSet(IntegerVector treatmentGroup,
 			survivalTime[i] = getRandomPiecewiseExponentialDistribution(cdfValues1, lambdaVec1, piecewiseSurvivalTime);
 			if (phi1 > 0) {
 				dropoutTime[i] = getRandomPiecewiseExponentialDistribution(
-						cdfValues1, rep(phi1, lambdaVec1.size()), piecewiseSurvivalTime);
+					cdfValues1, rep(phi1, lambdaVec1.size()), piecewiseSurvivalTime);
 			}
 		} else {
 			survivalTime[i] = getRandomPiecewiseExponentialDistribution(cdfValues2, lambdaVec2, piecewiseSurvivalTime);
 			if (phi2 > 0) {
 				dropoutTime[i] = getRandomPiecewiseExponentialDistribution(
-						cdfValues2, rep(phi2, lambdaVec2.size()), piecewiseSurvivalTime);
+					cdfValues2, rep(phi2, lambdaVec2.size()), piecewiseSurvivalTime);
 			}
 		}
 	}
@@ -652,56 +535,6 @@ NumericMatrix getExtendedSurvivalDataSet(IntegerVector treatmentGroup,
 	result(_, 0) = survivalTime;
 	result(_, 1) = dropoutTime;
 	return result;
-}
-
-void assertArgumentsAreValid(
-		int kMax,
-		NumericVector plannedEvents,
-		NumericVector minNumberOfEventsPerStage,
-		NumericVector maxNumberOfEventsPerStage
-		) {
-
-	if (kMax > minNumberOfEventsPerStage.size()) {
-		throw Rcpp::exception(tfm::format(
-			"'minNumberOfEventsPerStage' must have length %s (is %s)",
-			kMax, minNumberOfEventsPerStage.size()).c_str());
-	}
-
-	if (kMax > maxNumberOfEventsPerStage.size()) {
-		throw Rcpp::exception(tfm::format(
-			"'maxNumberOfEventsPerStage' must have length %s (is %s)",
-			kMax, maxNumberOfEventsPerStage.size()).c_str());
-	}
-
-	if (kMax > plannedEvents.size()) {
-		throw Rcpp::exception(tfm::format(
-			"'plannedEvents' must have length %s (is %s)",
-			kMax, plannedEvents.size()).c_str());
-	}
-}
-
-bool isPiecewiseExponentialSurvivalEnabled(NumericVector lambdaVec2) {
-	if (lambdaVec2.size() <= 1) {
-		return false;
-	}
-	for (int i = 0; i < lambdaVec2.size(); i++) {
-		if (R_IsNA((double) lambdaVec2[i])) {
-			return false;
-		}
-	}
-	return true;
-}
-
-double getLambdaByPi(double pi, double eventTime, double kappa) {
-	return pow(-log(1 - pi), 1 / kappa) / eventTime;
-}
-
-double getPiByLambda(double lambda, double eventTime, double kappa) {
-	return 1 - exp(-pow(lambda * eventTime, kappa));
-}
-
-double getHazardRatio(double pi1, double pi2, double eventTime, double kappa) {
-	return pow(getLambdaByPi(pi1, eventTime, kappa) / getLambdaByPi(pi2, eventTime, kappa), kappa);
 }
 
 /* Get Simulation Results
@@ -850,8 +683,8 @@ List getSimulationSurvivalCpp(
 					lambda1, lambda2, (double) phi[0], (double) phi[1], kappa);
 			} else {
 				survivalDataSet = getExtendedSurvivalDataSet(treatmentGroup,
-						maxNumberOfSubjects, piecewiseSurvivalTime,
-						cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, (double) phi[0], (double) phi[1]);
+					maxNumberOfSubjects, piecewiseSurvivalTime,
+					cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, (double) phi[0], (double) phi[1]);
 			}
 
 			NumericVector survivalTime = survivalDataSet(_, 0);
@@ -1065,4 +898,5 @@ List getSimulationSurvivalCpp(
 		_["data"] = data
 	);
 }
+
 

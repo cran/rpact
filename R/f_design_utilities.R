@@ -1,22 +1,22 @@
-#:#
-#:#  *Design utilities*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5162 $
-#:#  Last changed: $Date: 2021-08-16 10:44:08 +0200 (Mo, 16 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:# 
+## |
+## |  *Design utilities*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5611 $
+## |  Last changed: $Date: 2021-12-02 11:26:05 +0100 (Do, 02 Dez 2021) $
+## |  Last changed by: $Author: pahlke $
+## | 
 
 #' @include f_core_assertions.R
 NULL
@@ -70,15 +70,17 @@ NULL
 
 .getDesignArgumentsToIgnoreAtUnknownArgumentCheck <- function(design, powerCalculationEnabled = FALSE) {
 
+    baseArgsToIgnore <- c("showObservedInformationRatesMessage")
+    
 	if (design$kMax > 1) {
-		return(character(0))
+		return(baseArgsToIgnore)
 	}
 	
 	if (powerCalculationEnabled) {
-		return(c("alpha", "sided"))
+		return(c(baseArgsToIgnore, "alpha", "sided"))
 	}
 	
-	return(c("alpha", "beta", "sided", "twoSidedPower"))
+	return(c(baseArgsToIgnore, "alpha", "beta", "sided", "twoSidedPower"))
 }
 
 
@@ -926,4 +928,22 @@ getMedianByPi <- function(piValue,
 	return(designParametersToShow)
 }
 
+.isNoEarlyEfficacy <- function(design) {
+    .assertIsTrialDesignInverseNormalOrGroupSequential(design)
+    
+    if (design$kMax == 1) {
+        return(FALSE)
+    }
+    
+    if (design$typeOfDesign == C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY) {
+        return(TRUE)
+    }
+    
+    if (design$typeOfDesign != C_TYPE_OF_DESIGN_AS_USER) {
+        return(FALSE)
+    }
+    
+    indices <- design$userAlphaSpending == 0
+    return(all(indices[1:(length(indices) - 1)]))
+}
 

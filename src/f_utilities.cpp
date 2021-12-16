@@ -20,13 +20,51 @@
  *
  */
 
+// [[Rcpp::plugins(cpp11)]]
 #include <Rcpp.h>
 using namespace Rcpp;
+
+// [[Rcpp::export]]
+std::string getCipheredValue(String x) {
+	std::size_t hashValue = std::hash<std::string>{}(x);
+	return std::to_string(hashValue);
+}
 
 std::string toString(const double i) {
     std::ostringstream ostr;
     ostr << i;
     return ostr.str();
+}
+
+template <int RTYPE>
+IntegerVector order_impl(const Vector<RTYPE>& x, bool desc) {
+    auto n = x.size();
+    IntegerVector idx = no_init(n);
+    std::iota(idx.begin(), idx.end(), static_cast<size_t>(1));
+    if (desc) {
+        auto comparator = [&x](size_t a, size_t b){ return x[a - 1] > x[b - 1]; };
+        std::stable_sort(idx.begin(), idx.end(), comparator);
+    } else {
+        auto comparator = [&x](size_t a, size_t b){ return x[a - 1] < x[b - 1]; };
+        std::stable_sort(idx.begin(), idx.end(), comparator);
+        // simulate na.last
+        size_t nas = 0;
+        for (int i = 0; i < n; ++i, ++nas)
+            if (!Vector<RTYPE>::is_na(x[idx[i] - 1])) break;
+        std::rotate(idx.begin(), idx.begin() + nas, idx.end());
+    }
+    return idx;
+}
+
+// identical to the R function base::order()
+IntegerVector getOrder(SEXP x, bool desc = false) {
+    switch(TYPEOF(x)) {
+    case INTSXP: return order_impl<INTSXP>(x, desc);
+    case REALSXP: return order_impl<REALSXP>(x, desc);
+    case STRSXP: return order_impl<STRSXP>(x, desc);
+    default: stop("Unsupported type.");
+    }
+    return IntegerVector::create();
 }
 
 NumericVector vectorSum(NumericVector x, NumericVector y) {
@@ -94,6 +132,15 @@ NumericVector vectorDivide(NumericVector x, NumericVector y) {
 		if (y[i] != 0.0) {
 			result[i] = x[i] / y[i];
 		}
+	}
+	return result;
+}
+
+NumericVector vectorMultiply(NumericVector x, double multiplier) {
+	int n = x.size();
+	NumericVector result = NumericVector(n, NA_REAL);
+	for (int i = 0; i < n; i++) {
+		result[i] = x[i] * multiplier;
 	}
 	return result;
 }
@@ -227,28 +274,104 @@ NumericMatrix matrixMultiply(NumericMatrix x, double y) {
 
 NumericVector repInt(int x, int y) {
 	NumericVector result(y);
-	for (int i = 0; i < y ; i++) {
+	for(int i = 0; i < y ; i++) {
 		result[i] = x;
 	}
 	return result;
 }
 
-std::string vectorToString(const NumericVector x) {
-	if (x.length() == 0) {
-		return "[]";
-	}
-
+std::string vectorToString(NumericVector x) {
+	if (x.length() == 0) return "[]";
 	std::ostringstream os;
 	os << "[";
-	for (int i = 0; i < x.length(); i++) {
+	for(int i = 0; i < x.length(); i++) {
 		os << x[i];
-		if (i + 1 < x.length()) {
-			os << ", ";
-		}
+		if(i + 1 < x.length()) os << ", ";
 	}
 	os << "]";
 	return os.str();
 }
+
+double secant(std::function<double(double)> f, double x0, double x1, double tolerance, int maxIter) {
+    int step = 1;
+    double f0, f1, f2, x2;
+    do {
+        f0 = f(x0);
+        f1 = f(x1);
+        if (f0 == f1) {
+            f0 = f(x0 + (x0 / 2.0));
+            throw std::invalid_argument("Mathematical Error: m is 0");
+        }
+        x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
+        f2 = f(x2);
+
+        x0 = x1;
+        f0 = f1;
+        x1 = x2;
+        f1 = f2;
+
+        step++;
+        if (step > maxIter) {
+            throw std::invalid_argument("Not convergent.");
+        }
+    } while (abs(f2) > tolerance);
+    return x2;
+}
+
+double max(NumericVector x) {
+	if(x.length() == 0) throw std::invalid_argument("Vector is Empty.");
+	double max = x[0];
+	for(int i = 1; i < x.length(); i++) {
+		if(x[i] > max) max = x[i];
+	}
+	return max;
+}
+
+double min(NumericVector x) {
+	if(x.length() == 0) throw std::invalid_argument("Vector is Empty.");
+	double min = x[0];
+	for(int i = 1; i < x.length(); i++) {
+		if(x[i] < min) min = x[i];
+	}
+	return min;
+}
+
+NumericVector range(int from, int to) {
+	NumericVector res;
+	if(from <= to) {
+		for(int i = from; i <= to; i++) {
+			res.push_back(i);
+		}
+	} else {
+		for(int i = from; i >= to; i--) {
+			res.push_back(i);
+		}
+	}
+	return res;
+}
+
+NumericVector rangeVector(NumericVector x, int from, int to) {
+	NumericVector res;
+	if(from <= to) {
+		for(int i = from; i <= to; i++) {
+			res.push_back(x[i]);
+		}
+	} else {
+		for(int i = from; i >= to; i--) {
+			res.push_back(x[i]);
+		}
+	}
+	return res;
+}
+
+NumericVector append(NumericVector x, NumericVector y) {
+	NumericVector res = clone(x);
+		for(NumericVector::iterator i = y.begin(); i != y.end(); i++) {
+			res.push_back(*i);
+		}
+	return res;
+}
+
 
 void logDebug(std::string s) {
 	Rcout << s << std::endl;

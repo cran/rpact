@@ -116,7 +116,7 @@ i.e., if all values are < 1 the type is \code{"relative"}, otherwise it is \code
 \item{maxNumberOfSubjects}{\code{maxNumberOfSubjects > 0} needs to be specified.
 If accrual time and accrual intensity is specified, this will be calculated.}
 
-\item{maxNumberOfEvents}{\code{maxNumberOfEvents > 0} is the maximum number of events, it determines 
+\item{maxNumberOfEvents}{\code{maxNumberOfEvents > 0} is the maximum number of events, it determines
 the power of the test and needs to be specified.}
 
 \item{dropoutRate1}{The assumed drop-out rate in the treatment group, default is \code{0}.}
@@ -139,21 +139,21 @@ The following generics (R generic functions) are available for this result objec
 }
 }
 \description{
-Returns the power, stopping probabilities, and expected sample size for testing 
+Returns the power, stopping probabilities, and expected sample size for testing
 the hazard ratio in a two treatment groups survival design.
 }
 \details{
-At given design the function calculates the power, stopping probabilities, and expected 
-sample size at given number of events and number of subjects. 
-It also calculates the time when the required events are expected under the given 
-assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times 
-and constant or non-constant piecewise accrual). 
-Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number 
-of subjects in the two treatment groups. 
- 
-The formula of Kim & Tsiatis (Biometrics, 1990) 
-is used to calculate the expected number of events under the alternative 
-(see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized to piecewise survival times and 
+At given design the function calculates the power, stopping probabilities, and expected
+sample size at given number of events and number of subjects.
+It also calculates the time when the required events are expected under the given
+assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times
+and constant or non-constant piecewise accrual).
+Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number
+of subjects in the two treatment groups.
+
+The formula of Kim & Tsiatis (Biometrics, 1990)
+is used to calculate the expected number of events under the alternative
+(see also Lakatos & Lan, Statistics in Medicine, 1992). These formulas are generalized to piecewise survival times and
 non-constant piecewise accrual over time.\cr
 }
 \section{Piecewise survival time}{

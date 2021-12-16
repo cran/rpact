@@ -1,22 +1,22 @@
-#:#
-#:#  *Plot functions*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5175 $
-#:#  Last changed: $Date: 2021-08-18 07:44:45 +0200 (Mi, 18 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:# 
+## |
+## |  *Plot functions*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5594 $
+## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
+## |  Last changed by: $Author: pahlke $
+## | 
 
 .addNumberToPlotCaption <- function(caption, type, numberInCaptionEnabled = FALSE) {
 	if (!numberInCaptionEnabled) {
@@ -67,6 +67,21 @@
 				"Rejected Arms per Stage", "Rejected Arms"), type, numberInCaptionEnabled))
 		}
 	} 
+	else if (.isEnrichmentSimulationResults(obj)) {
+		if (type == 1) { # Enrichment, Overall Success
+			return(.addNumberToPlotCaption("Overall Success", type, numberInCaptionEnabled))
+		}
+		else if (type == 2) { # Enrichment, Success per Stage
+			return(.addNumberToPlotCaption("Success per Stage", type, numberInCaptionEnabled))
+		}
+		else if (type == 3) { # Enrichment, Selected Populations per Stage
+			return(.addNumberToPlotCaption("Selected Populations per Stage", type, numberInCaptionEnabled))
+		}
+		else if (type == 4) { # Enrichment, Rejected Populations per Stage
+			return(.addNumberToPlotCaption(ifelse(obj$.design$kMax > 1, 
+				"Rejected Populations per Stage", "Rejected Populations"), type, numberInCaptionEnabled))
+		}
+	}
 	else if (inherits(obj, "SimulationResults") && type == 4) {
 		return(.addNumberToPlotCaption("Reject per Stage", type, numberInCaptionEnabled))
 	}
@@ -419,7 +434,18 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		types <- .removeInvalidPlotTypes(obj, types, c(5:14))
 	}
 	else if (inherits(obj, "SimulationResults")) {
-		if (grepl("MultiArm", class(obj))) {
+		if (grepl("Enrichment", class(obj)) && !.getSimulationEnrichmentEffectData(
+				obj, validatePlotCapability = FALSE)$valid) {
+			if (output == "numeric") {
+				return(NA_real_)
+			}
+			if (output == "caption") {
+				return(NA_character_)
+			}
+			return(list())
+		}
+		
+		if (grepl("MultiArm|Enrichment", class(obj))) {
 			types <- c(types, 1)
 			if (obj$.design$kMax > 1) {
 				types <- c(types, 2:3)
@@ -578,7 +604,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 
 	xAxisCmd <- .reconstructSequenceCommand(xValues)
 	if (is.na(xAxisCmd)) {
-		if (!grepl("\\$", xParameterName) || grepl("^\\.design", xParameterName)) {
+		if (!grepl("(\\$)|(^c\\()", xParameterName) || grepl("^\\.design", xParameterName)) {
 			
 			if (length(objectName) == 0 || is.na(objectName)) {
 				objectName <- "x"
@@ -685,10 +711,12 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		theta = seq(-1, 1, 0.02), nMax = NA_integer_) {
 	
 	if (.isTrialDesignSet(parameterSet) && parameterSet$getSize() > 1 && 
-		(is.null(parameterSet$variedParameters) || length(parameterSet$variedParameters) == 0)) {
+			(is.null(parameterSet$variedParameters) || length(parameterSet$variedParameters) == 0)) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'variedParameters' must be not empty; ",
 			"use 'DesignSet$addVariedParameters(character)' to add one or more varied parameters")
 	}
+	
+	# simulationEnrichmentEnmabled <- grepl("SimulationResultsEnrichment", class(parameterSet))
 	
 	if (inherits(parameterSet, "TrialDesignSet")) {
 		data <- as.data.frame(parameterSet, niceColumnNamesEnabled = FALSE, 
@@ -699,7 +727,12 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	if (!.isTrialDesignSet(parameterSet)) {
-		return(list(data = data, variedParameters = character(0)))
+		variedParameters <- logical(0)
+		if ("stages" %in% colnames(data)) {
+			variedParameters <- "stages"
+			names(variedParameters) <- "Stage"
+		}
+		return(list(data = data, variedParameters = variedParameters))
 	}
 	
 	if (parameterSet$getSize() <= 1) {
@@ -751,6 +784,24 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	return(axisLabel)
 }
 
+.allGroupValuesEqual <-  function(data, parameterName, groupName) {
+	groupedValues <- base::by(data[[parameterName]], data[[groupName]], paste, collapse = ",")
+	groupedValues <- groupedValues[!grepl("^NA(,NA)*$", groupedValues)]
+	if (length(groupedValues) <= 1) {
+		return(TRUE)
+	}
+	
+	for (i in 1:(length(groupedValues) - 1)) {
+		for (j in (i + 1):length(groupedValues)) {
+			if (!is.na(groupedValues[i]) && !is.na(groupedValues[j]) && 
+					groupedValues[i] != groupedValues[j]) {
+				return(FALSE)
+			}
+		}
+	}
+	return(TRUE)
+}
+
 .plotParameterSet <- function(..., parameterSet, designMaster, xParameterName, yParameterNames,
 		mainTitle = NA_character_, xlab = NA_character_, ylab = NA_character_, 
 		palette = "Set1", theta = seq(-1, 1, 0.02), nMax = NA_integer_, 
@@ -760,12 +811,16 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		yAxisScalingEnabled = TRUE, 
 		ratioEnabled = NA, plotSettings = NULL) {
 	
+	simulationEnrichmentEnmabled <- grepl("SimulationResultsEnrichment", class(parameterSet))
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
 		parameterNames <- c(xParameterName, yParameterNames)
 		parameterNames <- parameterNames[!(parameterNames %in% c("theta", "averageSampleNumber",
 			"overallEarlyStop", "calculatedPower"))]
 		fieldNames <- c(names(parameterSet$getRefClass()$fields()), 
 			names(designMaster$getRefClass()$fields()))
+		if (simulationEnrichmentEnmabled) {
+			fieldNames <- c(fieldNames, gsub("s$", "", names(parameterSet$effectList)), "situation")
+		}
 		for (parameterName in parameterNames) {
 			if (!is.na(parameterName) && !(parameterName %in% fieldNames)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -808,6 +863,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		variedParameters <- df$variedParameters
 		variedParameters <- na.omit(variedParameters)
 		variedParameters <- variedParameters[variedParameters != "NA"]
+		
+		if (length(variedParameters) == 1 && length(yParameterNames) == 1) {
+			if (.allGroupValuesEqual(data, parameterName = yParameterNames, groupName = variedParameters)) {
+				variedParameters <- logical(0)
+			}
+		}
+		
 	} else if (is.data.frame(parameterSet)) {
 		data <- parameterSet
 	} else {
@@ -817,7 +879,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	}
 	
 	if (length(variedParameters) > 0) {
-		legendTitle <- paste(names(variedParameters), collapse = "\n")
+		legendTitle <- .firstCharacterToUpperCase(paste(names(variedParameters), collapse = "\n"))
 		categoryParameterName <- variedParameters[1]
 	} else {
 		legendTitle <- NA_character_
@@ -998,6 +1060,9 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (xParameterName == "informationRates") {
 		p <- p + ggplot2::scale_x_continuous(breaks = c(0, round(data$xValues, 3)))
 	}
+	else if (xParameterName == "situation") { # simulation enrichment
+		p <- p + ggplot2::scale_x_continuous(breaks = round(data$xValues))
+	}
 
 	# add mirrored lines
 	if (!is.data.frame(parameterSet) && designMaster$sided == 2 && 
@@ -1109,13 +1174,13 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	return(list(scalingFactor1 = scalingFactor1, scalingFactor2 = scalingFactor2))
 }
 
-.plotDataFrame <- function(data, mainTitle = NA_character_, 
+.plotDataFrame <- function(data, ..., mainTitle = NA_character_, 
 		xlab = NA_character_, ylab = NA_character_, xAxisLabel = NA_character_,
 		yAxisLabel1 = NA_character_, yAxisLabel2 = NA_character_, 
 		palette = "Set1", plotPointsEnabled = NA, legendTitle = NA_character_,
 		legendPosition = NA_integer_, scalingFactor1 = 1, scalingFactor2 = 1,
 		addPowerAndAverageSampleNumber = FALSE, mirrorModeEnabled = FALSE, plotDashedHorizontalLine = FALSE, 
-		ratioEnabled = FALSE, plotSettings = NULL, sided = 1, ...) {
+		ratioEnabled = FALSE, plotSettings = NULL, sided = 1, discreteXAxis = FALSE) {
 	
 	if (!is.data.frame(data)) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'data' must be a data.frame (is ", class(data), ")")
@@ -1169,6 +1234,10 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	
 	p <- plotSettings$setTheme(p)
 	p <- plotSettings$hideGridLines(p)
+	
+	if (discreteXAxis) { 
+		p <- p + ggplot2::scale_x_continuous(breaks = round(data$xValues))
+	}
 	
 	# set main title
 	p <- plotSettings$setMainTitle(p, mainTitle)
@@ -1297,7 +1366,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (designMaster$sided == 2) {
 		alpha <- alpha / 2
 	}
-	yValue <- stats::qnorm(1 - alpha)
+	yValue <- .getOneMinusQNorm(alpha)
 	yValueLabel <- paste0("qnorm(1 - ", alpha, " ) == ", round(yValue, 4))
 	if (designMaster$sided == 1) {
 		p <- p + ggplot2::geom_hline(yintercept = yValue, linetype = "dashed") 

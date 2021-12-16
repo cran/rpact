@@ -12,9 +12,9 @@ getFinalPValue(stageResults, ...)
 \item{...}{Only available for backward compatibility.}
 }
 \value{
-Returns a \code{\link[base]{list}} containing 
+Returns a \code{\link[base]{list}} containing
 \itemize{
-  \item \code{finalStage}, 
+  \item \code{finalStage},
   \item \code{pFinal}.
 }
 }
@@ -22,7 +22,7 @@ Returns a \code{\link[base]{list}} containing
 Returns the final p-value for given stage results.
 }
 \details{
-The calculation of the final p-value is based on the stagewise ordering of the sample space. 
+The calculation of the final p-value is based on the stage-wise ordering of the sample space.
 This enables the calculation for both the non-adaptive and the adaptive case.
 For Fisher's combination test, it is available for \code{kMax = 2} only.
 }

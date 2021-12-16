@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_simulation_base_means.R
-#:#  Creation date: 18 May 2021, 17:47:56
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_simulation_base_means.R
+## |  Creation date: 08 December 2021, 09:09:23
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Simulation Means Function")
 
@@ -81,6 +81,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x1CodeBased$expectedNumberOfSubjects, x1$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$sampleSizes, x1$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$conditionalPowerAchieved, x1$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -126,6 +133,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x2CodeBased$expectedNumberOfSubjects, x2$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$sampleSizes, x2$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$conditionalPowerAchieved, x2$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x3 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
@@ -169,6 +183,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x3CodeBased$expectedNumberOfSubjects, x3$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$sampleSizes, x3$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$conditionalPowerAchieved, x3$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x4 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
@@ -212,6 +233,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x4CodeBased$expectedNumberOfSubjects, x4$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$sampleSizes, x4$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$conditionalPowerAchieved, x4$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x5 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
@@ -255,6 +283,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x5CodeBased$expectedNumberOfSubjects, x5$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$sampleSizes, x5$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$conditionalPowerAchieved, x5$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x6 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
@@ -298,6 +333,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x6CodeBased$expectedNumberOfSubjects, x6$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$sampleSizes, x6$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$conditionalPowerAchieved, x6$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x7 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
@@ -344,6 +386,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x7CodeBased$expectedNumberOfSubjects, x7$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$sampleSizes, x7$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$conditionalPowerAchieved, x7$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x8 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5)), 
@@ -389,6 +438,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x8CodeBased$expectedNumberOfSubjects, x8$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$sampleSizes, x8$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$conditionalPowerAchieved, x8$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x9 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5)), 
@@ -434,6 +490,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x9CodeBased$expectedNumberOfSubjects, x9$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$sampleSizes, x9$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$conditionalPowerAchieved, x9$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x9), "character")
+	    df <- as.data.frame(x9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	calcSubjectsFunctionSimulationBaseMeans <- function(..., stage, thetaH0, allocationRatioPlanned,
@@ -492,6 +555,13 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_equal(x10CodeBased$expectedNumberOfSubjects, x10$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$sampleSizes, x10$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$conditionalPowerAchieved, x10$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x10), "character")
+	    df <- as.data.frame(x10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -521,7 +591,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x1$overallReject, c(0.01, 0.67, 0.93), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[1, ], c(0, 0.09, 0.47), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[2, ], c(0.01, 0.58, 0.46), tolerance = 1e-07)
-	expect_equal(x1$futilityStop, c(0, 0, 0))
 	expect_equal(x1$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x1$earlyStop, c(0, 0.09, 0.47), tolerance = 1e-07)
 	expect_equal(x1$expectedNumberOfSubjects, c(100.13629, 75.286263, 37.754027), tolerance = 1e-07)
@@ -539,12 +608,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x1CodeBased$iterations, x1$iterations, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$overallReject, x1$overallReject, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$rejectPerStage, x1$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x1CodeBased$futilityStop, x1$futilityStop, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$futilityPerStage, x1$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$earlyStop, x1$earlyStop, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$expectedNumberOfSubjects, x1$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$sampleSizes, x1$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$conditionalPowerAchieved, x1$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -561,7 +636,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x2$overallReject, c(0.96, 0.74, 0.06), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[1, ], c(0.62, 0.06, 0.03), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[2, ], c(0.34, 0.68, 0.03), tolerance = 1e-07)
-	expect_equal(x2$futilityStop, c(0, 0, 0))
 	expect_equal(x2$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x2$earlyStop, c(0.62, 0.06, 0.03), tolerance = 1e-07)
 	expect_equal(x2$expectedNumberOfSubjects, c(25.921375, 81.226383, 97.518855), tolerance = 1e-07)
@@ -579,12 +653,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x2CodeBased$iterations, x2$iterations, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$overallReject, x2$overallReject, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$rejectPerStage, x2$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x2CodeBased$futilityStop, x2$futilityStop, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$futilityPerStage, x2$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$earlyStop, x2$earlyStop, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$expectedNumberOfSubjects, x2$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$sampleSizes, x2$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$conditionalPowerAchieved, x2$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x3 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -599,7 +679,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x3$overallReject, c(0, 0.62, 0.92), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[1, ], c(0, 0.08, 0.36), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[2, ], c(0, 0.54, 0.56), tolerance = 1e-07)
-	expect_equal(x3$futilityStop, c(0, 0, 0))
 	expect_equal(x3$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x3$earlyStop, c(0, 0.08, 0.36), tolerance = 1e-07)
 	expect_equal(x3$expectedNumberOfSubjects, c(101.14709, 82.477228, 37.608934), tolerance = 1e-07)
@@ -617,12 +696,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x3CodeBased$iterations, x3$iterations, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$overallReject, x3$overallReject, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$rejectPerStage, x3$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x3CodeBased$futilityStop, x3$futilityStop, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$futilityPerStage, x3$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$earlyStop, x3$earlyStop, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$expectedNumberOfSubjects, x3$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$sampleSizes, x3$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$conditionalPowerAchieved, x3$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x4 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -637,7 +722,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x4$overallReject, c(0.91, 0.73, 0.01), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[1, ], c(0.35, 0.09, 0), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[2, ], c(0.56, 0.64, 0.01), tolerance = 1e-07)
-	expect_equal(x4$futilityStop, c(0, 0, 0))
 	expect_equal(x4$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x4$earlyStop, c(0.35, 0.09, 0), tolerance = 1e-07)
 	expect_equal(x4$expectedNumberOfSubjects, c(38.729726, 74.553457, 106.20499), tolerance = 1e-07)
@@ -655,12 +739,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x4CodeBased$iterations, x4$iterations, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$overallReject, x4$overallReject, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$rejectPerStage, x4$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x4CodeBased$futilityStop, x4$futilityStop, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$futilityPerStage, x4$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$earlyStop, x4$earlyStop, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$expectedNumberOfSubjects, x4$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$sampleSizes, x4$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$conditionalPowerAchieved, x4$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x5 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -675,7 +765,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x5$overallReject, c(0.02, 0.3, 0.65), tolerance = 1e-07)
 	expect_equal(x5$rejectPerStage[1, ], c(0, 0.06, 0.15), tolerance = 1e-07)
 	expect_equal(x5$rejectPerStage[2, ], c(0.02, 0.24, 0.5), tolerance = 1e-07)
-	expect_equal(x5$futilityStop, c(0, 0, 0))
 	expect_equal(x5$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x5$earlyStop, c(0, 0.06, 0.15), tolerance = 1e-07)
 	expect_equal(x5$expectedNumberOfSubjects, c(99.262844, 92.628587, 72.466684), tolerance = 1e-07)
@@ -693,12 +782,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x5CodeBased$iterations, x5$iterations, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$overallReject, x5$overallReject, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$rejectPerStage, x5$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x5CodeBased$futilityStop, x5$futilityStop, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$futilityPerStage, x5$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$earlyStop, x5$earlyStop, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$expectedNumberOfSubjects, x5$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$sampleSizes, x5$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$conditionalPowerAchieved, x5$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x6 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -713,7 +808,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x6$overallReject, c(0.73, 0.2, 0.05), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[1, ], c(0.15, 0.06, 0.03), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[2, ], c(0.58, 0.14, 0.02), tolerance = 1e-07)
-	expect_equal(x6$futilityStop, c(0, 0, 0))
 	expect_equal(x6$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x6$earlyStop, c(0.15, 0.06, 0.03), tolerance = 1e-07)
 	expect_equal(x6$expectedNumberOfSubjects, c(62.256855, 90.679118, 97.117191), tolerance = 1e-07)
@@ -731,12 +825,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x6CodeBased$iterations, x6$iterations, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$overallReject, x6$overallReject, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$rejectPerStage, x6$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x6CodeBased$futilityStop, x6$futilityStop, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$futilityPerStage, x6$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$earlyStop, x6$earlyStop, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$expectedNumberOfSubjects, x6$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$sampleSizes, x6$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$conditionalPowerAchieved, x6$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x7 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -751,7 +851,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x7$overallReject, c(0, 0.15, 0.75), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[1, ], c(0, 0.02, 0.11), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[2, ], c(0, 0.13, 0.64), tolerance = 1e-07)
-	expect_equal(x7$futilityStop, c(0, 0, 0))
 	expect_equal(x7$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x7$earlyStop, c(0, 0.02, 0.11), tolerance = 1e-07)
 	expect_equal(x7$expectedNumberOfSubjects, c(99.499784, 89.67646, 74.321885), tolerance = 1e-07)
@@ -769,12 +868,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x7CodeBased$iterations, x7$iterations, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$overallReject, x7$overallReject, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$rejectPerStage, x7$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x7CodeBased$futilityStop, x7$futilityStop, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$futilityPerStage, x7$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$earlyStop, x7$earlyStop, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$expectedNumberOfSubjects, x7$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$sampleSizes, x7$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$conditionalPowerAchieved, x7$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x8 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -789,7 +894,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x8$overallReject, c(0.6, 0.28, 0.01), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[1, ], c(0.08, 0.04, 0), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[2, ], c(0.52, 0.24, 0.01), tolerance = 1e-07)
-	expect_equal(x8$futilityStop, c(0, 0, 0))
 	expect_equal(x8$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x8$earlyStop, c(0.08, 0.04, 0), tolerance = 1e-07)
 	expect_equal(x8$expectedNumberOfSubjects, c(75.059866, 89.365281, 105.96832), tolerance = 1e-07)
@@ -807,12 +911,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x8CodeBased$iterations, x8$iterations, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$overallReject, x8$overallReject, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$rejectPerStage, x8$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x8CodeBased$futilityStop, x8$futilityStop, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$futilityPerStage, x8$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$earlyStop, x8$earlyStop, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$expectedNumberOfSubjects, x8$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$sampleSizes, x8$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$conditionalPowerAchieved, x8$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x9 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), normalApproximation = TRUE, 
@@ -827,7 +937,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x9$overallReject, c(0.06, 0.4, 0.86), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[1, ], c(0.01, 0.06, 0.2), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[2, ], c(0.05, 0.34, 0.66), tolerance = 1e-07)
-	expect_equal(x9$futilityStop, c(0, 0, 0))
 	expect_equal(x9$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x9$earlyStop, c(0.01, 0.06, 0.2), tolerance = 1e-07)
 	expect_equal(x9$expectedNumberOfSubjects, c(96.293417, 87.052198, 59.545442), tolerance = 1e-07)
@@ -845,12 +954,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x9CodeBased$iterations, x9$iterations, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$overallReject, x9$overallReject, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$rejectPerStage, x9$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x9CodeBased$futilityStop, x9$futilityStop, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$futilityPerStage, x9$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$earlyStop, x9$earlyStop, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$expectedNumberOfSubjects, x9$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$sampleSizes, x9$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$conditionalPowerAchieved, x9$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x9), "character")
+	    df <- as.data.frame(x9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x10 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -865,7 +980,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x10$overallReject, c(0.66, 0.31, 0.04), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[1, ], c(0.11, 0.07, 0.02), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[2, ], c(0.55, 0.24, 0.02), tolerance = 1e-07)
-	expect_equal(x10$futilityStop, c(0, 0, 0))
 	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x10$earlyStop, c(0.11, 0.07, 0.02), tolerance = 1e-07)
 	expect_equal(x10$expectedNumberOfSubjects, c(64.458245, 88.745903, 98.117191), tolerance = 1e-07)
@@ -883,12 +997,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x10CodeBased$iterations, x10$iterations, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$overallReject, x10$overallReject, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$rejectPerStage, x10$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x10CodeBased$futilityStop, x10$futilityStop, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$futilityPerStage, x10$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$earlyStop, x10$earlyStop, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$expectedNumberOfSubjects, x10$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$sampleSizes, x10$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$conditionalPowerAchieved, x10$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x10), "character")
+	    df <- as.data.frame(x10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x11 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -903,7 +1023,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x11$overallReject, c(0.03, 0.32, 0.77), tolerance = 1e-07)
 	expect_equal(x11$rejectPerStage[1, ], c(0.02, 0.04, 0.21), tolerance = 1e-07)
 	expect_equal(x11$rejectPerStage[2, ], c(0.01, 0.28, 0.56), tolerance = 1e-07)
-	expect_equal(x11$futilityStop, c(0, 0, 0))
 	expect_equal(x11$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x11$earlyStop, c(0.02, 0.04, 0.21), tolerance = 1e-07)
 	expect_equal(x11$expectedNumberOfSubjects, c(96.685833, 88.962444, 54.461927), tolerance = 1e-07)
@@ -921,12 +1040,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x11CodeBased$iterations, x11$iterations, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$overallReject, x11$overallReject, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$rejectPerStage, x11$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x11CodeBased$futilityStop, x11$futilityStop, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$futilityPerStage, x11$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$earlyStop, x11$earlyStop, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$expectedNumberOfSubjects, x11$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$sampleSizes, x11$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$conditionalPowerAchieved, x11$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x11), "character")
+	    df <- as.data.frame(x11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x12 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
@@ -941,7 +1066,6 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	expect_equal(x12$overallReject, c(0.6, 0.28, 0.01), tolerance = 1e-07)
 	expect_equal(x12$rejectPerStage[1, ], c(0.08, 0.04, 0), tolerance = 1e-07)
 	expect_equal(x12$rejectPerStage[2, ], c(0.52, 0.24, 0.01), tolerance = 1e-07)
-	expect_equal(x12$futilityStop, c(0, 0, 0))
 	expect_equal(x12$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x12$earlyStop, c(0.08, 0.04, 0), tolerance = 1e-07)
 	expect_equal(x12$expectedNumberOfSubjects, c(75.059866, 89.365281, 105.96832), tolerance = 1e-07)
@@ -959,12 +1083,18 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_equal(x12CodeBased$iterations, x12$iterations, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$overallReject, x12$overallReject, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$rejectPerStage, x12$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x12CodeBased$futilityStop, x12$futilityStop, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$futilityPerStage, x12$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$earlyStop, x12$earlyStop, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$expectedNumberOfSubjects, x12$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$sampleSizes, x12$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$conditionalPowerAchieved, x12$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x12), "character")
+	    df <- as.data.frame(x12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -990,7 +1120,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x1$overallReject, c(0.01, 0.62, 0.84), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[1, ], c(0, 0.01, 0.07), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[2, ], c(0.01, 0.61, 0.77), tolerance = 1e-07)
-	expect_equal(x1$futilityStop, c(0, 0, 0))
 	expect_equal(x1$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x1$earlyStop, c(0, 0.01, 0.07), tolerance = 1e-07)
 	expect_equal(x1$expectedNumberOfSubjects, c(97.726214, 61.386317, 35.456429), tolerance = 1e-07)
@@ -1008,12 +1137,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x1CodeBased$iterations, x1$iterations, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$overallReject, x1$overallReject, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$rejectPerStage, x1$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x1CodeBased$futilityStop, x1$futilityStop, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$futilityPerStage, x1$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$earlyStop, x1$earlyStop, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$expectedNumberOfSubjects, x1$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$sampleSizes, x1$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$conditionalPowerAchieved, x1$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1031,7 +1166,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x2$overallReject, c(0.88, 0.7, 0.05), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[1, ], c(0.08, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[2, ], c(0.8, 0.68, 0.05), tolerance = 1e-07)
-	expect_equal(x2$futilityStop, c(0, 0, 0))
 	expect_equal(x2$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x2$earlyStop, c(0.08, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x2$expectedNumberOfSubjects, c(30.529806, 74.585778, 94.761842), tolerance = 1e-07)
@@ -1049,12 +1183,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x2CodeBased$iterations, x2$iterations, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$overallReject, x2$overallReject, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$rejectPerStage, x2$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x2CodeBased$futilityStop, x2$futilityStop, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$futilityPerStage, x2$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$earlyStop, x2$earlyStop, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$expectedNumberOfSubjects, x2$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$sampleSizes, x2$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$conditionalPowerAchieved, x2$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x3 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1070,7 +1210,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x3$overallReject, c(0.01, 0.58, 0.86), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[2, ], c(0.01, 0.58, 0.84), tolerance = 1e-07)
-	expect_equal(x3$futilityStop, c(0, 0, 0))
 	expect_equal(x3$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x3$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x3$expectedNumberOfSubjects, c(99.571933, 69.623473, 35.859349), tolerance = 1e-07)
@@ -1088,12 +1227,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x3CodeBased$iterations, x3$iterations, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$overallReject, x3$overallReject, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$rejectPerStage, x3$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x3CodeBased$futilityStop, x3$futilityStop, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$futilityPerStage, x3$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$earlyStop, x3$earlyStop, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$expectedNumberOfSubjects, x3$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$sampleSizes, x3$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$conditionalPowerAchieved, x3$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x4 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1109,7 +1254,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x4$overallReject, c(0.83, 0.69, 0.01), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[1, ], c(0.03, 0, 0), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[2, ], c(0.8, 0.69, 0.01), tolerance = 1e-07)
-	expect_equal(x4$futilityStop, c(0, 0, 0))
 	expect_equal(x4$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x4$earlyStop, c(0.03, 0, 0), tolerance = 1e-07)
 	expect_equal(x4$expectedNumberOfSubjects, c(34.808208, 66.656932, 104.30185), tolerance = 1e-07)
@@ -1127,12 +1271,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x4CodeBased$iterations, x4$iterations, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$overallReject, x4$overallReject, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$rejectPerStage, x4$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x4CodeBased$futilityStop, x4$futilityStop, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$futilityPerStage, x4$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$earlyStop, x4$earlyStop, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$expectedNumberOfSubjects, x4$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$sampleSizes, x4$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$conditionalPowerAchieved, x4$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x5 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1148,7 +1298,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x5$overallReject, c(0.02, 0.29, 0.63), tolerance = 1e-07)
 	expect_equal(x5$rejectPerStage[1, ], c(0, 0, 0))
 	expect_equal(x5$rejectPerStage[2, ], c(0.02, 0.29, 0.63), tolerance = 1e-07)
-	expect_equal(x5$futilityStop, c(0, 0, 0))
 	expect_equal(x5$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x5$earlyStop, c(0, 0, 0))
 	expect_equal(x5$expectedNumberOfSubjects, c(96.372889, 89.619156, 71.907268), tolerance = 1e-07)
@@ -1166,12 +1315,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x5CodeBased$iterations, x5$iterations, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$overallReject, x5$overallReject, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$rejectPerStage, x5$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x5CodeBased$futilityStop, x5$futilityStop, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$futilityPerStage, x5$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$earlyStop, x5$earlyStop, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$expectedNumberOfSubjects, x5$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$sampleSizes, x5$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$conditionalPowerAchieved, x5$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x6 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1187,7 +1342,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x6$overallReject, c(0.71, 0.28, 0.05), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[2, ], c(0.69, 0.26, 0.05), tolerance = 1e-07)
-	expect_equal(x6$futilityStop, c(0, 0, 0))
 	expect_equal(x6$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x6$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x6$expectedNumberOfSubjects, c(61.262488, 89.754099, 94.761842), tolerance = 1e-07)
@@ -1205,12 +1359,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x6CodeBased$iterations, x6$iterations, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$overallReject, x6$overallReject, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$rejectPerStage, x6$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x6CodeBased$futilityStop, x6$futilityStop, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$futilityPerStage, x6$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$earlyStop, x6$earlyStop, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$expectedNumberOfSubjects, x6$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$sampleSizes, x6$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$conditionalPowerAchieved, x6$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x7 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1226,7 +1386,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x7$overallReject, c(0.01, 0.2, 0.7), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[1, ], c(0, 0, 0.01), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[2, ], c(0.01, 0.2, 0.69), tolerance = 1e-07)
-	expect_equal(x7$futilityStop, c(0, 0, 0))
 	expect_equal(x7$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x7$earlyStop, c(0, 0, 0.01), tolerance = 1e-07)
 	expect_equal(x7$expectedNumberOfSubjects, c(99.874349, 85.385224, 62.337209), tolerance = 1e-07)
@@ -1244,12 +1403,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x7CodeBased$iterations, x7$iterations, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$overallReject, x7$overallReject, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$rejectPerStage, x7$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x7CodeBased$futilityStop, x7$futilityStop, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$futilityPerStage, x7$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$earlyStop, x7$earlyStop, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$expectedNumberOfSubjects, x7$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$sampleSizes, x7$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$conditionalPowerAchieved, x7$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x8 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1265,7 +1430,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x8$overallReject, c(0.57, 0.35, 0.01), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[2, ], c(0.56, 0.35, 0.01), tolerance = 1e-07)
-	expect_equal(x8$futilityStop, c(0, 0, 0))
 	expect_equal(x8$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x8$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x8$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
@@ -1283,12 +1447,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x8CodeBased$iterations, x8$iterations, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$overallReject, x8$overallReject, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$rejectPerStage, x8$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x8CodeBased$futilityStop, x8$futilityStop, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$futilityPerStage, x8$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$earlyStop, x8$earlyStop, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$expectedNumberOfSubjects, x8$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$sampleSizes, x8$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$conditionalPowerAchieved, x8$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x9 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1304,7 +1474,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x9$overallReject, c(0.04, 0.36, 0.79), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[1, ], c(0, 0.01, 0.02), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[2, ], c(0.04, 0.35, 0.77), tolerance = 1e-07)
-	expect_equal(x9$futilityStop, c(0, 0, 0))
 	expect_equal(x9$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x9$earlyStop, c(0, 0.01, 0.02), tolerance = 1e-07)
 	expect_equal(x9$expectedNumberOfSubjects, c(93.166381, 72.993336, 56.443486), tolerance = 1e-07)
@@ -1322,12 +1491,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x9CodeBased$iterations, x9$iterations, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$overallReject, x9$overallReject, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$rejectPerStage, x9$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x9CodeBased$futilityStop, x9$futilityStop, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$futilityPerStage, x9$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$earlyStop, x9$earlyStop, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$expectedNumberOfSubjects, x9$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$sampleSizes, x9$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$conditionalPowerAchieved, x9$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x9), "character")
+	    df <- as.data.frame(x9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x10 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1343,7 +1518,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x10$overallReject, c(0.71, 0.32, 0.05), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[2, ], c(0.69, 0.3, 0.05), tolerance = 1e-07)
-	expect_equal(x10$futilityStop, c(0, 0, 0))
 	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x10$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x10$expectedNumberOfSubjects, c(62.435526, 88.169977, 94.761842), tolerance = 1e-07)
@@ -1361,12 +1535,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x10CodeBased$iterations, x10$iterations, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$overallReject, x10$overallReject, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$rejectPerStage, x10$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x10CodeBased$futilityStop, x10$futilityStop, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$futilityPerStage, x10$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$earlyStop, x10$earlyStop, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$expectedNumberOfSubjects, x10$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$sampleSizes, x10$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$conditionalPowerAchieved, x10$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x10), "character")
+	    df <- as.data.frame(x10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x11 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1382,7 +1562,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x11$overallReject, c(0.04, 0.33, 0.76), tolerance = 1e-07)
 	expect_equal(x11$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x11$rejectPerStage[2, ], c(0.04, 0.33, 0.74), tolerance = 1e-07)
-	expect_equal(x11$futilityStop, c(0, 0, 0))
 	expect_equal(x11$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x11$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x11$expectedNumberOfSubjects, c(97.820553, 79.30135, 45.942964), tolerance = 1e-07)
@@ -1400,12 +1579,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x11CodeBased$iterations, x11$iterations, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$overallReject, x11$overallReject, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$rejectPerStage, x11$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x11CodeBased$futilityStop, x11$futilityStop, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$futilityPerStage, x11$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$earlyStop, x11$earlyStop, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$expectedNumberOfSubjects, x11$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$sampleSizes, x11$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$conditionalPowerAchieved, x11$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x11), "character")
+	    df <- as.data.frame(x11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x12 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
@@ -1421,7 +1606,6 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	expect_equal(x12$overallReject, c(0.57, 0.35, 0.01), tolerance = 1e-07)
 	expect_equal(x12$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x12$rejectPerStage[2, ], c(0.56, 0.35, 0.01), tolerance = 1e-07)
-	expect_equal(x12$futilityStop, c(0, 0, 0))
 	expect_equal(x12$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x12$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x12$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
@@ -1439,12 +1623,18 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_equal(x12CodeBased$iterations, x12$iterations, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$overallReject, x12$overallReject, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$rejectPerStage, x12$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x12CodeBased$futilityStop, x12$futilityStop, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$futilityPerStage, x12$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$earlyStop, x12$earlyStop, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$expectedNumberOfSubjects, x12$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$sampleSizes, x12$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$conditionalPowerAchieved, x12$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x12), "character")
+	    df <- as.data.frame(x12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1471,7 +1661,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x1$overallReject, c(0.02, 0.71, 0.93), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[1, ], c(0, 0.01, 0.07), tolerance = 1e-07)
 	expect_equal(x1$rejectPerStage[2, ], c(0.02, 0.7, 0.86), tolerance = 1e-07)
-	expect_equal(x1$futilityStop, c(0, 0, 0))
 	expect_equal(x1$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x1$earlyStop, c(0, 0.01, 0.07), tolerance = 1e-07)
 	expect_equal(x1$expectedNumberOfSubjects, c(97.726214, 61.386317, 35.456429), tolerance = 1e-07)
@@ -1489,12 +1678,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x1CodeBased$iterations, x1$iterations, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$overallReject, x1$overallReject, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$rejectPerStage, x1$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x1CodeBased$futilityStop, x1$futilityStop, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$futilityPerStage, x1$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$earlyStop, x1$earlyStop, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$expectedNumberOfSubjects, x1$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$sampleSizes, x1$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$conditionalPowerAchieved, x1$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1512,7 +1707,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x2$overallReject, c(0.94, 0.81, 0.07), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[1, ], c(0.08, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x2$rejectPerStage[2, ], c(0.86, 0.79, 0.07), tolerance = 1e-07)
-	expect_equal(x2$futilityStop, c(0, 0, 0))
 	expect_equal(x2$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x2$earlyStop, c(0.08, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x2$expectedNumberOfSubjects, c(30.529806, 74.585778, 94.761842), tolerance = 1e-07)
@@ -1530,12 +1724,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x2CodeBased$iterations, x2$iterations, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$overallReject, x2$overallReject, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$rejectPerStage, x2$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x2CodeBased$futilityStop, x2$futilityStop, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$futilityPerStage, x2$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$earlyStop, x2$earlyStop, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$expectedNumberOfSubjects, x2$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$sampleSizes, x2$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$conditionalPowerAchieved, x2$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x3 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1551,7 +1751,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x3$overallReject, c(0.01, 0.68, 0.94), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x3$rejectPerStage[2, ], c(0.01, 0.68, 0.92), tolerance = 1e-07)
-	expect_equal(x3$futilityStop, c(0, 0, 0))
 	expect_equal(x3$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x3$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x3$expectedNumberOfSubjects, c(99.571933, 69.623473, 35.859349), tolerance = 1e-07)
@@ -1569,12 +1768,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x3CodeBased$iterations, x3$iterations, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$overallReject, x3$overallReject, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$rejectPerStage, x3$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x3CodeBased$futilityStop, x3$futilityStop, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$futilityPerStage, x3$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$earlyStop, x3$earlyStop, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$expectedNumberOfSubjects, x3$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$sampleSizes, x3$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$conditionalPowerAchieved, x3$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x4 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1590,7 +1795,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x4$overallReject, c(0.92, 0.78, 0.02), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[1, ], c(0.03, 0, 0), tolerance = 1e-07)
 	expect_equal(x4$rejectPerStage[2, ], c(0.89, 0.78, 0.02), tolerance = 1e-07)
-	expect_equal(x4$futilityStop, c(0, 0, 0))
 	expect_equal(x4$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x4$earlyStop, c(0.03, 0, 0), tolerance = 1e-07)
 	expect_equal(x4$expectedNumberOfSubjects, c(34.808208, 66.656932, 104.30185), tolerance = 1e-07)
@@ -1608,12 +1812,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x4CodeBased$iterations, x4$iterations, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$overallReject, x4$overallReject, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$rejectPerStage, x4$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x4CodeBased$futilityStop, x4$futilityStop, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$futilityPerStage, x4$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$earlyStop, x4$earlyStop, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$expectedNumberOfSubjects, x4$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$sampleSizes, x4$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$conditionalPowerAchieved, x4$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x5 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1629,7 +1839,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x5$overallReject, c(0.03, 0.36, 0.74), tolerance = 1e-07)
 	expect_equal(x5$rejectPerStage[1, ], c(0, 0, 0))
 	expect_equal(x5$rejectPerStage[2, ], c(0.03, 0.36, 0.74), tolerance = 1e-07)
-	expect_equal(x5$futilityStop, c(0, 0, 0))
 	expect_equal(x5$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x5$earlyStop, c(0, 0, 0))
 	expect_equal(x5$expectedNumberOfSubjects, c(96.372889, 89.619156, 71.907268), tolerance = 1e-07)
@@ -1647,12 +1856,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x5CodeBased$iterations, x5$iterations, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$overallReject, x5$overallReject, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$rejectPerStage, x5$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x5CodeBased$futilityStop, x5$futilityStop, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$futilityPerStage, x5$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$earlyStop, x5$earlyStop, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$expectedNumberOfSubjects, x5$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$sampleSizes, x5$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$conditionalPowerAchieved, x5$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x6 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1668,7 +1883,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x6$overallReject, c(0.79, 0.36, 0.06), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x6$rejectPerStage[2, ], c(0.77, 0.34, 0.06), tolerance = 1e-07)
-	expect_equal(x6$futilityStop, c(0, 0, 0))
 	expect_equal(x6$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x6$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x6$expectedNumberOfSubjects, c(61.262488, 89.754099, 94.761842), tolerance = 1e-07)
@@ -1686,12 +1900,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x6CodeBased$iterations, x6$iterations, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$overallReject, x6$overallReject, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$rejectPerStage, x6$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x6CodeBased$futilityStop, x6$futilityStop, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$futilityPerStage, x6$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$earlyStop, x6$earlyStop, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$expectedNumberOfSubjects, x6$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$sampleSizes, x6$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$conditionalPowerAchieved, x6$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x7 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1707,7 +1927,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x7$overallReject, c(0.01, 0.23, 0.83), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[1, ], c(0, 0, 0.01), tolerance = 1e-07)
 	expect_equal(x7$rejectPerStage[2, ], c(0.01, 0.23, 0.82), tolerance = 1e-07)
-	expect_equal(x7$futilityStop, c(0, 0, 0))
 	expect_equal(x7$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x7$earlyStop, c(0, 0, 0.01), tolerance = 1e-07)
 	expect_equal(x7$expectedNumberOfSubjects, c(99.874349, 85.385224, 62.337209), tolerance = 1e-07)
@@ -1725,12 +1944,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x7CodeBased$iterations, x7$iterations, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$overallReject, x7$overallReject, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$rejectPerStage, x7$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x7CodeBased$futilityStop, x7$futilityStop, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$futilityPerStage, x7$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$earlyStop, x7$earlyStop, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$expectedNumberOfSubjects, x7$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$sampleSizes, x7$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$conditionalPowerAchieved, x7$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x8 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1746,7 +1971,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x8$overallReject, c(0.72, 0.45, 0.01), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x8$rejectPerStage[2, ], c(0.71, 0.45, 0.01), tolerance = 1e-07)
-	expect_equal(x8$futilityStop, c(0, 0, 0))
 	expect_equal(x8$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x8$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x8$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
@@ -1764,12 +1988,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x8CodeBased$iterations, x8$iterations, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$overallReject, x8$overallReject, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$rejectPerStage, x8$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x8CodeBased$futilityStop, x8$futilityStop, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$futilityPerStage, x8$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$earlyStop, x8$earlyStop, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$expectedNumberOfSubjects, x8$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$sampleSizes, x8$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$conditionalPowerAchieved, x8$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x9 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1785,7 +2015,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x9$overallReject, c(0.09, 0.44, 0.85), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[1, ], c(0, 0.01, 0.02), tolerance = 1e-07)
 	expect_equal(x9$rejectPerStage[2, ], c(0.09, 0.43, 0.83), tolerance = 1e-07)
-	expect_equal(x9$futilityStop, c(0, 0, 0))
 	expect_equal(x9$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x9$earlyStop, c(0, 0.01, 0.02), tolerance = 1e-07)
 	expect_equal(x9$expectedNumberOfSubjects, c(93.166381, 72.993336, 56.443486), tolerance = 1e-07)
@@ -1803,12 +2032,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x9CodeBased$iterations, x9$iterations, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$overallReject, x9$overallReject, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$rejectPerStage, x9$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x9CodeBased$futilityStop, x9$futilityStop, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$futilityPerStage, x9$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$earlyStop, x9$earlyStop, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$expectedNumberOfSubjects, x9$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$sampleSizes, x9$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$conditionalPowerAchieved, x9$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x9), "character")
+	    df <- as.data.frame(x9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x10 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1824,7 +2059,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x10$overallReject, c(0.76, 0.42, 0.06), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[1, ], c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x10$rejectPerStage[2, ], c(0.74, 0.4, 0.06), tolerance = 1e-07)
-	expect_equal(x10$futilityStop, c(0, 0, 0))
 	expect_equal(x10$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x10$earlyStop, c(0.02, 0.02, 0), tolerance = 1e-07)
 	expect_equal(x10$expectedNumberOfSubjects, c(62.435526, 88.169977, 94.761842), tolerance = 1e-07)
@@ -1842,12 +2076,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x10CodeBased$iterations, x10$iterations, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$overallReject, x10$overallReject, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$rejectPerStage, x10$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x10CodeBased$futilityStop, x10$futilityStop, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$futilityPerStage, x10$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$earlyStop, x10$earlyStop, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$expectedNumberOfSubjects, x10$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$sampleSizes, x10$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$conditionalPowerAchieved, x10$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x10), "character")
+	    df <- as.data.frame(x10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x11 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1863,7 +2103,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x11$overallReject, c(0.12, 0.39, 0.87), tolerance = 1e-07)
 	expect_equal(x11$rejectPerStage[1, ], c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x11$rejectPerStage[2, ], c(0.12, 0.39, 0.85), tolerance = 1e-07)
-	expect_equal(x11$futilityStop, c(0, 0, 0))
 	expect_equal(x11$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x11$earlyStop, c(0, 0, 0.02), tolerance = 1e-07)
 	expect_equal(x11$expectedNumberOfSubjects, c(97.820553, 79.30135, 45.942964), tolerance = 1e-07)
@@ -1881,12 +2120,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x11CodeBased$iterations, x11$iterations, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$overallReject, x11$overallReject, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$rejectPerStage, x11$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x11CodeBased$futilityStop, x11$futilityStop, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$futilityPerStage, x11$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$earlyStop, x11$earlyStop, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$expectedNumberOfSubjects, x11$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$sampleSizes, x11$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$conditionalPowerAchieved, x11$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x11), "character")
+	    df <- as.data.frame(x11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x12 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
@@ -1902,7 +2147,6 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	expect_equal(x12$overallReject, c(0.72, 0.45, 0.01), tolerance = 1e-07)
 	expect_equal(x12$rejectPerStage[1, ], c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x12$rejectPerStage[2, ], c(0.71, 0.45, 0.01), tolerance = 1e-07)
-	expect_equal(x12$futilityStop, c(0, 0, 0))
 	expect_equal(x12$futilityPerStage[1, ], c(0, 0, 0))
 	expect_equal(x12$earlyStop, c(0.01, 0, 0), tolerance = 1e-07)
 	expect_equal(x12$expectedNumberOfSubjects, c(65.632546, 86.865451, 105.50507), tolerance = 1e-07)
@@ -1920,12 +2164,18 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_equal(x12CodeBased$iterations, x12$iterations, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$overallReject, x12$overallReject, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$rejectPerStage, x12$rejectPerStage, tolerance = 1e-05)
-	    expect_equal(x12CodeBased$futilityStop, x12$futilityStop, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$futilityPerStage, x12$futilityPerStage, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$earlyStop, x12$earlyStop, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$expectedNumberOfSubjects, x12$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$sampleSizes, x12$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$conditionalPowerAchieved, x12$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x12), "character")
+	    df <- as.data.frame(x12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

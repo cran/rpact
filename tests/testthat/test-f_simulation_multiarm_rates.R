@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_simulation_multiarm_rates.R
-#:#  Creation date: 18 May 2021, 17:48:27
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_simulation_multiarm_rates.R
+## |  Creation date: 08 December 2021, 09:09:56
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Simulation Multi-Arm Rates Function")
 
@@ -87,6 +87,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x1CodeBased$expectedNumberOfSubjects, x1$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$sampleSizes, x1$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$conditionalPowerAchieved, x1$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x2 <- getSimulationMultiArmRates(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined", activeArms =  4, 
@@ -136,6 +143,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x2CodeBased$expectedNumberOfSubjects, x2$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$sampleSizes, x2$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$conditionalPowerAchieved, x2$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -186,6 +200,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x3CodeBased$expectedNumberOfSubjects, x3$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$sampleSizes, x3$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$conditionalPowerAchieved, x3$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x4 <- getSimulationMultiArmRates(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all",
@@ -234,6 +255,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x4CodeBased$expectedNumberOfSubjects, x4$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$sampleSizes, x4$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$conditionalPowerAchieved, x4$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x5 <- getSimulationMultiArmRates(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
@@ -282,6 +310,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x5CodeBased$expectedNumberOfSubjects, x5$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$sampleSizes, x5$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$conditionalPowerAchieved, x5$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x6 <- getSimulationMultiArmRates(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -330,6 +365,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x6CodeBased$expectedNumberOfSubjects, x6$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$sampleSizes, x6$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$conditionalPowerAchieved, x6$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x7 <- getSimulationMultiArmRates(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, 
@@ -378,6 +420,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x7CodeBased$expectedNumberOfSubjects, x7$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$sampleSizes, x7$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$conditionalPowerAchieved, x7$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x8 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all", 
@@ -426,6 +475,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x8CodeBased$expectedNumberOfSubjects, x8$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$sampleSizes, x8$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$conditionalPowerAchieved, x8$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x9 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
@@ -474,6 +530,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x9CodeBased$expectedNumberOfSubjects, x9$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$sampleSizes, x9$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$conditionalPowerAchieved, x9$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x9), "character")
+	    df <- as.data.frame(x9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x10 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -522,6 +585,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x10CodeBased$expectedNumberOfSubjects, x10$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$sampleSizes, x10$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$conditionalPowerAchieved, x10$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x10), "character")
+	    df <- as.data.frame(x10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x11 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, 
@@ -570,6 +640,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x11CodeBased$expectedNumberOfSubjects, x11$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$sampleSizes, x11$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$conditionalPowerAchieved, x11$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x11), "character")
+	    df <- as.data.frame(x11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x12 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms = 4, threshold = 0, 
@@ -618,6 +695,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x12CodeBased$expectedNumberOfSubjects, x12$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$sampleSizes, x12$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$conditionalPowerAchieved, x12$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x12), "character")
+	    df <- as.data.frame(x12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x13 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined", activeArms = 4, threshold = 0, 
@@ -667,6 +751,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x13CodeBased$expectedNumberOfSubjects, x13$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x13CodeBased$sampleSizes, x13$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x13CodeBased$conditionalPowerAchieved, x13$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x13), "character")
+	    df <- as.data.frame(x13)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x13)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x14 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4, threshold = 0, 
@@ -715,6 +806,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x14CodeBased$expectedNumberOfSubjects, x14$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x14CodeBased$sampleSizes, x14$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x14CodeBased$conditionalPowerAchieved, x14$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x14), "character")
+	    df <- as.data.frame(x14)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x14)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x15 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "all", 
@@ -763,6 +861,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x15CodeBased$expectedNumberOfSubjects, x15$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x15CodeBased$sampleSizes, x15$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x15CodeBased$conditionalPowerAchieved, x15$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x15), "character")
+	    df <- as.data.frame(x15)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x15)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x16 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rBest", rValue = 2,
@@ -811,6 +916,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x16CodeBased$expectedNumberOfSubjects, x16$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x16CodeBased$sampleSizes, x16$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x16CodeBased$conditionalPowerAchieved, x16$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x16), "character")
+	    df <- as.data.frame(x16)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x16)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x17 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -859,6 +971,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x17CodeBased$expectedNumberOfSubjects, x17$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x17CodeBased$sampleSizes, x17$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x17CodeBased$conditionalPowerAchieved, x17$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x17), "character")
+	    df <- as.data.frame(x17)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x17)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x18 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, 
@@ -907,6 +1026,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x18CodeBased$expectedNumberOfSubjects, x18$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x18CodeBased$sampleSizes, x18$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x18CodeBased$conditionalPowerAchieved, x18$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x18), "character")
+	    df <- as.data.frame(x18)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x18)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x19 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "all", 
@@ -955,6 +1081,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x19CodeBased$expectedNumberOfSubjects, x19$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x19CodeBased$sampleSizes, x19$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x19CodeBased$conditionalPowerAchieved, x19$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x19), "character")
+	    df <- as.data.frame(x19)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x19)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x20 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rBest", rValue = 2,
@@ -1003,6 +1136,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x20CodeBased$expectedNumberOfSubjects, x20$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x20CodeBased$sampleSizes, x20$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x20CodeBased$conditionalPowerAchieved, x20$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x20), "character")
+	    df <- as.data.frame(x20)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x20)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x21 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -1051,6 +1191,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x21CodeBased$expectedNumberOfSubjects, x21$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x21CodeBased$sampleSizes, x21$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x21CodeBased$conditionalPowerAchieved, x21$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x21), "character")
+	    df <- as.data.frame(x21)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x21)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x22 <- getSimulationMultiArmRates(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0.1, 
@@ -1099,6 +1246,13 @@ test_that("'getSimulationMultiArmRates': several configurations", {
 	    expect_equal(x22CodeBased$expectedNumberOfSubjects, x22$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(x22CodeBased$sampleSizes, x22$sampleSizes, tolerance = 1e-05)
 	    expect_equal(x22CodeBased$conditionalPowerAchieved, x22$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x22), "character")
+	    df <- as.data.frame(x22)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x22)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1169,6 +1323,13 @@ test_that("'getSimulationMultiArmRates': using calcSubjectsFunction", {
 	    expect_equal(xCodeBased$expectedNumberOfSubjects, x$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(xCodeBased$sampleSizes, x$sampleSizes, tolerance = 1e-05)
 	    expect_equal(xCodeBased$conditionalPowerAchieved, x$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1238,6 +1399,13 @@ test_that("'getSimulationMultiArmRates': using selectArmsFunction", {
 	    expect_equal(xCodeBased$expectedNumberOfSubjects, x$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(xCodeBased$sampleSizes, x$sampleSizes, tolerance = 1e-05)
 	    expect_equal(xCodeBased$conditionalPowerAchieved, x$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1303,6 +1471,13 @@ test_that("'getSimulationMultiArmRates': typeOfShape = sigmoidEmax", {
 	    expect_equal(xCodeBased$expectedNumberOfSubjects, x$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(xCodeBased$sampleSizes, x$sampleSizes, tolerance = 1e-05)
 	    expect_equal(xCodeBased$conditionalPowerAchieved, x$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

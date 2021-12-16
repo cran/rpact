@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_core_utilities.R
-#:#  Creation date: 18 May 2021, 17:47:16
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_core_utilities.R
+## |  Creation date: 08 December 2021, 09:08:44
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Result Object Print Output")
 
@@ -1294,8 +1294,8 @@ test_that("Testing '.getOneDimensionalRoot'", {
 		stage = 3, normalApproximation = TRUE, directionUpper = TRUE)
 
 	## Comparison of the results of matrixarray object 'result2' with expected results
-	expect_equal(result2[1, ], c(-0.17491836, -0.048575353, 0.018957992), tolerance = 1e-07)
-	expect_equal(result2[2, ], c(0.41834422, 0.29168781, 0.31353692), tolerance = 1e-07)
+	expect_equal(result2[1, ], c(-0.17491854, -0.048575312, 0.01895796), tolerance = 1e-07)
+	expect_equal(result2[2, ], c(0.41834402, 0.29168781, 0.31353692), tolerance = 1e-07)
 
 	design3 <- getDesignInverseNormal(kMax = 2, alpha = 0.025, informationRates = c(0.5, 1),  
 		typeOfDesign = "WT", deltaWT = 0.25)
@@ -1308,8 +1308,8 @@ test_that("Testing '.getOneDimensionalRoot'", {
 	result3 <- getRepeatedConfidenceIntervals(design3, dataExample3)
 
 	## Comparison of the results of matrixarray object 'result3' with expected results
-	expect_equal(result3[1, ], c(-0.26729325, -0.071745801), tolerance = 1e-07)
-	expect_equal(result3[2, ], c(0.26729325, 0.071745801), tolerance = 1e-07)
+	expect_equal(result3[1, ], c(-0.26729325, -0.071745936), tolerance = 1e-07)
+	expect_equal(result3[2, ], c(0.26729325, 0.071745764), tolerance = 1e-07)
 
 	design4 <- getDesignInverseNormal(kMax = 2, alpha = 0.025, informationRates = c(0.5, 1),  
 		typeOfDesign = "WT", deltaWT = 0.25)
@@ -1321,8 +1321,8 @@ test_that("Testing '.getOneDimensionalRoot'", {
 	result4 <- getRepeatedConfidenceIntervals(design4, dataExample4)
 
 	## Comparison of the results of matrixarray object 'result4' with expected results
-	expect_equal(result4[1, ], c(-0.23589449, -0.043528513), tolerance = 1e-07)
-	expect_equal(result4[2, ], c(0.23589449, 0.088471324), tolerance = 1e-07)
+	expect_equal(result4[1, ], c(-0.23589449, -0.043528443), tolerance = 1e-07)
+	expect_equal(result4[2, ], c(0.23589449, 0.088472144), tolerance = 1e-07)
 
 })
 

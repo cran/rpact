@@ -1,22 +1,22 @@
-#:#
-#:#  *Core assertions*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5164 $
-#:#  Last changed: $Date: 2021-08-16 16:52:35 +0200 (Mo, 16 Aug 2021) $
-#:#  Last changed by: $Author: wassmer $
-#:# 
+## |
+## |  *Core assertions*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5615 $
+## |  Last changed: $Date: 2021-12-06 09:29:15 +0100 (Mo, 06 Dez 2021) $
+## |  Last changed by: $Author: wassmer $
+## | 
 
 .stopWithWrongDesignMessage <- function(design) {
 	stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'design' must be an instance of ", .arrayToString(
@@ -329,11 +329,11 @@
 		
 		if (.isDatasetSurvival(dataInput) ) {
 			if (any(na.omit(dataInput$getOverallEventsUpTo(stage)) < 0)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all overall events must be >= 0")
+				stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all cumulative events must be >= 0")
 			}
 			
 			if (any(na.omit(dataInput$getOverallAllocationRatiosUpTo(stage)) <= 0)) {
-				stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all overall allocation ratios must be > 0")
+				stop(C_EXCEPTION_TYPE_ILLEGAL_DATA_INPUT, "all cumulative allocation ratios must be > 0")
 			}
 		}
 	}
@@ -346,7 +346,7 @@
 			plural <- ifelse(s == 1, "", "s")
 			warning(sprintf(paste0("The data of the last %s in the dataset will be ",
 					"ignored because the design has specified kMax = %s"), 
-				ifelse(s == 1, "stage", paste0(s, " stages")), kMax, kMax), call. = FALSE)
+				ifelse(s == 1, "stage", paste0(s, " stages")), kMax), call. = FALSE)
 		}
 		else if (numberOfStages < kMax) {
 			dataInput$.fillWithNAs(kMax)
@@ -935,6 +935,12 @@
 	
 	.assertValuesAreInsideBounds("futilityBounds", futilityBounds, -Inf, 6)
 	
+}
+
+.assertIsValidCipher <- function(key, value) {
+	if (getCipheredValue(value) != C_CIPHERS[[key]]) {
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'token' and/or 'secret' unkown")
+	}
 }
 
 .assertIsValidAlpha0Vec <- function(alpha0Vec, kMax = length(alpha0Vec) - 1, 
@@ -1862,6 +1868,10 @@
 	return(inherits(simulationResults, "SimulationResults") && grepl("MultiArm", class(simulationResults)))
 }
 
+.isEnrichmentSimulationResults <- function(simulationResults) {
+	return(inherits(simulationResults, "SimulationResults") && grepl("Enrichment", class(simulationResults)))
+}
+
 .assertIsStageResultsMultiArm <- function(stageResults) {
 	if (!inherits(stageResults, "StageResults")) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
@@ -2121,9 +2131,25 @@
 	return(effectMeasure)
 }
 
-.assertIsValidMatrix <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
+.assertIsValidMatrix <- function(x, argumentName, ..., 
+		expectedNumberOfColumns = NA_integer_, naAllowed = FALSE, returnSingleValueAsMatrix = FALSE) {
+		
 	if (missing(x) || is.null(x) || length(x) == 0) {
 		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid matrix")
+	}
+	
+	if (returnSingleValueAsMatrix && !is.matrix(x) && (is.numeric(x) || is.character(x) || is.logical(x))) {
+		if (length(x) == 1) {
+			x <- matrix(x)
+		}
+		else if (length(x) > 1 && !is.na(expectedNumberOfColumns)) {
+			if (length(x) %% expectedNumberOfColumns != 0) {
+				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "the length of '", argumentName, "' (", .arrayToString(x), 
+					") must be a divisor or a multiple ", expectedNumberOfColumns)
+			}
+			
+			x <- matrix(x, ncol = expectedNumberOfColumns)
+		}
 	}
 	
 	if (!is.matrix(x)) {
@@ -2143,6 +2169,8 @@
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
 			.arrayToString(x), ") must be a numeric matrix with ", expectedNumberOfColumns, " columns")
 	}
+	
+	return(invisible(x))
 }
 
 
@@ -2159,7 +2187,8 @@
 .assertIsValidEffectMatrixMeans <- function(typeOfShape, effectMatrix, muMaxVector, gED50, gMax, slope) {
 	
 	if (typeOfShape == "userDefined") {
-		.assertIsValidMatrix(effectMatrix, "effectMatrix", expectedNumberOfColumns = gMax, naAllowed = FALSE)
+		effectMatrix <- .assertIsValidMatrix(effectMatrix, "effectMatrix", 
+			expectedNumberOfColumns = gMax, naAllowed = FALSE, returnSingleValueAsMatrix = TRUE)
 		
 		.assertIsNumericVector(muMaxVector, "muMaxVector", naAllowed = TRUE)
 		if (!all(is.na(muMaxVector)) && !identical(muMaxVector, C_ALTERNATIVE_POWER_SIMULATION_DEFAULT)) {
@@ -2198,7 +2227,8 @@
 .assertIsValidEffectMatrixRates <- function(typeOfShape, effectMatrix, piMaxVector, piControl, gED50, gMax, slope) {
 	
 	if (typeOfShape == "userDefined") {
-		.assertIsValidMatrix(effectMatrix, "effectMatrix", expectedNumberOfColumns = gMax, naAllowed = FALSE)
+		effectMatrix <- .assertIsValidMatrix(effectMatrix, "effectMatrix", 
+			expectedNumberOfColumns = gMax, naAllowed = FALSE, returnSingleValueAsMatrix = TRUE)
 		.assertIsInOpenInterval(effectMatrix, "effectMatrix", 0, 1, naAllowed = FALSE)
 		
 		.assertIsNumericVector(piMaxVector, "piMaxVector", naAllowed = TRUE)
@@ -2243,7 +2273,8 @@
 .assertIsValidEffectMatrixSurvival <- function(typeOfShape, effectMatrix, omegaMaxVector, gED50, gMax, slope) {
 	
 	if (typeOfShape == "userDefined") {
-		.assertIsValidMatrix(effectMatrix, "effectMatrix", expectedNumberOfColumns = gMax, naAllowed = FALSE)
+		effectMatrix <- .assertIsValidMatrix(effectMatrix, "effectMatrix", 
+			expectedNumberOfColumns = gMax, naAllowed = FALSE, returnSingleValueAsMatrix = TRUE)
 		.assertIsInOpenInterval(effectMatrix, "effectMatrix", 0, NULL, naAllowed = FALSE)
 		
 		.assertIsNumericVector(omegaMaxVector, "omegaMaxVector", naAllowed = TRUE)
@@ -2281,124 +2312,7 @@
 	}
 	
 	return(effectMatrix)
-}
-
-
-.assertIsValidEffectListMeans <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
-	
-	if (missing(x) || is.null(x) || length(x) == 0) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid list")
-	}
-	
-	if (!is.list(x)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", class(x), ") must be a valid list")
-	}
-	
-	if (!naAllowed && any(is.na(x))) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", .arrayToString(x), ") must not contain NA's")
-	}
-	
-	if (!is.numeric(x$effects)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (!is.numeric(x$stDevs)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (!is.numeric(x$prevalences)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (abs(sum(x$prevalences) - 1) > 1E-4) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Prevalences in ", argumentName, " must sum to 1")
-	}
-	
-	if (!is.na(expectedNumberOfColumns) && length(x$subGroups) != expectedNumberOfColumns) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a list having elements with ", expectedNumberOfColumns, " columns")
-	}
-}
-	
-	
-.assertIsValidEffectListRates <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
-	
-	if (missing(x) || is.null(x) || length(x) == 0) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid list")
-	}
-	
-	if (!is.list(x)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", class(x), ") must be a valid list")
-	}
-	
-	if (!naAllowed && any(is.na(x))) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", .arrayToString(x), ") must not contain NA's")
-	}
-	
-	if (!is.numeric(x$piTreatment)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (!is.numeric(x$piControl)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (!is.numeric(x$prevalences)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (abs(sum(x$prevalences) - 1) > 1E-4) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Prevalences in ", argumentName, " must sum to 1")
-	}	
-
-	if (!is.na(expectedNumberOfColumns) && length(x$subGroups) != expectedNumberOfColumns) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a list having elements with ", expectedNumberOfColumns, " columns")
-	}
-}
-
-
-.assertIsValidEffectListSurvival <- function(x, argumentName, ..., expectedNumberOfColumns = NA_integer_, naAllowed = FALSE) {
-	
-	if (missing(x) || is.null(x) || length(x) == 0) {
-		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'", argumentName, "' must be a valid list")
-	}
-	
-	if (!is.list(x)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", class(x), ") must be a valid list")
-	}
-	
-	if (!naAllowed && any(is.na(x))) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", .arrayToString(x), ") must not contain NA's")
-	}
-	
-	if (!is.numeric(x$effects)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (!is.numeric(x$prevalences)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a valid numeric list")
-	}
-	
-	if (abs(sum(x$prevalences) - 1) > 1E-4) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Prevalences in ", argumentName, " must sum to 1")
-	}	
-	
-	if (!is.na(expectedNumberOfColumns) && length(x$subGroups) != expectedNumberOfColumns) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (", 
-				.arrayToString(x), ") must be a list having elements with ", expectedNumberOfColumns, " columns")
-	}
-}
-
-	
+}	
 
 .assertIsValidPlannedSubjects <- function(plannedSubjects, kMax) {
 	

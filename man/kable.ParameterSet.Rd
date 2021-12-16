@@ -4,11 +4,13 @@
 \alias{kable.ParameterSet}
 \title{Create output in Markdown}
 \usage{
-kable.ParameterSet(x)
+kable.ParameterSet(x, ...)
 }
 \arguments{
 \item{x}{A \code{ParameterSet}. If x does not inherit from class \code{\link{ParameterSet}}, 
 \code{knitr::kable(x)} will be returned.}
+
+\item{...}{Other arguments (see \code{\link[knitr]{kable}}).}
 }
 \description{
 The \code{kable()} function returns the output of the specified object formatted in Markdown.

@@ -22,9 +22,9 @@ with suitable arguments to create a dataset of rates.
 
 \item{\code{events}}{The events.}
 
-\item{\code{overallSampleSizes}}{The overall sample sizes.}
+\item{\code{overallSampleSizes}}{The cumulative sample sizes.}
 
-\item{\code{overallEvents}}{The overall events.}
+\item{\code{overallEvents}}{The cumulative events.}
 }}
 
 

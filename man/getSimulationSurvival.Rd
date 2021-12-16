@@ -103,10 +103,10 @@ and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample r
 definition of the exponential survival time cumulative distribution function \cr
 (for details see \code{\link{getPiecewiseSurvivalTime}}).}
 
-\item{allocation1}{The number how many subjects are assigned to treatment 1 in a 
+\item{allocation1}{The number how many subjects are assigned to treatment 1 in a
 subsequent order, default is \code{1}}
 
-\item{allocation2}{The number how many subjects are assigned to treatment 2 in a 
+\item{allocation2}{The number how many subjects are assigned to treatment 2 in a
 subsequent order, default is \code{1}}
 
 \item{eventTime}{The assumed time under which the event rates are calculated, default is \code{12}.}
@@ -156,10 +156,10 @@ hazard ratios) as parameters under which it is calculated and the sample size re
 \item{thetaH1}{If specified, the value of the alternative under which 
 the conditional power or sample size recalculation calculation is performed.}
 
-\item{maxNumberOfIterations}{The number of simulation iterations, default is 1000.}
+\item{maxNumberOfIterations}{The number of simulation iterations, default is \code{1000}.}
 
-\item{maxNumberOfRawDatasetsPerStage}{The number of raw datasets per stage that shall 
-be extracted and saved as \code{\link[base]{data.frame}}, default is \code{0}. 
+\item{maxNumberOfRawDatasetsPerStage}{The number of raw datasets per stage that shall
+be extracted and saved as \code{\link[base]{data.frame}}, default is \code{0}.
 \code{\link{getRawData}} can be used to get the extracted raw data from the object.}
 
 \item{longTimeSimulationAllowed}{Logical that indicates whether long time simulations
@@ -184,23 +184,23 @@ The following generics (R generic functions) are available for this object:
 }
 }
 \description{
-Returns the analysis times, power, stopping probabilities, conditional power, and expected sample size 
+Returns the analysis times, power, stopping probabilities, conditional power, and expected sample size
 for testing the hazard ratio in a two treatment groups survival design.
 }
 \details{
-At given design the function simulates the power, stopping probabilities, conditional power, and expected 
-sample size at given number of events, number of subjects, and parameter configuration. 
-It also simulates the time when the required events are expected under the given 
-assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times 
-and constant or non-constant piecewise accrual). 
+At given design the function simulates the power, stopping probabilities, conditional power, and expected
+sample size at given number of events, number of subjects, and parameter configuration.
+It also simulates the time when the required events are expected under the given
+assumptions (exponentially, piecewise exponentially, or Weibull distributed survival times
+and constant or non-constant piecewise accrual).
 Additionally, integers \code{allocation1} and \code{allocation2} can be specified that determine the number allocated
-to treatment group 1 and treatment group 2, respectively. 
+to treatment group 1 and treatment group 2, respectively.
 
-\code{conditionalPower}\cr 
+\code{conditionalPower}\cr
 The definition of \code{thetaH1} makes only sense if \code{kMax} > 1
-and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and 
+and if \code{conditionalPower}, \code{minNumberOfEventsPerStage}, and
 \code{maxNumberOfEventsPerStage} are defined.
- 
+
 Note that \code{numberOfSubjects}, \code{numberOfSubjects1}, and \code{numberOfSubjects2} in the output
 are expected number of subjects.
 }
@@ -248,7 +248,7 @@ will be calculated.
 
 The summary statistics "Simulated data" contains the following parameters: median [range]; mean +/-sd\cr
 
-\code{$show(showStatistics = FALSE)} or \code{$setShowStatistics(FALSE)} can be used to disable 
+\code{$show(showStatistics = FALSE)} or \code{$setShowStatistics(FALSE)} can be used to disable
 the output of the aggregated simulated data.\cr
 
 Example 1: \cr
@@ -260,7 +260,7 @@ Example 2: \cr
 \code{simulationResults$setShowStatistics(FALSE)}\cr
 \code{simulationResults}\cr
 
-\code{\link{getData}} can be used to get the aggregated simulated data from the 
+\code{\link{getData}} can be used to get the aggregated simulated data from the
 object as \code{\link[base]{data.frame}}. The data frame contains the following columns:
 \enumerate{
   \item \code{iterationNumber}: The number of the simulation iteration.
@@ -269,38 +269,38 @@ object as \code{\link[base]{data.frame}}. The data frame contains the following 
   \item \code{pi2}: The assumed or derived event rate in the control group.
   \item \code{hazardRatio}: The hazard ratio under consideration (if available).
   \item \code{analysisTime}: The analysis time.
-  \item \code{numberOfSubjects}: The number of subjects under consideration when the 
+  \item \code{numberOfSubjects}: The number of subjects under consideration when the
         (interim) analysis takes place.
-  \item \code{eventsPerStage1}: The observed number of events per stage 
+  \item \code{eventsPerStage1}: The observed number of events per stage
         in treatment group 1.
-  \item \code{eventsPerStage2}: The observed number of events per stage 
+  \item \code{eventsPerStage2}: The observed number of events per stage
         in treatment group 2.
-  \item \code{eventsPerStage}: The observed number of events per stage 
+  \item \code{eventsPerStage}: The observed number of events per stage
         in both treatment groups.
-  \item \code{rejectPerStage}: 1 if null hypothesis can be rejected, 0 otherwise. 
+  \item \code{rejectPerStage}: 1 if null hypothesis can be rejected, 0 otherwise.
   \item \code{futilityPerStage}: 1 if study should be stopped for futility, 0 otherwise.
-  \item \code{eventsNotAchieved}: 1 if number of events could not be reached with 
+  \item \code{eventsNotAchieved}: 1 if number of events could not be reached with
         observed number of subjects, 0 otherwise.
-  \item \code{testStatistic}: The test statistic that is used for the test decision, 
-        depends on which design was chosen (group sequential, inverse normal, 
-        or Fisher combination test)'  
-  \item \code{logRankStatistic}: Z-score statistic which corresponds to a one-sided 
-        log-rank test at considered stage. 
-  \item \code{hazardRatioEstimateLR}: The estimated hazard ratio, derived from the 
+  \item \code{testStatistic}: The test statistic that is used for the test decision,
+        depends on which design was chosen (group sequential, inverse normal,
+        or Fisher combination test)'
+  \item \code{logRankStatistic}: Z-score statistic which corresponds to a one-sided
+        log-rank test at considered stage.
+  \item \code{hazardRatioEstimateLR}: The estimated hazard ratio, derived from the
         log-rank statistic.
-  \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
-  \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
+  \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.
+  \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for
         selected sample size and effect. The effect is either estimated from the data or can be
-        user defined with \code{thetaH1}.   
+        user defined with \code{thetaH1}.
 }
 }
 
 \section{Raw Data}{
 
-\code{\link{getRawData}} can be used to get the simulated raw data from the 
-object as \code{\link[base]{data.frame}}. Note that \code{getSimulationSurvival} 
+\code{\link{getRawData}} can be used to get the simulated raw data from the
+object as \code{\link[base]{data.frame}}. Note that \code{getSimulationSurvival}
 must called before with \code{maxNumberOfRawDatasetsPerStage} > 0.
-The data frame contains the following columns: 
+The data frame contains the following columns:
 \enumerate{
   \item \code{iterationNumber}: The number of the simulation iteration.
   \item \code{stopStage}: The stage of stopping.
@@ -319,7 +319,7 @@ The data frame contains the following columns:
             timeUnderObservation <- observationTime - accrualTime;\cr
         }
   \item \code{event}: \code{TRUE} if an event occurred; \code{FALSE} otherwise.
-  \item \code{dropoutEvent}: \code{TRUE} if an dropout event occurred; \code{FALSE} otherwise. 
+  \item \code{dropoutEvent}: \code{TRUE} if an dropout event occurred; \code{FALSE} otherwise.
 }
 }
 

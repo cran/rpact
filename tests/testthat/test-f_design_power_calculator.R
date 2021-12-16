@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_design_power_calculator.R
-#:#  Creation date: 18 May 2021, 17:47:27
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_design_power_calculator.R
+## |  Creation date: 08 December 2021, 09:08:54
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Power Calculation of Testing Means for Different Designs and Arguments")
 
@@ -38,8 +38,8 @@ test_that("'getPowerMeans': Power calculation of means in one sample for one-sid
 	expect_equal(powerResult$effect, c(-1.5, 0.7, 0.9), tolerance = 1e-07)
 	expect_equal(powerResult$overallReject, c(1.2624119e-07, 0.79805947, 0.93305789), tolerance = 1e-07)
 	expect_equal(powerResult$rejectPerStage[1, ], c(1.2596734e-07, 0.17254516, 0.28730882), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[2, ], c(2.7189456e-10, 0.43368823, 0.5145435), tolerance = 1e-07)
-	expect_equal(powerResult$rejectPerStage[3, ], c(1.9550874e-12, 0.19182608, 0.13120557), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[2, ], c(2.7189457e-10, 0.43368823, 0.5145435), tolerance = 1e-07)
+	expect_equal(powerResult$rejectPerStage[3, ], c(1.9550909e-12, 0.19182608, 0.13120557), tolerance = 1e-07)
 	expect_equal(powerResult$futilityStop, c(0.99999942, 0.078678761, 0.02585129), tolerance = 1e-07)
 	expect_equal(powerResult$futilityPerStage[1, ], c(0.99114779, 0.032857727, 0.013099441), tolerance = 1e-07)
 	expect_equal(powerResult$futilityPerStage[2, ], c(0.008851635, 0.045821034, 0.01275185), tolerance = 1e-07)
@@ -72,6 +72,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -119,6 +126,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -167,6 +181,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -215,6 +236,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -265,6 +293,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -310,6 +345,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -353,6 +395,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -396,6 +445,13 @@ test_that("'getPowerMeans': Power calculation of means in one sample for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -458,6 +514,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -515,6 +578,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -570,6 +640,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -625,6 +702,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -680,6 +764,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -735,6 +826,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -794,6 +892,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -848,6 +953,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -900,6 +1012,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -952,6 +1071,13 @@ test_that("'getPowerMeans': Power calculation of mean difference in two samples 
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	###################################################################################################
@@ -1010,6 +1136,13 @@ test_that("'getPowerRates': Power calculation of rate in one sample for one-side
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1058,6 +1191,13 @@ test_that("'getPowerRates': Power calculation of rate in one sample for one-side
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1108,6 +1248,13 @@ test_that("'getPowerRates': Power calculation of rate in one sample for two-side
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1175,6 +1322,13 @@ test_that("'getPowerRates': Power calculation of rate in two samples for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1233,6 +1387,13 @@ test_that("'getPowerRates': Power calculation of rate in two samples for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1296,6 +1457,13 @@ test_that("'getPowerRates': Power calculation of rate in two samples for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1354,6 +1522,13 @@ test_that("'getPowerRates': Power calculation of rate in two samples for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1413,6 +1588,13 @@ test_that("'getPowerRates': Power calculation of rate in two samples for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1467,6 +1649,13 @@ test_that("'getPowerRates': Power calculation of rate in two samples for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	###################################################################################################
@@ -1517,6 +1706,13 @@ test_that("'getPowerSurvival': Fixed sample size with minimum required definitio
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1601,6 +1797,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1680,6 +1883,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -1757,6 +1967,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -1830,6 +2047,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -1903,6 +2127,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -1980,6 +2211,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for one-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsEffectScale, powerResult$futilityBoundsEffectScale, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$futilityBoundsPValueScale, powerResult$futilityBoundsPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2061,6 +2299,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -2137,6 +2382,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2211,6 +2463,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2281,6 +2540,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2351,6 +2617,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2421,6 +2694,13 @@ test_that("'getPowerSurvival': Power calculation of survival designs for two-sid
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleLower, powerResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScaleUpper, powerResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesPValueScale, powerResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	###################################################################################################
@@ -2498,6 +2778,13 @@ test_that("'getPowerSurvival': Four stage O'Brien and Fleming group sequential d
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2543,6 +2830,13 @@ test_that("'getPowerSurvival': For fixed sample design, determine necessary accr
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2590,6 +2884,13 @@ test_that("'getPowerSurvival': Determine necessary accrual time if 200 subjects 
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2639,6 +2940,13 @@ test_that("'getPowerSurvival': Determine maximum number of Subjects if the first
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2686,6 +2994,13 @@ test_that("'getPowerSurvival': Specify accrual time as a list", {
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2735,6 +3050,13 @@ test_that("'getPowerSurvival': Specify accrual time as a list, if maximum number
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2797,6 +3119,13 @@ test_that("'getPowerSurvival': Specify effect size for a two-stage group design 
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2832,7 +3161,7 @@ test_that("'getPowerSurvival': Effect size is based on event rate at specified e
 	expect_equal(powerResult$eventsPerStage[2, ], 40)
 	expect_equal(powerResult$numberOfSubjects[1, ], 200)
 	expect_equal(powerResult$numberOfSubjects[2, ], 200)
-	expect_equal(powerResult$expectedNumberOfSubjects, 200)
+	expect_equal(powerResult$expectedNumberOfSubjects, 200, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 0.28632231, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 0.53509093, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -2859,6 +3188,13 @@ test_that("'getPowerSurvival': Effect size is based on event rate at specified e
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2891,7 +3227,7 @@ test_that("'getPowerSurvival': Effect size is based on hazard rate for the refer
 	expect_equal(powerResult$eventsPerStage[2, ], 40)
 	expect_equal(powerResult$numberOfSubjects[1, ], 200)
 	expect_equal(powerResult$numberOfSubjects[2, ], 200)
-	expect_equal(powerResult$expectedNumberOfSubjects, 200)
+	expect_equal(powerResult$expectedNumberOfSubjects, 200, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[1, ], 0.28632231, tolerance = 1e-07)
 	expect_equal(powerResult$criticalValuesEffectScale[2, ], 0.53509093, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -2916,6 +3252,13 @@ test_that("'getPowerSurvival': Effect size is based on hazard rate for the refer
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2969,6 +3312,13 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -3022,6 +3372,13 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -3076,6 +3433,13 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -3129,6 +3493,13 @@ test_that("'getPowerSurvival': Specification of piecewise exponential survival t
 	    expect_equal(powerResultCodeBased$numberOfSubjects, powerResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -3171,6 +3542,13 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -3216,6 +3594,13 @@ test_that("'getPowerSurvival': Specify effect size based on median survival time
 	    expect_equal(powerResultCodeBased$studyDuration, powerResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$expectedNumberOfSubjects, powerResult$expectedNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(powerResultCodeBased$criticalValuesEffectScale, powerResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(powerResult), "character")
+	    df <- as.data.frame(powerResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(powerResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

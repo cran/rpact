@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_analysis_base_rates.R
-#:#  Creation date: 18 May 2021, 17:38:07
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_analysis_base_rates.R
+## |  Creation date: 08 December 2021, 09:00:49
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Analysis Rates Functionality for One Treatment")
 
@@ -46,8 +46,8 @@ test_that("'getAnalysisResults' for a group sequential design and one treatment"
 	expect_equal(x0$testActions, c("continue", NA_character_))
 	expect_equal(x0$conditionalRejectionProbabilities, c(0.28801679, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x0$repeatedConfidenceIntervalLowerBounds, c(0.38475348, NA_real_), tolerance = 1e-06)
-	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(0.91556364, NA_real_), tolerance = 1e-06)
+	expect_equal(x0$repeatedConfidenceIntervalLowerBounds, c(0.38475339, NA_real_), tolerance = 1e-06)
+	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(0.91556352, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$repeatedPValues, c(0.048557231, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$finalStage, NA_integer_)
 	expect_equal(x0$finalPValues, c(NA_real_, NA_real_))
@@ -72,6 +72,13 @@ test_that("'getAnalysisResults' for a group sequential design and one treatment"
 	    expect_equal(x0CodeBased$finalConfidenceIntervalLowerBounds, x0$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x0CodeBased$finalConfidenceIntervalUpperBounds, x0$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x0CodeBased$medianUnbiasedEstimates, x0$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x0), "character")
+	    df <- as.data.frame(x0)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x0)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -104,8 +111,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.13502024, 0.39663603, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.035340808, 0.15564776, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.88809228, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.49999905, 0.056127482, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -130,6 +137,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -151,8 +165,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x2$testActions, c("continue", "reject and stop", "reject and stop", NA_character_))
 	expect_equal(x2$conditionalRejectionProbabilities, c(0.21465031, 0.55995383, 1, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.088987938, 0.19243532, 0.20635802, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.8198195, 0.7374817, 0.52720839, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, 0.20635812, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, 0.52720848, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.47958473, 0.014066714, 1.9536724e-06, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 2)
 	expect_equal(x2$finalPValues, c(NA_real_, 0.0011783609, NA_real_, NA_real_), tolerance = 1e-07)
@@ -177,6 +191,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -196,8 +217,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x3$conditionalRejectionProbabilities, c(0.13502024, 0.39663603, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_, 0.85193241, 0.94869662), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.035340808, 0.15564776, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.88809228, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.49999905, 0.056127482, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$finalStage, NA_integer_)
 	expect_equal(x3$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -221,6 +242,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x3CodeBased$finalConfidenceIntervalLowerBounds, x3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x3, piTreatmentRange = seq(0.45, 0.75, 0.05))
@@ -254,8 +282,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x4$testActions, c("continue", "reject and stop", NA_character_, NA_character_))
 	expect_equal(x4$conditionalRejectionProbabilities, c(0.21465031, 0.55995383, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$conditionalPower, c(NA_real_, NA_real_, 0.9494174, 0.9843063), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.088987938, 0.19243532, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.8198195, 0.7374817, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.47958473, 0.014066714, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, 2)
 	expect_equal(x4$finalPValues, c(NA_real_, 0.0011783609, NA_real_, NA_real_), tolerance = 1e-07)
@@ -279,6 +307,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x4CodeBased$finalConfidenceIntervalLowerBounds, x4$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$finalConfidenceIntervalUpperBounds, x4$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$medianUnbiasedEstimates, x4$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData2 <- testGetAnalysisResultsPlotData(x4, piTreatmentRange = seq(0.45, 0.75, 0.05))
@@ -309,8 +344,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x5$testActions, c("continue", "continue", "continue", NA_character_))
 	expect_equal(x5$conditionalRejectionProbabilities, c(0.033369686, 0.13517192, 0.020135527, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.035340808, 0.15564776, 0.18966473, NA_real_), tolerance = 1e-07)
-	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.88809228, 0.77284187, 0.5392556, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, 0.18966473, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, 0.53925561, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$repeatedPValues, c(0.49999905, 0.49999905, 0.20027888, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$finalStage, NA_integer_)
 	expect_equal(x5$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -335,6 +370,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x5CodeBased$finalConfidenceIntervalLowerBounds, x5$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$finalConfidenceIntervalUpperBounds, x5$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$medianUnbiasedEstimates, x5$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -354,8 +396,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x6$testActions, c("continue", "continue", "continue", NA_character_))
 	expect_equal(x6$conditionalRejectionProbabilities, c(0.049321561, 0.20984263, 0.048813265, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.088987938, 0.19243532, 0.20635802, NA_real_), tolerance = 1e-07)
-	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.8198195, 0.7374817, 0.52720839, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, 0.20635812, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, 0.52720848, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$repeatedPValues, c(0.49999905, 0.27035282, 0.14086509, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$finalStage, NA_integer_)
 	expect_equal(x6$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -380,6 +422,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x6CodeBased$finalConfidenceIntervalLowerBounds, x6$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$finalConfidenceIntervalUpperBounds, x6$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$medianUnbiasedEstimates, x6$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -399,8 +448,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x7$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x7$conditionalRejectionProbabilities, c(0.033369686, 0.13517192, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$conditionalPower, c(NA_real_, NA_real_, 0.58576815, 0.82581584), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.035340808, 0.15564776, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.88809228, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$repeatedPValues, c(0.49999905, 0.49999905, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$finalStage, NA_integer_)
 	expect_equal(x7$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -424,6 +473,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x7CodeBased$finalConfidenceIntervalLowerBounds, x7$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$finalConfidenceIntervalUpperBounds, x7$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$medianUnbiasedEstimates, x7$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData3 <- testGetAnalysisResultsPlotData(x7, piTreatmentRange = seq(0.25, 0.55, 0.05))
@@ -454,8 +510,8 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	expect_equal(x8$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x8$conditionalRejectionProbabilities, c(0.049321561, 0.20984263, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$conditionalPower, c(NA_real_, NA_real_, 0.76152324, 0.91259792), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.088987938, 0.19243532, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.8198195, 0.7374817, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$repeatedPValues, c(0.49999905, 0.27035282, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$finalStage, NA_integer_)
 	expect_equal(x8$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -479,6 +535,13 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	    expect_equal(x8CodeBased$finalConfidenceIntervalLowerBounds, x8$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$finalConfidenceIntervalUpperBounds, x8$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$medianUnbiasedEstimates, x8$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData4 <- testGetAnalysisResultsPlotData(x8, piTreatmentRange = seq(0.25, 0.55, 0.05))
@@ -520,8 +583,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x1$testActions, c("continue", "continue", "continue", NA_character_))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, 0.28098687, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.04626695, 0.16132367, 0.26858957, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.95373305, 0.83867633, 0.76870152, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, 0.26858957, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, 0.7687011, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.49999905, 0.43799317, 0.045574143, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -546,6 +609,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -567,8 +637,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x2$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(x2$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, 0.78413538, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.11314483, 0.21610036, 0.31861038, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.88685517, 0.78389964, 0.72001941, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, 0.31861038, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, 0.72001939, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.49999905, 0.1020964, 0.0075111702, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 3)
 	expect_equal(x2$finalPValues, c(NA_real_, NA_real_, 0.0050707339, NA_real_), tolerance = 1e-07)
@@ -593,6 +663,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -609,8 +686,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x3$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_, 0.69921202, 0.88465983), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.04626695, 0.16132367, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.95373305, 0.83867633, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.49999905, 0.43799317, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$finalStage, NA_integer_)
 	expect_equal(x3$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -634,6 +711,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x3CodeBased$finalConfidenceIntervalLowerBounds, x3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x3, piTreatmentRange = seq(0.45, 0.75, 0.05))
@@ -661,8 +745,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x4$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x4$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$conditionalPower, c(NA_real_, NA_real_, 0.85385983, 0.95015898), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.11314483, 0.21610036, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.88685517, 0.78389964, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.49999905, 0.1020964, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, NA_integer_)
 	expect_equal(x4$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -686,6 +770,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x4CodeBased$finalConfidenceIntervalLowerBounds, x4$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$finalConfidenceIntervalUpperBounds, x4$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$medianUnbiasedEstimates, x4$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData2 <- testGetAnalysisResultsPlotData(x4, piTreatmentRange = seq(0.45, 0.75, 0.05))
@@ -713,8 +804,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x5$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(x5$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, 0.6508521, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.04626695, 0.16132367, 0.26858957, NA_real_), tolerance = 1e-07)
-	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.95373305, 0.83867633, 0.76870152, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, 0.26858957, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, 0.7687011, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$repeatedPValues, c(0.49999905, 0.43799317, 0.013282796, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$finalStage, 3)
 	expect_equal(x5$finalPValues, c(NA_real_, NA_real_, 0.007752129, NA_real_), tolerance = 1e-07)
@@ -739,6 +830,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x5CodeBased$finalConfidenceIntervalLowerBounds, x5$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$finalConfidenceIntervalUpperBounds, x5$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$medianUnbiasedEstimates, x5$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -755,8 +853,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x6$testActions, c("continue", "continue", "reject and stop", NA_character_))
 	expect_equal(x6$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, 0.96959663, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.11314483, 0.21610036, 0.31861038, NA_real_), tolerance = 1e-07)
-	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.88685517, 0.78389964, 0.72001941, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, 0.31861038, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, 0.72001939, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$repeatedPValues, c(0.49999905, 0.1020964, 0.0013103922, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$finalStage, 3)
 	expect_equal(x6$finalPValues, c(NA_real_, NA_real_, 0.002378519, NA_real_), tolerance = 1e-07)
@@ -781,6 +879,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x6CodeBased$finalConfidenceIntervalLowerBounds, x6$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$finalConfidenceIntervalUpperBounds, x6$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$medianUnbiasedEstimates, x6$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -796,8 +901,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x7$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x7$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$conditionalPower, c(NA_real_, NA_real_, 0.69921202, 0.88465983), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.04626695, 0.16132367, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.95373305, 0.83867633, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$repeatedPValues, c(0.49999905, 0.43799317, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$finalStage, NA_integer_)
 	expect_equal(x7$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -821,6 +926,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x7CodeBased$finalConfidenceIntervalLowerBounds, x7$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$finalConfidenceIntervalUpperBounds, x7$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$medianUnbiasedEstimates, x7$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData3 <- testGetAnalysisResultsPlotData(x7, piTreatmentRange = seq(0.25, 0.55, 0.05))
@@ -847,8 +959,8 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	expect_equal(x8$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x8$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$conditionalPower, c(NA_real_, NA_real_, 0.85385983, 0.95015898), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.11314483, 0.21610036, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.88685517, 0.78389964, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$repeatedPValues, c(0.49999905, 0.1020964, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$finalStage, NA_integer_)
 	expect_equal(x8$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -872,6 +984,13 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	    expect_equal(x8CodeBased$finalConfidenceIntervalLowerBounds, x8$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$finalConfidenceIntervalUpperBounds, x8$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$medianUnbiasedEstimates, x8$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData4 <- testGetAnalysisResultsPlotData(x8, piTreatmentRange = seq(0.25, 0.55, 0.05))
@@ -939,6 +1058,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -982,6 +1108,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1024,6 +1157,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$conditionalPowerSimulated, x3$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x3, piTreatmentRange = seq(0.25, 0.55, 0.05))
@@ -1078,6 +1218,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	    expect_equal(x4CodeBased$finalConfidenceIntervalLowerBounds, x4$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$finalConfidenceIntervalUpperBounds, x4$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$medianUnbiasedEstimates, x4$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1121,6 +1268,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	    expect_equal(x5CodeBased$finalConfidenceIntervalLowerBounds, x5$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$finalConfidenceIntervalUpperBounds, x5$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$medianUnbiasedEstimates, x5$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1163,6 +1317,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	    expect_equal(x6CodeBased$finalConfidenceIntervalUpperBounds, x6$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$medianUnbiasedEstimates, x6$medianUnbiasedEstimates, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$conditionalPowerSimulated, x6$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData2 <- testGetAnalysisResultsPlotData(x6, piTreatmentRange = seq(0.25, 0.55, 0.05))
@@ -1212,8 +1373,8 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.19002543, 0.18837824, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, 0.97639752, 0.99770454), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000098, -0.076268818, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492405, 0.4944943, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.076268589, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.49449415, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.083297609, 0.074571507, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -1237,6 +1398,13 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)  		
@@ -1268,14 +1436,14 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
 	expect_equal(x2$testActions, c("accept and stop", "accept and stop", NA_character_, NA_character_))
 	expect_equal(x2$conditionalRejectionProbabilities, c(0, 0, NA_real_, NA_real_))
-	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_, 6.6613381e-16, 6.6613381e-16), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.14000098, -0.076268818, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.72492405, 0.4944943, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_, 0.037603851, 0.34743098), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.076268589, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.49449415, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.49999905, 0.49999905, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 1)
 	expect_equal(x2$finalPValues, c(0.98580558, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(0.03932898, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(0.62730993, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(0.039328967, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(0.62730986, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$medianUnbiasedEstimates, c(0.36928105, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x2), NA)))
@@ -1294,13 +1462,20 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData2 <- testGetAnalysisResultsPlotData(x2, piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5)  		
 
 	## Comparison of the results of list object 'plotData2' with expected results
 	expect_equal(plotData2$xValues, c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5), tolerance = 1e-07)
-	expect_equal(plotData2$condPowerValues, c(6.6613381e-16, 6.6613381e-16, 6.6613381e-16, 6.6613381e-16, 6.6613381e-16, 1, 1), tolerance = 1e-07)
+	expect_equal(plotData2$condPowerValues, c(0.98964948, 0.93182725, 0.78360503, 0.56553646, 0.34743098, 0.18277547, 0.082851862), tolerance = 1e-07)
 	expect_equal(plotData2$likelihoodValues, c(8.9244677e-08, 2.5604189e-06, 4.9816924e-05, 0.00065732471, 0.0058819346, 0.035694195, 0.14689674), tolerance = 1e-07)
 	expect_equal(plotData2$main, "Conditional Power with Likelihood")
 	expect_equal(plotData2$xlab, "pi1")
@@ -1341,8 +1516,8 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.19002543, 0.18093983, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, 0.51829859, 0.74637814), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000098, -0.078581299, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492405, 0.48870113, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.078581055, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.48870099, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.083297609, 0.077943692, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -1366,6 +1541,13 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.4, 0.7, 0.05), nPlanned = c(30,30))
@@ -1396,8 +1578,8 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x3$conditionalRejectionProbabilities, c(0.19002543, 0.18093983, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_, 0.97637134, 0.99770045), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.14000098, -0.078581299, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.72492405, 0.48870113, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.078581055, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.48870099, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.083297609, 0.077943692, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$finalStage, NA_integer_)
 	expect_equal(x3$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -1421,6 +1603,13 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	    expect_equal(x3CodeBased$finalConfidenceIntervalLowerBounds, x3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData4 <- testGetAnalysisResultsPlotData(x3, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)  		
@@ -1452,14 +1641,14 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x4' with expected results
 	expect_equal(x4$testActions, c("accept and stop", "accept and stop", NA_character_, NA_character_))
 	expect_equal(x4$conditionalRejectionProbabilities, c(0, 0, NA_real_, NA_real_))
-	expect_equal(x4$conditionalPower, c(NA_real_, NA_real_, 6.6613381e-16, 6.6613381e-16), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(-0.14000098, -0.078581299, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.72492405, 0.48870113, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$conditionalPower, c(NA_real_, NA_real_, 0.037603851, 0.34743098), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.078581055, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.48870099, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.49999905, 0.49999905, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, 1)
 	expect_equal(x4$finalPValues, c(0.98580558, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$finalConfidenceIntervalLowerBounds, c(0.03932898, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$finalConfidenceIntervalUpperBounds, c(0.62730993, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$finalConfidenceIntervalLowerBounds, c(0.039328967, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$finalConfidenceIntervalUpperBounds, c(0.62730986, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$medianUnbiasedEstimates, c(0.36928105, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x4), NA)))
@@ -1478,13 +1667,20 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	    expect_equal(x4CodeBased$finalConfidenceIntervalLowerBounds, x4$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$finalConfidenceIntervalUpperBounds, x4$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$medianUnbiasedEstimates, x4$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData5 <- testGetAnalysisResultsPlotData(x4, piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5)  	
 
 	## Comparison of the results of list object 'plotData5' with expected results
 	expect_equal(plotData5$xValues, c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5), tolerance = 1e-07)
-	expect_equal(plotData5$condPowerValues, c(6.6613381e-16, 6.6613381e-16, 6.6613381e-16, 6.6613381e-16, 6.6613381e-16, 1, 1), tolerance = 1e-07)
+	expect_equal(plotData5$condPowerValues, c(0.98964948, 0.93182725, 0.78360503, 0.56553646, 0.34743098, 0.18277547, 0.082851862), tolerance = 1e-07)
 	expect_equal(plotData5$likelihoodValues, c(8.9244677e-08, 2.5604189e-06, 4.9816924e-05, 0.00065732471, 0.0058819346, 0.035694195, 0.14689674), tolerance = 1e-07)
 	expect_equal(plotData5$main, "Conditional Power with Likelihood")
 	expect_equal(plotData5$xlab, "pi1")
@@ -1551,6 +1747,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$conditionalPowerSimulated, x1$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)  		
@@ -1610,6 +1813,13 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$conditionalPowerSimulated, x2$conditionalPowerSimulated, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData2 <- testGetAnalysisResultsPlotData(x2,piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5) 		
@@ -1662,7 +1872,7 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.013966781, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_))
 	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.39509356, -0.22101239), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.29306132, 0.050448367), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.29306133, 0.050448659), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.49999905, 0.15271161), tolerance = 1e-07)
 	expect_equal(x1$finalStage, 2)
 	expect_equal(x1$finalPValues, c(NA_real_, 0.13570939), tolerance = 1e-07)
@@ -1688,6 +1898,13 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design11 <- getDesignInverseNormal(kMax = 2, alpha = 0.025, 
@@ -1712,7 +1929,7 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	expect_equal(x2$conditionalRejectionProbabilities, c(0.013966781, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_))
 	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.39509356, -0.20744996), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.29306132, 0.038390121), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.29306133, 0.038390611), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.49999905, 0.171251), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 2)
 	expect_equal(x2$finalPValues, c(NA_real_, 0.15026298), tolerance = 1e-07)
@@ -1738,6 +1955,13 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	design12 <- getDesignFisher(kMax = 2, alpha = 0.025, method = "fullAlpha", 
@@ -1790,6 +2014,13 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	    expect_equal(x3CodeBased$finalConfidenceIntervalLowerBounds, x3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1824,8 +2055,8 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x1$testActions, c("continue", "reject"))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.1027905, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, -0.01139735), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.42527237, 0.25916403), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, -0.011398061), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.42527258, 0.25916403), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.17488831, 0.00058560119), tolerance = 1e-07)
 	expect_equal(x1$finalStage, 2)
 	expect_equal(x1$finalPValues, c(NA_real_, 0.0012732763), tolerance = 1e-07)
@@ -1851,6 +2082,13 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	    expect_equal(x1CodeBased$finalConfidenceIntervalLowerBounds, x1$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$finalConfidenceIntervalUpperBounds, x1$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$medianUnbiasedEstimates, x1$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -1868,7 +2106,7 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x2$conditionalRejectionProbabilities, c(0.1027905, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, 0.38169554), tolerance = 1e-07)
 	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.42527237, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.42527258, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.17488831, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, NA_integer_)
 	expect_equal(x2$finalPValues, c(NA_real_, NA_real_))
@@ -1892,6 +2130,13 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	    expect_equal(x2CodeBased$finalConfidenceIntervalLowerBounds, x2$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$finalConfidenceIntervalUpperBounds, x2$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$medianUnbiasedEstimates, x2$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	plotData1 <- testGetAnalysisResultsPlotData(x2, piTreatmentRange = seq(0.25, 0.7, 0.05)) 
@@ -1923,8 +2168,8 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x3$testActions, c("continue", "accept"))
 	expect_equal(x3$conditionalRejectionProbabilities, c(0.012395218, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, -0.01139735), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.42527237, 0.25916403), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, -0.011398061), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.42527258, 0.25916403), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.49999905, 0.49999905), tolerance = 1e-07)
 	expect_equal(x3$finalStage, 2)
 	expect_equal(x3$finalPValues, c(NA_real_, 0.64703032), tolerance = 1e-07)
@@ -1950,6 +2195,13 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	    expect_equal(x3CodeBased$finalConfidenceIntervalLowerBounds, x3$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$finalConfidenceIntervalUpperBounds, x3$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$medianUnbiasedEstimates, x3$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -1967,7 +2219,7 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x4$conditionalRejectionProbabilities, c(0.012395218, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$conditionalPower, c(NA_real_, 0.10084143), tolerance = 1e-07)
 	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.42527237, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.42527258, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.49999905, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, NA_integer_)
 	expect_equal(x4$finalPValues, c(NA_real_, NA_real_))
@@ -1991,6 +2243,13 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	    expect_equal(x4CodeBased$finalConfidenceIntervalLowerBounds, x4$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$finalConfidenceIntervalUpperBounds, x4$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$medianUnbiasedEstimates, x4$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2014,8 +2273,8 @@ test_that("'getAnalysisResults' with a dataset of rates and without defining a d
 	expect_equal(analysisResults1$pi1, 0.8, tolerance = 1e-07)
 	expect_equal(analysisResults1$pi2, 0.4, tolerance = 1e-07)
 	expect_equal(analysisResults1$testActions, "accept")
-	expect_equal(analysisResults1$repeatedConfidenceIntervalLowerBounds, -0.016534096, tolerance = 1e-07)
-	expect_equal(analysisResults1$repeatedConfidenceIntervalUpperBounds, 0.68698827, tolerance = 1e-07)
+	expect_equal(analysisResults1$repeatedConfidenceIntervalLowerBounds, -0.016534105, tolerance = 1e-07)
+	expect_equal(analysisResults1$repeatedConfidenceIntervalUpperBounds, 0.68698807, tolerance = 1e-07)
 	expect_equal(analysisResults1$repeatedPValues, 0.024199112, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(analysisResults1), NA)))
@@ -2029,7 +2288,38 @@ test_that("'getAnalysisResults' with a dataset of rates and without defining a d
 	    expect_equal(analysisResults1CodeBased$repeatedConfidenceIntervalLowerBounds, analysisResults1$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
 	    expect_equal(analysisResults1CodeBased$repeatedConfidenceIntervalUpperBounds, analysisResults1$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
 	    expect_equal(analysisResults1CodeBased$repeatedPValues, analysisResults1$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(analysisResults1), "character")
+	    df <- as.data.frame(analysisResults1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(analysisResults1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
+
+})
+
+test_that("'getAnalysisResults' produces the correct critical values for a boundary recalculation at the last stage", {
+
+	.skipTestIfDisabled()
+
+	data1 <- getDataset(overallN = c(22, 33, 45),
+		overallEvents = c(11, 18, 28))
+	data2 <- getDataset(overallN = c(22, 33, 40),
+		overallEvents = c(11, 18, 23))
+	data3 <- getDataset(overallN = c(22, 33, 38),
+		overallEvents = c(11, 18, 21))
+	design <- getDesignGroupSequential(
+		typeOfDesign = "asP")
+	expect_warning(result1 <- getAnalysisResults(design, data1,
+		thetaH0 = 0.5, maxInformation = 40))
+	result2 <- getAnalysisResults(design, data2,
+		thetaH0 = 0.5, maxInformation = 40)
+	expect_warning(result3 <- getAnalysisResults(design, data3,
+		thetaH0 = 0.5, maxInformation = 40, informationEpsilon = 2))
+	expect_equal(result1$.design$criticalValues[1:2], result2$.design$criticalValues[1:2], tolerance = 1e-07)
+	expect_equal(result1$.design$criticalValues[1:2], result3$.design$criticalValues[1:2], tolerance = 1e-07)
+	expect_equal(result2$.design$criticalValues[1:2], result3$.design$criticalValues[1:2], tolerance = 1e-07)
 
 })
 

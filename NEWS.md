@@ -1,3 +1,26 @@
+# rpact 3.2.0
+
+## New features
+
+* Simulation tools for enrichment design testing means, rates, and hazard ratios: function getSimulationEnrichmentMeans(), getSimulationEnrichmentRates(), getSimulationEnrichmentSimulation() available for simulation of enrichment designs; 
+note that this is a novel implementation, hence experimental
+* getDesignGroupSequential() / getDesignInverseNormal(): new typeOfDesign = "noEarlyEfficacy" added
+
+## Improvements, issues, and changes
+
+* getSimulationSurvival(): bug fixed for accruallIntensity = 0 at some accrual intervals
+* For observed conditional power, standardized theta not truncated to 0 any more in getSimulationMultiArmMeans(), getSimulationMultiArmRates(), and getSimulationMultiArmSurvival()
+* Conditional power calculation for analysis rates takes into account differently the null value of condErrorRate
+* Function testPackage(): a problem with downloading full set of unit tests under Debian/Linux has been fixed
+* Generic function kable() improved: optional knitr::kable arguments enabled, e.g., format
+* In print and summary output, "overall" renamed to "cumulative" if means, stDevs, or rate are calculated over stages rather than stage-wise 
+* getDataset: support of emmeans result objects as input improved 
+* Numerical accuracy of qnorm() calculations improved 
+* Analysis enrichment results now support the generic function as.data.frame()
+* Naming of the stage results parameters in the print output improved
+* New example data added: "rawDataTwoArmNormal"
+* Issue in summary fixed: earlyStop and rejectPerStage were no longer displayed
+* Minor improvements
 
 # rpact 3.1.1
 

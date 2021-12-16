@@ -21,7 +21,7 @@ The following generics (R generic functions) are available for this result objec
   \item \code{\link[=print.FieldSet]{print}} to print the object,
   \item \code{\link[=summary.ParameterSet]{summary}} to display a summary of the object,
   \item \code{\link[=plot.ParameterSet]{plot}} to plot the object,
-  \item \code{\link[=as.data.frame.PowerAndAverageSampleNumberResult]{as.data.frame}} 
+  \item \code{\link[=as.data.frame.PowerAndAverageSampleNumberResult]{as.data.frame}}
         to coerce the object to a \code{\link[base]{data.frame}},
   \item \code{\link[=as.matrix.FieldSet]{as.matrix}} to coerce the object to a \code{\link[base]{matrix}}.
 }
@@ -30,9 +30,9 @@ The following generics (R generic functions) are available for this result objec
 Returns the power and average sample number of the specified design.
 }
 \details{
-This function returns the power and average sample number (ASN) of the specified 
+This function returns the power and average sample number (ASN) of the specified
 design for the prototype case which is testing H0: mu = mu0 in a one-sample design.
-\code{theta} represents the standardized effect \code{(mu - mu0) / sigma} and power and ASN 
+\code{theta} represents the standardized effect \code{(mu - mu0) / sigma} and power and ASN
 is calculated for maximum sample size \code{nMax}.
 For other designs than the one-sample test of a mean the standardized effect needs to be adjusted accordingly.
 }

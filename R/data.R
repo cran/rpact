@@ -1,22 +1,22 @@
-#:#
-#:#  *Data*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5094 $
-#:#  Last changed: $Date: 2021-08-03 09:15:25 +0200 (Di, 03 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#
+## |
+## |  *Data*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5652 $
+## |  Last changed: $Date: 2021-12-13 17:12:12 +0100 (Mo, 13 Dez 2021) $
+## |  Last changed by: $Author: pahlke $
+## |
 
 
 #' One-Arm Dataset of Means
@@ -132,4 +132,33 @@
 #' @format A \code{\link[base]{data.frame}} object.
 #' 
 "dataEnrichmentSurvivalStratified"
+
+#' 
+#' @title 
+#' Raw Dataset Of A Two Arm Continuous Outcome With Covariates
+#'
+#' @description 
+#' An artificial dataset that was randomly generated 
+#' with simulated normal data. The data set has six variables:
+#' 
+#' 1. Subject id
+#' 2. Stage number
+#' 3. Group name
+#' 4. An example outcome in that we are interested in
+#' 5. The first covariate *gender*
+#' 6. The second covariate *covariate*
+#' 
+#' @details 
+#' See the vignette "Two-arm analysis for continuous data with covariates from raw data" 
+#' to learn how to  
+#' 
+#' * import raw data from a csv file, 
+#' * calculate estimated adjusted (marginal) means (EMMs, least-squares means) for a linear model, and 
+#' * perform two-arm interim analyses with these data.
+#' 
+#' You can use \code{rawDataTwoArmNormal} to reproduce the examples in the vignette.
+#' 
+#' @format A \code{\link[base]{data.frame}} object.
+#' 
+"rawDataTwoArmNormal"
 

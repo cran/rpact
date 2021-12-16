@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_design_sample_size_calculator.R
-#:#  Creation date: 18 May 2021, 17:47:33
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_design_sample_size_calculator.R
+## |  Creation date: 08 December 2021, 09:09:00
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Sample Size Calculation of Testing Means for Different Designs and Arguments")
 
@@ -43,6 +43,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(designGS1pretestCodeBased$alphaSpent, designGS1pretest$alphaSpent, tolerance = 1e-05)
 	    expect_equal(designGS1pretestCodeBased$criticalValues, designGS1pretest$criticalValues, tolerance = 1e-05)
 	    expect_equal(designGS1pretestCodeBased$stageLevels, designGS1pretest$stageLevels, tolerance = 1e-05)
+	    expect_type(names(designGS1pretest), "character")
+	    df <- as.data.frame(designGS1pretest)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designGS1pretest)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	designGS1 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, 
@@ -82,6 +89,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -120,6 +134,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -160,6 +181,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -200,6 +228,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -248,6 +283,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -296,6 +338,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -336,6 +385,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -376,6 +432,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -424,6 +487,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -472,6 +542,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -512,6 +589,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -552,6 +636,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -600,6 +691,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -648,6 +746,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -699,6 +804,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -724,6 +836,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_equal(designGS2pretestCodeBased$alphaSpent, designGS2pretest$alphaSpent, tolerance = 1e-05)
 	    expect_equal(designGS2pretestCodeBased$criticalValues, designGS2pretest$criticalValues, tolerance = 1e-05)
 	    expect_equal(designGS2pretestCodeBased$stageLevels, designGS2pretest$stageLevels, tolerance = 1e-05)
+	    expect_type(names(designGS2pretest), "character")
+	    df <- as.data.frame(designGS2pretest)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designGS2pretest)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	designGS2 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), alpha = 0.4, 
@@ -771,6 +890,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -817,6 +943,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -865,6 +998,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -913,6 +1053,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -969,6 +1116,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
@@ -1025,6 +1179,13 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	########################################################################################################################
@@ -1074,6 +1235,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1114,6 +1282,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1152,6 +1327,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1194,6 +1376,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1244,6 +1433,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1287,6 +1483,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1338,6 +1541,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1392,6 +1602,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1435,6 +1652,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1486,6 +1710,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1539,6 +1770,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH01, sampleSizeResult$expectedNumberOfSubjectsH01, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1592,6 +1830,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1644,6 +1889,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
@@ -1702,6 +1954,13 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for tw
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	########################################################################################################################
@@ -1757,6 +2016,13 @@ test_that("'getSampleSizeSurvival': Fixed sample size with minimum required defi
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1834,6 +2100,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects1, sampleSizeResult$numberOfSubjects1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -1916,6 +2189,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -1978,6 +2258,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$expectedEventsH1, sampleSizeResult$expectedEventsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2048,6 +2335,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects1, sampleSizeResult$numberOfSubjects1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2121,6 +2415,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2202,6 +2503,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2275,6 +2583,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2356,6 +2671,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2429,6 +2751,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2510,6 +2839,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2583,6 +2919,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2664,6 +3007,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2748,6 +3098,13 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -2817,6 +3174,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$expectedEventsH1, sampleSizeResult$expectedEventsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -2889,6 +3253,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects1, sampleSizeResult$numberOfSubjects1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -2962,6 +3333,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3043,6 +3421,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3116,6 +3501,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3200,6 +3592,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -3269,6 +3668,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$expectedEventsH1, sampleSizeResult$expectedEventsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -3341,6 +3747,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects1, sampleSizeResult$numberOfSubjects1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3414,6 +3827,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3495,6 +3915,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3568,6 +3995,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3652,6 +4086,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects2, sampleSizeResult$numberOfSubjects2, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -3729,6 +4170,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -3809,6 +4257,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3890,6 +4345,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -3979,6 +4441,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -4060,6 +4529,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -4152,6 +4628,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -4243,6 +4726,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -4327,6 +4817,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -4412,6 +4909,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -4505,6 +5009,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -4590,6 +5101,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -4686,6 +5204,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 	getDesignCharacteristics(designGS2)
 
@@ -4769,6 +5294,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -4863,6 +5395,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -4948,6 +5487,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -5041,6 +5587,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -5134,6 +5687,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -5227,6 +5787,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -5320,6 +5887,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -5417,6 +5991,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -5513,6 +6094,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleLower, sampleSizeResult$criticalValuesEffectScaleLower, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScaleUpper, sampleSizeResult$criticalValuesEffectScaleUpper, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesPValueScale, sampleSizeResult$criticalValuesPValueScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	########################################################################################################################
@@ -5568,6 +6156,13 @@ test_that("'getSampleSizeSurvival': For fixed sample design, determine necessary
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -5620,6 +6215,13 @@ test_that("'getSampleSizeSurvival': Determine necessary accrual time if 200 subj
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -5673,6 +6275,13 @@ test_that("'getSampleSizeSurvival': Determine maximum number of Subjects if the 
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -5725,6 +6334,13 @@ test_that("'getSampleSizeSurvival': Specify accrual time as a list", {
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -5779,6 +6395,13 @@ test_that("'getSampleSizeSurvival': Specify accrual time as a list, if maximum n
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -5850,6 +6473,13 @@ test_that("'getSampleSizeSurvival': Effect size is based on event rate at specif
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -5917,6 +6547,13 @@ test_that("'getSampleSizeSurvival': Effect size is based on hazard rate for the 
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -5979,6 +6616,13 @@ test_that("'getSampleSizeSurvival': Specification of piecewise exponential survi
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -6042,6 +6686,13 @@ test_that("'getSampleSizeSurvival': Specification of piecewise exponential survi
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -6106,6 +6757,13 @@ test_that("'getSampleSizeSurvival': Specification of piecewise exponential survi
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -6169,6 +6827,13 @@ test_that("'getSampleSizeSurvival': Specification of piecewise exponential survi
 	    expect_equal(sampleSizeResultCodeBased$numberOfSubjects, sampleSizeResult$numberOfSubjects, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$expectedNumberOfSubjectsH1, sampleSizeResult$expectedNumberOfSubjectsH1, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -6214,6 +6879,13 @@ test_that("'getSampleSizeSurvival': Specify effect size based on median survival
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6253,6 +6925,13 @@ test_that("'getSampleSizeSurvival': Specify effect size based on median survival
 	    expect_equal(sampleSizeResult2CodeBased$analysisTime, sampleSizeResult2$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult2CodeBased$studyDuration, sampleSizeResult2$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult2CodeBased$criticalValuesEffectScale, sampleSizeResult2$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult2), "character")
+	    df <- as.data.frame(sampleSizeResult2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6294,6 +6973,13 @@ test_that("'getSampleSizeSurvival': Specify effect size based on median survival
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6333,6 +7019,13 @@ test_that("'getSampleSizeSurvival': Specify effect size based on median survival
 	    expect_equal(sampleSizeResult2CodeBased$analysisTime, sampleSizeResult2$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult2CodeBased$studyDuration, sampleSizeResult2$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult2CodeBased$criticalValuesEffectScale, sampleSizeResult2$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult2), "character")
+	    df <- as.data.frame(sampleSizeResult2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -6378,6 +7071,13 @@ test_that("'getSampleSizeSurvival': Specify effect size based on rates with kapp
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6421,6 +7121,13 @@ test_that("'getSampleSizeSurvival': Specify effect size based on rates with kapp
 	    expect_equal(sampleSizeResult2CodeBased$analysisTime, sampleSizeResult2$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult2CodeBased$studyDuration, sampleSizeResult2$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult2CodeBased$criticalValuesEffectScale, sampleSizeResult2$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult2), "character")
+	    df <- as.data.frame(sampleSizeResult2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -6471,6 +7178,13 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	    expect_equal(sampleSizeResultCodeBased$analysisTime, sampleSizeResult$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$studyDuration, sampleSizeResult$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResultCodeBased$criticalValuesEffectScale, sampleSizeResult$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult), "character")
+	    df <- as.data.frame(sampleSizeResult)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6513,6 +7227,13 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	    expect_equal(sampleSizeResult3CodeBased$analysisTime, sampleSizeResult3$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult3CodeBased$studyDuration, sampleSizeResult3$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult3CodeBased$criticalValuesEffectScale, sampleSizeResult3$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult3), "character")
+	    df <- as.data.frame(sampleSizeResult3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6555,6 +7276,13 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	    expect_equal(sampleSizeResult4CodeBased$analysisTime, sampleSizeResult4$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult4CodeBased$studyDuration, sampleSizeResult4$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult4CodeBased$criticalValuesEffectScale, sampleSizeResult4$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult4), "character")
+	    df <- as.data.frame(sampleSizeResult4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6595,6 +7323,13 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	    expect_equal(sampleSizeResult6CodeBased$analysisTime, sampleSizeResult6$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult6CodeBased$studyDuration, sampleSizeResult6$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult6CodeBased$criticalValuesEffectScale, sampleSizeResult6$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult6), "character")
+	    df <- as.data.frame(sampleSizeResult6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6639,6 +7374,13 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	    expect_equal(sampleSizeResult7CodeBased$analysisTime, sampleSizeResult7$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult7CodeBased$studyDuration, sampleSizeResult7$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult7CodeBased$criticalValuesEffectScale, sampleSizeResult7$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult7), "character")
+	    df <- as.data.frame(sampleSizeResult7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
@@ -6681,6 +7423,13 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 	    expect_equal(sampleSizeResult8CodeBased$analysisTime, sampleSizeResult8$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult8CodeBased$studyDuration, sampleSizeResult8$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeResult8CodeBased$criticalValuesEffectScale, sampleSizeResult8$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeResult8), "character")
+	    df <- as.data.frame(sampleSizeResult8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeResult8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -6930,6 +7679,13 @@ test_that("'getEventProbabilities': check expected events over time for overall 
 	    expect_equal(eventsOSCodeBased$overallEventProbabilities, eventsOS$overallEventProbabilities, tolerance = 1e-05)
 	    expect_equal(eventsOSCodeBased$eventProbabilities1, eventsOS$eventProbabilities1, tolerance = 1e-05)
 	    expect_equal(eventsOSCodeBased$eventProbabilities2, eventsOS$eventProbabilities2, tolerance = 1e-05)
+	    expect_type(names(eventsOS), "character")
+	    df <- as.data.frame(eventsOS)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(eventsOS)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 })
 
@@ -6957,6 +7713,13 @@ test_that("'getNumberOfSubjects': check the number of recruited subjects at give
 	    expect_output(summary(numberOfSubjects1)$show())
 	    numberOfSubjects1CodeBased <- eval(parse(text = getObjectRCode(numberOfSubjects1, stringWrapParagraphWidth = NULL)))
 	    expect_equal(numberOfSubjects1CodeBased$numberOfSubjects, numberOfSubjects1$numberOfSubjects, tolerance = 1e-05)
+	    expect_type(names(numberOfSubjects1), "character")
+	    df <- as.data.frame(numberOfSubjects1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(numberOfSubjects1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	accrualTime2 <- list(
@@ -6981,6 +7744,13 @@ test_that("'getNumberOfSubjects': check the number of recruited subjects at give
 	    numberOfSubjects2CodeBased <- eval(parse(text = getObjectRCode(numberOfSubjects2, stringWrapParagraphWidth = NULL)))
 	    expect_equal(numberOfSubjects2CodeBased$maxNumberOfSubjects, numberOfSubjects2$maxNumberOfSubjects, tolerance = 1e-05)
 	    expect_equal(numberOfSubjects2CodeBased$numberOfSubjects, numberOfSubjects2$numberOfSubjects, tolerance = 1e-05)
+	    expect_type(names(numberOfSubjects2), "character")
+	    df <- as.data.frame(numberOfSubjects2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(numberOfSubjects2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -7024,6 +7794,13 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_equal(sampleSizeSurvival1CodeBased$analysisTime, sampleSizeSurvival1$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival1CodeBased$studyDuration, sampleSizeSurvival1$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival1CodeBased$criticalValuesEffectScale, sampleSizeSurvival1$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival1), "character")
+	    df <- as.data.frame(sampleSizeSurvival1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	sampleSizeSurvival2 <- getSampleSizeSurvival(piecewiseSurvivalTime = list(
@@ -7062,6 +7839,13 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_equal(sampleSizeSurvival2CodeBased$analysisTime, sampleSizeSurvival2$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival2CodeBased$studyDuration, sampleSizeSurvival2$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival2CodeBased$criticalValuesEffectScale, sampleSizeSurvival2$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival2), "character")
+	    df <- as.data.frame(sampleSizeSurvival2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	sampleSizeSurvival3 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
@@ -7099,6 +7883,13 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_equal(sampleSizeSurvival3CodeBased$analysisTime, sampleSizeSurvival3$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival3CodeBased$studyDuration, sampleSizeSurvival3$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival3CodeBased$criticalValuesEffectScale, sampleSizeSurvival3$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival3), "character")
+	    df <- as.data.frame(sampleSizeSurvival3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	sampleSizeSurvival4 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
@@ -7136,6 +7927,13 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_equal(sampleSizeSurvival4CodeBased$analysisTime, sampleSizeSurvival4$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival4CodeBased$studyDuration, sampleSizeSurvival4$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival4CodeBased$criticalValuesEffectScale, sampleSizeSurvival4$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival4), "character")
+	    df <- as.data.frame(sampleSizeSurvival4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	sampleSizeSurvival5 <- getSampleSizeSurvival(lambda1 = 0.03, lambda2 = 0.02, 
@@ -7176,6 +7974,13 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_equal(sampleSizeSurvival5CodeBased$analysisTime, sampleSizeSurvival5$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival5CodeBased$studyDuration, sampleSizeSurvival5$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival5CodeBased$criticalValuesEffectScale, sampleSizeSurvival5$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival5), "character")
+	    df <- as.data.frame(sampleSizeSurvival5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -7222,6 +8027,13 @@ test_that("'getSampleSizeSurvival': check calculations for fixed design with rel
 	    expect_equal(sampleSizeSurvival1CodeBased$analysisTime, sampleSizeSurvival1$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival1CodeBased$studyDuration, sampleSizeSurvival1$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival1CodeBased$criticalValuesEffectScale, sampleSizeSurvival1$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival1), "character")
+	    df <- as.data.frame(sampleSizeSurvival1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
@@ -7264,6 +8076,13 @@ test_that("'getSampleSizeSurvival': check calculations for fixed design with rel
 	    expect_equal(sampleSizeSurvival2CodeBased$analysisTime, sampleSizeSurvival2$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival2CodeBased$studyDuration, sampleSizeSurvival2$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival2CodeBased$criticalValuesEffectScale, sampleSizeSurvival2$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival2), "character")
+	    df <- as.data.frame(sampleSizeSurvival2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
@@ -7306,6 +8125,13 @@ test_that("'getSampleSizeSurvival': check calculations for fixed design with rel
 	    expect_equal(sampleSizeSurvival3CodeBased$analysisTime, sampleSizeSurvival3$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival3CodeBased$studyDuration, sampleSizeSurvival3$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival3CodeBased$criticalValuesEffectScale, sampleSizeSurvival3$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival3), "character")
+	    df <- as.data.frame(sampleSizeSurvival3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
@@ -7353,6 +8179,13 @@ test_that("'getSampleSizeSurvival': check calculations for fixed design with rel
 	    expect_equal(sampleSizeSurvival4CodeBased$analysisTime, sampleSizeSurvival4$analysisTime, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival4CodeBased$studyDuration, sampleSizeSurvival4$studyDuration, tolerance = 1e-05)
 	    expect_equal(sampleSizeSurvival4CodeBased$criticalValuesEffectScale, sampleSizeSurvival4$criticalValuesEffectScale, tolerance = 1e-05)
+	    expect_type(names(sampleSizeSurvival4), "character")
+	    df <- as.data.frame(sampleSizeSurvival4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(sampleSizeSurvival4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

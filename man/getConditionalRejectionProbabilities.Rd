@@ -11,27 +11,27 @@ getConditionalRejectionProbabilities(stageResults, ...)
 
 \item{...}{Further (optional) arguments to be passed:
 \describe{
-  \item{\code{iterations}}{Iterations for simulating the conditional 
-      rejection probabilities for Fisher's combination test. 
-      For checking purposes, it can be estimated via simulation with 
+  \item{\code{iterations}}{Iterations for simulating the conditional
+      rejection probabilities for Fisher's combination test.
+      For checking purposes, it can be estimated via simulation with
       specified \code{iterations}.}
-  \item{\code{seed}}{Seed for simulating the conditional rejection probabilities 
+  \item{\code{seed}}{Seed for simulating the conditional rejection probabilities
       for Fisher's combination test. See above, default is a random seed.}
 }}
 }
 \value{
-Returns a \code{\link[base]{numeric}} vector of length \code{kMax} or in case of multi-arm stage results   
-a \code{\link[base]{matrix}} (each column represents a stage, each row a comparison) 
+Returns a \code{\link[base]{numeric}} vector of length \code{kMax} or in case of multi-arm stage results
+a \code{\link[base]{matrix}} (each column represents a stage, each row a comparison)
 containing the conditional rejection probabilities.
 }
 \description{
 Calculates the conditional rejection probabilities (CRP) for given test results.
 }
 \details{
-The conditional rejection probability is the probability, under H0, to reject H0 
+The conditional rejection probability is the probability, under H0, to reject H0
 in one of the subsequent (remaining) stages.
-The probability is calculated using the specified design. For testing rates and the 
-survival design, the normal approximation is used, i.e., it is calculated with the 
+The probability is calculated using the specified design. For testing rates and the
+survival design, the normal approximation is used, i.e., it is calculated with the
 use of the prototype case testing a mean for normally distributed data with known variance.
 
 The conditional rejection probabilities are provided up to the specified stage.

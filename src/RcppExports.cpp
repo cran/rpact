@@ -53,31 +53,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// getRandomSurvivalDistribution
-double getRandomSurvivalDistribution(double rate, double kappa);
-RcppExport SEXP _rpact_getRandomSurvivalDistribution(SEXP rateSEXP, SEXP kappaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type rate(rateSEXP);
-    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
-    rcpp_result_gen = Rcpp::wrap(getRandomSurvivalDistribution(rate, kappa));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getRandomPiecewiseExponentialDistribution
-double getRandomPiecewiseExponentialDistribution(NumericVector cdfValues, NumericVector piecewiseLambda, NumericVector piecewiseSurvivalTime);
-RcppExport SEXP _rpact_getRandomPiecewiseExponentialDistribution(SEXP cdfValuesSEXP, SEXP piecewiseLambdaSEXP, SEXP piecewiseSurvivalTimeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type cdfValues(cdfValuesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type piecewiseLambda(piecewiseLambdaSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type piecewiseSurvivalTime(piecewiseSurvivalTimeSEXP);
-    rcpp_result_gen = Rcpp::wrap(getRandomPiecewiseExponentialDistribution(cdfValues, piecewiseLambda, piecewiseSurvivalTime));
-    return rcpp_result_gen;
-END_RCPP
-}
 // getSimulationSurvivalCpp
 List getSimulationSurvivalCpp(int designNumber, int kMax, int sided, NumericVector criticalValues, NumericVector informationRates, double conditionalPower, NumericVector plannedEvents, double thetaH1, NumericVector minNumberOfEventsPerStage, NumericVector maxNumberOfEventsPerStage, bool directionUpper, double allocation1, double allocation2, NumericVector accrualTime, IntegerVector treatmentGroup, double thetaH0, NumericVector futilityBounds, NumericVector alpha0Vec, NumericVector pi1Vec, double pi2, double eventTime, NumericVector piecewiseSurvivalTime, NumericVector cdfValues1, NumericVector cdfValues2, NumericVector lambdaVec1, NumericVector lambdaVec2, NumericVector phi, int maxNumberOfSubjects, int maxNumberOfIterations, int maxNumberOfRawDatasetsPerStage, double kappa);
 RcppExport SEXP _rpact_getSimulationSurvivalCpp(SEXP designNumberSEXP, SEXP kMaxSEXP, SEXP sidedSEXP, SEXP criticalValuesSEXP, SEXP informationRatesSEXP, SEXP conditionalPowerSEXP, SEXP plannedEventsSEXP, SEXP thetaH1SEXP, SEXP minNumberOfEventsPerStageSEXP, SEXP maxNumberOfEventsPerStageSEXP, SEXP directionUpperSEXP, SEXP allocation1SEXP, SEXP allocation2SEXP, SEXP accrualTimeSEXP, SEXP treatmentGroupSEXP, SEXP thetaH0SEXP, SEXP futilityBoundsSEXP, SEXP alpha0VecSEXP, SEXP pi1VecSEXP, SEXP pi2SEXP, SEXP eventTimeSEXP, SEXP piecewiseSurvivalTimeSEXP, SEXP cdfValues1SEXP, SEXP cdfValues2SEXP, SEXP lambdaVec1SEXP, SEXP lambdaVec2SEXP, SEXP phiSEXP, SEXP maxNumberOfSubjectsSEXP, SEXP maxNumberOfIterationsSEXP, SEXP maxNumberOfRawDatasetsPerStageSEXP, SEXP kappaSEXP) {
@@ -119,14 +94,63 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getStratifiedLogRankTestCpp
+List getStratifiedLogRankTestCpp(DataFrame survivalDataSet, double time, bool directionUpper, double thetaH0);
+RcppExport SEXP _rpact_getStratifiedLogRankTestCpp(SEXP survivalDataSetSEXP, SEXP timeSEXP, SEXP directionUpperSEXP, SEXP thetaH0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DataFrame >::type survivalDataSet(survivalDataSetSEXP);
+    Rcpp::traits::input_parameter< double >::type time(timeSEXP);
+    Rcpp::traits::input_parameter< bool >::type directionUpper(directionUpperSEXP);
+    Rcpp::traits::input_parameter< double >::type thetaH0(thetaH0SEXP);
+    rcpp_result_gen = Rcpp::wrap(getStratifiedLogRankTestCpp(survivalDataSet, time, directionUpper, thetaH0));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getSimulationStratifiedLogRankCpp
+List getSimulationStratifiedLogRankCpp(int kMax, NumericVector criticalValues, NumericVector lambda2, NumericVector lambda1, NumericVector prevalences, bool directionUpper, int maxNumberOfSubjects, NumericVector accrualTime, NumericVector plannedEvents, double allocation1, double allocation2, int maxIterations, DataFrame survivalDataSet);
+RcppExport SEXP _rpact_getSimulationStratifiedLogRankCpp(SEXP kMaxSEXP, SEXP criticalValuesSEXP, SEXP lambda2SEXP, SEXP lambda1SEXP, SEXP prevalencesSEXP, SEXP directionUpperSEXP, SEXP maxNumberOfSubjectsSEXP, SEXP accrualTimeSEXP, SEXP plannedEventsSEXP, SEXP allocation1SEXP, SEXP allocation2SEXP, SEXP maxIterationsSEXP, SEXP survivalDataSetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda2(lambda2SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda1(lambda1SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type prevalences(prevalencesSEXP);
+    Rcpp::traits::input_parameter< bool >::type directionUpper(directionUpperSEXP);
+    Rcpp::traits::input_parameter< int >::type maxNumberOfSubjects(maxNumberOfSubjectsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type accrualTime(accrualTimeSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type plannedEvents(plannedEventsSEXP);
+    Rcpp::traits::input_parameter< double >::type allocation1(allocation1SEXP);
+    Rcpp::traits::input_parameter< double >::type allocation2(allocation2SEXP);
+    Rcpp::traits::input_parameter< int >::type maxIterations(maxIterationsSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type survivalDataSet(survivalDataSetSEXP);
+    rcpp_result_gen = Rcpp::wrap(getSimulationStratifiedLogRankCpp(kMax, criticalValues, lambda2, lambda1, prevalences, directionUpper, maxNumberOfSubjects, accrualTime, plannedEvents, allocation1, allocation2, maxIterations, survivalDataSet));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getCipheredValue
+std::string getCipheredValue(String x);
+RcppExport SEXP _rpact_getCipheredValue(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< String >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(getCipheredValue(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rpact_getW", (DL_FUNC) &_rpact_getW, 2},
     {"_rpact_getGroupSequentialProbabilitiesCpp", (DL_FUNC) &_rpact_getGroupSequentialProbabilitiesCpp, 2},
     {"_rpact_getDesignGroupSequentialPampallonaTsiatisCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialPampallonaTsiatisCpp, 9},
-    {"_rpact_getRandomSurvivalDistribution", (DL_FUNC) &_rpact_getRandomSurvivalDistribution, 2},
-    {"_rpact_getRandomPiecewiseExponentialDistribution", (DL_FUNC) &_rpact_getRandomPiecewiseExponentialDistribution, 3},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},
+    {"_rpact_getStratifiedLogRankTestCpp", (DL_FUNC) &_rpact_getStratifiedLogRankTestCpp, 4},
+    {"_rpact_getSimulationStratifiedLogRankCpp", (DL_FUNC) &_rpact_getSimulationStratifiedLogRankCpp, 13},
+    {"_rpact_getCipheredValue", (DL_FUNC) &_rpact_getCipheredValue, 1},
     {NULL, NULL, 0}
 };
 

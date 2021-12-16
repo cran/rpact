@@ -12,7 +12,7 @@
 
 <meta name="author" content="Friedrich Pahlke and Gernot Wassmer" />
 
-<meta name="date" content="2021-08-19" />
+<meta name="date" content="2021-12-16" />
 
 <title>Getting started with rpact</title>
 
@@ -254,7 +254,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Getting started with rpact</h1>
 <h4 class="author">Friedrich Pahlke and Gernot Wassmer</h4>
-<h4 class="date">2021-08-19</h4>
+<h4 class="date">2021-12-16</h4>
 
 
 
@@ -281,6 +281,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </ul></li>
 <li>Adaptive analysis of means, rates, and survival data</li>
 <li>Adaptive designs and analysis for multi-arm trials</li>
+<li>Simulation and analysis for enrichment designs testing means, rates, and hazard ratios</li>
 </ul>
 </div>
 <div id="learn-to-use-rpact" class="section level2">
@@ -288,14 +289,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>We recommend three ways to learn how to use <code>rpact</code>:</p>
 <blockquote>
 <ol style="list-style-type: decimal">
-<li>Use the Shiny app: <a href="https://www.rpact.com/shiny">shiny.rpact.com</a></li>
-<li>Use the Vignettes: <a href="https://www.rpact.org/vignettes">www.rpact.org/vignettes</a></li>
-<li>Book a training: <a href="https://www.rpact.com/services/training">www.rpact.com</a></li>
+<li>Use the Shiny app: <a href="https://www.rpact.com/products#public-rpact-shiny-app">shiny.rpact.com</a></li>
+<li>Use the Vignettes: <a href="https://www.rpact.com/vignettes">www.rpact.com/vignettes</a></li>
+<li>Book a training: <a href="https://www.rpact.com/services#learning-and-training">www.rpact.com</a></li>
 </ol>
 </blockquote>
 <div id="vignettes" class="section level3">
 <h3>Vignettes</h3>
-<p>The vignettes are hosted at <a href="https://www.rpact.org/vignettes">www.rpact.org/vignettes</a> and cover the following topics:</p>
+<p>The vignettes are hosted at <a href="https://www.rpact.com/vignettes">www.rpact.com/vignettes</a> and cover the following topics:</p>
 <ol style="list-style-type: decimal">
 <li>Defining group-sequential boundaries</li>
 <li>Designing group-sequential trials with two groups and a continuous endpoint</li>
@@ -318,6 +319,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li>How to create simulation result (one- and multi-arm) plots</li>
 <li>Simulating multi-arm designs with a continuous endpoint</li>
 <li>Analysis of a multi-arm design with a binary endpoint</li>
+<li>Step-by-Step rpact Tutorial</li>
+<li>Planning and Analyzing a Group-Sequential Multi-Arm-Multi-Stage Design with Binary Endpoint using rpact</li>
+<li>Two-arm analysis for continuous data with covariates from raw data (<em>exclusive</em>)</li>
+<li>How to install the latest developer version (<em>exclusive</em>)</li>
 </ol>
 </div>
 </div>
@@ -342,7 +347,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><code>getDesignCharacteristics()</code></li>
 <li><code>getSampleSize</code>[<code>Means</code>/<code>Rates</code>/<code>Survival</code>]<code>()</code></li>
 <li><code>getPower</code>[<code>Means</code>/<code>Rates</code>/<code>Survival</code>]<code>()</code></li>
-<li><code>getSimulation</code>[<code>Means</code>/<code>Rates</code>/<code>Survival</code>]<code>()</code></li>
+<li><code>getSimulation</code>[<code>MultiArm</code>/<code>Enrichment</code>]`<code>[</code>Means<code>/</code>Rates<code>/</code>Survival<code>]</code>()`</li>
 <li><code>getDataSet()</code></li>
 <li><code>getAnalysisResults()</code></li>
 <li><code>getStageResults()</code></li>

@@ -75,9 +75,9 @@ not to be specified as it is calculated, there is no default.}
 \item{dropoutTime}{The assumed time for drop-out rates in the control and the 
 treatment group, default is \code{12}.}
 
-\item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified, 
-the end of accrual at specified \code{accrualIntensity} for the specified 
-number of subjects is determined or \code{accrualIntensity} is calculated 
+\item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified,
+the end of accrual at specified \code{accrualIntensity} for the specified
+number of subjects is determined or \code{accrualIntensity} is calculated
 at fixed end of accrual.}
 }
 \value{
@@ -96,7 +96,7 @@ The following generics (R generic functions) are available for this result objec
 Returns the event probabilities for specified parameters at given time vector.
 }
 \details{
-The function computes the overall event probabilities in a two treatment groups design. 
+The function computes the overall event probabilities in a two treatment groups design.
 For details of the parameters see \code{\link{getSampleSizeSurvival}}.
 }
 \section{How to get help for generic functions}{

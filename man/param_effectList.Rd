@@ -5,7 +5,7 @@
 \title{Parameter Description: Effect List}
 \arguments{
 \item{effectList}{List of effect sizes with columns and number of rows 
-reflecting the different situations to consider.}
+reflecting the different situations to consider (see examples).}
 }
 \description{
 Parameter Description: Effect List

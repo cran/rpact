@@ -1,22 +1,22 @@
-#:#
-#:#  *Plot setting classes*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5177 $
-#:#  Last changed: $Date: 2021-08-18 10:42:27 +0200 (Mi, 18 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:# 
+## |
+## |  *Plot setting classes*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5663 $
+## |  Last changed: $Date: 2021-12-15 16:11:12 +0100 (Mi, 15 Dez 2021) $
+## |  Last changed by: $Author: pahlke $
+## | 
 
 PlotSubTitleItem <- setRefClass("PlotSubTitleItem",
 	fields = list(
@@ -536,14 +536,14 @@ PlotSettings <- setRefClass("PlotSettings",
 		
 		adjustPointSize = function(adjustingValue) {
 			.assertIsInClosedInterval(adjustingValue, "adjustingValue", lower = 0.1, upper = 2)
-			.self$pointSize <<- .self$.pointSize * adjustingValue
+			pointSize <<- .self$.pointSize * adjustingValue
 		},
 		
 		adjustLegendFontSize = function(adjustingValue) {
 			"Adjusts the legend font size, e.g., run \\cr
 			\\code{adjustLegendFontSize(-2)} # makes the font size 2 points smaller"
 			.assertIsInClosedInterval(adjustingValue, "adjustingValue", lower = 0.1, upper = 2)
-			.self$legendFontSize <<- .self$.legendFontSize * adjustingValue
+			legendFontSize <<- .self$.legendFontSize * adjustingValue
 		},
 		
 		scaleSize = function(size, pointEnabled = FALSE) {

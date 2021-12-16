@@ -13,7 +13,7 @@ getDesignGroupSequential(
   informationRates = NA_real_,
   futilityBounds = NA_real_,
   typeOfDesign = c("OF", "P", "WT", "PT", "HP", "WToptimum", "asP", "asOF", "asKD",
-    "asHSD", "asUser"),
+    "asHSD", "asUser", "noEarlyEfficacy"),
   deltaWT = NA_real_,
   deltaPT1 = NA_real_,
   deltaPT0 = NA_real_,
@@ -49,16 +49,17 @@ or optimum designs, default is \code{0.20}.}
 \item{informationRates}{The information rates (that must be fixed prior to the trial), 
 default is \code{(1:kMax) / kMax}.}
 
-\item{futilityBounds}{The futility bounds, defined on the test statistic z scale 
+\item{futilityBounds}{The futility bounds, defined on the test statistic z scale
 (numeric vector of length \code{kMax - 1}).}
 
 \item{typeOfDesign}{The type of design. Type of design is one of the following: 
 O'Brien & Fleming (\code{"OF"}), Pocock (\code{"P"}), Wang & Tsiatis Delta class (\code{"WT"}), 
-Pampallona & Tsiatis (\code{"PT"}),
-Haybittle & Peto ("HP"), Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
+Pampallona & Tsiatis (\code{"PT"}), Haybittle & Peto ("HP"), 
+Optimum design within Wang & Tsiatis class (\code{"WToptimum"}), 
 O'Brien & Fleming type alpha spending (\code{"asOF"}), Pocock type alpha spending (\code{"asP"}), 
 Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending (\code{"asHSD"}), 
-user defined alpha spending (\code{"asUser"}), default is \code{"OF"}.}
+user defined alpha spending (\code{"asUser"}), no early efficacy stop (\code{"noEarlyEfficacy"}), 
+default is \code{"OF"}.}
 
 \item{deltaWT}{Delta for Wang & Tsiatis Delta class.}
 
@@ -66,23 +67,23 @@ user defined alpha spending (\code{"asUser"}), default is \code{"OF"}.}
 
 \item{deltaPT0}{Delta0 for Pampallona & Tsiatis class rejecting H1 boundaries.}
 
-\item{optimizationCriterion}{Optimization criterion for optimum design within 
-Wang & Tsiatis class (\code{"ASNH1"}, \code{"ASNIFH1"}, 
+\item{optimizationCriterion}{Optimization criterion for optimum design within
+Wang & Tsiatis class (\code{"ASNH1"}, \code{"ASNIFH1"},
 \code{"ASNsum"}), default is \code{"ASNH1"}, see details.}
 
 \item{gammaA}{Parameter for alpha spending function.}
 
-\item{typeBetaSpending}{Type of beta spending. Type of of beta spending is one of the following: 
-O'Brien & Fleming type beta spending, Pocock type beta spending, 
-Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined 
-beta spending (\code{"bsOF"}, \code{"bsP"}, \code{"bsKD"}, 
+\item{typeBetaSpending}{Type of beta spending. Type of of beta spending is one of the following:
+O'Brien & Fleming type beta spending, Pocock type beta spending,
+Kim & DeMets beta spending, Hwang, Shi & DeCani beta spending, user defined
+beta spending (\code{"bsOF"}, \code{"bsP"}, \code{"bsKD"},
 \code{"bsHSD"}, \code{"bsUser"}, default is \code{"none"}).}
 
 \item{userAlphaSpending}{The user defined alpha spending. 
 Numeric vector of length \code{kMax} containing the cumulative 
 alpha-spending (Type I error rate) up to each interim stage: \code{0 <= alpha_1 <= ... <= alpha_K <= alpha}.}
 
-\item{userBetaSpending}{The user defined beta spending. Vector of length \code{kMax} containing the cumulative 
+\item{userBetaSpending}{The user defined beta spending. Vector of length \code{kMax} containing the cumulative
 beta-spending up to each interim stage.}
 
 \item{gammaB}{Parameter for beta spending function.}
@@ -91,11 +92,11 @@ beta-spending up to each interim stage.}
 the critical values is affected by the futility bounds and the futility threshold is binding in the 
 sense that the study must be stopped if the futility condition was reached (default is \code{FALSE}).}
 
-\item{constantBoundsHP}{The constant bounds up to stage \code{kMax - 1} for the 
+\item{constantBoundsHP}{The constant bounds up to stage \code{kMax - 1} for the
 Haybittle & Peto design (default is \code{3}).}
 
-\item{twoSidedPower}{For two-sided testing, if \code{twoSidedPower = TRUE} is specified 
-the sample size calculation is performed by considering both tails of the distribution. 
+\item{twoSidedPower}{For two-sided testing, if \code{twoSidedPower = TRUE} is specified
+the sample size calculation is performed by considering both tails of the distribution.
 Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 should be directed to one part.}
 

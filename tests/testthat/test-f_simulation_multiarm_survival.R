@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_simulation_multiarm_survival.R
-#:#  Creation date: 18 May 2021, 17:48:35
-#:#  File version: $Revision: 5020 $
-#:#  Last changed: $Date: 2021-07-06 08:58:14 +0200 (Di, 06 Jul 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_simulation_multiarm_survival.R
+## |  Creation date: 08 December 2021, 09:10:05
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing Simulation Multi-Arm Survival Function")
 
@@ -68,8 +68,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x1$eventsPerStage)), c(4, 35.860669, 73.075204, 3.7272727, 24.561041, 57.244387, 3.5, 20.751077, 42.303464, 3.3076923, 22.100961, 49.222492, 4, 35.860669, 73.075204, 3.8181818, 25.16009, 58.640591, 3.6666667, 21.739223, 44.317915, 3.5384615, 23.642889, 52.65662, 4, 35.860669, 73.075204, 3.9090909, 25.75914, 60.036796, 3.8333333, 22.72737, 46.332366, 3.7692308, 25.184816, 56.090747, 4, 35.860669, 73.075204, 4, 26.35819, 61.433001, 4, 23.715516, 48.346816, 4, 26.726744, 59.524874), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x1$singleNumberOfEventsPerStage)), c(2, 15.930334, 18.607268, 1.9090909, 10.670954, 16.74025, 1.8333333, 9.0362783, 11.289346, 1.7692308, 10.052214, 14.506865, 2, 15.930334, 18.607268, 2, 11.179095, 17.537405, 2, 9.8577582, 12.31565, 2, 11.363372, 16.399065, 2, 15.930334, 18.607268, 2.0909091, 11.687236, 18.33456, 2.1666667, 10.679238, 13.341954, 2.2307692, 12.67453, 18.291265, 2, 15.930334, 18.607268, 2.1818182, 12.195376, 19.131715, 2.3333333, 11.500718, 14.368258, 2.4615385, 13.985688, 20.183465, 2, 15.930334, 18.607268, 1.8181818, 10.162814, 15.943096, 1.6666667, 8.2147985, 10.263042, 1.5384615, 8.7410553, 12.614666), tolerance = 1e-07)
 	expect_equal(x1$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$conditionalPowerAchieved[2, ], c(0.0009026232, 0.035234133, 0.020204577, 0.063676381), tolerance = 1e-07)
-	expect_equal(x1$conditionalPowerAchieved[3, ], c(0.081443706, 0.17715731, 0.49831, 0.30622362), tolerance = 1e-07)
+	expect_equal(x1$conditionalPowerAchieved[2, ], c(5.8245202e-05, 0.033918251, 0.017570415, 0.062651459), tolerance = 1e-07)
+	expect_equal(x1$conditionalPowerAchieved[3, ], c(0.081443645, 0.17714318, 0.49831, 0.30622362), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x1), NA)))
 	    expect_output(print(x1)$show())
@@ -89,6 +89,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x1CodeBased$eventsPerStage, x1$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$singleNumberOfEventsPerStage, x1$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$conditionalPowerAchieved, x1$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x2 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined", activeArms =  4, 
@@ -119,8 +126,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x2$eventsPerStage)), c(5.5, 60.5, 115.5, 5, 49.739341, 99.739341, 6.5, 71.5, 136.5, 5.8333333, 58.029231, 116.36256, 6, 66, 126, 5.4166667, 53.884286, 108.05095, 7, 77, 147, 6.25, 62.174176, 124.67418), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x2$singleNumberOfEventsPerStage)), c(0.5, 5, 5, 0.83333333, 7.4565568, 8.3333333, 1.5, 15, 15, 1.6666667, 14.913114, 16.666667, 1, 10, 10, 1.25, 11.184835, 12.5, 2, 20, 20, 2.0833333, 18.641392, 20.833333, 5, 50, 50, 4.1666667, 37.282784, 41.666667), tolerance = 1e-07)
 	expect_equal(x2$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_))
-	expect_equal(x2$conditionalPowerAchieved[2, ], c(1.5213461e-06, 0.00047798402), tolerance = 1e-07)
-	expect_equal(x2$conditionalPowerAchieved[3, ], c(0, 1.2125793e-08), tolerance = 1e-07)
+	expect_equal(x2$conditionalPowerAchieved[2, ], c(0, 1.5253195e-09), tolerance = 1e-07)
+	expect_equal(x2$conditionalPowerAchieved[3, ], c(0, 1.1842379e-15), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x2), NA)))
 	    expect_output(print(x2)$show())
@@ -140,6 +147,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x2CodeBased$eventsPerStage, x2$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$singleNumberOfEventsPerStage, x2$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$conditionalPowerAchieved, x2$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	.skipTestIfDisabled()
@@ -171,8 +185,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x3$eventsPerStage)), c(4, 35.860669, 73.075204, 3.8499139, 25.950748, 61.095771, 3.7209785, 22.452769, 48.328635, 3.6090171, 24.278187, 54.733634, 4, 35.860669, 73.075204, 3.8816273, 26.164515, 61.599044, 3.7799362, 22.808526, 49.094387, 3.6916324, 24.833947, 55.986561, 4, 35.860669, 73.075204, 3.9002999, 26.29038, 61.895366, 3.8146499, 23.017992, 49.545254, 3.7402755, 25.161174, 56.724273, 4, 35.860669, 73.075204, 3.9133408, 26.378283, 62.102317, 3.8388939, 23.164282, 49.860138, 3.7742477, 25.389708, 57.239488), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x3$singleNumberOfEventsPerStage)), c(2, 15.930334, 18.607268, 2.0015199, 11.489935, 18.271439, 2.0028257, 10.082432, 13.927748, 2.0039595, 11.476859, 16.910832, 2, 15.930334, 18.607268, 2.0332334, 11.671989, 18.560944, 2.0617834, 10.379231, 14.337743, 2.0865748, 11.950004, 17.607999, 2, 15.930334, 18.607268, 2.0519059, 11.779181, 18.731401, 2.0964971, 10.553983, 14.579144, 2.135218, 12.228588, 18.018484, 2, 15.930334, 18.607268, 2.0649468, 11.854043, 18.850449, 2.120741, 10.67603, 14.747737, 2.1691901, 12.423149, 18.305166, 2, 15.930334, 18.607268, 1.848394, 10.610899, 16.873585, 1.7181528, 8.6493588, 11.948119, 1.6050576, 9.1923108, 13.544615), tolerance = 1e-07)
 	expect_equal(x3$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x3$conditionalPowerAchieved[2, ], c(0.0009026232, 0.028992231, 0.020237192, 0.057108521), tolerance = 1e-07)
-	expect_equal(x3$conditionalPowerAchieved[3, ], c(0.081443706, 0.17048441, 0.40326875, 0.20898924), tolerance = 1e-07)
+	expect_equal(x3$conditionalPowerAchieved[2, ], c(5.8245202e-05, 0.027881828, 0.017394693, 0.05621525), tolerance = 1e-07)
+	expect_equal(x3$conditionalPowerAchieved[3, ], c(0.081443645, 0.17047212, 0.40326875, 0.20898924), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x3), NA)))
 	    expect_output(print(x3)$show())
@@ -192,6 +206,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x3CodeBased$eventsPerStage, x3$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$singleNumberOfEventsPerStage, x3$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$conditionalPowerAchieved, x3$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x4 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all", 
@@ -221,8 +242,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x4$eventsPerStage)), c(4, 43.80534, 83.80534, 3.7272727, 41, 78.272727, 3.5, 36.991095, 71.991095, 3.3076923, 31.601422, 64.678345, 4, 43.80534, 83.80534, 3.8181818, 42, 80.181818, 3.6666667, 38.752575, 75.419242, 3.5384615, 33.806172, 69.190787, 4, 43.80534, 83.80534, 3.9090909, 43, 82.090909, 3.8333333, 40.514056, 78.847389, 3.7692308, 36.010922, 73.70323, 4, 43.80534, 83.80534, 4, 44, 84, 4, 42.275537, 82.275537, 4, 38.215673, 78.215673), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x4$singleNumberOfEventsPerStage)), c(2, 19.90267, 20, 1.9090909, 19.090909, 19.090909, 1.8333333, 17.542954, 18.333333, 1.7692308, 15.133855, 17.692308, 2, 19.90267, 20, 2, 20, 20, 2, 19.137768, 20, 2, 17.107836, 20, 2, 19.90267, 20, 2.0909091, 20.909091, 20.909091, 2.1666667, 20.732582, 21.666667, 2.2307692, 19.081818, 22.307692, 2, 19.90267, 20, 2.1818182, 21.818182, 21.818182, 2.3333333, 22.327396, 23.333333, 2.4615385, 21.055799, 24.615385, 2, 19.90267, 20, 1.8181818, 18.181818, 18.181818, 1.6666667, 15.94814, 16.666667, 1.5384615, 13.159874, 15.384615), tolerance = 1e-07)
 	expect_equal(x4$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x4$conditionalPowerAchieved[2, ], c(0.093279994, 0.10905147, 0.080298068, 0.1613928), tolerance = 1e-07)
-	expect_equal(x4$conditionalPowerAchieved[3, ], c(0.014561813, 0.030154746, 0.063330277, 0.081746766), tolerance = 1e-07)
+	expect_equal(x4$conditionalPowerAchieved[2, ], c(0.09225544, 0.10755451, 0.080008195, 0.16137979), tolerance = 1e-07)
+	expect_equal(x4$conditionalPowerAchieved[3, ], c(0.011907723, 0.030096405, 0.063317228, 0.080810126), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x4), NA)))
 	    expect_output(print(x4)$show())
@@ -242,6 +263,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x4CodeBased$eventsPerStage, x4$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$singleNumberOfEventsPerStage, x4$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$conditionalPowerAchieved, x4$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x5 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
@@ -271,8 +299,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x5$eventsPerStage)), c(4, 37.648344, 72.689642, 3.7272727, 34.12598, 69.140806, 3.5, 24.454168, 56.361423, 3.3076923, 29.564881, 55.326921, 4, 37.648344, 72.689642, 3.8181818, 34.958321, 70.827167, 3.6666667, 25.618652, 59.0453, 3.5384615, 31.627547, 59.186938, 4, 37.648344, 72.689642, 3.9090909, 35.790662, 72.513528, 3.8333333, 26.783137, 61.729177, 3.7692308, 33.690213, 63.046956, 4, 37.648344, 72.689642, 4, 36.623003, 74.199889, 4, 27.947621, 64.413055, 4, 35.75288, 66.906974), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x5$singleNumberOfEventsPerStage)), c(2, 16.824172, 17.520649, 1.9090909, 15.57007, 17.934423, 1.8333333, 10.975993, 16.713324, 1.7692308, 14.044543, 13.779695, 2, 16.824172, 17.520649, 2, 16.311501, 18.788443, 2, 11.97381, 18.232717, 2, 15.87644, 15.577047, 2, 16.824172, 17.520649, 2.0909091, 17.052933, 19.642463, 2.1666667, 12.971628, 19.75211, 2.2307692, 17.708337, 17.374399, 2, 16.824172, 17.520649, 2.1818182, 17.794365, 20.496483, 2.3333333, 13.969446, 21.271503, 2.4615385, 19.540234, 19.17175, 2, 16.824172, 17.520649, 1.8181818, 14.828638, 17.080403, 1.6666667, 9.9781754, 15.193931, 1.5384615, 12.212646, 11.982344), tolerance = 1e-07)
 	expect_equal(x5$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x5$conditionalPowerAchieved[2, ], c(0.002565636, 0.026546922, 0.056664344, 0.057130473), tolerance = 1e-07)
-	expect_equal(x5$conditionalPowerAchieved[3, ], c(0.16000087, 0.17717899, 0.25226737, 0.41435883), tolerance = 1e-07)
+	expect_equal(x5$conditionalPowerAchieved[2, ], c(0.0011884888, 0.025687618, 0.050936222, 0.056920177), tolerance = 1e-07)
+	expect_equal(x5$conditionalPowerAchieved[3, ], c(0.16000064, 0.17717891, 0.25226702, 0.41435883), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x5), NA)))
 	    expect_output(print(x5)$show())
@@ -292,6 +320,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x5CodeBased$eventsPerStage, x5$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$singleNumberOfEventsPerStage, x5$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$conditionalPowerAchieved, x5$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x6 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -321,8 +356,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x6$eventsPerStage)), c(4, 36.65721, 73.112738, 3.7272727, 24.638721, 56.469181, 3.5, 26.818726, 57.762697, 3.3076923, 22.27063, 49.87456, 4, 36.65721, 73.112738, 3.8181818, 25.239665, 57.846478, 3.6666667, 28.095809, 60.513301, 3.5384615, 23.824395, 53.354181, 4, 36.65721, 73.112738, 3.9090909, 25.84061, 59.223775, 3.8333333, 29.372891, 63.263906, 3.7692308, 25.37816, 56.833801, 4, 36.65721, 73.112738, 4, 26.441554, 60.601072, 4, 30.649973, 66.01451, 4, 26.931924, 60.313422), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x6$singleNumberOfEventsPerStage)), c(2, 16.328605, 18.227764, 1.9090909, 10.710742, 16.303406, 1.8333333, 12.214571, 16.208746, 1.7692308, 10.142967, 14.764893, 2, 16.328605, 18.227764, 2, 11.220777, 17.079759, 2, 13.324987, 17.682269, 2, 11.465962, 16.690749, 2, 16.328605, 18.227764, 2.0909091, 11.730812, 17.856112, 2.1666667, 14.435402, 19.155791, 2.2307692, 12.788958, 18.616604, 2, 16.328605, 18.227764, 2.1818182, 12.240848, 18.632464, 2.3333333, 15.545818, 20.629313, 2.4615385, 14.111953, 20.54246, 2, 16.328605, 18.227764, 1.8181818, 10.200706, 15.527054, 1.6666667, 11.104155, 14.735224, 1.5384615, 8.8199709, 12.839037), tolerance = 1e-07)
 	expect_equal(x6$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x6$conditionalPowerAchieved[2, ], c(0.018826578, 0.072375046, 0.0027791356, 0.067235486), tolerance = 1e-07)
-	expect_equal(x6$conditionalPowerAchieved[3, ], c(0.080024521, 0.29125387, 0.18887123, 0.4033636), tolerance = 1e-07)
+	expect_equal(x6$conditionalPowerAchieved[2, ], c(0.018816179, 0.071905821, 0.002298516, 0.067085771), tolerance = 1e-07)
+	expect_equal(x6$conditionalPowerAchieved[3, ], c(0.080015186, 0.29125387, 0.18887123, 0.4033636), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x6), NA)))
 	    expect_output(print(x6)$show())
@@ -342,6 +377,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x6CodeBased$eventsPerStage, x6$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$singleNumberOfEventsPerStage, x6$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$conditionalPowerAchieved, x6$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x7 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, 
@@ -371,8 +413,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x7$eventsPerStage)), c(4, 35.860669, 67.721337, 3.7272727, 24.561041, 45.394809, 3.5, 20.751077, 36.030051, 3.3076923, 22.100961, 42.835362, 4, 35.860669, 67.721337, 3.8181818, 25.16009, 46.501999, 3.6666667, 21.739223, 37.745768, 3.5384615, 23.642889, 45.823876, 4, 35.860669, 67.721337, 3.9090909, 25.75914, 47.60919, 3.8333333, 22.72737, 39.461484, 3.7692308, 25.184816, 48.81239, 4, 35.860669, 67.721337, 4, 26.35819, 48.71638, 4, 23.715516, 41.177201, 4, 26.726744, 51.800903), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x7$singleNumberOfEventsPerStage)), c(2, 15.930334, 15.930334, 1.9090909, 10.670954, 10.670954, 1.8333333, 9.0362783, 8.0032722, 1.7692308, 10.052214, 11.090494, 2, 15.930334, 15.930334, 2, 11.179095, 11.179095, 2, 9.8577582, 8.7308424, 2, 11.363372, 12.53708, 2, 15.930334, 15.930334, 2.0909091, 11.687236, 11.687236, 2.1666667, 10.679238, 9.4584126, 2.2307692, 12.67453, 13.983666, 2, 15.930334, 15.930334, 2.1818182, 12.195376, 12.195376, 2.3333333, 11.500718, 10.185983, 2.4615385, 13.985688, 15.430252, 2, 15.930334, 15.930334, 1.8181818, 10.162814, 10.162814, 1.6666667, 8.2147985, 7.275702, 1.5384615, 8.7410553, 9.6439076), tolerance = 1e-07)
 	expect_equal(x7$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x7$conditionalPowerAchieved[2, ], c(0.0009026232, 0.035234133, 0.020204577, 0.063676381), tolerance = 1e-07)
-	expect_equal(x7$conditionalPowerAchieved[3, ], c(0.075858593, 0.086031319, 0.37522404, 0.19729909), tolerance = 1e-07)
+	expect_equal(x7$conditionalPowerAchieved[2, ], c(5.8245202e-05, 0.033918251, 0.017570415, 0.062651459), tolerance = 1e-07)
+	expect_equal(x7$conditionalPowerAchieved[3, ], c(0.075858531, 0.086024261, 0.37522404, 0.19729909), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x7), NA)))
 	    expect_output(print(x7)$show())
@@ -392,6 +434,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x7CodeBased$eventsPerStage, x7$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$singleNumberOfEventsPerStage, x7$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$conditionalPowerAchieved, x7$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x8 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all", 
@@ -421,8 +470,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x8$eventsPerStage)), c(4, 43.80534, 83.61068, 3.7272727, 41, 78.272727, 3.5, 36.991095, 70.482189, 3.3076923, 31.601422, 59.895151, 4, 43.80534, 83.61068, 3.8181818, 42, 80.181818, 3.6666667, 38.752575, 73.838484, 3.5384615, 33.806172, 64.073883, 4, 43.80534, 83.61068, 3.9090909, 43, 82.090909, 3.8333333, 40.514056, 77.194778, 3.7692308, 36.010922, 68.252614, 4, 43.80534, 83.61068, 4, 44, 84, 4, 42.275537, 80.551073, 4, 38.215673, 72.431346), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x8$singleNumberOfEventsPerStage)), c(2, 19.90267, 19.90267, 1.9090909, 19.090909, 19.090909, 1.8333333, 17.542954, 17.542954, 1.7692308, 15.133855, 15.133855, 2, 19.90267, 19.90267, 2, 20, 20, 2, 19.137768, 19.137768, 2, 17.107836, 17.107836, 2, 19.90267, 19.90267, 2.0909091, 20.909091, 20.909091, 2.1666667, 20.732582, 20.732582, 2.2307692, 19.081818, 19.081818, 2, 19.90267, 19.90267, 2.1818182, 21.818182, 21.818182, 2.3333333, 22.327396, 22.327396, 2.4615385, 21.055799, 21.055799, 2, 19.90267, 19.90267, 1.8181818, 18.181818, 18.181818, 1.6666667, 15.94814, 15.94814, 1.5384615, 13.159874, 13.159874), tolerance = 1e-07)
 	expect_equal(x8$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x8$conditionalPowerAchieved[2, ], c(0.093279994, 0.10905147, 0.080298068, 0.1613928), tolerance = 1e-07)
-	expect_equal(x8$conditionalPowerAchieved[3, ], c(0.014561813, 0.030154746, 0.063330277, 0.067289139), tolerance = 1e-07)
+	expect_equal(x8$conditionalPowerAchieved[2, ], c(0.09225544, 0.10755451, 0.080008195, 0.16137979), tolerance = 1e-07)
+	expect_equal(x8$conditionalPowerAchieved[3, ], c(0.011968708, 0.030096405, 0.063317862, 0.066369104), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x8), NA)))
 	    expect_output(print(x8)$show())
@@ -442,6 +491,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x8CodeBased$eventsPerStage, x8$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$singleNumberOfEventsPerStage, x8$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$conditionalPowerAchieved, x8$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x9 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
@@ -471,8 +527,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x9$eventsPerStage)), c(4, 37.648344, 71.296689, 3.7272727, 34.12598, 64.524687, 3.5, 24.454168, 45.408337, 3.3076923, 29.564881, 55.82207, 4, 37.648344, 71.296689, 3.8181818, 34.958321, 66.09846, 3.6666667, 25.618652, 47.570638, 3.5384615, 31.627547, 59.716633, 4, 37.648344, 71.296689, 3.9090909, 35.790662, 67.672233, 3.8333333, 26.783137, 49.73294, 3.7692308, 33.690213, 63.611196, 4, 37.648344, 71.296689, 4, 36.623003, 69.246006, 4, 27.947621, 51.895242, 4, 35.75288, 67.505759), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x9$singleNumberOfEventsPerStage)), c(2, 16.824172, 16.824172, 1.9090909, 15.57007, 15.57007, 1.8333333, 10.975993, 10.975993, 1.7692308, 14.044543, 14.044543, 2, 16.824172, 16.824172, 2, 16.311501, 16.311501, 2, 11.97381, 11.97381, 2, 15.87644, 15.87644, 2, 16.824172, 16.824172, 2.0909091, 17.052933, 17.052933, 2.1666667, 12.971628, 12.971628, 2.2307692, 17.708337, 17.708337, 2, 16.824172, 16.824172, 2.1818182, 17.794365, 17.794365, 2.3333333, 13.969446, 13.969446, 2.4615385, 19.540234, 19.540234, 2, 16.824172, 16.824172, 1.8181818, 14.828638, 14.828638, 1.6666667, 9.9781754, 9.9781754, 1.5384615, 12.212646, 12.212646), tolerance = 1e-07)
 	expect_equal(x9$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x9$conditionalPowerAchieved[2, ], c(0.002565636, 0.026546922, 0.056664344, 0.057130473), tolerance = 1e-07)
-	expect_equal(x9$conditionalPowerAchieved[3, ], c(0.13630524, 0.1444106, 0.1325705, 0.41932885), tolerance = 1e-07)
+	expect_equal(x9$conditionalPowerAchieved[2, ], c(0.0011884888, 0.025687618, 0.050936222, 0.056920177), tolerance = 1e-07)
+	expect_equal(x9$conditionalPowerAchieved[3, ], c(0.13630501, 0.14441052, 0.13257023, 0.41932885), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x9), NA)))
 	    expect_output(print(x9)$show())
@@ -492,6 +548,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x9CodeBased$eventsPerStage, x9$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$singleNumberOfEventsPerStage, x9$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$conditionalPowerAchieved, x9$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x9), "character")
+	    df <- as.data.frame(x9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x10 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -521,8 +584,8 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x10$eventsPerStage)), c(4, 36.228838, 74.946902, 3.7272727, 32.081441, 69.354168, 3.5, 24.722719, 43.17497, 3.3076923, 20.210056, 25.087756, 4, 36.228838, 74.946902, 3.8181818, 32.863915, 71.045733, 3.6666667, 25.899991, 45.230921, 3.5384615, 21.62006, 26.838065, 4, 36.228838, 74.946902, 3.9090909, 33.646389, 72.737298, 3.8333333, 27.077263, 47.286871, 3.7692308, 23.030064, 28.588373, 4, 36.228838, 74.946902, 4, 34.428863, 74.428863, 4, 28.254536, 49.342822, 4, 24.440068, 30.338682), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x10$singleNumberOfEventsPerStage)), c(2, 16.114419, 19.359032, 1.9090909, 14.522866, 19.090909, 1.8333333, 11.116662, 9.6654647, 1.7692308, 9.0407994, 2.6090022, 2, 16.114419, 19.359032, 2, 15.214432, 20, 2, 12.127268, 10.544143, 2, 10.220034, 2.9493068, 2, 16.114419, 19.359032, 2.0909091, 15.905997, 20.909091, 2.1666667, 13.137874, 11.422822, 2.2307692, 11.399269, 3.2896115, 2, 16.114419, 19.359032, 2.1818182, 16.597562, 21.818182, 2.3333333, 14.148479, 12.301501, 2.4615385, 12.578503, 3.6299161, 2, 16.114419, 19.359032, 1.8181818, 13.831301, 18.181818, 1.6666667, 10.106057, 8.7867861, 1.5384615, 7.8615647, 2.2686976), tolerance = 1e-07)
 	expect_equal(x10$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x10$conditionalPowerAchieved[2, ], c(0.0052268056, 0.0012574656, 0.040247826, 0.047547421), tolerance = 1e-07)
-	expect_equal(x10$conditionalPowerAchieved[3, ], c(1.3780046e-06, 1.361166e-06, 0.16668116, 0.040805908), tolerance = 1e-07)
+	expect_equal(x10$conditionalPowerAchieved[2, ], c(0.0031444794, 0.00037604601, 0.038145414, 0.045847923), tolerance = 1e-07)
+	expect_equal(x10$conditionalPowerAchieved[3, ], c(7.9302274e-08, 1.361166e-06, 0.16667791, 0.040805908), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x10), NA)))
 	    expect_output(print(x10)$show())
@@ -542,6 +605,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x10CodeBased$eventsPerStage, x10$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$singleNumberOfEventsPerStage, x10$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$conditionalPowerAchieved, x10$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x10), "character")
+	    df <- as.data.frame(x10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x11 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, 
@@ -588,6 +658,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x11CodeBased$expectedNumberOfEvents, x11$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$eventsPerStage, x11$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$singleNumberOfEventsPerStage, x11$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x11), "character")
+	    df <- as.data.frame(x11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x12 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms = 4, directionUpper = FALSE,threshold = 0, 
@@ -634,6 +711,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x12CodeBased$expectedNumberOfEvents, x12$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$eventsPerStage, x12$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$singleNumberOfEventsPerStage, x12$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x12), "character")
+	    df <- as.data.frame(x12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x13 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined",
@@ -682,6 +766,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x13CodeBased$expectedNumberOfEvents, x13$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x13CodeBased$eventsPerStage, x13$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x13CodeBased$singleNumberOfEventsPerStage, x13$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x13), "character")
+	    df <- as.data.frame(x13)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x13)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x14 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4, directionUpper = FALSE,threshold = 0, 
@@ -728,6 +819,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x14CodeBased$expectedNumberOfEvents, x14$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x14CodeBased$eventsPerStage, x14$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x14CodeBased$singleNumberOfEventsPerStage, x14$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x14), "character")
+	    df <- as.data.frame(x14)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x14)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x15 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "all", 
@@ -774,6 +872,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x15CodeBased$expectedNumberOfEvents, x15$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x15CodeBased$eventsPerStage, x15$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x15CodeBased$singleNumberOfEventsPerStage, x15$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x15), "character")
+	    df <- as.data.frame(x15)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x15)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x16 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "rBest", rValue = 2,
@@ -820,6 +925,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x16CodeBased$expectedNumberOfEvents, x16$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x16CodeBased$eventsPerStage, x16$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x16CodeBased$singleNumberOfEventsPerStage, x16$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x16), "character")
+	    df <- as.data.frame(x16)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x16)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x17 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -866,6 +978,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x17CodeBased$expectedNumberOfEvents, x17$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x17CodeBased$eventsPerStage, x17$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x17CodeBased$singleNumberOfEventsPerStage, x17$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x17), "character")
+	    df <- as.data.frame(x17)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x17)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x18 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, 
@@ -912,6 +1031,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x18CodeBased$expectedNumberOfEvents, x18$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x18CodeBased$eventsPerStage, x18$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x18CodeBased$singleNumberOfEventsPerStage, x18$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x18), "character")
+	    df <- as.data.frame(x18)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x18)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x19 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "all",
@@ -958,6 +1084,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x19CodeBased$expectedNumberOfEvents, x19$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x19CodeBased$eventsPerStage, x19$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x19CodeBased$singleNumberOfEventsPerStage, x19$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x19), "character")
+	    df <- as.data.frame(x19)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x19)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x20 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "rBest", rValue = 2,
@@ -1004,6 +1137,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x20CodeBased$expectedNumberOfEvents, x20$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x20CodeBased$eventsPerStage, x20$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x20CodeBased$singleNumberOfEventsPerStage, x20$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x20), "character")
+	    df <- as.data.frame(x20)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x20)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x21 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
@@ -1050,6 +1190,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x21CodeBased$expectedNumberOfEvents, x21$expectedNumberOfEvents, tolerance = 1e-05)
 	    expect_equal(x21CodeBased$eventsPerStage, x21$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x21CodeBased$singleNumberOfEventsPerStage, x21$singleNumberOfEventsPerStage, tolerance = 1e-05)
+	    expect_type(names(x21), "character")
+	    df <- as.data.frame(x21)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x21)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	x22 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0.1, 
@@ -1079,7 +1226,7 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	expect_equal(unlist(as.list(x22$eventsPerStage)), c(6.4545455, 9.0363636, 9.0363636, 6, 8.5078894, 8.5078894, 5.6153846, 8.0390249, 8.0390249, 5.6363636, 7.8909091, 7.8909091, 5.3333333, 7.5625684, 7.5625684, 5.0769231, 7.2681595, 7.2681595, 4.8181818, 6.7454545, 6.7454545, 4.6666667, 6.6172473, 6.6172473, 4.5384615, 6.4972941, 6.4972941, 4, 5.6, 5.6, 4, 5.6719263, 5.6719263, 4, 5.7264287, 5.7264287), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x22$singleNumberOfEventsPerStage)), c(2.8181818, 1.1272727, NaN, 2.6666667, 1.1146175, NaN, 2.5384615, 1.0956182, NaN, 2, 0.8, NaN, 2, 0.83596315, NaN, 2, 0.86321435, NaN, 1.1818182, 0.47272727, NaN, 1.3333333, 0.55730877, NaN, 1.4615385, 0.63081049, NaN, 0.36363636, 0.14545455, NaN, 0.66666667, 0.27865438, NaN, 0.92307692, 0.39840662, NaN, 3.6363636, 1.4545455, NaN, 3.3333333, 1.3932719, NaN, 3.0769231, 1.3280221, NaN), tolerance = 1e-07)
 	expect_equal(x22$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x22$conditionalPowerAchieved[2, ], c(0.39482306, 0.18481412, 0.14583295), tolerance = 1e-07)
+	expect_equal(x22$conditionalPowerAchieved[2, ], c(0.99998124, 0.93006261, 0.86196268), tolerance = 1e-07)
 	expect_equal(x22$conditionalPowerAchieved[3, ], c(NaN, NaN, NaN))
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x22), NA)))
@@ -1100,6 +1247,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_equal(x22CodeBased$eventsPerStage, x22$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(x22CodeBased$singleNumberOfEventsPerStage, x22$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(x22CodeBased$conditionalPowerAchieved, x22$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x22), "character")
+	    df <- as.data.frame(x22)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x22)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1152,7 +1306,7 @@ test_that("'getSimulationMultiArmSurvival': using calcSubjectsFunction", {
 	expect_equal(unlist(as.list(x$eventsPerStage)), c(5.6153846, 7.8615385, 26.392308, 5.2857143, 7.4, 24.842857, 5, 7, 23.5, 4.75, 6.65, 22.325, 5.0769231, 7.1076923, 23.861538, 4.8571429, 6.8, 22.828571, 4.6666667, 6.5333333, 21.933333, 4.5, 6.3, 21.15, 4.5384615, 6.3538462, 21.330769, 4.4285714, 6.2, 20.814286, 4.3333333, 6.0666667, 20.366667, 4.25, 5.95, 19.975, 4, 5.6, 18.8, 4, 5.6, 18.8, 4, 5.6, 18.8, 4, 5.6, 18.8), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x$singleNumberOfEventsPerStage)), c(2.5384615, 1.0153846, 8.3769231, 2.4285714, 0.97142857, 8.0142857, 2.3333333, 0.93333333, 7.7, 2.25, 0.9, 7.425, 2, 0.8, 6.6, 2, 0.8, 6.6, 2, 0.8, 6.6, 2, 0.8, 6.6, 1.4615385, 0.58461538, 4.8230769, 1.5714286, 0.62857143, 5.1857143, 1.6666667, 0.66666667, 5.5, 1.75, 0.7, 5.775, 0.92307692, 0.36923077, 3.0461538, 1.1428571, 0.45714286, 3.7714286, 1.3333333, 0.53333333, 4.4, 1.5, 0.6, 4.95, 3.0769231, 1.2307692, 10.153846, 2.8571429, 1.1428571, 9.4285714, 2.6666667, 1.0666667, 8.8, 2.5, 1, 8.25), tolerance = 1e-07)
 	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.0070937992, 0.043746092, 0.033413652, 0.035254308), tolerance = 1e-07)
+	expect_equal(x$conditionalPowerAchieved[2, ], c(0.13227215, 0.33500952, 0.32478794, 0.19174696), tolerance = 1e-07)
 	expect_equal(x$conditionalPowerAchieved[3, ], c(0.28682503, 0.6076832, 0.60939504, 0.37477275), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x), NA)))
@@ -1173,6 +1327,13 @@ test_that("'getSimulationMultiArmSurvival': using calcSubjectsFunction", {
 	    expect_equal(xCodeBased$eventsPerStage, x$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(xCodeBased$singleNumberOfEventsPerStage, x$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(xCodeBased$conditionalPowerAchieved, x$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1224,8 +1385,8 @@ test_that("'getSimulationMultiArmSurvival': using selectArmsFunction", {
 	expect_equal(unlist(as.list(x$eventsPerStage)), c(5.6153846, 16.846154, 28.076923, 5.2857143, 15.857143, 26.428571, 5, 15, 25, 4.75, 14.25, 23.75, 5.0769231, 15.230769, 25.384615, 4.8571429, 14.571429, 24.285714, 4.6666667, 14, 23.333333, 4.5, 13.5, 22.5, 4.5384615, 13.615385, 22.692308, 4.4285714, 13.285714, 22.142857, 4.3333333, 13, 21.666667, 4.25, 12.75, 21.25, 4, 12, 20, 4, 12, 20, 4, 12, 20, 4, 12, 20), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x$singleNumberOfEventsPerStage)), c(2.5384615, 5.0769231, 5.0769231, 2.4285714, 4.8571429, 4.8571429, 2.3333333, 4.6666667, 4.6666667, 2.25, 4.5, 4.5, 2, 4, 4, 2, 4, 4, 2, 4, 4, 2, 4, 4, 1.4615385, 2.9230769, 2.9230769, 1.5714286, 3.1428571, 3.1428571, 1.6666667, 3.3333333, 3.3333333, 1.75, 3.5, 3.5, 0.92307692, 1.8461538, 1.8461538, 1.1428571, 2.2857143, 2.2857143, 1.3333333, 2.6666667, 2.6666667, 1.5, 3, 3, 3.0769231, 6.1538462, 6.1538462, 2.8571429, 5.7142857, 5.7142857, 2.6666667, 5.3333333, 5.3333333, 2.5, 5, 5), tolerance = 1e-07)
 	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.0097048582, 0.10320859, 0.05218462, 0.099370615), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[3, ], c(0.10295617, 0.081373533, 0.32383803, 0.034914809), tolerance = 1e-07)
+	expect_equal(x$conditionalPowerAchieved[2, ], c(0.33564601, 0.59192905, 0.61161484, 0.44432847), tolerance = 1e-07)
+	expect_equal(x$conditionalPowerAchieved[3, ], c(0.10158651, 0.080642472, 0.3234231, 0.034914809), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x), NA)))
 	    expect_output(print(x)$show())
@@ -1245,6 +1406,13 @@ test_that("'getSimulationMultiArmSurvival': using selectArmsFunction", {
 	    expect_equal(xCodeBased$eventsPerStage, x$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(xCodeBased$singleNumberOfEventsPerStage, x$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(xCodeBased$conditionalPowerAchieved, x$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1292,8 +1460,8 @@ test_that("'getSimulationMultiArmSurvival': typeOfShape = sigmoidEmax", {
 	expect_equal(unlist(as.list(x$eventsPerStage)), c(25, 50, 75, 23.702032, 47.404063, 71.106095, 22.633745, 45.26749, 67.901235, 21.73913, 43.478261, 65.217391, 25, 50, 75, 24.266366, 48.532731, 72.799097, 23.662551, 47.325103, 70.987654, 23.1569, 46.3138, 69.470699, 25, 50, 75, 24.604966, 49.209932, 73.814898, 24.279835, 48.559671, 72.839506, 24.007561, 48.015123, 72.022684), tolerance = 1e-07)
 	expect_equal(unlist(as.list(x$singleNumberOfEventsPerStage)), c(12.5, 12.5, 12.5, 12.41535, 12.41535, 12.41535, 12.345679, 12.345679, 12.345679, 12.287335, 12.287335, 12.287335, 12.5, 12.5, 12.5, 12.979684, 12.979684, 12.979684, 13.374486, 13.374486, 13.374486, 13.705104, 13.705104, 13.705104, 12.5, 12.5, 12.5, 13.318284, 13.318284, 13.318284, 13.99177, 13.99177, 13.99177, 14.555766, 14.555766, 14.555766, 12.5, 12.5, 12.5, 11.286682, 11.286682, 11.286682, 10.288066, 10.288066, 10.288066, 9.4517958, 9.4517958, 9.4517958), tolerance = 1e-07)
 	expect_equal(x$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x$conditionalPowerAchieved[2, ], c(0.078004745, 0.14594737, 0.27311217, 0.24388337), tolerance = 1e-07)
-	expect_equal(x$conditionalPowerAchieved[3, ], c(0.13322976, 0.19096891, 0.29537586, 0.31031066), tolerance = 1e-07)
+	expect_equal(x$conditionalPowerAchieved[2, ], c(0.066083689, 0.14406787, 0.27240426, 0.24161087), tolerance = 1e-07)
+	expect_equal(x$conditionalPowerAchieved[3, ], c(0.13321164, 0.19096794, 0.29528894, 0.30979546), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x), NA)))
 	    expect_output(print(x)$show())
@@ -1313,6 +1481,13 @@ test_that("'getSimulationMultiArmSurvival': typeOfShape = sigmoidEmax", {
 	    expect_equal(xCodeBased$eventsPerStage, x$eventsPerStage, tolerance = 1e-05)
 	    expect_equal(xCodeBased$singleNumberOfEventsPerStage, x$singleNumberOfEventsPerStage, tolerance = 1e-05)
 	    expect_equal(xCodeBased$conditionalPowerAchieved, x$conditionalPowerAchieved, tolerance = 1e-05)
+	    expect_type(names(x), "character")
+	    df <- as.data.frame(x)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -1336,13 +1511,11 @@ test_that("'getSimulationMultiArmSurvival': comparison of base and multi-arm, in
 	allocationRatioPlanned <- 1
 	design <- getDesignInverseNormal(typeOfDesign = "WT", deltaWT = 0.05, futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.8, 1))
 
-	x <- getSimulationMultiArmSurvival(design, activeArms = 1, omegaMaxVector = 1/seq(1, 1.8, 0.4), 
-		plannedEvents = c(20, 40, 60), 
+	x <- getSimulationMultiArmSurvival(design, activeArms = 1, omegaMaxVector = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), 
 		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
 		maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234)
 
-	y <- getSimulationSurvival(design, pi2 = 0.2, hazardRatio = 1/seq(1, 1.8, 0.4), 
-		plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500, 
+	y <- getSimulationSurvival(design, pi2 = 0.2, hazardRatio = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500, 
 		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
 		maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234)
 

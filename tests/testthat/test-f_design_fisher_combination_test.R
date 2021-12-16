@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_design_fisher_combination_test.R
-#:#  Creation date: 18 May 2021, 17:47:22
-#:#  File version: $Revision: 4888 $
-#:#  Last changed: $Date: 2021-05-19 14:08:44 +0200 (Mi, 19 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_design_fisher_combination_test.R
+## |  Creation date: 08 December 2021, 09:08:49
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Fisher Design Functionality")
 
@@ -45,6 +45,13 @@ test_that("'getDesignFisher' with default parameters: parameters and results are
 	    expect_equal(designFisher0CodeBased$stageLevels, designFisher0$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher0CodeBased$scale, designFisher0$scale, tolerance = 1e-05)
 	    expect_equal(designFisher0CodeBased$nonStochasticCurtailment, designFisher0$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher0), "character")
+	    df <- as.data.frame(designFisher0)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher0)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -74,6 +81,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher1CodeBased$stageLevels, designFisher1$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher1CodeBased$scale, designFisher1$scale, tolerance = 1e-05)
 	    expect_equal(designFisher1CodeBased$nonStochasticCurtailment, designFisher1$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher1), "character")
+	    df <- as.data.frame(designFisher1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -97,6 +111,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher2CodeBased$stageLevels, designFisher2$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher2CodeBased$scale, designFisher2$scale, tolerance = 1e-05)
 	    expect_equal(designFisher2CodeBased$nonStochasticCurtailment, designFisher2$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher2), "character")
+	    df <- as.data.frame(designFisher2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -120,6 +141,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher3CodeBased$stageLevels, designFisher3$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher3CodeBased$scale, designFisher3$scale, tolerance = 1e-05)
 	    expect_equal(designFisher3CodeBased$nonStochasticCurtailment, designFisher3$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher3), "character")
+	    df <- as.data.frame(designFisher3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -143,6 +171,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher4CodeBased$stageLevels, designFisher4$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher4CodeBased$scale, designFisher4$scale, tolerance = 1e-05)
 	    expect_equal(designFisher4CodeBased$nonStochasticCurtailment, designFisher4$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher4), "character")
+	    df <- as.data.frame(designFisher4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -166,6 +201,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher5CodeBased$stageLevels, designFisher5$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher5CodeBased$scale, designFisher5$scale, tolerance = 1e-05)
 	    expect_equal(designFisher5CodeBased$nonStochasticCurtailment, designFisher5$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher5), "character")
+	    df <- as.data.frame(designFisher5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -189,6 +231,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher6CodeBased$stageLevels, designFisher6$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher6CodeBased$scale, designFisher6$scale, tolerance = 1e-05)
 	    expect_equal(designFisher6CodeBased$nonStochasticCurtailment, designFisher6$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher6), "character")
+	    df <- as.data.frame(designFisher6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -212,6 +261,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher7CodeBased$stageLevels, designFisher7$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher7CodeBased$scale, designFisher7$scale, tolerance = 1e-05)
 	    expect_equal(designFisher7CodeBased$nonStochasticCurtailment, designFisher7$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher7), "character")
+	    df <- as.data.frame(designFisher7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignFisher}
@@ -235,6 +291,13 @@ test_that("'getDesignFisher' with kMax = 4: parameters and results are as expect
 	    expect_equal(designFisher8CodeBased$stageLevels, designFisher8$stageLevels, tolerance = 1e-05)
 	    expect_equal(designFisher8CodeBased$scale, designFisher8$scale, tolerance = 1e-05)
 	    expect_equal(designFisher8CodeBased$nonStochasticCurtailment, designFisher8$nonStochasticCurtailment, tolerance = 1e-05)
+	    expect_type(names(designFisher8), "character")
+	    df <- as.data.frame(designFisher8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(designFisher8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

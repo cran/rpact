@@ -1,24 +1,24 @@
-#:#  
-#:#  *Unit tests*
-#:#  
-#:#  This file is part of the R package rpact:
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:#  
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:#  
-#:#  RPACT company website: https://www.rpact.com
-#:#  RPACT package website: https://www.rpact.org
-#:#  
-#:#  Contact us for information about our services: info@rpact.com
-#:#  
-#:#  File name: test-f_design_group_sequential.R
-#:#  Creation date: 25 May 2021, 12:08:58
-#:#  File version: $Revision: 4912 $
-#:#  Last changed: $Date: 2021-05-25 17:03:57 +0200 (Di, 25 Mai 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:#  
+## |  
+## |  *Unit tests*
+## |  
+## |  This file is part of the R package rpact:
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  
+## |  RPACT company website: https://www.rpact.com
+## |  RPACT package website: https://www.rpact.org
+## |  
+## |  Contact us for information about our services: info@rpact.com
+## |  
+## |  File name: test-f_design_group_sequential.R
+## |  Creation date: 08 December 2021, 09:08:50
+## |  File version: $Revision$
+## |  Last changed: $Date$
+## |  Last changed by: $Author$
+## |  
 
 context("Testing the Group Sequential and Inverse Normal Design Functionality")
 
@@ -41,6 +41,13 @@ test_that("'getDesignInverseNormal' with default parameters: parameters and resu
 	    expect_equal(x0CodeBased$alphaSpent, x0$alphaSpent, tolerance = 1e-05)
 	    expect_equal(x0CodeBased$criticalValues, x0$criticalValues, tolerance = 1e-05)
 	    expect_equal(x0CodeBased$stageLevels, x0$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x0), "character")
+	    df <- as.data.frame(x0)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x0)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -68,6 +75,13 @@ test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asK
 	    expect_equal(x1CodeBased$alphaSpent, x1$alphaSpent, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$criticalValues, x1$criticalValues, tolerance = 1e-05)
 	    expect_equal(x1CodeBased$stageLevels, x1$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x1), "character")
+	    df <- as.data.frame(x1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignCharacteristics}
@@ -102,6 +116,13 @@ test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asK
 	    expect_equal(y1CodeBased$averageSampleNumber1, y1$averageSampleNumber1, tolerance = 1e-05)
 	    expect_equal(y1CodeBased$averageSampleNumber01, y1$averageSampleNumber01, tolerance = 1e-05)
 	    expect_equal(y1CodeBased$averageSampleNumber0, y1$averageSampleNumber0, tolerance = 1e-05)
+	    expect_type(names(y1), "character")
+	    df <- as.data.frame(y1)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(y1)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
@@ -116,7 +137,7 @@ test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asK
 	## Comparison of the results of TrialDesignInverseNormal object 'x2' with expected results
 	expect_equal(x2$power, c(0.12038954, 0.32895265, 0.86), tolerance = 1e-07)
 	expect_equal(x2$futilityBounds, c(-1.1063623, -0.35992438), tolerance = 1e-07)
-	expect_equal(x2$alphaSpent, c(0.0090195874, 0.020036136, 0.07), tolerance = 1e-07)
+	expect_equal(x2$alphaSpent, c(0.0090195874, 0.020036136, 0.06999999), tolerance = 1e-07)
 	expect_equal(x2$betaSpent, c(0.010777094, 0.026854629, 0.14), tolerance = 1e-07)
 	expect_equal(x2$criticalValues, c(2.364813, 2.1928805, 1.5660474), tolerance = 1e-07)
 	expect_equal(x2$stageLevels, c(0.0090195874, 0.014157994, 0.058668761), tolerance = 1e-07)
@@ -132,6 +153,13 @@ test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asK
 	    expect_equal(x2CodeBased$betaSpent, x2$betaSpent, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$criticalValues, x2$criticalValues, tolerance = 1e-05)
 	    expect_equal(x2CodeBased$stageLevels, x2$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x2), "character")
+	    df <- as.data.frame(x2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignCharacteristics}
@@ -166,6 +194,13 @@ test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asK
 	    expect_equal(y2CodeBased$averageSampleNumber1, y2$averageSampleNumber1, tolerance = 1e-05)
 	    expect_equal(y2CodeBased$averageSampleNumber01, y2$averageSampleNumber01, tolerance = 1e-05)
 	    expect_equal(y2CodeBased$averageSampleNumber0, y2$averageSampleNumber0, tolerance = 1e-05)
+	    expect_type(names(y2), "character")
+	    df <- as.data.frame(y2)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(y2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignInverseNormal}
@@ -196,6 +231,13 @@ test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asK
 	    expect_equal(x3CodeBased$betaSpent, x3$betaSpent, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$criticalValues, x3$criticalValues, tolerance = 1e-05)
 	    expect_equal(x3CodeBased$stageLevels, x3$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignCharacteristics}
@@ -230,6 +272,13 @@ test_that("'getDesignInverseNormal' with type of design = 'asHSD', 'bsHSD', 'asK
 	    expect_equal(y3CodeBased$averageSampleNumber1, y3$averageSampleNumber1, tolerance = 1e-05)
 	    expect_equal(y3CodeBased$averageSampleNumber01, y3$averageSampleNumber01, tolerance = 1e-05)
 	    expect_equal(y3CodeBased$averageSampleNumber0, y3$averageSampleNumber0, tolerance = 1e-05)
+	    expect_type(names(y3), "character")
+	    df <- as.data.frame(y3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(y3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -255,6 +304,13 @@ test_that("'getDesignInverseNormal' with binding futility bounds", {
 	    expect_equal(x4CodeBased$alphaSpent, x4$alphaSpent, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$criticalValues, x4$criticalValues, tolerance = 1e-05)
 	    expect_equal(x4CodeBased$stageLevels, x4$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x4), "character")
+	    df <- as.data.frame(x4)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x4)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -281,6 +337,13 @@ test_that("'getDesignGroupSequential' with type of design = 'asUser'", {
 	    expect_equal(x5CodeBased$alphaSpent, x5$alphaSpent, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$criticalValues, x5$criticalValues, tolerance = 1e-05)
 	    expect_equal(x5CodeBased$stageLevels, x5$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x5), "character")
+	    df <- as.data.frame(x5)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x5)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -315,6 +378,13 @@ test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsUser'"
 	    expect_equal(x6CodeBased$betaSpent, x6$betaSpent, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$criticalValues, x6$criticalValues, tolerance = 1e-05)
 	    expect_equal(x6CodeBased$stageLevels, x6$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x6), "character")
+	    df <- as.data.frame(x6)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x6)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -352,6 +422,13 @@ test_that("'getDesignGroupSequential' with type of design = 'asOF' and 'bsKD' an
 	    expect_equal(x7CodeBased$betaSpent, x7$betaSpent, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$criticalValues, x7$criticalValues, tolerance = 1e-05)
 	    expect_equal(x7CodeBased$stageLevels, x7$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x7), "character")
+	    df <- as.data.frame(x7)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x7)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -379,6 +456,13 @@ test_that("'getDesignGroupSequential' with binding futility bounds ", {
 	    expect_equal(x8CodeBased$alphaSpent, x8$alphaSpent, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$criticalValues, x8$criticalValues, tolerance = 1e-05)
 	    expect_equal(x8CodeBased$stageLevels, x8$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x8), "character")
+	    df <- as.data.frame(x8)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x8)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -404,6 +488,13 @@ test_that("'getDesignGroupSequential' with Haybittle Peto boundaries ", {
 	    expect_equal(x9CodeBased$alphaSpent, x9$alphaSpent, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$criticalValues, x9$criticalValues, tolerance = 1e-05)
 	    expect_equal(x9CodeBased$stageLevels, x9$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x9), "character")
+	    df <- as.data.frame(x9)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x9)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })
@@ -420,11 +511,11 @@ test_that("'getDesignGroupSequential' with Pampallona Tsiatis boundaries ", {
 
 	## Comparison of the results of TrialDesignGroupSequential object 'x10' with expected results
 	expect_equal(x10$power, c(0.19834666, 0.83001122, 0.9), tolerance = 1e-07)
-	expect_equal(x10$futilityBounds, c(-0.042079544, 1.4407359), tolerance = 1e-07)
-	expect_equal(x10$alphaSpent, c(0.0038332427, 0.024917168, 0.03499999), tolerance = 1e-07)
-	expect_equal(x10$betaSpent, c(0.031375368, 0.08073415, 0.1), tolerance = 1e-07)
+	expect_equal(x10$futilityBounds, c(-0.042079551, 1.4407359), tolerance = 1e-07)
+	expect_equal(x10$alphaSpent, c(0.0038332428, 0.024917169, 0.035), tolerance = 1e-07)
+	expect_equal(x10$betaSpent, c(0.031375367, 0.080734149, 0.099999999), tolerance = 1e-07)
 	expect_equal(x10$criticalValues, c(2.6664156, 1.9867225, 1.8580792), tolerance = 1e-07)
-	expect_equal(x10$stageLevels, c(0.0038332427, 0.023476576, 0.031578885), tolerance = 1e-07)
+	expect_equal(x10$stageLevels, c(0.0038332428, 0.023476576, 0.031578886), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x10), NA)))
 	    expect_output(print(x10)$show())
@@ -437,6 +528,13 @@ test_that("'getDesignGroupSequential' with Pampallona Tsiatis boundaries ", {
 	    expect_equal(x10CodeBased$betaSpent, x10$betaSpent, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$criticalValues, x10$criticalValues, tolerance = 1e-05)
 	    expect_equal(x10CodeBased$stageLevels, x10$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x10), "character")
+	    df <- as.data.frame(x10)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x10)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
@@ -451,7 +549,7 @@ test_that("'getDesignGroupSequential' with Pampallona Tsiatis boundaries ", {
 	expect_equal(x11$alphaSpent, c(0.0019236202, 0.022017713, 0.035), tolerance = 1e-07)
 	expect_equal(x11$betaSpent, c(0, 0.035025978, 0.05), tolerance = 1e-07)
 	expect_equal(x11$criticalValues, c(3.1017782, 2.3111074, 2.1614596), tolerance = 1e-07)
-	expect_equal(x11$stageLevels, c(0.00096181011, 0.010413463, 0.015329928), tolerance = 1e-07)
+	expect_equal(x11$stageLevels, c(0.00096181012, 0.010413463, 0.015329928), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x11), NA)))
 	    expect_output(print(x11)$show())
@@ -464,6 +562,13 @@ test_that("'getDesignGroupSequential' with Pampallona Tsiatis boundaries ", {
 	    expect_equal(x11CodeBased$betaSpent, x11$betaSpent, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$criticalValues, x11$criticalValues, tolerance = 1e-05)
 	    expect_equal(x11CodeBased$stageLevels, x11$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x11), "character")
+	    df <- as.data.frame(x11)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x11)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 	# @refFS[Tab.]{fs:tab:output:getDesignGroupSequential}
@@ -473,12 +578,12 @@ test_that("'getDesignGroupSequential' with Pampallona Tsiatis boundaries ", {
 		bindingFutility = FALSE, deltaPT1 = 0.2, deltaPT0 = 0.3)
 
 	## Comparison of the results of TrialDesignGroupSequential object 'x12' with expected results
-	expect_equal(x12$power, c(0.15712277, 0.87874666, 0.94999995), tolerance = 1e-07)
+	expect_equal(x12$power, c(0.15712278, 0.87874666, 0.94999995), tolerance = 1e-07)
 	expect_equal(x12$futilityBounds, c(NA_real_, 1.7090472), tolerance = 1e-07)
-	expect_equal(x12$alphaSpent, c(0.0015647741, 0.01943585, 0.03499999), tolerance = 1e-07)
+	expect_equal(x12$alphaSpent, c(0.0015647742, 0.019435851, 0.035), tolerance = 1e-07)
 	expect_equal(x12$betaSpent, c(0, 0.034947415, 0.05), tolerance = 1e-07)
 	expect_equal(x12$criticalValues, c(3.1623945, 2.356272, 2.2036998), tolerance = 1e-07)
-	expect_equal(x12$stageLevels, c(0.00078238706, 0.0092296969, 0.013772733), tolerance = 1e-07)
+	expect_equal(x12$stageLevels, c(0.00078238708, 0.009229697, 0.013772733), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x12), NA)))
 	    expect_output(print(x12)$show())
@@ -491,6 +596,13 @@ test_that("'getDesignGroupSequential' with Pampallona Tsiatis boundaries ", {
 	    expect_equal(x12CodeBased$betaSpent, x12$betaSpent, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$criticalValues, x12$criticalValues, tolerance = 1e-05)
 	    expect_equal(x12CodeBased$stageLevels, x12$stageLevels, tolerance = 1e-05)
+	    expect_type(names(x12), "character")
+	    df <- as.data.frame(x12)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x12)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
 })

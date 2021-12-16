@@ -1,22 +1,22 @@
-#:#
-#:#  *Analysis of multi-arm designs with adaptive test*
-#:# 
-#:#  This file is part of the R package rpact: 
-#:#  Confirmatory Adaptive Clinical Trial Design and Analysis
-#:# 
-#:#  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-#:#  Licensed under "GNU Lesser General Public License" version 3
-#:#  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
-#:# 
-#:#  RPACT company website: https://www.rpact.com
-#:#  rpact package website: https://www.rpact.org
-#:# 
-#:#  Contact us for information about our services: info@rpact.com
-#:# 
-#:#  File version: $Revision: 5120 $
-#:#  Last changed: $Date: 2021-08-05 14:59:47 +0200 (Thu, 05 Aug 2021) $
-#:#  Last changed by: $Author: pahlke $
-#:# 
+## |
+## |  *Analysis of multi-arm designs with adaptive test*
+## | 
+## |  This file is part of the R package rpact: 
+## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## | 
+## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  Licensed under "GNU Lesser General Public License" version 3
+## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## | 
+## |  RPACT company website: https://www.rpact.com
+## |  rpact package website: https://www.rpact.org
+## | 
+## |  Contact us for information about our services: info@rpact.com
+## | 
+## |  File version: $Revision: 5577 $
+## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  Last changed by: $Author: pahlke $
+## | 
 
 #' @include f_core_utilities.R
 NULL
@@ -150,24 +150,39 @@ NULL
 	return(subsets[with(data.frame(subsets = subsets, index = as.integer(sub("\\D", "", subsets))), order(index))])
 }
 
-.getAllAvailableSubsets <- function(numbers) {
+.getAllAvailableSubsets <- function(numbers, ..., sort = TRUE, digits = NA_integer_) {
 	if (length(numbers) == 0) {
 		return(character(0))
 	}
+	
 	results <- paste0(numbers, collapse = "")
 	for (n in numbers) {
-		results <- c(results, .getAllAvailableSubsets(numbers[numbers != n]))
+		results <- c(results, .getAllAvailableSubsets(numbers[numbers != n], sort = sort))
 	}
+	if (!is.na(digits)) {
+		results <- results[nchar(results) == digits]
+	}
+	if (!sort) {
+		return(unique(results))
+	}
+	
 	return(.getSortedSubsets(unique(results)))
 }
 
 .createSubsetsByGMax <- function(gMax, ..., stratifiedInput = TRUE, 
-		subsetIdPrefix = "S", restId = ifelse(stratifiedInput, "R", "F")) {
+		subsetIdPrefix = "S", restId = ifelse(stratifiedInput, "R", "F"),
+		all = TRUE) {
 		
 	.assertIsSingleInteger(gMax, "gMax", validateType = FALSE)
 	.assertIsInClosedInterval(gMax, "gMax", lower = 1, upper = 10)
 	if (gMax == 1) {
-		return(paste0(subsetIdPrefix, 1))
+		subsetName <- paste0(subsetIdPrefix, 1)
+		subsetName <- ifelse(stratifiedInput, subsetName, "F")
+		if (!all) {
+			return(subsetName)
+		}
+		
+		return(list(subsetName))
 	}
 	
 	numbers <- 1:(gMax - 1)
@@ -186,6 +201,14 @@ NULL
 	} else {
 		subsets[[length(subsets) + 1]] <- restId
 	}
+	if (!all) {
+		if (!stratifiedInput) {
+			return(unlist(subsets))
+		}
+		
+		return(subsets[[gMax]])
+	}
+	
 	return(subsets)
 }
 
@@ -791,6 +814,187 @@ getLongFormat <- function(dataInput) {
 	
 	.setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
 	return(invisible(results))
+}
+
+.getRecalculatedInformationRates <- function(dataInput, maxInformation, stage = NA_integer_) {
+	.assertIsSingleInteger(stage, "stage", naAllowed = TRUE, validateType = FALSE)
+	stageFromData <- dataInput$getNumberOfStages()
+	if (is.null(stage) || is.na(stage) || stage > stageFromData) {
+		stage <- stageFromData	
+	}
+	informationRates <- rep(NA_real_, stage)
+	absoluteInformations <- rep(NA_real_, stage)
+	if (.isDatasetMeans(dataInput) || .isDatasetRates(dataInput)) {
+		for (k in 1:stage) {
+			sampleSizes <- dataInput$getOverallSampleSizes(stage = k)
+			absoluteInformations[k] <- sum(sampleSizes, na.rm = TRUE)
+			informationRates[k] <- absoluteInformations[k] / maxInformation
+		}
+	}
+	else if (.isDatasetSurvival(dataInput)) {
+		for (k in 1:stage) {
+			events <- dataInput$getOverallEvents(stage = k)
+			absoluteInformations[k] <- sum(events, na.rm = TRUE)
+			informationRates[k] <- absoluteInformations[k] / maxInformation
+		}
+	}
+	else {
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'dataInput' class ", class(dataInput), " is not supported")
+	}
+	return(list(informationRates = informationRates, absoluteInformations = absoluteInformations, stage = stage))
+}
+
+#' @title
+#' Get Observed Information Rates
+#' 
+#' @description  
+#' Recalculates the observed information rates from the specified dataset.
+#' 
+#' @param dataInput The dataset for which the information rates shall be recalculated.
+#' @inheritParams param_maxInformation
+#' @inheritParams param_informationEpsilon
+#' @inheritParams param_stage
+#' @inheritParams param_three_dots
+#' 
+#' @details
+#' For means and rates the maximum information is the maximum number of subjects 
+#' or the relative proportion if \code{informationEpsilon} < 1; 
+#' for survival data it is the maximum number of events 
+#' or the relative proportion if \code{informationEpsilon} < 1.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{getAnalysisResults}} for using \code{getObservedInformationRates} implicit,
+#'   \item https://www.rpact.com/vignettes/rpact_boundary_update_example
+#' }
+#' 
+#' @examples 
+#' # Absolute information epsilon:
+#' # decision rule 45 >= 46 - 1, i.e., under-running
+#' data <- getDataset (
+#'     overallN = c(22, 45),
+#'     overallEvents = c(11, 28))
+#' getObservedInformationRates (data,
+#'     maxInformation = 46, informationEpsilon = 1)
+#' 
+#' # Relative information epsilon:
+#' # last information rate = 45/46 = 0.9783, 
+#' # is > 1 - 0.03 = 0.97, i.e., under-running
+#' data <- getDataset (
+#'     overallN = c(22, 45),
+#'     overallEvents = c(11, 28))
+#' getObservedInformationRates (data,
+#'     maxInformation = 46, informationEpsilon = 0.03)
+#' 
+#' @export
+#' 
+getObservedInformationRates <- function(dataInput, ..., 
+		maxInformation = NULL, informationEpsilon = NULL, stage = NA_integer_) { 
+	
+	.assertIsDataset(dataInput)
+	.assertIsSingleInteger(maxInformation, "maxInformation", validateType = FALSE)
+	
+	information <- .getRecalculatedInformationRates(dataInput, maxInformation, stage = stage)
+	informationRates <- information$informationRates
+	absoluteInformations <- information$absoluteInformations
+	stage <- information$stage
+	
+	status <- "interim-stage"
+	
+	showObservedInformationRatesMessage <- .getOptionalArgument("showObservedInformationRatesMessage", ...)
+	if (is.null(showObservedInformationRatesMessage) || !is.logical(showObservedInformationRatesMessage)) {
+		showObservedInformationRatesMessage <- TRUE
+	}
+	
+	# Updates at the final analysis in case the observed information at the final analysis 
+	# is larger ("over-running") or smaller ("under-running") than the planned maximum information
+	if (informationRates[length(informationRates)] < 1) {
+		underRunningEnabled <- FALSE
+		if (!is.null(informationEpsilon)) {
+			.assertIsSingleNumber(informationEpsilon, "informationEpsilon")
+			.assertIsInOpenInterval(informationEpsilon, "informationEpsilon", lower = 0, upper = maxInformation)
+			
+			lastInformationRate <- informationRates[length(informationRates)] 
+			lastInformationNumber <- absoluteInformations[length(absoluteInformations)] 
+			
+			if (informationEpsilon < 1) {
+				if (lastInformationRate >= (1 - informationEpsilon)) {
+					message("Under-running: relative information epsilon ", round(informationEpsilon, 4), " is applicable; ", 
+						"use observed information ", lastInformationNumber, " instead of planned information ", maxInformation)
+					information <- .getRecalculatedInformationRates(
+						dataInput, lastInformationNumber, stage = stage)
+					informationRates <- information$informationRates
+					absoluteInformations <- information$absoluteInformations
+					stage <- information$stage
+					underRunningEnabled <- TRUE
+					maxInformation <- lastInformationNumber
+					showObservedInformationRatesMessage <- FALSE
+				}
+			} else {
+				if ((lastInformationNumber + informationEpsilon) >= maxInformation) {
+					message("Under-running: absolute information epsilon ", round(informationEpsilon, 1), " is applicable; ", 
+						"use observed information ", lastInformationNumber, " instead of planned information ", maxInformation)
+					maxInformation <- lastInformationNumber
+					information <- .getRecalculatedInformationRates(
+						dataInput, lastInformationNumber, stage = stage)
+					informationRates <- information$informationRates
+					absoluteInformations <- information$absoluteInformations
+					stage <- information$stage
+					underRunningEnabled <- TRUE
+					showObservedInformationRatesMessage <- FALSE
+				}
+			}
+		}
+		
+		if (!underRunningEnabled) {
+			informationRates <- c(informationRates, 1)
+		} else {
+			status <- "under-running"
+		}
+	} else {
+		lastInformationNumber <- absoluteInformations[length(absoluteInformations)]
+		if (lastInformationNumber > maxInformation) {
+			information <- .getRecalculatedInformationRates(
+				dataInput, lastInformationNumber, stage = stage)
+			informationRates <- information$informationRates
+			absoluteInformations <- information$absoluteInformations
+			stage <- information$stage
+			message("Over-running: observed information ", lastInformationNumber, " at stage ", length(absoluteInformations), 
+				" is larger than the maximum planned information ", maxInformation, "; information rates will be recalculated")
+			status <- "over-running"
+			maxInformation <- lastInformationNumber
+			showObservedInformationRatesMessage <- FALSE
+		}
+	}
+	
+	if (any(informationRates > 1)) {
+		warning("The observed information at stage ", 
+			.arrayToString(which(informationRates > 1)), " is over-running, ",
+			"i.e., the information rate (", .arrayToString(informationRates[informationRates > 1]), ") ",
+			"is larger than the planned maximum information rate (1)", call. = FALSE)
+	}
+	
+	informationRates[informationRates > 1] <- 1
+	
+	end <- min(which(informationRates == 1))
+	informationRates <- informationRates[1:end]
+	
+	if (showObservedInformationRatesMessage) {
+		message("The observed information rates for 'maxInformation' = ", maxInformation, 
+			" at stage ", stage, " are: ", .arrayToString(informationRates))
+	}
+	
+	if (status == "interim-stage" && informationRates[length(informationRates)] == 1 &&
+		stage == length(informationRates)) {
+		status <- "final-stage"
+	}
+	
+	return(list(
+		absoluteInformations = absoluteInformations, 
+		maxInformation = maxInformation,
+		informationEpsilon = informationEpsilon,
+		informationRates = informationRates, 
+		status = status))
 }
 
 

@@ -43,7 +43,7 @@ For testing rates, if \code{normalApproximation = FALSE} is specified, the binom
 (one sample) or the exact test of Fisher (two samples) is used for calculating the p-values.
 In the survival setting \code{normalApproximation = FALSE} has no effect.}
 
-\item{riskRatio}{If \code{TRUE}, the design characteristics for 
+\item{riskRatio}{If \code{TRUE}, the design characteristics for
 one-sided testing of H0: \code{pi1 / pi2 = thetaH0} are simulated, default is \code{FALSE}.}
 
 \item{thetaH0}{The null hypothesis value, 
@@ -104,14 +104,14 @@ the conditional power will be calculated under the observed effect size. Optiona
 \code{stDevH1} (for simulating means), \code{pi1H1} and \code{pi2H1} (for simulating rates), or \code{thetaH1} (for simulating
 hazard ratios) as parameters under which it is calculated and the sample size recalculation is performed.}
 
-\item{pi1H1}{If specified, the assumed probability in the active treatment group if two treatment groups 
-are considered, or the assumed probability for a one treatment group design, for which the conditional 
+\item{pi1H1}{If specified, the assumed probability in the active treatment group if two treatment groups
+are considered, or the assumed probability for a one treatment group design, for which the conditional
 power was calculated.}
 
-\item{pi2H1}{If specified, the assumed probability in the reference group if two treatment groups 
+\item{pi2H1}{If specified, the assumed probability in the reference group if two treatment groups
 are considered, for which the conditional power was calculated.}
 
-\item{maxNumberOfIterations}{The number of simulation iterations, default is 1000.}
+\item{maxNumberOfIterations}{The number of simulation iterations, default is \code{1000}.}
 
 \item{seed}{The seed to reproduce the simulation, default is a random seed.}
 
@@ -136,35 +136,35 @@ The following generics (R generic functions) are available for this object:
 }
 }
 \description{
-Returns the simulated power, stopping probabilities, conditional power, and expected sample size for 
+Returns the simulated power, stopping probabilities, conditional power, and expected sample size for
 testing rates in a one or two treatment groups testing situation.
 }
 \details{
-At given design the function simulates the power, stopping probabilities, conditional power, and expected 
-sample size at given number of subjects and parameter configuration. 
-Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number 
+At given design the function simulates the power, stopping probabilities, conditional power, and expected
+sample size at given number of subjects and parameter configuration.
+Additionally, an allocation ratio = n1/n2 can be specified where n1 and n2 are the number
 of subjects in the two treatment groups.
- 
+
 The definition of \code{pi1H1} and/or \code{pi2H1} makes only sense if \code{kMax} > 1
-and if \code{conditionalPower}, \code{minNumberOfSubjectsPerStage}, and 
+and if \code{conditionalPower}, \code{minNumberOfSubjectsPerStage}, and
 \code{maxNumberOfSubjectsPerStage} (or \code{calcSubjectsFunction}) are defined.
- 
-\code{calcSubjectsFunction}\cr 
-This function returns the number of subjects at given conditional power and conditional critical value for specified 
-testing situation. The function might depend on variables 
-\code{stage}, 
-\code{riskRatio}, 
-\code{thetaH0}, 
-\code{groups}, 
-\code{plannedSubjects}, 
-\code{sampleSizesPerStage}, 
-\code{directionUpper}, 
-\code{allocationRatioPlanned}, 
-\code{minNumberOfSubjectsPerStage}, 
-\code{maxNumberOfSubjectsPerStage}, 
-\code{conditionalPower}, 
-\code{conditionalCriticalValue}, 
-\code{overallRate}, 
+
+\code{calcSubjectsFunction}\cr
+This function returns the number of subjects at given conditional power and conditional critical value for specified
+testing situation. The function might depend on variables
+\code{stage},
+\code{riskRatio},
+\code{thetaH0},
+\code{groups},
+\code{plannedSubjects},
+\code{sampleSizesPerStage},
+\code{directionUpper},
+\code{allocationRatioPlanned},
+\code{minNumberOfSubjectsPerStage},
+\code{maxNumberOfSubjectsPerStage},
+\code{conditionalPower},
+\code{conditionalCriticalValue},
+\code{overallRate},
 \code{farringtonManningValue1}, and \code{farringtonManningValue2}.
 The function has to contain the three-dots argument '...' (see examples).
 }
@@ -172,7 +172,7 @@ The function has to contain the three-dots argument '...' (see examples).
 
 The summary statistics "Simulated data" contains the following parameters: median [range]; mean +/-sd\cr
 
-\code{$show(showStatistics = FALSE)} or \code{$setShowStatistics(FALSE)} can be used to disable 
+\code{$show(showStatistics = FALSE)} or \code{$setShowStatistics(FALSE)} can be used to disable
 the output of the aggregated simulated data.\cr
 
 Example 1: \cr
@@ -184,32 +184,32 @@ Example 2: \cr
 \code{simulationResults$setShowStatistics(FALSE)}\cr
 \code{simulationResults}\cr
 
-\code{\link{getData}} can be used to get the aggregated simulated data from the 
+\code{\link{getData}} can be used to get the aggregated simulated data from the
 object as \code{\link[base]{data.frame}}. The data frame contains the following columns:
 \enumerate{
   \item \code{iterationNumber}: The number of the simulation iteration.
   \item \code{stageNumber}: The stage.
   \item \code{pi1}: The assumed or derived event rate in the treatment group (if available).
   \item \code{pi2}: The assumed or derived event rate in the control group (if available).
-  \item \code{numberOfSubjects}: The number of subjects under consideration when the 
+  \item \code{numberOfSubjects}: The number of subjects under consideration when the
         (interim) analysis takes place.
-  \item \code{rejectPerStage}: 1 if null hypothesis can be rejected, 0 otherwise. 
+  \item \code{rejectPerStage}: 1 if null hypothesis can be rejected, 0 otherwise.
   \item \code{futilityPerStage}: 1 if study should be stopped for futility, 0 otherwise.
-  \item \code{testStatistic}: The test statistic that is used for the test decision, 
-        depends on which design was chosen (group sequential, inverse normal, 
+  \item \code{testStatistic}: The test statistic that is used for the test decision,
+        depends on which design was chosen (group sequential, inverse normal,
         or Fisher combination test)'
   \item \code{testStatisticsPerStage}: The test statistic for each stage if only data from
-        the considered stage is taken into account. 
-  \item \code{overallRate1}: The overall rate in treatment group 1.
-  \item \code{overallRate2}: The overall rate in treatment group 2.
-  \item \code{stagewiseRates1}: The stagewise rate in treatment group 1.
-  \item \code{stagewiseRates2}: The stagewise rate in treatment group 2.
-  \item \code{sampleSizesPerStage1}: The stagewise sample size in treatment group 1.
-  \item \code{sampleSizesPerStage2}: The stagewise sample size in treatment group 2.
-  \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.  
-  \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for 
+        the considered stage is taken into account.
+  \item \code{overallRate1}: The cumulative rate in treatment group 1.
+  \item \code{overallRate2}: The cumulative rate in treatment group 2.
+  \item \code{stagewiseRates1}: The stage-wise rate in treatment group 1.
+  \item \code{stagewiseRates2}: The stage-wise rate in treatment group 2.
+  \item \code{sampleSizesPerStage1}: The stage-wise sample size in treatment group 1.
+  \item \code{sampleSizesPerStage2}: The stage-wise sample size in treatment group 2.
+  \item \code{trialStop}: \code{TRUE} if study should be stopped for efficacy or futility or final stage, \code{FALSE} otherwise.
+  \item \code{conditionalPowerAchieved}: The conditional power for the subsequent stage of the trial for
         selected sample size and effect. The effect is either estimated from the data or can be
-        user defined with \code{pi1H1} and \code{pi2H1}.   
+        user defined with \code{pi1H1} and \code{pi2H1}.
 }
 }
 
