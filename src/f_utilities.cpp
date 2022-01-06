@@ -292,32 +292,6 @@ std::string vectorToString(NumericVector x) {
 	return os.str();
 }
 
-double secant(std::function<double(double)> f, double x0, double x1, double tolerance, int maxIter) {
-    int step = 1;
-    double f0, f1, f2, x2;
-    do {
-        f0 = f(x0);
-        f1 = f(x1);
-        if (f0 == f1) {
-            f0 = f(x0 + (x0 / 2.0));
-            throw std::invalid_argument("Mathematical Error: m is 0");
-        }
-        x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
-        f2 = f(x2);
-
-        x0 = x1;
-        f0 = f1;
-        x1 = x2;
-        f1 = f2;
-
-        step++;
-        if (step > maxIter) {
-            throw std::invalid_argument("Not convergent.");
-        }
-    } while (abs(f2) > tolerance);
-    return x2;
-}
-
 double max(NumericVector x) {
 	if(x.length() == 0) throw std::invalid_argument("Vector is Empty.");
 	double max = x[0];

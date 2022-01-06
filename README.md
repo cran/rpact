@@ -18,8 +18,8 @@ Confirmatory Adaptive Clinical Trial Design, Simulation, and Analysis.
       - Assessment of treatment selection strategies in multi-arm trials
   - Adaptive analysis of means, rates, and survival data
   - Adaptive designs and analysis for multi-arm trials
-  - Adaptive analysis tools for enrichment design testing means, rates,
-    and hazard ratios
+  - Adaptive analysis and simulation tools for enrichment design testing
+    means, rates, and hazard ratios
   - Automatic boundary recalculations during the trial for analysis with
     alpha spending approach, including under- and over-running
 

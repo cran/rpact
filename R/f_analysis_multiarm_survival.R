@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 # @title
@@ -69,7 +69,9 @@
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsSurvivalInverseNormalMultiArm",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     results <- AnalysisResultsMultiArmInverseNormal(design = design, dataInput = dataInput)
@@ -155,7 +157,6 @@
 
 .getAnalysisResultsSurvivalMultiArmAll <- function(..., results, design, dataInput, intersectionTest, stage,
         directionUpper, thetaH0, thetaH1, nPlanned, allocationRatioPlanned, tolerance, iterations, seed) {
-        
     startTime <- Sys.time()
 
     intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(design, intersectionTest)
@@ -287,7 +288,8 @@
     kMax <- design$kMax
 
     intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(
-        design, intersectionTest, userFunctionCallEnabled)
+        design, intersectionTest, userFunctionCallEnabled
+    )
     .assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 
     stageResults <- StageResultsMultiArmSurvival(
@@ -588,6 +590,8 @@
             bounds <- design$futilityBounds
             border <- C_FUTILITY_BOUNDS_DEFAULT
             criticalValues <- design$criticalValues
+            criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+            criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
             conditionFunction <- .isFirstValueGreaterThanSecondValue
         }
 
@@ -707,7 +711,9 @@
         functionName =
             ".getRepeatedConfidenceIntervalsSurvivalMultiArmInverseNormal",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     return(.getRepeatedConfidenceIntervalsSurvivalMultiArmAll(

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5615 $
-## |  Last changed: $Date: 2021-12-06 09:29:15 +0100 (Mo, 06 Dez 2021) $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -695,6 +695,8 @@
         border <- C_ALPHA_0_VEC_DEFAULT
         conditionFunction <- .isFirstValueSmallerThanSecondValue
     } else {
+        criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+        criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
         bounds <- design$futilityBounds
         border <- C_FUTILITY_BOUNDS_DEFAULT
         conditionFunction <- .isFirstValueGreaterThanSecondValue
@@ -851,11 +853,11 @@
 }
 
 .calculateThetaH1 <- function(stageResults, pi1, pi2, stage, kMax, nPlanned, allocationRatioPlanned) {
-    
+
     # Shifted decision region for use in getGroupSequentialProbabilities
     # Inverse normal method
     condError <- getConditionalRejectionProbabilities(stageResults = stageResults)[stage]
-    
+
     if (stageResults$isOneSampleDataset()) {
         if (condError < 1e-12) {
             adjustment <- 0
@@ -863,44 +865,44 @@
             adjustment <- .getOneMinusQNorm(condError) * (1 - sqrt(stageResults$thetaH0 * (1 - stageResults$thetaH0)) /
                 sqrt(pi1 * (1 - pi1))) / sqrt(sum(nPlanned[(stage + 1):kMax]))
         }
-        
+
         if (stageResults$direction == "upper") {
             thetaH1 <- (pi1 - stageResults$thetaH0) / sqrt(pi1 * (1 - pi1)) + adjustment
         } else {
             thetaH1 <- -(pi1 - stageResults$thetaH0) / sqrt(pi1 * (1 - pi1)) + adjustment
         }
-        
+
         return(list(thetaH1 = thetaH1, nPlanned = nPlanned))
     }
-    
+
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
     .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
-    
+
     x <- .getFarringtonManningValues(
         rate1 = pi1, rate2 = pi2, theta = stageResults$thetaH0,
         allocation = allocationRatioPlanned
     )
-    
+
     if (condError < 1e-12) {
         adjustment <- 0
     } else {
         adjustment <- .getOneMinusQNorm(condError) * (1 -
-                sqrt(x$ml1 * (1 - x$ml1) + allocationRatioPlanned * x$ml2 * (1 - x$ml2)) /
+            sqrt(x$ml1 * (1 - x$ml1) + allocationRatioPlanned * x$ml2 * (1 - x$ml2)) /
                 sqrt(pi1 * (1 - pi1) + allocationRatioPlanned * pi2 * (1 - pi2))) *
             (1 + allocationRatioPlanned) / sqrt(allocationRatioPlanned *
-                    sum(nPlanned[(stage + 1):kMax]))
+                sum(nPlanned[(stage + 1):kMax]))
     }
-    
+
     if (stageResults$direction == "upper") {
         thetaH1 <- (pi1 - pi2 - stageResults$thetaH0) /
             sqrt(pi1 * (1 - pi1) + allocationRatioPlanned * pi2 *
-                    (1 - pi2)) * sqrt(1 + allocationRatioPlanned) + adjustment
+                (1 - pi2)) * sqrt(1 + allocationRatioPlanned) + adjustment
     } else {
         thetaH1 <- -(pi1 - pi2 - stageResults$thetaH0) /
             sqrt(pi1 * (1 - pi1) + allocationRatioPlanned * pi2 *
-            (1 - pi2)) * sqrt(1 + allocationRatioPlanned) + adjustment
+                (1 - pi2)) * sqrt(1 + allocationRatioPlanned) + adjustment
     }
-    
+
     nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
     return(list(thetaH1 = thetaH1, nPlanned = nPlanned))
 }
@@ -935,7 +937,7 @@
     }
 
     criticalValuesInverseNormal <- design$criticalValues
-    
+
     resultList <- .calculateThetaH1(stageResults, pi1, pi2, stage, kMax, nPlanned, allocationRatioPlanned)
     thetaH1 <- resultList$thetaH1
     nPlanned <- resultList$nPlanned
@@ -1022,7 +1024,7 @@
     seed <- .setSeed(seed)
     simulated <- FALSE
     nPlanned <- c(rep(NA, stage), nPlanned)
-    
+
     resultList <- .calculateThetaH1(stageResults, pi1, pi2, stage, kMax, nPlanned, allocationRatioPlanned)
     thetaH1 <- resultList$thetaH1
     nPlanned <- resultList$nPlanned
@@ -1195,8 +1197,7 @@
                         allocationRatioPlanned = allocationRatioPlanned,
                         pi1 = piTreatmentRange[i], pi2 = pi2
                     )$conditionalPower[design$kMax]
-                }
-                else if (.isTrialDesignFisher(design)) {
+                } else if (.isTrialDesignFisher(design)) {
                     condPowerValues[i] <- .getConditionalPowerRatesFisher(
                         stageResults = stageResults, nPlanned = nPlanned,
                         allocationRatioPlanned = allocationRatioPlanned,
@@ -1232,8 +1233,7 @@
                         allocationRatioPlanned = allocationRatioPlanned,
                         pi1 = piTreatmentRange[i], pi2 = pi2
                     )$conditionalPower[design$kMax]
-                }
-                else if (.isTrialDesignFisher(design)) {
+                } else if (.isTrialDesignFisher(design)) {
                     condPowerValues[i] <- .getConditionalPowerRatesFisher(
                         stageResults = stageResults, stage = stage, nPlanned = nPlanned,
                         allocationRatioPlanned = allocationRatioPlanned,
@@ -1478,14 +1478,14 @@
                     sqrt(stageResults$overallSampleSizes[1])
             } else {
                 finalConfidenceIntervalGeneral <- finalConfidenceIntervalGeneral *
-                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] + 
-                    1 / stageResults$overallSampleSizes2[finalStage])
+                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] +
+                        1 / stageResults$overallSampleSizes2[finalStage])
                 medianUnbiasedGeneral <- medianUnbiasedGeneral *
-                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] + 
-                    1 / stageResults$overallSampleSizes2[finalStage])
+                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] +
+                        1 / stageResults$overallSampleSizes2[finalStage])
             }
         } else {
-			if ((design$kMax > 2) && !.isNoEarlyEfficacy(design)){
+            if ((design$kMax > 2) && !.isNoEarlyEfficacy(design)) {
                 message(
                     "Calculation of final confidence interval performed for kMax = ", design$kMax,
                     " (for kMax > 2, it is theoretically shown that it is valid only ",
@@ -1572,16 +1572,16 @@
                     stErrRates + directionUpperSign * thetaH0
             } else {
                 finalConfidenceInterval[1] <- finalConfidenceIntervalGeneral[1] /
-                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] + 
-                    1 / stageResults$overallSampleSizes2[finalStage]) *
+                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] +
+                        1 / stageResults$overallSampleSizes2[finalStage]) *
                     stErrRates + directionUpperSign * thetaH0
                 finalConfidenceInterval[2] <- finalConfidenceIntervalGeneral[2] /
-                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] + 
-                    1 / stageResults$overallSampleSizes2[finalStage]) *
+                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] +
+                        1 / stageResults$overallSampleSizes2[finalStage]) *
                     stErrRates + directionUpperSign * thetaH0
                 medianUnbiased <- medianUnbiasedGeneral /
-                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] + 
-                    1 / stageResults$overallSampleSizes2[finalStage]) *
+                    sqrt(1 / stageResults$overallSampleSizes1[finalStage] +
+                        1 / stageResults$overallSampleSizes2[finalStage]) *
                     stErrRates + directionUpperSign * thetaH0
             }
         }

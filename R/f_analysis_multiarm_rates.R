@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 # @title
@@ -69,7 +69,9 @@
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsRatesInverseNormalMultiArm",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     results <- AnalysisResultsMultiArmInverseNormal(design = design, dataInput = dataInput)
@@ -102,7 +104,9 @@
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsRatesFisherMultiArm",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     results <- AnalysisResultsMultiArmFisher(design = design, dataInput = dataInput)
@@ -132,7 +136,9 @@
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsRatesConditionalDunnettMultiArm",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     results <- AnalysisResultsConditionalDunnett(design = design, dataInput = dataInput)
@@ -266,8 +272,10 @@
     results$repeatedConfidenceIntervalUpperBounds <- results$repeatedConfidenceIntervalLowerBounds
     for (k in 1:design$kMax) {
         for (treatmentArm in 1:gMax) {
-            results$repeatedConfidenceIntervalLowerBounds[treatmentArm, k] <- repeatedConfidenceIntervals[treatmentArm, 1, k]
-            results$repeatedConfidenceIntervalUpperBounds[treatmentArm, k] <- repeatedConfidenceIntervals[treatmentArm, 2, k]
+            results$repeatedConfidenceIntervalLowerBounds[treatmentArm, k] <-
+                repeatedConfidenceIntervals[treatmentArm, 1, k]
+            results$repeatedConfidenceIntervalUpperBounds[treatmentArm, k] <-
+                repeatedConfidenceIntervals[treatmentArm, 2, k]
         }
     }
     results$.setParameterType("repeatedConfidenceIntervalLowerBounds", C_PARAM_GENERATED)
@@ -314,7 +322,8 @@
         }
     }
     intersectionTest <- .getCorrectedIntersectionTestMultiArmIfNecessary(
-        design, intersectionTest, userFunctionCallEnabled)
+        design, intersectionTest, userFunctionCallEnabled
+    )
     .assertIsValidIntersectionTestMultiArm(design, intersectionTest)
 
     if (intersectionTest == "Dunnett" && !normalApproximation) {
@@ -477,7 +486,7 @@
                         lower.tail = TRUE
                     )
                 }
-                
+
                 if (directionUpper) {
                     overallTestStatistics <- .getOneMinusQNorm(overallPValues)
                 } else {
@@ -486,7 +495,7 @@
             }
         }
     }
-    
+
     stageResults$overallPiControl <- piControl
     stageResults$overallPiTreatments <- piTreatments
     stageResults$overallTestStatistics <- overallTestStatistics
@@ -698,6 +707,8 @@
             bounds <- design$futilityBounds
             border <- C_FUTILITY_BOUNDS_DEFAULT
             criticalValues <- design$criticalValues
+            criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+            criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
             conditionFunction <- .isFirstValueGreaterThanSecondValue
         }
 
@@ -818,7 +829,9 @@
         functionName =
             ".getRepeatedConfidenceIntervalsRatesMultiArmFisher",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     return(.getRepeatedConfidenceIntervalsRatesMultiArmAll(
@@ -887,8 +900,10 @@
     piTreatmentsH1 <- .getOptionalArgument("piTreatmentsH1", ...)
     if (!is.null(piTreatmentsH1) && !is.na(piTreatmentsH1)) {
         if (!is.na(piTreatments)) {
-            warning(sQuote("piTreatments"), " will be ignored because ", 
-                sQuote("piTreatmentsH1"), " is defined", call. = FALSE)
+            warning(sQuote("piTreatments"), " will be ignored because ",
+                sQuote("piTreatmentsH1"), " is defined",
+                call. = FALSE
+            )
         }
         piTreatments <- piTreatmentsH1
     }
@@ -896,8 +911,10 @@
     piControlH1 <- .getOptionalArgument("piControlH1", ...)
     if (!is.null(piControlH1) && !is.na(piControlH1)) {
         if (!is.na(piControl)) {
-            warning(sQuote("piControl"), " will be ignored because ", 
-                sQuote("piControlH1"), " is defined", call. = FALSE)
+            warning(sQuote("piControl"), " will be ignored because ",
+                sQuote("piControlH1"), " is defined",
+                call. = FALSE
+            )
         }
         piControl <- piControlH1
     }
@@ -1012,7 +1029,7 @@
         sqrt(piTreatments * (1 - piTreatments) + allocationRatioPlanned * piControl * (1 - piControl))) *
         (1 + allocationRatioPlanned) / sqrt(allocationRatioPlanned * sum(nPlanned[(stage + 1):kMax]))
     adjustment[condError < 1e-12] <- 0
-        
+
     results$.setParameterType("piControl", C_PARAM_DEFAULT_VALUE)
     if (length(piTreatments) == 1) {
         piTreatments <- rep(piTreatments, gMax)
@@ -1228,7 +1245,7 @@
         sqrt(piTreatments * (1 - piTreatments) + allocationRatioPlanned * piControl * (1 - piControl))) *
         (1 + allocationRatioPlanned) / sqrt(allocationRatioPlanned * sum(nPlanned[(stage + 1):2]))
     adjustment[condError < 1e-12] <- 0
-        
+
     if (length(piTreatments) == 1) {
         piTreatments <- rep(piTreatments, gMax)
         results$.setParameterType("piTreatments", C_PARAM_GENERATED)

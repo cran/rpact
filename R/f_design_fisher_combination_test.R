@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5577 $
-## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 #' @include f_core_constants.R
@@ -470,13 +470,15 @@ getDesignFisher <- function(...,
         seed = NA_real_) {
     .assertIsValidTolerance(tolerance)
     .assertIsValidIterationsAndSeed(iterations, seed)
-    .warnInCaseOfUnknownArguments(functionName = "getDesignFisher", ...)
+    .warnInCaseOfUnknownArguments(functionName = "getDesignFisher", ignore = c("cppEnabled"), ...)
 
+    cppEnabled <- .getOptionalArgument("cppEnabled", ..., optionalArgumentDefaultValue = FALSE)
     return(.getDesignFisher(
         kMax = kMax, alpha = alpha, method = method,
         userAlphaSpending = userAlphaSpending, alpha0Vec = alpha0Vec, informationRates = informationRates,
         sided = sided, bindingFutility = bindingFutility,
-        tolerance = tolerance, iterations = iterations, seed = seed, userFunctionCallEnabled = TRUE
+        tolerance = tolerance, iterations = iterations, seed = seed, userFunctionCallEnabled = TRUE,
+        cppEnabled = cppEnabled
     ))
 }
 
@@ -527,7 +529,7 @@ getDesignFisher <- function(...,
         userAlphaSpending = NA_real_, alpha0Vec = NA_real_, informationRates = NA_real_,
         sided = 1, bindingFutility = C_BINDING_FUTILITY_FISHER_DEFAULT,
         tolerance = C_ANALYSIS_TOLERANCE_FISHER_DEFAULT, iterations = 0L, seed = NA_real_,
-        userFunctionCallEnabled = FALSE) {
+        userFunctionCallEnabled = FALSE, cppEnabled = FALSE) {
     method <- .matchArgument(method, C_FISHER_METHOD_DEFAULT)
 
     .assertIsNumericVector(alpha0Vec, "alpha0Vec", naAllowed = TRUE)
@@ -662,101 +664,111 @@ getDesignFisher <- function(...,
 
     tryCatch({
         cases <- .getFisherCombinationCases(kMax = design$kMax, tVec = design$scale)
-        if (design$method == C_FISHER_METHOD_USER_DEFINED_ALPHA) {
-            design$criticalValues[1] <- design$userAlphaSpending[1]
-            design$alphaSpent <- design$criticalValues
-            if (design$kMax > 1) {
-                for (k in 2:design$kMax) {
-                    cLower <- 0
-                    cUpper <- design$alpha
-                    prec <- 1
-
-                    while (prec > design$tolerance) {
-                        alpha1 <- (cLower + cUpper) * 0.5
-                        design$criticalValues[k] <- alpha1
-                        size <- .getFisherCombinationSize(k, alpha0Vec[1:(k - 1)],
-                            design$criticalValues, design$scale,
-                            cases = cases
-                        )
-                        ifelse(size < design$userAlphaSpending[k], cLower <- alpha1, cUpper <- alpha1)
-                        prec <- cUpper - cLower
-                    }
-                }
-            }
+        if (cppEnabled) {
+            stop("The C++ version of Fisher's design is not supported in this rpact version")
+#            result <- getDesignFisherTryCpp(design$kMax, design$alpha, design$tolerance, 
+#                design$criticalValues, design$scale, alpha0Vec, design$userAlphaSpending, design$method)
+#            design$criticalValues <- result$criticalValues
+#            design$alphaSpent <- result$alphaSpent
+#            design$stageLevels <- result$stageLevels
+#            design$nonStochasticCurtailment <- result$nonStochasticCurtailment
         } else {
-            prec <- 1
-            cLower <- 0
-            cUpper <- design$alpha
-            maxIter <- 100
-            while (prec > design$tolerance && maxIter >= 0) {
-                # no use of uniroot because there might be no positive solution
-                # (f(cl) and f(cu) might not have opposite signs)
-                alpha1 <- (cLower + cUpper) * 0.5
-                if (design$method == C_FISHER_METHOD_EQUAL_ALPHA) {
-                    design$criticalValues <- sapply(
-                        1:design$kMax,
-                        function(k) {
-                            .getOneDimensionalRoot(
-                                function(c) {
-                                    .getFisherCombinationSize(k, rep(1, k - 1), rep(c, k),
-                                        design$scale,
-                                        cases = cases
-                                    ) - alpha1
-                                },
-                                lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
-                                callingFunctionInformation = ".getDesignFisher"
-                            )
-                        }
-                    )
-                } else if (design$method == C_FISHER_METHOD_FULL_ALPHA) {
-                    design$criticalValues[1:(design$kMax - 1)] <- sapply(1:(design$kMax - 1), function(k) {
-                        prec2 <- 1
-                        cLower2 <- 0
-                        cUpper2 <- design$alpha
-                        while (prec2 > design$tolerance) {
-                            c <- (cLower2 + cUpper2) * 0.5
-                            y <- .getFisherCombinationSize(k, rep(1, k - 1), rep(c, k),
-                                design$scale,
+            if (design$method == C_FISHER_METHOD_USER_DEFINED_ALPHA) {
+                design$criticalValues[1] <- design$userAlphaSpending[1]
+                design$alphaSpent <- design$criticalValues
+                if (design$kMax > 1) {
+                    for (k in 2:design$kMax) {
+                        cLower <- 0
+                        cUpper <- design$alpha
+                        prec <- 1
+    
+                        while (prec > design$tolerance) {
+                            alpha1 <- (cLower + cUpper) * 0.5
+                            design$criticalValues[k] <- alpha1
+                            size <- .getFisherCombinationSize(k, alpha0Vec[1:(k - 1)],
+                                design$criticalValues, design$scale,
                                 cases = cases
                             )
-                            ifelse(y < alpha1, cLower2 <- c, cUpper2 <- c)
-                            prec2 <- cUpper2 - cLower2
+                            ifelse(size < design$userAlphaSpending[k], cLower <- alpha1, cUpper <- alpha1)
+                            prec <- cUpper - cLower
                         }
-                        return(c)
-                    })
-                    design$criticalValues[design$kMax] <- .getOneDimensionalRoot(
-                        function(c) {
-                            .getFisherCombinationSize(design$kMax, rep(1, design$kMax - 1),
-                                rep(c, design$kMax), design$scale,
-                                cases = cases
-                            ) - design$alpha
-                        },
-                        lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
-                        callingFunctionInformation = ".getDesignFisher"
-                    )
-                } else if (design$method == C_FISHER_METHOD_NO_INTERACTION) {
-                    design$criticalValues[design$kMax] <- .getOneDimensionalRoot(
-                        function(c) {
-                            .getFisherCombinationSize(design$kMax, rep(1, design$kMax - 1),
-                                rep(c, design$kMax), design$scale,
-                                cases = cases
-                            ) - design$alpha
-                        },
-                        lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
-                        callingFunctionInformation = ".getDesignFisher"
-                    )
-                    design$criticalValues[1] <- alpha1
-                    for (k in (design$kMax - 1):2) {
-                        design$criticalValues[k] <- design$criticalValues[k + 1] / design$alpha0Vec[k]^(1 / design$scale[k])
                     }
                 }
-                size <- .getFisherCombinationSize(design$kMax, alpha0Vec,
-                    design$criticalValues, design$scale,
-                    cases = cases
-                )
-                ifelse(size < design$alpha, cLower <- alpha1, cUpper <- alpha1)
-                prec <- cUpper - cLower
-                maxIter <- maxIter - 1
+            } else {
+                prec <- 1
+                cLower <- 0
+                cUpper <- design$alpha
+                maxIter <- 100
+                while (prec > design$tolerance && maxIter >= 0) {
+                    # no use of uniroot because there might be no positive solution
+                    # (f(cl) and f(cu) might not have opposite signs)
+                    alpha1 <- (cLower + cUpper) * 0.5
+                    if (design$method == C_FISHER_METHOD_EQUAL_ALPHA) {
+                        design$criticalValues <- sapply(
+                            1:design$kMax,
+                            function(k) {
+                                .getOneDimensionalRoot(
+                                    function(c) {
+                                        .getFisherCombinationSize(k, rep(1, k - 1), rep(c, k),
+                                            design$scale,
+                                            cases = cases
+                                        ) - alpha1
+                                    },
+                                    lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
+                                    callingFunctionInformation = ".getDesignFisher"
+                                )
+                            }
+                        )
+                    } else if (design$method == C_FISHER_METHOD_FULL_ALPHA) {
+                        design$criticalValues[1:(design$kMax - 1)] <- sapply(1:(design$kMax - 1), function(k) {
+                            prec2 <- 1
+                            cLower2 <- 0
+                            cUpper2 <- design$alpha
+                            while (prec2 > design$tolerance) {
+                                c <- (cLower2 + cUpper2) * 0.5
+                                y <- .getFisherCombinationSize(k, rep(1, k - 1), rep(c, k),
+                                    design$scale,
+                                    cases = cases
+                                )
+                                ifelse(y < alpha1, cLower2 <- c, cUpper2 <- c)
+                                prec2 <- cUpper2 - cLower2
+                            }
+                            return(c)
+                        })
+                        design$criticalValues[design$kMax] <- .getOneDimensionalRoot(
+                            function(c) {
+                                .getFisherCombinationSize(design$kMax, rep(1, design$kMax - 1),
+                                    rep(c, design$kMax), design$scale,
+                                    cases = cases
+                                ) - design$alpha
+                            },
+                            lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
+                            callingFunctionInformation = ".getDesignFisher"
+                        )
+                    } else if (design$method == C_FISHER_METHOD_NO_INTERACTION) {
+                        design$criticalValues[design$kMax] <- .getOneDimensionalRoot(
+                            function(c) {
+                                .getFisherCombinationSize(design$kMax, rep(1, design$kMax - 1),
+                                    rep(c, design$kMax), design$scale,
+                                    cases = cases
+                                ) - design$alpha
+                            },
+                            lower = design$tolerance, upper = design$alpha, tolerance = design$tolerance,
+                            callingFunctionInformation = ".getDesignFisher"
+                        )
+                        design$criticalValues[1] <- alpha1
+                        for (k in (design$kMax - 1):2) {
+                            design$criticalValues[k] <- design$criticalValues[k + 1] / design$alpha0Vec[k]^(1 / design$scale[k])
+                        }
+                    }
+                    size <- .getFisherCombinationSize(design$kMax, alpha0Vec,
+                        design$criticalValues, design$scale,
+                        cases = cases
+                    )
+                    ifelse(size < design$alpha, cLower <- alpha1, cUpper <- alpha1)
+                    prec <- cUpper - cLower
+                    maxIter <- maxIter - 1
+                }
             }
         }
 

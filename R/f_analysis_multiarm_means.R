@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 .getAnalysisResultsMeansMultiArm <- function(..., design, dataInput) {
@@ -51,7 +51,9 @@
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsMeansInverseNormalMultiArm",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     results <- AnalysisResultsMultiArmInverseNormal(design = design, dataInput = dataInput)
@@ -275,6 +277,7 @@
                 repeatedConfidenceIntervals[treatmentArm, 2, k]
         }
     }
+
     results$.setParameterType("repeatedConfidenceIntervalLowerBounds", C_PARAM_GENERATED)
     results$.setParameterType("repeatedConfidenceIntervalUpperBounds", C_PARAM_GENERATED)
 
@@ -748,7 +751,7 @@
         }
         .logProgress("Confidence intervals for final stage calculated", startTime = startTime)
     } else {
-        
+
         # Repeated onfidence intervals when using combination tests
         if (intersectionTest == "Hierarchical") {
             warning("Repeated confidence intervals not available for ",
@@ -767,6 +770,8 @@
             bounds <- design$futilityBounds
             border <- C_FUTILITY_BOUNDS_DEFAULT
             criticalValues <- design$criticalValues
+            criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+            criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
             conditionFunction <- .isFirstValueGreaterThanSecondValue
         }
 

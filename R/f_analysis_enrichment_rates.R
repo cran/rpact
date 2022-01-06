@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5639 $
-## |  Last changed: $Date: 2021-12-10 11:59:33 +0100 (Fri, 10 Dec 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 .calcRatesTestStatistics <- function(dataInput, subset, stage, thetaH0,
@@ -483,7 +483,7 @@
     if (results$.getParameterType("piTreatments") %in% c(C_PARAM_TYPE_UNKNOWN, C_PARAM_NOT_APPLICABLE)) {
         .setValueAndParameterType(
             results, "piTreatments",
-            matrix(piTreatments, ncol = 1), 
+            matrix(piTreatments, ncol = 1),
             matrix(rep(NA_real_, gMax), ncol = 1)
         )
     } else {
@@ -630,6 +630,8 @@
         bounds <- design$futilityBounds
         border <- C_FUTILITY_BOUNDS_DEFAULT
         criticalValues <- design$criticalValues
+        criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+        criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
         conditionFunction <- .isFirstValueGreaterThanSecondValue
     }
 
@@ -805,7 +807,7 @@
         }
         piTreatments <- piTreatmentsH1
     }
-    
+
     if (is.matrix(piTreatments)) {
         piTreatments <- as.vector(piTreatments)
     }

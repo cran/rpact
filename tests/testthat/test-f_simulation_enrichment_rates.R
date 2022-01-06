@@ -108,6 +108,9 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
+    
+    .skipTestIfNotX64()
+    
 	suppressWarnings(simResult2 <- getSimulationEnrichmentRates(design,
 	    plannedSubjects = c(150, 300), effectList = effectList,
 	    maxNumberOfIterations = 100, effectMeasure = "effectEstimate", stratifiedAnalysis = TRUE,
@@ -118,7 +121,6 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    typeOfSelection = "epsilon", epsilonValue = 0.025,
 	    intersectionTest = "Simes", seed = 123
 	))
-
 
 	## Comparison of the results of SimulationResultsEnrichmentRates object 'simResult2' with expected results
 	expect_equal(simResult2$iterations[1, ], c(100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100))
@@ -286,6 +288,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
 	.skipTestIfDisabled()
+    .skipTestIfNotX64()
 
 	piTreatments <- c(
 	    0.30, 0.40, 0.30, 0.55, 0.30, 0.40, 0.30, 0.75, 0.30, 0.40, 0.50, 0.55, 0.30, 0.40, 0.50,
@@ -541,6 +544,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
 	.skipTestIfDisabled()
+    .skipTestIfNotX64()
 
 	effectList <- list(
 	    subGroups = c("S1", "S2", "S3", "S12", "S13", "S23", "S123", "R"),
@@ -791,6 +795,7 @@ test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
 	.skipTestIfDisabled()
+    .skipTestIfNotX64()
     
     options(warn = -1)
 

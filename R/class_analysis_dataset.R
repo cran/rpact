@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5652 $
-## |  Last changed: $Date: 2021-12-13 17:12:12 +0100 (Mo, 13 Dez 2021) $
+## |  File version: $Revision: 5680 $
+## |  Last changed: $Date: 2021-12-22 08:20:24 +0100 (Wed, 22 Dec 2021) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -654,13 +654,13 @@ getDataSet <- function(..., floatingPointNumbersEnabled = FALSE) {
 }
 
 .getStandardDeviationFromStandardError <- function(sampleSize, standardError, ..., 
-		dfValue = NA_real_, alpha = 0.05) {
+		dfValue = NA_real_, alpha = 0.05, lmEnabled = TRUE, stDevCalcMode = "auto") {
 	
-	if (!is.na(dfValue) && !is.infinite(dfValue) && dfValue > 0) {
+    qtCalcEnablbled <- length(stDevCalcMode) == 1 && !is.na(stDevCalcMode) && stDevCalcMode == "t"        
+	if ((qtCalcEnablbled || !lmEnabled) && !is.na(dfValue) && !is.infinite(dfValue) && dfValue > 0) {
 		qValue <- stats::qt(1 - alpha / 2, df = dfValue)
 		stDev <- standardError * 2 / qValue * sqrt(sampleSize)
 	} else {
-		#qValue <- .getOneMinusQNorm(alpha / 2)
 		stDev <- standardError * sqrt(sampleSize)
 	}
 		
@@ -693,6 +693,7 @@ getDataSet <- function(..., floatingPointNumbersEnabled = FALSE) {
 	stDevs <- numeric(0)
 	sampleSizes <- numeric(0)
     
+    lmEnabled <- TRUE
     tryCatch({
         modelCall <- emmeansResults[[1]]@model.info$call
         modelFunction <- as.character(modelCall)[1]
@@ -719,7 +720,8 @@ getDataSet <- function(..., floatingPointNumbersEnabled = FALSE) {
             "arguments of getDataset() is experminental in this rpact version and not fully validated",
             call. = FALSE)
     })
-	
+
+    stDevCalcMode <- getOption("rpact.dataset.stdev.calc.mode", "auto") # auto, sigma, norm, t
 	for (stage in 1:length(emmeansResults)) {
 		emmeansResult <- emmeansResults[[stage]]
 		emmeansResultsSummary <- summary(emmeansResult)
@@ -754,7 +756,13 @@ getDataSet <- function(..., floatingPointNumbersEnabled = FALSE) {
 			sampleSize <- emmeansResultsList$extras[rpactGroupNumber, ]
 			meanValue <- emmeansResultsSummary$emmean[rpactGroupNumber]
 			dfValue <- emmeansResultsSummary$df[rpactGroupNumber]
-			stDev <- .getStandardDeviationFromStandardError(sampleSize, standardError, dfValue = dfValue)
+            if (length(stDevCalcMode) == 1 && !is.na(stDevCalcMode) && stDevCalcMode == "sigma") {
+                # pooled standard deviation from emmeans
+                stDev <- emmeansResultsList$sigma
+            } else {
+                stDev <- .getStandardDeviationFromStandardError(sampleSize, standardError, 
+                    dfValue = dfValue, lmEnabled = lmEnabled, stDevCalcMode = stDevCalcMode)
+            }
 		
 			means <- c(means, meanValue)
 			stDevs <- c(stDevs, stDev)

@@ -13,14 +13,11 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5615 $
-## |  Last changed: $Date: 2021-12-06 09:29:15 +0100 (Mo, 06 Dez 2021) $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
-# Get Analysis Results Survival
-# Returns an analysis result object.
-#
 .getAnalysisResultsSurvival <- function(..., design, dataInput) {
     if (.isTrialDesignGroupSequential(design)) {
         return(.getAnalysisResultsSurvivalGroupSequential(
@@ -493,6 +490,8 @@
         conditionFunction <- .isFirstValueSmallerThanSecondValue
     } else {
         bounds <- design$futilityBounds
+        criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+        criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
         border <- C_FUTILITY_BOUNDS_DEFAULT
         conditionFunction <- .isFirstValueGreaterThanSecondValue
     }
@@ -1185,7 +1184,7 @@
                 .getOneMinusQNorm(design$alpha / design$sided)
             medianUnbiasedGeneral <- stageResults$testStatistics[1]
         } else {
-			if ((design$kMax > 2) && !.isNoEarlyEfficacy(design)){
+            if ((design$kMax > 2) && !.isNoEarlyEfficacy(design)) {
                 message(
                     "Calculation of final confidence interval performed for kMax = ", design$kMax,
                     " (for kMax > 2, it is theoretically shown that it is valid only ",

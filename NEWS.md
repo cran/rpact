@@ -1,3 +1,10 @@
+# rpact 3.2.1
+
+* C++ warning "using integer absolute value function 'abs' when argument is of floating point type" under r-devel-linux-x86_64-debian-clang removed
+* getDataset: support of emmeans result objects as input improved 
+* getAnalysisResults: issue with zero values in the argument 'userAlphaSpending' fixed
+* Minor improvements
+
 # rpact 3.2.0
 
 ## New features

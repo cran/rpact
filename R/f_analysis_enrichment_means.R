@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 .calcMeansVariancesTestStatistics <- function(dataInput, subset, stage, thetaH0, stratifiedAnalysis, varianceOption) {
@@ -446,7 +446,7 @@
 
     results <- .getAnalysisResultsMeansEnrichmentAll(
         results = results, design = design, dataInput = dataInput,
-        intersectionTest = intersectionTest, stage = stage, 
+        intersectionTest = intersectionTest, stage = stage,
         directionUpper = directionUpper,
         normalApproximation = normalApproximation,
         stratifiedAnalysis = stratifiedAnalysis,
@@ -479,7 +479,9 @@
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsMeansFisherEnrichment",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     results <- AnalysisResultsEnrichmentFisher(design = design, dataInput = dataInput)
@@ -499,12 +501,11 @@
 }
 
 
-.getAnalysisResultsMeansEnrichmentAll <- function(..., 
+.getAnalysisResultsMeansEnrichmentAll <- function(...,
         results, design, dataInput, intersectionTest, stage,
-        directionUpper, normalApproximation, stratifiedAnalysis, 
+        directionUpper, normalApproximation, stratifiedAnalysis,
         varianceOption, thetaH0, thetaH1, assumedStDevs,
         nPlanned, allocationRatioPlanned, tolerance, iterations, seed) {
-        
     startTime <- Sys.time()
 
     stageResults <- .getStageResultsMeansEnrichment(
@@ -618,6 +619,7 @@
                 repeatedConfidenceIntervals[population, 2, k]
         }
     }
+
     results$.setParameterType("repeatedConfidenceIntervalLowerBounds", C_PARAM_GENERATED)
     results$.setParameterType("repeatedConfidenceIntervalUpperBounds", C_PARAM_GENERATED)
 
@@ -729,7 +731,7 @@
 
     repeatedConfidenceIntervals <- array(NA_real_, dim = c(gMax, 2, design$kMax))
 
-    # Repeated onfidence intervals when using combination tests
+    # Repeated confidence intervals when using combination tests
     if (.isTrialDesignFisher(design)) {
         bounds <- design$alpha0Vec
         border <- C_ALPHA_0_VEC_DEFAULT
@@ -739,6 +741,8 @@
         bounds <- design$futilityBounds
         border <- C_FUTILITY_BOUNDS_DEFAULT
         criticalValues <- design$criticalValues
+        criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+        criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
         conditionFunction <- .isFirstValueGreaterThanSecondValue
     }
 
@@ -858,11 +862,9 @@
                         )
                     }
                 }
-
                 if (!is.na(repeatedConfidenceIntervals[population, 1, k]) &&
                         !is.na(repeatedConfidenceIntervals[population, 2, k]) &&
-                        repeatedConfidenceIntervals[population, 1, k] >
-                            repeatedConfidenceIntervals[population, 2, k]) {
+                        repeatedConfidenceIntervals[population, 1, k] > repeatedConfidenceIntervals[population, 2, k]) {
                     repeatedConfidenceIntervals[population, , k] <- rep(NA_real_, 2)
                 }
             }

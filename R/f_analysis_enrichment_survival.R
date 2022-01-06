@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 ## |
 
@@ -31,8 +31,6 @@
 #
 # @keywords internal
 #
-
-
 .calcSurvivalTestStatistics <- function(dataInput, subset, stage, thetaH0,
         stratifiedAnalysis, directionUpper = TRUE) {
     overallEvents <- NA_real_
@@ -326,7 +324,9 @@
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsSurvivalInverseNormalEnrichment",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     results <- AnalysisResultsEnrichmentInverseNormal(design = design, dataInput = dataInput)
@@ -476,9 +476,9 @@
 
     for (k in 1:design$kMax) {
         for (population in 1:gMax) {
-            results$repeatedConfidenceIntervalLowerBounds[population, k] <- 
+            results$repeatedConfidenceIntervalLowerBounds[population, k] <-
                 repeatedConfidenceIntervals[population, 1, k]
-            results$repeatedConfidenceIntervalUpperBounds[population, k] <- 
+            results$repeatedConfidenceIntervalUpperBounds[population, k] <-
                 repeatedConfidenceIntervals[population, 2, k]
         }
     }
@@ -496,9 +496,8 @@
 }
 
 .getRootThetaSurvivalEnrichment <- function(..., design, dataInput, treatmentArm, stage,
-        directionUpper, stratifiedAnalysis, intersectionTest, thetaLow, thetaUp, 
+        directionUpper, stratifiedAnalysis, intersectionTest, thetaLow, thetaUp,
         firstParameterName, secondValue, tolerance) {
-        
     result <- .getOneDimensionalRoot(
         function(theta) {
             stageResults <- .getStageResultsSurvivalEnrichment(
@@ -516,11 +515,10 @@
     return(result)
 }
 
-.getUpperLowerThetaSurvivalEnrichment <- function(..., 
+.getUpperLowerThetaSurvivalEnrichment <- function(...,
         design, dataInput, theta, treatmentArm, stage,
-        directionUpper, conditionFunction, stratifiedAnalysis, 
+        directionUpper, conditionFunction, stratifiedAnalysis,
         intersectionTest, firstParameterName, secondValue) {
-        
     stageResults <- .getStageResultsSurvivalEnrichment(
         design = design, dataInput = dataInput,
         stage = stage, thetaH0 = exp(theta), directionUpper = directionUpper,
@@ -590,6 +588,8 @@
         bounds <- design$futilityBounds
         border <- C_FUTILITY_BOUNDS_DEFAULT
         criticalValues <- design$criticalValues
+        criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
+        criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
         conditionFunction <- .isFirstValueGreaterThanSecondValue
     }
 
@@ -711,7 +711,9 @@
         functionName =
             ".getRepeatedConfidenceIntervalsSurvivalEnrichmentInverseNormal",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     return(.getRepeatedConfidenceIntervalsSurvivalEnrichmentAll(
@@ -735,7 +737,9 @@
         functionName =
             ".getRepeatedConfidenceIntervalsSurvivalEnrichmentFisher",
         ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-            design, powerCalculationEnabled = TRUE), "stage"), ...
+            design,
+            powerCalculationEnabled = TRUE
+        ), "stage"), ...
     )
 
     return(.getRepeatedConfidenceIntervalsSurvivalEnrichmentAll(

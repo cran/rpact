@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5620 $
-## |  Last changed: $Date: 2021-12-06 17:15:42 +0100 (Mo, 06 Dez 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5684 $
+## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 #' @title
@@ -174,8 +174,10 @@ getAnalysisResults <- function(design, dataInput, ...,
             if (!is.null(status) && status %in% c("under-running", "over-running") &&
                     length(observedInformationRates) > 1) {
                 if (stageFromData == 1) {
-                    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-                        "Recalculation of the information rates not possible at stage 1")
+                    stop(
+                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                        "Recalculation of the information rates not possible at stage 1"
+                    )
                 }
 
                 if (!(getLogLevel() %in% c(C_LOG_LEVEL_DISABLED, C_LOG_LEVEL_PROGRESS))) {
@@ -356,13 +358,19 @@ getAnalysisResults <- function(design, dataInput, ...,
     if (!is.null(result) && !is.null(repeatedPValues)) {
         result$repeatedPValues <- repeatedPValues
     }
-    
-    if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design) && 
+
+    if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design) &&
             design$typeOfDesign %in% c(C_TYPE_OF_DESIGN_AS_USER, C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY)) {
         indices <- design$userAlphaSpending == 0
-        result$repeatedConfidenceIntervalLowerBounds[indices] <- NA_real_
-        result$repeatedConfidenceIntervalUpperBounds[indices] <- NA_real_
-        result$repeatedPValues[indices] <- NA_real_
+        if (.isEnrichmentDataset(dataInput) || .isMultiArmDataset(dataInput)) {
+            result$repeatedConfidenceIntervalLowerBounds[, indices] <- NA_real_
+            result$repeatedConfidenceIntervalUpperBounds[, indices] <- NA_real_
+            result$repeatedPValues[, indices] <- NA_real_
+        } else {
+            result$repeatedConfidenceIntervalLowerBounds[indices] <- NA_real_
+            result$repeatedConfidenceIntervalUpperBounds[indices] <- NA_real_
+            result$repeatedPValues[indices] <- NA_real_
+        }
     }
 
     options("rpact.analyis.repeated.p.values.warnings.enabled" = "TRUE")
