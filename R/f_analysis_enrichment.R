@@ -18,6 +18,9 @@
 ## |  Last changed by: $Author: pahlke $
 ## |
 
+#' @include f_core_utilities.R
+NULL
+
 #
 #  @title
 #  Get Enrichment Analysis Results
@@ -77,7 +80,7 @@
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
 }
 
 #
@@ -102,7 +105,7 @@
         return(.getStageResultsSurvivalEnrichment(design = design, dataInput = dataInput, userFunctionCallEnabled = TRUE, ...))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not supported")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not supported")
 }
 
 # Get Repeated Confidence Intervals for enrichment case
@@ -132,7 +135,7 @@
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
 }
 
 #
@@ -173,7 +176,7 @@
 
     stop(
         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        class(stageResults$.dataInput), "' is not implemented yet"
+        .getClassName(stageResults$.dataInput), "' is not implemented yet"
     )
 }
 
@@ -411,6 +414,6 @@
 
     stop(
         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        class(stageResults$.dataInput), "' is not implemented yet"
+        .getClassName(stageResults$.dataInput), "' is not implemented yet"
     )
 }

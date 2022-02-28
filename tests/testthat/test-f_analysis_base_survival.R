@@ -14,23 +14,25 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_base_survival.R
-## |  Creation date: 08 December 2021, 09:02:44
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:01:42
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing the Analysis Survival Functionality for the Group Sequential Design")
 
 
 test_that("'getAnalysisResults' for a two-stage group sequential design and survival data", {
-	design0 <- getDesignGroupSequential(kMax = 2, alpha = 0.025, 
-		informationRates = c(0.4, 1), bindingFutility = TRUE,
-		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0))
+	design0 <- getDesignGroupSequential(
+	    kMax = 2, alpha = 0.025,
+	    informationRates = c(0.4, 1), bindingFutility = TRUE,
+	    typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = 0
+	)
 
 	dataExample0 <- getDataset(
-		overallEvents = c(8, 20),
-		overallLogRanks = c(1.92, 2.1)
+	    overallEvents = c(8, 20),
+	    overallLogRanks = c(1.92, 2.1)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -88,14 +90,16 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 
 	.skipTestIfDisabled()
 
-	design1 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, 
-		informationRates = c(0.2, 0.4, 1), bindingFutility = FALSE,
-		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0, 0))
+	design1 <- getDesignGroupSequential(
+	    kMax = 3, alpha = 0.025,
+	    informationRates = c(0.2, 0.4, 1), bindingFutility = FALSE,
+	    typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0, 0)
+	)
 
 	dataExample1 <- getDataset(
-		overallEvents = c(8, 15, 38),
-		overallAllocationRatios = c(1, 1, 1),
-		overallLogRanks = c(1.52, 1.38, 2.9)
+	    overallEvents = c(8, 15, 38),
+	    overallAllocationRatios = c(1, 1, 1),
+	    overallLogRanks = c(1.52, 1.38, 2.9)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -150,8 +154,10 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x2 <- getAnalysisResults(design1, dataExample1, stage = 2, nPlanned = 40, 
-		allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE) 
+	x2 <- getAnalysisResults(design1, dataExample1,
+	    stage = 2, nPlanned = 40,
+	    allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_))
@@ -207,8 +213,10 @@ test_that("'getAnalysisResults' for a three-stage group sequential design and su
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x3 <- getAnalysisResults(design1, dataExample1, thetaH0 = 0.95, stage = 2, 
-		nPlanned = 40, allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE) 
+	x3 <- getAnalysisResults(design1, dataExample1,
+	    thetaH0 = 0.95, stage = 2,
+	    nPlanned = 40, allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_))
@@ -265,14 +273,16 @@ test_that("'getAnalysisResults' for a three-stage ggroup sequential design and s
 
 	.skipTestIfDisabled()
 
-	design2 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, 
-		informationRates = c(0.2, 0.4, 1), bindingFutility = FALSE,
-		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0, 0))
+	design2 <- getDesignGroupSequential(
+	    kMax = 3, alpha = 0.025,
+	    informationRates = c(0.2, 0.4, 1), bindingFutility = FALSE,
+	    typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0, 0)
+	)
 
 	dataExample2 <- getDataset(
-		overallEvents = c(8, 15, 40),
-		overallAllocationRatios = c(1, 1, 1),
-		overallLogRanks = -c(1.52, 1.38, 2.9)
+	    overallEvents = c(8, 15, 40),
+	    overallAllocationRatios = c(1, 1, 1),
+	    overallLogRanks = -c(1.52, 1.38, 2.9)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -327,8 +337,10 @@ test_that("'getAnalysisResults' for a three-stage ggroup sequential design and s
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeSmaller}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x2 <- getAnalysisResults(design2, dataExample2, thetaH0 = 1.1, stage = 2, 
-		nPlanned = 40, allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE) 
+	x2 <- getAnalysisResults(design2, dataExample2,
+	    thetaH0 = 1.1, stage = 2,
+	    nPlanned = 40, allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_))
@@ -387,14 +399,16 @@ context("Testing the Analysis Survival Functionality for the Inverse Normal Desi
 test_that("'getAnalysisResults' for a three-stage inverse normal design and survival data", {
 	.skipTestIfDisabled()
 
-	design3 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
-		informationRates = c(0.4, 0.6, 1), bindingFutility = FALSE,
-		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0.2, 0.2))
+	design3 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.025,
+	    informationRates = c(0.4, 0.6, 1), bindingFutility = FALSE,
+	    typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0.2, 0.2)
+	)
 
 	dataExample3 <- getDataset(
-		overallEvents = c(8, 15, 29),
-		overallAllocationRatios = c(1, 1, 1),
-		overallLogRanks = c(1.52, 1.38, 2.9)
+	    overallEvents = c(8, 15, 29),
+	    overallAllocationRatios = c(1, 1, 1),
+	    overallLogRanks = c(1.52, 1.38, 2.9)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -449,8 +463,10 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x2 <- getAnalysisResults(design3, stage = 1, nPlanned = c(20, 40), 
-		allocationRatioPlanned = 2, thetaH1 = 2, dataExample3, directionUpper = TRUE)
+	x2 <- getAnalysisResults(design3,
+	    stage = 1, nPlanned = c(20, 40),
+	    allocationRatioPlanned = 2, thetaH1 = 2, dataExample3, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", NA_character_, NA_character_))
@@ -506,8 +522,10 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x3 <- getAnalysisResults(design3, dataExample3, thetaH0 = 0.95, stage = 2, 
-		nPlanned = 40, allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE)
+	x3 <- getAnalysisResults(design3, dataExample3,
+	    thetaH0 = 0.95, stage = 2,
+	    nPlanned = 40, allocationRatioPlanned = 2, thetaH1 = 2, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_))
@@ -564,14 +582,16 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 
 	.skipTestIfDisabled()
 
-	design4 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
-		informationRates = c(0.4, 0.6, 1), bindingFutility = FALSE,
-		typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0.2, 0.2))
+	design4 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.025,
+	    informationRates = c(0.4, 0.6, 1), bindingFutility = FALSE,
+	    typeOfDesign = "WT", deltaWT = 0.25, futilityBounds = c(0.2, 0.2)
+	)
 
 	dataExample4 <- getDataset(
-		overallEvents = c(8, 15, 29),
-		overallAllocationRatios = c(1, 1, 1),
-		overallLogRanks = -c(1.52, 1.38, 2.9)
+	    overallEvents = c(8, 15, 29),
+	    overallAllocationRatios = c(1, 1, 1),
+	    overallLogRanks = -c(1.52, 1.38, 2.9)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -626,8 +646,10 @@ test_that("'getAnalysisResults' for a three-stage inverse normal design and surv
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeSmaller}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x2 <- getAnalysisResults(design4, dataExample4, thetaH0 = 1.1, stage = 2, 
-		nPlanned = 40, allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE) 
+	x2 <- getAnalysisResults(design4, dataExample4,
+	    thetaH0 = 1.1, stage = 2,
+	    nPlanned = 40, allocationRatioPlanned = 0.5, thetaH1 = 0.5, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_))
@@ -686,13 +708,15 @@ context("Testing the Analysis Survival Functionality for the Fisher Design")
 test_that("'getAnalysisResults' for a three-stage Fisher design and 'bindingFutility = TRUE'", {
 	.skipTestIfDisabled()
 
-	design5 <- getDesignFisher(kMax = 3, alpha = 0.025, 
-		informationRates = c(0.4, 0.6, 1), alpha0Vec = c(0.5,0.4), bindingFutility = TRUE)
+	design5 <- getDesignFisher(
+	    kMax = 3, alpha = 0.025,
+	    informationRates = c(0.4, 0.6, 1), alpha0Vec = c(0.5, 0.4), bindingFutility = TRUE
+	)
 
 	dataExample5 <- getDataset(
-		overallEvents = c(8, 15),
-		overallAllocationRatios = c(1, 1),
-		overallLogRanks = c(1.52, 2)
+	    overallEvents = c(8, 15),
+	    overallAllocationRatios = c(1, 1),
+	    overallLogRanks = c(1.52, 2)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -700,8 +724,10 @@ test_that("'getAnalysisResults' for a three-stage Fisher design and 'bindingFuti
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x1 <- getAnalysisResults(design5, dataExample5, thetaH1 = 2, allocationRatioPlanned = 2, 
-		nPlanned = 50, directionUpper = TRUE, seed = 123456789)
+	x1 <- getAnalysisResults(design5, dataExample5,
+	    thetaH1 = 2, allocationRatioPlanned = 2,
+	    nPlanned = 50, directionUpper = TRUE, seed = 123456789
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x1' with expected results
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_))
@@ -747,13 +773,15 @@ test_that("'getAnalysisResults' for a three-stage Fisher design and 'bindingFuti
 
 	.skipTestIfDisabled()
 
-	design6 <- getDesignFisher(kMax = 3, alpha = 0.025, 
-		informationRates = c(0.4, 0.6, 1), alpha0Vec = c(0.5,0.4), bindingFutility = TRUE)
+	design6 <- getDesignFisher(
+	    kMax = 3, alpha = 0.025,
+	    informationRates = c(0.4, 0.6, 1), alpha0Vec = c(0.5, 0.4), bindingFutility = TRUE
+	)
 
 	dataExample6 <- getDataset(
-		overallEvents = c(8, 15),
-		overallAllocationRatios = c(1, 1),
-		overallLogRanks = -c(1.52, 2)
+	    overallEvents = c(8, 15),
+	    overallAllocationRatios = c(1, 1),
+	    overallLogRanks = -c(1.52, 2)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -761,8 +789,10 @@ test_that("'getAnalysisResults' for a three-stage Fisher design and 'bindingFuti
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeSmaller}
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x1 <- getAnalysisResults(design6, dataExample6, thetaH1 = 0.5, allocationRatioPlanned = 0.5, 
-		nPlanned = 50, directionUpper = FALSE, seed = 123456789)
+	x1 <- getAnalysisResults(design6, dataExample6,
+	    thetaH1 = 0.5, allocationRatioPlanned = 0.5,
+	    nPlanned = 50, directionUpper = FALSE, seed = 123456789
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x1' with expected results
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_))
@@ -809,9 +839,9 @@ test_that("'getAnalysisResults' with a dataset of survival data and without defi
 	.skipTestIfDisabled()
 
 	data <- getDataset(
-		overallEvents = c(38),
-		overallAllocationRatios = c(1),
-		overallLogRanks = -c(1.72)
+	    overallEvents = c(38),
+	    overallAllocationRatios = c(1),
+	    overallLogRanks = -c(1.72)
 	)
 	# @refFS[Formula]{fs:testStatisticSurvival}
 	# @refFS[Formula]{fs:pValuesSurvivalAlternativeGreater}
@@ -870,6 +900,59 @@ test_that("'getAnalysisResults' with a dataset of survival data and without defi
 	    expect_s3_class(df, "data.frame")
 	    expect_true(nrow(df) > 0 && ncol(df) > 0)
 	    mtx <- as.matrix(analysisResults2)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
+	}
+
+})
+
+test_that("'getAnalysisResults' with a dataset of survival data and automatic boundary recalculation", {
+
+	.skipTestIfDisabled()
+
+	design <- getDesignGroupSequential(sided = 1, alpha = 0.025, typeOfDesign = "asOF")
+	data <- getDataset(overallEvents = c(205, 285),
+	    overallLogRanks = c(1.87, 2.19))
+	analysisResults <- getAnalysisResults(design = design, 
+	    dataInput = data,
+	    maxInformation = 387)
+
+	## Comparison of the results of AnalysisResultsGroupSequential object 'analysisResults' with expected results
+	expect_equal(analysisResults$thetaH1, 1.2962154, tolerance = 1e-07)
+	expect_equal(analysisResults$testActions, c("continue", "continue", NA_character_))
+	expect_equal(analysisResults$conditionalRejectionProbabilities, c(0.19266595, 0.39869438, NA_real_), tolerance = 1e-07)
+	expect_equal(analysisResults$conditionalPower, c(NA_real_, NA_real_, NA_real_))
+	expect_equal(analysisResults$repeatedConfidenceIntervalLowerBounds, c(0.87000803, 0.97623896, NA_real_), tolerance = 1e-07)
+	expect_equal(analysisResults$repeatedConfidenceIntervalUpperBounds, c(1.9380428, 1.7210688, NA_real_), tolerance = 1e-07)
+	expect_equal(analysisResults$repeatedPValues, c(0.11586361, 0.037973374, NA_real_), tolerance = 1e-07)
+	expect_equal(analysisResults$finalStage, NA_integer_)
+	expect_equal(analysisResults$finalPValues, c(NA_real_, NA_real_, NA_real_))
+	expect_equal(analysisResults$finalConfidenceIntervalLowerBounds, c(NA_real_, NA_real_, NA_real_))
+	expect_equal(analysisResults$finalConfidenceIntervalUpperBounds, c(NA_real_, NA_real_, NA_real_))
+	expect_equal(analysisResults$medianUnbiasedEstimates, c(NA_real_, NA_real_, NA_real_))
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(analysisResults), NA)))
+	    expect_output(print(analysisResults)$show())
+	    invisible(capture.output(expect_error(summary(analysisResults), NA)))
+	    expect_output(summary(analysisResults)$show())
+	    analysisResultsCodeBased <- eval(parse(text = getObjectRCode(analysisResults, stringWrapParagraphWidth = NULL)))
+	    expect_equal(analysisResultsCodeBased$thetaH1, analysisResults$thetaH1, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$testActions, analysisResults$testActions, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$conditionalRejectionProbabilities, analysisResults$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$conditionalPower, analysisResults$conditionalPower, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$repeatedConfidenceIntervalLowerBounds, analysisResults$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$repeatedConfidenceIntervalUpperBounds, analysisResults$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$repeatedPValues, analysisResults$repeatedPValues, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$finalStage, analysisResults$finalStage, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$finalPValues, analysisResults$finalPValues, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$finalConfidenceIntervalLowerBounds, analysisResults$finalConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$finalConfidenceIntervalUpperBounds, analysisResults$finalConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(analysisResultsCodeBased$medianUnbiasedEstimates, analysisResults$medianUnbiasedEstimates, tolerance = 1e-05)
+	    expect_type(names(analysisResults), "character")
+	    df <- as.data.frame(analysisResults)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(analysisResults)
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}

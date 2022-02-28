@@ -20,8 +20,10 @@
  *
  */
 
+// [[Rcpp::plugins(cpp11)]]
 #include <Rcpp.h>
 #include "f_utilities.h"
+
 using namespace Rcpp;
 
 double findObservationTime(

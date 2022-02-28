@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  File version: $Revision: 5747 $
+## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -753,7 +753,7 @@
     for (k in stages) {
         startTime <- Sys.time()
         for (population in 1:gMax) {
-            if (!is.na(stageResults$testStatistics[population, k])) {
+            if (!is.na(stageResults$testStatistics[population, k]) && criticalValues[k] < C_QNORM_MAXIMUM) {
 
                 # finding maximum upper and minimum lower bounds for RCIs
                 thetaLow <- .getUpperLowerThetaMeansEnrichment(
@@ -804,7 +804,7 @@
                 )
 
                 # adjustment for binding futility bounds
-                if (k > 1 && conditionFunction(bounds[k - 1], border) & design$bindingFutility) {
+                if (k > 1 && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {
                     parameterName <- ifelse(.isTrialDesignFisher(design),
                         "singleStepAdjustedPValues", firstParameterName
                     )

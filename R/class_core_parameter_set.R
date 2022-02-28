@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5644 $
-## |  Last changed: $Date: 2021-12-10 14:14:55 +0100 (Fr, 10 Dez 2021) $
+## |  File version: $Revision: 5884 $
+## |  Last changed: $Date: 2022-02-25 08:34:20 +0100 (Fr, 25 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -182,6 +182,7 @@ FieldSet <- setRefClass("FieldSet",
 #' The parameter set implements basic functions for a set of parameters.
 #' 
 #' @include f_core_constants.R
+#' @include f_core_utilities.R
 #' @include f_parameter_set_utilities.R
 #' @include f_analysis_utilities.R
 #' 
@@ -210,7 +211,7 @@ ParameterSet <- setRefClass("ParameterSet",
 		},
 		
 		.toString = function(startWithUpperCase = FALSE) {
-			s <- .formatCamelCase(class(.self))
+			s <- .formatCamelCase(.getClassName(.self))
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		},
 		
@@ -376,7 +377,7 @@ ParameterSet <- setRefClass("ParameterSet",
 				.showParameterTypeDescription(consoleOutputEnabled = consoleOutputEnabled)
 			} else {
 				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-					"method '.show()' is not implemented in class '", class(.self), "'")
+					"method '.show()' is not implemented in class '", .getClassName(.self), "'")
 			}
 		},
 		
@@ -478,7 +479,7 @@ ParameterSet <- setRefClass("ParameterSet",
 			if (is.null(param)) {
 				return(invisible(""))
 			}
-			
+            
 			output <- ""
 			tryCatch({
 				if (param$type == "array" && length(dim(param$paramValue)) == 3) {
@@ -628,7 +629,7 @@ ParameterSet <- setRefClass("ParameterSet",
 							populations <- .self$.getHypothesisPopulationVariants()[matrixRow]
 						} else {
 							stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "only ClosedCombinationTestResults ",
-								"supports function .getHypothesisPopulationVariants() (object is ", class(.self), ")")
+								"supports function .getHypothesisPopulationVariants() (object is ", .getClassName(.self), ")")
 						}
 						paramCaption <- paste0(paramCaption, " ", populations)
 					} else {
@@ -639,7 +640,7 @@ ParameterSet <- setRefClass("ParameterSet",
 						}
 					}
 				}
-    			else if (.isMultiArmAnalysisResults(.self) || grepl("StageResultsMultiArm", class(.self)) || 
+    			else if (.isMultiArmAnalysisResults(.self) || grepl("StageResultsMultiArm", .getClassName(.self)) || 
 						(inherits(.self, "SimulationResults") && paramName == "effectMatrix") ||
 						(inherits(.self, "ClosedCombinationTestResults") && 
 							paramName %in% c("rejected", "separatePValues"))) {
@@ -841,7 +842,7 @@ ParameterSet <- setRefClass("ParameterSet",
 				
 			}, error = function(e) {
 				.logError(paste0("Error in '.getAsDataFrame'. Failed to show parameter '%s' ", 
-						"(class '%s'): %s"), parameterName, class(.self), e)
+					"(class '%s'): %s"), parameterName, .getClassName(.self), e)
 			})
 		},
 		
@@ -1587,7 +1588,7 @@ plot.ParameterSet <- function(x, y, ..., main = NA_character_,
 	.assertGgplotIsInstalled()
 	
 	stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-		"sorry, function 'plot' is not implemented yet for class '", class(x), "'")
+		"sorry, function 'plot' is not implemented yet for class '", .getClassName(x), "'")
 }
 
 

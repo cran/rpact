@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5577 $
-## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -441,7 +441,7 @@ NULL
 		
 		if (!any(grepl(paste0("^", sub("\\d*$","", argName), "$"), C_KEY_WORDS_SUBSETS)) && !is.numeric(argValues)) {
 			stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all data vectors must be numeric ('", 
-				argName, "' is ", class(argValues), ")")
+				argName, "' is ", .getClassName(argValues), ")")
 		}
 		
 		if (length(argValues) > C_KMAX_UPPER_BOUND * numberOfSubsets) {
@@ -523,7 +523,7 @@ NULL
 	}
 	
 	argNamesLower <- tolower(argNames)
-	dataObjectkeyWords <- tolower(C_KEY_WORDS)
+	dataObjectkeyWords <- unique(tolower(C_KEY_WORDS))
 	
 	multiArmKeywords <- tolower(c(
 		C_KEY_WORDS_SUBSETS,
@@ -582,6 +582,40 @@ NULL
 	invisible(TRUE)
 }
 
+.getParameterNameVariant <- function(x, sep = ".") { # x <- "overallExpectedEvents"
+    if (identical(x, tolower(x))) {
+        return(x)
+    }
+    
+    indices <- gregexpr("[A-Z]", x)[[1]]
+    parts <- strsplit(x, "[A-Z]")[[1]]
+    result <- ""
+    for (i in 1:length(indices)) {
+        index <- indices[i]
+        y <- tolower(substring(x, index, index))
+        result <- paste0(result, parts[i], sep, y)
+    }
+    if (length(parts) > length(indices)) {
+        result <- paste0(result, parts[length(parts)])
+    }
+    return(trimws(result))
+}
+
+.getAllParameterNameVariants <- function(parameterNameVariants) {
+    overallParameterNameVariants <- parameterNameVariants[grepl("^overall", parameterNameVariants)]
+    if (length(overallParameterNameVariants) > 0) {
+        overallParameterNameVariants <- c(gsub("^overall", "cumulative", overallParameterNameVariants),
+            gsub("^overall", "cum", overallParameterNameVariants))
+    }
+    parameterNameVariants <- c(parameterNameVariants, overallParameterNameVariants)
+    otherVariants <- character(0)
+    for (parameterNameVariant in parameterNameVariants) {
+        otherVariants <- c(otherVariants, .getParameterNameVariant(parameterNameVariant, "."))
+        otherVariants <- c(otherVariants, .getParameterNameVariant(parameterNameVariant, "_"))
+    }
+    return(unique(c(parameterNameVariants, otherVariants)))
+}
+
 .isDataObject <- function(..., dataObjectkeyWords) {
 	.assertIsValidDatasetArgument(...)
 	
@@ -590,8 +624,12 @@ NULL
 		return(FALSE)
 	}
 	
-	argNames <- tolower(argNames)
-	matching <- intersect(argNames, tolower(dataObjectkeyWords))
+#	argNames <- tolower(argNames)
+#    dataObjectkeyWords <- c(dataObjectkeyWords, paste0(dataObjectkeyWords, "1"))
+    
+    dataObjectkeyWords <- .getAllParameterNameVariants(dataObjectkeyWords)
+    
+	matching <- intersect(argNames, dataObjectkeyWords)
 	
 	return(length(matching) > 0)
 }
@@ -602,17 +640,20 @@ NULL
 }
 
 .isDataObjectMeans <- function(...) {
-	return(.isDataObject(..., dataObjectkeyWords = c(
-		C_KEY_WORDS_MEANS, C_KEY_WORDS_ST_DEVS, 
-		C_KEY_WORDS_MEANS_1, C_KEY_WORDS_ST_DEVS_1,
-		C_KEY_WORDS_MEANS_2, C_KEY_WORDS_ST_DEVS_2,
-		C_KEY_WORDS_OVERALL_MEANS, C_KEY_WORDS_OVERALL_ST_DEVS, 
-		C_KEY_WORDS_OVERALL_MEANS_1, C_KEY_WORDS_OVERALL_ST_DEVS_1,
-		C_KEY_WORDS_OVERALL_MEANS_2, C_KEY_WORDS_OVERALL_ST_DEVS_2)))
+    dataObjectkeyWords = c(
+        C_KEY_WORDS_MEANS, 
+        C_KEY_WORDS_ST_DEVS, 
+        C_KEY_WORDS_OVERALL_MEANS, 
+        C_KEY_WORDS_OVERALL_ST_DEVS
+    )
+    dataObjectkeyWords <- c(dataObjectkeyWords, paste0(dataObjectkeyWords, c(1, 2)))
+	return(.isDataObject(..., dataObjectkeyWords = dataObjectkeyWords))
 }
 
 .isDataObjectRates <- function(...) {	
-	dataObjectkeyWordsExpected <- c(C_KEY_WORDS_EVENTS, C_KEY_WORDS_OVERALL_EVENTS)
+	dataObjectkeyWordsExpected <- c(
+        C_KEY_WORDS_EVENTS, 
+        C_KEY_WORDS_OVERALL_EVENTS)
 	dataObjectkeyWordsForbidden <- c(
 		C_KEY_WORDS_OVERALL_LOG_RANKS, 
 		C_KEY_WORDS_LOG_RANKS, 
@@ -631,7 +672,8 @@ NULL
 }
 
 .isDataObjectSurvival <- function(...) {
-	dataObjectkeyWords <- c(C_KEY_WORDS_OVERALL_LOG_RANKS, 
+	dataObjectkeyWords <- c(
+        C_KEY_WORDS_OVERALL_LOG_RANKS, 
 		C_KEY_WORDS_LOG_RANKS, 
 		C_KEY_WORDS_OVERALL_ALLOCATION_RATIOS, 
 		C_KEY_WORDS_ALLOCATION_RATIOS)
@@ -723,7 +765,7 @@ getWideFormat <- function(dataInput) {
 
 .getWideFormat <- function(dataFrame) {
 	if (!is.data.frame(dataFrame)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataFrame' must be a data.frame (is ", class(dataFrame), ")")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataFrame' must be a data.frame (is ", .getClassName(dataFrame), ")")
 	}
 	
 	paramNames <- names(dataFrame)
@@ -839,7 +881,7 @@ getLongFormat <- function(dataInput) {
 		}
 	}
 	else {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'dataInput' class ", class(dataInput), " is not supported")
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'dataInput' class ", .getClassName(dataInput), " is not supported")
 	}
 	return(list(informationRates = informationRates, absoluteInformations = absoluteInformations, stage = stage))
 }

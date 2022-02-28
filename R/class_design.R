@@ -13,14 +13,15 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5577 $
-## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
 
 #' @include f_core_constants.R
 #' @include f_core_plot.R
+#' @include f_core_utilities.R
 NULL
 
 #' 
@@ -183,7 +184,7 @@ TrialDesign <- setRefClass("TrialDesign",
 		},
 		
 		.isTrialDesignFisher = function(design = .self) {
-			return(class(design) == C_CLASS_NAME_TRIAL_DESIGN_FISHER)
+			return(.getClassName(design) == C_CLASS_NAME_TRIAL_DESIGN_FISHER)
 		}
 	)
 )
@@ -380,12 +381,16 @@ TrialDesignFisher <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_FISHER,
 				"scale", 
 				"nonStochasticCurtailment",
 				"sided",
-				"simAlpha"
+				"simAlpha",
+                "iterations",
+                "seed"
 			)))
 			
 			.parameterFormatFunctions$criticalValues <<- ".formatCriticalValuesFisher"
 			
 			.initParameterTypes()
+            .setParameterType("iterations", C_PARAM_NOT_APPLICABLE)
+            .setParameterType("seed", C_PARAM_NOT_APPLICABLE)
 			.initStages()
 		},
 		
@@ -557,8 +562,8 @@ TrialDesignInverseNormal <- setRefClass(C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL
 		},
 		
 		.pasteComparisonResult = function(name, newValue, oldValue) {
-			return(paste0(name, "_new = ", .arrayToString(.formatComparisonResult(newValue)), " (", class(newValue), "), ", 
-					name, "_old = ", .arrayToString(.formatComparisonResult(oldValue)), " (", class(oldValue), ")"))
+			return(paste0(name, "_new = ", .arrayToString(.formatComparisonResult(newValue)), " (", .getClassName(newValue), "), ", 
+					name, "_old = ", .arrayToString(.formatComparisonResult(oldValue)), " (", .getClassName(oldValue), ")"))
 		},
 		
 		hasChanged = function(...,

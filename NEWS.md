@@ -1,3 +1,12 @@
+
+# rpact 3.2.2
+
+* Performance of group sequential and Fisher's combination test designs improved (by translating from R to C++)
+* Numerical issue in analysis time calculation for survival design in specific cases resolved
+* The internally used minimum quantile function value was changed from stats::qnorm(1e-323) to stats::qnorm(1e-100)
+* Unit tests extended
+* Minor improvements
+
 # rpact 3.2.1
 
 * C++ warning "using integer absolute value function 'abs' when argument is of floating point type" under r-devel-linux-x86_64-debian-clang removed

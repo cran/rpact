@@ -14,39 +14,43 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_multiarm_survival.R
-## |  Creation date: 08 December 2021, 09:07:40
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:05:10
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing the Analysis Survival Functionality for Three or More Treatments")
 
 test_that("'getAnalysisResultsMultiArm' with survival data and different options", {
 
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, futilityBounds = c(-0.5,0), 
-			bindingFutility = FALSE, typeOfDesign = "asKD", gammaA = 1.2, informationRates = c(0.4,0.7,1))
-		
-		design2 <- getDesignFisher(kMax = 3, alpha = 0.025, alpha0Vec = c(0.7,0.5), method = "equalAlpha", 
-			bindingFutility = TRUE, informationRates = c(0.4,0.7,1))
-		
-		design3 <- getDesignConditionalDunnett(alpha = 0.025, informationAtInterim = 0.4, secondStageConditioning = TRUE)
-		
-		# directionUpper = TRUE
-		dataExample1 <- getDataset(
-			events1   = c(25, 32), 
-			events2   = c(18, NA),
-			logRanks1 = c(2.2,1.8),	
-			logRanks2 = c(1.99, NA) 
-		)
-		
-		# directionUpper = FALSE
-		dataExample2 <- getDataset(
-			events1   =  c(25, 32),
-			events2   =  c(18, NA),
-			logRanks1 = -c(2.2,1.8),
-			logRanks2 = -c(1.99, NA)
-		)
+	design1 <- getDesignInverseNormal(
+	        kMax = 3, alpha = 0.025, futilityBounds = c(-0.5, 0),
+	        bindingFutility = FALSE, typeOfDesign = "asKD", gammaA = 1.2, informationRates = c(0.4, 0.7, 1)
+	    )
+	
+	    design2 <- getDesignFisher(
+	        kMax = 3, alpha = 0.025, alpha0Vec = c(0.7, 0.5), method = "equalAlpha",
+	        bindingFutility = TRUE, informationRates = c(0.4, 0.7, 1)
+	    )
+	
+	    design3 <- getDesignConditionalDunnett(alpha = 0.025, informationAtInterim = 0.4, secondStageConditioning = TRUE)
+	
+	    # directionUpper = TRUE
+	    dataExample1 <- getDataset(
+	        events1   = c(25, 32),
+	        events2   = c(18, NA),
+	        logRanks1 = c(2.2, 1.8),
+	        logRanks2 = c(1.99, NA)
+	    )
+	
+	    # directionUpper = FALSE
+	    dataExample2 <- getDataset(
+	        events1   =  c(25, 32),
+	        events2   =  c(18, NA),
+	        logRanks1 = -c(2.2, 1.8),
+	        logRanks2 = -c(1.99, NA)
+	    )
 
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -75,7 +79,7 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	## Comparison of the results of AnalysisResultsMultiArmInverseNormal object 'results1' with expected results
 	expect_equal(results1$thetaH1[1, ], 2.1027372, tolerance = 1e-05)
 	expect_equal(results1$thetaH1[2, ], NA_real_)
-	expect_equal(results1$conditionalRejectionProbabilities[1, ], c(0.16551988, 0.53357188, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$conditionalRejectionProbabilities[1, ], c(0.16551988, 0.53357187, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$conditionalRejectionProbabilities[2, ], c(0.16551988, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$conditionalPower[1, ], c(NA_real_, NA_real_, 0.95961075), tolerance = 1e-05)
 	expect_equal(results1$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
@@ -134,14 +138,14 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	## Comparison of the results of AnalysisResultsMultiArmInverseNormal object 'results2' with expected results
 	expect_equal(results2$thetaH1[1, ], 2.1027372, tolerance = 1e-05)
 	expect_equal(results2$thetaH1[2, ], NA_real_)
-	expect_equal(results2$conditionalRejectionProbabilities[1, ], c(0.17669226, 0.55323068, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$conditionalRejectionProbabilities[1, ], c(0.17669226, 0.55323067, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$conditionalRejectionProbabilities[2, ], c(0.17669226, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$conditionalPower[1, ], c(NA_real_, NA_real_, 0.96373388), tolerance = 1e-05)
 	expect_equal(results2$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909611, 1.088337, NA_real_), tolerance = 1e-05)
-	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657731, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results2$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761955, NA_real_), tolerance = 1e-05)
-	expect_equal(results2$repeatedConfidenceIntervalUpperBounds[2, ], c(8.8634059, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909619, 1.0883368, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657742, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761956, NA_real_), tolerance = 1e-05)
+	expect_equal(results2$repeatedConfidenceIntervalUpperBounds[2, ], c(8.863406, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$repeatedPValues[1, ], c(0.069951918, 0.0087766935, NA_real_), tolerance = 1e-05)
 	expect_equal(results2$repeatedPValues[2, ], c(0.069951918, NA_real_, NA_real_), tolerance = 1e-05)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -196,7 +200,7 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results3$conditionalPower[1, ], c(NA_real_, NA_real_, 0.9565118), tolerance = 1e-05)
 	expect_equal(results3$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(results3$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83933393, 1.0895056, NA_real_), tolerance = 1e-05)
-	expect_equal(results3$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73682329, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results3$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73682316, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results3$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9250602, 4.2563039, NA_real_), tolerance = 1e-05)
 	expect_equal(results3$repeatedConfidenceIntervalUpperBounds[2, ], c(8.8604482, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results3$repeatedPValues[1, ], c(0.082919001, 0.010252978, NA_real_), tolerance = 1e-05)
@@ -252,10 +256,10 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results4$conditionalRejectionProbabilities[2, ], c(0.15727093, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$conditionalPower[1, ], c(NA_real_, NA_real_, 0.95618769), tolerance = 1e-05)
 	expect_equal(results4$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909611, 1.088337, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657731, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761955, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[2, ], c(8.8634059, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[1, ], c(0.83909619, 1.0883368, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[2, ], c(0.73657742, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(6.9270216, 4.2761956, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[2, ], c(8.863406, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[1, ], c(0.083499788, 0.010318782, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[2, ], c(0.083499788, NA_real_, NA_real_), tolerance = 1e-05)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -590,7 +594,7 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	## Comparison of the results of AnalysisResultsMultiArmInverseNormal object 'results10' with expected results
 	expect_equal(results10$thetaH1[1, ], 0.47557061, tolerance = 1e-05)
 	expect_equal(results10$thetaH1[2, ], NA_real_)
-	expect_equal(results10$conditionalRejectionProbabilities[1, ], c(0.16551988, 0.53357188, NA_real_), tolerance = 1e-05)
+	expect_equal(results10$conditionalRejectionProbabilities[1, ], c(0.16551988, 0.53357187, NA_real_), tolerance = 1e-05)
 	expect_equal(results10$conditionalRejectionProbabilities[2, ], c(0.16551988, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results10$conditionalPower[1, ], c(NA_real_, NA_real_, 0.95961075), tolerance = 1e-05)
 	expect_equal(results10$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
@@ -647,14 +651,14 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	## Comparison of the results of AnalysisResultsMultiArmInverseNormal object 'results11' with expected results
 	expect_equal(results11$thetaH1[1, ], 0.47557061, tolerance = 1e-05)
 	expect_equal(results11$thetaH1[2, ], NA_real_)
-	expect_equal(results11$conditionalRejectionProbabilities[1, ], c(0.17669226, 0.55323068, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$conditionalRejectionProbabilities[1, ], c(0.17669226, 0.55323067, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$conditionalRejectionProbabilities[2, ], c(0.17669226, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$conditionalPower[1, ], c(NA_real_, NA_real_, 0.96373388), tolerance = 1e-05)
 	expect_equal(results11$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436219, 0.23385276, NA_real_), tolerance = 1e-05)
-	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11282335, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results11$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917585, 0.91883311, NA_real_), tolerance = 1e-05)
-	expect_equal(results11$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3576308, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436219, 0.23385274, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11282345, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917585, 0.91883308, NA_real_), tolerance = 1e-05)
+	expect_equal(results11$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3576306, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$repeatedPValues[1, ], c(0.069951918, 0.0087766935, NA_real_), tolerance = 1e-05)
 	expect_equal(results11$repeatedPValues[2, ], c(0.069951918, NA_real_, NA_real_), tolerance = 1e-05)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -711,7 +715,7 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results12$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14440308, 0.23494562, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11286087, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1914212, 0.91784736, NA_real_), tolerance = 1e-05)
-	expect_equal(results12$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3571777, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results12$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3571775, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedPValues[1, ], c(0.082919001, 0.010252978, NA_real_), tolerance = 1e-05)
 	expect_equal(results12$repeatedPValues[2, ], c(0.082919001, NA_real_, NA_real_), tolerance = 1e-05)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
@@ -765,10 +769,10 @@ test_that("'getAnalysisResultsMultiArm' with survival data and different options
 	expect_equal(results13$conditionalRejectionProbabilities[2, ], c(0.15727093, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results13$conditionalPower[1, ], c(NA_real_, NA_real_, 0.95618769), tolerance = 1e-05)
 	expect_equal(results13$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436219, 0.23385276, NA_real_), tolerance = 1e-05)
-	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11282335, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results13$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917585, 0.91883311, NA_real_), tolerance = 1e-05)
-	expect_equal(results13$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3576308, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[1, ], c(0.14436219, 0.23385274, NA_real_), tolerance = 1e-05)
+	expect_equal(results13$repeatedConfidenceIntervalLowerBounds[2, ], c(0.11282345, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results13$repeatedConfidenceIntervalUpperBounds[1, ], c(1.1917585, 0.91883308, NA_real_), tolerance = 1e-05)
+	expect_equal(results13$repeatedConfidenceIntervalUpperBounds[2, ], c(1.3576306, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results13$repeatedPValues[1, ], c(0.083499788, 0.010318782, NA_real_), tolerance = 1e-05)
 	expect_equal(results13$repeatedPValues[2, ], c(0.083499788, NA_real_, NA_real_), tolerance = 1e-05)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {

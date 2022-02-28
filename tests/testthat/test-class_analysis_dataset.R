@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-class_analysis_dataset.R
-## |  Creation date: 08 December 2021, 08:59:06
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 13:59:29
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing the Class 'Dataset'")
@@ -27,12 +27,12 @@ test_that("Usage of 'getDataset'", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeans1 <- getDataset(
-		n1 = c(22, 11, 22, 11),
-		n2 = c(22, 13, 22, 13),
-		means1 = c(1, 1.1, 1, 1),
-		means2 = c(1.4, 1.5, 3, 2.5),
-		stDevs1 = c(1, 2, 2, 1.3),
-		stDevs2 = c(1, 2, 2, 1.3)
+	    n1 = c(22, 11, 22, 11),
+	    n2 = c(22, 13, 22, 13),
+	    means1 = c(1, 1.1, 1, 1),
+	    means2 = c(1.4, 1.5, 3, 2.5),
+	    stDevs1 = c(1, 2, 2, 1.3),
+	    stDevs2 = c(1, 2, 2, 1.3)
 	)
 
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans1' with expected results
@@ -216,13 +216,13 @@ test_that("Usage of 'getDataset'", {
 	}
 
 	datasetOfMeans2 <- getDataset(data.frame(
-		stages = 1:4,
-		n1 = c(22, 11, 22, 11),
-		n2 = c(22, 13, 22, 13),
-		means1 = c(1, 1.1, 1, 1),
-		means2 = c(1.4, 1.5, 3, 2.5),
-		stDevs1 = c(1, 2, 2, 1.3),
-		stDevs2 = c(1, 2, 2, 1.3)
+	    stages = 1:4,
+	    n1 = c(22, 11, 22, 11),
+	    n2 = c(22, 13, 22, 13),
+	    means1 = c(1, 1.1, 1, 1),
+	    means2 = c(1.4, 1.5, 3, 2.5),
+	    stDevs1 = c(1, 2, 2, 1.3),
+	    stDevs2 = c(1, 2, 2, 1.3)
 	))
 	x <- getMultipleStageResultsForDataset(datasetOfMeans2)
 
@@ -349,12 +349,12 @@ test_that("Usage of 'getDataset'", {
 	}
 
 	datasetOfMeans3 <- getDataset(
-		overallSampleSizes1 = c(22, 33, 55, 66),
-		overallSampleSizes2 = c(22, 35, 57, 70),
-		overallMeans1 = c(1, 1.033333, 1.02, 1.016667),
-		overallMeans2 = c(1.4, 1.437143, 2.040351, 2.125714),
-		overallStDevs1 = c(1, 1.381500, 1.639151, 1.578664),
-		overallStDevs2 = c(1, 1.425418, 1.822857, 1.738706)
+	    overallSampleSizes1 = c(22, 33, 55, 66),
+	    overallSampleSizes2 = c(22, 35, 57, 70),
+	    overallMeans1 = c(1, 1.033333, 1.02, 1.016667),
+	    overallMeans2 = c(1.4, 1.437143, 2.040351, 2.125714),
+	    overallStDevs1 = c(1, 1.381500, 1.639151, 1.578664),
+	    overallStDevs2 = c(1, 1.425418, 1.822857, 1.738706)
 	)
 
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans3' with expected results
@@ -535,9 +535,9 @@ test_that("Creation of a dataset of means using stage wise data (one group)", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeans4 <- getDataset(
-		n = c(22, 11, 22, 11),
-		means = c(1, 1.1, 1, 1),
-		stDevs = c(1, 2, 2, 1.3)
+	    n = c(22, 11, 22, 11),
+	    means = c(1, 1.1, 1, 1),
+	    stDevs = c(1, 2, 2, 1.3)
 	)
 
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans4' with expected results
@@ -700,9 +700,9 @@ test_that("Creation of a dataset of means using overall data (one group)", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeans5 <- getDataset(
-		overallSampleSizes = c(22, 33, 55, 66),
-		overallMeans = c(1.000, 1.033, 1.020, 1.017 ),
-		overallStDevs = c(1.00, 1.38, 1.64, 1.58)
+	    overallSampleSizes = c(22, 33, 55, 66),
+	    overallMeans = c(1.000, 1.033, 1.020, 1.017),
+	    overallStDevs = c(1.00, 1.38, 1.64, 1.58)
 	)
 
 	## Comparison of the results of DatasetMeans object 'datasetOfMeans5' with expected results
@@ -865,32 +865,32 @@ test_that("Trim command works as expected for means", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	datasetOfMeansExpected <- getDataset(
-		n1 = c(13, 25), 
-		n2 = c(15, NA), 
-		n3 = c(14, 27), 
-		n4 = c(12, 29), 
-		means1 = c(24.2, 22.2), 
-		means2 = c(18.8, NA),
-		means3 = c(26.7, 27.7), 
-		means4 = c(9.2, 12.2), 
-		stDevs1 = c(24.4, 22.1), 
-		stDevs2 = c(21.2, NA), 
-		stDevs3 = c(25.6, 23.2), 
-		stDevs4 = c(21.5, 22.7)
+	    n1 = c(13, 25),
+	    n2 = c(15, NA),
+	    n3 = c(14, 27),
+	    n4 = c(12, 29),
+	    means1 = c(24.2, 22.2),
+	    means2 = c(18.8, NA),
+	    means3 = c(26.7, 27.7),
+	    means4 = c(9.2, 12.2),
+	    stDevs1 = c(24.4, 22.1),
+	    stDevs2 = c(21.2, NA),
+	    stDevs3 = c(25.6, 23.2),
+	    stDevs4 = c(21.5, 22.7)
 	)
 	datasetOfMeans <- getDataset(
-		n1 = c(13, 25), 
-		n2 = c(15, NA), 
-		n3 = c(14, 27), 
-		n4 = c(12, 29), 
-		means1 = c(24.2, 22.2), 
-		means2 = c(18.8, NA),
-		means3 = c(26.7, 27.7), 
-		means4 = c(9.2, 12.2), 
-		stDevs1 = c(24.4, 22.1), 
-		stDevs2 = c(21.2, NA), 
-		stDevs3 = c(25.6, 23.2), 
-		stDevs4 = c(21.5, 22.7)
+	    n1 = c(13, 25),
+	    n2 = c(15, NA),
+	    n3 = c(14, 27),
+	    n4 = c(12, 29),
+	    means1 = c(24.2, 22.2),
+	    means2 = c(18.8, NA),
+	    means3 = c(26.7, 27.7),
+	    means4 = c(9.2, 12.2),
+	    stDevs1 = c(24.4, 22.1),
+	    stDevs2 = c(21.2, NA),
+	    stDevs3 = c(25.6, 23.2),
+	    stDevs4 = c(21.5, 22.7)
 	)
 	datasetOfMeans$.fillWithNAs(4)
 	datasetOfMeans$.trim(2)
@@ -918,8 +918,8 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates1 <- getDataset(
-		n = c(8, 10, 9, 11), 
-		events = c(4, 5, 5, 6)
+	    n = c(8, 10, 9, 11),
+	    events = c(4, 5, 5, 6)
 	)
 
 	## Comparison of the results of DatasetRates object 'datasetOfRates1' with expected results
@@ -1001,7 +1001,7 @@ test_that("Creation of a dataset of rates using stage wise data (one group)", {
 	expect_equal(x$stageResults2$overallPi1, c(0.5, 0.5, 0.51851852, 0.52631579, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$testStatistics, c(-13.929113, -15.573222, -13.098993, -14.818182, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
-	expect_equal(x$stageResults2$combInverseNormal, c(-38.449394, -54.375655, -66.596305, -76.898789, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults2$combInverseNormal, c(-21.273454, -30.085207, -36.846702, -42.546907, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$weightsInverseNormal, c(0.4472136, 0.4472136, 0.4472136, 0.4472136, 0.4472136), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x$stageResults2), NA)))
@@ -1070,10 +1070,10 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates2 <- getDataset(
-		n2 = c(8, 10, 9, 11),
-		n1 = c(11, 13, 12, 13),
-		events2 = c(3, 5, 5, 6),
-		events1 = c(10, 10, 12, 12)
+	    n2 = c(8, 10, 9, 11),
+	    n1 = c(11, 13, 12, 13),
+	    events2 = c(3, 5, 5, 6),
+	    events1 = c(10, 10, 12, 12)
 	)
 
 	## Comparison of the results of DatasetRates object 'datasetOfRates2' with expected results
@@ -1167,7 +1167,7 @@ test_that("Creation of a dataset of rates using stage wise data (two groups)", {
 	expect_equal(x$stageResults2$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$combInverseNormal, c(-38.449394, -54.375655, -66.596305, -76.898789, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults2$combInverseNormal, c(-21.273454, -30.085207, -36.846702, -42.546907, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$weightsInverseNormal, c(0.4472136, 0.4472136, 0.4472136, 0.4472136, 0.4472136), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x$stageResults2), NA)))
@@ -1248,14 +1248,14 @@ test_that("Creation of a dataset of rates using stage wise data (four groups)", 
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates3 <- getDataset(
-		n1 = c(11, 13, 12, 13),
-		n2 = c(8, 10, 9, 11),
-		n3 = c(7, 10, 8, 9),
-		n4 = c(9, 11, 5, 2),
-		events1 = c(10, 10, 12, 12),
-		events2 = c(3, 5, 5, 6),
-		events3 = c(2, 4, 3, 5),
-		events4 = c(3, 4, 3, 0)
+	    n1 = c(11, 13, 12, 13),
+	    n2 = c(8, 10, 9, 11),
+	    n3 = c(7, 10, 8, 9),
+	    n4 = c(9, 11, 5, 2),
+	    events1 = c(10, 10, 12, 12),
+	    events2 = c(3, 5, 5, 6),
+	    events3 = c(2, 4, 3, 5),
+	    events4 = c(3, 4, 3, 0)
 	)
 
 	## Comparison of the results of DatasetRates object 'datasetOfRates3' with expected results
@@ -1306,10 +1306,10 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates4 <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36, 49),
-		overallSampleSizes2 = c(8, 18, 27, 38),
-		overallEvents1 = c(10, 20, 32, 44),
-		overallEvents2 = c(3, 8, 13, 19)
+	    overallSampleSizes1 = c(11, 24, 36, 49),
+	    overallSampleSizes2 = c(8, 18, 27, 38),
+	    overallEvents1 = c(10, 20, 32, 44),
+	    overallEvents2 = c(3, 8, 13, 19)
 	)
 
 	## Comparison of the results of DatasetRates object 'datasetOfRates4' with expected results
@@ -1403,7 +1403,7 @@ test_that("Creation of a dataset of rates using overall data (two groups)", {
 	expect_equal(x$stageResults2$testStatistics, c(-13.397899, -23.909016, -16.449119, -20.614826, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$pValues, c(1, 1, 1, 1, NA_real_))
 	expect_equal(x$stageResults2$effectSizes, c(0.53409091, 0.38888889, 0.40740741, 0.39795918, NA_real_), tolerance = 1e-07)
-	expect_equal(x$stageResults2$combInverseNormal, c(-38.449394, -54.375655, -66.596305, -76.898789, NA_real_), tolerance = 1e-07)
+	expect_equal(x$stageResults2$combInverseNormal, c(-21.273454, -30.085207, -36.846702, -42.546907, NA_real_), tolerance = 1e-07)
 	expect_equal(x$stageResults2$weightsInverseNormal, c(0.4472136, 0.4472136, 0.4472136, 0.4472136, 0.4472136), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x$stageResults2), NA)))
@@ -1484,12 +1484,12 @@ test_that("Creation of a dataset of rates using overall data (three groups)", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRates5 <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36, 49),
-		overallSampleSizes2 = c(8, 18, 27, 38),
-		overallSampleSizes3 = c(8, 18, 27, 38),
-		overallEvents1 = c(10, 20, 32, 44),
-		overallEvents2 = c(3, 8, 13, 19),
-		overallEvents3 = c(3, 7, 12, 20)
+	    overallSampleSizes1 = c(11, 24, 36, 49),
+	    overallSampleSizes2 = c(8, 18, 27, 38),
+	    overallSampleSizes3 = c(8, 18, 27, 38),
+	    overallEvents1 = c(10, 20, 32, 44),
+	    overallEvents2 = c(3, 8, 13, 19),
+	    overallEvents3 = c(3, 7, 12, 20)
 	)
 
 	## Comparison of the results of DatasetRates object 'datasetOfRates5' with expected results
@@ -1540,20 +1540,20 @@ test_that("Trim command works as expected for rates", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	datasetOfRatesExpected <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36, 49),
-		overallSampleSizes2 = c(8, 18, 27, 38),
-		overallSampleSizes3 = c(8, 18, 27, 38),
-		overallEvents1 = c(10, 20, 32, 44),
-		overallEvents2 = c(3, 8, 13, 19),
-		overallEvents3 = c(3, 7, 12, 20)
+	    overallSampleSizes1 = c(11, 24, 36, 49),
+	    overallSampleSizes2 = c(8, 18, 27, 38),
+	    overallSampleSizes3 = c(8, 18, 27, 38),
+	    overallEvents1 = c(10, 20, 32, 44),
+	    overallEvents2 = c(3, 8, 13, 19),
+	    overallEvents3 = c(3, 7, 12, 20)
 	)
 	datasetOfRates <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36, 49),
-		overallSampleSizes2 = c(8, 18, 27, 38),
-		overallSampleSizes3 = c(8, 18, 27, 38),
-		overallEvents1 = c(10, 20, 32, 44),
-		overallEvents2 = c(3, 8, 13, 19),
-		overallEvents3 = c(3, 7, 12, 20)
+	    overallSampleSizes1 = c(11, 24, 36, 49),
+	    overallSampleSizes2 = c(8, 18, 27, 38),
+	    overallSampleSizes3 = c(8, 18, 27, 38),
+	    overallEvents1 = c(10, 20, 32, 44),
+	    overallEvents2 = c(3, 8, 13, 19),
+	    overallEvents3 = c(3, 7, 12, 20)
 	)
 	datasetOfRates$.fillWithNAs(6)
 	datasetOfRates$.trim(4)
@@ -1577,9 +1577,9 @@ test_that("Creation of a dataset of survival data using stage wise data", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	datasetSurvival1 <- getDataset(
-		events = c(8, 7, 4, 12),
-		allocationRatios = c(1, 1, 1, 3.58333333333333),
-		logRanks = c(1.520, 1.273, 0.503, 0.887)
+	    events = c(8, 7, 4, 12),
+	    allocationRatios = c(1, 1, 1, 3.58333333333333),
+	    logRanks = c(1.520, 1.273, 0.503, 0.887)
 	)
 
 	## Comparison of the results of DatasetSurvival object 'datasetSurvival1' with expected results
@@ -1763,9 +1763,9 @@ test_that("Creation of a dataset of survival data using overall data", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	datasetSurvival2 <- getDataset(
-		overallEvents = c(8, 15, 19, 31),
-		overallAllocationRatios = c(1, 1, 1, 2),
-		overallLogRanks = c(1.52, 1.98, 1.99, 2.11)
+	    overallEvents = c(8, 15, 19, 31),
+	    overallAllocationRatios = c(1, 1, 1, 2),
+	    overallLogRanks = c(1.52, 1.98, 1.99, 2.11)
 	)
 
 	## Comparison of the results of DatasetSurvival object 'datasetSurvival2' with expected results
@@ -1932,12 +1932,12 @@ test_that("Creation of a dataset of survival data using overall data", {
 	}
 
 	datasetSurvival3 <- getDataset(
-		events1  = c(25, 32), 
-		events2  = c(18, NA), 
-		events3  = c(22, 36),
-		logRanks1 = -c(2.2,1.8),
-		logRanks2 = -c(1.99, NA),
-		logRanks3 = -c(2.32, 2.11)
+	    events1 = c(25, 32),
+	    events2 = c(18, NA),
+	    events3 = c(22, 36),
+	    logRanks1 = -c(2.2, 1.8),
+	    logRanks2 = -c(1.99, NA),
+	    logRanks3 = -c(2.32, 2.11)
 	)
 
 	## Comparison of the results of DatasetSurvival object 'datasetSurvival3' with expected results
@@ -1994,20 +1994,20 @@ test_that("Trim command works as expected for suvival data", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	dataExampleSurvivalExpected <- getDataset(
-		events1   = c(25, 32), 
-		events2   = c(18, NA),
-		events3   = c(22, 36), 
-		logRanks1 = c(2.2,1.8),	
-		logRanks2 = c(1.99, NA), 
-		logRanks3 = c(2.32, 2.11)
+	    events1   = c(25, 32),
+	    events2   = c(18, NA),
+	    events3   = c(22, 36),
+	    logRanks1 = c(2.2, 1.8),
+	    logRanks2 = c(1.99, NA),
+	    logRanks3 = c(2.32, 2.11)
 	)
 	dataExampleSurvival <- getDataset(
-		events1   = c(25, 32), 
-		events2   = c(18, NA),
-		events3   = c(22, 36), 
-		logRanks1 = c(2.2,1.8),	
-		logRanks2 = c(1.99, NA), 
-		logRanks3 = c(2.32, 2.11)
+	    events1   = c(25, 32),
+	    events2   = c(18, NA),
+	    events3   = c(22, 36),
+	    logRanks1 = c(2.2, 1.8),
+	    logRanks2 = c(1.99, NA),
+	    logRanks3 = c(2.32, 2.11)
 	)
 	dataExampleSurvival$.fillWithNAs(4)
 	dataExampleSurvival$.trim(2)
@@ -2037,15 +2037,16 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetMeans}
 	data1 <- getDataset(
-		overallN1 = c(22, 33, NA),
-		overallN2 = c(20, 34, 56),
-		overallN3 = c(22, 31, 52),
-		overallMeans1 = c(1.64, 1.54, NA),
-		overallMeans2 = c(1.7, 1.5, 1.77),
-		overallMeans3 = c(2.5, 2.06, 2.99),
-		overallStDevs1 = c(1.5, 1.9, NA),
-		overallStDevs2 = c(1.3, 1.3, 1.1),
-		overallStDevs3 = c(1, 1.3, 1.8))
+	    overallN1 = c(22, 33, NA),
+	    overallN2 = c(20, 34, 56),
+	    overallN3 = c(22, 31, 52),
+	    overallMeans1 = c(1.64, 1.54, NA),
+	    overallMeans2 = c(1.7, 1.5, 1.77),
+	    overallMeans3 = c(2.5, 2.06, 2.99),
+	    overallStDevs1 = c(1.5, 1.9, NA),
+	    overallStDevs2 = c(1.3, 1.3, 1.1),
+	    overallStDevs3 = c(1, 1.3, 1.8)
+	)
 
 	expect_equal(data1$getNumberOfStages(), 3)
 	expect_equal(data1$getNumberOfStages(FALSE), 3)
@@ -2055,15 +2056,16 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	.skipTestIfDisabled()
 
 	data2 <- getDataset(
-		overallN1 = c(22, 33, 55),
-		overallN2 = c(20, 34, 56),
-		overallN3 = c(22, 31, 52),
-		overallMeans1 = c(1.64, 1.54, 2.10),
-		overallMeans2 = c(1.7, 1.5, 1.77),
-		overallMeans3 = c(2.5, 2.06, 2.99),
-		overallStDevs1 = c(1.5, 1.9, 1.7),
-		overallStDevs2 = c(1.3, 1.3, 1.1),
-		overallStDevs3 = c(1, 1.3, 1.8))
+	    overallN1 = c(22, 33, 55),
+	    overallN2 = c(20, 34, 56),
+	    overallN3 = c(22, 31, 52),
+	    overallMeans1 = c(1.64, 1.54, 2.10),
+	    overallMeans2 = c(1.7, 1.5, 1.77),
+	    overallMeans3 = c(2.5, 2.06, 2.99),
+	    overallStDevs1 = c(1.5, 1.9, 1.7),
+	    overallStDevs2 = c(1.3, 1.3, 1.1),
+	    overallStDevs3 = c(1, 1.3, 1.8)
+	)
 
 	expect_equal(data2$getNumberOfStages(), 3)
 	expect_equal(data2$getNumberOfStages(FALSE), 3)
@@ -2071,15 +2073,16 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	expect_equal(data2$getNumberOfGroups(survivalCorrectionEnabled = FALSE), 3)
 
 	data3 <- getDataset(
-		overallN1 = c(22, 33, 55),
-		overallN2 = c(20, 34, 56),
-		overallN3 = c(22, 31, 52),
-		overallMeans1 = c(1.64, 1.54, 2.10),
-		overallMeans2 = c(1.7, 1.5, 1.77),
-		overallMeans3 = c(2.5, 2.06, 2.99),
-		overallStDevs1 = c(1.5, 1.9, 1.7),
-		overallStDevs2 = c(1.3, 1.3, 1.1),
-		overallStDevs3 = c(1, 1.3, 1.8))
+	    overallN1 = c(22, 33, 55),
+	    overallN2 = c(20, 34, 56),
+	    overallN3 = c(22, 31, 52),
+	    overallMeans1 = c(1.64, 1.54, 2.10),
+	    overallMeans2 = c(1.7, 1.5, 1.77),
+	    overallMeans3 = c(2.5, 2.06, 2.99),
+	    overallStDevs1 = c(1.5, 1.9, 1.7),
+	    overallStDevs2 = c(1.3, 1.3, 1.1),
+	    overallStDevs3 = c(1, 1.3, 1.8)
+	)
 
 	expect_equal(data3$getNumberOfStages(), 3)
 	expect_equal(data3$getNumberOfStages(FALSE), 3)
@@ -2093,12 +2096,13 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetRates}
 	data1 <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36, NA),
-		overallSampleSizes2 = c(8, 18, 27, NA),
-		overallSampleSizes3 = c(8, 18, 27, NA),
-		overallEvents1 = c(10, 20, 32, NA),
-		overallEvents2 = c(3, 8, 13, NA),
-		overallEvents3 = c(3, 7, 12, NA))
+	    overallSampleSizes1 = c(11, 24, 36, NA),
+	    overallSampleSizes2 = c(8, 18, 27, NA),
+	    overallSampleSizes3 = c(8, 18, 27, NA),
+	    overallEvents1 = c(10, 20, 32, NA),
+	    overallEvents2 = c(3, 8, 13, NA),
+	    overallEvents3 = c(3, 7, 12, NA)
+	)
 
 	expect_equal(data1$getNumberOfStages(), 3)
 	expect_equal(data1$getNumberOfStages(FALSE), 4)
@@ -2108,12 +2112,13 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	.skipTestIfDisabled()
 
 	data2 <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36, 49),
-		overallSampleSizes2 = c(8, 18, 27, 38),
-		overallSampleSizes3 = c(8, 18, 27, 38),
-		overallEvents1 = c(10, 20, 32, 44),
-		overallEvents2 = c(3, 8, 13, 19),
-		overallEvents3 = c(3, 7, 12, 20))
+	    overallSampleSizes1 = c(11, 24, 36, 49),
+	    overallSampleSizes2 = c(8, 18, 27, 38),
+	    overallSampleSizes3 = c(8, 18, 27, 38),
+	    overallEvents1 = c(10, 20, 32, 44),
+	    overallEvents2 = c(3, 8, 13, 19),
+	    overallEvents3 = c(3, 7, 12, 20)
+	)
 
 	expect_equal(data2$getNumberOfStages(), 4)
 	expect_equal(data2$getNumberOfStages(FALSE), 4)
@@ -2121,14 +2126,15 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	expect_equal(data2$getNumberOfGroups(survivalCorrectionEnabled = FALSE), 3)
 
 	data3 <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36, 49),
-		overallSampleSizes2 = c(8, 18, NA, NA),
-		overallSampleSizes3 = c(8, 18, NA, NA),
-		overallSampleSizes4 = c(8, 18, 27, 38),
-		overallEvents1 = c(10, 20, 32, 44),
-		overallEvents2 = c(3, 8, NA, NA),
-		overallEvents3 = c(3, 8, NA, NA),
-		overallEvents4 = c(3, 7, 12, 20))
+	    overallSampleSizes1 = c(11, 24, 36, 49),
+	    overallSampleSizes2 = c(8, 18, NA, NA),
+	    overallSampleSizes3 = c(8, 18, NA, NA),
+	    overallSampleSizes4 = c(8, 18, 27, 38),
+	    overallEvents1 = c(10, 20, 32, 44),
+	    overallEvents2 = c(3, 8, NA, NA),
+	    overallEvents3 = c(3, 8, NA, NA),
+	    overallEvents4 = c(3, 7, 12, 20)
+	)
 
 	expect_equal(data3$getNumberOfStages(), 4)
 	expect_equal(data3$getNumberOfStages(FALSE), 4)
@@ -2136,10 +2142,11 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	expect_equal(data3$getNumberOfGroups(survivalCorrectionEnabled = FALSE), 4)
 
 	data4 <- getDataset(
-		overallSampleSizes1 = c(11, 24, 36),
-		overallSampleSizes2 = c(8, 18, 27),
-		overallEvents1 = c(10, 20, 32),
-		overallEvents2 = c(3, 7, 12))
+	    overallSampleSizes1 = c(11, 24, 36),
+	    overallSampleSizes2 = c(8, 18, 27),
+	    overallEvents1 = c(10, 20, 32),
+	    overallEvents2 = c(3, 7, 12)
+	)
 
 	expect_equal(data4$getNumberOfStages(), 3)
 	expect_equal(data4$getNumberOfStages(FALSE), 3)
@@ -2147,10 +2154,11 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	expect_equal(data4$getNumberOfGroups(survivalCorrectionEnabled = FALSE), 2)
 
 	data5 <- getDataset(
-		overallSampleSizes1 = c(11, 24, NA),
-		overallSampleSizes2 = c(8, 18, NA),
-		overallEvents1 = c(10, 20, NA),
-		overallEvents2 = c(3, 7, NA))
+	    overallSampleSizes1 = c(11, 24, NA),
+	    overallSampleSizes2 = c(8, 18, NA),
+	    overallEvents1 = c(10, 20, NA),
+	    overallEvents2 = c(3, 7, NA)
+	)
 
 	expect_equal(data5$getNumberOfStages(), 2)
 	expect_equal(data5$getNumberOfStages(FALSE), 3)
@@ -2158,8 +2166,9 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	expect_equal(data5$getNumberOfGroups(survivalCorrectionEnabled = FALSE), 2)
 
 	data6 <- getDataset(
-		overallSampleSizes = c(11, 24, NA),
-		overallEvents = c(3, 7, NA))
+	    overallSampleSizes = c(11, 24, NA),
+	    overallEvents = c(3, 7, NA)
+	)
 
 	expect_equal(data6$getNumberOfStages(), 2)
 	expect_equal(data6$getNumberOfStages(FALSE), 3)
@@ -2175,20 +2184,22 @@ test_that("Dataset functions 'getNumberOfStages' and 'getNumberOfGroups' work as
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
 	# @refFS[Tab.]fs:tab:output:getDatasetSurvival}
 	data3 <- getDataset(
-		overallEvents1   = c(13, 33), 
-		overallLogRanks1 = c(1.23, 1.55), 
-		overallEvents2   = c(16, 33), 
-		overallLogRanks2 = c(1.55, 2.2))
+	    overallEvents1   = c(13, 33),
+	    overallLogRanks1 = c(1.23, 1.55),
+	    overallEvents2   = c(16, 33),
+	    overallLogRanks2 = c(1.55, 2.2)
+	)
 	expect_equal(data3$getNumberOfStages(), 2)
 	expect_equal(data3$getNumberOfStages(FALSE), 2)
 	expect_equal(data3$getNumberOfGroups(), 3)
 	expect_equal(data3$getNumberOfGroups(survivalCorrectionEnabled = FALSE), 2)
 
 	data4 <- getDataset(
-		events1   = c(13, NA), 
-		logRanks1 = c(1.23, NA), 
-		events2   = c(16, NA), 
-		logRanks2 = c(1.55, NA))
+	    events1   = c(13, NA),
+	    logRanks1 = c(1.23, NA),
+	    events2   = c(16, NA),
+	    logRanks2 = c(1.55, NA)
+	)
 	expect_equal(data4$getNumberOfStages(), 1)
 	expect_equal(data4$getNumberOfStages(FALSE), 2)
 	expect_equal(data4$getNumberOfGroups(), 3)
@@ -2213,27 +2224,35 @@ context("Testing that 'getDataset' Throws Exceptions as Expected")
 
 test_that("Wrong parameter usage of 'getDataset'", {
 	# @refFS[Tab.]{fs:tab:dataInputVariants}
-	expect_error(getDataset(), 
-		"Missing argument: data.frame, data vectors, or datasets expected", fixed = TRUE)
+	expect_error(getDataset(),
+	    "Missing argument: data.frame, data vectors, or datasets expected",
+	    fixed = TRUE
+	)
 
-	expect_error(getDataset(1), 
-		"Illegal argument: all parameters must be named", fixed = TRUE)
+	expect_error(getDataset(1),
+	    "Illegal argument: all parameters must be named",
+	    fixed = TRUE
+	)
 
-	expect_error(getDataset(n = 1), 
-		"Illegal argument: failed to identify dataset type", fixed = TRUE)
+	expect_error(getDataset(n = 1),
+	    "Illegal argument: failed to identify dataset type",
+	    fixed = TRUE
+	)
 
-	expect_error(getDataset(1, x = 2), 
-		"Illegal argument: all parameters must be named", fixed = TRUE)
+	expect_error(getDataset(1, x = 2),
+	    "Illegal argument: all parameters must be named",
+	    fixed = TRUE
+	)
 
 	expect_error(getDataset(
-			overallSampleSizes1 = c(11, 24, 36, 49),
-			overallSampleSizes2 = c(8, 18, 27, 38),
-			overallSampleSizes3 = c(8, 18, 27, 38),
-			overallEvents1 = c(10, 20, 32, 44),
-			overallEvents2 = c(3, 8, 13, 19),
-			overallEvents3 = c(3, 8, 13, 19),
-			overallEvents1 = c(3, 8, 13, 19)
-		), "Illegal argument: the parameter names must be unique", fixed = TRUE)
+	    overallSampleSizes1 = c(11, 24, 36, 49),
+	    overallSampleSizes2 = c(8, 18, 27, 38),
+	    overallSampleSizes3 = c(8, 18, 27, 38),
+	    overallEvents1 = c(10, 20, 32, 44),
+	    overallEvents2 = c(3, 8, 13, 19),
+	    overallEvents3 = c(3, 8, 13, 19),
+	    overallEvents1 = c(3, 8, 13, 19)
+	), "Illegal argument: the parameter names must be unique", fixed = TRUE)
 
 })
 
@@ -2242,14 +2261,15 @@ context("Testing datasets for enrichment designs")
 
 test_that("Creation of a dataset of means with subsets", {
 	x <- getDataset(
-		stage = c(1,1,1,1,2,2,2,2,3,3,3,3),
-		subset = c("S1","S2","S12","R","S1","S2","S12","R","S1","S2","S12","R"),
-		sampleSize1 = c(12,14,21,33,33,22,12,14,21,33,33,22),
-		sampleSize2 = c(18,11,21,9,17,18,12,14,21,33,33,22),
-		mean1 = c(107.7,  68.3,  84.9,  77.1, 77.7, 127.4, 107.7, 68.3,  84.9,  77.1, 77.7, 127.4),
-		mean2 = c(165.6,  120.1,  195.9,  162.4, 111.1, 100.9, 107.7,  68.3,  84.9,  77.1, 77.7, 127.4),
-		stDev1 = c(128.5, 124.0, 139.5, 163.5, 133.3, 134.7, 107.7,  68.3,  84.9,  77.1, 77.7, 127.4),
-		stDev2 = c(120.1, 116.8, 185.0, 120.6, 145.6, 133.7, 107.7,  68.3,  84.9,  77.1, 77.7, 127.4)) 
+	    stage = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
+	    subset = c("S1", "S2", "S12", "R", "S1", "S2", "S12", "R", "S1", "S2", "S12", "R"),
+	    sampleSize1 = c(12, 14, 21, 33, 33, 22, 12, 14, 21, 33, 33, 22),
+	    sampleSize2 = c(18, 11, 21, 9, 17, 18, 12, 14, 21, 33, 33, 22),
+	    mean1 = c(107.7, 68.3, 84.9, 77.1, 77.7, 127.4, 107.7, 68.3, 84.9, 77.1, 77.7, 127.4),
+	    mean2 = c(165.6, 120.1, 195.9, 162.4, 111.1, 100.9, 107.7, 68.3, 84.9, 77.1, 77.7, 127.4),
+	    stDev1 = c(128.5, 124.0, 139.5, 163.5, 133.3, 134.7, 107.7, 68.3, 84.9, 77.1, 77.7, 127.4),
+	    stDev2 = c(120.1, 116.8, 185.0, 120.6, 145.6, 133.7, 107.7, 68.3, 84.9, 77.1, 77.7, 127.4)
+	)
 
 	## Comparison of the results of DatasetMeans object 'x' with expected results
 	expect_equal(x$stages, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3))
@@ -2286,14 +2306,14 @@ test_that("Creation of a dataset of means with subsets", {
 	}
 
 	x2 <- getDataset(
-		stages = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
-		subsets = c('S2', 'S12', 'S1', 'R', 'S2', 'S12', 'S1', 'R', 'S2', 'S12', 'S1', 'R'),
-		overallSampleSizes1 = c(14, 21, 12, 33, 36, 33, 45, 47, 69, 66, 66, 69),
-		overallSampleSizes2 = c(11, 21, 18, 9, 29, 33, 35, 23, 62, 66, 56, 45),
-		overallMeans1 = c(68.3, 84.9, 107.7, 77.1, 104.417, 93.191, 85.7, 74.479, 91.352, 85.445, 85.445, 91.352),
-		overallMeans2 = c(120.1, 195.9, 165.6, 162.4, 108.183, 163.827, 139.129, 105.122, 91.639, 120.764, 118.793, 116.013),
-		overallStDevs1 = c(124, 139.5, 128.5, 163.5, 132.104, 127.569, 131.266, 141.178, 109.401, 105.095, 117.822, 138.248),
-		overallStDevs2 = c(116.8, 185, 120.1, 120.6, 125.759, 165.028, 133.985, 101.244, 103.065, 135.14, 120.085, 114.011) 
+	    stages = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
+	    subsets = c("S2", "S12", "S1", "R", "S2", "S12", "S1", "R", "S2", "S12", "S1", "R"),
+	    overallSampleSizes1 = c(14, 21, 12, 33, 36, 33, 45, 47, 69, 66, 66, 69),
+	    overallSampleSizes2 = c(11, 21, 18, 9, 29, 33, 35, 23, 62, 66, 56, 45),
+	    overallMeans1 = c(68.3, 84.9, 107.7, 77.1, 104.417, 93.191, 85.7, 74.479, 91.352, 85.445, 85.445, 91.352),
+	    overallMeans2 = c(120.1, 195.9, 165.6, 162.4, 108.183, 163.827, 139.129, 105.122, 91.639, 120.764, 118.793, 116.013),
+	    overallStDevs1 = c(124, 139.5, 128.5, 163.5, 132.104, 127.569, 131.266, 141.178, 109.401, 105.095, 117.822, 138.248),
+	    overallStDevs2 = c(116.8, 185, 120.1, 120.6, 125.759, 165.028, 133.985, 101.244, 103.065, 135.14, 120.085, 114.011)
 	)
 
 	## Comparison of the results of DatasetMeans object 'x2' with expected results
@@ -2330,26 +2350,27 @@ test_that("Creation of a dataset of means with subsets", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	expect_equal(x$sampleSizes, x2$sampleSizes) 
-	expect_equal(x$means, x2$means, tolerance = 1e-05) 
-	expect_equal(x$stDevs, x2$stDevs, tolerance = 1e-05) 
-	expect_equal(x$overallSampleSizes, x2$overallSampleSizes) 
-	expect_equal(x$overallMeans, x2$overallMeans, tolerance = 1e-05) 
-	expect_equal(x$overallStDevs, x2$overallStDevs, tolerance = 1e-05) 
+	expect_equal(x$sampleSizes, x2$sampleSizes)
+	expect_equal(x$means, x2$means, tolerance = 1e-05)
+	expect_equal(x$stDevs, x2$stDevs, tolerance = 1e-05)
+	expect_equal(x$overallSampleSizes, x2$overallSampleSizes)
+	expect_equal(x$overallMeans, x2$overallMeans, tolerance = 1e-05)
+	expect_equal(x$overallStDevs, x2$overallStDevs, tolerance = 1e-05)
 
 })
 
 test_that("Creation of a dataset of rates with subsets", {
 
 	x <- getDataset(
-		stage = c(1,1,2,2),
-		subset = c("S1","R","S1","R"),
-		sampleSizes1 = c(11, 24, 36, 49),
-		sampleSizes2 = c(8, 18, 27, 38),
-		sampleSizes3 = c(8, 18, 27, 38),
-		events1 = c(10, 20, 32, 44),
-		events2 = c(3, 8, 13, 19),
-		events3 = c(3, 7, 12, 20))
+	    stage = c(1, 1, 2, 2),
+	    subset = c("S1", "R", "S1", "R"),
+	    sampleSizes1 = c(11, 24, 36, 49),
+	    sampleSizes2 = c(8, 18, 27, 38),
+	    sampleSizes3 = c(8, 18, 27, 38),
+	    events1 = c(10, 20, 32, 44),
+	    events2 = c(3, 8, 13, 19),
+	    events3 = c(3, 7, 12, 20)
+	)
 
 	## Comparison of the results of DatasetRates object 'x' with expected results
 	expect_equal(x$stages, c(1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2))
@@ -2386,14 +2407,14 @@ test_that("Creation of a dataset of rates with subsets", {
 test_that("Creation of a dataset of survival data with subsets", {
 
 	x <- getDataset(
-		stage = c(1, 1, 2, 2),
-		subset = c("S1","R","S1","R"),
-		events1 = c(10, 20, 32, 44),
-		events2 = c(3, 8, 13, 19),
-		events3 = c(3, 7, 12, 20),
-		logRanks1 = c(2.2, 1.8, 1.9, 2.1),	
-		logRanks2 = c(1.99, 2.01, 2.05, 2.09), 
-		logRanks3 = c(2.32, 2.11, 2.14, 2.17)
+	    stage = c(1, 1, 2, 2),
+	    subset = c("S1", "R", "S1", "R"),
+	    events1 = c(10, 20, 32, 44),
+	    events2 = c(3, 8, 13, 19),
+	    events3 = c(3, 7, 12, 20),
+	    logRanks1 = c(2.2, 1.8, 1.9, 2.1),
+	    logRanks2 = c(1.99, 2.01, 2.05, 2.09),
+	    logRanks3 = c(2.32, 2.11, 2.14, 2.17)
 	)
 
 	## Comparison of the results of DatasetSurvival object 'x' with expected results
@@ -2435,83 +2456,100 @@ test_that("Creation of a dataset of survival data with subsets", {
 test_that("Illegal creation of a dataset of means with subsets: invalid sample size", {
 
 	expect_error(getDataset(
-			sampleSize1 = c(NA,   NA),
-			sampleSize2 = c(NA,   NA),
-			mean1       = c(NA,   NA),
-			mean2       = c(NA,   NA),
-			stDev1      = c(NA,   NA),
-			stDev2      = c(NA,   NA)), 
-		"Illegal argument: 'sampleSize1' is NA at first stage; a valid numeric value must be specified at stage 1", fixed = TRUE)
+	    sampleSize1 = c(NA, NA),
+	    sampleSize2 = c(NA, NA),
+	    mean1       = c(NA, NA),
+	    mean2       = c(NA, NA),
+	    stDev1      = c(NA, NA),
+	    stDev2      = c(NA, NA)
+	),
+	"Illegal argument: 'sampleSize1' is NA at first stage; a valid numeric value must be specified at stage 1",
+	fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of means with subsets: too small standard deviation (one subset)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(12, 21),
-		sampleSize2 = c(18, 21),
-		mean1 = c(107.7, 84.9),
-		mean2 = c(165.6, 195.9),
-		stDev1 = c(128.5, 139.5),
-		stDev2 = c(120.1, 185.0))
+	    sampleSize1 = c(12, 21),
+	    sampleSize2 = c(18, 21),
+	    mean1 = c(107.7, 84.9),
+	    mean2 = c(165.6, 195.9),
+	    stDev1 = c(128.5, 139.5),
+	    stDev2 = c(120.1, 185.0)
+	)
 
 	F <- getDataset(
-		sampleSize1 = c(26, NA),
-		sampleSize2 = c(29, NA),
-		mean1 = c(86.48462, NA),
-		mean2 = c(148.34138, NA),
-		stDev1 = c(125.1485, NA),
-		stDev2 = c(118.888, NA))
+	    sampleSize1 = c(26, NA),
+	    sampleSize2 = c(29, NA),
+	    mean1 = c(86.48462, NA),
+	    mean2 = c(148.34138, NA),
+	    stDev1 = c(125.1485, NA),
+	    stDev2 = c(118.888, NA)
+	)
 
-	expect_error(getDataset(S1 = S1, F = F), 
-		"Conflicting arguments: 'stDev' F (125.148) must be > 'stDev' S1 (128.5) in group 1 at stage 1", fixed = TRUE)
+	expect_error(getDataset(S1 = S1, F = F),
+	    "Conflicting arguments: 'stDev' F (125.148) must be > 'stDev' S1 (128.5) in group 1 at stage 1",
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of means with subsets: too small sample size in F (one group)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(12, 21),
-		sampleSize2 = c(30, 21),
-		mean1 = c(107.7, 84.9),
-		mean2 = c(165.6, 195.9),
-		stDev1 = c(128.5, 139.5),
-		stDev2 = c(120.1, 185.0))
+	    sampleSize1 = c(12, 21),
+	    sampleSize2 = c(30, 21),
+	    mean1 = c(107.7, 84.9),
+	    mean2 = c(165.6, 195.9),
+	    stDev1 = c(128.5, 139.5),
+	    stDev2 = c(120.1, 185.0)
+	)
 
 	F <- getDataset(
-		sampleSize1 = c(26, NA),
-		sampleSize2 = c(29, NA),
-		mean1 = c(86.48462, NA),
-		mean2 = c(148.34138, NA),
-		stDev1 = c(129.1485, NA),
-		stDev2 = c(122.888, NA))
+	    sampleSize1 = c(26, NA),
+	    sampleSize2 = c(29, NA),
+	    mean1 = c(86.48462, NA),
+	    mean2 = c(148.34138, NA),
+	    stDev1 = c(129.1485, NA),
+	    stDev2 = c(122.888, NA)
+	)
 
-	expect_error(getDataset(S1 = S1, F = F), 
-		"Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (30) in group 2 at stage 1", fixed = TRUE)
+	expect_error(getDataset(S1 = S1, F = F),
+	    "Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (30) in group 2 at stage 1",
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of means with subsets: wrong deselection (one group)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(   12,   NA),
-		sampleSize2 = c(   18,   NA),
-		mean1       = c(107.7,   NA),
-		mean2       = c(165.6,   NA),
-		stDev1      = c(128.5,   NA),
-		stDev2      = c(120.1,   NA))
+	    sampleSize1 = c(12, NA),
+	    sampleSize2 = c(18, NA),
+	    mean1       = c(107.7, NA),
+	    mean2       = c(165.6, NA),
+	    stDev1      = c(128.5, NA),
+	    stDev2      = c(120.1, NA)
+	)
 
 	R <- getDataset(
-		sampleSize1 = c(   14,    21),
-		sampleSize2 = c(   11,    21),
-		mean1       = c( 68.3,  84.9),
-		mean2       = c(120.1, 195.9),
-		stDev1      = c(124.0, 139.5),
-		stDev2      = c(116.8, 185.0))
+	    sampleSize1 = c(14, 21),
+	    sampleSize2 = c(11, 21),
+	    mean1       = c(68.3, 84.9),
+	    mean2       = c(120.1, 195.9),
+	    stDev1      = c(124.0, 139.5),
+	    stDev2      = c(116.8, 185.0)
+	)
 
-	expect_error(getDataset(S1 = S1, R = R), 
-		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be deselected (NA) ",
-			"but, e.g., ", sQuote("sampleSize"), " R is 21 in group 1 at stage 2"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, R = R),
+	    paste0(
+	        "Conflicting arguments: if S1 is deselected (NA) then R also must be deselected (NA) ",
+	        "but, e.g., ", sQuote("sampleSize"), " R is 21 in group 1 at stage 2"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
@@ -2519,176 +2557,211 @@ test_that("Illegal creation of a dataset of means with subsets: inconsistent num
 
 	## S1
 	expect_error(getDataset(
-			sampleSize1 = c(   12,   NA,    21),
-			sampleSize2 = c(   18,   NA,    21),
-			mean1       = c(107.7,   NA,  84.9),
-			mean2       = c(165.6,   NA, 195.9),
-			stDev1      = c(128.5,   NA, 139.5),
-			stDev2      = c(120.1,   NA, 185.0)), 
-		paste0("Illegal argument: 'sampleSize1' contains a NA at stage 2 followed by a ", 
-			"value for a higher stage; NA's must be the last values"), fixed = TRUE)
+	    sampleSize1 = c(12, NA, 21),
+	    sampleSize2 = c(18, NA, 21),
+	    mean1       = c(107.7, NA, 84.9),
+	    mean2       = c(165.6, NA, 195.9),
+	    stDev1      = c(128.5, NA, 139.5),
+	    stDev2      = c(120.1, NA, 185.0)
+	),
+	paste0(
+	    "Illegal argument: 'sampleSize1' contains a NA at stage 2 followed by a ",
+	    "value for a higher stage; NA's must be the last values"
+	),
+	fixed = TRUE
+	)
 
 	S1 <- getDataset(
-		sampleSize1 = c(   12,    21),
-		sampleSize2 = c(   18,    21),
-		mean1       = c(107.7,  84.9),
-		mean2       = c(165.6, 195.9),
-		stDev1      = c(128.5, 139.5),
-		stDev2      = c(120.1, 185.0))
+	    sampleSize1 = c(12, 21),
+	    sampleSize2 = c(18, 21),
+	    mean1       = c(107.7, 84.9),
+	    mean2       = c(165.6, 195.9),
+	    stDev1      = c(128.5, 139.5),
+	    stDev2      = c(120.1, 185.0)
+	)
 
 	R <- getDataset(
-		sampleSize1 = c(   14,   NA,   NA),
-		sampleSize2 = c(   11,   NA,   NA),
-		mean1       = c( 68.3,   NA,   NA),
-		mean2       = c(120.1,   NA,   NA),
-		stDev1      = c(124.0,   NA,   NA),
-		stDev2      = c(116.8,   NA,   NA))
+	    sampleSize1 = c(14, NA, NA),
+	    sampleSize2 = c(11, NA, NA),
+	    mean1       = c(68.3, NA, NA),
+	    mean2       = c(120.1, NA, NA),
+	    stDev1      = c(124.0, NA, NA),
+	    stDev2      = c(116.8, NA, NA)
+	)
 
-	expect_error(getDataset(S1 = S1, R = R), 
-		paste0("Conflicting arguments: all subsets must have the identical ",
-			"number of stages defined (kMax: S1 = 2, R = 3)"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, R = R),
+	    paste0(
+	        "Conflicting arguments: all subsets must have the identical ",
+	        "number of stages defined (kMax: S1 = 2, R = 3)"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of means with subsets: too small standard deviation in F (two subsets)", {
 
 	S1N <- getDataset(
-		sampleSize1 = c(   39,    34,   NA), 
-		sampleSize2 = c(   33,    45,   NA), 
-		stDev1      = c(156.5026,  120.084, NA), 
-		stDev2      = c(134.0254, 126.502, NA), 
-		mean1       = c(131.146, 114.4, NA), 
-		mean2       = c(93.191, 85.7, NA))
+	    sampleSize1 = c(39, 34, NA),
+	    sampleSize2 = c(33, 45, NA),
+	    stDev1      = c(156.5026, 120.084, NA),
+	    stDev2      = c(134.0254, 126.502, NA),
+	    mean1       = c(131.146, 114.4, NA),
+	    mean2       = c(93.191, 85.7, NA)
+	)
 
 	S2N <- getDataset(
-		sampleSize1 = c(   32,    NA,   NA), 
-		sampleSize2 = c(   35,    NA,   NA), 
-		stDev1      = c(163.645,  NA, NA), 
-		stDev2      = c(131.888, NA, NA),
-		mean1       = c(123.594, NA, NA), 
-		mean2       = c(78.26, NA, NA)
+	    sampleSize1 = c(32, NA, NA),
+	    sampleSize2 = c(35, NA, NA),
+	    stDev1      = c(163.645, NA, NA),
+	    stDev2      = c(131.888, NA, NA),
+	    mean1       = c(123.594, NA, NA),
+	    mean2       = c(78.26, NA, NA)
 	)
 
 	F <- getDataset(
-		sampleSize1 = c(   69,   NA,   NA), 
-		sampleSize2 = c(   80,    NA,   NA), 
-		stDev1      = c(140.4682,  NA, NA), 
-		stDev2      = c(143.9796, NA, NA), 
-		mean1       = c(129.2957, NA, NA), 
-		mean2       = c(82.1875, NA, NA))
+	    sampleSize1 = c(69, NA, NA),
+	    sampleSize2 = c(80, NA, NA),
+	    stDev1      = c(140.4682, NA, NA),
+	    stDev2      = c(143.9796, NA, NA),
+	    mean1       = c(129.2957, NA, NA),
+	    mean2       = c(82.1875, NA, NA)
+	)
 
-	expect_error(getDataset(S1 = S1N, S2 = S2N, F = F), 
-		paste0("Conflicting arguments: 'stDev' F (140.468) must ",
-		"be > 'stDev' S1 (156.503) in group 1 at stage 1"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1N, S2 = S2N, F = F),
+	    paste0(
+	        "Conflicting arguments: 'stDev' F (140.468) must ",
+	        "be > 'stDev' S1 (156.503) in group 1 at stage 1"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of means with subsets: too small sample size in F (two subsets)", {
 
 	S1N <- getDataset(
-		sampleSize1 = c(   39,    34,   NA), 
-		sampleSize2 = c(   33,    45,   NA), 
-		stDev1      = c(156.5026,  120.084, NA), 
-		stDev2      = c(134.0254, 126.502, NA), 
-		mean1       = c(131.146, 114.4, NA), 
-		mean2       = c(93.191, 85.7, NA))
+	    sampleSize1 = c(39, 34, NA),
+	    sampleSize2 = c(33, 45, NA),
+	    stDev1      = c(156.5026, 120.084, NA),
+	    stDev2      = c(134.0254, 126.502, NA),
+	    mean1       = c(131.146, 114.4, NA),
+	    mean2       = c(93.191, 85.7, NA)
+	)
 
 	S2N <- getDataset(
-		sampleSize1 = c(   32,    NA,   NA), 
-		sampleSize2 = c(   35,    NA,   NA), 
-		stDev1      = c(163.645,  NA, NA), 
-		stDev2      = c(131.888, NA, NA),
-		mean1       = c(123.594, NA, NA), 
-		mean2       = c(78.26, NA, NA)
+	    sampleSize1 = c(32, NA, NA),
+	    sampleSize2 = c(35, NA, NA),
+	    stDev1      = c(163.645, NA, NA),
+	    stDev2      = c(131.888, NA, NA),
+	    mean1       = c(123.594, NA, NA),
+	    mean2       = c(78.26, NA, NA)
 	)
 
 	F <- getDataset(
-		sampleSize1 = c(      30, NA, NA), 
-		sampleSize2 = c(      80, NA, NA), 
-		stDev1      = c(164.4682, NA, NA), 
-		stDev2      = c(143.9796, NA, NA), 
-		mean1       = c(129.2957, NA, NA), 
-		mean2       = c( 82.1875, NA, NA))
+	    sampleSize1 = c(30, NA, NA),
+	    sampleSize2 = c(80, NA, NA),
+	    stDev1      = c(164.4682, NA, NA),
+	    stDev2      = c(143.9796, NA, NA),
+	    mean1       = c(129.2957, NA, NA),
+	    mean2       = c(82.1875, NA, NA)
+	)
 
-	expect_error(getDataset(S1 = S1N, S2 = S2N, F = F), 
-		paste0("Conflicting arguments: 'sampleSize' F (30) must ",
-		"be >= 'sampleSize' S1 (39) in group 1 at stage 1"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1N, S2 = S2N, F = F),
+	    paste0(
+	        "Conflicting arguments: 'sampleSize' F (30) must ",
+	        "be >= 'sampleSize' S1 (39) in group 1 at stage 1"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of means with subsets: wrong deselection (three subsets)", {
 
 	S1 <- getDataset(
-		sampleSize2 = c(   12,    33,   21), 
-		sampleSize1 = c(   18,    17,   23), 
-		mean2       = c(107.7,  77.7, 84.9), 
-		mean1       = c(125.6, 111.1, 99.9), 
-		stDev2      = c(128.5, 133.3, 84.9), 
-		stDev1      = c(120.1, 145.6, 74.3))
+	    sampleSize2 = c(12, 33, 21),
+	    sampleSize1 = c(18, 17, 23),
+	    mean2       = c(107.7, 77.7, 84.9),
+	    mean1       = c(125.6, 111.1, 99.9),
+	    stDev2      = c(128.5, 133.3, 84.9),
+	    stDev1      = c(120.1, 145.6, 74.3)
+	)
 
 	S2 <- getDataset(
-		sampleSize2 = c(   14, NA,   NA), 
-		sampleSize1 = c(   11, NA,   NA), 
-		mean2       = c( 68.3, NA,   NA), 
-		mean1       = c(100.1, NA,   NA), 
-		stDev2      = c(124.0, NA,   NA), 
-		stDev1      = c(116.8, NA,   NA))
+	    sampleSize2 = c(14, NA, NA),
+	    sampleSize1 = c(11, NA, NA),
+	    mean2       = c(68.3, NA, NA),
+	    mean1       = c(100.1, NA, NA),
+	    stDev2      = c(124.0, NA, NA),
+	    stDev1      = c(116.8, NA, NA)
+	)
 
-	S12 <- getDataset(           
-		sampleSize2 = c(    21,    12,    33), 
-		sampleSize1 = c(    21,    17,    31), 
-		mean2       = c(  84.9, 107.7,  77.7), 
-		mean1       = c( 135.9, 117.7,  97.7), 
-		stDev2      = c( 139.5, 107.7,  77.7), 
-		stDev1      = c( 185.0,  92.3,  87.3))
+	S12 <- getDataset(
+	    sampleSize2 = c(21, 12, 33),
+	    sampleSize1 = c(21, 17, 31),
+	    mean2       = c(84.9, 107.7, 77.7),
+	    mean1       = c(135.9, 117.7, 97.7),
+	    stDev2      = c(139.5, 107.7, 77.7),
+	    stDev1      = c(185.0, 92.3, 87.3)
+	)
 
 	R <- getDataset(
-		sampleSize2 = c(   33,    33,  NA), 
-		sampleSize1 = c(   19,    19,  NA), 
-		mean2       = c( 77.1,  77.1,  NA), 
-		mean1       = c(142.4, 142.4,  NA), 
-		stDev2      = c(163.5, 163.5,  NA), 
-		stDev1      = c(120.6, 120.6,  NA))
+	    sampleSize2 = c(33, 33, NA),
+	    sampleSize1 = c(19, 19, NA),
+	    mean2       = c(77.1, 77.1, NA),
+	    mean1       = c(142.4, 142.4, NA),
+	    stDev2      = c(163.5, 163.5, NA),
+	    stDev1      = c(120.6, 120.6, NA)
+	)
 
-	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
-		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be deselected ", 
-			"(NA) but, e.g., ", sQuote("sampleSize"), " R is 19 in group 1 at stage 2"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R),
+	    paste0(
+	        "Conflicting arguments: if S2 is deselected (NA) then R also must be deselected ",
+	        "(NA) but, e.g., ", sQuote("sampleSize"), " R is 19 in group 1 at stage 2"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Valid creation of a dataset of means with subsets: no error occurs", {
 
 	S1 <- getDataset(
-		sampleSize2 = c(   12,    33,   21), 
-		sampleSize1 = c(   18,    17,   23), 
-		mean2       = c(107.7,  77.7, 84.9), 
-		mean1       = c(125.6, 111.1, 99.9), 
-		stDev2      = c(128.5, 133.3, 84.9), 
-		stDev1      = c(120.1, 145.6, 74.3))
+	    sampleSize2 = c(12, 33, 21),
+	    sampleSize1 = c(18, 17, 23),
+	    mean2       = c(107.7, 77.7, 84.9),
+	    mean1       = c(125.6, 111.1, 99.9),
+	    stDev2      = c(128.5, 133.3, 84.9),
+	    stDev1      = c(120.1, 145.6, 74.3)
+	)
 
 	S2 <- getDataset(
-		sampleSize2 = c(   14,    22,   NA), 
-		sampleSize1 = c(   11,    18,   NA), 
-		mean2       = c( 68.3, 127.4,   NA), 
-		mean1       = c(100.1, 110.9,   NA), 
-		stDev2      = c(124.0, 134.7,   NA), 
-		stDev1      = c(116.8, 133.7,   NA))
+	    sampleSize2 = c(14, 22, NA),
+	    sampleSize1 = c(11, 18, NA),
+	    mean2       = c(68.3, 127.4, NA),
+	    mean1       = c(100.1, 110.9, NA),
+	    stDev2      = c(124.0, 134.7, NA),
+	    stDev1      = c(116.8, 133.7, NA)
+	)
 
-	S12 <- getDataset(           
-		sampleSize2 = c(    21,   NA,   NA), 
-		sampleSize1 = c(    21,   NA,   NA), 
-		mean2       = c(  84.9,   NA,   NA), 
-		mean1       = c( 135.9,   NA,   NA), 
-		stDev2      = c( 139.5,   NA,   NA), 
-		stDev1      = c( 185.0,   NA,   NA))
+	S12 <- getDataset(
+	    sampleSize2 = c(21, NA, NA),
+	    sampleSize1 = c(21, NA, NA),
+	    mean2       = c(84.9, NA, NA),
+	    mean1       = c(135.9, NA, NA),
+	    stDev2      = c(139.5, NA, NA),
+	    stDev1      = c(185.0, NA, NA)
+	)
 
 	R <- getDataset(
-		sampleSize2 = c(   33,    33,  NA), 
-		sampleSize1 = c(   19,    19,  NA), 
-		mean2       = c( 77.1,  77.1,  NA), 
-		mean1       = c(142.4, 142.4,  NA), 
-		stDev2      = c(163.5, 163.5,  NA), 
-		stDev1      = c(120.6, 120.6,  NA))
+	    sampleSize2 = c(33, 33, NA),
+	    sampleSize1 = c(19, 19, NA),
+	    mean2       = c(77.1, 77.1, NA),
+	    mean1       = c(142.4, 142.4, NA),
+	    stDev2      = c(163.5, 163.5, NA),
+	    stDev1      = c(120.6, 120.6, NA)
+	)
 
 	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), NA)
 
@@ -2697,267 +2770,297 @@ test_that("Valid creation of a dataset of means with subsets: no error occurs", 
 test_that("Illegal creation of a dataset of rates with subsets: too small number of events in F (one subset)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(  22,   31,   37), 
-		sampleSize2 = c(  28,   33,   39), 
-		events1     = c(  17,    16,   17),
-		events2     = c(  18,   21,   19)
+	    sampleSize1 = c(22, 31, 37),
+	    sampleSize2 = c(28, 33, 39),
+	    events1     = c(17, 16, 17),
+	    events2     = c(18, 21, 19)
 	)
 
 	F <- getDataset(
-		sampleSize1 = c(  46,   54,  NA), 
-		sampleSize2 = c(  49,   62,  NA), 
-		events1     = c(  16,   31,  NA),
-		events2     = c(  29,   35,  NA)
+	    sampleSize1 = c(46, 54, NA),
+	    sampleSize2 = c(49, 62, NA),
+	    events1     = c(16, 31, NA),
+	    events2     = c(29, 35, NA)
 	)
 
-	expect_error(getDataset(S1 = S1, F = F), 
-		paste0("Conflicting arguments: 'event' F (16) must be >= 'event' S1 (17) in group 1 at stage 1"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, F = F),
+	    paste0("Conflicting arguments: 'event' F (16) must be >= 'event' S1 (17) in group 1 at stage 1"),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of rates with subsets: too small sample size in F (one subset)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(  22,   31,   37), 
-		sampleSize2 = c(  28,   33,   39), 
-		events1     = c(  7,    16,   17),
-		events2     = c(  18,   21,   19)
+	    sampleSize1 = c(22, 31, 37),
+	    sampleSize2 = c(28, 33, 39),
+	    events1     = c(7, 16, 17),
+	    events2     = c(18, 21, 19)
 	)
 
 	F <- getDataset(
-		sampleSize1 = c(  46,   29,  NA), 
-		sampleSize2 = c(  49,   62,  NA), 
-		events1     = c(  16,   31,  NA),
-		events2     = c(  29,   35,  NA)
+	    sampleSize1 = c(46, 29, NA),
+	    sampleSize2 = c(49, 62, NA),
+	    events1     = c(16, 31, NA),
+	    events2     = c(29, 35, NA)
 	)
 
-	expect_error(getDataset(S1 = S1, F = F), 
-		paste0("Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (31) in group 1 at stage 2"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, F = F),
+	    paste0("Conflicting arguments: 'sampleSize' F (29) must be >= 'sampleSize' S1 (31) in group 1 at stage 2"),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (one subset)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(  22,   31,  NA), 
-		sampleSize2 = c(  28,   33,  NA), 
-		events1     = c(  7,    16,  NA),
-		events2     = c(  18,   21,  NA)
+	    sampleSize1 = c(22, 31, NA),
+	    sampleSize2 = c(28, 33, NA),
+	    events1     = c(7, 16, NA),
+	    events2     = c(18, 21, NA)
 	)
 
 	R <- getDataset(
-		sampleSize1 = c(  24,   23,   37), 
-		sampleSize2 = c(  21,   29,   39), 
-		events1     = c(  9,    15,   10),
-		events2     = c(  11,   14,   19)
+	    sampleSize1 = c(24, 23, 37),
+	    sampleSize2 = c(21, 29, 39),
+	    events1     = c(9, 15, 10),
+	    events2     = c(11, 14, 19)
 	)
 
-	expect_error(getDataset(S1 = S1, R = R), 
-		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must be ",
-		"deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 37 in group 1 at stage 3"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, R = R),
+	    paste0(
+	        "Conflicting arguments: if S1 is deselected (NA) then R also must be ",
+	        "deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 37 in group 1 at stage 3"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of rates with subsets: too small sample size in F (three subsets)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(  84,   94,   25), 
-		sampleSize2 = c(  82,   75,   23), 
-		events1     = c(  21,   28,   13),
-		events2     = c(  32,   23,   20)
+	    sampleSize1 = c(84, 94, 25),
+	    sampleSize2 = c(82, 75, 23),
+	    events1     = c(21, 28, 13),
+	    events2     = c(32, 23, 20)
 	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(  81,   95,   NA), 
-		sampleSize2 = c(  84,   64,   NA), 
-		events1     = c(  26,   29,   NA),
-		events2     = c(  31,   26,   NA)
+	    sampleSize1 = c(81, 95, NA),
+	    sampleSize2 = c(84, 64, NA),
+	    events1     = c(26, 29, NA),
+	    events2     = c(31, 26, NA)
 	)
 
 	S3 <- getDataset(
-		sampleSize1 = c(  271,   NA,   NA), 
-		sampleSize2 = c(  74,   NA,   NA), 
-		events1     = c(  16,   NA,   NA),
-		events2     = c(  21,   NA,   NA)
+	    sampleSize1 = c(271, NA, NA),
+	    sampleSize2 = c(74, NA, NA),
+	    events1     = c(16, NA, NA),
+	    events2     = c(21, NA, NA)
 	)
 
-	F <-  getDataset(
-		sampleSize1 = c( 248,   NA,   NA), 
-		sampleSize2 = c( 254,   NA,   NA), 
-		events1     = c(  75,   NA,   NA),
-		events2     = c(  98,   NA,   NA)
+	F <- getDataset(
+	    sampleSize1 = c(248, NA, NA),
+	    sampleSize2 = c(254, NA, NA),
+	    events1     = c(75, NA, NA),
+	    events2     = c(98, NA, NA)
 	)
 
-	expect_error(getDataset(S1 = S1, S2 = S2, S3 = S3, F = F), 
-		paste0("Conflicting arguments: 'sampleSize' F (248) must ",
-		"be >= 'sampleSize' S3 (271) in group 1 at stage 1"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, S2 = S2, S3 = S3, F = F),
+	    paste0(
+	        "Conflicting arguments: 'sampleSize' F (248) must ",
+	        "be >= 'sampleSize' S3 (271) in group 1 at stage 1"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (three subsets)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(  47,   33,   37), 
-		sampleSize2 = c(  48,   47,   39), 
-		events1     = c(  18,   13,   17),
-		events2     = c(  12,   11,   9)
+	    sampleSize1 = c(47, 33, 37),
+	    sampleSize2 = c(48, 47, 39),
+	    events1     = c(18, 13, 17),
+	    events2     = c(12, 11, 9)
 	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(  49,   NA,   NA), 
-		sampleSize2 = c(  45,   NA,   NA), 
-		events1     = c(  12,   NA,   NA),
-		events2     = c(  13,   NA,   NA)
+	    sampleSize1 = c(49, NA, NA),
+	    sampleSize2 = c(45, NA, NA),
+	    events1     = c(12, NA, NA),
+	    events2     = c(13, NA, NA)
 	)
 
 	S12 <- getDataset(
-		sampleSize1 = c(   35,  42,  NA), 
-		sampleSize2 = c(   36,  47,  NA), 
-		events1     = c(   19,  10,  NA), 
-		events2     = c(   13,  17,  NA)
+	    sampleSize1 = c(35, 42, NA),
+	    sampleSize2 = c(36, 47, NA),
+	    events1     = c(19, 10, NA),
+	    events2     = c(13, 17, NA)
 	)
 
 	R <- getDataset(
-		sampleSize1 = c( 43,  43,  43), 
-		sampleSize2 = c( 39,  39,  39), 
-		events1     = c( 17,  17,  17),
-		events2     = c( 14,  14,  14)
+	    sampleSize1 = c(43, 43, 43),
+	    sampleSize2 = c(39, 39, 39),
+	    events1     = c(17, 17, 17),
+	    events2     = c(14, 14, 14)
 	)
 
-	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), 
-		paste0("Conflicting arguments: if S2 is deselected (NA) then R also must be ",
-		"deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 43 in group 1 at stage 2"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R),
+	    paste0(
+	        "Conflicting arguments: if S2 is deselected (NA) then R also must be ",
+	        "deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 43 in group 1 at stage 2"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Creation of a dataset of rates with subsets: empty subsets", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(  84,   94,   25), 
-		sampleSize2 = c(  82,   75,   23), 
-		events1     = c(  21,   28,   13),
-		events2     = c(  32,   23,   20)
+	    sampleSize1 = c(84, 94, 25),
+	    sampleSize2 = c(82, 75, 23),
+	    events1     = c(21, 28, 13),
+	    events2     = c(32, 23, 20)
 	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(  81,   95,   NA), 
-		sampleSize2 = c(  84,   64,   NA), 
-		events1     = c(  26,   29,   NA),
-		events2     = c(  31,   26,   NA)
+	    sampleSize1 = c(81, 95, NA),
+	    sampleSize2 = c(84, 64, NA),
+	    events1     = c(26, 29, NA),
+	    events2     = c(31, 26, NA)
 	)
 
 	S3 <- getDataset(
-		sampleSize1 = c(  71,   NA,   NA), 
-		sampleSize2 = c(  74,   NA,   NA), 
-		events1     = c(  16,   NA,   NA),
-		events2     = c(  21,   NA,   NA)
+	    sampleSize1 = c(71, NA, NA),
+	    sampleSize2 = c(74, NA, NA),
+	    events1     = c(16, NA, NA),
+	    events2     = c(21, NA, NA)
 	)
 
 	R <- getDataset(
-		sampleSize1 = c( 12,   NA,   NA), 
-		sampleSize2 = c( 14,   NA,   NA), 
-		events1     = c( 12,   NA,   NA),
-		events2     = c( 14,   NA,   NA)
+	    sampleSize1 = c(12, NA, NA),
+	    sampleSize2 = c(14, NA, NA),
+	    events1     = c(12, NA, NA),
+	    events2     = c(14, NA, NA)
 	)
 
-	expect_warning(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R), 
-		"The 4 undefined subsets S12, S13, S23, S123 were defined as empty subsets", fixed = TRUE)
+	expect_warning(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R),
+	    "The 4 undefined subsets S12, S13, S23, S123 were defined as empty subsets",
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (R)", {
 
 	S1 <- getDataset(
-		sampleSize1 = c(  84,   94,   25), 
-		sampleSize2 = c(  82,   75,   23), 
-		events1     = c(  21,   28,   13),
-		events2     = c(  32,   23,   20)
+	    sampleSize1 = c(84, 94, 25),
+	    sampleSize2 = c(82, 75, 23),
+	    events1     = c(21, 28, 13),
+	    events2     = c(32, 23, 20)
 	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(  81,   95,   NA), 
-		sampleSize2 = c(  84,   64,   NA), 
-		events1     = c(  26,   29,   NA),
-		events2     = c(  31,   26,   NA)
+	    sampleSize1 = c(81, 95, NA),
+	    sampleSize2 = c(84, 64, NA),
+	    events1     = c(26, 29, NA),
+	    events2     = c(31, 26, NA)
 	)
 
 	S3 <- getDataset(
-		sampleSize1 = c(  71,   NA,   NA), 
-		sampleSize2 = c(  74,   NA,   NA), 
-		events1     = c(  16,   NA,   NA),
-		events2     = c(  21,   NA,   NA)
+	    sampleSize1 = c(71, NA, NA),
+	    sampleSize2 = c(74, NA, NA),
+	    events1     = c(16, NA, NA),
+	    events2     = c(21, NA, NA)
 	)
 
 	R <- getDataset(
-		sampleSize1 = c( 12,   95,   NA), 
-		sampleSize2 = c( 14,   64,   NA), 
-		events1     = c( 12,   29,   NA),
-		events2     = c( 14,   26,   NA)
+	    sampleSize1 = c(12, 95, NA),
+	    sampleSize2 = c(14, 64, NA),
+	    events1     = c(12, 29, NA),
+	    events2     = c(14, 26, NA)
 	)
 
-	expect_warning(expect_error(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R), 
-		paste0("Conflicting arguments: if S3 is deselected (NA) then R also must be ", 
-		"deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 95 in group 1 at stage 2"), fixed = TRUE))
+	expect_warning(expect_error(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R),
+	    paste0(
+	        "Conflicting arguments: if S3 is deselected (NA) then R also must be ",
+	        "deselected (NA) but, e.g., ", sQuote("sampleSize"), " R is 95 in group 1 at stage 2"
+	    ),
+	    fixed = TRUE
+	))
 
 })
 
 test_that("Illegal creation of a dataset of survival data with subsets: too small number of events (one group)", {
 
 	S1 <- getDataset(
-		events = c(37, 56, 22),
-		logRanks = c(1.66, 1.38, 1.22),
-		allocationRatios = c(1,1,1)
+	    events = c(37, 56, 22),
+	    logRanks = c(1.66, 1.38, 1.22),
+	    allocationRatios = c(1, 1, 1)
 	)
 
 	F <- getDataset(
-		events = c(66, 55, NA),
-		logRanks = c(1.98, 1.57, NA),
-		allocationRatios = c(1,1, NA)
+	    events = c(66, 55, NA),
+	    logRanks = c(1.98, 1.57, NA),
+	    allocationRatios = c(1, 1, NA)
 	)
 
-	expect_error(getDataset(S1 = S1, F = F), 
-		paste0("Conflicting arguments: 'event' F (55) must be >= ",
-		"'event' S1 (56) in group 1 at stage 2"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, F = F),
+	    paste0(
+	        "Conflicting arguments: 'event' F (55) must be >= ",
+	        "'event' S1 (56) in group 1 at stage 2"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of survival data with subsets: wrong deselection (one group)", {
 
 	S1 <- getDataset(
-		overallExpectedEvents = c(13.3, NA, NA),
-		overallEvents = c(16, NA, NA),		
-		overallVarianceEvents = c(2.9, NA, NA),
-		overallAllocationRatios = c(1, NA, NA)
+	    overallExpectedEvents = c(13.3, NA, NA),
+	    overallEvents = c(16, NA, NA),
+	    overallVarianceEvents = c(2.9, NA, NA),
+	    overallAllocationRatios = c(1, NA, NA)
 	)
 
 	R <- getDataset(
-		overallExpectedEvents = c(23.4, 35.4, 43.7),
-		overallEvents = c(27, 38, 47),		
-		overallVarianceEvents = c(3.8, 4.7, 3.4),
-		overallAllocationRatios = c(1, 1, 1)
+	    overallExpectedEvents = c(23.4, 35.4, 43.7),
+	    overallEvents = c(27, 38, 47),
+	    overallVarianceEvents = c(3.8, 4.7, 3.4),
+	    overallAllocationRatios = c(1, 1, 1)
 	)
 
-	expect_error(getDataset(S1 = S1, R = R), 
-		paste0("Conflicting arguments: if S1 is deselected (NA) then R also must ",
-		"be deselected (NA) but, e.g., ", sQuote("overallEvent"), " R is 38 in group 1 at stage 2"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, R = R),
+	    paste0(
+	        "Conflicting arguments: if S1 is deselected (NA) then R also must ",
+	        "be deselected (NA) but, e.g., ", sQuote("overallEvent"), " R is 38 in group 1 at stage 2"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Creation of a dataset of survival data with subsets: no error occurs", {
 
 	S1 <- getDataset(
-		events = c(37, 13, 26),
-		logRanks = -c(1.66, 1.239, 0.785)
+	    events = c(37, 13, 26),
+	    logRanks = -c(1.66, 1.239, 0.785)
 	)
 
 	S2 <- getDataset(
-		events = c(31, 18, NA),
-		logRanks = -c(1.98, 1.064, NA)
+	    events = c(31, 18, NA),
+	    logRanks = -c(1.98, 1.064, NA)
 	)
 
 	F <- getDataset(
-		events = c(37, NA, NA),
-		logRanks = -c(2.18, NA, NA)
+	    events = c(37, NA, NA),
+	    logRanks = -c(2.18, NA, NA)
 	)
 
 	expect_error(getDataset(S1 = S1, S2 = S2, F = F), NA)
@@ -2967,73 +3070,80 @@ test_that("Creation of a dataset of survival data with subsets: no error occurs"
 test_that("Illegal creation of a dataset of survival data with subsets: too small number of events (two groups)", {
 
 	S1 <- getDataset(
-		events = c(37, 13, 26),
-		logRanks = -c(1.66, 1.239, 0.785)
+	    events = c(37, 13, 26),
+	    logRanks = -c(1.66, 1.239, 0.785)
 	)
 
 	S2 <- getDataset(
-		events = c(31, 18, NA),
-		logRanks = -c(1.98, 1.064, NA)
+	    events = c(31, 18, NA),
+	    logRanks = -c(1.98, 1.064, NA)
 	)
 
 	F <- getDataset(
-		events = c(30, NA, NA),
-		logRanks = -c(2.18, NA, NA)
+	    events = c(30, NA, NA),
+	    logRanks = -c(2.18, NA, NA)
 	)
 
-	expect_error(getDataset(S1 = S1, S2 = S2, F = F), 
-		paste0("Conflicting arguments: 'event' F (30) must be ",
-		">= 'event' S1 (37) in group 1 at stage 1"), fixed = TRUE)
+	expect_error(getDataset(S1 = S1, S2 = S2, F = F),
+	    paste0(
+	        "Conflicting arguments: 'event' F (30) must be ",
+	        ">= 'event' S1 (37) in group 1 at stage 1"
+	    ),
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Illegal creation of a dataset of survival data with subsets: inconsistent deselection", {
 
 	expect_error(getDataset(
-		overallExpectedEvents = c(13.4, 35.4, 43.7),
-		overallEvents = c(16, 37, 47),		
-		overallVarianceEvents = c(2.8, 4.7, 3.4),
-		overallAllocationRatios = c(1, 1, NA)
-	), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
-		"mandatory for each parameter at the same stage"), fixed = TRUE)
+	    overallExpectedEvents = c(13.4, 35.4, 43.7),
+	    overallEvents = c(16, 37, 47),
+	    overallVarianceEvents = c(2.8, 4.7, 3.4),
+	    overallAllocationRatios = c(1, 1, NA)
+	), paste0(
+	    "Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
+	    "mandatory for each parameter at the same stage"
+	), fixed = TRUE)
 
 	S1 <- getDataset(
-		overallExpectedEvents = c(13.4, 35.4, 43.7),
-		overallEvents = c(16, 37, 47),		
-		overallVarianceEvents = c(2.8, 4.7, 3.4),
-		overallAllocationRatios = c(1, 1, 1)
+	    overallExpectedEvents = c(13.4, 35.4, 43.7),
+	    overallEvents = c(16, 37, 47),
+	    overallVarianceEvents = c(2.8, 4.7, 3.4),
+	    overallAllocationRatios = c(1, 1, 1)
 	)
 
 	expect_error(getDataset(
-		overallExpectedEvents = c(11.5, 31.1, NA),
-		overallEvents = c(15, 33, NA),		
-		overallVarianceEvents = c(2.2, 4.4, NA),
-		overallAllocationRatios = c(1, 1, 1)
-	), paste0("Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
-		"mandatory for each parameter at the same stage"), fixed = TRUE)
+	    overallExpectedEvents = c(11.5, 31.1, NA),
+	    overallEvents = c(15, 33, NA),
+	    overallVarianceEvents = c(2.2, 4.4, NA),
+	    overallAllocationRatios = c(1, 1, 1)
+	), paste0(
+	    "Conflicting arguments: values of treatment 1 not correctly specified; if NA's exist, then they are ",
+	    "mandatory for each parameter at the same stage"
+	), fixed = TRUE)
 
 	S2 <- getDataset(
-		overallExpectedEvents = c(11.5, 31.1, NA),
-		overallEvents = c(15, 33, NA),		
-		overallVarianceEvents = c(2.2, 4.4, NA),
-		overallAllocationRatios = c(1, 1, NA)
+	    overallExpectedEvents = c(11.5, 31.1, NA),
+	    overallEvents = c(15, 33, NA),
+	    overallVarianceEvents = c(2.2, 4.4, NA),
+	    overallAllocationRatios = c(1, 1, NA)
 	)
 
 	S12 <- getDataset(
-		overallExpectedEvents = c(10.1, 29.6, 39.1),
-		overallEvents = c(11, 31, 42),		
-		overallVarianceEvents = c(2.8, 4.7, 3.4),
-		overallAllocationRatios = c(1, 1, 1)
+	    overallExpectedEvents = c(10.1, 29.6, 39.1),
+	    overallEvents = c(11, 31, 42),
+	    overallVarianceEvents = c(2.8, 4.7, 3.4),
+	    overallAllocationRatios = c(1, 1, 1)
 	)
 
 	R <- getDataset(
-		overallExpectedEvents = c(23.3, NA, NA),
-		overallEvents = c(25, NA, NA),		
-		overallVarianceEvents = c(3.9, NA, NA),
-		overallAllocationRatios = c(1, NA, NA)
+	    overallExpectedEvents = c(23.3, NA, NA),
+	    overallEvents = c(25, NA, NA),
+	    overallVarianceEvents = c(3.9, NA, NA),
+	    overallAllocationRatios = c(1, NA, NA)
 	)
 
-	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), NA)
-
+	expect_error(getDataset(S1 = S1, S2 = S2, S12 = S12, R = R), NA)
 })
 

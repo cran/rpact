@@ -9,7 +9,7 @@ setOutputFormat(
   ...,
   digits = NA_integer_,
   nsmall = NA_integer_,
-  trimSingleZeroes = NA,
+  trimSingleZeros = NA,
   futilityProbabilityEnabled = NA,
   file = NA_character_,
   resetToDefault = FALSE,
@@ -32,7 +32,7 @@ Allowed values are \code{0 <= digits <= 20}.}
 formatting real numbers in non-scientific formats. 
 Allowed values are \code{0 <= nsmall <= 20}.}
 
-\item{trimSingleZeroes}{If \code{TRUE} zero values will be trimmed in the output, e.g.,
+\item{trimSingleZeros}{If \code{TRUE} zero values will be trimmed in the output, e.g.,
 "0.00" will displayed as "0"}
 
 \item{futilityProbabilityEnabled}{If \code{TRUE} very small value (< 1e-09) will 

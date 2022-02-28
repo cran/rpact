@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  File version: $Revision: 5747 $
+## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -499,61 +499,63 @@
     repeatedConfidenceIntervals <- matrix(NA_real_, 2, design$kMax)
     for (k in (1:stage)) {
         startTime <- Sys.time()
-
-        # Finding maximum upper and minimum lower bounds for RCIs
-        thetaLow <- exp(.getUpperLowerThetaSurvival(
-            design = design, dataInput = dataInput,
-            theta = -1, stage = k, directionUpper = TRUE,
-            conditionFunction = conditionFunction, firstParameterName = firstParameterName,
-            secondValue = criticalValues[k]
-        ))
-
-        thetaUp <- exp(.getUpperLowerThetaSurvival(
-            design = design, dataInput = dataInput,
-            theta = 1, stage = k, directionUpper = FALSE,
-            conditionFunction = conditionFunction, firstParameterName = firstParameterName,
-            secondValue = criticalValues[k]
-        ))
-
-        # Finding upper and lower RCI limits through root function
-        repeatedConfidenceIntervals[1, k] <- .getRootThetaSurvival(
-            design = design, dataInput = dataInput, stage = k, directionUpper = C_DIRECTION_UPPER_DEFAULT,
-            thetaLow = thetaLow, thetaUp = thetaUp, firstParameterName = firstParameterName,
-            secondValue = criticalValues[k], tolerance = tolerance,
-            callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
-        )
-
-        repeatedConfidenceIntervals[2, k] <- .getRootThetaSurvival(
-            design = design, dataInput = dataInput, stage = k, directionUpper = FALSE,
-            thetaLow = thetaLow, thetaUp = thetaUp, firstParameterName = firstParameterName,
-            secondValue = criticalValues[k], tolerance = tolerance,
-            callingFunctionInformation = paste0("Repeated confidence interval [2, ", k, "]")
-        )
-
-        # Adjustment for binding futility bounds
-        if (k > 1 && conditionFunction(bounds[k - 1], border) & design$bindingFutility) {
-            parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
-
-            futilityCorr[k] <- .getRootThetaSurvival(
-                design = design, dataInput = dataInput, stage = k - 1, directionUpper = directionUpper,
-                thetaLow = thetaLow, thetaUp = thetaUp,
-                firstParameterName = parameterName, secondValue = bounds[k - 1], tolerance = tolerance,
-                callingFunctionInformation = paste0("Repeated confidence interval, futility correction [", k, "]")
-            )
-
-            if (directionUpper) {
-                repeatedConfidenceIntervals[1, k] <- min(min(futilityCorr[2:k]), repeatedConfidenceIntervals[1, k])
-            } else {
-                repeatedConfidenceIntervals[2, k] <- max(max(futilityCorr[2:k]), repeatedConfidenceIntervals[2, k])
-            }
-        }
-        .logProgress("Repeated confidence interval of stage %s calculated", startTime = startTime, k)
-
-        if (!is.na(repeatedConfidenceIntervals[1, k]) && !is.na(repeatedConfidenceIntervals[2, k]) &&
-                repeatedConfidenceIntervals[1, k] > repeatedConfidenceIntervals[2, k]) {
-            repeatedConfidenceIntervals[, k] <- rep(NA_real_, 2)
-        }
-    }
+		if (criticalValues[k] < C_QNORM_MAXIMUM) {		
+		
+	        # Finding maximum upper and minimum lower bounds for RCIs
+	        thetaLow <- exp(.getUpperLowerThetaSurvival(
+	            design = design, dataInput = dataInput,
+	            theta = -1, stage = k, directionUpper = TRUE,
+	            conditionFunction = conditionFunction, firstParameterName = firstParameterName,
+	            secondValue = criticalValues[k]
+	        ))
+	
+	        thetaUp <- exp(.getUpperLowerThetaSurvival(
+	            design = design, dataInput = dataInput,
+	            theta = 1, stage = k, directionUpper = FALSE,
+	            conditionFunction = conditionFunction, firstParameterName = firstParameterName,
+	            secondValue = criticalValues[k]
+	        ))
+	
+	        # Finding upper and lower RCI limits through root function
+	        repeatedConfidenceIntervals[1, k] <- .getRootThetaSurvival(
+	            design = design, dataInput = dataInput, stage = k, directionUpper = C_DIRECTION_UPPER_DEFAULT,
+	            thetaLow = thetaLow, thetaUp = thetaUp, firstParameterName = firstParameterName,
+	            secondValue = criticalValues[k], tolerance = tolerance,
+	            callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
+	        )
+	
+	        repeatedConfidenceIntervals[2, k] <- .getRootThetaSurvival(
+	            design = design, dataInput = dataInput, stage = k, directionUpper = FALSE,
+	            thetaLow = thetaLow, thetaUp = thetaUp, firstParameterName = firstParameterName,
+	            secondValue = criticalValues[k], tolerance = tolerance,
+	            callingFunctionInformation = paste0("Repeated confidence interval [2, ", k, "]")
+	        )
+	
+	        # Adjustment for binding futility bounds
+	        if (k > 1 && conditionFunction(bounds[k - 1], border) & design$bindingFutility) {
+	            parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
+	
+	            futilityCorr[k] <- .getRootThetaSurvival(
+	                design = design, dataInput = dataInput, stage = k - 1, directionUpper = directionUpper,
+	                thetaLow = thetaLow, thetaUp = thetaUp,
+	                firstParameterName = parameterName, secondValue = bounds[k - 1], tolerance = tolerance,
+	                callingFunctionInformation = paste0("Repeated confidence interval, futility correction [", k, "]")
+	            )
+	
+	            if (directionUpper) {
+	                repeatedConfidenceIntervals[1, k] <- min(min(futilityCorr[2:k]), repeatedConfidenceIntervals[1, k])
+	            } else {
+	                repeatedConfidenceIntervals[2, k] <- max(max(futilityCorr[2:k]), repeatedConfidenceIntervals[2, k])
+	            }
+	        }
+	        .logProgress("Repeated confidence interval of stage %s calculated", startTime = startTime, k)
+	
+	        if (!is.na(repeatedConfidenceIntervals[1, k]) && !is.na(repeatedConfidenceIntervals[2, k]) &&
+	                repeatedConfidenceIntervals[1, k] > repeatedConfidenceIntervals[2, k]) {
+	            repeatedConfidenceIntervals[, k] <- rep(NA_real_, 2)
+	        }
+	    }
+	}	
 
     return(repeatedConfidenceIntervals)
 }

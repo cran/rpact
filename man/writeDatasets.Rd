@@ -27,14 +27,14 @@ writeDatasets(
 
 \item{...}{Further arguments to be passed to \code{\link[utils]{write.table}}.}
 
-\item{append}{Logical. Only relevant if file is a character string. 
+\item{append}{Logical. Only relevant if file is a character string.
 If \code{TRUE}, the output is appended to the file. If FALSE, any existing file of the name is destroyed.}
 
-\item{quote}{The set of quoting characters. To disable quoting altogether, use 
-quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
+\item{quote}{The set of quoting characters. To disable quoting altogether, use
+quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only
 considered for columns read as character, which is all of them unless \code{colClasses} is specified.}
 
-\item{sep}{The field separator character. Values on each line of the file are separated 
+\item{sep}{The field separator character. Values on each line of the file are separated
 by this character. If sep = "," (the default for \code{writeDatasets}) the separator is a comma.}
 
 \item{eol}{The character(s) to print at the end of each line (row).}
@@ -43,18 +43,18 @@ by this character. If sep = "," (the default for \code{writeDatasets}) the separ
 
 \item{dec}{The character used in the file for decimal points.}
 
-\item{row.names}{Either a logical value indicating whether the row names of \code{dataset} are 
+\item{row.names}{Either a logical value indicating whether the row names of \code{dataset} are
 to be written along with  \code{dataset}, or a character vector of row names to be written.}
 
-\item{col.names}{Either a logical value indicating whether the column names of  \code{dataset} are 
-to be written along with  \code{dataset}, or a character vector of column names to be written. 
+\item{col.names}{Either a logical value indicating whether the column names of  \code{dataset} are
+to be written along with  \code{dataset}, or a character vector of column names to be written.
 See the section on 'CSV files' for the meaning of \code{col.names = NA}.}
 
-\item{qmethod}{A character string specifying how to deal with embedded double quote characters 
+\item{qmethod}{A character string specifying how to deal with embedded double quote characters
 when quoting strings. Must be one of "double" (default in \code{writeDatasets}) or "escape".}
 
-\item{fileEncoding}{Character string: if non-empty declares the encoding used on a file 
-(not a connection) so the character data can be re-encoded. 
+\item{fileEncoding}{Character string: if non-empty declares the encoding used on a file
+(not a connection) so the character data can be re-encoded.
 See the 'Encoding' section of the help for file, the 'R Data Import/Export Manual' and 'Note'.}
 }
 \description{
@@ -85,7 +85,7 @@ writeDatasets(datasets, "datasets_rates.csv")
 \seealso{
 \itemize{
   \item \code{\link{writeDataset}} for writing a single dataset,
-  \item \code{\link{readDatasets}} for reading multiple datasets, 
+  \item \code{\link{readDatasets}} for reading multiple datasets,
   \item \code{\link{readDataset}} for reading a single dataset.
 }
 }

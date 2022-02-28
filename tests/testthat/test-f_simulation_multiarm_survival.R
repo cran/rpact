@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_simulation_multiarm_survival.R
-## |  Creation date: 08 December 2021, 09:10:05
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:07:33
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Simulation Multi-Arm Survival Function")
@@ -29,22 +29,25 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmSurvival}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCholeskyTransformation}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCorrMatrix}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalEvents}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalLogRanks}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCholeskyTransformation}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCorrMatrix}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalEvents}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalLogRanks}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	# @refFS[Formula]{fs:adjustedPValueSubsetBonferroni}
 	# @refFS[Formula]{fs:adjustedPValueSubsetDunnett}
 	# @refFS[Formula]{fs:adjustedPValueSubsetHierarchical}
 	# @refFS[Formula]{fs:adjustedPValueSubsetSidak}
 	# @refFS[Formula]{fs:adjustedPValueSubsetSimes}
-	x1 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms =  4, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x1 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "linear", activeArms = 4,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x1' with expected results
 	expect_equal(x1$iterations[1, ], c(10, 10, 10, 10))
@@ -98,11 +101,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x2 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined", activeArms =  4, 
-		plannedEvents = c(10, 30, 50), adaptations = rep(TRUE, 2), 
-		effectMatrix = matrix(c(0.1,0.2,0.3,0.4,0.2,0.3,0.4,0.5), ncol = 4),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x2 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "userDefined", activeArms = 4,
+	    plannedEvents = c(10, 30, 50), adaptations = rep(TRUE, 2),
+	    effectMatrix = matrix(c(0.1, 0.2, 0.3, 0.4, 0.2, 0.3, 0.4, 0.5), ncol = 4),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x2' with expected results
 	expect_equal(x2$iterations[1, ], c(10, 10))
@@ -158,10 +164,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 
 	.skipTestIfDisabled()
 
-	x3 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms =  4, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x3 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x3' with expected results
 	expect_equal(x3$iterations[1, ], c(10, 10, 10, 10))
@@ -215,10 +224,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all", 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2), 
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x4 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "all",
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x4' with expected results
 	expect_equal(x4$iterations[1, ], c(10, 10, 10, 10))
@@ -272,10 +284,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x5 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "rBest", rValue = 2,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x5' with expected results
 	expect_equal(x5$iterations[1, ], c(10, 10, 10, 10))
@@ -329,10 +344,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x6 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x6' with expected results
 	expect_equal(x6$iterations[1, ], c(10, 10, 10, 10))
@@ -386,10 +404,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x7 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x7 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x7' with expected results
 	expect_equal(x7$iterations[1, ], c(10, 10, 10, 10))
@@ -443,10 +464,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all", 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE), 
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x8 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "all",
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x8' with expected results
 	expect_equal(x8$iterations[1, ], c(10, 10, 10, 10))
@@ -500,10 +524,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x9 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x9 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "rBest", rValue = 2,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x9' with expected results
 	expect_equal(x9$iterations[1, ], c(10, 10, 10, 10))
@@ -557,10 +584,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x10 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  intersectionTest = "Hierarchical",  
-		maxNumberOfIterations = 10)
+	x10 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Hierarchical",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x10' with expected results
 	expect_equal(x10$iterations[1, ], c(10, 10, 10, 10))
@@ -614,10 +645,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x11 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(0.1, 0.3, 0.1), 
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  intersectionTest = "Hierarchical",  
-		maxNumberOfIterations = 10)
+	x11 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(0.1, 0.3, 0.1),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Hierarchical",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x11' with expected results
 	expect_equal(x11$iterations[1, ], c(10, 10, 10))
@@ -667,10 +702,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x12 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms = 4, directionUpper = FALSE,threshold = 0, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  intersectionTest = "Hierarchical", 
-		maxNumberOfIterations = 10)
+	x12 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "linear", activeArms = 4, directionUpper = FALSE, threshold = 0,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Hierarchical",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x12' with expected results
 	expect_equal(x12$iterations[1, ], c(10, 10, 10, 10))
@@ -720,12 +759,16 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x13 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined",
-		activeArms = 4, directionUpper = FALSE, threshold = 0, 
-		plannedEvents = c(10, 30, 50), adaptations = rep(TRUE, 2), 
-		effectMatrix = matrix(c(0.1,0.2,0.3,0.4,0.2,0.3,0.4,0.5), ncol = 4),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  intersectionTest = "Sidak", 
-		maxNumberOfIterations = 10)
+	x13 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "userDefined",
+	    activeArms = 4, directionUpper = FALSE, threshold = 0,
+	    plannedEvents = c(10, 30, 50), adaptations = rep(TRUE, 2),
+	    effectMatrix = matrix(c(0.1, 0.2, 0.3, 0.4, 0.2, 0.3, 0.4, 0.5), ncol = 4),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Sidak",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x13' with expected results
 	expect_equal(x13$iterations[1, ], c(10, 10))
@@ -775,10 +818,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x14 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4, directionUpper = FALSE,threshold = 0, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  intersectionTest = "Sidak", 
-		maxNumberOfIterations = 10)
+	x14 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4, directionUpper = FALSE, threshold = 0,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Sidak",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x14' with expected results
 	expect_equal(x14$iterations[1, ], c(10, 10, 10, 10))
@@ -828,10 +875,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x15 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "all", 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2), 
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  intersectionTest = "Sidak", 
-		maxNumberOfIterations = 10)
+	x15 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0, typeOfSelection = "all",
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Sidak",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x15' with expected results
 	expect_equal(x15$iterations[1, ], c(10, 10, 10, 10))
@@ -881,10 +932,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x16 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "rBest", rValue = 2,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100), intersectionTest = "Simes",
-		maxNumberOfIterations = 10)
+	x16 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0, typeOfSelection = "rBest", rValue = 2,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Simes",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x16' with expected results
 	expect_equal(x16$iterations[1, ], c(10, 10, 10, 10))
@@ -934,10 +989,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x17 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100), intersectionTest = "Simes",
-		maxNumberOfIterations = 10)
+	x17 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Simes",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x17' with expected results
 	expect_equal(x17$iterations[1, ], c(10, 10, 10, 10))
@@ -987,10 +1046,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x18 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100), intersectionTest = "Simes",
-		maxNumberOfIterations = 10)
+	x18 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Simes",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x18' with expected results
 	expect_equal(x18$iterations[1, ], c(10, 10, 10, 10))
@@ -1040,10 +1103,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x19 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "all",
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE), 
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100), intersectionTest = "Bonferroni", 
-		maxNumberOfIterations = 10)
+	x19 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0, typeOfSelection = "all",
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    intersectionTest = "Bonferroni",
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x19' with expected results
 	expect_equal(x19$iterations[1, ], c(10, 10, 10, 10))
@@ -1093,10 +1160,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x20 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "rBest", rValue = 2,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE), intersectionTest = "Bonferroni",
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x20 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0, typeOfSelection = "rBest", rValue = 2,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    intersectionTest = "Bonferroni",
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x20' with expected results
 	expect_equal(x20$iterations[1, ], c(10, 10, 10, 10))
@@ -1146,10 +1217,14 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x21 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedEvents = c(10, 30, 50), omegaMaxVector = 1/seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE), intersectionTest = "Bonferroni",
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x21 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = 1 / seq(1, 1.6, 0.2), adaptations = c(TRUE, FALSE),
+	    intersectionTest = "Bonferroni",
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x21' with expected results
 	expect_equal(x21$iterations[1, ], c(10, 10, 10, 10))
@@ -1199,10 +1274,13 @@ test_that("'getSimulationMultiArmSurvival': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x22 <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4, directionUpper = FALSE,threshold = 0.1, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(0.1, 0.3, 0.1), intersectionTest = "Bonferroni",
-		conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100), 
-		maxNumberOfIterations = 10)
+	x22 <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, directionUpper = FALSE, threshold = 0.1,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(0.1, 0.3, 0.1), intersectionTest = "Bonferroni",
+	    conditionalPower = 0.8, minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x22' with expected results
 	expect_equal(x22$iterations[1, ], c(10, 10, 10))
@@ -1267,22 +1345,26 @@ test_that("'getSimulationMultiArmSurvival': using calcSubjectsFunction", {
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmSurvival}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCholeskyTransformation}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCorrMatrix}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalEvents}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalLogRanks}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCholeskyTransformation}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCorrMatrix}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalEvents}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalLogRanks}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	# @refFS[Formula]{fs:adjustedPValueSubsetDunnett}
 	calcSubjectsFunctionSimulationMultiArmSurvival <- function(..., stage, minNumberOfEventsPerStage) {
-		return(ifelse(stage == 3, 33, minNumberOfEventsPerStage[stage]))
+	    return(ifelse(stage == 3, 33, minNumberOfEventsPerStage[stage]))
 	}
 
-	x <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms =  4, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),directionUpper = FALSE,
-		minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10, calcEventsFunction = calcSubjectsFunctionSimulationMultiArmSurvival)
+	x <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "linear", activeArms = 4,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    directionUpper = FALSE,
+	    minNumberOfEventsPerStage = c(10, 4, 4), maxNumberOfEventsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10, calcEventsFunction = calcSubjectsFunctionSimulationMultiArmSurvival
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(10, 10, 10, 10))
@@ -1347,21 +1429,24 @@ test_that("'getSimulationMultiArmSurvival': using selectArmsFunction", {
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmSurvival}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCholeskyTransformation}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCorrMatrix}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalEvents}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalLogRanks}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCholeskyTransformation}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCorrMatrix}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalEvents}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalLogRanks}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	# @refFS[Formula]{fs:adjustedPValueSubsetDunnett}
 	selectArmsFunctionSimulationMultiArmSurvival <- function(effectSizes) {
-		return(c(TRUE, FALSE, FALSE, FALSE))
+	    return(c(TRUE, FALSE, FALSE, FALSE))
 	}
 
-	x <- getSimulationMultiArmSurvival(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms =  4, 
-		plannedEvents = c(10, 30, 50), omegaMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),directionUpper = FALSE,
-		maxNumberOfIterations = 10, selectArmsFunction = selectArmsFunctionSimulationMultiArmSurvival, typeOfSelection = "userDefined")
+	x <- getSimulationMultiArmSurvival(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "linear", activeArms = 4,
+	    plannedEvents = c(10, 30, 50), omegaMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), directionUpper = FALSE,
+	    maxNumberOfIterations = 10, selectArmsFunction = selectArmsFunctionSimulationMultiArmSurvival, typeOfSelection = "userDefined"
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(10, 10, 10, 10))
@@ -1426,17 +1511,21 @@ test_that("'getSimulationMultiArmSurvival': typeOfShape = sigmoidEmax", {
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmSurvival}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCholeskyTransformation}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCorrMatrix}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalEvents}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalLogRanks}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCholeskyTransformation}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCorrMatrix}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalEvents}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalLogRanks}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	# @refFS[Formula]{fs:adjustedPValueSubsetDunnett}
 	designIN <- getDesignInverseNormal(typeOfDesign = "P", kMax = 3, futilityBounds = c(0, 0))
-	x <- getSimulationMultiArmSurvival(designIN, activeArms = 3, typeOfShape = "sigmoidEmax", omegaMaxVector = seq(1, 1.9, 0.3), gED50 = 2, plannedEvents = cumsum(rep(50, 3)), 
-		intersectionTest = "Sidak", typeOfSelection = "rBest", rValue = 2, threshold = -Inf, successCriterion = "all", maxNumberOfIterations = 100, seed = 3456)
+	x <- getSimulationMultiArmSurvival(designIN,
+	    activeArms = 3, typeOfShape = "sigmoidEmax",
+	    omegaMaxVector = seq(1, 1.9, 0.3), gED50 = 2, plannedEvents = cumsum(rep(50, 3)),
+	    intersectionTest = "Sidak", typeOfSelection = "rBest", rValue = 2, threshold = -Inf,
+	    successCriterion = "all", maxNumberOfIterations = 100, seed = 3456
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmSurvival object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(100, 100, 100, 100))
@@ -1501,23 +1590,31 @@ test_that("'getSimulationMultiArmSurvival': comparison of base and multi-arm, in
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmSurvival}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCholeskyTransformation}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCorrMatrix}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalEvents}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalLogRanks}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCholeskyTransformation}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCorrMatrix}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalEvents}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalLogRanks}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	allocationRatioPlanned <- 1
-	design <- getDesignInverseNormal(typeOfDesign = "WT", deltaWT = 0.05, futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.8, 1))
+	design <- getDesignInverseNormal(
+	    typeOfDesign = "WT", deltaWT = 0.05,
+	    futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.8, 1)
+	)
 
-	x <- getSimulationMultiArmSurvival(design, activeArms = 1, omegaMaxVector = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), 
-		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
-		maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234)
+	x <- getSimulationMultiArmSurvival(design,
+	    activeArms = 1, omegaMaxVector = 1 / seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60),
+	    conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), 
+	    maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234
+	)
 
-	y <- getSimulationSurvival(design, pi2 = 0.2, hazardRatio = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500, 
-		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
-		maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234)
+	y <- getSimulationSurvival(design,
+	    pi2 = 0.2, hazardRatio = 1 / seq(1, 1.8, 0.4),
+	    plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500,
+	    conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), 
+	    maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234
+	)
 
 	comp1 <- y$overallReject - x$rejectAtLeastOne
 
@@ -1566,23 +1663,29 @@ test_that("'getSimulationMultiArmSurvival': comparison of base and multi-arm, Fi
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmSurvival}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCholeskyTransformation}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCorrMatrix}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalEvents}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalLogRanks}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCholeskyTransformation}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCorrMatrix}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalEvents}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalLogRanks}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	allocationRatioPlanned <- 1
 	design <- getDesignFisher(alpha0Vec = c(0.6, 0.4), informationRates = c(0.5, 0.6, 1))
 
-	x <- getSimulationMultiArmSurvival(design, activeArms = 1, omegaMaxVector = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), 
-		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
-		maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234)
+	x <- getSimulationMultiArmSurvival(design,
+	    activeArms = 1, omegaMaxVector = 1 / seq(1, 1.8, 0.4),
+	    plannedEvents = c(20, 40, 60),
+	    conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), 
+	    maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234
+	)
 
-	y <- getSimulationSurvival(design, pi2 = 0.2, hazardRatio = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500, 
-		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
-		maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234)
+	y <- getSimulationSurvival(design,
+	    pi2 = 0.2, hazardRatio = 1 / seq(1, 1.8, 0.4),
+	    plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500,
+	    conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), 
+	    maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234
+	)
 
 	comp1 <- y$overallReject - x$rejectAtLeastOne
 
@@ -1631,23 +1734,31 @@ test_that("'getSimulationMultiArmSurvival': comparison of base and multi-arm, in
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmSurvival}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCholeskyTransformation}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalCorrMatrix}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalEvents}
-	# @refFS[Formula]{fs:SimulationMultiArmSurvivalLogRanks}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCholeskyTransformation}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalCorrMatrix}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalEvents}
+	# @refFS[Formula]{fs:simulationMultiArmSurvivalLogRanks}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	allocationRatioPlanned <- 1
-	design <- getDesignInverseNormal(typeOfDesign = "asUser", userAlphaSpending = c(0,0,0.025), informationRates = c(0.2, 0.8, 1))
+	design <- getDesignInverseNormal(
+	    typeOfDesign = "asUser",
+	    userAlphaSpending = c(0, 0, 0.025), informationRates = c(0.2, 0.8, 1)
+	)
 
-	x <- getSimulationMultiArmSurvival(design, activeArms = 1, omegaMaxVector = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), 
-		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
-		maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234)
+	x <- getSimulationMultiArmSurvival(design,
+	    activeArms = 1, omegaMaxVector = 1 / seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60),
+	    conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), 
+	    maxNumberOfIterations = 100, directionUpper = FALSE, allocationRatioPlanned = allocationRatioPlanned, seed = 1234
+	)
 
-	y <- getSimulationSurvival(design, pi2 = 0.2, hazardRatio = 1/seq(1, 1.8, 0.4), plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500, 
-		conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), #thetaH1 = 2,
-		maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234)
+	y <- getSimulationSurvival(design,
+	    pi2 = 0.2, hazardRatio = 1 / seq(1, 1.8, 0.4),
+	    plannedEvents = c(20, 40, 60), maxNumberOfSubjects = 500,
+	    conditionalPower = 0.99, maxNumberOfEventsPerStage = c(NA, 100, 100), minNumberOfEventsPerStage = c(NA, 10, 10), 
+	    maxNumberOfIterations = 100, directionUpper = FALSE, allocation1 = 1, allocation2 = 1, seed = 1234
+	)
 
 	comp1 <- y$overallReject - x$rejectAtLeastOne
 
@@ -1684,6 +1795,5 @@ test_that("'getSimulationMultiArmSurvival': comparison of base and multi-arm, in
 	## Comparison of the results of matrixarray object 'comp6' with expected results
 	expect_equal(comp6[1, ], c(0, 0, 0))
 	expect_equal(comp6[2, ], c(0, 0, 0))
-
 })
 

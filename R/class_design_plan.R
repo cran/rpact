@@ -83,6 +83,7 @@ C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_SURVIVAL <- list(
 #' }
 #' 
 #' @include f_core_constants.R
+#' @include f_core_utilities.R
 #' @include class_core_parameter_set.R
 #' @include class_core_plot_settings.R
 #' @include class_design.R
@@ -238,7 +239,7 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
 				s <- "survival data"
 			}
 			else  {
-				s <- paste0("unknown data class '", class(.self), "'")
+				s <- paste0("unknown data class '", .getClassName(.self), "'")
 			}
 			return(ifelse(startWithUpperCase, .firstCharacterToUpperCase(s), s))
 		}

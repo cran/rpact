@@ -18,6 +18,9 @@
 ## |  Last changed by: $Author: pahlke $
 ## |
 
+#' @include f_core_utilities.R
+NULL
+
 #
 #  @title
 #  Get Multi-Armed Analysis Results
@@ -79,7 +82,7 @@
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
 }
 
 #
@@ -104,7 +107,7 @@
         return(.getStageResultsSurvivalMultiArm(design = design, dataInput = dataInput, userFunctionCallEnabled = TRUE, ...))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not supported")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not supported")
 }
 
 # Get Repeated Confidence Intervals for multi-arm case
@@ -134,7 +137,7 @@
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
 }
 
 #
@@ -175,7 +178,7 @@
 
     stop(
         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        class(stageResults$.dataInput), "' is not implemented yet"
+        .getClassName(stageResults$.dataInput), "' is not implemented yet"
     )
 }
 
@@ -248,7 +251,7 @@
             if (!all(is.na(stageResults$separatePValues[indices[i, ] == 1, k]))) {
                 if ((intersectionTest == "Dunnett") || (intersectionTest == "SpiessensDebois")) {
                     sigma <- 1
-                    if (grepl("MultiArm", class(stageResults))) {
+                    if (grepl("MultiArm", .getClassName(stageResults))) {
                         if (.isStageResultsMultiArmSurvival(stageResults)) {
                             allocationRatiosSelected <- as.numeric(na.omit(
                                 dataInput$getAllocationRatios(stage = k, group = 1:gMax)[indices[i, ] == 1]
@@ -431,7 +434,7 @@ getClosedCombinationTestResults <- function(stageResults) {
     result <- .performClosedCombinationTest(stageResults = stageResults)
     return(ClosedCombinationTestResults(
         .design = result$.design,
-        .enrichment = grepl("Enrichment", class(stageResults)),
+        .enrichment = grepl("Enrichment", .getClassName(stageResults)),
         intersectionTest = result$intersectionTest,
         separatePValues = result$separatePValues,
         indices = result$indices,
@@ -686,7 +689,7 @@ getClosedConditionalDunnettTestResults <- function(stageResults, ..., stage = st
     result <- .getClosedConditionalDunnettTestResults(stageResults = stageResults, design = design, stage = stage)
     return(ClosedCombinationTestResults(
         .design = result$.design,
-        .enrichment = grepl("Enrichment", class(stageResults)),
+        .enrichment = grepl("Enrichment", .getClassName(stageResults)),
         intersectionTest = result$intersectionTest,
         indices = result$indices,
         separatePValues = result$separatePValues,
@@ -1189,6 +1192,6 @@ getClosedConditionalDunnettTestResults <- function(stageResults, ..., stage = st
 
     stop(
         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        class(stageResults$.dataInput), "' is not implemented yet"
+        .getClassName(stageResults$.dataInput), "' is not implemented yet"
     )
 }

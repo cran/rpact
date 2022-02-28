@@ -21,26 +21,26 @@ readDatasets(
 
 \item{...}{Further arguments to be passed to \code{\link[utils]{read.table}}.}
 
-\item{header}{A logical value indicating whether the file contains the names of 
+\item{header}{A logical value indicating whether the file contains the names of
 the variables as its first line.}
 
-\item{sep}{The field separator character. Values on each line of the file are separated 
+\item{sep}{The field separator character. Values on each line of the file are separated
 by this character. If sep = "," (the default for \code{readDatasets}) the separator is a comma.}
 
-\item{quote}{The set of quoting characters. To disable quoting altogether, use 
-quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
+\item{quote}{The set of quoting characters. To disable quoting altogether, use
+quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only
 considered for columns read as character, which is all of them unless \code{colClasses} is specified.}
 
 \item{dec}{The character used in the file for decimal points.}
 
-\item{fill}{logical. If \code{TRUE} then in case the rows have unequal length, blank fields 
+\item{fill}{logical. If \code{TRUE} then in case the rows have unequal length, blank fields
 are implicitly added.}
 
-\item{comment.char}{character: a character vector of length one containing a single character 
+\item{comment.char}{character: a character vector of length one containing a single character
 or an empty string. Use "" to turn off the interpretation of comments altogether.}
 
-\item{fileEncoding}{character string: if non-empty declares the encoding used on a file 
-(not a connection) so the character data can be re-encoded. 
+\item{fileEncoding}{character string: if non-empty declares the encoding used on a file
+(not a connection) so the character data can be re-encoded.
 See the 'Encoding' section of the help for file, the 'R Data Import/Export Manual' and 'Note'.}
 }
 \value{
@@ -58,12 +58,11 @@ if (dataFile != "") {
     datasets <- readDatasets(dataFile)
     datasets
 }
-
 }
 \seealso{
 \itemize{
   \item \code{\link{readDataset}} for reading a single dataset,
-  \item \code{\link{writeDatasets}} for writing multiple datasets, 
+  \item \code{\link{writeDatasets}} for writing multiple datasets,
   \item \code{\link{writeDataset}} for writing a single dataset.
 }
 }

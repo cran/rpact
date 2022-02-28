@@ -14,7 +14,7 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_simulation_enrichment_rates.R
-## |  Creation date: 14 December 2021, 13:06:29
+## |  Creation date: 23 February 2022, 14:06:53
 ## |  File version: $Revision$
 ## |  Last changed: $Date$
 ## |  Last changed by: $Author$
@@ -24,8 +24,6 @@ context("Testing Simulation Enrichment Rates Function")
 
 
 test_that("'getSimulationEnrichmentRates': gMax = 2", {
-    options(warn = -1)
-        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:subsec:intersectionTestsEnrichment}
@@ -45,7 +43,6 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-        
 	piInput <- c(0.3, 0.5, 0.3, 0.6, 0.3, 0.7, 0.3, 0.8, 0.4, 0.5, 0.4, 0.6, 0.4, 0.7, 0.4, 0.8, 0.5, 0.5, 0.5, 0.6, 0.5, 0.7, 0.5, 0.8)
 
 	effectList <- list(
@@ -88,7 +85,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    expect_output(print(simResult1)$show())
 	    invisible(capture.output(expect_error(summary(simResult1), NA)))
 	    expect_output(summary(simResult1)$show())
-	    simResult1CodeBased <- eval(parse(text = getObjectRCode(simResult1, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult1CodeBased <- eval(parse(text = getObjectRCode(simResult1, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult1CodeBased$iterations, simResult1$iterations, tolerance = 1e-05)
 	    expect_equal(simResult1CodeBased$rejectAtLeastOne, simResult1$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult1CodeBased$rejectedPopulationsPerStage, simResult1$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -108,9 +105,8 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-    
-    .skipTestIfNotX64()
-    
+	.skipTestIfNotX64()
+
 	suppressWarnings(simResult2 <- getSimulationEnrichmentRates(design,
 	    plannedSubjects = c(150, 300), effectList = effectList,
 	    maxNumberOfIterations = 100, effectMeasure = "effectEstimate", stratifiedAnalysis = TRUE,
@@ -121,6 +117,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    typeOfSelection = "epsilon", epsilonValue = 0.025,
 	    intersectionTest = "Simes", seed = 123
 	))
+
 
 	## Comparison of the results of SimulationResultsEnrichmentRates object 'simResult2' with expected results
 	expect_equal(simResult2$iterations[1, ], c(100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100))
@@ -143,7 +140,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    expect_output(print(simResult2)$show())
 	    invisible(capture.output(expect_error(summary(simResult2), NA)))
 	    expect_output(summary(simResult2)$show())
-	    simResult2CodeBased <- eval(parse(text = getObjectRCode(simResult2, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult2CodeBased <- eval(parse(text = getObjectRCode(simResult2, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult2CodeBased$iterations, simResult2$iterations, tolerance = 1e-05)
 	    expect_equal(simResult2CodeBased$rejectAtLeastOne, simResult2$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult2CodeBased$rejectedPopulationsPerStage, simResult2$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -194,7 +191,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    expect_output(print(simResult3)$show())
 	    invisible(capture.output(expect_error(summary(simResult3), NA)))
 	    expect_output(summary(simResult3)$show())
-	    simResult3CodeBased <- eval(parse(text = getObjectRCode(simResult3, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult3CodeBased <- eval(parse(text = getObjectRCode(simResult3, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult3CodeBased$iterations, simResult3$iterations, tolerance = 1e-05)
 	    expect_equal(simResult3CodeBased$rejectAtLeastOne, simResult3$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult3CodeBased$rejectedPopulationsPerStage, simResult3$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -246,7 +243,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    expect_output(print(simResult4)$show())
 	    invisible(capture.output(expect_error(summary(simResult4), NA)))
 	    expect_output(summary(simResult4)$show())
-	    simResult4CodeBased <- eval(parse(text = getObjectRCode(simResult4, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult4CodeBased <- eval(parse(text = getObjectRCode(simResult4, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult4CodeBased$iterations, simResult4$iterations, tolerance = 1e-05)
 	    expect_equal(simResult4CodeBased$rejectAtLeastOne, simResult4$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult4CodeBased$rejectedPopulationsPerStage, simResult4$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -288,7 +285,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
 	.skipTestIfDisabled()
-    .skipTestIfNotX64()
+	.skipTestIfNotX64()
 
 	piTreatments <- c(
 	    0.30, 0.40, 0.30, 0.55, 0.30, 0.40, 0.30, 0.75, 0.30, 0.40, 0.50, 0.55, 0.30, 0.40, 0.50,
@@ -333,13 +330,13 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 	expect_equal(simResult1$expectedNumberOfSubjects, c(300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300), tolerance = 1e-07)
 	expect_equal(unlist(as.list(simResult1$sampleSizes)), c(15, 23.007143, 15, 24.6, 15, 35.778571, 15, 33.607143, 15, 8.0928571, 15, 12.764286, 15, 17.042857, 15, 13.757143, 15, 29.442857, 15, 27.278571, 15, 37.6, 15, 34.414286, 15, 15.3, 15, 16.7, 15, 25.742857, 15, 25.071429, 60, 51.028571, 60, 44.4, 60, 29.114286, 60, 30.428571, 60, 82.371429, 60, 68.057143, 60, 67.171429, 60, 69.028571, 60, 38.771429, 60, 40.114286, 60, 25.4, 60, 27.657143, 60, 68.2, 60, 58.8, 60, 51.971429, 60, 47.285714, 30, 57.514286, 30, 52.2, 30, 76.557143, 30, 70.214286, 30, 49.185714, 30, 39.028571, 30, 58.585714, 30, 46.514286, 30, 67.385714, 30, 56.057143, 30, 80.7, 30, 70.828571, 30, 52.1, 30, 39.4, 30, 65.985714, 30, 59.642857, 45, 18.45, 45, 28.8, 45, 8.55, 45, 15.75, 45, 10.35, 45, 30.15, 45, 7.2, 45, 20.7, 45, 14.4, 45, 26.55, 45, 6.3, 45, 17.1, 45, 14.4, 45, 35.1, 45, 6.3, 45, 18), tolerance = 1e-07)
 	expect_equal(simResult1$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(simResult1$conditionalPowerAchieved[2, ], c(0.052366399, 0.10235816, 0.23768651, 0.28614763, 0.25721791, 0.27114584, 0.42018555, 0.53367483, 0.094822283, 0.17558915, 0.27651135, 0.31521608, 0.31906941, 0.3984128, 0.57056973, 0.70557871), tolerance = 1e-07)
+	expect_equal(simResult1$conditionalPowerAchieved[2, ], c(0.052366398, 0.10235816, 0.23768651, 0.28614763, 0.25721791, 0.27114584, 0.42018555, 0.53367483, 0.094822282, 0.17558915, 0.27651135, 0.31521608, 0.31906941, 0.3984128, 0.57056973, 0.7055787), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(simResult1), NA)))
 	    expect_output(print(simResult1)$show())
 	    invisible(capture.output(expect_error(summary(simResult1), NA)))
 	    expect_output(summary(simResult1)$show())
-	    simResult1CodeBased <- eval(parse(text = getObjectRCode(simResult1, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult1CodeBased <- eval(parse(text = getObjectRCode(simResult1, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult1CodeBased$iterations, simResult1$iterations, tolerance = 1e-05)
 	    expect_equal(simResult1CodeBased$rejectAtLeastOne, simResult1$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult1CodeBased$rejectedPopulationsPerStage, simResult1$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -387,13 +384,13 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 	expect_equal(simResult2$expectedNumberOfSubjects, c(244.5, 258, 267, 282, 286.5, 289.5, 295.5, 295.5, 250.5, 258, 286.5, 294, 286.5, 295.5, 298.5, 298.5), tolerance = 1e-07)
 	expect_equal(unlist(as.list(simResult2$sampleSizes)), c(15, 17.040816, 15, 15.357143, 15, 18.873626, 15, 16.168831, 15, 16.412873, 15, 15.483871, 15, 18.181149, 15, 16.325479, 15, 16.151386, 15, 15.535714, 15, 18.390895, 15, 16.138393, 15, 17.119309, 15, 15.729013, 15, 19.415584, 15, 17.272727, 60, 68.163265, 60, 61.428571, 60, 75.494505, 60, 64.675325, 60, 65.651491, 60, 61.935484, 60, 72.724595, 60, 65.301915, 60, 64.605544, 60, 62.142857, 60, 73.563579, 60, 64.553571, 60, 68.477237, 60, 62.916053, 60, 77.662338, 60, 69.090909, 30, 34.081633, 30, 30.714286, 30, 37.747253, 30, 32.337662, 30, 32.825746, 30, 30.967742, 30, 36.362297, 30, 32.650957, 30, 32.302772, 30, 31.071429, 30, 36.78179, 30, 32.276786, 30, 34.238619, 30, 31.458027, 30, 38.831169, 30, 34.545455, 45, 30.714286, 45, 42.5, 45, 17.884615, 45, 36.818182, 45, 35.10989, 45, 41.612903, 45, 22.731959, 45, 35.721649, 45, 36.940299, 45, 41.25, 45, 21.263736, 45, 37.03125, 45, 30.164835, 45, 39.896907, 45, 14.090909, 45, 29.090909), tolerance = 1e-07)
 	expect_equal(simResult2$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(simResult2$conditionalPowerAchieved[2, ], c(0.098541448, 0.1603324, 0.18848192, 0.33019209, 0.1726177, 0.23217693, 0.48938782, 0.5528132, 0.15183095, 0.21072686, 0.29316228, 0.34756908, 0.32894824, 0.41694547, 0.62874091, 0.68601647), tolerance = 1e-07)
+	expect_equal(simResult2$conditionalPowerAchieved[2, ], c(0.098541448, 0.1603324, 0.18848191, 0.33019209, 0.1726177, 0.23217693, 0.48938782, 0.5528132, 0.15183095, 0.21072686, 0.29316228, 0.34756908, 0.32894823, 0.41694547, 0.62874091, 0.68601647), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(simResult2), NA)))
 	    expect_output(print(simResult2)$show())
 	    invisible(capture.output(expect_error(summary(simResult2), NA)))
 	    expect_output(summary(simResult2)$show())
-	    simResult2CodeBased <- eval(parse(text = getObjectRCode(simResult2, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult2CodeBased <- eval(parse(text = getObjectRCode(simResult2, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult2CodeBased$iterations, simResult2$iterations, tolerance = 1e-05)
 	    expect_equal(simResult2CodeBased$rejectAtLeastOne, simResult2$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult2CodeBased$rejectedPopulationsPerStage, simResult2$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -441,13 +438,13 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 	expect_equal(simResult3$expectedNumberOfSubjects, c(300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300), tolerance = 1e-07)
 	expect_equal(unlist(as.list(simResult3$sampleSizes)), c(15, 23.007143, 15, 24.6, 15, 35.778571, 15, 33.607143, 15, 8.0928571, 15, 12.764286, 15, 17.042857, 15, 13.757143, 15, 29.442857, 15, 27.278571, 15, 37.6, 15, 34.414286, 15, 15.3, 15, 16.7, 15, 25.742857, 15, 25.071429, 60, 51.028571, 60, 44.4, 60, 29.114286, 60, 30.428571, 60, 82.371429, 60, 68.057143, 60, 67.171429, 60, 69.028571, 60, 38.771429, 60, 40.114286, 60, 25.4, 60, 27.657143, 60, 68.2, 60, 58.8, 60, 51.971429, 60, 47.285714, 30, 57.514286, 30, 52.2, 30, 76.557143, 30, 70.214286, 30, 49.185714, 30, 39.028571, 30, 58.585714, 30, 46.514286, 30, 67.385714, 30, 56.057143, 30, 80.7, 30, 70.828571, 30, 52.1, 30, 39.4, 30, 65.985714, 30, 59.642857, 45, 18.45, 45, 28.8, 45, 8.55, 45, 15.75, 45, 10.35, 45, 30.15, 45, 7.2, 45, 20.7, 45, 14.4, 45, 26.55, 45, 6.3, 45, 17.1, 45, 14.4, 45, 35.1, 45, 6.3, 45, 18), tolerance = 1e-07)
 	expect_equal(simResult3$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(simResult3$conditionalPowerAchieved[2, ], c(0.049725877, 0.09761839, 0.23332728, 0.27699949, 0.24938469, 0.25259324, 0.41341769, 0.52195003, 0.091306519, 0.16413348, 0.27352495, 0.30455767, 0.309829, 0.37988667, 0.56618897, 0.69760011), tolerance = 1e-07)
+	expect_equal(simResult3$conditionalPowerAchieved[2, ], c(0.049725876, 0.09761839, 0.23332728, 0.27699949, 0.24938469, 0.25259324, 0.41341769, 0.52195003, 0.091306519, 0.16413348, 0.27352495, 0.30455767, 0.309829, 0.37988667, 0.56618897, 0.69760011), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(simResult3), NA)))
 	    expect_output(print(simResult3)$show())
 	    invisible(capture.output(expect_error(summary(simResult3), NA)))
 	    expect_output(summary(simResult3)$show())
-	    simResult3CodeBased <- eval(parse(text = getObjectRCode(simResult3, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult3CodeBased <- eval(parse(text = getObjectRCode(simResult3, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult3CodeBased$iterations, simResult3$iterations, tolerance = 1e-05)
 	    expect_equal(simResult3CodeBased$rejectAtLeastOne, simResult3$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult3CodeBased$rejectedPopulationsPerStage, simResult3$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -495,13 +492,13 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 	expect_equal(simResult4$expectedNumberOfSubjects, c(300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300))
 	expect_equal(unlist(as.list(simResult4$sampleSizes)), c(15, 21.6, 15, 22, 15, 37.05, 15, 34.7, 15, 8.4, 15, 11, 15, 16.35, 15, 17.3, 15, 32.7, 15, 28.2, 15, 40.15, 15, 40.8, 15, 12.65, 15, 19.5, 15, 22.35, 15, 21.5, 60, 54.4, 60, 51, 60, 25.2, 60, 27.8, 60, 81.6, 60, 73, 60, 66.4, 60, 63.2, 60, 32.8, 60, 38.8, 60, 18.6, 60, 16.2, 60, 72.6, 60, 57, 60, 54.4, 60, 54, 30, 63.2, 30, 54.5, 30, 84.6, 30, 74.9, 30, 52.8, 30, 43.5, 30, 63.2, 30, 59.6, 30, 76.4, 30, 61.4, 30, 86.3, 30, 83.1, 30, 55.3, 30, 55.5, 30, 69.2, 30, 61, 45, 10.8, 45, 22.5, 45, 3.15, 45, 12.6, 45, 7.2, 45, 22.5, 45, 4.05, 45, 9.9, 45, 8.1, 45, 21.6, 45, 4.95, 45, 9.9, 45, 9.45, 45, 18, 45, 4.05, 45, 13.5), tolerance = 1e-07)
 	expect_equal(simResult4$conditionalPowerAchieved[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(simResult4$conditionalPowerAchieved[2, ], c(0.049846768, 0.13642815, 0.19933025, 0.24691696, 0.23422702, 0.31462001, 0.42177681, 0.55370896, 0.056314814, 0.13292646, 0.2493284, 0.31063163, 0.27530592, 0.41566754, 0.59151016, 0.69993156), tolerance = 1e-07)
+	expect_equal(simResult4$conditionalPowerAchieved[2, ], c(0.049846768, 0.13642814, 0.19933025, 0.24691696, 0.23422702, 0.31462001, 0.42177681, 0.55370896, 0.056314813, 0.13292646, 0.2493284, 0.31063163, 0.27530592, 0.41566754, 0.59151016, 0.69993156), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(simResult4), NA)))
 	    expect_output(print(simResult4)$show())
 	    invisible(capture.output(expect_error(summary(simResult4), NA)))
 	    expect_output(summary(simResult4)$show())
-	    simResult4CodeBased <- eval(parse(text = getObjectRCode(simResult4, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult4CodeBased <- eval(parse(text = getObjectRCode(simResult4, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult4CodeBased$iterations, simResult4$iterations, tolerance = 1e-05)
 	    expect_equal(simResult4CodeBased$rejectAtLeastOne, simResult4$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult4CodeBased$rejectedPopulationsPerStage, simResult4$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -544,7 +541,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
 	.skipTestIfDisabled()
-    .skipTestIfNotX64()
+	.skipTestIfNotX64()
 
 	effectList <- list(
 	    subGroups = c("S1", "S2", "S3", "S12", "S13", "S23", "S123", "R"),
@@ -593,7 +590,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	    expect_output(print(simResult1)$show())
 	    invisible(capture.output(expect_error(summary(simResult1), NA)))
 	    expect_output(summary(simResult1)$show())
-	    simResult1CodeBased <- eval(parse(text = getObjectRCode(simResult1, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult1CodeBased <- eval(parse(text = getObjectRCode(simResult1, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult1CodeBased$iterations, simResult1$iterations, tolerance = 1e-05)
 	    expect_equal(simResult1CodeBased$rejectAtLeastOne, simResult1$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult1CodeBased$rejectedPopulationsPerStage, simResult1$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -648,7 +645,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	    expect_output(print(simResult2)$show())
 	    invisible(capture.output(expect_error(summary(simResult2), NA)))
 	    expect_output(summary(simResult2)$show())
-	    simResult2CodeBased <- eval(parse(text = getObjectRCode(simResult2, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult2CodeBased <- eval(parse(text = getObjectRCode(simResult2, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult2CodeBased$iterations, simResult2$iterations, tolerance = 1e-05)
 	    expect_equal(simResult2CodeBased$rejectAtLeastOne, simResult2$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult2CodeBased$rejectedPopulationsPerStage, simResult2$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -703,7 +700,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	    expect_output(print(simResult3)$show())
 	    invisible(capture.output(expect_error(summary(simResult3), NA)))
 	    expect_output(summary(simResult3)$show())
-	    simResult3CodeBased <- eval(parse(text = getObjectRCode(simResult3, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult3CodeBased <- eval(parse(text = getObjectRCode(simResult3, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult3CodeBased$iterations, simResult3$iterations, tolerance = 1e-05)
 	    expect_equal(simResult3CodeBased$rejectAtLeastOne, simResult3$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult3CodeBased$rejectedPopulationsPerStage, simResult3$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -758,7 +755,7 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	    expect_output(print(simResult4)$show())
 	    invisible(capture.output(expect_error(summary(simResult4), NA)))
 	    expect_output(summary(simResult4)$show())
-	    simResult4CodeBased <- eval(parse(text = getObjectRCode(simResult4, stringWrapParagraphWidth = NULL)))
+	    suppressWarnings(simResult4CodeBased <- eval(parse(text = getObjectRCode(simResult4, stringWrapParagraphWidth = NULL))))
 	    expect_equal(simResult4CodeBased$iterations, simResult4$iterations, tolerance = 1e-05)
 	    expect_equal(simResult4CodeBased$rejectAtLeastOne, simResult4$rejectAtLeastOne, tolerance = 1e-05)
 	    expect_equal(simResult4CodeBased$rejectedPopulationsPerStage, simResult4$rejectedPopulationsPerStage, tolerance = 1e-05)
@@ -780,9 +777,8 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	}
 })
 
-test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for inverse normal and Fisher combination", {
-    options(warn = 0)
-        
+test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for inverse normal", {
+
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:sec:simulationFunctions}
@@ -795,9 +791,7 @@ test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
 	.skipTestIfDisabled()
-    .skipTestIfNotX64()
-    
-    options(warn = -1)
+	.skipTestIfNotX64()
 
 	effectList <- list(
 	    subGroups = "F",
@@ -837,13 +831,38 @@ test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for
 
 	## Comparison of the results of matrixarray object 'comp2' with expected results
 	expect_equal(comp2[1, ], c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(comp2[2, ], c(-0.02550907, 0.012775115, 0.075223698, -0.03222948, -0.033954309, -0.00098028567, 0.042084407), tolerance = 1e-07)
-	expect_equal(comp2[3, ], c(0.01095201, 0.0017271924, -0.039464288, 0.065814614, -0.078523911, 0.017327136, -0.04091828), tolerance = 1e-07)
+	expect_equal(comp2[2, ], c(-0.025509072, 0.012775113, 0.075223697, -0.032229481, -0.033954309, -0.00098028605, 0.042084407), tolerance = 1e-07)
+	expect_equal(comp2[3, ], c(0.010952011, 0.0017271931, -0.039464287, 0.065814615, -0.078523911, 0.017327136, -0.04091828), tolerance = 1e-07)
 
 	comp3 <- x2$expectedNumberOfSubjects - x1$expectedNumberOfSubjects
 
 	## Comparison of the results of numeric object 'comp3' with expected results
-	expect_equal(comp3, c(-12.438075, -4.4155675, -9.1549552, -5.7278594, -0.099503309, -29.646063, 15.245374), tolerance = 1e-07)
+	expect_equal(comp3, c(-12.438075, -4.4155677, -9.1549554, -5.7278595, -0.099503378, -29.646063, 15.245374), tolerance = 1e-07)
+
+})
+
+test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for Fisher combination", {
+
+	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
+	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
+	# @refFS[Sec.]{fs:sec:simulationFunctions}
+	# @refFS[Sec.]{fs:sec:simulatingEnrichmentDesigns}
+	# @refFS[Sec.]{fs:sec:simulatingEnrichmentEffectSpecification}
+	# @refFS[Formula]{fs:simulationEnrichmentRatesGenerate}
+	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
+	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
+	# @refFS[Formula]{fs:simulationEnrichmentSelections}
+	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
+	# @refFS[Formula]{fs:enrichmentRejectionRule}
+	.skipTestIfDisabled()
+	.skipTestIfNotX64()
+
+	effectList <- list(
+	    subGroups = "F",
+	    prevalences = 1,
+	    piTreatments = matrix(seq(0.1, 0.4, 0.05), byrow = TRUE, ncol = 1),
+	    piControl = 0.4
+	)
 
 	design <- getDesignFisher(informationRates = c(0.3, 0.7, 1), method = "fullAlpha", alpha0Vec = c(0.5, 0.4), kMax = 3)
 
@@ -880,7 +899,5 @@ test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for
 
 	## Comparison of the results of numeric object 'comp6' with expected results
 	expect_equal(comp6, c(-15.660194, 11.117301, -9.5818058, 12.642212, -11.544347, -34.695117, -0.36035592), tolerance = 1e-07)
-    
-    options(warn = 0)
 })
 

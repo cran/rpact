@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5577 $
-## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  File version: $Revision: 5759 $
+## |  Last changed: $Date: 2022-02-01 09:48:28 +0100 (Di, 01 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -163,14 +163,14 @@ ConditionalPowerResultsMultiHypotheses <- setRefClass("ConditionalPowerResultsMu
 		
 		.toString = function(startWithUpperCase = FALSE) {
 			s <- "Conditional power results"
-			s <- paste0(s, " ", ifelse(grepl("Enrichment", class(.stageResults)), "enrichment", "multi-arm"))
-			if (grepl("Means", class(.self))) {
+			s <- paste0(s, " ", ifelse(grepl("Enrichment", .getClassName(.stageResults)), "enrichment", "multi-arm"))
+			if (grepl("Means", .getClassName(.self))) {
 				s <- paste0(s, " means")
 			}	
-			else if (grepl("Rates", class(.self))) {
+			else if (grepl("Rates", .getClassName(.self))) {
 				s <- paste0(s, " rates")
 			}	
-			else if (grepl("Survival", class(.self))) {
+			else if (grepl("Survival", .getClassName(.self))) {
 				s <- paste0(s, " survival")
 			}	
 			return(s)
@@ -186,10 +186,6 @@ ConditionalPowerResultsMultiHypotheses <- setRefClass("ConditionalPowerResultsMu
 			}
 			
 			if (length(.design$kMax) != 1) {
-				return(FALSE)
-			}
-			
-			if (class(.self) == "ConditionalPowerResults") {
 				return(FALSE)
 			}
 			
@@ -593,14 +589,14 @@ AnalysisResults <- setRefClass("AnalysisResults",
 		.getStageResultParametersToShow = function() {
 			stageResultParametersToShow <- c() 
 			if (.design$kMax > 1) {
-				if (!grepl("Rates", class(.dataInput)) || .dataInput$getNumberOfGroups() > 1) {
+				if (!grepl("Rates", .getClassName(.dataInput)) || .dataInput$getNumberOfGroups() > 1) {
 					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$effectSizes") 
 				}
 				
-				if (grepl("Means", class(.dataInput))) {
+				if (grepl("Means", .getClassName(.dataInput))) {
 					stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallStDevs")
 				}
-				if (grepl("Rates", class(.dataInput))) {
+				if (grepl("Rates", .getClassName(.dataInput))) {
 					if (.isMultiArmAnalysisResults(.self)) { 
 						stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPiTreatments")
 						stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$overallPiControl")
@@ -618,7 +614,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				}
 			}
 			stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$testStatistics")
-			if (grepl("(MultiArm|Dunnett|Enrichment)", class(.self))) {
+			if (grepl("(MultiArm|Dunnett|Enrichment)", .getClassName(.self))) {
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$separatePValues")
 			} else {
 				stageResultParametersToShow <- c(stageResultParametersToShow, ".stageResults$pValues")
@@ -655,7 +651,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				
 				.showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
-				if (grepl("Fisher", class(.self))) {
+				if (grepl("Fisher", .getClassName(.self))) {
 					if (!is.null(.self[["seed"]]) && length(.self$seed) == 1 && !is.na(.self$seed)) {
 						.showParametersOfOneGroup(c("iterations", "seed"), "Simulation parameters",
 							orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
@@ -675,7 +671,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				
 				# show multi-arm parameters
-				if (grepl("(MultiArm|Dunnett|Enrichment)", class(.self))) {
+				if (grepl("(MultiArm|Dunnett|Enrichment)", .getClassName(.self))) {
 					
 					if (.isTrialDesignConditionalDunnett(.design)) {
 						.showParametersOfOneGroup(".closedTestResults$conditionalErrorRate", 
@@ -701,7 +697,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				generatedParams <- generatedParams[!(generatedParams %in% 
 					c("assumedStDevs", "thetaH1", "pi1", "pi2", "piTreatments", "piTreatments", "piControl", "piControls"))]
 				
-				if (grepl("(MultiArm|Dunnett|Enrichment)", class(.self))) {
+				if (grepl("(MultiArm|Dunnett|Enrichment)", .getClassName(.self))) {
 					.showParametersOfOneGroup(generatedParams, "Further analysis results",
 						orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				} else {
@@ -711,7 +707,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 				
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
-				if (grepl("(MultiArm|Dunnett)", class(.self))) {
+				if (grepl("(MultiArm|Dunnett)", .getClassName(.self))) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					.cat(paste0("  (i): results of treatment arm i vs. control group ",
 							.dataInput$getNumberOfGroups(),"\n"), 
@@ -722,7 +718,7 @@ AnalysisResults <- setRefClass("AnalysisResults",
 					.cat(paste0("  S[i]: population i\n"), consoleOutputEnabled = consoleOutputEnabled)
 					.cat(paste0("  F: full population\n"), consoleOutputEnabled = consoleOutputEnabled)
 				} 
-				else if (grepl("Rates", class(.dataInput)) && .dataInput$getNumberOfGroups() == 2) {
+				else if (grepl("Rates", .getClassName(.dataInput)) && .dataInput$getNumberOfGroups() == 2) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
 				}
@@ -744,8 +740,8 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			numberOfGroups <- .dataInput$getNumberOfGroups()
 			str <- paste0(str, " (")
 			
-			str <- paste0(str, tolower(sub("Dataset(Enrichment)?", "", class(.dataInput))))
-			if (grepl("Survival", class(.dataInput))) {
+			str <- paste0(str, tolower(sub("Dataset(Enrichment)?", "", .getClassName(.dataInput))))
+			if (grepl("Survival", .getClassName(.getClassName))) {
 				str <- paste0(str, " data")
 			}
 			
@@ -756,16 +752,16 @@ AnalysisResults <- setRefClass("AnalysisResults",
 			}
 			
 			if (.design$kMax > 1) {
-				if (grepl("GroupSequential", class(.self))) {
+				if (grepl("GroupSequential", .getClassName(.self))) {
 					str <- paste0(str, ", group sequential design")
 				}
-				else if (grepl("InverseNormal", class(.self))) {
+				else if (grepl("InverseNormal", .getClassName(.self))) {
 					str <- paste0(str, ", inverse normal combination test design")
 				}
-				else if (grepl("Fisher", class(.self))) {
+				else if (grepl("Fisher", .getClassName(.self))) {
 					str <- paste0(str, ", Fisher's combination test design")
 				}
-				else if (grepl("Dunnett", class(.self))) {
+				else if (grepl("Dunnett", .getClassName(.self))) {
 					str <- paste0(str, ", conditional Dunnett design")
 				}
 			} else {
@@ -1339,7 +1335,15 @@ AnalysisResultsConditionalDunnett <- setRefClass("AnalysisResultsConditionalDunn
 	return(paste0(treatmentArmsToShow, " vs control"))
 }
 
-.getConfidenceIntervalData <- function(x, ciName = c("lower", "upper"), treatmentArmsToShow = NULL) {
+.getConfidenceIntervalData <- function(x, treatmentArmsToShow = NULL) {
+    data <- .getConfidenceIntervalDataPerBound(x, "lower", treatmentArmsToShow)
+    data$upper <- .getConfidenceIntervalDataPerBound(x, "upper", treatmentArmsToShow)$upper
+    data$yValues <- (data$upper + data$lower) / 2
+    data <- na.omit(data)
+    return(data)
+}
+
+.getConfidenceIntervalDataPerBound <- function(x, ciName = c("lower", "upper"), treatmentArmsToShow = NULL) {
 	ciName <- match.arg(ciName)
 	paramName <- ifelse(ciName == "lower", "repeatedConfidenceIntervalLowerBounds", "repeatedConfidenceIntervalUpperBounds")
 	data <- x[[paramName]]
@@ -1481,7 +1485,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 
 .plotAnalysisResultsRCI <- function(..., 
 		x, y, nPlanned, allocationRatioPlanned, main, xlab, ylab,
-		legendTitle, palette, legendPosition, showSource, plotSettings = NULL) {
+		legendTitle, palette, legendPosition, showSource, analysisResultsName, plotSettings = NULL) {
 	
 	.warnInCaseOfUnknownArguments(functionName = "plot", ignore = c("treatmentArms", "populations"), ...)
 	
@@ -1492,10 +1496,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		treatmentArmsToShow <- .getTreatmentArmsToShow(x, ...)
 	}
 	 
-	data <- .getConfidenceIntervalData(x, "lower", treatmentArmsToShow)
-	data$upper <- .getConfidenceIntervalData(x, "upper", treatmentArmsToShow)$upper
-	data$yValues <- (data$upper + data$lower) / 2
-	data <- na.omit(data)
+	data <- .getConfidenceIntervalData(x, treatmentArmsToShow)
 	if (nrow(data) == 0) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 			"unable to create plot because no RCIs are available in the specified analysis result")
@@ -1523,10 +1524,18 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 		}
 	}
 	
-	if (!is.logical(showSource) || isTRUE(showSource)) {
-		warning("'showSource' != FALSE is not implemented yet for plot type 2 and class ", class(x))
-	}
-	
+    treatmentArmsToShowCmd <- ""
+    if (!is.null(treatmentArmsToShow) && !identical(sort(unique(treatmentArmsToShow)), 1:nrow(data))) {
+        treatmentArmsToShowCmd <- paste0(", ", .arrayToString(treatmentArmsToShow, mode = "vector"))
+    }
+    dataCmd <- paste0('rpact:::.getConfidenceIntervalData(', analysisResultsName, treatmentArmsToShowCmd, ')')
+    srcCmd <- .showPlotSourceInformation(objectName = analysisResultsName, 
+        xParameterName = paste0(dataCmd, "$xValues"), 
+        yParameterNames = c(paste0(dataCmd, "$lower"),
+            paste0(dataCmd, "$yValues"),
+            paste0(dataCmd, "$upper")), 
+        type = 2L, showSource = showSource, lineType = FALSE)
+    
 	p <- .createAnalysisResultsPlotObject(x, data = data, plotData = plotData, main = main, xlab = xlab, ylab = ylab,
 		legendTitle = legendTitle, palette = palette, legendPosition = legendPosition,
 		kMax = x$.design$kMax, plotSettings = plotSettings)
@@ -1553,6 +1562,7 @@ plot.AnalysisResults <- function(x, y, ..., type = 1L,
 			main = main, xlab = xlab, ylab = ylab,
 			legendTitle = legendTitle, palette = palette, 
 			legendPosition = legendPosition, showSource = showSource,
+            analysisResultsName = analysisResultsName,
 			plotSettings = plotSettings, ...))
 	}
 	

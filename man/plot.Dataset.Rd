@@ -20,7 +20,7 @@
 \arguments{
 \item{x}{The \code{\link{Dataset}} object to plot.}
 
-\item{y}{Not available for this kind of plot (is only defined to be compatible 
+\item{y}{Not available for this kind of plot (is only defined to be compatible
 to the generic plot function).}
 
 \item{...}{Optional plot arguments. At the moment \code{xlim} and \code{ylim} are implemented 
@@ -69,7 +69,8 @@ dataExample <- getDataset(
     means1 = c(1, 1.1, 1, 1),
     means2 = c(1.4, 1.5, 3, 2.5),
     stDevs1 = c(1, 2, 2, 1.3),
-    stDevs2 = c(1, 2, 2, 1.3))
+    stDevs2 = c(1, 2, 2, 1.3)
+)
 \donttest{
 if (require(ggplot2)) plot(dataExample, main = "Comparison of Means")
 }

@@ -13,10 +13,13 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
+## |  File version: $Revision: 5901 $
+## |  Last changed: $Date: 2022-02-25 16:32:46 +0100 (Fr, 25 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
+
+#' @include f_core_utilities.R
+NULL
 
 .addNumberToPlotCaption <- function(caption, type, numberInCaptionEnabled = FALSE) {
 	if (!numberInCaptionEnabled) {
@@ -170,7 +173,7 @@
 	}
 	
 	if (stopIfNotFound) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "could not find plot caption for ", class(obj), " and type ", type)
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "could not find plot caption for ", .getClassName(obj), " and type ", type)
 	}
 	
 	return(NA_character_)
@@ -183,7 +186,7 @@
 	
 	if (!is.numeric(type) && !is.character(type)) {
 		stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-			"'type' must be an integer or character value or vector (is ", class(type), ")")
+			"'type' must be an integer or character value or vector (is ", .getClassName(type), ")")
 	}
 
 	if (is.numeric(type)) {
@@ -194,7 +197,7 @@
 		if (length(type) == 1 && type == "all") {
 			availablePlotTypes <- getAvailablePlotTypes(x)
 			if (is.null(availablePlotTypes)) {
-				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'getAvailablePlotTypes' not implemented for ", class(x))
+				stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'getAvailablePlotTypes' not implemented for ", .getClassName(x))
 			}
 			return(availablePlotTypes)
 		}
@@ -434,7 +437,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		types <- .removeInvalidPlotTypes(obj, types, c(5:14))
 	}
 	else if (inherits(obj, "SimulationResults")) {
-		if (grepl("Enrichment", class(obj)) && !.getSimulationEnrichmentEffectData(
+		if (grepl("Enrichment", .getClassName(obj)) && !.getSimulationEnrichmentEffectData(
 				obj, validatePlotCapability = FALSE)$valid) {
 			if (output == "numeric") {
 				return(NA_real_)
@@ -445,21 +448,21 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			return(list())
 		}
 		
-		if (grepl("MultiArm|Enrichment", class(obj))) {
+		if (grepl("MultiArm|Enrichment", .getClassName(obj))) {
 			types <- c(types, 1)
 			if (obj$.design$kMax > 1) {
 				types <- c(types, 2:3)
 			}
 		}
 		types <- c(types, 4)
-		if (!grepl("MultiArm", class(obj)) || obj$.design$kMax > 1) {
+		if (!grepl("MultiArm", .getClassName(obj)) || obj$.design$kMax > 1) {
 			types <- c(types, 5:6)
 		}
 		types <- c(types, 7)
 		if (obj$.design$kMax > 1) {
 			types <- c(types, 8)
 		}
-		if (!grepl("MultiArm", class(obj)) || obj$.design$kMax > 1) {
+		if (!grepl("MultiArm", .getClassName(obj)) || obj$.design$kMax > 1) {
 			types <- c(types, 9)
 		}
 		if (inherits(obj, "SimulationResultsSurvival")) {
@@ -568,6 +571,10 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (grepl("^-?\\.?get[A-Z]{1}", parameterName)) {
 		return(parameterName)
 	}
+    
+	if (grepl("^rpact::", parameterName)) {
+		return(parameterName)
+	}
 	
 	return(paste0(objectName, "$", parameterName))
 }
@@ -575,7 +582,8 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 .showPlotSourceInformation <- function(objectName, ..., 
 		xParameterName, yParameterNames, 
 		hint = NA_character_, nMax = NA_integer_, type = NA_integer_, 
-		showSource = FALSE, xValues = NA_real_) {
+		showSource = FALSE, xValues = NA_real_,
+        lineType = TRUE) {
 		
 	if (is.character(showSource)) {
 		if (length(showSource) != 1 || trimws(showSource) == "") {
@@ -655,7 +663,11 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	cat("Simple plot command example", ifelse(length(yAxisCmds) == 1, "", "s"), ":\n", sep = "")
 	plotCmds <- c()
 	for (yAxisCmd in yAxisCmds) {
-		plotCmd <- paste0("plot(", xAxisCmd, ", ", yAxisCmd, ", type = \"l\")")
+		plotCmd <- paste0("plot(", xAxisCmd, ", ", yAxisCmd)
+        if (lineType) {
+            plotCmd <- paste0(plotCmd, ", type = \"l\"")
+        }
+        plotCmd <- paste0(plotCmd, ")")
 		plotCmds <- c(plotCmds, plotCmd)
 		cat("  ", plotCmd, "\n", sep = "")
 	}
@@ -708,7 +720,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 
 .getParameterSetAsDataFrame <- function(parameterSet, designMaster,
 		addPowerAndAverageSampleNumber = FALSE, 
-		theta = seq(-1, 1, 0.02), nMax = NA_integer_) {
+		theta = seq(-1, 1, 0.02), nMax = NA_integer_, yParameterNames = character(0)) {
 	
 	if (.isTrialDesignSet(parameterSet) && parameterSet$getSize() > 1 && 
 			(is.null(parameterSet$variedParameters) || length(parameterSet$variedParameters) == 0)) {
@@ -716,21 +728,21 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 			"use 'DesignSet$addVariedParameters(character)' to add one or more varied parameters")
 	}
 	
-	# simulationEnrichmentEnmabled <- grepl("SimulationResultsEnrichment", class(parameterSet))
-	
 	if (inherits(parameterSet, "TrialDesignSet")) {
 		data <- as.data.frame(parameterSet, niceColumnNamesEnabled = FALSE, 
 			includeAllParameters = TRUE, addPowerAndAverageSampleNumber = addPowerAndAverageSampleNumber,
 			theta = theta, nMax = nMax)	
 	} else {
-		data <- as.data.frame(parameterSet, niceColumnNamesEnabled = FALSE, includeAllParameters = TRUE)	
+		data <- as.data.frame(parameterSet, niceColumnNamesEnabled = FALSE, includeAllParameters = TRUE)
 	}
 	
 	if (!.isTrialDesignSet(parameterSet)) {
 		variedParameters <- logical(0)
 		if ("stages" %in% colnames(data)) {
-			variedParameters <- "stages"
-			names(variedParameters) <- "Stage"
+            if (!.isTrialDesignPlan(parameterSet) || any(grepl("rejectPerStage|numberOfSubjects", yParameterNames))) {
+    			variedParameters <- "stages"
+    			names(variedParameters) <- "Stage"
+            }
 		}
 		return(list(data = data, variedParameters = variedParameters))
 	}
@@ -811,7 +823,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		yAxisScalingEnabled = TRUE, 
 		ratioEnabled = NA, plotSettings = NULL) {
 	
-	simulationEnrichmentEnmabled <- grepl("SimulationResultsEnrichment", class(parameterSet))
+	simulationEnrichmentEnmabled <- grepl("SimulationResultsEnrichment", .getClassName(parameterSet))
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
 		parameterNames <- c(xParameterName, yParameterNames)
 		parameterNames <- parameterNames[!(parameterNames %in% c("theta", "averageSampleNumber",
@@ -824,7 +836,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		for (parameterName in parameterNames) {
 			if (!is.na(parameterName) && !(parameterName %in% fieldNames)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"'", class(parameterSet), "' and '", class(designMaster), "' ", 
+					"'", .getClassName(parameterSet), "' and '", .getClassName(designMaster), "' ", 
 					"do not contain a field with name '", parameterName, "'")
 			}
 		}
@@ -858,7 +870,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	if (.isParameterSet(parameterSet) || .isTrialDesignSet(parameterSet)) {
 		df <- .getParameterSetAsDataFrame(parameterSet, designMaster,
 			addPowerAndAverageSampleNumber = addPowerAndAverageSampleNumber, 
-			theta = theta, nMax = nMax)
+			theta = theta, nMax = nMax, yParameterNames = yParameterNames)
 		data <- df$data	
 		variedParameters <- df$variedParameters
 		variedParameters <- na.omit(variedParameters)
@@ -874,7 +886,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		data <- parameterSet
 	} else {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-			"'parameterSet' (", class(parameterSet), ") must be a data.frame, a 'TrialDesignSet' ", 
+			"'parameterSet' (", .getClassName(parameterSet), ") must be a data.frame, a 'TrialDesignSet' ", 
 			"or an object that inherits from 'ParameterSet'")
 	}
 	
@@ -1120,20 +1132,6 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 	return(p)
 }
 
-.isPampallonaTsiatisDesign <- function(x) {
-	design <- NULL
-	if (inherits(x, "TrialDesign")) {
-		design <- x
-	}
-	if (inherits(x, "TrialDesignSet")) {
-		design <- x$getDesignMaster()
-	}
-	if (is.null(design)) {
-		return(FALSE)
-	}
-	return(design$typeOfDesign == C_TYPE_OF_DESIGN_PT)
-}
-
 .naAndNaNOmit <- function(x) {
 	if (is.null(x) || length(x) == 0) {
 		return(x)
@@ -1183,7 +1181,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
 		ratioEnabled = FALSE, plotSettings = NULL, sided = 1, discreteXAxis = FALSE) {
 	
 	if (!is.data.frame(data)) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'data' must be a data.frame (is ", class(data), ")")
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'data' must be a data.frame (is ", .getClassName(data), ")")
 	}
 	
 	if (is.null(plotSettings)) {
@@ -1518,7 +1516,7 @@ saveLastPlot <- function(filename, outputPath = .getRelativeFigureOutputPath()) 
 	}
 	
 	if (is.null(x[[".plotSettings"]])) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'x' (", class(x), ") does not contain field .plotSettings")
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'x' (", .getClassName(x), ") does not contain field .plotSettings")
 	}
 	
 	plotSettings <- x$.plotSettings

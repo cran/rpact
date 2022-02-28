@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_parameter_set_utilities.R
-## |  Creation date: 08 December 2021, 09:09:22
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:06:28
+## |  File version: $Revision: 5901 $
+## |  Last changed: $Date: 2022-02-25 16:32:46 +0100 (Fr, 25 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Parameter Set Utility Functions")
@@ -34,17 +34,16 @@ test_that("'.getParameterValueFormatted' produce correct results if parameter is
 	expect_equal("array", y1$type)
 
 	x2 <- getSimulationMultiArmMeans(getDesignInverseNormal(kMax = 2), plannedSubjects = c(50, 100), muMaxVector = c(0, 1), seed = 123, maxNumberOfIterations = 50L)
-	#x2$sampleSizes
-	lines2 <- capture.output(print(x2))
-	lines2 <- lines2[grepl("Sample sizes ", lines2)]
-	expect_match(lines2[1], "^ *Sample sizes \\(1\\) \\[1\\] *: 50.0, 50.0 *$")
-	expect_match(lines2[2], "^ *Sample sizes \\(1\\) \\[2\\] *: 17.0, 0.0 *$")
-	expect_match(lines2[3], "^ *Sample sizes \\(2\\) \\[1\\] *: 50.0, 50.0 *$")
-	expect_match(lines2[4], "^ *Sample sizes \\(2\\) \\[2\\] *: 17.0, 3.3 *$")
-	expect_match(lines2[5], "^ *Sample sizes \\(3\\) \\[1\\] *: 50.0, 50.0 *$")
-	expect_match(lines2[6], "^ *Sample sizes \\(3\\) \\[2\\] *: 16.0, 46.7 *$")
-	expect_match(lines2[7], "^ *Sample sizes \\(4\\) \\[1\\] *: 50.0, 50.0 *$")
-	expect_match(lines2[8], "^ *Sample sizes \\(4\\) \\[2\\] *: 50.0, 50.0 *$")
+	lines2a <- capture.output(print(x2))
+	lines2 <- lines2a[grepl("Sample sizes ", lines2a)]
+	expect_match(lines2[1], "^ *Sample sizes \\(1\\) \\[1\\] *: 50, 50 *$")
+	expect_match(lines2[2], "^ *Sample sizes \\(1\\) \\[2\\] *: 17, 0 *$")
+	expect_match(lines2[3], "^ *Sample sizes \\(2\\) \\[1\\] *: 50, 50 *$")
+	expect_match(lines2[4], "^ *Sample sizes \\(2\\) \\[2\\] *: 17, 3.3 *$")
+	expect_match(lines2[5], "^ *Sample sizes \\(3\\) \\[1\\] *: 50, 50 *$")
+	expect_match(lines2[6], "^ *Sample sizes \\(3\\) \\[2\\] *: 16, 46.7 *$")
+	expect_match(lines2[7], "^ *Sample sizes \\(4\\) \\[1\\] *: 50, 50 *$")
+	expect_match(lines2[8], "^ *Sample sizes \\(4\\) \\[2\\] *: 50, 50 *$")
 
 	x3 <- getSimulationMultiArmMeans(getDesignInverseNormal(kMax = 1), plannedSubjects = 50, muMaxVector = c(0, 1), seed = 123, maxNumberOfIterations = 50L)
 
@@ -56,13 +55,12 @@ test_that("'.getParameterValueFormatted' produce correct results if parameter is
 	expect_equal("character", class(y3$paramValueFormatted))
 	expect_equal("array", y3$type)
 
-	#x3$sampleSizes
-	lines3 <- capture.output(print(x3))
-	lines3 <- lines3[grepl("Sample sizes ", lines3)]
-	expect_match(lines3[1], "^ *Sample sizes \\(1\\) *: 50.0, 50.0 *$")
-	expect_match(lines3[2], "^ *Sample sizes \\(2\\) *: 50.0, 50.0 *$")
-	expect_match(lines3[3], "^ *Sample sizes \\(3\\) *: 50.0, 50.0 *$")
-	expect_match(lines3[4], "^ *Sample sizes \\(4\\) *: 50.0, 50.0 *$")
+	lines3a <- capture.output(print(x3))
+	lines3 <- lines3a[grepl("Sample sizes ", lines3a)]
+	expect_match(lines3[1], "^ *Sample sizes \\(1\\) *: 50, 50 *$")
+	expect_match(lines3[2], "^ *Sample sizes \\(2\\) *: 50, 50 *$")
+	expect_match(lines3[3], "^ *Sample sizes \\(3\\) *: 50, 50 *$")
+	expect_match(lines3[4], "^ *Sample sizes \\(4\\) *: 50, 50 *$")
 
 	x4 <- getSimulationMultiArmMeans(getDesignInverseNormal(kMax = 2), plannedSubjects = c(50, 100), muMaxVector = 0, seed = 123, maxNumberOfIterations = 50L)
 
@@ -74,16 +72,15 @@ test_that("'.getParameterValueFormatted' produce correct results if parameter is
 	expect_equal("character", class(y4$paramValueFormatted))
 	expect_equal("array", y4$type)
 
-	#x4$sampleSizes
-	lines4 <- capture.output(print(x4))
-	lines4 <- lines4[grepl("Sample sizes ", lines4)]
-	expect_match(lines4[1], "^ *Sample sizes \\(1\\) \\[1\\] *: 50.0 *$")
-	expect_match(lines4[2], "^ *Sample sizes \\(1\\) \\[2\\] *: 17.0 *$")
-	expect_match(lines4[3], "^ *Sample sizes \\(2\\) \\[1\\] *: 50.0 *$")
-	expect_match(lines4[4], "^ *Sample sizes \\(2\\) \\[2\\] *: 17.0 *$")
-	expect_match(lines4[5], "^ *Sample sizes \\(3\\) \\[1\\] *: 50.0 *$")
-	expect_match(lines4[6], "^ *Sample sizes \\(3\\) \\[2\\] *: 16.0 *$")
-	expect_match(lines4[7], "^ *Sample sizes \\(4\\) \\[1\\] *: 50.0 *$")
-	expect_match(lines4[8], "^ *Sample sizes \\(4\\) \\[2\\] *: 50.0 *$")
+	lines4a <- capture.output(print(x4))
+	lines4 <- lines4a[grepl("Sample sizes ", lines4a)]
+	expect_match(lines4[1], "^ *Sample sizes \\(1\\) \\[1\\] *: 50 *$")
+	expect_match(lines4[2], "^ *Sample sizes \\(1\\) \\[2\\] *: 17 *$")
+	expect_match(lines4[3], "^ *Sample sizes \\(2\\) \\[1\\] *: 50 *$")
+	expect_match(lines4[4], "^ *Sample sizes \\(2\\) \\[2\\] *: 17 *$")
+	expect_match(lines4[5], "^ *Sample sizes \\(3\\) \\[1\\] *: 50 *$")
+	expect_match(lines4[6], "^ *Sample sizes \\(3\\) \\[2\\] *: 16 *$")
+	expect_match(lines4[7], "^ *Sample sizes \\(4\\) \\[1\\] *: 50 *$")
+	expect_match(lines4[8], "^ *Sample sizes \\(4\\) \\[2\\] *: 50 *$")
 })
 

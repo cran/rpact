@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_enrichment_means.R
-## |  Creation date: 08 December 2021, 09:03:08
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:02:03
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Analysis Enrichment Means Function (one sub-population)")
@@ -36,20 +36,22 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
 	S1 <- getDataset(
-		sampleSize1 = c(12,21),
-		sampleSize2 = c(18,21),
-		mean1 = c(107.7, 84.9),
-		mean2 = c(165.6, 195.9),
-		stDev1 = c(128.5, 139.5),
-		stDev2 = c(120.1, 185.0))
+	    sampleSize1 = c(12, 21),
+	    sampleSize2 = c(18, 21),
+	    mean1 = c(107.7, 84.9),
+	    mean2 = c(165.6, 195.9),
+	    stDev1 = c(128.5, 139.5),
+	    stDev2 = c(120.1, 185.0)
+	)
 
 	F <- getDataset(
-		sampleSize1 = c(26, NA),
-		sampleSize2 = c(29, NA),
-		mean1 = c(86.48462, NA),
-		mean2 = c(148.34138, NA),
-		stDev1 = c(129.1485, NA),
-		stDev2 = c(122.888, NA))
+	    sampleSize1 = c(26, NA),
+	    sampleSize2 = c(29, NA),
+	    mean1 = c(86.48462, NA),
+	    mean2 = c(148.34138, NA),
+	    stDev1 = c(129.1485, NA),
+	    stDev2 = c(122.888, NA)
+	)
 
 	dataInput1 <- getDataset(S1 = S1, F = F)
 
@@ -75,20 +77,23 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, futilityBounds = c(-0.5,0), 
-		bindingFutility = FALSE, typeOfDesign = "OF", informationRates = c(0.5,0.7,1))
+	design1 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.02, futilityBounds = c(-0.5, 0),
+	    bindingFutility = FALSE, typeOfDesign = "OF", informationRates = c(0.5, 0.7, 1)
+	)
 
-	x1 <- getAnalysisResults(design = design1, dataInput = dataInput1,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "pooledFromFull",
-		intersectionTest = "Bonferroni",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		thetaH1 = c(-30, NA),
-		assumedStDevs = c(88, NA),
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x1 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput1,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "pooledFromFull",
+	    intersectionTest = "Bonferroni",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    thetaH1 = c(-30, NA),
+	    assumedStDevs = c(88, NA),
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x1' with expected results
@@ -138,20 +143,22 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
 	S1 <- getDataset(
-		sampleSize1 = c(12,21),
-		sampleSize2 = c(18,21),
-		mean1 = c(107.7, 84.9),
-		mean2 = c(165.6, 195.9),
-		stDev1 = c(128.5, 139.5),
-		stDev2 = c(120.1, 185.0))
+	    sampleSize1 = c(12, 21),
+	    sampleSize2 = c(18, 21),
+	    mean1 = c(107.7, 84.9),
+	    mean2 = c(165.6, 195.9),
+	    stDev1 = c(128.5, 139.5),
+	    stDev2 = c(120.1, 185.0)
+	)
 
 	R <- getDataset(
-		sampleSize1 = c(14, NA),
-		sampleSize2 = c(11, NA),
-		mean1 = c(68.3, NA),
-		mean2 = c(120.1, NA),
-		stDev1 = c(124.0, NA),
-		stDev2 = c(116.8, NA))
+	    sampleSize1 = c(14, NA),
+	    sampleSize2 = c(11, NA),
+	    mean1 = c(68.3, NA),
+	    mean2 = c(120.1, NA),
+	    stDev1 = c(124.0, NA),
+	    stDev2 = c(116.8, NA)
+	)
 
 	dataInput2 <- getDataset(S1 = S1, R = R)
 
@@ -177,20 +184,23 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design2 <- getDesignFisher(kMax = 3, alpha = 0.02, alpha0Vec = c(0.7,0.5), method = "fullAlpha", 
-		bindingFutility = TRUE, informationRates = c(0.3,0.7,1))
+	design2 <- getDesignFisher(
+	    kMax = 3, alpha = 0.02, alpha0Vec = c(0.7, 0.5), method = "fullAlpha",
+	    bindingFutility = TRUE, informationRates = c(0.3, 0.7, 1)
+	)
 
-	x2 <- getAnalysisResults(design = design2, dataInput = dataInput2,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "pooledFromFull",
-		intersectionTest = "Bonferroni",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		thetaH1 = c(-30, NA),
-		assumedStDevs = c(88, NA),
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x2 <- getAnalysisResults(
+	    design = design2, dataInput = dataInput2,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "pooledFromFull",
+	    intersectionTest = "Bonferroni",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    thetaH1 = c(-30, NA),
+	    assumedStDevs = c(88, NA),
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentFisher object 'x2' with expected results
@@ -224,19 +234,22 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, futilityBounds = c(-0.5,0), 
-		bindingFutility = FALSE, typeOfDesign = "OF", informationRates = c(0.5,0.7,1))
+	design1 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.02, futilityBounds = c(-0.5, 0),
+	    bindingFutility = FALSE, typeOfDesign = "OF", informationRates = c(0.5, 0.7, 1)
+	)
 
-	x3 <- getAnalysisResults(design = design1, dataInput = dataInput2,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		intersectionTest = "Sidak",
-		stratifiedAnalysis = TRUE,
-		stage = 2,
-		thetaH1 = c(-30, NA),
-		assumedStDevs = c(88, NA),
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x3 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput2,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    intersectionTest = "Sidak",
+	    stratifiedAnalysis = TRUE,
+	    stage = 2,
+	    thetaH1 = c(-30, NA),
+	    assumedStDevs = c(88, NA),
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x3' with expected results
@@ -272,7 +285,7 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 
 })
 
-test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal design, Sidak", {
+test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal design, Sidak and Spiessens & Debois", {
 
 	.skipTestIfDisabled()
 
@@ -287,36 +300,41 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	# @refFS[Formula]{fs:conditionalPowerEnrichment}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, futilityBounds = c(-0.5,0), 
-		bindingFutility = FALSE, typeOfDesign = "OF", informationRates = c(0.5,0.7,1))
+	design1 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.02, futilityBounds = c(-0.5, 0),
+	    bindingFutility = FALSE, typeOfDesign = "OF", informationRates = c(0.5, 0.7, 1)
+	)
 
 	S1 <- getDataset(
-		sampleSize1 = c(12,21),
-		sampleSize2 = c(18,21),
-		mean1 = c(107.7, 84.9),
-		mean2 = c(165.6, 195.9),
-		stDev1 = c(128.5, 139.5),
-		stDev2 = c(120.1, 185.0))
+	    sampleSize1 = c(12, 21),
+	    sampleSize2 = c(18, 21),
+	    mean1 = c(107.7, 84.9),
+	    mean2 = c(165.6, 195.9),
+	    stDev1 = c(128.5, 139.5),
+	    stDev2 = c(120.1, 185.0)
+	)
 
 	F <- getDataset(
-		sampleSize1 = c(26, NA),
-		sampleSize2 = c(29, NA),
-		mean1 = c(86.48462, NA),
-		mean2 = c(148.34138, NA),
-		stDev1 = c(129.1485, NA),
-		stDev2 = c(122.888, NA))
+	    sampleSize1 = c(26, NA),
+	    sampleSize2 = c(29, NA),
+	    mean1 = c(86.48462, NA),
+	    mean2 = c(148.34138, NA),
+	    stDev1 = c(129.1485, NA),
+	    stDev2 = c(122.888, NA)
+	)
 
 	dataInput1 <- getDataset(S1 = S1, F = F)
 
-	x4 <- getAnalysisResults(design = design1, dataInput = dataInput1,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "notPooled",
-		intersectionTest = "Sidak",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x4 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput1,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "Sidak",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x4' with expected results
@@ -356,15 +374,16 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getAnalysisResults(design = design1, dataInput = dataInput1,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "pooledFromFull",
-		intersectionTest = "SpiessensDebois",
-		stratifiedAnalysis = TRUE,
-		stage = 2,
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x5 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput1,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "pooledFromFull",
+	    intersectionTest = "SpiessensDebois",
+	    stratifiedAnalysis = TRUE,
+	    stage = 2,
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x5' with expected results
@@ -404,15 +423,16 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getAnalysisResults(design = design1, dataInput = dataInput1,	
-		directionUpper = FALSE,
-		normalApproximation = TRUE, 
-		varianceOption = "notPooled",
-		intersectionTest = "SpiessensDebois",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x6 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput1,
+	    directionUpper = FALSE,
+	    normalApproximation = TRUE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "SpiessensDebois",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x6' with expected results
@@ -454,7 +474,7 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 
 })
 
-test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, Fisher design, Sidak", {
+test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, Fisher design, Sidak and Bonferroni", {
 
 	.skipTestIfDisabled()
 
@@ -469,38 +489,43 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, Fisher design,
 	# @refFS[Formula]{fs:conditionalPowerEnrichment}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
-	design2 <- getDesignFisher(kMax = 3, alpha = 0.02, alpha0Vec = c(0.7,0.5), method = "fullAlpha", 
-		bindingFutility = TRUE, informationRates = c(0.3,0.7,1))
+	design2 <- getDesignFisher(
+	    kMax = 3, alpha = 0.02, alpha0Vec = c(0.7, 0.5), method = "fullAlpha",
+	    bindingFutility = TRUE, informationRates = c(0.3, 0.7, 1)
+	)
 
 	S1 <- getDataset(
-		sampleSize1 = c(12,21),
-		sampleSize2 = c(18,21),
-		mean1 = c(107.7, 84.9),
-		mean2 = c(165.6, 195.9),
-		stDev1 = c(128.5, 139.5),
-		stDev2 = c(120.1, 185.0))
+	    sampleSize1 = c(12, 21),
+	    sampleSize2 = c(18, 21),
+	    mean1 = c(107.7, 84.9),
+	    mean2 = c(165.6, 195.9),
+	    stDev1 = c(128.5, 139.5),
+	    stDev2 = c(120.1, 185.0)
+	)
 
 	F <- getDataset(
-		sampleSize1 = c(26, NA),
-		sampleSize2 = c(29, NA),
-		mean1 = c(86.48462, NA),
-		mean2 = c(148.34138, NA),
-		stDev1 = c(129.1485, NA),
-		stDev2 = c(122.888, NA))
+	    sampleSize1 = c(26, NA),
+	    sampleSize2 = c(29, NA),
+	    mean1 = c(86.48462, NA),
+	    mean2 = c(148.34138, NA),
+	    stDev1 = c(129.1485, NA),
+	    stDev2 = c(122.888, NA)
+	)
 
 	dataInput1 <- getDataset(S1 = S1, F = F)
 
-	x7 <- getAnalysisResults(design = design2, dataInput = dataInput1,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "pooled",
-		intersectionTest = "Sidak",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		thetaH1 = c(-30, NA),
-		assumedStDevs = c(88, NA),
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x7 <- getAnalysisResults(
+	    design = design2, dataInput = dataInput1,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "pooled",
+	    intersectionTest = "Sidak",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    thetaH1 = c(-30, NA),
+	    assumedStDevs = c(88, NA),
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentFisher object 'x7' with expected results
@@ -534,15 +559,16 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, Fisher design,
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getAnalysisResults(design = design2, dataInput = dataInput1,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "notPooled",
-		intersectionTest = "Bonferroni",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		nPlanned = c(30),
-		allocationRatioPlanned = 2
+	x8 <- getAnalysisResults(
+	    design = design2, dataInput = dataInput1,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "Bonferroni",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    nPlanned = c(30),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentFisher object 'x8' with expected results
@@ -587,7 +613,7 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, Fisher design,
 context("Testing Analysis Enrichment Means Function (two sub-populations)")
 
 
-test_that("'getAnalysisResults': stratified analysis, select S1 and S2 at first IA, select S1 at second, gMax = 3", {
+test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMax = 3", {
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -600,36 +626,40 @@ test_that("'getAnalysisResults': stratified analysis, select S1 and S2 at first 
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
 	S1 <- getDataset(
-		sampleSize2 = c(   12,    33,   21), 
-		sampleSize1 = c(   18,    17,   23), 
-		mean2       = c(107.7,  77.7, 84.9), 
-		mean1       = c(125.6, 111.1, 99.9), 
-		stDev2      = c(128.5, 133.3, 84.9), 
-		stDev1      = c(120.1, 145.6, 74.3))
+	    sampleSize2 = c(12, 33, 21),
+	    sampleSize1 = c(18, 17, 23),
+	    mean2       = c(107.7, 77.7, 84.9),
+	    mean1       = c(125.6, 111.1, 99.9),
+	    stDev2      = c(128.5, 133.3, 84.9),
+	    stDev1      = c(120.1, 145.6, 74.3)
+	)
 
 	S2 <- getDataset(
-		sampleSize2 = c(   14, NA,   NA), 
-		sampleSize1 = c(   11, NA,   NA), 
-		mean2       = c( 68.3, NA,   NA), 
-		mean1       = c(100.1, NA,   NA), 
-		stDev2      = c(124.0, NA,   NA), 
-		stDev1      = c(116.8, NA,   NA))
+	    sampleSize2 = c(14, NA, NA),
+	    sampleSize1 = c(11, NA, NA),
+	    mean2       = c(68.3, NA, NA),
+	    mean1       = c(100.1, NA, NA),
+	    stDev2      = c(124.0, NA, NA),
+	    stDev1      = c(116.8, NA, NA)
+	)
 
-	S12 <- getDataset(           
-		sampleSize2 = c(    21,    12,    33), 
-		sampleSize1 = c(    21,    17,    31), 
-		mean2       = c(  84.9, 107.7,  77.7), 
-		mean1       = c( 135.9, 117.7,  97.7), 
-		stDev2      = c( 139.5, 107.7,  77.7), 
-		stDev1      = c( 185.0,  92.3,  87.3))
+	S12 <- getDataset(
+	    sampleSize2 = c(21, 12, 33),
+	    sampleSize1 = c(21, 17, 31),
+	    mean2       = c(84.9, 107.7, 77.7),
+	    mean1       = c(135.9, 117.7, 97.7),
+	    stDev2      = c(139.5, 107.7, 77.7),
+	    stDev1      = c(185.0, 92.3, 87.3)
+	)
 
 	R <- getDataset(
-		sampleSize2 = c(   33,  NA,  NA), 
-		sampleSize1 = c(   19,  NA,  NA), 
-		mean2       = c( 77.1,  NA,  NA), 
-		mean1       = c(142.4,  NA,  NA), 
-		stDev2      = c(163.5,  NA,  NA), 
-		stDev1      = c(120.6,  NA,  NA))
+	    sampleSize2 = c(33, NA, NA),
+	    sampleSize1 = c(19, NA, NA),
+	    mean2       = c(77.1, NA, NA),
+	    mean1       = c(142.4, NA, NA),
+	    stDev2      = c(163.5, NA, NA),
+	    stDev1      = c(120.6, NA, NA)
+	)
 
 	dataInput1 <- getDataset(S1 = S1, S2 = S2, S12 = S12, R = R)
 
@@ -670,33 +700,39 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	# @refFS[Formula]{fs:conditionalPowerEnrichment}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, futilityBounds = c(-0.5,0), 
-		bindingFutility = TRUE, typeOfDesign = "OF", informationRates = c(0.5,0.7,1))
+	.skipTestIfDisabled()
+
+	design1 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.02, futilityBounds = c(-0.5, 0),
+	    bindingFutility = TRUE, typeOfDesign = "OF", informationRates = c(0.5, 0.7, 1)
+	)
 
 	S1N <- getDataset(
-		sampleSize1 = c(   39,    34,   NA), 
-		sampleSize2 = c(   33,    45,   NA), 
-		stDev1       = c(156.5026,  120.084, NA), 
-		stDev2       = c(134.0254, 126.502, NA), 
-		mean1      = c(131.146, 114.4, NA), 
-		mean2      = c(93.191, 85.7, NA))
+	    sampleSize1 = c(39, 34, NA),
+	    sampleSize2 = c(33, 45, NA),
+	    stDev1 = c(156.5026, 120.084, NA),
+	    stDev2 = c(134.0254, 126.502, NA),
+	    mean1 = c(131.146, 114.4, NA),
+	    mean2 = c(93.191, 85.7, NA)
+	)
 
 	S2N <- getDataset(
-		sampleSize1 = c(   32,    NA,   NA), 
-		sampleSize2 = c(   35,    NA,   NA), 
-		stDev1       = c(163.645,  NA, NA), 
-		stDev2       = c(131.888, NA, NA),
-		mean1      = c(123.594, NA, NA), 
-		mean2      = c(78.26, NA, NA)
+	    sampleSize1 = c(32, NA, NA),
+	    sampleSize2 = c(35, NA, NA),
+	    stDev1 = c(163.645, NA, NA),
+	    stDev2 = c(131.888, NA, NA),
+	    mean1 = c(123.594, NA, NA),
+	    mean2 = c(78.26, NA, NA)
 	)
 
 	F <- getDataset(
-		sampleSize1 = c(   69,   NA,   NA), 
-		sampleSize2 = c(   80,    NA,   NA), 
-		stDev1       = c(165.4682,  NA, NA), 
-		stDev2       = c(143.9796, NA, NA), 
-		mean1      = c(129.2957, NA, NA), 
-		mean2      = c(82.1875, NA, NA))
+	    sampleSize1 = c(69, NA, NA),
+	    sampleSize2 = c(80, NA, NA),
+	    stDev1 = c(165.4682, NA, NA),
+	    stDev2 = c(143.9796, NA, NA),
+	    mean1 = c(129.2957, NA, NA),
+	    mean2 = c(82.1875, NA, NA)
+	)
 
 	dataInput2 <- getDataset(S1 = S1N, S2 = S2N, F = F)
 
@@ -722,15 +758,16 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x1 <- getAnalysisResults(design = design1, dataInput = dataInput2,	
-		directionUpper = TRUE,
-		normalApproximation = FALSE, 
-		varianceOption = "pooled",
-		intersectionTest = "Sidak",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		nPlanned = c(80),
-		allocationRatioPlanned = 2
+	x1 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput2,
+	    directionUpper = TRUE,
+	    normalApproximation = FALSE,
+	    varianceOption = "pooled",
+	    intersectionTest = "Sidak",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    nPlanned = c(80),
+	    allocationRatioPlanned = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x1' with expected results
@@ -777,25 +814,28 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	.skipTestIfDisabled()
+	design3 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.02, futilityBounds = c(-0.5, 0),
+	    bindingFutility = TRUE, typeOfDesign = "OF", informationRates = c(0.5, 0.7, 1)
+	)
 
-	design3 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, futilityBounds = c(-0.5,0), 
-		bindingFutility = TRUE, typeOfDesign = "OF", informationRates = c(0.5,0.7,1))
+	design2 <- getDesignFisher(
+	    kMax = 3, alpha = 0.02, alpha0Vec = c(0.7, 0.5), method = "equalAlpha",
+	    bindingFutility = TRUE, informationRates = c(0.3, 0.7, 1)
+	)
 
-	design2 <- getDesignFisher(kMax = 3, alpha = 0.02, alpha0Vec = c(0.7, 0.5), method = "equalAlpha", 
-		bindingFutility = TRUE, informationRates = c(0.3, 0.7, 1))
-
-	x2 <- getAnalysisResults(design = design3, dataInput = dataInput2,	
-		directionUpper = TRUE,
-		normalApproximation = FALSE, 
-		varianceOption = "notPooled",
-		intersectionTest = "Simes",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		thetaH1 = c(50, 30, NA),
-		assumedStDevs = c(122, 88, NA),
-		nPlanned = 80,
-		allocationRatioPlanned = 0.5
+	x2 <- getAnalysisResults(
+	    design = design3, dataInput = dataInput2,
+	    directionUpper = TRUE,
+	    normalApproximation = FALSE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "Simes",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    thetaH1 = c(50, 30, NA),
+	    assumedStDevs = c(122, 88, NA),
+	    nPlanned = 80,
+	    allocationRatioPlanned = 0.5
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x2' with expected results
@@ -834,15 +874,16 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x3 <- getAnalysisResults(design = design2, dataInput = dataInput2,	
-		directionUpper = TRUE,
-		normalApproximation = FALSE, 
-		varianceOption = "pooled",
-		intersectionTest = "Sidak",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		nPlanned = 80,
-		allocationRatioPlanned = 0.5
+	x3 <- getAnalysisResults(
+	    design = design2, dataInput = dataInput2,
+	    directionUpper = TRUE,
+	    normalApproximation = FALSE,
+	    varianceOption = "pooled",
+	    intersectionTest = "Sidak",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    nPlanned = 80,
+	    allocationRatioPlanned = 0.5
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentFisher object 'x3' with expected results
@@ -889,17 +930,18 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getAnalysisResults(design = design2, dataInput = dataInput2,	
-		directionUpper = TRUE,
-		normalApproximation = FALSE, 
-		varianceOption = "notPooled",
-		intersectionTest = "Simes",
-		stratifiedAnalysis = FALSE,
-		stage = 2,
-		thetaH1 = c(50, NA, NA),
-		assumedStDevs = c(122, NA, NA),
-		nPlanned = 80,
-		allocationRatioPlanned = 0.5
+	x4 <- getAnalysisResults(
+	    design = design2, dataInput = dataInput2,
+	    directionUpper = TRUE,
+	    normalApproximation = FALSE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "Simes",
+	    stratifiedAnalysis = FALSE,
+	    stage = 2,
+	    thetaH1 = c(50, NA, NA),
+	    assumedStDevs = c(122, NA, NA),
+	    nPlanned = 80,
+	    allocationRatioPlanned = 0.5
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentFisher object 'x4' with expected results
@@ -943,7 +985,7 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 context("Testing Analysis Enrichment Means Function (more sub-populations)")
 
 
-test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at second, gMax = 4", {
+test_that("'getAnalysisResults': select S1 and S3 at first IA, select S1 at second, gMax = 4", {
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -958,43 +1000,47 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	.skipTestIfDisabled()
 
 	S1 <- getDataset(
-		sampleSize1 = c(   14,    22,   NA), 
-		sampleSize2 = c(   11,    18,   NA), 
-		mean1       = c( 68.3, 107.4,   NA), 
-		mean2       = c(100.1, 140.9,   NA), 
-		stDev1      = c(124.0, 134.7,   NA), 
-		stDev2      = c(116.8, 133.7,   NA))
+	    sampleSize1 = c(14, 22, 24),
+	    sampleSize2 = c(11, 18, 21),
+	    mean1       = c(68.3, 107.4, 101.2),
+	    mean2       = c(100.1, 140.9, 133.8),
+	    stDev1      = c(124.0, 134.7, 124.2),
+	    stDev2      = c(116.8, 133.7, 131.2)
+	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(   12,    NA,  NA), 
-		sampleSize2 = c(   18,   NA,  NA), 
-		mean1       = c(107.7,  NA,  NA), 
-		mean2       = c(125.6, NA,  NA), 
-		stDev1      = c(128.5, NA,  NA), 
-		stDev2      = c(120.1, NA, NA))
+	    sampleSize1 = c(12, NA, NA),
+	    sampleSize2 = c(18, NA, NA),
+	    mean1       = c(107.7, NA, NA),
+	    mean2       = c(125.6, NA, NA),
+	    stDev1      = c(128.5, NA, NA),
+	    stDev2      = c(120.1, NA, NA)
+	)
 
 	S3 <- getDataset(
-		sampleSize1 = c(   17,    24,   NA), 
-		sampleSize2 = c(   14,    19,   NA), 
-		mean1       = c( 64.3, 101.4,   NA), 
-		mean2       = c(103.1, 170.4,   NA), 
-		stDev1      = c(128.0, 125.3,   NA), 
-		stDev2      = c(111.8, 143.6,   NA))
+	    sampleSize1 = c(17, 24, NA),
+	    sampleSize2 = c(14, 19, NA),
+	    mean1       = c(64.3, 101.4, NA),
+	    mean2       = c(103.1, 170.4, NA),
+	    stDev1      = c(128.0, 125.3, NA),
+	    stDev2      = c(111.8, 143.6, NA)
+	)
 
 	F <- getDataset(
-		sampleSize1 = c(   83,  NA,  NA), 
-		sampleSize2 = c(   79,  NA,  NA), 
-		mean1       = c( 77.1,  NA,  NA), 
-		mean2       = c(142.4,  NA,  NA), 
-		stDev1      = c(163.5,  NA,  NA), 
-		stDev2      = c(120.6,  NA,  NA))
+	    sampleSize1 = c(83, NA, NA),
+	    sampleSize2 = c(79, NA, NA),
+	    mean1       = c(77.1, NA, NA),
+	    mean2       = c(142.4, NA, NA),
+	    stDev1      = c(163.5, NA, NA),
+	    stDev2      = c(120.6, NA, NA)
+	)
 
 	dataInput3 <- getDataset(S1 = S1, S2 = S2, S3 = S3, F = F)
 
 	## Comparison of the results of DatasetMeans object 'dataInput3' with expected results
-	expect_equal(dataInput3$overallSampleSizes, c(14, 12, 17, 83, 11, 18, 14, 79, 36, NA_real_, 41, NA_real_, 29, NA_real_, 33, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(dataInput3$overallMeans, c(68.3, 107.7, 64.3, 77.1, 100.1, 125.6, 103.1, 142.4, 92.194444, NA_real_, 86.017073, NA_real_, 125.42414, NA_real_, 141.84848, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(dataInput3$overallStDevs, c(124, 128.5, 128, 163.5, 116.8, 120.1, 111.8, 120.6, 130.27375, NA_real_, 126.18865, NA_real_, 127.0088, NA_real_, 133.48411, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(dataInput3$overallSampleSizes, c(14, 12, 17, 83, 11, 18, 14, 79, 36, NA_real_, 41, NA_real_, 29, NA_real_, 33, NA_real_, 60, NA_real_, NA_real_, NA_real_, 50, NA_real_, NA_real_, NA_real_))
+	expect_equal(dataInput3$overallMeans, c(68.3, 107.7, 64.3, 77.1, 100.1, 125.6, 103.1, 142.4, 92.194444, NA_real_, 86.017073, NA_real_, 125.42414, NA_real_, 141.84848, NA_real_, 95.796667, NA_real_, NA_real_, NA_real_, 128.942, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(dataInput3$overallStDevs, c(124, 128.5, 128, 163.5, 116.8, 120.1, 111.8, 120.6, 130.27375, NA_real_, 126.18865, NA_real_, 127.0088, NA_real_, 133.48411, NA_real_, 126.8892, NA_real_, NA_real_, NA_real_, 127.51934, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(dataInput3), NA)))
 	    expect_output(print(dataInput3)$show())
@@ -1013,26 +1059,28 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, typeOfDesign = "WT", 
-		deltaWT = 0.28, informationRates = c(0.5,0.7,1))
+	design1 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.025, typeOfDesign = "WT",
+	    deltaWT = 0.28, informationRates = c(0.5, 0.7, 1)
+	)
 
-	x1 <- getAnalysisResults(design = design1, dataInput = dataInput3,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "notPooled",
-		intersectionTest = "Simes",
-		stratifiedAnalysis = FALSE,
-		stage = 2
+	x1 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput3,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "Simes",
+	    stratifiedAnalysis = FALSE
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x1' with expected results
-	expect_equal(x1$thetaH1[1, ], -33.229693, tolerance = 1e-07)
+	expect_equal(x1$thetaH1[1, ], -33.145333, tolerance = 1e-07)
 	expect_equal(x1$thetaH1[2, ], NA_real_)
-	expect_equal(x1$thetaH1[3, ], -55.831412, tolerance = 1e-07)
+	expect_equal(x1$thetaH1[3, ], NA_real_)
 	expect_equal(x1$thetaH1[4, ], NA_real_)
-	expect_equal(x1$assumedStDevs[1, ], 128.83288, tolerance = 1e-07)
+	expect_equal(x1$assumedStDevs[1, ], 127.17548, tolerance = 1e-07)
 	expect_equal(x1$assumedStDevs[2, ], NA_real_)
-	expect_equal(x1$assumedStDevs[3, ], 129.48183, tolerance = 1e-07)
+	expect_equal(x1$assumedStDevs[3, ], NA_real_)
 	expect_equal(x1$assumedStDevs[4, ], NA_real_)
 	expect_equal(x1$conditionalRejectionProbabilities[1, ], c(0.0046188669, 0.003141658, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalRejectionProbabilities[2, ], c(0.0046188669, NA_real_, NA_real_), tolerance = 1e-07)
@@ -1042,15 +1090,15 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	expect_equal(x1$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$conditionalPower[3, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$conditionalPower[4, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(-189.95235, -137.25075, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(-189.95235, -137.25075, -108.04127), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[2, ], c(-170.18127, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[3, ], c(-175.96326, -146.15913, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[4, ], c(-132.10549, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(126.35235, 72.344345, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(126.35235, 72.344345, 43.127962), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[2, ], c(134.38127, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[3, ], c(98.363257, 46.507217, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[4, ], c(1.5054896, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedPValues[1, ], c(0.5, 0.35403281, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedPValues[1, ], c(0.5, 0.35403281, 0.20618784), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[2, ], c(0.5, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[3, ], c(0.5, 0.26324129, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[4, ], c(0.029329288, NA_real_, NA_real_), tolerance = 1e-07)
@@ -1094,68 +1142,76 @@ test_that("'getAnalysisResults': stratified analysis, gMax = 4", {
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
 	S1 <- getDataset(
-		sampleSize1 = c(   14,    22,   NA), 
-		sampleSize2 = c(   11,    18,   NA), 
-		mean1       = c( 68.3, 107.4,   NA), 
-		mean2       = c(100.1, 140.9,   NA), 
-		stDev1      = c(124.0, 134.7,   NA), 
-		stDev2      = c(116.8, 133.7,   NA))
+	    sampleSize1 = c(14, 22, NA),
+	    sampleSize2 = c(11, 18, NA),
+	    mean1       = c(68.3, 107.4, NA),
+	    mean2       = c(100.1, 140.9, NA),
+	    stDev1      = c(124.0, 134.7, NA),
+	    stDev2      = c(116.8, 133.7, NA)
+	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(   12,    NA,  NA), 
-		sampleSize2 = c(   18,   NA,  NA), 
-		mean1       = c(107.7,  NA,  NA), 
-		mean2       = c(125.6, NA,  NA), 
-		stDev1      = c(128.5, NA,  NA), 
-		stDev2      = c(120.1, NA, NA))
+	    sampleSize1 = c(12, NA, NA),
+	    sampleSize2 = c(18, NA, NA),
+	    mean1       = c(107.7, NA, NA),
+	    mean2       = c(125.6, NA, NA),
+	    stDev1      = c(128.5, NA, NA),
+	    stDev2      = c(120.1, NA, NA)
+	)
 
 	S3 <- getDataset(
-		sampleSize1 = c(   17,    24,   NA), 
-		sampleSize2 = c(   14,    19,   NA), 
-		mean1       = c( 64.3, 101.4,   NA), 
-		mean2       = c(103.1, 170.4,   NA), 
-		stDev1      = c(128.0, 125.3,   NA), 
-		stDev2      = c(111.8, 143.6,   NA))
+	    sampleSize1 = c(17, 24, NA),
+	    sampleSize2 = c(14, 19, NA),
+	    mean1       = c(64.3, 101.4, NA),
+	    mean2       = c(103.1, 170.4, NA),
+	    stDev1      = c(128.0, 125.3, NA),
+	    stDev2      = c(111.8, 143.6, NA)
+	)
 
-	S12 <- getDataset(           
-		sampleSize1 = c(    21,    12,    33), 
-		sampleSize2 = c(    21,    17,    31), 
-		mean1       = c(  84.9, 107.7,  77.7), 
-		mean2       = c( 135.9, 117.7,  97.7), 
-		stDev1      = c( 139.5, 107.7,  77.7), 
-		stDev2      = c( 185.0,  92.3,  87.3))
+	S12 <- getDataset(
+	    sampleSize1 = c(21, 12, 33),
+	    sampleSize2 = c(21, 17, 31),
+	    mean1       = c(84.9, 107.7, 77.7),
+	    mean2       = c(135.9, 117.7, 97.7),
+	    stDev1      = c(139.5, 107.7, 77.7),
+	    stDev2      = c(185.0, 92.3, 87.3)
+	)
 
-	S13 <- getDataset(           
-		sampleSize1 = c(    21,    12,    33), 
-		sampleSize2 = c(    21,    17,    31), 
-		mean1       = c(  84.9, 107.7,  77.7), 
-		mean2       = c( 135.9, 117.7,  97.7), 
-		stDev1      = c( 139.5, 107.7,  77.7), 
-		stDev2      = c( 185.0,  92.3,  87.3))
+	S13 <- getDataset(
+	    sampleSize1 = c(21, 12, 33),
+	    sampleSize2 = c(21, 17, 31),
+	    mean1       = c(84.9, 107.7, 77.7),
+	    mean2       = c(135.9, 117.7, 97.7),
+	    stDev1      = c(139.5, 107.7, 77.7),
+	    stDev2      = c(185.0, 92.3, 87.3)
+	)
 
-	S23 <- getDataset(           
-		sampleSize1 = c(    21,    12,    33), 
-		sampleSize2 = c(    21,    17,    31), 
-		mean1       = c(  84.9, 107.7,  77.7), 
-		mean2       = c( 135.9, 117.7,  97.7), 
-		stDev1      = c( 139.5, 107.7,  77.7), 
-		stDev2      = c( 185.0,  92.3,  87.3))
+	S23 <- getDataset(
+	    sampleSize1 = c(21, 12, 33),
+	    sampleSize2 = c(21, 17, 31),
+	    mean1       = c(84.9, 107.7, 77.7),
+	    mean2       = c(135.9, 117.7, 97.7),
+	    stDev1      = c(139.5, 107.7, 77.7),
+	    stDev2      = c(185.0, 92.3, 87.3)
+	)
 
-	S123 <- getDataset(           
-		sampleSize1 = c(    21,    12,    33), 
-		sampleSize2 = c(    21,    17,    31), 
-		mean1       = c(  84.9, 107.7,  77.7), 
-		mean2       = c( 135.9, 117.7,  97.7), 
-		stDev1      = c( 139.5, 107.7,  77.7), 
-		stDev2      = c( 185.0,  92.3,  87.3))
+	S123 <- getDataset(
+	    sampleSize1 = c(21, 12, 33),
+	    sampleSize2 = c(21, 17, 31),
+	    mean1       = c(84.9, 107.7, 77.7),
+	    mean2       = c(135.9, 117.7, 97.7),
+	    stDev1      = c(139.5, 107.7, 77.7),
+	    stDev2      = c(185.0, 92.3, 87.3)
+	)
 
 	R <- getDataset(
-		sampleSize1 = c(   33,  NA,  NA), 
-		sampleSize2 = c(   19,  NA,  NA), 
-		mean1       = c( 77.1,  NA,  NA), 
-		mean2       = c(142.4,  NA,  NA), 
-		stDev1      = c(163.5,  NA,  NA), 
-		stDev2      = c(120.6,  NA,  NA))
+	    sampleSize1 = c(33, NA, NA),
+	    sampleSize2 = c(19, NA, NA),
+	    mean1       = c(77.1, NA, NA),
+	    mean2       = c(142.4, NA, NA),
+	    stDev1      = c(163.5, NA, NA),
+	    stDev2      = c(120.6, NA, NA)
+	)
 
 	dataInput4 <- getDataset(S1 = S1, S2 = S2, S3 = S3, S12 = S12, S23 = S23, S13 = S13, S123 = S123, R = R)
 
@@ -1181,16 +1237,19 @@ test_that("'getAnalysisResults': stratified analysis, gMax = 4", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.025, typeOfDesign = "WT", 
-		deltaWT = 0.28, informationRates = c(0.5,0.7,1))
+	design1 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.025, typeOfDesign = "WT",
+	    deltaWT = 0.28, informationRates = c(0.5, 0.7, 1)
+	)
 
-	x2 <- getAnalysisResults(design = design1, dataInput = dataInput4,	
-		directionUpper = FALSE,
-		normalApproximation = FALSE, 
-		varianceOption = "notPooled",
-		intersectionTest = "Simes",
-		stratifiedAnalysis = TRUE,
-		stage = 2
+	x2 <- getAnalysisResults(
+	    design = design1, dataInput = dataInput4,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "Simes",
+	    stratifiedAnalysis = TRUE,
+	    stage = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x2' with expected results
@@ -1244,5 +1303,133 @@ test_that("'getAnalysisResults': stratified analysis, gMax = 4", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
+})
+
+context("Testing Analysis Enrichment Means Function (more sub-populations)")
+
+
+test_that("'getAnalysisResults': select S1 at first IA, gMax = 3, no early efficacy stop", {
+	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueForRCISpiessensEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSidakEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSimesEnrichment}
+	# @refFS[Formula]{fs:adjustedPValueSpiessensDeboisEnrichment}
+	# @refFS[Formula]{fs:computeRCIsEnrichment}
+	# @refFS[Formula]{fs:conditionalPowerEnrichment}
+	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
+	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
+	.skipTestIfDisabled()
+
+	S1 <- getDataset(
+	    sampleSize1 = c(14, 22, 24),
+	    sampleSize2 = c(11, 18, 21),
+	    mean1       = c(68.3, 107.4, 101.2),
+	    mean2       = c(100.1, 140.9, 133.8),
+	    stDev1      = c(124.0, 134.7, 124.2),
+	    stDev2      = c(116.8, 133.7, 131.2)
+	)
+
+	S2 <- getDataset(
+	    sampleSize1 = c(12, NA, NA),
+	    sampleSize2 = c(18, NA, NA),
+	    mean1       = c(107.7, NA, NA),
+	    mean2       = c(125.6, NA, NA),
+	    stDev1      = c(128.5, NA, NA),
+	    stDev2      = c(120.1, NA, NA)
+	)
+
+	F <- getDataset(
+	    sampleSize1 = c(83, NA, NA),
+	    sampleSize2 = c(79, NA, NA),
+	    mean1       = c(77.1, NA, NA),
+	    mean2       = c(142.4, NA, NA),
+	    stDev1      = c(163.5, NA, NA),
+	    stDev2      = c(120.6, NA, NA)
+	)
+
+	dataInput3 <- getDataset(S1 = S1, S2 = S2, F = F)
+
+	## Comparison of the results of DatasetMeans object 'dataInput3' with expected results
+	expect_equal(dataInput3$overallSampleSizes, c(14, 12, 83, 11, 18, 79, 36, NA_real_, NA_real_, 29, NA_real_, NA_real_, 60, NA_real_, NA_real_, 50, NA_real_, NA_real_))
+	expect_equal(dataInput3$overallMeans, c(68.3, 107.7, 77.1, 100.1, 125.6, 142.4, 92.194444, NA_real_, NA_real_, 125.42414, NA_real_, NA_real_, 95.796667, NA_real_, NA_real_, 128.942, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(dataInput3$overallStDevs, c(124, 128.5, 163.5, 116.8, 120.1, 120.6, 130.27375, NA_real_, NA_real_, 127.0088, NA_real_, NA_real_, 126.8892, NA_real_, NA_real_, 127.51934, NA_real_, NA_real_), tolerance = 1e-07)
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(dataInput3), NA)))
+	    expect_output(print(dataInput3)$show())
+	    invisible(capture.output(expect_error(summary(dataInput3), NA)))
+	    expect_output(summary(dataInput3)$show())
+	    dataInput3CodeBased <- eval(parse(text = getObjectRCode(dataInput3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(dataInput3CodeBased$overallSampleSizes, dataInput3$overallSampleSizes, tolerance = 1e-05)
+	    expect_equal(dataInput3CodeBased$overallMeans, dataInput3$overallMeans, tolerance = 1e-05)
+	    expect_equal(dataInput3CodeBased$overallStDevs, dataInput3$overallStDevs, tolerance = 1e-05)
+	    expect_type(names(dataInput3), "character")
+	    df <- as.data.frame(dataInput3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(dataInput3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
+	}
+
+	design3 <- getDesignInverseNormal(
+	    kMax = 3, alpha = 0.025, typeOfDesign = "noEarlyEfficacy",
+	    informationRates = c(0.4, 0.7, 1)
+	)
+
+	x3 <- getAnalysisResults(
+	    design = design3, dataInput = dataInput3,
+	    thetaH0 = 30,
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE,
+	    varianceOption = "notPooled",
+	    intersectionTest = "Simes",
+	    stratifiedAnalysis = FALSE
+	)
+
+	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x3' with expected results
+	expect_equal(x3$thetaH1[1, ], -33.145333, tolerance = 1e-07)
+	expect_equal(x3$thetaH1[2, ], NA_real_)
+	expect_equal(x3$thetaH1[3, ], NA_real_)
+	expect_equal(x3$assumedStDevs[1, ], 127.17548, tolerance = 1e-07)
+	expect_equal(x3$assumedStDevs[2, ], NA_real_)
+	expect_equal(x3$assumedStDevs[3, ], NA_real_)
+	expect_equal(x3$conditionalRejectionProbabilities[1, ], c(0.043562209, 0.16805804, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$conditionalRejectionProbabilities[2, ], c(0.043562209, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$conditionalRejectionProbabilities[3, ], c(0.72997271, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$conditionalPower[1, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$conditionalPower[3, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[1, ], c(NA_real_, NA_real_, -94.8291), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[2, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[3, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[1, ], c(NA_real_, NA_real_, 29.811159), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[2, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[3, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$repeatedPValues[1, ], c(NA_real_, NA_real_, 0.010432269), tolerance = 1e-07)
+	expect_equal(x3$repeatedPValues[2, ], c(NA_real_, NA_real_, NA_real_))
+	expect_equal(x3$repeatedPValues[3, ], c(NA_real_, NA_real_, NA_real_))
+	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
+	    invisible(capture.output(expect_error(print(x3), NA)))
+	    expect_output(print(x3)$show())
+	    invisible(capture.output(expect_error(summary(x3), NA)))
+	    expect_output(summary(x3)$show())
+	    x3CodeBased <- eval(parse(text = getObjectRCode(x3, stringWrapParagraphWidth = NULL)))
+	    expect_equal(x3CodeBased$thetaH1, x3$thetaH1, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$assumedStDevs, x3$assumedStDevs, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$conditionalRejectionProbabilities, x3$conditionalRejectionProbabilities, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$conditionalPower, x3$conditionalPower, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedConfidenceIntervalLowerBounds, x3$repeatedConfidenceIntervalLowerBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedConfidenceIntervalUpperBounds, x3$repeatedConfidenceIntervalUpperBounds, tolerance = 1e-05)
+	    expect_equal(x3CodeBased$repeatedPValues, x3$repeatedPValues, tolerance = 1e-05)
+	    expect_type(names(x3), "character")
+	    df <- as.data.frame(x3)
+	    expect_s3_class(df, "data.frame")
+	    expect_true(nrow(df) > 0 && ncol(df) > 0)
+	    mtx <- as.matrix(x3)
+	    expect_true(is.matrix(mtx))
+	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
+	}
 })
 

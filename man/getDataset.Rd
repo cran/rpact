@@ -12,11 +12,11 @@ getDataSet(..., floatingPointNumbersEnabled = FALSE)
 \arguments{
 \item{...}{A \code{data.frame} or some data vectors defining the dataset.}
 
-\item{floatingPointNumbersEnabled}{If \code{TRUE}, 
-sample sizes can be specified as floating-point numbers 
+\item{floatingPointNumbersEnabled}{If \code{TRUE},
+sample sizes and event numbers can be specified as floating-point numbers
 (this make sense, e.g., for theoretical comparisons); \cr
-by default \code{floatingPointNumbersEnabled = FALSE}, i.e., 
-samples sizes defined as floating-point numbers will be truncated.}
+by default \code{floatingPointNumbersEnabled = FALSE}, i.e.,
+samples sizes and event numbers defined as floating-point numbers will be truncated.}
 }
 \value{
 Returns a \code{\link{Dataset}} object.
@@ -34,70 +34,72 @@ The following generics (R generic functions) are available for this result objec
 Creates a dataset object and returns it.
 }
 \details{
-The different dataset types \code{DatasetMeans}, of \code{DatasetRates}, or  
+The different dataset types \code{DatasetMeans}, of \code{DatasetRates}, or
 \code{DatasetSurvival} can be created as follows:
 \itemize{
   \item An element of \code{\link{DatasetMeans}} for one sample is created by \cr
     \code{getDataset(sampleSizes =, means =, stDevs =)} where \cr
-    \code{sampleSizes}, \code{means}, \code{stDevs} are vectors with stage-wise sample sizes, 
+    \code{sampleSizes}, \code{means}, \code{stDevs} are vectors with stage-wise sample sizes,
     means and standard deviations of length given by the number of available stages.
   \item An element of \code{\link{DatasetMeans}} for two samples is created by \cr
     \code{getDataset(sampleSizes1 =, sampleSizes2 =, means1 =, means2 =, } \cr
-    \code{stDevs1 =, stDevs2 =)} where 
-    \code{sampleSizes1}, \code{sampleSizes2}, \code{means1}, \code{means2}, 
-    \code{stDevs1}, \code{stDevs2} are vectors with 
-    stage-wise sample sizes, means and standard deviations for the two treatment groups 
+    \code{stDevs1 =, stDevs2 =)} where
+    \code{sampleSizes1}, \code{sampleSizes2}, \code{means1}, \code{means2},
+    \code{stDevs1}, \code{stDevs2} are vectors with
+    stage-wise sample sizes, means and standard deviations for the two treatment groups
     of length given by the number of available stages.
   \item An element of \code{\link{DatasetRates}} for one sample is created by \cr
-    \code{getDataset(sampleSizes =, events =)} where \code{sampleSizes}, \code{events} are vectors 
+    \code{getDataset(sampleSizes =, events =)} where \code{sampleSizes}, \code{events} are vectors
     with stage-wise sample sizes and events of length given by the number of available stages.
   \item An element of \code{\link{DatasetRates}} for two samples is created by \cr
-    \code{getDataset(sampleSizes1 =, sampleSizes2 =, events1 =, events2 =)} where 
-    \code{sampleSizes1}, \code{sampleSizes2}, \code{events1}, \code{events2} 
-    are vectors with stage-wise sample sizes 
+    \code{getDataset(sampleSizes1 =, sampleSizes2 =, events1 =, events2 =)} where
+    \code{sampleSizes1}, \code{sampleSizes2}, \code{events1}, \code{events2}
+    are vectors with stage-wise sample sizes
     and events  for the two treatment groups of length given by the number of available stages.
   \item An element of \code{\link{DatasetSurvival}} is created by \cr
-    \code{getDataset(events =, logRanks =, allocationRatios =)} where 
-    \code{events}, \code{logRanks}, and \code{allocation ratios} are the stage-wise events, 
-    (one-sided) logrank statistics, and allocation ratios. 
-  \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}} 
-    for more than one comparison is created by adding subsequent digits to the variable names. 
+    \code{getDataset(events =, logRanks =, allocationRatios =)} where
+    \code{events}, \code{logRanks}, and \code{allocation ratios} are the stage-wise events,
+    (one-sided) logrank statistics, and allocation ratios.
+  \item An element of \code{\link{DatasetMeans}}, \code{\link{DatasetRates}}, and \code{\link{DatasetSurvival}}
+    for more than one comparison is created by adding subsequent digits to the variable names.
     The system can analyze these data in a multi-arm many-to-one comparison setting where the
-    group with the highest index represents the control group.		  		
+    group with the highest index represents the control group.
 }
-Prefix \code{overall[Capital case of first letter of variable name]...} for the variable 
+Prefix \code{overall[Capital case of first letter of variable name]...} for the variable
 names enables entering the overall (cumulative) results and calculates stage-wise statistics.
+Since rpact version 3.2, the prefix \code{cumulative[Capital case of first letter of variable name]...} or 
+\code{cum[Capital case of first letter of variable name]...} can alternatively be used for this. 
 
-\code{n} can be used in place of \code{samplesizes}. 
- 
+\code{n} can be used in place of \code{samplesizes}.
+
 Note that in survival design usually the overall (cumulative) events and logrank test statistics are provided
 in the output, so \cr
-\code{getDataset(overallEvents=, overallLogRanks =, overallAllocationRatios =)} \cr
-is the usual command for entering survival data. Note also that for \code{overallLogranks} also the
+\code{getDataset(cumulativeEvents=, cumulativeLogRanks =, cumulativeAllocationRatios =)} \cr
+is the usual command for entering survival data. Note also that for \code{cumulativeLogranks} also the
 z scores from a Cox regression can be used.
 
 For multi-arm designs, the index refers to the considered comparison. For example,\cr
 \code{
   getDataset(events1=c(13, 33), logRanks1 = c(1.23, 1.55), events2 = c(16, NA), logRanks2 = c(1.55, NA))
 } \cr
-refers to the case where one active arm (1) is considered at both stages whereas active arm 2  
+refers to the case where one active arm (1) is considered at both stages whereas active arm 2
 was dropped at interim. Number of events and logrank statistics are entered for the corresponding
-comparison to control (see Examples). 
+comparison to control (see Examples).
 
-For enrichment designs, the comparison of two samples is provided for an unstratified  
+For enrichment designs, the comparison of two samples is provided for an unstratified
 (sub-population wise) or stratified data input.\cr
-For unstratified (sub-population wise) data input the data sets are defined for the sub-populations 
-S1, S2, ..., F, where F refers to the full populations. Use of \code{getDataset(S1 = , S2, ..., F = )} 
+For unstratified (sub-population wise) data input the data sets are defined for the sub-populations
+S1, S2, ..., F, where F refers to the full populations. Use of \code{getDataset(S1 = , S2, ..., F = )}
 defines the data set to be used in \code{\link{getAnalysisResults}} (see examples)\cr
-For stratified data input the data sets are defined for the strata S1, S12, S2, ..., R, where R 
-refers to the remainder of the strata such that the union of all sets is the full population. 
-Use of \code{getDataset(S1 = , S12 = , S2, ..., R = )} defines the data set to be used in 
+For stratified data input the data sets are defined for the strata S1, S12, S2, ..., R, where R
+refers to the remainder of the strata such that the union of all sets is the full population.
+Use of \code{getDataset(S1 = , S12 = , S2, ..., R = )} defines the data set to be used in
 \code{\link{getAnalysisResults}} (see examples)\cr
 For survival data, for enrichment designs the log-rank statistics should be entered as stratified
 log-rank statistics in order to provide strong control of Type I error rate. For stratified data input,
-the variables to be specified in \code{getDataset()} are \code{events}, \code{expectedEvents}, 
-\code{varianceEvents}, and \code{allocationRatios} or \code{overallEvents}, \code{overallExpectedEvents}, 
-\code{overallVarianceEvents}, and \code{overallAllocationRatios}. From this, (stratified) log-rank tests are 
+the variables to be specified in \code{getDataset()} are \code{events}, \code{expectedEvents},
+\code{varianceEvents}, and \code{allocationRatios} or \code{overallEvents}, \code{overallExpectedEvents},
+\code{overallVarianceEvents}, and \code{overallAllocationRatios}. From this, (stratified) log-rank tests are
 calculated.
 }
 \examples{
@@ -131,12 +133,12 @@ datasetOfMeans <- getDataset(
 datasetOfMeans
 
 datasetOfMeans <- getDataset(
-    overallSampleSizes1 = c(22, 33, 55, 66),
-    overallSampleSizes2 = c(22, 35, 57, 70),
-    overallMeans1  = c(1, 1.033, 1.020, 1.017),
-    overallMeans2  = c(1.4, 1.437, 2.040, 2.126),
-    overallStDevs1 = c(1, 1.38, 1.64, 1.58),
-    overallStDevs2 = c(1, 1.43, 1.82, 1.74)
+    cumulativeSampleSizes1 = c(22, 33, 55, 66),
+    cumulativeSampleSizes2 = c(22, 35, 57, 70),
+    cumulativeMeans1  = c(1, 1.033, 1.020, 1.017),
+    cumulativeMeans2  = c(1.4, 1.437, 2.040, 2.126),
+    cumulativeStDevs1 = c(1, 1.38, 1.64, 1.58),
+    cumulativeStDevs2 = c(1, 1.43, 1.82, 1.74)
 )
 datasetOfMeans
 
@@ -185,12 +187,12 @@ datasetOfRates
 # Create a Dataset of Rates (three groups) where the comparison of 
 # treatment arm 2 to control is dropped at the first interim stage:
 datasetOfRates <- getDataset(
-    overallN1      = c(22, 33, 44),
-    overallN2      = c(20, NA, NA),
-    overallN3      = c(20, 34, 44),
-    overallEvents1 = c(11, 14, 22),
-    overallEvents2 = c(17, NA, NA),
-    overallEvents3 = c(17, 19, 33))
+    cumN1      = c(22, 33, 44),
+    cumN2      = c(20, NA, NA),
+    cumN3      = c(20, 34, 44),
+    cumEvents1 = c(11, 14, 22),
+    cumEvents2 = c(17, NA, NA),
+    cumEvents3 = c(17, 19, 33))
 datasetOfRates
 
 # Create a Survival Dataset
@@ -205,14 +207,14 @@ datasetSurvival
 # arm 2 was dropped at the first interim stage, and treatment arm 4
 # at the second.
 datasetSurvival <- getDataset(
-    overallEvents1   = c(18, 45, 56),
-    overallEvents2   = c(22, NA, NA),
-    overallEvents3   = c(12, 41, 56),
-    overallEvents4   = c(27, 56, NA),
-    overallLogRanks1 = c(1.52, 1.98, 1.99),
-    overallLogRanks2 = c(3.43, NA, NA),
-    overallLogRanks3 = c(1.45, 1.67, 1.87),
-    overallLogRanks4 = c(1.12, 1.33, NA)
+    cumEvents1   = c(18, 45, 56),
+    cumEvents2   = c(22, NA, NA),
+    cumEvents3   = c(12, 41, 56),
+    cumEvents4   = c(27, 56, NA),
+    cumLogRanks1 = c(1.52, 1.98, 1.99),
+    cumLogRanks2 = c(3.43, NA, NA),
+    cumLogRanks3 = c(1.45, 1.67, 1.87),
+    cumLogRanks4 = c(1.12, 1.33, NA)
 )
 datasetSurvival
 

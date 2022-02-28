@@ -14,10 +14,13 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5644 $
-## |  Last changed: $Date: 2021-12-10 14:14:55 +0100 (Fr, 10 Dez 2021) $
+## |  File version: $Revision: 5855 $
+## |  Last changed: $Date: 2022-02-18 13:23:48 +0100 (Fr, 18 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
+
+#' @include f_core_utilities.R
+NULL
 
 #'
 #' @name SimulationResults_names
@@ -242,25 +245,8 @@ SimulationResults <- setRefClass("SimulationResults",
 					
 					stages <- sort(unique(.self$.data$stageNumber))
 					
-					variedParameterName1 <- NA_character_
-					variedParameterName2 <- NA_character_
-					if (inherits(.self, "SimulationResultsMeans")) {
-						variedParameterName1 <- "alternative"
-					} else if (inherits(.self, "SimulationResultsRates") || inherits(.self, "SimulationResultsSurvival")) {
-						variedParameterName1 <- "pi1"
-					} else if (grepl("MultiArm", class(.self))) {
-						if (inherits(.self, "SimulationResultsMultiArmMeans")) {
-							variedParameterName1 <- "muMax"
-						}
-						else if (inherits(.self, "SimulationResultsMultiArmRates")) {
-							variedParameterName1 <- "piMax"
-						}
-						else if (inherits(.self, "SimulationResultsMultiArmSurvival")) {
-							variedParameterName1 <- "omegaMax"
-						}
-						variedParameterName2 <- "armNumber"
-					}
-					
+					variedParameterName1 <- .getVariedParameterName(1)
+					variedParameterName2 <- .getVariedParameterName(2)
 					parameterValues1 <- .getVariedParameterValues(variedParameterName1)
 					parameterValues2 <- .getVariedParameterValues(variedParameterName2)
 					
@@ -316,7 +302,7 @@ SimulationResults <- setRefClass("SimulationResults",
 				
 				twoGroupsEnabled <- !inherits(.self, "SimulationResultsMeans")
 				multiArmSurvivalEnabled <- inherits(.self, "SimulationResultsMultiArmSurvival")
-				enrichmentEnabled <- grepl("SimulationResultsEnrichment", class(.self))
+				enrichmentEnabled <- grepl("SimulationResultsEnrichment", .getClassName(.self))
 				
 				if (.design$kMax > 1 || twoGroupsEnabled || multiArmSurvivalEnabled) {
 					
@@ -352,6 +338,36 @@ SimulationResults <- setRefClass("SimulationResults",
 					.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
 				}
 			}
+		},
+		
+		.getVariedParameterName = function(number = 1) {
+            if (number == 2) {
+               if (!inherits(.self, "SimulationResultsMeans") &&
+                        !inherits(.self, "SimulationResultsRates") && 
+                        !inherits(.self, "SimulationResultsSurvival") &&
+                        grepl("MultiArm", .getClassName(.self))) {
+                    return("armNumber")
+                }
+                return(NA_character_)
+            }
+            
+            variedParameterName1 <- NA_character_
+            if (inherits(.self, "SimulationResultsMeans")) {
+                variedParameterName1 <- "alternative"
+            } else if (inherits(.self, "SimulationResultsRates") || inherits(.self, "SimulationResultsSurvival")) {
+                variedParameterName1 <- "pi1"
+            } else if (grepl("MultiArm", .getClassName(.self))) {
+                if (inherits(.self, "SimulationResultsMultiArmMeans")) {
+                    variedParameterName1 <- "muMax"
+                }
+                else if (inherits(.self, "SimulationResultsMultiArmRates")) {
+                    variedParameterName1 <- "piMax"
+                }
+                else if (inherits(.self, "SimulationResultsMultiArmSurvival")) {
+                    variedParameterName1 <- "omegaMax"
+                }
+            }
+			return(variedParameterName1)
 		},
 		
 		.getVariedParameterValues = function(variedParameterName) {
@@ -441,11 +457,11 @@ SimulationResults <- setRefClass("SimulationResults",
 		.toString = function(startWithUpperCase = FALSE) {
 			s <- "simulation of"
 			
-			if (grepl("MultiArm", class(.self)) && !is.null(.self[["activeArms"]]) && .self$activeArms > 1) {
+			if (grepl("MultiArm", .getClassName(.self)) && !is.null(.self[["activeArms"]]) && .self$activeArms > 1) {
 				s <- paste(s, "multi-arm")
 			}
 			
-			if (grepl("Enrichment", class(.self)) && !is.null(.self[["populations"]]) && .self$populations > 1) {
+			if (grepl("Enrichment", .getClassName(.self)) && !is.null(.self[["populations"]]) && .self$populations > 1) {
 				s <- paste(s, "enrichment")
 			}
 			
@@ -515,7 +531,13 @@ SimulationResults <- setRefClass("SimulationResults",
 		
 		.isSampleSizeObject = function() {
 			return(FALSE)
-		}
+		},
+        
+        getRawDataResults = function(maxNumberOfIterations = NA_integer_) {
+            return(.getSimulationParametersFromRawData(.self$.data, 
+                variantName = .getVariedParameterName(),
+                maxNumberOfIterations = maxNumberOfIterations))
+        }
 	)
 )
 
@@ -1269,17 +1291,17 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 }
 
 .getSimulationPlotXAxisParameterName <- function(simulationResults, showSource = FALSE, simulationResultsName = NA_character_) {
-	if (grepl("SimulationResultsEnrichment", class(simulationResults))) {
+	if (grepl("SimulationResultsEnrichment", .getClassName(simulationResults))) {
 		effectDataList <- .getSimulationEnrichmentEffectData(simulationResults)
 		if (ncol(effectDataList$effectData) == 1) {
-			if (showSource) {
+			if (!isFALSE(showSource)) {
 				return(paste0(simulationResultsName, "$effectList$", effectDataList$effectMatrixName, "[, 1]"))
 			}
 			
 			return(sub("s$", "", effectDataList$effectMatrixName))
 		}
 		
-		if (showSource) {
+		if (!isFALSE(showSource)) {
 			numberOfSituations <- nrow(simulationResults$effectList[[effectDataList$effectMatrixName]])
 			return(paste0("c(1:", numberOfSituations, ")"))
 		}
@@ -1287,10 +1309,10 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 		return("situation")
 	}
 	
-	survivalEnabled <- grepl("Survival", class(simulationResults))
-	meansEnabled <- grepl("Means", class(simulationResults))
-	if (grepl("MultiArm", class(simulationResults))) {
-		if (showSource) {
+	survivalEnabled <- grepl("Survival", .getClassName(simulationResults))
+	meansEnabled <- grepl("Means", .getClassName(simulationResults))
+	if (grepl("MultiArm", .getClassName(simulationResults))) {
+		if (!isFALSE(showSource)) {
 			gMax <- nrow(simulationResults$effectMatrix)
 			return(paste0(simulationResultsName, "$effectMatrix[", gMax, ", ]"))
 		}
@@ -1298,7 +1320,7 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 		return("effectMatrix")
 	}
 	
-	if (grepl("Survival", class(simulationResults))) {
+	if (grepl("Survival", .getClassName(simulationResults))) {
 		return("hazardRatio")
 	}	
 	
@@ -1306,7 +1328,7 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 }
 
 .getSimulationPlotXAxisLabel <- function(simulationResults, xlab = NULL) {
-	if (grepl("SimulationResultsEnrichment", class(simulationResults))) {
+	if (grepl("SimulationResultsEnrichment", .getClassName(simulationResults))) {
 		effectDataList <- .getSimulationEnrichmentEffectData(simulationResults)
 		if (ncol(effectDataList$effectData) == 1) {
 			xLabel <- simulationResults$.parameterNames[[effectDataList$effectMatrixName]]
@@ -1316,7 +1338,7 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 		return("Situation")
 	}
 	
-	multiArmEnabled <- grepl("MultiArm", class(simulationResults))
+	multiArmEnabled <- grepl("MultiArm", .getClassName(simulationResults))
 	userDefinedEffectMatrix <- multiArmEnabled && simulationResults$.getParameterType("effectMatrix") == C_PARAM_USER_DEFINED
 	if (!is.null(xlab) && !is.na(xlab)) {
 		return(xlab)
@@ -1404,10 +1426,10 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 		plotSettings <- simulationResults$.plotSettings
 	}
 	
-	survivalEnabled <- grepl("Survival", class(simulationResults))
-	meansEnabled <- grepl("Means", class(simulationResults))
-	multiArmEnabled <- grepl("MultiArm", class(simulationResults))
-	enrichmentEnabled <- grepl("Enrichment", class(simulationResults))
+	survivalEnabled <- grepl("Survival", .getClassName(simulationResults))
+	meansEnabled <- grepl("Means", .getClassName(simulationResults))
+	multiArmEnabled <- grepl("MultiArm", .getClassName(simulationResults))
+	enrichmentEnabled <- grepl("Enrichment", .getClassName(simulationResults))
 	userDefinedEffectMatrix <- multiArmEnabled && simulationResults$.getParameterType("effectMatrix") == C_PARAM_USER_DEFINED
 	
 	gMax <- NA_integer_

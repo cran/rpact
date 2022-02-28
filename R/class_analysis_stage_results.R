@@ -13,22 +13,10 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5615 $
-## |  Last changed: $Date: 2021-12-06 09:29:15 +0100 (Mo, 06 Dez 2021) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 5855 $
+## |  Last changed: $Date: 2022-02-18 13:23:48 +0100 (Fr, 18 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## | 
-
-.getStageResultsClassNames <- function() {
-	return(c("StageResultsMeans", 
-		"StageResultsRates",
-		"StageResultsSurvival",
-		"StageResultsMultiArmMeans", 
-		"StageResultsMultiArmRates",
-		"StageResultsMultiArmSurvival",
-		"StageResultsEnrichmentMeans", 
-		"StageResultsEnrichmentRates",
-		"StageResultsEnrichmentSurvival"))
-}
 
 #' 
 #' @name StageResults
@@ -52,6 +40,7 @@
 #' @field weightsFisher The weights for Fisher's combination test.
 #' @field weightsInverseNormal The weights for inverse normal statistic.
 #' 
+#' @include f_core_utilities.R
 #' @include class_core_parameter_set.R
 #' @include class_design.R
 #' @include class_analysis_dataset.R
@@ -131,11 +120,11 @@ StageResults <- setRefClass("StageResults",
 					orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled)
 				.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 				
-				if (grepl("Enrichment", class(.self))) {
+				if (grepl("Enrichment", .getClassName(.self))) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					.cat(paste0("  S[i]: population i\n"), consoleOutputEnabled = consoleOutputEnabled)
 					.cat(paste0("  F: full population\n"), consoleOutputEnabled = consoleOutputEnabled)
-				} else if (grepl("MultiArm", class(.self))) {
+				} else if (grepl("MultiArm", .getClassName(.self))) {
 					.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
 					.cat(paste0("  (i): results of treatment arm i vs. control group ",
 							.dataInput$getNumberOfGroups(),"\n"), 
@@ -152,11 +141,11 @@ StageResults <- setRefClass("StageResults",
 		},
 		
 		.isMultiArm = function() {
-			return(grepl("multi", tolower(class(.self))))
+			return(grepl("multi", tolower(.getClassName(.self))))
 		},
 		
 		.isEnrichment = function() {
-			return(grepl("enrichment", tolower(class(.self))))
+			return(grepl("enrichment", tolower(.getClassName(.self))))
 		},
 		
 		getGMax = function() {
@@ -178,22 +167,22 @@ StageResults <- setRefClass("StageResults",
 		.toString = function(startWithUpperCase = FALSE) {
 			s <- "stage results of"
 			
-			if (grepl("MultiArm", class(.self))) {
+			if (grepl("MultiArm", .getClassName(.self))) {
 				s <- paste(s, "multi-arm")
 			}
-			else if (grepl("Enrichment", class(.self))) {
+			else if (grepl("Enrichment", .getClassName(.self))) {
 				s <- paste(s, "enrichment")
 			}
 			
-			if (grepl("Means", class(.self))) {
+			if (grepl("Means", .getClassName(.self))) {
 				s <- paste(s, "means")
 			}
 			
-			if (grepl("Rates", class(.self))) {
+			if (grepl("Rates", .getClassName(.self))) {
 				s <- paste(s, "rates")
 			}
 			
-			if (grepl("Survival", class(.self))) {
+			if (grepl("Survival", .getClassName(.self))) {
 				s <- paste(s, "survival data")
 			}
 			
@@ -997,7 +986,7 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 		dataInput <- x[[".dataInput"]]
 	}
 	if (is.null(dataInput) || !inherits(dataInput, "Dataset")) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to get 'dataInput' from ", class(x))
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to get 'dataInput' from ", .getClassName(x))
 	}
 	
 	numberOfTreatments <- dataInput$getNumberOfGroups()
@@ -1029,7 +1018,7 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 		dataInput <- x[[".dataInput"]]
 	}
 	if (is.null(dataInput) || !inherits(dataInput, "Dataset")) {
-		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to get 'dataInput' from ", class(x))
+		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to get 'dataInput' from ", .getClassName(x))
 	}
 	
 	numberOfPopulations <- gMax
@@ -1151,10 +1140,10 @@ plot.StageResults <- function(x, y, ..., type = 1L,
 		if (.isConditionalPowerEnabled(nPlanned) && allocationRatioPlanned != C_ALLOCATION_RATIO_DEFAULT) {
 			cmd <- paste0(cmd, ", allocationRatioPlanned = ", allocationRatioPlanned)
 		}
-		if (grepl("Means|Survival", class(x))) {
+		if (grepl("Means|Survival", .getClassName(x))) {
 			cmd <- paste0(cmd, ", thetaRange = seq(0, 1, 0.1)")
 		}
-		else if (grepl("Rates", class(x))) {
+		else if (grepl("Rates", .getClassName(x))) {
 			cmd <- paste0(cmd, ", piTreatmentRange = seq(0, 1, 0.1)")
 		}
 		cmd <- paste0(cmd, ", addPlotData = TRUE)")

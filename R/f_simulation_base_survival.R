@@ -13,12 +13,13 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5620 $
-## |  Last changed: $Date: 2021-12-06 17:15:42 +0100 (Mo, 06 Dez 2021) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 5810 $
+## |  Last changed: $Date: 2022-02-11 11:40:04 +0100 (Fri, 11 Feb 2022) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 #' @include class_simulation_results.R
+#' @include f_core_utilities.R
 NULL
 
 .isLambdaBasedSimulationEnabled <- function(pwsTimeObject) {
@@ -603,10 +604,11 @@ getSimulationSurvival <- function(design = NULL, ...,
             1 / (densityVector[1] * accrualSetup$maxNumberOfSubjects),
             intensityReplications[1]
         ))
-        if (length(accrualIntensity) > 1) {
-            for (i in 2:length(accrualIntensity)) {
+        if (length(accrualIntensity) > 1 && length(intensityReplications) > 1) {
+            for (i in 2:min(length(accrualIntensity), length(intensityReplications))) { 
                 if (intensityReplications[i] > 0) {
-                    accrualTimeValue <- c(accrualTimeValue, accrualTime[i - 1] +
+                    accrualTimeValue <- c(accrualTimeValue, 
+                        accrualTime[i - 1] +
                         cumsum(rep(
                             1 / (densityVector[i] * accrualSetup$maxNumberOfSubjects),
                             intensityReplications[i]
@@ -688,7 +690,7 @@ getSimulationSurvival <- function(design = NULL, ...,
 
     n <- nrow(overview)
     overview <- cbind(
-        design = rep(sub("^TrialDesign", "", class(design)), n),
+        design = rep(sub("^TrialDesign", "", .getClassName(design)), n),
         overview
     )
 

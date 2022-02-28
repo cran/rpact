@@ -13,15 +13,17 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5577 $
-## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  File version: $Revision: 5884 $
+## |  Last changed: $Date: 2022-02-25 08:34:20 +0100 (Fr, 25 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
+#' @include f_core_utilities.R
+NULL
 
 C_ROUND_FUNCTIONS <- c("ceiling", "floor", "trunc", "round", "signif")
 
-C_OUTPUT_FORMAT_ARGUMENTS <- c("digits", "nsmall", "trimSingleZeroes", 
+C_OUTPUT_FORMAT_ARGUMENTS <- c("digits", "nsmall", "trimSingleZeros", 
 	"futilityProbabilityEnabled", "roundFunction")
 
 C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
@@ -30,8 +32,8 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	"rpact.output.format.probability" = "digits = 3, nsmall = 3", 
 	"rpact.output.format.futility.probability" = "digits = 4, nsmall = 4, futilityProbabilityEnabled = TRUE", 
 	"rpact.output.format.sample.size" = "digits = 1, nsmall = 1", 
-	"rpact.output.format.event" = "digits = 1, nsmall = 1, trimSingleZeroes = TRUE", 
-	"rpact.output.format.event.time" = "digits = 3, trimSingleZeroes = TRUE", 
+	"rpact.output.format.event" = "digits = 1, nsmall = 1, trimSingleZeros = TRUE", 
+	"rpact.output.format.event.time" = "digits = 3, trimSingleZeros = TRUE", 
 	"rpact.output.format.conditional.power" = "digits = 4", 
 	"rpact.output.format.critical.value" = "digits = 3, nsmall = 3", 
 	"rpact.output.format.critical.value.fisher" = "digits = 4", 
@@ -48,7 +50,8 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 )
 
 .getFormattedValue <- function(value, ..., digits, nsmall = NA_integer_, 
-		futilityProbabilityEnabled = FALSE, roundFunction = NA_character_, scientific = NA) {
+		futilityProbabilityEnabled = FALSE, roundFunction = NA_character_, scientific = NA, 
+        trimEndingZerosAfterDecimalPoint = FALSE) {
 	if (missing(value)) {
 		return("NA")
 	}
@@ -103,6 +106,10 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	if (futilityProbabilityEnabled) {
 		formattedValue[value == 0] <- "0"
 	}
+    
+    if (trimEndingZerosAfterDecimalPoint) {
+        formattedValue <- gsub("\\.0+$", "", formattedValue)
+    }
 	
 	return(formattedValue)
 }
@@ -176,7 +183,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 					"the value (", value, ") of '", optionKey, "' must be one of these character values: ",
 					.arrayToString(C_ROUND_FUNCTIONS, encapsulate = TRUE))
 			}
-		} else if (key %in% c("trimSingleZeroes", "futilityProbabilityEnabled")) {
+		} else if (key %in% c("trimSingleZeros", "futilityProbabilityEnabled")) {
 			if (!grepl("TRUE|FALSE", toupper(value))) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
 					"the value (", value, ") of '", optionKey, "' must be a logical value")
@@ -206,7 +213,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 		value <- trimws(keyValuePair[2])
 		if (key %in% c("digits", "nsmall")) {
 			value <- as.integer(value)
-		} else if (key %in% c("trimSingleZeroes", "futilityProbabilityEnabled")) {
+		} else if (key %in% c("trimSingleZeros", "futilityProbabilityEnabled")) {
 			value <- as.logical(value)
 		}
 		result[[key]] <- value
@@ -215,7 +222,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 }
 
 .getOptionBasedFormattedValue <- function(optionKey, value, digits, nsmall = NA_integer_, 
-		trimSingleZeroes = FALSE, futilityProbabilityEnabled = FALSE, roundFunction = NA_character_) {
+		trimSingleZeros = FALSE, futilityProbabilityEnabled = FALSE, roundFunction = NA_character_) {
 
 	outputFormatOptions <- .getOutputFormatOptions(optionKey)
 	if (is.null(outputFormatOptions) || length(outputFormatOptions) == 0) {
@@ -228,8 +235,8 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 	if (!is.null(outputFormatOptions[["nsmall"]])) {
 		nsmall <- outputFormatOptions[["nsmall"]]
 	}
-	if (!is.null(outputFormatOptions[["trimSingleZeroes"]])) {
-		trimSingleZeroes <- outputFormatOptions[["trimSingleZeroes"]]
+	if (!is.null(outputFormatOptions[["trimSingleZeros"]])) {
+		trimSingleZeros <- outputFormatOptions[["trimSingleZeros"]]
 	}
 	if (!is.null(outputFormatOptions[["futilityProbabilityEnabled"]])) {
 		futilityProbabilityEnabled <- outputFormatOptions[["futilityProbabilityEnabled"]]
@@ -238,7 +245,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 		roundFunction <- outputFormatOptions[["roundFunction"]]
 	}
 	
-	if (trimSingleZeroes) {
+	if (trimSingleZeros) {
 		value <- .getZeroCorrectedValue(value)
 	}
 	
@@ -347,11 +354,12 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 # 
 .formatSampleSizes <- function(value) {
 	x <- .getOptionBasedFormattedValue("rpact.output.format.sample.size", 
-		value = value, digits = 1, nsmall = 1)
+		value = value, digits = 1, nsmall = 1, trimSingleZeros = TRUE)
 	if (!is.null(x)) {
 		return(x)
 	}
-	return(.getFormattedValue(value, digits = 1, nsmall = 1))
+    
+	return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 1, nsmall = 1, trimEndingZerosAfterDecimalPoint = TRUE))
 }
 
 # 
@@ -362,15 +370,15 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 # Formats the output of events.
 # 
 # @details
-# Digits = 1, nsmall = 1, trimSingleZeroes = TRUE
+# Digits = 1, nsmall = 1, trimSingleZeros = TRUE
 # 
 .formatEvents <- function(value) {
 	x <- .getOptionBasedFormattedValue("rpact.output.format.event", 
-		value = value, digits = 1, nsmall = 1, trimSingleZeroes = TRUE)
+		value = value, digits = 1, nsmall = 1, trimSingleZeros = TRUE)
 	if (!is.null(x)) {
 		return(x)
 	}
-	return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 1, nsmall = 1))
+	return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 1, nsmall = 1, trimEndingZerosAfterDecimalPoint = TRUE))
 }
 
 # 
@@ -664,7 +672,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 # 
 .formatEventTime <- function(value) {
 	x <- .getOptionBasedFormattedValue("rpact.output.format.event.time", 
-		value = value, digits = 3, trimSingleZeroes = TRUE)
+		value = value, digits = 3, trimSingleZeros = TRUE)
 	if (!is.null(x)) {
 		return(x)
 	}
@@ -678,11 +686,11 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 .getFormattedVariableName <- function(name, n, prefix = "", postfix = "") {
 	if (!is.character(name)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"'name' must be of type 'character' (is '", class(name), "')")
+			"'name' must be of type 'character' (is '", .getClassName(name), "')")
 	}
 	
 	if (!is.numeric(n)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'n' must be of type 'numeric' (is '", class(n), "')")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'n' must be of type 'numeric' (is '", .getClassName(n), "')")
 	}
 	
 	if (n < 1 || n > 300) {
@@ -722,7 +730,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 #' @param nsmall The minimum number of digits to the right of the decimal point in 
 #'        formatting real numbers in non-scientific formats. 
 #'        Allowed values are \code{0 <= nsmall <= 20}.
-#' @param trimSingleZeroes If \code{TRUE} zero values will be trimmed in the output, e.g.,
+#' @param trimSingleZeros If \code{TRUE} zero values will be trimmed in the output, e.g.,
 #'        "0.00" will displayed as "0"
 #' @param futilityProbabilityEnabled If \code{TRUE} very small value (< 1e-09) will 
 #'        be displayed as "0", default is \code{FALSE}.
@@ -763,7 +771,7 @@ setOutputFormat <- function(
 		parameterName = NA_character_, ...,
 		digits = NA_integer_,
 		nsmall = NA_integer_,
-		trimSingleZeroes = NA,
+		trimSingleZeros = NA,
 		futilityProbabilityEnabled = NA,
 		file = NA_character_, 
 		resetToDefault = FALSE,
@@ -774,7 +782,7 @@ setOutputFormat <- function(
 	.assertIsInClosedInterval(digits, "digits", lower = 0, upper = 20, naAllowed = TRUE)
 	.assertIsSingleInteger(nsmall, "nsmall", naAllowed = TRUE, validateType = FALSE)
 	.assertIsInClosedInterval(nsmall, "nsmall", lower = 0, upper = 20, naAllowed = TRUE)
-	.assertIsSingleLogical(trimSingleZeroes, "trimSingleZeroes", naAllowed = TRUE)
+	.assertIsSingleLogical(trimSingleZeros, "trimSingleZeros", naAllowed = TRUE)
 	.assertIsSingleLogical(futilityProbabilityEnabled, "futilityProbabilityEnabled", naAllowed = TRUE)
 	.assertIsSingleCharacter(file, "file", naAllowed = TRUE)
 	.assertIsSingleLogical(resetToDefault, "resetToDefault")
@@ -802,7 +810,7 @@ setOutputFormat <- function(
 					if (!is.null(key)) {
 						value <- trimws(keyValuePair[2])
 						.assertIsValitOutputFormatOptionValue(optionKey = key, optionValue = value)
-						if (grepl("digits|nsmall|trimSingleZeroes|futilityProbabilityEnabled", value)) {
+						if (grepl("digits|nsmall|trimSingleZeros|futilityProbabilityEnabled", value)) {
 							args[[key]] <- value
 						} else {
 							warning('Line "', line, '" contains an invalid value: ', value)
@@ -838,8 +846,8 @@ setOutputFormat <- function(
 			if (!is.na(nsmall)) {
 				cmds <- c(cmds, paste0("nsmall = ", nsmall))
 			}
-			if (!is.na(trimSingleZeroes)) {
-				cmds <- c(cmds, paste0("trimSingleZeroes = ", trimSingleZeroes))
+			if (!is.na(trimSingleZeros)) {
+				cmds <- c(cmds, paste0("trimSingleZeros = ", trimSingleZeros))
 			}
 			if (!is.na(futilityProbabilityEnabled)) {
 				cmds <- c(cmds, paste0("futilityProbabilityEnabled = ", futilityProbabilityEnabled))

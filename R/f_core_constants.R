@@ -13,10 +13,13 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5644 $
-## |  Last changed: $Date: 2021-12-10 14:14:55 +0100 (Fr, 10 Dez 2021) $
+## |  File version: $Revision: 5884 $
+## |  Last changed: $Date: 2022-02-25 08:34:20 +0100 (Fr, 25 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
+
+#' @include f_core_utilities.R
+NULL
 
 C_LOG_LEVEL_TRACE <- "TRACE"
 C_LOG_LEVEL_DEBUG <- "DEBUG"
@@ -103,10 +106,10 @@ C_EXCEPTION_TYPE_INCOMPLETE_ARGUMENTS = "Incomplete associated arguments: "
 C_DIRECTION_LOWER = "lower"
 C_DIRECTION_UPPER = "upper"
 
-C_QNORM_EPSILON <- 1e-323 # a value between 1e-323 and 1e-16
+C_QNORM_EPSILON <- 1e-100 # a value between 1e-323 and 1e-16
 C_QNORM_MAXIMUM <- -stats::qnorm(C_QNORM_EPSILON)
 C_QNORM_MINIMUM <- -C_QNORM_MAXIMUM
-C_QNORM_THRESHOLD <- 38
+C_QNORM_THRESHOLD <- floor(C_QNORM_MAXIMUM)
 
 # 
 # Constants used in 'f_analysis_multiarm' and 'f_analysis_enrichment'
@@ -255,7 +258,8 @@ C_PLOT_YLAB_CONDITIONAL_POWER_WITH_LIKELIHOOD <- "Conditional power / Likelihood
 }
 
 .isAlphaSpendingDesignType <- function(typeOfDesign, userDefinedAlphaSpendingIncluded = TRUE) {
-	if (userDefinedAlphaSpendingIncluded && typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
+	if (userDefinedAlphaSpendingIncluded &&		
+			((typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) || (typeOfDesign == C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY))) {
 		return(TRUE)
 	}
 	
@@ -502,7 +506,7 @@ C_PARAMETER_NAMES <- list(
 	weightsFisher = "Fixed weights", 
 	weightsInverseNormal = "Fixed weights",
 	
-	overallLogRanks = "Overall log-ranks",
+	overallLogRanks = "Cumulative log-ranks",
 	overallEvents = "Cumulative number of events",
 	overallEvents1 = "Cumulative number of events (1)",
 	overallEvents2 = "Cumulative number of events (2)",
@@ -750,7 +754,7 @@ C_PARAMETER_NAMES <- list(
 		parameterNames$stDev <- "Coefficient of variation"
 	}
 	
-	if (!is.null(design) && class(design) != "TrialDesign" && design$sided == 2) {
+	if (!is.null(design) && .getClassName(design) != "TrialDesign" && design$sided == 2) {
 		parameterNames$criticalValuesPValueScale <- "Local two-sided significance levels"
 	}
 	
@@ -886,7 +890,7 @@ C_TABLE_COLUMN_NAMES <- list(
 	weightsFisher = "Fixed weight", 
 	weightsInverseNormal = "Fixed weight",
 	
-	overallLogRanks = "Overall log-rank",
+	overallLogRanks = "Cumulative log-rank",
 	overallEvents = "Cumulative # events",
 	overallEvents1 = "Cumulative # events (1)",
 	overallEvents2 = "Cumulative # events (2)",
@@ -1111,7 +1115,7 @@ C_TABLE_COLUMN_NAMES <- list(
 		tableColumnNames$stDev <- "Coefficient of variation"
 	}
 	
-	if (!is.null(design) && class(design) != "TrialDesign" && design$sided == 2) {
+	if (!is.null(design) && .getClassName(design) != "TrialDesign" && design$sided == 2) {
 		tableColumnNames$criticalValuesPValueScale <- "Local two-sided significance level"
 	}
 	
@@ -1250,6 +1254,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	overallVarianceEvents = ".formatEvents",
 	
 	events = ".formatEvents",
+	overallEvents = ".formatEvents",
 	expectedNumberOfEvents = ".formatEvents",
 	expectedNumberOfEventsPerStage = ".formatEvents",
 	eventsNotAchieved = ".formatRates", 
@@ -1308,6 +1313,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	conditionalErrorRate = ".formatProbabilities",
 	secondStagePValues = ".formatPValues",
 	sampleSizes = ".formatSampleSizes",
+	overallSampleSizes = ".formatSampleSizes",
 	
 	effectMatrix = ".formatMeans",
 	gED50 = ".formatHowItIs",
@@ -1336,7 +1342,4 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	informationEpsilon = ".formatProbabilities"
 )
 
-.getParameterFormatFunctions <- function() {
-	return(C_PARAMETER_FORMAT_FUNCTIONS)
-}
 

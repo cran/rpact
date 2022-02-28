@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_simulation_base_rates.R
-## |  Creation date: 08 December 2021, 09:09:30
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:06:36
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Simulation Rates Function")
@@ -27,13 +27,13 @@ test_that("'getSimulationRates': check several configurations", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationRates}
-	# @refFS[Formula]{fs:SimulationOneArmRatesGenerate}
+	# @refFS[Formula]{fs:simulationOneArmRatesGenerate}
 	# @refFS[Formula]{fs:pValuesOneRateAlternativeGreater}
 	# @refFS[Formula]{fs:pValuesOneRateAlternativeSmaller}
-	# @refFS[Formula]{fs:SimulationTwoArmRatesGenerate}
+	# @refFS[Formula]{fs:simulationTwoArmRatesGenerate}
 	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
-	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller} 
-	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater} 
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller}
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater}
 	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeSmaller}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
@@ -45,10 +45,14 @@ test_that("'getSimulationRates': check several configurations", {
 	informationRates <- (1:3) / 3
 	plannedSubjects <- round(informationRates * maxNumberOfSubjects)
 
-	x1 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = informationRates), groups = 2, riskRatio = TRUE, thetaH0 = 0.8, 
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		allocationRatioPlanned = 3, seed = seed)
+	x1 <- getSimulationRates(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = informationRates
+	    ), groups = 2, riskRatio = TRUE, thetaH0 = 0.8,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    allocationRatioPlanned = 3, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x1' with expected results
 	expect_equal(x1$effect, c(0.2, 0.7, 1.2, 1.7), tolerance = 1e-07)
@@ -95,10 +99,14 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x2 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = informationRates), groups = 2, riskRatio = FALSE, thetaH0 = -0.1, 
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		allocationRatioPlanned = 3, seed = seed)
+	x2 <- getSimulationRates(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = informationRates
+	    ), groups = 2, riskRatio = FALSE, thetaH0 = -0.1,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    allocationRatioPlanned = 3, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x2' with expected results
 	expect_equal(x2$effect, c(0.1, 0.2, 0.3, 0.4), tolerance = 1e-07)
@@ -147,9 +155,13 @@ test_that("'getSimulationRates': check several configurations", {
 
 	.skipTestIfDisabled()
 
-	x3 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = informationRates), groups = 1, thetaH0 = 0.2, pi1 = seq(0.2, 0.4, 0.05),  
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, seed = seed)
+	x3 <- getSimulationRates(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = informationRates
+	    ), groups = 1, thetaH0 = 0.2, pi1 = seq(0.2, 0.4, 0.05),
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x3' with expected results
 	expect_equal(x3$effect, c(0, 0.05, 0.1, 0.15, 0.2), tolerance = 1e-07)
@@ -196,11 +208,15 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5), 
-		informationRates = informationRates), groups = 2, riskRatio = TRUE, thetaH0 = 1.5, 
-		pi1 = seq(0.05,0.25,0.05), plannedSubjects = plannedSubjects, 
-		maxNumberOfIterations = maxNumberOfIterations, directionUpper = FALSE, 
-		allocationRatioPlanned = 3, seed = seed)
+	x4 <- getSimulationRates(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(0.5, 0.5),
+	        informationRates = informationRates
+	    ), groups = 2, riskRatio = TRUE, thetaH0 = 1.5,
+	    pi1 = seq(0.05, 0.25, 0.05), plannedSubjects = plannedSubjects,
+	    maxNumberOfIterations = maxNumberOfIterations, directionUpper = FALSE,
+	    allocationRatioPlanned = 3, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x4' with expected results
 	expect_equal(x4$effect, c(-1.25, -1, -0.75, -0.5, -0.25), tolerance = 1e-07)
@@ -247,10 +263,14 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5), 
-		informationRates = informationRates), groups = 2, riskRatio = FALSE, thetaH0 = 0.1, 
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed)
+	x5 <- getSimulationRates(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(0.5, 0.5),
+	        informationRates = informationRates
+	    ), groups = 2, riskRatio = FALSE, thetaH0 = 0.1,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x5' with expected results
 	expect_equal(x5$effect, c(-0.1, 2.7755576e-17, 0.1, 0.2), tolerance = 1e-07)
@@ -297,10 +317,14 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5), 
-		informationRates = informationRates), groups = 1, thetaH0 = 0.4, pi1 = seq(0.2, 0.4, 0.05),
-		plannedSubjects = plannedSubjects, directionUpper = FALSE, 
-		maxNumberOfIterations = maxNumberOfIterations, seed = seed)
+	x6 <- getSimulationRates(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(0.5, 0.5),
+	        informationRates = informationRates
+	    ), groups = 1, thetaH0 = 0.4, pi1 = seq(0.2, 0.4, 0.05),
+	    plannedSubjects = plannedSubjects, directionUpper = FALSE,
+	    maxNumberOfIterations = maxNumberOfIterations, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x6' with expected results
 	expect_equal(x6$effect, c(-0.2, -0.15, -0.1, -0.05, 0), tolerance = 1e-07)
@@ -347,12 +371,14 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x7 <- getSimulationRates(design = getDesignInverseNormal(futilityBounds = c(0.5), typeOfDesign = "P"), 
-		thetaH0 = 0.3, groups = 1, plannedSubjects = c(30,60), 
-		pi1 = seq(0.3,0.5,0.05),maxNumberOfIterations = maxNumberOfIterations, 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(30, 30), 
-		maxNumberOfSubjectsPerStage = 5 * c(NA, 30), 
-		directionUpper = TRUE, seed = seed)
+	x7 <- getSimulationRates(
+	    design = getDesignInverseNormal(futilityBounds = c(0.5), typeOfDesign = "P"),
+	    thetaH0 = 0.3, groups = 1, plannedSubjects = c(30, 60),
+	    pi1 = seq(0.3, 0.5, 0.05), maxNumberOfIterations = maxNumberOfIterations,
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(30, 30),
+	    maxNumberOfSubjectsPerStage = 5 * c(NA, 30),
+	    directionUpper = TRUE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x7' with expected results
 	expect_equal(x7$effect, c(0, 0.05, 0.1, 0.15, 0.2), tolerance = 1e-07)
@@ -392,13 +418,16 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getSimulationRates(design = getDesignGroupSequential(
-		futilityBounds = c(0.5, 0.5), typeOfDesign = "P"), 
-		thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 3, plannedSubjects = (1:3) * 100, 
-		pi1 = seq(0.2, 0.4, 0.05), pi2 = 0.2, maxNumberOfIterations = maxNumberOfIterations, 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100, 100, 100), 
-		maxNumberOfSubjectsPerStage = 5 * c(NA, 100, 100), 
-		directionUpper = FALSE, seed = seed)
+	x8 <- getSimulationRates(
+	    design = getDesignGroupSequential(
+	        futilityBounds = c(0.5, 0.5), typeOfDesign = "P"
+	    ),
+	    thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 3, plannedSubjects = (1:3) * 100,
+	    pi1 = seq(0.2, 0.4, 0.05), pi2 = 0.2, maxNumberOfIterations = maxNumberOfIterations,
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100, 100, 100),
+	    maxNumberOfSubjectsPerStage = 5 * c(NA, 100, 100),
+	    directionUpper = FALSE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x8' with expected results
 	expect_equal(x8$effect, c(-0.3, -0.25, -0.2, -0.15, -0.1), tolerance = 1e-07)
@@ -445,13 +474,16 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x9 <- getSimulationRates(design = getDesignGroupSequential(
-		futilityBounds = c(0), typeOfDesign = "P"), 
-		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 3, 
-		maxNumberOfIterations = maxNumberOfIterations,
-		plannedSubjects = c(100,200), pi1 = seq(0.15, 0.4, 0.05), pi2 = 0.2, 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100, 100), 
-		maxNumberOfSubjectsPerStage = 5*c(NA, 100), directionUpper = TRUE, seed = seed)
+	x9 <- getSimulationRates(
+	    design = getDesignGroupSequential(
+	        futilityBounds = c(0), typeOfDesign = "P"
+	    ),
+	    thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 3,
+	    maxNumberOfIterations = maxNumberOfIterations,
+	    plannedSubjects = c(100, 200), pi1 = seq(0.15, 0.4, 0.05), pi2 = 0.2,
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100, 100),
+	    maxNumberOfSubjectsPerStage = 5 * c(NA, 100), directionUpper = TRUE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x9' with expected results
 	expect_equal(x9$effect, c(-0.05, 0.2, 0.45, 0.7, 0.95, 1.2), tolerance = 1e-07)
@@ -491,33 +523,37 @@ test_that("'getSimulationRates': check several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	calcSubjectsFunctionSimulationBaseRates <- function(...,stage,
-		plannedSubjects,
-		minNumberOfSubjectsPerStage,
-		maxNumberOfSubjectsPerStage,
-		conditionalPower,
-		conditionalCriticalValue,
-		overallRate) {
-		if (overallRate[1] - overallRate[2] < 0.1) {
-			return(plannedSubjects[stage] - plannedSubjects[stage - 1]) 
-		} else {
-			rateUnderH0 <- (overallRate[1] + overallRate[2])/2 
-			stageSubjects <- 2 * (max(0, conditionalCriticalValue * 
-							sqrt(2 * rateUnderH0 * (1 - rateUnderH0)) + 
-							stats::qnorm(conditionalPower) * sqrt(overallRate[1] * (1 - overallRate[1]) +
-									overallRate[2] * (1 - overallRate[2]))))^2 /
-				(max(1e-12,	(overallRate[1] - overallRate[2])))^2
-			stageSubjects <- ceiling(min(max(minNumberOfSubjectsPerStage[stage], 
-						stageSubjects), maxNumberOfSubjectsPerStage[stage]))
-			return(stageSubjects)
-		}	
+	calcSubjectsFunctionSimulationBaseRates <- function(..., stage,
+	        plannedSubjects,
+	        minNumberOfSubjectsPerStage,
+	        maxNumberOfSubjectsPerStage,
+	        conditionalPower,
+	        conditionalCriticalValue,
+	        overallRate) {
+	    if (overallRate[1] - overallRate[2] < 0.1) {
+	        return(plannedSubjects[stage] - plannedSubjects[stage - 1])
+	    } else {
+	        rateUnderH0 <- (overallRate[1] + overallRate[2]) / 2
+	        stageSubjects <- 2 * (max(0, conditionalCriticalValue *
+	            sqrt(2 * rateUnderH0 * (1 - rateUnderH0)) +
+	            stats::qnorm(conditionalPower) * sqrt(overallRate[1] * (1 - overallRate[1]) +
+	                overallRate[2] * (1 - overallRate[2]))))^2 /
+	            (max(1e-12, (overallRate[1] - overallRate[2])))^2
+	        stageSubjects <- ceiling(min(max(
+	            minNumberOfSubjectsPerStage[stage],
+	            stageSubjects
+	        ), maxNumberOfSubjectsPerStage[stage]))
+	        return(stageSubjects)
+	    }
 	}
-	x10 <- getSimulationRates(design = getDesignInverseNormal(kMax = 2), 
-		pi1 = seq(0.3,0.6,0.1), pi2 = 0.3, plannedSubjects = c(40, 80), 
-		minNumberOfSubjectsPerStage = c(40, 20), 
-		maxNumberOfSubjectsPerStage = c(40, 160),
-		conditionalPower = 0.8,	calcSubjectsFunction = calcSubjectsFunctionSimulationBaseRates, 
-		maxNumberOfIterations = maxNumberOfIterations, seed = seed)
+	x10 <- getSimulationRates(
+	    design = getDesignInverseNormal(kMax = 2),
+	    pi1 = seq(0.3, 0.6, 0.1), pi2 = 0.3, plannedSubjects = c(40, 80),
+	    minNumberOfSubjectsPerStage = c(40, 20),
+	    maxNumberOfSubjectsPerStage = c(40, 160),
+	    conditionalPower = 0.8, calcSubjectsFunction = calcSubjectsFunctionSimulationBaseRates,
+	    maxNumberOfIterations = maxNumberOfIterations, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsRates object 'x10' with expected results
 	expect_equal(x10$effect, c(0, 0.1, 0.2, 0.3), tolerance = 1e-07)
@@ -567,25 +603,28 @@ test_that("'getSimulationRates': comparison with getPowerRates() results for a i
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationRates}
-	# @refFS[Formula]{fs:SimulationOneArmRatesGenerate}
+	# @refFS[Formula]{fs:simulationOneArmRatesGenerate}
 	# @refFS[Formula]{fs:pValuesOneRateAlternativeGreater}
 	# @refFS[Formula]{fs:pValuesOneRateAlternativeSmaller}
-	# @refFS[Formula]{fs:SimulationTwoArmRatesGenerate}
+	# @refFS[Formula]{fs:simulationTwoArmRatesGenerate}
 	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
-	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller} 
-	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater} 
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller}
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater}
 	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeSmaller}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	design <- getDesignInverseNormal(futilityBounds = c(-1), informationRates = c(0.5, 1), typeOfDesign = "P")
-	x <- getSimulationRates(design, 
-		thetaH0 = 0.4, groups = 1, plannedSubjects = c(150, 300), pi1 = seq(0.3, 0.4, 0.02), 
-		maxNumberOfIterations = 1000, 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA_real_, 100), 
-		maxNumberOfSubjectsPerStage = c(NA_real_, 500), directionUpper = FALSE, seed = 123)
-	y <- getPowerRates(design, thetaH0 = 0.4, groups = 1, pi1 = seq(0.3, 0.4, 0.02), 
-		directionUpper = FALSE, maxNumberOfSubjects = 300)
+	x <- getSimulationRates(design,
+	    thetaH0 = 0.4, groups = 1, plannedSubjects = c(150, 300), pi1 = seq(0.3, 0.4, 0.02),
+	    maxNumberOfIterations = 1000,
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA_real_, 100),
+	    maxNumberOfSubjectsPerStage = c(NA_real_, 500), directionUpper = FALSE, seed = 123
+	)
+	y <- getPowerRates(design,
+	    thetaH0 = 0.4, groups = 1, pi1 = seq(0.3, 0.4, 0.02),
+	    directionUpper = FALSE, maxNumberOfSubjects = 300
+	)
 
 	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 300, 4)
 
@@ -618,24 +657,26 @@ test_that("'getSimulationRates': comparison with getPowerRates() results for a g
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationRates}
-	# @refFS[Formula]{fs:SimulationTwoArmRatesGenerate}
+	# @refFS[Formula]{fs:simulationTwoArmRatesGenerate}
 	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
-	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller} 
-	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater} 
+	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller}
+	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeGreater}
 	# @refFS[Formula]{fs:pValuesTwoRatesApproximationAlternativeSmaller}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
-	design <- getDesignGroupSequential(futilityBounds = c(-1,1), typeOfDesign = "P")
-	x <- getSimulationRates(design, 
-		thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 2, plannedSubjects = (1:3)*100, 
-		pi1 = seq(0.2, 0.4, 0.05), pi2 = 0.1, 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100, 100, 100), 
-		maxNumberOfSubjectsPerStage = 1*c(100, 100, 100), directionUpper = FALSE, seed = 123)
+	design <- getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P")
+	x <- getSimulationRates(design,
+	    thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 2, plannedSubjects = (1:3) * 100,
+	    pi1 = seq(0.2, 0.4, 0.05), pi2 = 0.1,
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(100, 100, 100),
+	    maxNumberOfSubjectsPerStage = 1 * c(100, 100, 100), directionUpper = FALSE, seed = 123
+	)
 
-	y <- getPowerRates(design, 
-		thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 2, pi1 = seq(0.2, 0.4, 0.05), 
-		pi2 = 0.1, directionUpper = FALSE, maxNumberOfSubjects = 300)
+	y <- getPowerRates(design,
+	    thetaH0 = 0.3, groups = 2, allocationRatioPlanned = 2, pi1 = seq(0.2, 0.4, 0.05),
+	    pi2 = 0.1, directionUpper = FALSE, maxNumberOfSubjects = 300
+	)
 
 	expectedNumberOfSubjectsDiff <- round((x$expectedNumberOfSubjects - y$expectedNumberOfSubjects) / 300, 4)
 
@@ -660,19 +701,23 @@ test_that("'getSimulationRates': comparison with getPowerRates() results for a g
 	expect_equal(futilityPerStageDiff[1, ], c(-1e-04, 0, 0.0049, 0.0058, 0.0053), tolerance = 1e-07)
 	expect_equal(futilityPerStageDiff[2, ], c(0.0018, 0.0077, -0.0146, -0.0016, -0.0038), tolerance = 1e-07)
 
-	##--
+	## --
 
-	x2 <- getSimulationRates(design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"), 
-		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2, 
-		plannedSubjects = c(100, 200, 300), pi1 = seq(0.15,0.4,0.05), pi2 = 0.2, 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA_real_, 150, 300), 
-		maxNumberOfSubjectsPerStage = c(NA_real_, 200, 300), directionUpper = TRUE, 
-		maxNumberOfIterations = 1000, seed = 123)
+	x2 <- getSimulationRates(
+	    design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"),
+	    thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2,
+	    plannedSubjects = c(100, 200, 300), pi1 = seq(0.15, 0.4, 0.05), pi2 = 0.2,
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA_real_, 150, 300),
+	    maxNumberOfSubjectsPerStage = c(NA_real_, 200, 300), directionUpper = TRUE,
+	    maxNumberOfIterations = 1000, seed = 123
+	)
 
-	y2 <- getPowerRates(design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"), 
-		thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2, 
-		pi1 = seq(0.15, 0.4, 0.05), pi2 = 0.2, maxNumberOfSubjects = 300, 
-		directionUpper = TRUE)
+	y2 <- getPowerRates(
+	    design = getDesignGroupSequential(futilityBounds = c(-1, 1), typeOfDesign = "P"),
+	    thetaH0 = 0.8, groups = 2, riskRatio = TRUE, allocationRatioPlanned = 2,
+	    pi1 = seq(0.15, 0.4, 0.05), pi2 = 0.2, maxNumberOfSubjects = 300,
+	    directionUpper = TRUE
+	)
 
 	expectedNumberOfSubjectsDiff2 <- round((x2$expectedNumberOfSubjects - y2$expectedNumberOfSubjects) / 300, 4)
 
@@ -696,6 +741,5 @@ test_that("'getSimulationRates': comparison with getPowerRates() results for a g
 	## Comparison of the results of matrixarray object 'futilityPerStageDiff2' with expected results
 	expect_equal(futilityPerStageDiff2[1, ], c(-0.0028, -0.016, -0.0034, -3e-04, -5e-04, -1e-04), tolerance = 1e-07)
 	expect_equal(futilityPerStageDiff2[2, ], c(-0.0068, -0.0474, -0.0917, -0.0386, -0.0101, -0.0011), tolerance = 1e-07)
-
 })
 

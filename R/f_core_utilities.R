@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5639 $
-## |  Last changed: $Date: 2021-12-10 11:59:33 +0100 (Fri, 10 Dec 2021) $
+## |  File version: $Revision: 5901 $
+## |  Last changed: $Date: 2022-02-25 16:32:46 +0100 (Fr, 25 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -196,32 +196,6 @@ resetLogLevel <- function() {
 	return(FALSE)
 }
 
-.areEqualVectors <- function(v1, v2, tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
-	if (is.null(v1) || is.null(v2)) {
-		return(FALSE)
-	}
-	
-	if (length(v1) != length(v2)) {
-		return(FALSE)
-	}
-	
-	if (length(v1) == 0) {
-		return(TRUE)
-	}
-	
-	vec1 <- v1
-	vec2 <- v2
-	vec1[is.na(vec1)] <- -99999999999999
-	vec2[is.na(vec2)] <- -99999999999999
-	d <- nchar(as.character(1 / tolerance)) - 1
-	vec1 <- round(vec1, d)
-	vec2 <- round(vec2, d)
-	
-	return(sum(vec1 == vec2) == length(vec1))
-}
-
-#.areEqualVectors(c(0.152206629, 0.165328755, 0.002777922, NA), c(0.152206631, 0.165328753, 0.002777917, NA), tolerance = 1e-08)
-
 .toCapitalized <- function(x, ignoreBlackList = FALSE) {
 	if (is.null(x) || is.na(x) || !is.character(x)) {
 		return(x)
@@ -241,10 +215,6 @@ resetLogLevel <- function() {
 	s <- sub("non\\-binding", "Non-Binding", s)
 	s <- sub("binding", "Binding", s)
 	return(s)
-}
-
-.isCapitalized <- function(x) {
-	return(x == toupper(x))
 }
 
 .formatCamelCase <- function(x, title = FALSE) {
@@ -334,7 +304,7 @@ resetLogLevel <- function() {
 	}, error = function(e) {
 		paramName <- deparse(substitute(arg))
 		.logWarn("Failed to execute '.isUndefinedArgument(%s)' ('%s' is an instance of class '%s'): %s", 
-			paramName, paramName, class(arg), e)
+			paramName, paramName, .getClassName(arg), e)
 	})
 	
 	return(is.na(arg))
@@ -370,7 +340,7 @@ resetLogLevel <- function() {
 	}, error = function(e) {
 		paramName <- deparse(substitute(arg))
 		.logWarn("Failed to execute '.isDefinedArgument(%s)' ('%s' is an instance of class '%s'): %s", 
-			paramName, paramName, class(arg), e)
+			paramName, paramName, .getClassName(arg), e)
 	})
 	
 	return(!is.na(arg))
@@ -443,7 +413,7 @@ resetLogLevel <- function() {
 	}
 	
 	if (!is.numeric(x) && !is.character(x) && !is.logical(x) && !is.integer(x)) {
-		return(class(x))
+		return(.getClassName(x))
 	}
 	
 	if (is.numeric(x) && !is.na(digits)) {
@@ -587,7 +557,7 @@ resetLogLevel <- function() {
 	tryCatch({	
 		set.seed(seed, kind = "Mersenne-Twister", normal.kind = "Inversion")
 	}, error = function(e) {
-		.logError("Failed to set seed to '%s' (%s): %s", seed, class(seed), e)
+		.logError("Failed to set seed to '%s' (%s): %s", seed, .getClassName(seed), e)
 		seed <- NA_real_
 		traceback()
 	})
@@ -660,78 +630,173 @@ resetLogLevel <- function() {
 # @keywords internal
 #
 .getOneDimensionalRoot <- function(
-		fun,
-		...,
-		lower,
-		upper,
-		tolerance = .Machine$double.eps^0.25,
-		acceptResultsOutOfTolerance = FALSE,
-		suppressWarnings = TRUE,
-		callingFunctionInformation = NA_character_) {
-	
-	.assertIsSingleNumber(lower, "lower")
-	.assertIsSingleNumber(upper, "upper")
-	.assertIsSingleNumber(tolerance, "tolerance")	
-	
-	resultLower <- fun(lower, ...)
-	resultUpper <- fun(upper, ...)
-	result <- .getInputProducingZeroOutput(lower, resultLower, upper, resultUpper, tolerance)
-	if (!is.na(result)) {	
-		return(result)
-	}
-	
-	unirootResult <- NULL
-	tryCatch({	
-		unirootResult <- stats::uniroot(f = fun, lower = lower, upper = upper, 
-			tol = tolerance, trace = 2, extendInt = "no", ...)
-	}, warning = function(w) {
-		.logWarn(.getCallingFunctionInformation(callingFunctionInformation), 
-			"uniroot(f, lower = %s, upper = %s, tol = %s) produced a warning: %s", 
-			lower, upper, tolerance, w)
-	}, error = function(e) {
-		msg <- "Failed to run uniroot(f, lower = %s, upper = %s, tol = %s): %s"
-		if (getLogLevel() == C_LOG_LEVEL_DEBUG) {
-			.logError(msg, lower, upper, tolerance, e)
-		} else {
-			.logWarn(msg, lower, upper, tolerance, e)
-		}
-	})
-
-	if (is.null(unirootResult)) {
-		direction <- ifelse(fun(lower) < fun(upper), 1, -1)
-		if (is.na(direction)) {
-			return(NA_real_)
-		}
-		
-		return(.getOneDimensionalRootBisectionMethod(fun = fun, 
-			lower = lower, upper = upper, tolerance = tolerance, 
-			acceptResultsOutOfTolerance = acceptResultsOutOfTolerance, direction = direction,
-			suppressWarnings = suppressWarnings, callingFunctionInformation = callingFunctionInformation))
-	}
-	
-	if (is.infinite(unirootResult$f.root) || abs(unirootResult$f.root) > max(tolerance * 100, 1e-07)) {		
-		if (!acceptResultsOutOfTolerance) {
-			if (!suppressWarnings) {
-				warning(.getCallingFunctionInformation(callingFunctionInformation), 
-					"NA returned because root search by 'uniroot' produced a function result (", 
-					unirootResult$f.root, ") that differs from target 0 ", 
-					"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
-					", last function argument was ", unirootResult$root, ")", 
-					call. = FALSE)
-			}
-			return(NA_real_)
-		} else if (!suppressWarnings) {
-			warning(.getCallingFunctionInformation(callingFunctionInformation), 
-				"Root search by 'uniroot' produced a function result (", unirootResult$f.root, ") ", 
-				"that differs from target 0 ", 
-				"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
-				", last function argument was ", unirootResult$root, ")", 
-				call. = FALSE)
-		}
-	}
-	
-	return(unirootResult$root)
+    fun,
+    ...,
+    lower,
+    upper,
+    tolerance = .Machine$double.eps^0.25,
+    acceptResultsOutOfTolerance = FALSE,
+    suppressWarnings = TRUE,
+    callingFunctionInformation = NA_character_,
+    cppEnabled = FALSE) {
+    
+    .assertIsSingleNumber(lower, "lower")
+    .assertIsSingleNumber(upper, "upper")
+    .assertIsSingleNumber(tolerance, "tolerance")	
+    
+    resultLower <- fun(lower, ...)
+    resultUpper <- fun(upper, ...)
+    result <- .getInputProducingZeroOutput(lower, resultLower, upper, resultUpper, tolerance)
+    if (!is.na(result)) {	
+        return(result)
+    }
+    
+    unirootResult <- NULL
+    tryCatch({	
+        unirootResult <- stats::uniroot(f = fun, lower = lower, upper = upper, 
+            tol = tolerance, trace = 2, extendInt = "no", ...)
+    }, warning = function(w) {
+        .logWarn(.getCallingFunctionInformation(callingFunctionInformation), 
+            "uniroot(f, lower = %s, upper = %s, tol = %s) produced a warning: %s", 
+            lower, upper, tolerance, w)
+    }, error = function(e) {
+        msg <- "Failed to run uniroot(f, lower = %s, upper = %s, tol = %s): %s"
+        if (getLogLevel() == C_LOG_LEVEL_DEBUG) {
+            .logError(msg, lower, upper, tolerance, e)
+        } else {
+            .logWarn(msg, lower, upper, tolerance, e)
+        }
+    })
+    
+    if(!is.null(unirootResult) && abs(unirootResult$f.root) <= max(tolerance * 100, 1e-07) * 1.2) {
+        return(unirootResult$root)
+    }
+    
+    if (cppEnabled && missing(...)) {
+        tryCatch({
+            zeroinResult <- zeroin(fun, lower, upper, tolerance, 100)
+        }, warning = function(w) {
+            .logWarn(.getCallingFunctionInformation(callingFunctionInformation),
+                "zeroin(f, lower = %s, upper = %s, tol = %s) produced a warning: %s",
+                lower, upper, tolerance, w)
+        }, error = function(e) {
+            msg <- "Failed to run zeroin(f, lower = %s, upper = %s, tol = %s): %s"
+            if (getLogLevel() == C_LOG_LEVEL_DEBUG) {
+                .logError(msg, lower, upper, tolerance, e)
+            } else {
+                .logWarn(msg, lower, upper, tolerance, e)
+            }
+        })
+        if(!is.null(zeroinResult) && !(abs(fun(zeroinResult)) > max(tolerance * 100, 1e-07))) {
+            return(zeroinResult)
+        }
+    }
+    
+    if (is.null(unirootResult)) {
+        direction <- ifelse(fun(lower) < fun(upper), 1, -1)
+        if (is.na(direction)) {
+            return(NA_real_)
+        }
+        return(.getOneDimensionalRootBisectionMethod(fun = fun, 
+                lower = lower, upper = upper, tolerance = tolerance, 
+                acceptResultsOutOfTolerance = acceptResultsOutOfTolerance, direction = direction,
+                suppressWarnings = suppressWarnings, callingFunctionInformation = callingFunctionInformation))
+    } 
+    
+    if (!acceptResultsOutOfTolerance) {
+        if (!suppressWarnings) {
+            warning(.getCallingFunctionInformation(callingFunctionInformation), 
+                "NA returned because root search by 'uniroot' produced a function result (", 
+                unirootResult$f.root, ") that differs from target 0 ", 
+                "(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
+                ", last function argument was ", unirootResult$root, ")", 
+                call. = FALSE)
+        }
+        return(NA_real_)
+    } else if (!suppressWarnings) {
+        warning(.getCallingFunctionInformation(callingFunctionInformation), 
+            "Root search by 'uniroot' produced a function result (", unirootResult$f.root, ") ", 
+            "that differs from target 0 ", 
+            "(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
+            ", last function argument was ", unirootResult$root, ")", 
+            call. = FALSE)
+    }
+    
+    return(unirootResult$root)
 }
+#.getOneDimensionalRoot <- function(
+#		fun,
+#		...,
+#		lower,
+#		upper,
+#		tolerance = .Machine$double.eps^0.25,
+#		acceptResultsOutOfTolerance = FALSE,
+#		suppressWarnings = TRUE,
+#		callingFunctionInformation = NA_character_) {
+#	
+#	.assertIsSingleNumber(lower, "lower")
+#	.assertIsSingleNumber(upper, "upper")
+#	.assertIsSingleNumber(tolerance, "tolerance")	
+#	
+#	resultLower <- fun(lower, ...)
+#	resultUpper <- fun(upper, ...)
+#	result <- .getInputProducingZeroOutput(lower, resultLower, upper, resultUpper, tolerance)
+#	if (!is.na(result)) {	
+#		return(result)
+#	}
+#	
+#	unirootResult <- NULL
+#	tryCatch({	
+#		unirootResult <- stats::uniroot(f = fun, lower = lower, upper = upper, 
+#			tol = tolerance, trace = 2, extendInt = "no", ...)
+#	}, warning = function(w) {
+#		.logWarn(.getCallingFunctionInformation(callingFunctionInformation), 
+#			"uniroot(f, lower = %s, upper = %s, tol = %s) produced a warning: %s", 
+#			lower, upper, tolerance, w)
+#	}, error = function(e) {
+#		msg <- "Failed to run uniroot(f, lower = %s, upper = %s, tol = %s): %s"
+#		if (getLogLevel() == C_LOG_LEVEL_DEBUG) {
+#			.logError(msg, lower, upper, tolerance, e)
+#		} else {
+#			.logWarn(msg, lower, upper, tolerance, e)
+#		}
+#	})
+#
+#	if (is.null(unirootResult)) {
+#		direction <- ifelse(fun(lower) < fun(upper), 1, -1)
+#		if (is.na(direction)) {
+#			return(NA_real_)
+#		}
+#		
+#		return(.getOneDimensionalRootBisectionMethod(fun = fun, 
+#			lower = lower, upper = upper, tolerance = tolerance, 
+#			acceptResultsOutOfTolerance = acceptResultsOutOfTolerance, direction = direction,
+#			suppressWarnings = suppressWarnings, callingFunctionInformation = callingFunctionInformation))
+#	}
+#	
+#	if (is.infinite(unirootResult$f.root) || abs(unirootResult$f.root) > max(tolerance * 100, 1e-07)) {		
+#		if (!acceptResultsOutOfTolerance) {
+#			if (!suppressWarnings) {
+#				warning(.getCallingFunctionInformation(callingFunctionInformation), 
+#					"NA returned because root search by 'uniroot' produced a function result (", 
+#					unirootResult$f.root, ") that differs from target 0 ", 
+#					"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
+#					", last function argument was ", unirootResult$root, ")", 
+#					call. = FALSE)
+#			}
+#			return(NA_real_)
+#		} else if (!suppressWarnings) {
+#			warning(.getCallingFunctionInformation(callingFunctionInformation), 
+#				"Root search by 'uniroot' produced a function result (", unirootResult$f.root, ") ", 
+#				"that differs from target 0 ", 
+#				"(lower = ", lower, ", upper = ", upper, ", tolerance = ", tolerance, 
+#				", last function argument was ", unirootResult$root, ")", 
+#				call. = FALSE)
+#		}
+#	}
+#	
+#	return(unirootResult$root)
+#}
 
 .getCallingFunctionInformation <- function(x) {
 	if (is.na(x)) {
@@ -955,6 +1020,7 @@ resetLogLevel <- function() {
 		return(invisible())
 	}
 	
+    runtimeUnits <- match.arg(runtimeUnits)
 	timeStr <- .getRuntimeString(startTime, runtimeUnits = runtimeUnits, addBrackets = TRUE)
 	if (length(list(...)) > 0) {
 		cat(paste0("[", C_LOG_LEVEL_PROGRESS, "]"), sprintf(s, ...), timeStr, "\n")
@@ -982,7 +1048,7 @@ resetLogLevel <- function() {
 	
 	if (!(parameterName %in% names(parameterSet$getRefClass()$fields()))) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-			"'", class(parameterSet), "' does not contain a field with name '", parameterName, "'")
+			"'", .getClassName(parameterSet), "' does not contain a field with name '", parameterName, "'")
 	}
 	
 	parameterSet[[parameterName]] <- value
@@ -1007,7 +1073,7 @@ resetLogLevel <- function() {
 	return(sum(x == default) == length(x))
 }
 
-.getNumberOfZeroesDirectlyAfterDecimalSeparator <- function(x) {
+.getNumberOfZerosDirectlyAfterDecimalSeparator <- function(x) {
 	zeroCounter <- 0
 	startEnabled <- FALSE
 	x <- round(x, 15)
@@ -1033,7 +1099,7 @@ resetLogLevel <- function() {
 	values <- c()
 	for (value in x) {
 		value <- round(value, 15)
-		values <- c(values, 1 / 10^.getNumberOfZeroesDirectlyAfterDecimalSeparator(value))
+		values <- c(values, 1 / 10^.getNumberOfZerosDirectlyAfterDecimalSeparator(value))
 	}
 	return(values)
 }
@@ -1206,6 +1272,7 @@ resetLogLevel <- function() {
 
 .downloadUnitTestsViaHttp <- function(testFileTargetDirectory, ..., testthatSubDirectory, token, secret) {
 	indexFile <- file.path(testFileTargetDirectory, "index.html")
+    currentFile <- NA_character_
 	tryCatch({
 		version <- utils::packageVersion("rpact")
 		baseUrl <- paste0("http://", token, ":", secret, "@unit.tests.rpact.com/", version, "/tests/")
@@ -1221,17 +1288,21 @@ resetLogLevel <- function() {
 		if (file.exists(testthatBaseFile)) {
 			file.copy(testthatBaseFile, file.path(testFileTargetDirectory, "testthat.R"))			
 		} else {
+            currentFile <- "testthat.R"
 			result <- download.file(
 				url = paste0(baseUrl, "testthat.R"), 
-				destfile = file.path(testFileTargetDirectory, "testthat.R"))
+				destfile = file.path(testFileTargetDirectory, "testthat.R"),
+                method = "auto", mode = "wb")
 			if (result != 0) {
 				warning("'testthat.R' download result in ", result)
 			}
 		}
 		
+        currentFile <- "index.txt"
 		result <- download.file(
 			url = paste0(baseUrl, "testthat/index.txt"), 
-			destfile = indexFile, quiet = TRUE)
+			destfile = indexFile, quiet = TRUE,
+            method = "auto", mode = "wb")
 		if (result != 0) {
 			warning("Unit test index file download result in ", result)
 		}
@@ -1249,12 +1320,22 @@ resetLogLevel <- function() {
 		startTime <- Sys.time()
 		message("Start to download ", length(testFiles), " unit test files (http). Please wait...")
 		for (testFile in testFiles) {
+            currentFile <- testFile
 			result <- download.file(url = paste0(baseUrl, "testthat/", testFile), 
-				destfile = file.path(testthatSubDirectory, testFile), quiet = TRUE)
+				destfile = file.path(testthatSubDirectory, testFile), quiet = TRUE,
+                method = "auto", mode = "wb")
 		}
 		message(length(testFiles), " unit test files downloaded successfully (needed ", 
 			.getRuntimeString(startTime, runtimeUnits = "secs"), ")")
-	}, error = function(e) {
+    }, warning = function(w) {
+        if (grepl("404 Not Found", w$message)) {
+            stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+                "failed to download unit test files (http): file ", sQuote(currentFile), " not found")
+        }
+    }, error = function(e) {
+        if (grepl(C_EXCEPTION_TYPE_RUNTIME_ISSUE, e$message)) {
+            stop(e$message)
+        }
 		.logDebug(e$message)
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
 			"failed to download unit test files (http): illegal 'token' / 'secret' or rpact version ", version, " unknown")
@@ -1339,7 +1420,7 @@ resetLogLevel <- function() {
 .getConnectionArgument <- function(connection, name = c("token", "secret", "method", 
 		"mode", "cacheEnabled", "extra", "cleanOldFiles", "connectionType")) {
 	if (is.null(connection) || !is.list(connection)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'connection' must be a list (is ", class(connection), ")")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'connection' must be a list (is ", .getClassName(connection), ")")
 	}
 	
 	name <- match.arg(name)
@@ -1435,7 +1516,7 @@ testPackage <- function(outDir = ".", ...,
 	
 	if (completeUnitTestSetEnabled && fullTestEnabled) {
 		cat("Run all tests. Please wait...\n")
-		cat("Have a break - it takes about 25 to 30 minutes.\n")
+		cat("Have a break - it takes about 20 to 25 minutes.\n")
 		cat("Exceution of all available unit tests startet at ", 
 			format(startTime, "%H:%M (%d-%B-%Y)"), "\n", sep = "")
 	} else if (!fullTestEnabled) {
@@ -1719,23 +1800,6 @@ printCitation <- function(inclusiveR = TRUE) {
 	return(as.character(x))
 }
 
-.isNullFunction <- function(fun) {
-	if (is.null(fun)) {
-		return(TRUE)
-	}
-	
-	if (!is.function(fun)) {
-		return(FALSE)
-	}
-	
-	s <- capture.output(print(fun))
-	if (length(s) != 3) {
-		return(FALSE)
-	}
-	
-	return(s[2] == "NULL")
-}
-
 .getFunctionAsString <- function(fun, stringWrapPrefix = " ", stringWrapParagraphWidth = 90) {
 	.assertIsFunction(fun)
 	
@@ -1759,21 +1823,6 @@ printCitation <- function(inclusiveR = TRUE) {
 		args <- args[args != "..."]
 	}
 	return(args)
-}
-
-.getNumberOfZeroesAfterDecimalPoint <- function(values) {
-	if (is.null(values) || length(values) == 0) {
-		return(integer(0))
-	}
-	
-	values[is.na(values)] <- 0
-	number <- c()
-	for (value in values) {
-		s1 <- sub("^\\d+\\.", "", sub("0*$", "", format(round(value, 15), scientific = FALSE)))
-		s2 <- sub("^0*", "", s1)
-		number <- c(number, nchar(s1) - nchar(s2))
-	}
-	return(number)
 }
 
 .getDecimalPlaces <- function(values) {
@@ -1815,7 +1864,7 @@ printCitation <- function(inclusiveR = TRUE) {
 #' 
 getParameterCaption <- function(obj, parameterName) {
 	if (is.null(obj) || length(obj) != 1 || !isS4(obj) || !inherits(obj, "FieldSet")) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", class(obj), ") must be an rpact result object")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", .getClassName(obj), ") must be an rpact result object")
 	}
 	.assertIsSingleCharacter(parameterName, "parameterName", naAllowed = FALSE)
 	
@@ -1866,7 +1915,7 @@ getParameterCaption <- function(obj, parameterName) {
 #' 
 getParameterName <- function(obj, parameterCaption) {
 	if (is.null(obj) || length(obj) != 1 || !isS4(obj) || !inherits(obj, "FieldSet")) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", class(obj), ") must be an rpact result object")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", .getClassName(obj), ") must be an rpact result object")
 	}
 	.assertIsSingleCharacter(parameterCaption, "parameterCaption", naAllowed = FALSE)
 	
@@ -1893,7 +1942,7 @@ getParameterName <- function(obj, parameterCaption) {
 
 .removeLastEntryFromArray <- function(x) {
 	if (!is.array(x)) {
-		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'x' (", class(x), ") must be an array")
+		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'x' (", .getClassName(x), ") must be an array")
 	}
 	
 	dataDim <- dim(x)
@@ -1911,14 +1960,14 @@ getParameterName <- function(obj, parameterCaption) {
 
 .moveColumn <- function(data, columnName, insertPositionColumnName) {
 	if (!is.data.frame(data)) {
-		stop("Illegal argument: 'data' (", class(data), ") must be a data.frame")
+		stop("Illegal argument: 'data' (", .getClassName(data), ") must be a data.frame")
 	}
 	if (is.null(insertPositionColumnName) || length(insertPositionColumnName) != 1 || 
 			is.na(insertPositionColumnName) || !is.character(insertPositionColumnName)) {
-		stop("Illegal argument: 'insertPositionColumnName' (", class(insertPositionColumnName), ") must be a valid character value")
+		stop("Illegal argument: 'insertPositionColumnName' (", .getClassName(insertPositionColumnName), ") must be a valid character value")
 	}
 	if (is.null(columnName) || length(columnName) != 1 || is.na(columnName) || !is.character(columnName)) {
-		stop("Illegal argument: 'columnName' (", class(columnName), ") must be a valid character value")
+		stop("Illegal argument: 'columnName' (", .getClassName(columnName), ") must be a valid character value")
 	}
 	
 	colNames <- colnames(data)
@@ -1998,7 +2047,6 @@ getParameterName <- function(obj, parameterCaption) {
 			
 			subList <- x[[listName]]
 			
-			#message(xName, ": ", .arrayToString(names(subList)), " (", class(subList), ")")
 			result <- .isConditionTrue(subList, condType = type, xName = listName, 
 				level = level + 1, showDebugMessages = showDebugMessages)
 			results <- c(results, result)
@@ -2019,7 +2067,7 @@ getParameterName <- function(obj, parameterCaption) {
 		return(result)
 	}
 	
-	stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "x must be of type logical or list (is ", class(x))
+	stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "x must be of type logical or list (is ", .getClassName(x))
 }
 
 .getAgrumentSpecificFormattedValue <- function(value) {
@@ -2127,15 +2175,6 @@ getParameterName <- function(obj, parameterCaption) {
 	return(expectedResult)
 }
 
-.addDesignToObjectRCode <- function(obj, leadingArguments, precondition, stringWrapParagraphWidth) {
-	if (is.null(leadingArguments) || !any(grepl("design", leadingArguments))) {
-		precondition <- c(precondition, getObjectRCode(obj$.design, prefix = "design <- ", 
-			stringWrapParagraphWidth = stringWrapParagraphWidth))
-		leadingArguments <- c(leadingArguments, "design = design")
-	}
-	return(precondition = precondition, leadingArguments = leadingArguments)
-}
-
 #' @rdname getObjectRCode
 #' @export
 rcmd <- function(obj, ..., 
@@ -2154,6 +2193,10 @@ rcmd <- function(obj, ...,
 		postfix = postfix,
 		stringWrapPrefix = stringWrapPrefix,
 		newArgumentValues = newArgumentValues)
+}
+
+.getClassName <- function(x) {
+    return(as.character(class(x))[1])
 }
 
 #' 
@@ -2216,7 +2259,7 @@ getObjectRCode <- function(obj, ...,
 	
 	if (!is.list(newArgumentValues)) {
 		stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'newArgumentValues' must be a named list ",
-			"(is ", class(newArgumentValues), ")")
+			"(is ", .getClassName(newArgumentValues), ")")
 	}
 	
 	precondition <- character(0)
@@ -2276,26 +2319,26 @@ getObjectRCode <- function(obj, ...,
 		leadingArguments <- c(leadingArguments, "stageResults = stageResults")
 	}
     
-    if (grepl("SimulationResultsEnrichment(Means|Rates|Survival)", class(obj))) {
+    if (grepl("SimulationResultsEnrichment(Means|Rates|Survival)", .getClassName(obj))) {
         precondition <- c(precondition, paste0("effectList <- ",
             .getArgumentValueRCode(obj$effectList, "effectList")))
     }
     
-	if ("TrialDesignPlanMeans" == class(obj)) {
+	if ("TrialDesignPlanMeans" == .getClassName(obj)) {
 		if (obj$.isSampleSizeObject()) {
 			functionName <- "getSampleSizeMeans"
 		} else {
 			functionName <- "getPowerMeans"
 		}
 	}
-	else if ("TrialDesignPlanRates" == class(obj)) {
+	else if ("TrialDesignPlanRates" == .getClassName(obj)) {
 		if (obj$.isSampleSizeObject()) {
 			functionName <- "getSampleSizeRates"
 		} else {
 			functionName <- "getPowerRates"
 		}
 	}
-	else if ("TrialDesignPlanSurvival" == class(obj)) {
+	else if ("TrialDesignPlanSurvival" == .getClassName(obj)) {
 		if (obj$.isSampleSizeObject()) {
 			functionName <- "getSampleSizeSurvival"
 		} else {
@@ -2303,7 +2346,7 @@ getObjectRCode <- function(obj, ...,
 		}
 	}
 	else if (inherits(obj, "TrialDesign")) {
-		functionName <- paste0("get", sub("^Trial", "", class(obj)))
+		functionName <- paste0("get", sub("^Trial", "", .getClassName(obj)))
 	}
 	else if (inherits(obj, "Dataset")) {
 		functionName <- "getDataset"
@@ -2311,13 +2354,13 @@ getObjectRCode <- function(obj, ...,
 	else if (inherits(obj, "AnalysisResults")) {
 		functionName <- "getAnalysisResults"
 	}
-	else if ("TrialDesignSet" == class(obj)) {
+	else if ("TrialDesignSet" == .getClassName(obj)) {
 		functionName <- "getDesignSet"
 	}
-	else if ("TrialDesignCharacteristics" == class(obj)) {
+	else if ("TrialDesignCharacteristics" == .getClassName(obj)) {
 		functionName <- "getDesignCharacteristics"
 	}
-	else if ("SummaryFactory" == class(obj)) {
+	else if ("SummaryFactory" == .getClassName(obj)) {
 		functionName <- "summary"
 	}
 	else if (inherits(obj, "SimulationResultsMeans")) {
@@ -2375,7 +2418,7 @@ getObjectRCode <- function(obj, ...,
 			newArgumentValues = newArgumentValues))
 	}
 	else {
-		stop("Runtime issue: function 'getObjectRCode' is not implemented for class ", class(obj))
+		stop("Runtime issue: function 'getObjectRCode' is not implemented for class ", .getClassName(obj))
 	}
 	
 	objNames <- names(obj)
@@ -2407,7 +2450,7 @@ getObjectRCode <- function(obj, ...,
 		objNames <- objNames[objNames != "allocationRatioPlanned"]
 	}
 	
-	if (inherits(obj, "AnalysisResults") && grepl("Fisher", class(obj))) {
+	if (inherits(obj, "AnalysisResults") && grepl("Fisher", .getClassName(obj))) {
 		if (!is.null(obj[["seed"]]) && length(obj$seed) == 1 && !is.na(obj$seed)) {
 			if (!("iterations" %in% objNames) ) {
 				objNames <- c(objNames, "iterations")

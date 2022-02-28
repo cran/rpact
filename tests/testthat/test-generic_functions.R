@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-generic_functions.R
-## |  Creation date: 08 December 2021, 09:10:13
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:07:41
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Class 'SummaryFactory'")
@@ -26,11 +26,15 @@ context("Testing Class 'SummaryFactory'")
 test_that("Testing 'summary.ParameterSet': no errors occur", {
 	.skipTestIfDisabled()
 
-	design <- getDesignGroupSequential(alpha = 0.05, kMax = 4, 
-		sided = 1, typeOfDesign = "WT", deltaWT = 0.1)
+	design <- getDesignGroupSequential(
+	    alpha = 0.05, kMax = 4,
+	    sided = 1, typeOfDesign = "WT", deltaWT = 0.1
+	)
 
-	designFisher <- getDesignFisher(kMax = 4, alpha = 0.025, 
-		informationRates = c(0.2, 0.5, 0.8, 1), alpha0Vec = rep(0.4, 3))
+	designFisher <- getDesignFisher(
+	    kMax = 4, alpha = 0.025,
+	    informationRates = c(0.2, 0.5, 0.8, 1), alpha0Vec = rep(0.4, 3)
+	)
 
 	designCharacteristics <- getDesignCharacteristics(design)
 
@@ -39,35 +43,38 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	designSet <- getDesignSet(design = design, deltaWT = c(0.3, 0.4))
 
 	dataset <- getDataset(
-		n1 = c(22, 11, 22, 11),
-		n2 = c(22, 13, 22, 13),
-		means1 = c(1, 1.1, 1, 1),
-		means2 = c(1.4, 1.5, 3, 2.5),
-		stDevs1 = c(1, 2, 2, 1.3),
-		stDevs2 = c(1, 2, 2, 1.3)
+	    n1 = c(22, 11, 22, 11),
+	    n2 = c(22, 13, 22, 13),
+	    means1 = c(1, 1.1, 1, 1),
+	    means2 = c(1.4, 1.5, 3, 2.5),
+	    stDevs1 = c(1, 2, 2, 1.3),
+	    stDevs2 = c(1, 2, 2, 1.3)
 	)
 
 	stageResults <- getStageResults(design, dataset)
 
 	suppressWarnings(designPlan <- getSampleSizeMeans(design))
 
-	simulationResults <- getSimulationSurvival(design, 
-		maxNumberOfSubjects = 1200, plannedEvents = c(50, 100, 150, 200), seed = 12345)
+	simulationResults <- getSimulationSurvival(design,
+	    maxNumberOfSubjects = 1200, plannedEvents = c(50, 100, 150, 200), seed = 12345
+	)
 
 	piecewiseSurvivalTime <- getPiecewiseSurvivalTime(list(
-		"0 - <6"   = 0.025, 
-		"6 - <9"   = 0.04, 
-		"9 - <15"  = 0.015, 
-		"15 - <21" = 0.01, 
-		">=21"     = 0.007), hazardRatio = 0.8)
+	    "0 - <6"   = 0.025,
+	    "6 - <9"   = 0.04,
+	    "9 - <15"  = 0.015,
+	    "15 - <21" = 0.01,
+	    ">=21"     = 0.007
+	), hazardRatio = 0.8)
 
 	accrualTime <- getAccrualTime(list(
-		"0  - <12" = 15,
-		"12 - <13" = 21,
-		"13 - <14" = 27,
-		"14 - <15" = 33,
-		"15 - <16" = 39,
-		">=16"     = 45), maxNumberOfSubjects = 1400)
+	    "0  - <12" = 15,
+	    "12 - <13" = 21,
+	    "13 - <14" = 27,
+	    "14 - <15" = 33,
+	    "15 - <16" = 39,
+	    ">=16"     = 45
+	), maxNumberOfSubjects = 1400)
 
 	expect_vector(names(design))
 	expect_vector(names(designFisher))
@@ -147,7 +154,6 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	expect_output(summary(analysisResults)$show())
 	expect_named(as.data.frame(analysisResults))
 	expect_is(as.data.frame(analysisResults, niceColumnNamesEnabled = FALSE), "data.frame")
-	expect_is(as.matrix(analysisResults), "matrix")
-
+	expect_is(as.matrix(analysisResults), "matrix")
 })
 

@@ -19,6 +19,7 @@
 ## | 
 
 #' @include f_core_plot.R
+#' @include f_core_utilities.R
 NULL
 
 #' @title
@@ -231,10 +232,10 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 					parentDesign <- d[[".design"]] 
 					if (is.null(parentDesign)) {
 						stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-							"'designsToAdd' must be a list of trial designs (found '", class(d), "')")
+							"'designsToAdd' must be a list of trial designs (found '", .getClassName(d), "')")
 					}
 					
-					warning("Only the parent design of ", class(d), 
+					warning("Only the parent design of ", .getClassName(d), 
 						" was added to trial design set", call. = FALSE)
 					designsToAddValidated <- c(designsToAddValidated, parentDesign)
 				}
@@ -294,7 +295,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 			
 			if (!.isTrialDesign(design)) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"'design' (", class(design), ") must be an instance of class 'TrialDesign'")
+					"'design' (", .getClassName(design), ") must be an instance of class 'TrialDesign'")
 			}
 			
 			.getArgumentNames(validatedDesign = design, ...)
@@ -321,7 +322,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 			for (arg in argumentNames) {
 				if (!(arg %in% visibleFieldNames)) {
 					stop(sprintf(paste0(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-							"'%s' does not contain a field with name '%s'"), class(validatedDesign), arg))
+							"'%s' does not contain a field with name '%s'"), .getClassName(validatedDesign), arg))
 				}
 			}
 			
@@ -667,7 +668,7 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 	for (design in x$designs) {
 		if (fisherDesignEnabled != .isTrialDesignFisher(design)) {
 			stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, "all trial designs must be from the same type ", 
-				"('", class(x$designs[[1]]), "' != '", class(design), ")'")
+				"('", .getClassName(x$designs[[1]]), "' != '", .getClassName(design), ")'")
 		}
 		
 		df <- as.data.frame(design, niceColumnNamesEnabled = niceColumnNamesEnabled,

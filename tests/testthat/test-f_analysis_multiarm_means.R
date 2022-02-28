@@ -14,53 +14,59 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_multiarm_means.R
-## |  Creation date: 08 December 2021, 09:06:01
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:04:13
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing the Analysis Means Functionality for Three or More Treatments")
 
 test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 
-	design1 <- getDesignInverseNormal(kMax = 4, alpha = 0.02, futilityBounds = c(-0.5,0,0.5), 
-			bindingFutility = FALSE, typeOfDesign = "asKD", gammaA = 1.2, informationRates = c(0.15,0.4,0.7,1))
-		
-		design2 <- getDesignFisher(kMax = 4, alpha = 0.02, alpha0Vec = c(0.7,0.5,0.3), method = "equalAlpha", 
-			bindingFutility = TRUE, informationRates = c(0.15,0.4,0.7,1))
-		
-		design3 <- getDesignConditionalDunnett(alpha = 0.02, informationAtInterim = 0.4, secondStageConditioning = TRUE)
-		
-		# directionUpper = TRUE
-		dataExample1 <- getDataset(
-			n1 = c(13, 25), 
-			n2 = c(15, NA), 
-			n3 = c(14, 27), 
-			n4 = c(12, 29), 
-			means1 = c(24.2, 22.2), 
-			means2 = c(18.8, NA),
-			means3 = c(26.7, 27.7), 
-			means4 = c(9.2, 12.2), 
-			stDevs1 = c(24.4, 22.1), 
-			stDevs2 = c(21.2, NA), 
-			stDevs3 = c(25.6, 23.2), 
-			stDevs4 = c(21.5, 22.7))
-		
-		# directionUpper = FALSE
-		dataExample2 <- getDataset(
-			n1 = c(13, 25), 
-			n2 = c(15, NA), 
-			n3 = c(14, 27),	
-			n4 = c(12, 29), 
-			means1 = -c(24.2, 22.2), 
-			means2 = -c(18.8, NA), 
-			means3 = -c(26.7, 27.7), 
-			means4 = -c(9.2, 12.2), 
-			stDevs1 = c(24.4, 22.1), 
-			stDevs2 = c(21.2, NA), 
-			stDevs3 = c(25.6, 23.2), 
-			stDevs4 = c(21.5, 22.7))
+	design1 <- getDesignInverseNormal(
+	        kMax = 4, alpha = 0.02, futilityBounds = c(-0.5, 0, 0.5),
+	        bindingFutility = FALSE, typeOfDesign = "asKD", gammaA = 1.2, informationRates = c(0.15, 0.4, 0.7, 1)
+	    )
+	
+	    design2 <- getDesignFisher(
+	        kMax = 4, alpha = 0.02, alpha0Vec = c(0.7, 0.5, 0.3), method = "equalAlpha",
+	        bindingFutility = TRUE, informationRates = c(0.15, 0.4, 0.7, 1)
+	    )
+	
+	    design3 <- getDesignConditionalDunnett(alpha = 0.02, informationAtInterim = 0.4, secondStageConditioning = TRUE)
+	
+	    # directionUpper = TRUE
+	    dataExample1 <- getDataset(
+	        n1 = c(13, 25),
+	        n2 = c(15, NA),
+	        n3 = c(14, 27),
+	        n4 = c(12, 29),
+	        means1 = c(24.2, 22.2),
+	        means2 = c(18.8, NA),
+	        means3 = c(26.7, 27.7),
+	        means4 = c(9.2, 12.2),
+	        stDevs1 = c(24.4, 22.1),
+	        stDevs2 = c(21.2, NA),
+	        stDevs3 = c(25.6, 23.2),
+	        stDevs4 = c(21.5, 22.7)
+	    )
+	
+	    # directionUpper = FALSE
+	    dataExample2 <- getDataset(
+	        n1 = c(13, 25),
+	        n2 = c(15, NA),
+	        n3 = c(14, 27),
+	        n4 = c(12, 29),
+	        means1 = -c(24.2, 22.2),
+	        means2 = -c(18.8, NA),
+	        means3 = -c(26.7, 27.7),
+	        means4 = -c(9.2, 12.2),
+	        stDevs1 = c(24.4, 22.1),
+	        stDevs2 = c(21.2, NA),
+	        stDevs3 = c(25.6, 23.2),
+	        stDevs4 = c(21.5, 22.7)
+	    )
 
 
  	# @refFS[Formula]{fs:multiarmRejectionRule}
@@ -92,15 +98,15 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	expect_equal(results1$assumedStDevs[1, ], 22.357668, tolerance = 1e-05)
 	expect_equal(results1$assumedStDevs[2, ], NA_real_)
 	expect_equal(results1$assumedStDevs[3, ], 22.943518, tolerance = 1e-05)
-	expect_equal(results1$conditionalRejectionProbabilities[1, ], c(0.04074021, 0.14372404, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results1$conditionalRejectionProbabilities[2, ], c(0.033856263, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$conditionalRejectionProbabilities[1, ], c(0.040740209, 0.14372404, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$conditionalRejectionProbabilities[2, ], c(0.033856262, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$conditionalRejectionProbabilities[3, ], c(0.049414261, 0.33374326, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$conditionalPower[1, ], c(NA_real_, NA_real_, 0.42712247, 0.6790579), tolerance = 1e-05)
 	expect_equal(results1$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(results1$conditionalPower[3, ], c(NA_real_, NA_real_, 0.82244694, 0.94484021), tolerance = 1e-05)
-	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[1, ], c(-16.567569, -4.6627981, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[1, ], c(-16.567569, -4.662798, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[2, ], c(-20.940706, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[3, ], c(-13.521691, 0.049006945, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results1$repeatedConfidenceIntervalLowerBounds[3, ], c(-13.521691, 0.049006969, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedConfidenceIntervalUpperBounds[1, ], c(46.567569, 28.528695, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedConfidenceIntervalUpperBounds[2, ], c(40.140706, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results1$repeatedConfidenceIntervalUpperBounds[3, ], c(48.521691, 32.491814, NA_real_, NA_real_), tolerance = 1e-05)
@@ -292,18 +298,18 @@ test_that("'getAnalysisResultsMultiArm' with dataset of means", {
 	expect_equal(results4$assumedStDevs[1, ], 22.357668, tolerance = 1e-05)
 	expect_equal(results4$assumedStDevs[2, ], NA_real_)
 	expect_equal(results4$assumedStDevs[3, ], 22.943518, tolerance = 1e-05)
-	expect_equal(results4$conditionalRejectionProbabilities[1, ], c(0.042394596, 0.15198144, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$conditionalRejectionProbabilities[1, ], c(0.042394596, 0.15198143, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$conditionalRejectionProbabilities[2, ], c(0.034321105, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$conditionalRejectionProbabilities[3, ], c(0.049947129, 0.35588619, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$conditionalRejectionProbabilities[3, ], c(0.049947129, 0.35588618, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$conditionalPower[1, ], c(NA_real_, NA_real_, 0.44302928, 0.69082025), tolerance = 1e-05)
 	expect_equal(results4$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_, NA_real_))
 	expect_equal(results4$conditionalPower[3, ], c(NA_real_, NA_real_, 0.83889182, 0.95069292), tolerance = 1e-05)
 	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[1, ], c(-44.802158, -28.113845, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[2, ], c(-38.432721, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedConfidenceIntervalLowerBounds[3, ], c(-46.786808, -32.10754, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(14.802158, 4.2854678, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[1, ], c(14.802158, 4.2854677, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[2, ], c(19.232721, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
-	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[3, ], c(11.786808, -0.41764222, NA_real_, NA_real_), tolerance = 1e-05)
+	expect_equal(results4$repeatedConfidenceIntervalUpperBounds[3, ], c(11.786808, -0.41764226, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[1, ], c(0.5, 0.078823932, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[2, ], c(0.5, NA_real_, NA_real_, NA_real_), tolerance = 1e-05)
 	expect_equal(results4$repeatedPValues[3, ], c(0.5, 0.015272156, NA_real_, NA_real_), tolerance = 1e-05)

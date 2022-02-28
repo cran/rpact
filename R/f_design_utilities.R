@@ -19,6 +19,7 @@
 ## | 
 
 #' @include f_core_assertions.R
+#' @include f_core_utilities.R
 NULL
 
 .getDefaultDesign <- function(..., 
@@ -880,11 +881,11 @@ getMedianByPi <- function(piValue,
 .getDesignParametersToShow <- function(paramaterSet) {
 	if (is.null(paramaterSet[[".design"]])) {
 		stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-			"'paramaterSet' (", class(paramaterSet), ") does not contain '.design' field")
+			"'paramaterSet' (", .getClassName(paramaterSet), ") does not contain '.design' field")
 	}
 	
 	designParametersToShow <- c(".design$stages")
-	if (grepl("Dunnett", class(paramaterSet))) {
+	if (grepl("Dunnett", .getClassName(paramaterSet))) {
 		designParametersToShow <- c(
 			designParametersToShow,
 			".design$alpha",
@@ -913,12 +914,12 @@ getMedianByPi <- function(piValue,
 			designParametersToShow <- c(designParametersToShow, ".design$alphaSpent")
 			designParametersToShow <- c(designParametersToShow, ".design$stageLevels")
 		} 
-		if (design$sided == 2 && !grepl("Analysis|Simulation", class(paramaterSet)) &&
+		if (design$sided == 2 && !grepl("Analysis|Simulation", .getClassName(paramaterSet)) &&
 				(!inherits(paramaterSet, "TrialDesignPlan") || paramaterSet$.isSampleSizeObject())) {
 			designParametersToShow <- c(designParametersToShow, ".design$twoSidedPower")
 		}
 		designParametersToShow <- c(designParametersToShow, ".design$alpha")
-		if (!grepl("Analysis|Simulation", class(paramaterSet)) &&
+		if (!grepl("Analysis|Simulation", .getClassName(paramaterSet)) &&
 				(!inherits(paramaterSet, "TrialDesignPlan") || paramaterSet$.isSampleSizeObject())) {
 			designParametersToShow <- c(designParametersToShow, ".design$beta")
 		}

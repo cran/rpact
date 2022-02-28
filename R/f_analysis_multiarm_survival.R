@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  File version: $Revision: 5747 $
+## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -316,28 +316,28 @@
     dimnames(overallPValues) <- list(paste("arm ", 1:gMax, sep = ""), paste("stage ", (1:kMax), sep = ""))
 
     for (k in 1:stage) {
-        for (g in 1:gMax) {
-            effectSizes[g, k] <- exp(dataInput$getOverallLogRanks(stage = k, group = g) *
-                (1 + dataInput$getOverallAllocationRatios(stage = k, group = g)) /
-                sqrt(dataInput$getOverallAllocationRatios(stage = k, group = g) *
-                    dataInput$getOverallEvents(stage = k, group = g)))
+        for (treatmentArm in 1:gMax) {
+            effectSizes[treatmentArm, k] <- exp(dataInput$getOverallLogRanks(stage = k, group = treatmentArm) *
+                (1 + dataInput$getOverallAllocationRatios(stage = k, group = treatmentArm)) /
+                sqrt(dataInput$getOverallAllocationRatios(stage = k, group = treatmentArm) *
+                    dataInput$getOverallEvents(stage = k, group = treatmentArm)))
 
-            testStatistics[g, k] <- dataInput$getLogRanks(stage = k, group = g) -
-                sqrt(dataInput$getEvents(stage = k, group = g)) *
-                    sqrt(dataInput$getAllocationRatios(stage = k, group = g)) /
-                    (1 + dataInput$getAllocationRatios(stage = k, group = g)) * log(thetaH0)
+            testStatistics[treatmentArm, k] <- dataInput$getLogRanks(stage = k, group = treatmentArm) -
+                sqrt(dataInput$getEvents(stage = k, group = treatmentArm)) *
+                    sqrt(dataInput$getAllocationRatios(stage = k, group = treatmentArm)) /
+                    (1 + dataInput$getAllocationRatios(stage = k, group = treatmentArm)) * log(thetaH0)
 
-            overallTestStatistics[g, k] <- dataInput$getOverallLogRanks(stage = k, group = g) -
-                sqrt(dataInput$getOverallEvents(stage = k, group = g)) *
-                    sqrt(dataInput$getOverallAllocationRatios(stage = k, group = g)) /
-                    (1 + dataInput$getOverallAllocationRatios(stage = k, group = g)) * log(thetaH0)
+            overallTestStatistics[treatmentArm, k] <- dataInput$getOverallLogRanks(stage = k, group = treatmentArm) -
+                sqrt(dataInput$getOverallEvents(stage = k, group = treatmentArm)) *
+                    sqrt(dataInput$getOverallAllocationRatios(stage = k, group = treatmentArm)) /
+                    (1 + dataInput$getOverallAllocationRatios(stage = k, group = treatmentArm)) * log(thetaH0)
 
             if (directionUpper) {
-                separatePValues[g, k] <- 1 - stats::pnorm(testStatistics[g, k])
-                overallPValues[g, k] <- 1 - stats::pnorm(overallTestStatistics[g, k])
+                separatePValues[treatmentArm, k] <- 1 - stats::pnorm(testStatistics[treatmentArm, k])
+                overallPValues[treatmentArm, k] <- 1 - stats::pnorm(overallTestStatistics[treatmentArm, k])
             } else {
-                separatePValues[g, k] <- stats::pnorm(testStatistics[g, k])
-                overallPValues[g, k] <- stats::pnorm(overallTestStatistics[g, k])
+                separatePValues[treatmentArm, k] <- stats::pnorm(testStatistics[treatmentArm, k])
+                overallPValues[treatmentArm, k] <- stats::pnorm(overallTestStatistics[treatmentArm, k])
             }
         }
     }
@@ -365,35 +365,35 @@
             sigma <- sqrt(allocationRatiosSelected / (1 + allocationRatiosSelected)) %*%
                 sqrt(t(allocationRatiosSelected / (1 + allocationRatiosSelected)))
             diag(sigma) <- 1
-            for (g in 1:gMax) {
+            for (treatmentArm in 1:gMax) {
                 if ((intersectionTest == "Bonferroni") || (intersectionTest == "Simes")) {
                     if (.isTrialDesignGroupSequential(design)) {
-                        overallPValues[g, k] <- min(1, overallPValues[g, k] * selected)
+                        overallPValues[treatmentArm, k] <- min(1, overallPValues[treatmentArm, k] * selected)
                     } else {
-                        singleStepAdjustedPValues[g, k] <- min(1, separatePValues[g, k] * selected)
+                        singleStepAdjustedPValues[treatmentArm, k] <- min(1, separatePValues[treatmentArm, k] * selected)
                     }
                 } else if (intersectionTest == "Sidak") {
                     if (.isTrialDesignGroupSequential(design)) {
-                        overallPValues[g, k] <- 1 - (1 - overallPValues[g, k])^selected
+                        overallPValues[treatmentArm, k] <- 1 - (1 - overallPValues[treatmentArm, k])^selected
                     } else {
-                        singleStepAdjustedPValues[g, k] <- 1 - (1 - separatePValues[g, k])^selected
+                        singleStepAdjustedPValues[treatmentArm, k] <- 1 - (1 - separatePValues[treatmentArm, k])^selected
                     }
                 } else if (intersectionTest == "Dunnett") {
-                    if (!is.na(testStatistics[g, k])) {
+                    if (!is.na(testStatistics[treatmentArm, k])) {
                         df <- NA_real_
-                        singleStepAdjustedPValues[g, k] <- 1 - .getMultivariateDistribution(
+                        singleStepAdjustedPValues[treatmentArm, k] <- 1 - .getMultivariateDistribution(
                             type = "normal",
-                            upper = ifelse(directionUpper, testStatistics[g, k], -testStatistics[g, k]),
+                            upper = ifelse(directionUpper, testStatistics[treatmentArm, k], -testStatistics[treatmentArm, k]),
                             sigma = sigma, df = df
                         )
                     }
                 }
                 if (.isTrialDesignInverseNormal(design)) {
-                    combInverseNormal[g, k] <- (weightsInverseNormal[1:k] %*%
-                        .getOneMinusQNorm(singleStepAdjustedPValues[g, 1:k])) /
+                    combInverseNormal[treatmentArm, k] <- (weightsInverseNormal[1:k] %*%
+                        .getOneMinusQNorm(singleStepAdjustedPValues[treatmentArm, 1:k])) /
                         sqrt(sum(weightsInverseNormal[1:k]^2))
                 } else if (.isTrialDesignFisher(design)) {
-                    combFisher[g, k] <- prod(singleStepAdjustedPValues[g, 1:k]^weightsFisher[1:k])
+                    combFisher[treatmentArm, k] <- prod(singleStepAdjustedPValues[treatmentArm, 1:k]^weightsFisher[1:k])
                 }
             }
         }
@@ -609,36 +609,36 @@
         stages <- (1:stage)
         for (k in stages) {
             startTime <- Sys.time()
-            for (g in 1:gMax) {
-                if (!is.na(stageResults$testStatistics[g, k])) {
+            for (treatmentArm in 1:gMax) {
+				if (!is.na(stageResults$testStatistics[treatmentArm, k]) && criticalValues[k] < C_QNORM_MAXIMUM) {
 
                     # Finding maximum upper and minimum lower bounds for RCIs
                     thetaLow <- exp(.getUpperLowerThetaSurvivalMultiArm(
                         design = design, dataInput = dataInput,
-                        theta = -1, treatmentArm = g, stage = k, directionUpper = TRUE,
+                        theta = -1, treatmentArm = treatmentArm, stage = k, directionUpper = TRUE,
                         intersectionTest = intersectionTest, conditionFunction = conditionFunction,
                         firstParameterName = firstParameterName, secondValue = criticalValues[k]
                     ))
 
                     thetaUp <- exp(.getUpperLowerThetaSurvivalMultiArm(
                         design = design, dataInput = dataInput,
-                        theta = 1, treatmentArm = g, stage = k, directionUpper = FALSE,
+                        theta = 1, treatmentArm = treatmentArm, stage = k, directionUpper = FALSE,
                         intersectionTest = intersectionTest, conditionFunction = conditionFunction,
                         firstParameterName = firstParameterName, secondValue = criticalValues[k]
                     ))
 
                     # finding upper and lower RCI limits through root function
-                    repeatedConfidenceIntervals[g, 1, k] <- .getRootThetaSurvivalMultiArm(
+                    repeatedConfidenceIntervals[treatmentArm, 1, k] <- .getRootThetaSurvivalMultiArm(
                         design = design,
-                        dataInput = dataInput, treatmentArm = g, stage = k, directionUpper = TRUE,
+                        dataInput = dataInput, treatmentArm = treatmentArm, stage = k, directionUpper = TRUE,
                         thetaLow = thetaLow, thetaUp = thetaUp,
                         intersectionTest = intersectionTest, firstParameterName = firstParameterName,
                         secondValue = criticalValues[k], tolerance = tolerance
                     )
 
-                    repeatedConfidenceIntervals[g, 2, k] <- .getRootThetaSurvivalMultiArm(
+                    repeatedConfidenceIntervals[treatmentArm, 2, k] <- .getRootThetaSurvivalMultiArm(
                         design = design,
-                        dataInput = dataInput, treatmentArm = g, stage = k, directionUpper = FALSE,
+                        dataInput = dataInput, treatmentArm = treatmentArm, stage = k, directionUpper = FALSE,
                         thetaLow = thetaLow, thetaUp = thetaUp,
                         intersectionTest = intersectionTest, firstParameterName = firstParameterName,
                         secondValue = criticalValues[k], tolerance = tolerance
@@ -657,7 +657,7 @@
                             thetaUp <- .getUpperLowerThetaSurvivalMultiArm(
                                 design = design,
                                 dataInput = dataInput,
-                                theta = 1, treatmentArm = g, stage = k - 1, directionUpper = FALSE,
+                                theta = 1, treatmentArm = treatmentArm, stage = k - 1, directionUpper = FALSE,
                                 conditionFunction = conditionFunction,
                                 intersectionTest = intersectionTest, firstParameterName = parameterName,
                                 secondValue = bounds[k - 1]
@@ -666,29 +666,29 @@
 
                         futilityCorr[k] <- .getRootThetaSurvivalMultiArm(
                             design = design, dataInput = dataInput,
-                            treatmentArm = g, stage = k - 1, directionUpper = directionUpper,
+                            treatmentArm = treatmentArm, stage = k - 1, directionUpper = directionUpper,
                             thetaLow = thetaLow, thetaUp = thetaUp,
                             intersectionTest = intersectionTest, firstParameterName = parameterName,
                             secondValue = bounds[k - 1], tolerance = tolerance
                         )
 
                         if (directionUpper) {
-                            repeatedConfidenceIntervals[g, 1, k] <- min(
+                            repeatedConfidenceIntervals[treatmentArm, 1, k] <- min(
                                 min(futilityCorr[2:k]),
-                                repeatedConfidenceIntervals[g, 1, k]
+                                repeatedConfidenceIntervals[treatmentArm, 1, k]
                             )
                         } else {
-                            repeatedConfidenceIntervals[g, 2, k] <- max(
+                            repeatedConfidenceIntervals[treatmentArm, 2, k] <- max(
                                 max(futilityCorr[2:k]),
-                                repeatedConfidenceIntervals[g, 2, k]
+                                repeatedConfidenceIntervals[treatmentArm, 2, k]
                             )
                         }
                     }
 
-                    if (!is.na(repeatedConfidenceIntervals[g, 1, k]) &&
-                            !is.na(repeatedConfidenceIntervals[g, 2, k]) &&
-                            repeatedConfidenceIntervals[g, 1, k] > repeatedConfidenceIntervals[g, 2, k]) {
-                        repeatedConfidenceIntervals[g, , k] <- rep(NA_real_, 2)
+                    if (!is.na(repeatedConfidenceIntervals[treatmentArm, 1, k]) &&
+                            !is.na(repeatedConfidenceIntervals[treatmentArm, 2, k]) &&
+                            repeatedConfidenceIntervals[treatmentArm, 1, k] > repeatedConfidenceIntervals[treatmentArm, 2, k]) {
+                        repeatedConfidenceIntervals[treatmentArm, , k] <- rep(NA_real_, 2)
                     }
                 }
             }
@@ -904,16 +904,16 @@
     ctr <- .performClosedCombinationTest(stageResults = stageResults)
     criticalValues <- design$criticalValues
 
-    for (g in 1:gMax) {
-        if (!is.na(ctr$separatePValues[g, stage])) {
+    for (treatmentArm in 1:gMax) {
+        if (!is.na(ctr$separatePValues[treatmentArm, stage])) {
             # shifted decision region for use in getGroupSeqProbs
             # Inverse Normal Method
             shiftedDecisionRegionUpper <- criticalValues[(stage + 1):kMax] *
                 sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):kMax]^2)) /
                 sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
-                min(ctr$overallAdjustedTestStatistics[ctr$indices[, g] == 1, stage], na.rm = TRUE) *
+                min(ctr$overallAdjustedTestStatistics[ctr$indices[, treatmentArm] == 1, stage], na.rm = TRUE) *
                     sqrt(sum(weights[1:stage]^2)) /
-                    sqrt(cumsum(weights[(stage + 1):kMax]^2)) - standardizedEffect[g] *
+                    sqrt(cumsum(weights[(stage + 1):kMax]^2)) - standardizedEffect[treatmentArm] *
                     cumsum(sqrt(nPlanned[(stage + 1):kMax]) * weights[(stage + 1):kMax]) /
                     sqrt(cumsum(weights[(stage + 1):kMax]^2))
             if (stage == kMax - 1) {
@@ -922,9 +922,9 @@
                 shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] *
                     sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):(kMax - 1)]^2)) /
                     sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) -
-                    min(ctr$overallAdjustedTestStatistics[ctr$indices[, g] == 1, stage], na.rm = TRUE) *
+                    min(ctr$overallAdjustedTestStatistics[ctr$indices[, treatmentArm] == 1, stage], na.rm = TRUE) *
                         sqrt(sum(weights[1:stage]^2)) /
-                        sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - standardizedEffect[g] *
+                        sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - standardizedEffect[treatmentArm] *
                         cumsum(sqrt(nPlanned[(stage + 1):(kMax - 1)]) * weights[(stage + 1):(kMax - 1)]) /
                         sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2))
             }
@@ -943,7 +943,7 @@
                 informationRates = scaledInformation
             )
 
-            results$conditionalPower[g, (stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
+            results$conditionalPower[treatmentArm, (stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
         }
     }
     nPlanned <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned * nPlanned
@@ -991,13 +991,13 @@
     nPlanned <- c(rep(NA_real_, stage), nPlanned)
     nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
     ctr <- .performClosedCombinationTest(stageResults = stageResults)
-    for (g in 1:gMax) {
-        if (!is.na(ctr$separatePValues[g, stage])) {
+    for (treatmentArm in 1:gMax) {
+        if (!is.na(ctr$separatePValues[treatmentArm, stage])) {
             if (gMax == 1) {
-                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, g] == 1, ][1:stage]
+                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, treatmentArm] == 1, ][1:stage]
             } else {
-                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, g] == 1, ][which.max(
-                    ctr$overallAdjustedTestStatistics[ctr$indices[, g] == 1, stage]
+                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, treatmentArm] == 1, ][which.max(
+                    ctr$overallAdjustedTestStatistics[ctr$indices[, treatmentArm] == 1, stage]
                 ), 1:stage]
             }
             if (stage < kMax - 1) {
@@ -1007,11 +1007,11 @@
                         reject <- reject + .getRejectValueConditionalPowerFisher(
                             kMax = kMax, alpha0Vec = design$alpha0Vec,
                             criticalValues = criticalValues, weightsFisher = weightsFisher,
-                            pValues = pValues, currentKMax = k, thetaH1 = standardizedEffect[g],
+                            pValues = pValues, currentKMax = k, thetaH1 = standardizedEffect[treatmentArm],
                             stage = stage, nPlanned = nPlanned
                         )
                     }
-                    results$conditionalPower[g, k] <- reject / iterations
+                    results$conditionalPower[treatmentArm, k] <- reject / iterations
                 }
                 results$simulated <- TRUE
                 results$.setParameterType("simulated", C_PARAM_GENERATED)
@@ -1024,10 +1024,10 @@
                         "could not calculate conditional power for stage ", kMax,
                         call. = FALSE
                     )
-                    results$conditionalPower[g, kMax] <- NA_real_
+                    results$conditionalPower[treatmentArm, kMax] <- NA_real_
                 } else {
-                    results$conditionalPower[g, kMax] <- 1 - stats::pnorm(.getQNorm(result) -
-                        standardizedEffect[g] * sqrt(nPlanned[kMax]))
+                    results$conditionalPower[treatmentArm, kMax] <- 1 - stats::pnorm(.getQNorm(result) -
+                        standardizedEffect[treatmentArm] * sqrt(nPlanned[kMax]))
                 }
             }
         }
@@ -1083,13 +1083,13 @@
     }
     ctr <- .getClosedConditionalDunnettTestResults(stageResults = stageResults, design = design, stage = stage)
 
-    for (g in 1:gMax) {
-        if (!is.na(ctr$separatePValues[g, stage])) {
-            results$conditionalPower[g, 2] <- 1 -
+    for (treatmentArm in 1:gMax) {
+        if (!is.na(ctr$separatePValues[treatmentArm, stage])) {
+            results$conditionalPower[treatmentArm, 2] <- 1 -
                 stats::pnorm(.getOneMinusQNorm(min(ctr$conditionalErrorRate[
-                    ctr$indices[, g] == 1,
+                    ctr$indices[, treatmentArm] == 1,
                     stage
-                ], na.rm = TRUE)) - standardizedEffect[g] * sqrt(nPlanned[2]))
+                ], na.rm = TRUE)) - standardizedEffect[treatmentArm] * sqrt(nPlanned[2]))
         }
     }
     nPlanned <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned * nPlanned
@@ -1142,8 +1142,8 @@
 
     j <- 1
     for (i in seq(along = thetaRange)) {
-        for (g in (1:gMax)) {
-            treatmentArms[j] <- g
+        for (treatmentArm in (1:gMax)) {
+            treatmentArms[j] <- treatmentArm
             effectValues[j] <- thetaRange[i]
 
             if (.isTrialDesignInverseNormal(design)) {
@@ -1152,7 +1152,7 @@
                     design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned,
                     allocationRatioPlanned = allocationRatioPlanned,
                     thetaH1 = thetaRange[i], ...
-                )$conditionalPower[g, kMax]
+                )$conditionalPower[treatmentArm, kMax]
             } else if (.isTrialDesignFisher(design)) {
                 condPowerValues[j] <- .getConditionalPowerSurvivalMultiArmFisher(
                     results = results,
@@ -1160,19 +1160,19 @@
                     allocationRatioPlanned = allocationRatioPlanned,
                     thetaH1 = thetaRange[i],
                     iterations = iterations, seed = seed, ...
-                )$conditionalPower[g, kMax]
+                )$conditionalPower[treatmentArm, kMax]
             } else if (.isTrialDesignConditionalDunnett(design)) {
                 condPowerValues[j] <- .getConditionalPowerSurvivalMultiArmConditionalDunnett(
                     results = results,
                     design = design, stageResults = stageResults, stage = stage, nPlanned = nPlanned,
                     allocationRatioPlanned = allocationRatioPlanned,
                     thetaH1 = thetaRange[i], ...
-                )$conditionalPower[g, 2]
+                )$conditionalPower[treatmentArm, 2]
             }
             likelihoodValues[j] <- stats::dnorm(
-                log(thetaRange[i]), log(stageResults$effectSizes[g, stage]),
-                stdErr[g]
-            ) / stats::dnorm(0, 0, stdErr[g])
+                log(thetaRange[i]), log(stageResults$effectSizes[treatmentArm, stage]),
+                stdErr[treatmentArm]
+            ) / stats::dnorm(0, 0, stdErr[treatmentArm])
             j <- j + 1
         }
     }

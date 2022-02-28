@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_design_utilities.R
-## |  Creation date: 08 December 2021, 09:09:22
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:06:28
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Design Utility Functions")
@@ -185,10 +185,12 @@ test_that("'getPiecewiseExponentialDistribution' and 'getPiecewiseExponentialQua
 	piecewiseLambda <- c(0.03, 0.05, 0.08)
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	time <- seq(2, 50, 4)
-	quantile <- getPiecewiseExponentialDistribution(time, 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda) 
-	y <- getPiecewiseExponentialQuantile(quantile, 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda)
+	quantile <- getPiecewiseExponentialDistribution(time,
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda
+	)
+	y <- getPiecewiseExponentialQuantile(quantile,
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda
+	)
 
 	expect_equal(y, time, tolerance = 1e-06)
 
@@ -200,10 +202,12 @@ test_that("'ppwexp' and 'qpwexp' produce corresponding results", {
 	piecewiseLambda <- c(0.03, 0.05, 0.08)
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	time <- seq(2, 50, 4)
-	quantile <- ppwexp(time, 
-		s = piecewiseSurvivalTime, lambda = piecewiseLambda) 
-	y <- qpwexp(quantile, 
-		s = piecewiseSurvivalTime, lambda = piecewiseLambda)
+	quantile <- ppwexp(time,
+	    s = piecewiseSurvivalTime, lambda = piecewiseLambda
+	)
+	y <- qpwexp(quantile,
+	    s = piecewiseSurvivalTime, lambda = piecewiseLambda
+	)
 
 	expect_equal(y, time, tolerance = 1e-06)
 
@@ -213,14 +217,17 @@ test_that("'getPiecewiseExponentialDistribution' and 'getPiecewiseExponentialQua
 
 	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}
 	piecewiseSurvivalTime <- list(
-		"<16"      = 0.03, 
-		"16 - <22" = 0.05, 
-		">=22"      = 0.08)
+	    "<16"      = 0.03,
+	    "16 - <22" = 0.05,
+	    ">=22"      = 0.08
+	)
 	time <- seq(2, 50, 4)
-	quantile <- getPiecewiseExponentialDistribution(time, 
-		piecewiseSurvivalTime = piecewiseSurvivalTime) 
-	y <- getPiecewiseExponentialQuantile(quantile, 
-		piecewiseSurvivalTime = piecewiseSurvivalTime)
+	quantile <- getPiecewiseExponentialDistribution(time,
+	    piecewiseSurvivalTime = piecewiseSurvivalTime
+	)
+	y <- getPiecewiseExponentialQuantile(quantile,
+	    piecewiseSurvivalTime = piecewiseSurvivalTime
+	)
 
 	expect_equal(y, time, tolerance = 1e-06)
 
@@ -230,11 +237,12 @@ test_that("'ppwexp' and 'qpwexp' produce corresponding results ('piecewiseSurviv
 
 	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}
 	piecewiseSurvivalTime <- list(
-		"<16"      = 0.03, 
-		"16 - <22" = 0.05, 
-		">=22"      = 0.08)
+	    "<16"      = 0.03,
+	    "16 - <22" = 0.05,
+	    ">=22"      = 0.08
+	)
 	time <- seq(2, 50, 4)
-	quantile <- ppwexp(time, s = piecewiseSurvivalTime) 
+	quantile <- ppwexp(time, s = piecewiseSurvivalTime)
 	y <- qpwexp(quantile, s = piecewiseSurvivalTime)
 
 	expect_equal(y, time, tolerance = 1e-06)
@@ -247,8 +255,9 @@ test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers
 	set.seed(12345)
 	piecewiseSurvivalTime <- c(0, 16, 22)
 	piecewiseLambda <- c(0.003, 0.003, 0.003)
-	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda, kappa = 1))
+	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000,
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, piecewiseLambda = piecewiseLambda, kappa = 1
+	))
 	expect_equal(y, piecewiseLambda[1], tolerance = 5e-04)
 
 })
@@ -270,11 +279,13 @@ test_that("'getPiecewiseExponentialRandomNumbers': test that mean random numbers
 	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
 	set.seed(12345)
 	piecewiseSurvivalTime <- list(
-		"<16"      = 0.003, 
-		"16 - <22" = 0.003, 
-		">=22"      = 0.003)
-	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000, 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, kappa = 1))
+	    "<16"      = 0.003,
+	    "16 - <22" = 0.003,
+	    ">=22"      = 0.003
+	)
+	y <- 1 / mean(getPiecewiseExponentialRandomNumbers(5000,
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, kappa = 1
+	))
 
 	expect_equal(y, 0.003, tolerance = 5e-04)
 
@@ -285,9 +296,10 @@ test_that("'rpwexp': test that mean random numbers are as expected ('piecewiseSu
 	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
 	set.seed(12345)
 	piecewiseSurvivalTime <- list(
-		"<16"      = 0.003, 
-		"16 - <22" = 0.003, 
-		">=22"      = 0.003)
+	    "<16"      = 0.003,
+	    "16 - <22" = 0.003,
+	    ">=22"      = 0.003
+	)
 	y <- 1 / mean(rpwexp(5000, s = piecewiseSurvivalTime, kappa = 1))
 
 	expect_equal(y, 0.003, tolerance = 5e-04)
@@ -339,6 +351,5 @@ test_that("'.convertStageWiseToOverallValues': test that function is working as 
 	## Comparison of the results of matrixarray object 'x5' with expected results
 	expect_equal(x5[1, ], c(1, 2, 3, 4, 5))
 	expect_equal(x5[2, ], c(2, 4, 6, 8, 10))
-
 })
 

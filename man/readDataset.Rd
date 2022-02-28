@@ -21,26 +21,26 @@ readDataset(
 
 \item{...}{Further arguments to be passed to code{\link[utils]{read.table}}.}
 
-\item{header}{A logical value indicating whether the file contains the names of 
+\item{header}{A logical value indicating whether the file contains the names of
 the variables as its first line.}
 
-\item{sep}{The field separator character. Values on each line of the file are separated 
+\item{sep}{The field separator character. Values on each line of the file are separated
 by this character. If sep = "," (the default for \code{readDataset}) the separator is a comma.}
 
-\item{quote}{The set of quoting characters. To disable quoting altogether, use 
-quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only 
+\item{quote}{The set of quoting characters. To disable quoting altogether, use
+quote = "". See scan for the behavior on quotes embedded in quotes. Quoting is only
 considered for columns read as character, which is all of them unless \code{colClasses} is specified.}
 
 \item{dec}{The character used in the file for decimal points.}
 
-\item{fill}{logical. If \code{TRUE} then in case the rows have unequal length, blank fields 
+\item{fill}{logical. If \code{TRUE} then in case the rows have unequal length, blank fields
 are implicitly added.}
 
-\item{comment.char}{character: a character vector of length one containing a single character 
+\item{comment.char}{character: a character vector of length one containing a single character
 or an empty string. Use "" to turn off the interpretation of comments altogether.}
 
-\item{fileEncoding}{character string: if non-empty declares the encoding used on a file 
-(not a connection) so the character data can be re-encoded. 
+\item{fileEncoding}{character string: if non-empty declares the encoding used on a file
+(not a connection) so the character data can be re-encoded.
 See the 'Encoding' section of the help for file, the 'R Data Import/Export Manual' and 'Note'.}
 }
 \value{
@@ -60,43 +60,50 @@ Reads a data file and returns it as dataset object.
 }
 \details{
 \code{readDataset} is a wrapper function that uses \code{\link[utils]{read.table}} to read the
-CSV file into a data frame, transfers it from long to wide format with \code{\link[stats]{reshape}} 
+CSV file into a data frame, transfers it from long to wide format with \code{\link[stats]{reshape}}
 and puts the data to \code{\link{getDataset}}.
 }
 \examples{
-dataFileRates <- system.file("extdata", 
-    "dataset_rates.csv", package = "rpact")
+dataFileRates <- system.file("extdata",
+    "dataset_rates.csv",
+    package = "rpact"
+)
 if (dataFileRates != "") {
     datasetRates <- readDataset(dataFileRates)
     datasetRates
 }
 
-dataFileMeansMultiArm <- system.file("extdata", 
-    "dataset_means_multi-arm.csv", package = "rpact")
+dataFileMeansMultiArm <- system.file("extdata",
+    "dataset_means_multi-arm.csv",
+    package = "rpact"
+)
 if (dataFileMeansMultiArm != "") {
     datasetMeansMultiArm <- readDataset(dataFileMeansMultiArm)
     datasetMeansMultiArm
 }
 
-dataFileRatesMultiArm <- system.file("extdata", 
-    "dataset_rates_multi-arm.csv", package = "rpact")
+dataFileRatesMultiArm <- system.file("extdata",
+    "dataset_rates_multi-arm.csv",
+    package = "rpact"
+)
 if (dataFileRatesMultiArm != "") {
     datasetRatesMultiArm <- readDataset(dataFileRatesMultiArm)
     datasetRatesMultiArm
 }
 
-dataFileSurvivalMultiArm <- system.file("extdata", 
-    "dataset_survival_multi-arm.csv", package = "rpact")
+dataFileSurvivalMultiArm <- system.file("extdata",
+    "dataset_survival_multi-arm.csv",
+    package = "rpact"
+)
 if (dataFileSurvivalMultiArm != "") {
     datasetSurvivalMultiArm <- readDataset(dataFileSurvivalMultiArm)
     datasetSurvivalMultiArm
 }
-
 }
 \seealso{
 \itemize{
   \item \code{\link{readDatasets}} for reading multiple datasets,
-  \item \code{\link{writeDataset}} for writing a single dataset, 
+  \item \code{\link{writeDataset}} for writing a single dataset,
   \item \code{\link{writeDatasets}} for writing multiple datasets.
 }
 }

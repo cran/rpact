@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_simulation_base_means.R
-## |  Creation date: 08 December 2021, 09:09:23
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:06:28
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Simulation Means Function")
@@ -27,9 +27,9 @@ test_that("'getSimulationMeans': several configurations", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
-	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:simulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsRatio}
 	# @refFS[Formula]{fs:testStatisticGroupSequentialWeightedAverage}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
@@ -40,10 +40,14 @@ test_that("'getSimulationMeans': several configurations", {
 	informationRates <- c(0.2, 0.5, 1)
 	plannedSubjects <- round(informationRates * maxNumberOfSubjects)
 
-	x1 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 0.4, 
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		allocationRatioPlanned = 3, stDev = 1.5, seed = seed)
+	x1 <- getSimulationMeans(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = c(0.2, 0.5, 1)
+	    ), groups = 2, meanRatio = TRUE, thetaH0 = 0.4,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    allocationRatioPlanned = 3, stDev = 1.5, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x1' with expected results
 	expect_equal(x1$effect, c(0.6, 0.8, 1, 1.2, 1.4, 1.6), tolerance = 1e-07)
@@ -92,10 +96,14 @@ test_that("'getSimulationMeans': several configurations", {
 
 	.skipTestIfDisabled()
 
-	x2 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 0.2, 
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		allocationRatioPlanned = 3, stDev = 1.5, seed = seed)
+	x2 <- getSimulationMeans(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = c(0.2, 0.5, 1)
+	    ), groups = 2, meanRatio = FALSE, thetaH0 = 0.2,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    allocationRatioPlanned = 3, stDev = 1.5, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x2' with expected results
 	expect_equal(x2$effect, c(-0.2, 0, 0.2, 0.4, 0.6, 0.8), tolerance = 1e-07)
@@ -142,10 +150,14 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x3 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.2,  
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		stDev = 1.5, seed = seed)
+	x3 <- getSimulationMeans(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = c(0.2, 0.5, 1)
+	    ), groups = 1, thetaH0 = 0.2,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    stDev = 1.5, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x3' with expected results
 	expect_equal(x3$effect, c(-0.2, 0, 0.2, 0.4, 0.6, 0.8), tolerance = 1e-07)
@@ -192,10 +204,14 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 1.1,  
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE, seed = seed)
+	x4 <- getSimulationMeans(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = c(0.2, 0.5, 1)
+	    ), groups = 2, meanRatio = TRUE, thetaH0 = 1.1,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x4' with expected results
 	expect_equal(x4$effect, c(-0.1, 0.1, 0.3, 0.5, 0.7, 0.9), tolerance = 1e-07)
@@ -242,10 +258,14 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 1.1, 
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE, seed = seed)
+	x5 <- getSimulationMeans(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = c(0.2, 0.5, 1)
+	    ), groups = 2, meanRatio = FALSE, thetaH0 = 1.1,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x5' with expected results
 	expect_equal(x5$effect, c(-1.1, -0.9, -0.7, -0.5, -0.3, -0.1), tolerance = 1e-07)
@@ -292,10 +312,14 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.8,  
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		stDev = 1.5, directionUpper = FALSE, seed = seed)
+	x6 <- getSimulationMeans(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = c(0.2, 0.5, 1)
+	    ), groups = 1, thetaH0 = 0.8,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    stDev = 1.5, directionUpper = FALSE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x6' with expected results
 	expect_equal(x6$effect, c(-0.8, -0.6, -0.4, -0.2, 0, 0.2), tolerance = 1e-07)
@@ -342,13 +366,17 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x7 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), 
-		informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = -0.2, 
-		plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations, 
-		stDev = 3.5, alternative = seq(-1.2,-0.2,0.2), 
-		conditionalPower = 0.8, 
-		minNumberOfSubjectsPerStage = c(NA,10,10), maxNumberOfSubjectsPerStage = c(NA, 100, 100), 
-		directionUpper = FALSE, seed = seed)
+	x7 <- getSimulationMeans(
+	    design = getDesignInverseNormal(
+	        futilityBounds = c(-0.5, 0.5),
+	        informationRates = c(0.2, 0.5, 1)
+	    ), groups = 1, thetaH0 = -0.2,
+	    plannedSubjects = plannedSubjects, maxNumberOfIterations = maxNumberOfIterations,
+	    stDev = 3.5, alternative = seq(-1.2, -0.2, 0.2),
+	    conditionalPower = 0.8,
+	    minNumberOfSubjectsPerStage = c(NA, 10, 10), maxNumberOfSubjectsPerStage = c(NA, 100, 100),
+	    directionUpper = FALSE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
 	expect_equal(x7$effect, c(-1, -0.8, -0.6, -0.4, -0.2, 0), tolerance = 1e-07)
@@ -395,12 +423,14 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5)), 
-		groups = 2, meanRatio = FALSE, thetaH0 = -0.1, plannedSubjects = plannedSubjects, 
-		maxNumberOfIterations = maxNumberOfIterations, allocationRatioPlanned = 3, stDev = 3.5, 
-		conditionalPower = 0.8, 
-		minNumberOfSubjectsPerStage = c(NA,10,10), maxNumberOfSubjectsPerStage = c(NA, 100, 100), 
-		seed = seed)
+	x8 <- getSimulationMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5)),
+	    groups = 2, meanRatio = FALSE, thetaH0 = -0.1, plannedSubjects = plannedSubjects,
+	    maxNumberOfIterations = maxNumberOfIterations, allocationRatioPlanned = 3, stDev = 3.5,
+	    conditionalPower = 0.8,
+	    minNumberOfSubjectsPerStage = c(NA, 10, 10), maxNumberOfSubjectsPerStage = c(NA, 100, 100),
+	    seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x8' with expected results
 	expect_equal(x8$effect, c(0.1, 0.3, 0.5, 0.7, 0.9, 1.1), tolerance = 1e-07)
@@ -447,12 +477,14 @@ test_that("'getSimulationMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x9 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5)), 
-		groups = 2, meanRatio = TRUE, thetaH0 = 1.6, plannedSubjects = plannedSubjects, 
-		maxNumberOfIterations = maxNumberOfIterations, allocationRatioPlanned = 3, stDev = 1.5, 
-		alternative = seq(0.8, 1.6, 0.2), conditionalPower = 0.8, 
-		minNumberOfSubjectsPerStage = c(NA,10,10), maxNumberOfSubjectsPerStage = c(NA, 100, 100), 
-		directionUpper = FALSE, seed = seed)
+	x9 <- getSimulationMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5)),
+	    groups = 2, meanRatio = TRUE, thetaH0 = 1.6, plannedSubjects = plannedSubjects,
+	    maxNumberOfIterations = maxNumberOfIterations, allocationRatioPlanned = 3, stDev = 1.5,
+	    alternative = seq(0.8, 1.6, 0.2), conditionalPower = 0.8,
+	    minNumberOfSubjectsPerStage = c(NA, 10, 10), maxNumberOfSubjectsPerStage = c(NA, 100, 100),
+	    directionUpper = FALSE, seed = seed
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
 	expect_equal(x9$effect, c(-0.8, -0.6, -0.4, -0.2, 0), tolerance = 1e-07)
@@ -500,24 +532,28 @@ test_that("'getSimulationMeans': several configurations", {
 	}
 
 	calcSubjectsFunctionSimulationBaseMeans <- function(..., stage, thetaH0, allocationRatioPlanned,
-			minNumberOfSubjectsPerStage, maxNumberOfSubjectsPerStage,
-			sampleSizesPerStage, thetaH1, conditionalPower, conditionalCriticalValue) {
-		mult <- 1
-		if (stage == 2) {
-			stageSubjects <- (1 + 1/allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned))*
-					(max(0, conditionalCriticalValue + stats::qnorm(conditionalPower)))^2 * mult / 
-					(max(1e-12, thetaH1))^2
-			stageSubjects <- min(max(minNumberOfSubjectsPerStage[stage], stageSubjects), 
-					maxNumberOfSubjectsPerStage[stage])
-		} else {
-			stageSubjects <- sampleSizesPerStage[stage - 1]
-		}
-		return(stageSubjects)
+	        minNumberOfSubjectsPerStage, maxNumberOfSubjectsPerStage,
+	        sampleSizesPerStage, thetaH1, conditionalPower, conditionalCriticalValue) {
+	    mult <- 1
+	    if (stage == 2) {
+	        stageSubjects <- (1 + 1 / allocationRatioPlanned + thetaH0^2 * (1 + allocationRatioPlanned)) *
+	            (max(0, conditionalCriticalValue + stats::qnorm(conditionalPower)))^2 * mult /
+	            (max(1e-12, thetaH1))^2
+	        stageSubjects <- min(
+	            max(minNumberOfSubjectsPerStage[stage], stageSubjects),
+	            maxNumberOfSubjectsPerStage[stage]
+	        )
+	    } else {
+	        stageSubjects <- sampleSizesPerStage[stage - 1]
+	    }
+	    return(stageSubjects)
 	}
-	x10 <- getSimulationMeans(design = getDesignInverseNormal(futilityBounds = c(0.5,0.5)), groups = 2, meanRatio = TRUE, thetaH0 = 1.6, 
-		plannedSubjects = c(80, 160, 240), maxNumberOfIterations = maxNumberOfIterations, stDev = 1.5, alternative = seq(0.8, 1.6, 0.2),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA, 40, 40), maxNumberOfSubjectsPerStage = c(NA, 400, 400), 
-		allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed, calcSubjectsFunction = calcSubjectsFunctionSimulationBaseMeans)
+	x10 <- getSimulationMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(0.5, 0.5)), groups = 2, meanRatio = TRUE, thetaH0 = 1.6,
+	    plannedSubjects = c(80, 160, 240), maxNumberOfIterations = maxNumberOfIterations, stDev = 1.5, alternative = seq(0.8, 1.6, 0.2),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(NA, 40, 40), maxNumberOfSubjectsPerStage = c(NA, 400, 400),
+	    allocationRatioPlanned = 3, directionUpper = FALSE, seed = seed, calcSubjectsFunction = calcSubjectsFunctionSimulationBaseMeans
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
 	expect_equal(x10$effect, c(-0.8, -0.6, -0.4, -0.2, 0), tolerance = 1e-07)
@@ -566,23 +602,25 @@ test_that("'getSimulationMeans': several configurations", {
 
 })
 
-context("Testing Simulation Means Function in a Systematic Way ")
+context("Testing Simulation Means Function in a Systematic Way")
 
 
 test_that("'getSimulationMeans': Fisher design with several configurations", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
-	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:simulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsRatio}
 	# @refFS[Formula]{fs:testStatisticGroupSequentialWeightedAverage}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
-	x1 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x1 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x1' with expected results
 	expect_equal(x1$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -624,10 +662,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 
 	.skipTestIfDisabled()
 
-	x2 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x2 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x2' with expected results
 	expect_equal(x2$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -667,10 +707,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x3 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x3 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x3' with expected results
 	expect_equal(x3$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -710,10 +752,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x4 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x4' with expected results
 	expect_equal(x4$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -753,10 +797,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x5 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x5' with expected results
 	expect_equal(x5$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -796,10 +842,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x6 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x6' with expected results
 	expect_equal(x6$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -839,10 +887,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x7 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x7 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
 	expect_equal(x7$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -882,10 +932,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x8 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x8' with expected results
 	expect_equal(x8$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -925,10 +977,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x9 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), normalApproximation = TRUE, 
-		groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x9 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), normalApproximation = TRUE,
+	    groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
 	expect_equal(x9$effect, c(0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -968,10 +1022,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x10 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x10 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
 	expect_equal(x10$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -1011,10 +1067,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x11 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x11 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x11' with expected results
 	expect_equal(x11$effect, c(0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1054,10 +1112,12 @@ test_that("'getSimulationMeans': Fisher design with several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x12 <- getSimulationMeans(seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x12 <- getSimulationMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x12' with expected results
 	expect_equal(x12$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -1104,14 +1164,16 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
-	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:simulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsRatio}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
-	x1 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x1 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x1' with expected results
 	expect_equal(x1$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1153,11 +1215,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 
 	.skipTestIfDisabled()
 
-	x2 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x2 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x2' with expected results
 	expect_equal(x2$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -1197,11 +1261,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x3 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x3 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x3' with expected results
 	expect_equal(x3$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1241,11 +1307,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x4 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x4' with expected results
 	expect_equal(x4$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -1285,11 +1353,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x5 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x5' with expected results
 	expect_equal(x5$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1329,11 +1399,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x6 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x6' with expected results
 	expect_equal(x6$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -1373,11 +1445,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x7 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x7 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
 	expect_equal(x7$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1417,11 +1491,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x8 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x8' with expected results
 	expect_equal(x8$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -1461,11 +1537,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x9 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x9 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
 	expect_equal(x9$effect, c(0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1505,11 +1583,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x10 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x10 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
 	expect_equal(x10$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -1549,11 +1629,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x11 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x11 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x11' with expected results
 	expect_equal(x11$effect, c(0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1593,11 +1675,13 @@ test_that("'getSimulationMeans': inverse normal design with several configuratio
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x12 <- getSimulationMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x12 <- getSimulationMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x12' with expected results
 	expect_equal(x12$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -1644,15 +1728,17 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
-	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:simulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsRatio}
 	# @refFS[Formula]{fs:testStatisticGroupSequentialWeightedAverage}
-	x1 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x1 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x1' with expected results
 	expect_equal(x1$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1694,11 +1780,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 
 	.skipTestIfDisabled()
 
-	x2 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x2 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x2' with expected results
 	expect_equal(x2$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -1738,11 +1826,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x3 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x3 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x3' with expected results
 	expect_equal(x3$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1782,11 +1872,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x4 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 1, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x4' with expected results
 	expect_equal(x4$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -1826,11 +1918,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x5 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x5' with expected results
 	expect_equal(x5$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1870,11 +1964,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x6 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x6' with expected results
 	expect_equal(x6$effect, c(-0.8, -0.4, 0), tolerance = 1e-07)
@@ -1914,11 +2010,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x7 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x7 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = FALSE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x7' with expected results
 	expect_equal(x7$effect, c(-0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -1958,11 +2056,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x8 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x8' with expected results
 	expect_equal(x8$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -2002,11 +2102,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x9 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x9 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x9' with expected results
 	expect_equal(x9$effect, c(0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -2046,11 +2148,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x10 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE, 
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x10 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = TRUE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x10' with expected results
 	expect_equal(x10$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -2090,11 +2194,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x11 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
-		maxNumberOfIterations = 100, thetaH0 = 0.05)
+	x11 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = TRUE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.05
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x11' with expected results
 	expect_equal(x11$effect, c(0.05, 0.35, 0.75), tolerance = 1e-07)
@@ -2134,11 +2240,13 @@ test_that("'getSimulationMeans': group sequential design with several configurat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x12 <- getSimulationMeans(seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)), 
-		normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100), 
-		stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
-		maxNumberOfIterations = 100, thetaH0 = 0.8)
+	x12 <- getSimulationMeans(
+	    seed = 1234, getDesignGroupSequential(informationRates = c(0.3333, 1)),
+	    normalApproximation = FALSE, groups = 2, plannedSubjects = c(10, 30), alternative = c(0.1, 0.4, 0.8),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4), maxNumberOfSubjectsPerStage = c(10, 100),
+	    stDev = 1.2, directionUpper = FALSE, meanRatio = TRUE,
+	    maxNumberOfIterations = 100, thetaH0 = 0.8
+	)
 
 	## Comparison of the results of SimulationResultsMeans object 'x12' with expected results
 	expect_equal(x12$effect, c(-0.7, -0.4, 0), tolerance = 1e-07)
@@ -2185,16 +2293,20 @@ test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMeans}
-	# @refFS[Formula]{fs:SimulationOneArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsDiff}
-	# @refFS[Formula]{fs:SimulationTwoArmMeansTestStatisticsRatio}
+	# @refFS[Formula]{fs:simulationOneArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsDiff}
+	# @refFS[Formula]{fs:simulationTwoArmMeansTestStatisticsRatio}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	.skipTestIfDisabled()
 
-	x1 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 0.4, 
-		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5)
-	y1 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = TRUE, thetaH0 = 0.4,
-		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE)
+	x1 <- getSimulationMeans(
+	    seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 0.4,
+	    plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5
+	)
+	y1 <- getPowerMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 0.4,
+	    maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE
+	)
 
 	expectedNumberOfSubjectsDiff <- round((x1$expectedNumberOfSubjects - y1$expectedNumberOfSubjects) / 200, 4)
 
@@ -2211,10 +2323,14 @@ test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 	## Comparison of the results of numeric object 'futilityStopDiff1' with expected results
 	expect_equal(futilityStopDiff1, c(0.003, -0.0012, -2e-04, 0, 0, 0), tolerance = 1e-07)
 
-	x2 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 0.2, 
-		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5)
-	y2 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = FALSE, thetaH0 = 0.2,
-		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE)
+	x2 <- getSimulationMeans(
+	    seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 0.2,
+	    plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5
+	)
+	y2 <- getPowerMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 0.2,
+	    maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE
+	)
 	expectedNumberOfSubjectsDiff <- round((x2$expectedNumberOfSubjects - y2$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
@@ -2230,10 +2346,14 @@ test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 	## Comparison of the results of numeric object 'futilityStopDiff2' with expected results
 	expect_equal(futilityStopDiff2, c(0.0132, -0.0034, 0.0147, -3e-04, 0.0035, 0.0013), tolerance = 1e-07)
 
-	x4 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.2,  
-		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, stDev = 1.5)
-	y4 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 1, thetaH0 = 0.2, 
-		maxNumberOfSubjects = 200, stDev = 1.5, normalApproximation = TRUE)
+	x4 <- getSimulationMeans(
+	    seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.2,
+	    plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, stDev = 1.5
+	)
+	y4 <- getPowerMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.2,
+	    maxNumberOfSubjects = 200, stDev = 1.5, normalApproximation = TRUE
+	)
 	expectedNumberOfSubjectsDiff <- round((x4$expectedNumberOfSubjects - y4$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
@@ -2249,10 +2369,14 @@ test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 	## Comparison of the results of numeric object 'futilityStopDiff4' with expected results
 	expect_equal(futilityStopDiff4, c(0.0013, -0.0094, -0.0191, -0.007, 0.0016, -1e-04), tolerance = 1e-07)
 
-	x5 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 1.1,  
-		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE)
-	y5 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = TRUE, thetaH0 = 1.1,
-		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE)
+	x5 <- getSimulationMeans(
+	    seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 1.1,
+	    plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE
+	)
+	y5 <- getPowerMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = TRUE, thetaH0 = 1.1,
+	    maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE
+	)
 	expectedNumberOfSubjectsDiff <- round((x5$expectedNumberOfSubjects - y5$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
@@ -2268,10 +2392,14 @@ test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 	## Comparison of the results of numeric object 'futilityStopDiff5' with expected results
 	expect_equal(futilityStopDiff5, c(-0.0164, 0.0103, 0.0038, 0.0057, 0.0018, 6e-04), tolerance = 1e-07)
 
-	x6 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 1.1, 
-		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE)
-	y6 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 2, meanRatio = FALSE, thetaH0 = 1.1,
-		maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE)
+	x6 <- getSimulationMeans(
+	    seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 1.1,
+	    plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, allocationRatioPlanned = 3, stDev = 1.5, directionUpper = FALSE
+	)
+	y6 <- getPowerMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 2, meanRatio = FALSE, thetaH0 = 1.1,
+	    maxNumberOfSubjects = 200, allocationRatioPlanned = 3, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE
+	)
 	expectedNumberOfSubjectsDiff <- round((x6$expectedNumberOfSubjects - y6$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
@@ -2287,10 +2415,14 @@ test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 	## Comparison of the results of numeric object 'futilityStopDiff6' with expected results
 	expect_equal(futilityStopDiff6, c(-0.004, 2e-04, 0.0083, -0.0213, -4e-04, 0.0232), tolerance = 1e-07)
 
-	x7 <- getSimulationMeans(seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.8,  
-		plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, stDev = 1.5, directionUpper = FALSE)
-	y7 <- getPowerMeans(design = getDesignInverseNormal(futilityBounds = c(-0.5,0.5), informationRates = c(0.2, 0.5, 1)),  groups = 1, thetaH0 = 0.8, 
-		maxNumberOfSubjects = 200, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE)
+	x7 <- getSimulationMeans(
+	    seed = 1234, design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.8,
+	    plannedSubjects = c(40, 100, 200), maxNumberOfIterations = 1000, stDev = 1.5, directionUpper = FALSE
+	)
+	y7 <- getPowerMeans(
+	    design = getDesignInverseNormal(futilityBounds = c(-0.5, 0.5), informationRates = c(0.2, 0.5, 1)), groups = 1, thetaH0 = 0.8,
+	    maxNumberOfSubjects = 200, stDev = 1.5, normalApproximation = TRUE, directionUpper = FALSE
+	)
 	expectedNumberOfSubjectsDiff <- round((x7$expectedNumberOfSubjects - y7$expectedNumberOfSubjects) / 200, 4)
 
 	## Comparison of the results of numeric object 'expectedNumberOfSubjectsDiff' with expected results
@@ -2305,6 +2437,5 @@ test_that("'getSimulationMeans': comparison with getPowerMeans() results", {
 
 	## Comparison of the results of numeric object 'futilityStopDiff7' with expected results
 	expect_equal(futilityStopDiff7, c(-1e-04, -4e-04, -0.003, 0.0059, -4e-04, 0.0033), tolerance = 1e-07)
-
 })
 

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  File version: $Revision: 5747 $
+## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -53,13 +53,13 @@
             } else {
                 actMl <- rep(NA_real_, length(subset))
                 ctrMl <- rep(NA_real_, length(subset))
-                for (g in (1:length(subset))) {
+                for (population in (1:length(subset))) {
                     y <- .getFarringtonManningValues(
-                        rate1 = actEv[g] / actN[g],
-                        rate2 = ctrEv[g] / ctrN[g], theta = thetaH0, allocation = actN[g] / ctrN[g], method = "diff"
+                        rate1 = actEv[population] / actN[population],
+                        rate2 = ctrEv[population] / ctrN[population], theta = thetaH0, allocation = actN[population] / ctrN[population], method = "diff"
                     )
-                    actMl[g] <- y$ml1
-                    ctrMl[g] <- y$ml2
+                    actMl[population] <- y$ml1
+                    ctrMl[population] <- y$ml2
                 }
                 testStatistics <- sum((actEv / actN - ctrEv / ctrN - thetaH0) * weights, na.rm = TRUE) /
                     sqrt(sum((actMl * (1 - actMl) / actN + ctrMl * (1 - ctrMl) / ctrN) * weights^2, na.rm = TRUE))
@@ -211,24 +211,24 @@
         )
     }
 
-    if ((stratifiedAnalysis) && (!normalApproximation)) {
+    if (stratifiedAnalysis && !normalApproximation) {
         stop(
             C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
-            "Stratified version is not available for Fisher's exact test"
+            "stratified version is not available for Fisher's exact test"
         )
     }
 
     if (stratifiedAnalysis && !dataInput$isStratified()) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "Stratified analysis is only possible for stratified data input"
+            "stratified analysis is only possible for stratified data input"
         )
     }
 
     if (dataInput$isStratified() && (gMax > 4)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "gMax (", gMax,
-            ") > 4: Stratified analysis not implemented"
+            ") > 4: stratified analysis not implemented"
         )
     }
 
@@ -641,14 +641,14 @@
     stages <- (1:stage)
     for (k in stages) {
         startTime <- Sys.time()
-        for (g in 1:gMax) {
-            if (!is.na(stageResults$testStatistics[g, k])) {
+        for (population in 1:gMax) {
+			if (!is.na(stageResults$testStatistics[population, k]) && criticalValues[k] < C_QNORM_MAXIMUM) {
                 thetaLow <- -1 + tolerance
                 thetaUp <- 1 - tolerance
                 # finding upper and lower RCI limits through root function
-                repeatedConfidenceIntervals[g, 1, k] <- .getRootThetaRatesEnrichment(
+                repeatedConfidenceIntervals[population, 1, k] <- .getRootThetaRatesEnrichment(
                     design = design,
-                    dataInput = dataInput, population = g, stage = k, directionUpper = TRUE,
+                    dataInput = dataInput, population = population, stage = k, directionUpper = TRUE,
                     normalApproximation = normalApproximation,
                     stratifiedAnalysis = stratifiedAnalysis,
                     thetaLow = thetaLow, thetaUp = thetaUp,
@@ -656,9 +656,9 @@
                     secondValue = criticalValues[k], tolerance = tolerance
                 )
 
-                repeatedConfidenceIntervals[g, 2, k] <- .getRootThetaRatesEnrichment(
+                repeatedConfidenceIntervals[population, 2, k] <- .getRootThetaRatesEnrichment(
                     design = design,
-                    dataInput = dataInput, population = g, stage = k, directionUpper = FALSE,
+                    dataInput = dataInput, population = population, stage = k, directionUpper = FALSE,
                     normalApproximation = normalApproximation,
                     stratifiedAnalysis = stratifiedAnalysis,
                     thetaLow = thetaLow, thetaUp = thetaUp,
@@ -674,7 +674,7 @@
 
                     futilityCorr[k] <- .getRootThetaRatesEnrichment(
                         design = design, dataInput = dataInput,
-                        population = g, stage = k - 1, directionUpper = directionUpper,
+                        population = population, stage = k - 1, directionUpper = directionUpper,
                         normalApproximation = normalApproximation,
                         stratifiedAnalysis = stratifiedAnalysis,
                         thetaLow = thetaLow, thetaUp = thetaUp,
@@ -683,22 +683,22 @@
                     )
 
                     if (directionUpper) {
-                        repeatedConfidenceIntervals[g, 1, k] <- min(
+                        repeatedConfidenceIntervals[population, 1, k] <- min(
                             min(futilityCorr[2:k]),
-                            repeatedConfidenceIntervals[g, 1, k]
+                            repeatedConfidenceIntervals[population, 1, k]
                         )
                     } else {
-                        repeatedConfidenceIntervals[g, 2, k] <- max(
+                        repeatedConfidenceIntervals[population, 2, k] <- max(
                             max(futilityCorr[2:k]),
-                            repeatedConfidenceIntervals[g, 2, k]
+                            repeatedConfidenceIntervals[population, 2, k]
                         )
                     }
                 }
 
-                if (!is.na(repeatedConfidenceIntervals[g, 1, k]) &&
-                        !is.na(repeatedConfidenceIntervals[g, 2, k]) &&
-                        repeatedConfidenceIntervals[g, 1, k] > repeatedConfidenceIntervals[g, 2, k]) {
-                    repeatedConfidenceIntervals[g, , k] <- rep(NA_real_, 2)
+                if (!is.na(repeatedConfidenceIntervals[population, 1, k]) &&
+                        !is.na(repeatedConfidenceIntervals[population, 2, k]) &&
+                        repeatedConfidenceIntervals[population, 1, k] > repeatedConfidenceIntervals[population, 2, k]) {
+                    repeatedConfidenceIntervals[population, , k] <- rep(NA_real_, 2)
                 }
             }
         }
@@ -957,16 +957,16 @@
     ctr <- .performClosedCombinationTest(stageResults = stageResults)
     criticalValues <- design$criticalValues
 
-    for (g in 1:gMax) {
-        if (!is.na(ctr$separatePValues[g, stage])) {
+    for (population in 1:gMax) {
+        if (!is.na(ctr$separatePValues[population, stage])) {
             # shifted decision region for use in getGroupSeqProbs
             # Inverse Normal Method
             shiftedDecisionRegionUpper <- criticalValues[(stage + 1):kMax] *
                 sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):kMax]^2)) /
                 sqrt(cumsum(weights[(stage + 1):kMax]^2)) -
-                min(ctr$overallAdjustedTestStatistics[ctr$indices[, g] == 1, stage], na.rm = TRUE) *
+                min(ctr$overallAdjustedTestStatistics[ctr$indices[, population] == 1, stage], na.rm = TRUE) *
                     sqrt(sum(weights[1:stage]^2)) /
-                    sqrt(cumsum(weights[(stage + 1):kMax]^2)) - standardizedEffect[g] *
+                    sqrt(cumsum(weights[(stage + 1):kMax]^2)) - standardizedEffect[population] *
                     cumsum(sqrt(nPlanned[(stage + 1):kMax]) * weights[(stage + 1):kMax]) /
                     sqrt(cumsum(weights[(stage + 1):kMax]^2))
             if (stage == kMax - 1) {
@@ -975,9 +975,9 @@
                 shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] *
                     sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):(kMax - 1)]^2)) /
                     sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) -
-                    min(ctr$overallAdjustedTestStatistics[ctr$indices[, g] == 1, stage], na.rm = TRUE) *
+                    min(ctr$overallAdjustedTestStatistics[ctr$indices[, population] == 1, stage], na.rm = TRUE) *
                         sqrt(sum(weights[1:stage]^2)) /
-                        sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - standardizedEffect[g] *
+                        sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) - standardizedEffect[population] *
                         cumsum(sqrt(nPlanned[(stage + 1):(kMax - 1)]) * weights[(stage + 1):(kMax - 1)]) /
                         sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2))
             }
@@ -996,7 +996,7 @@
                 informationRates = scaledInformation
             )
 
-            results$conditionalPower[g, (stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
+            results$conditionalPower[population, (stage + 1):kMax] <- cumsum(probs[3, ] - probs[2, ])
         }
     }
     nPlanned <- (1 + allocationRatioPlanned)^2 / allocationRatioPlanned * nPlanned
@@ -1071,13 +1071,13 @@
     nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 
     ctr <- .performClosedCombinationTest(stageResults = stageResults)
-    for (g in 1:gMax) {
-        if (!is.na(ctr$separatePValues[g, stage])) {
+    for (population in 1:gMax) {
+        if (!is.na(ctr$separatePValues[population, stage])) {
             if (gMax == 1) {
-                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, g] == 1, ][1:stage]
+                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, population] == 1, ][1:stage]
             } else {
-                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, g] == 1, ][which.max(
-                    ctr$overallAdjustedTestStatistics[ctr$indices[, g] == 1, stage]
+                pValues <- ctr$adjustedStageWisePValues[ctr$indices[, population] == 1, ][which.max(
+                    ctr$overallAdjustedTestStatistics[ctr$indices[, population] == 1, stage]
                 ), 1:stage]
             }
             if (stage < kMax - 1) {
@@ -1087,11 +1087,11 @@
                         reject <- reject + .getRejectValueConditionalPowerFisher(
                             kMax = kMax, alpha0Vec = design$alpha0Vec,
                             criticalValues = criticalValues, weightsFisher = weightsFisher,
-                            pValues = pValues, currentKMax = k, thetaH1 = standardizedEffect[g],
+                            pValues = pValues, currentKMax = k, thetaH1 = standardizedEffect[population],
                             stage = stage, nPlanned = nPlanned
                         )
                     }
-                    results$conditionalPower[g, k] <- reject / iterations
+                    results$conditionalPower[population, k] <- reject / iterations
                 }
                 results$simulated <- TRUE
                 results$.setParameterType("simulated", C_PARAM_GENERATED)
@@ -1104,10 +1104,10 @@
                         kMax,
                         call. = FALSE
                     )
-                    results$conditionalPower[g, kMax] <- NA_real_
+                    results$conditionalPower[population, kMax] <- NA_real_
                 } else {
-                    results$conditionalPower[g, kMax] <- 1 - stats::pnorm(.getQNorm(result) -
-                        standardizedEffect[g] * sqrt(nPlanned[kMax]))
+                    results$conditionalPower[population, kMax] <- 1 - stats::pnorm(.getQNorm(result) -
+                        standardizedEffect[population] * sqrt(nPlanned[kMax]))
                 }
             }
         }
@@ -1166,8 +1166,8 @@
 
     j <- 1
     for (i in seq(along = piTreatmentRange)) {
-        for (g in (1:gMax)) {
-            populations[j] <- g
+        for (population in (1:gMax)) {
+            populations[j] <- population
             effectValues[j] <- piTreatmentRange[i]
 
             if (.isTrialDesignInverseNormal(design)) {
@@ -1177,7 +1177,7 @@
                     allocationRatioPlanned = allocationRatioPlanned,
                     piControls = piControls,
                     piTreatments = piTreatmentRange[i]
-                )$conditionalPower[g, kMax]
+                )$conditionalPower[population, kMax]
             } else if (.isTrialDesignFisher(design)) {
                 condPowerValues[j] <- .getConditionalPowerRatesEnrichmentFisher(
                     results = results,
@@ -1186,11 +1186,11 @@
                     piControls = piControls,
                     piTreatments = piTreatmentRange[i],
                     iterations = iterations, seed = seed
-                )$conditionalPower[g, kMax]
+                )$conditionalPower[population, kMax]
             }
 
-            likelihoodValues[j] <- stats::dnorm(piTreatmentRange[i], stageResults$overallPisTreatment[g, stage], stdErr[g]) /
-                stats::dnorm(0, 0, stdErr[g])
+            likelihoodValues[j] <- stats::dnorm(piTreatmentRange[i], stageResults$overallPisTreatment[population, stage], stdErr[population]) /
+                stats::dnorm(0, 0, stdErr[population])
             j <- j + 1
         }
     }

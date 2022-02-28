@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_design_sample_size_calculator.R
-## |  Creation date: 08 December 2021, 09:09:00
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:06:06
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing the Sample Size Calculation of Testing Means for Different Designs and Arguments")
@@ -27,8 +27,10 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	# @refFS[Formula]{fs:criticalValuesWangTiatis}
 	# @refFS[Formula]{fs:inflationFactor}
 	# @refFS[Formula]{fs:expectedReduction}
-	designGS1pretest <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, 
-		beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS1pretest <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), sided = 1,
+	    beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	## Comparison of the results of TrialDesignGroupSequential object 'designGS1pretest' with expected results
 	expect_equal(designGS1pretest$alphaSpent, c(0.0020595603, 0.0098772988, 0.02499999), tolerance = 1e-07)
@@ -52,8 +54,10 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	designGS1 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, 
-		beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS1 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), sided = 1,
+	    beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:sampleSizeOneMeanVarianceUnknownOnesided}
@@ -820,8 +824,10 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	# @refFS[Formula]{fs:criticalValuesWangTiatis}
 	# @refFS[Formula]{fs:inflationFactor}
 	# @refFS[Formula]{fs:expectedReduction}
-	designGS2pretest <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), alpha = 0.4, 
-		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS2pretest <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), alpha = 0.4,
+	    sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	## Comparison of the results of TrialDesignGroupSequential object 'designGS2pretest' with expected results
 	expect_equal(designGS2pretest$alphaSpent, c(0.12265406, 0.26238998, 0.39999999), tolerance = 1e-07)
@@ -845,8 +851,10 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	designGS2 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), alpha = 0.4, 
-		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS2 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), alpha = 0.4,
+	    sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:sampleSizeOneMeanVarianceUnknownOnesided}
@@ -1197,7 +1205,7 @@ context("Testing the Sample Size Calculation of Testing Rates for Different Desi
 
 
 test_that("'getSampleSizeRates': Sample size calculation of testing rates for one sided group sequential design", {
-	designGS1 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS1 <- getDesignGroupSequential(informationRates = c(0.2, 0.5, 1), sided = 1, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:sampleSizeOneRateExactOnesidedLargerpi1}
@@ -1783,8 +1791,10 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for on
 
 test_that("'getSampleSizeRates': Sample size calculation of testing rates for two sided group sequential design", {
 
-	designGS2 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), alpha = 0.4, 
-		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS2 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), alpha = 0.4,
+	    sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:sampleSizeOneRateApproximation}
@@ -1971,7 +1981,7 @@ test_that("'getSampleSizeRates': Sample size calculation of testing rates for tw
 context("Testing the Sample Size Calculation of Survival Designs for Different Designs and Arguments")
 
 
-test_that("'getSampleSizeSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default, only alpha = 0.01 is specified  ", {
+test_that("'getSampleSizeSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default, only alpha = 0.01 is specified", {
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalPatientNumber}
@@ -2029,8 +2039,10 @@ test_that("'getSampleSizeSurvival': Fixed sample size with minimum required defi
 
 test_that("'getSampleSizeSurvival': Sample size calculation of survival designs for one sided group sequential design and typeOfComputation = 'Schoenfeld'", {
 
-	designGS1 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, 
-		beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS1 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), sided = 1,
+	    beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalSchoenfeld}
@@ -2686,7 +2698,7 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
+	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -2766,7 +2778,7 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
+	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -3111,8 +3123,10 @@ test_that("'getSampleSizeSurvival': Sample size calculation of survival designs 
 
 test_that("'getSampleSizeSurvival': sample size calculation of survival designs for one sided group sequential design and typeOfComputation = 'Freedman'", {
 
-	designGS1 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, 
-		beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS1 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), sided = 1,
+	    beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFreedman}
@@ -3436,7 +3450,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
+	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -3517,7 +3531,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
 	# @refFS[Formula]{fs:sampleSizeSurvivalOptimumAllocationRatio}
-	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
+	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -3605,8 +3619,10 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 
 test_that("'getSampleSizeSurvival': sample size calculation of survival designs for one sided group sequential design and typeOfComputation = 'HsiehFreedman'", {
 
-	designGS1 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, 
-		beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS1 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), sided = 1,
+	    beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFreedmanHsieh}
@@ -3930,7 +3946,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
+	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -4011,7 +4027,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
 	# @refFS[Formula]{fs:sampleSizeSurvivalOptimumAllocationRatio}
-	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
+	sampleSizeResult <- getSampleSizeSurvival(designGS1, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -4099,8 +4115,10 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival designs 
 
 test_that("'getSampleSizeSurvival': sample size calculation of survival data for two sided group sequential design and typeOfComputation = 'Schoenfeld'", {
 
-	designGS2 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), alpha = 0.4, 
-		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS2 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), alpha = 0.4,
+	    sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalSchoenfeld}
@@ -4456,7 +4474,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -4545,7 +4563,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
 	# @refFS[Formula]{fs:sampleSizeSurvivalOptimumAllocationRatio}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -4641,8 +4659,10 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 
 test_that("'getSampleSizeSurvival': sample size calculation of survival data for two sided group sequential design and typeOfComputation = 'Freedman'", {
 
-	designGS2 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), alpha = 0.25, 
-		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS2 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), alpha = 0.25,
+	    sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFreedman}
@@ -5024,7 +5044,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -5117,7 +5137,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
 	# @refFS[Formula]{fs:sampleSizeSurvivalOptimumAllocationRatio}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "Freedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 0)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -5218,8 +5238,10 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 
 test_that("'getSampleSizeSurvival': sample size calculation of survival data for two sided group sequential design and typeOfComputation = 'HsiehFreedman'", {
 
-	designGS2 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), alpha = 0.25, 
-		sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS2 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), alpha = 0.25,
+	    sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFreedmanHsieh}
@@ -5602,7 +5624,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = c(0.3,0.4), pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = c(0.3, 0.4), pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, c(TRUE, TRUE))
@@ -5702,7 +5724,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.3, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.3, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -5802,7 +5824,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, eventTime = 14, accrualTime = 8, followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, TRUE)
@@ -5902,11 +5924,13 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityAcccountForOberservationTimes}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
-	sampleSizeResult <- getSampleSizeSurvival(designGS2, maxNumberOfSubjects = 0, 
-		typeOfComputation = "HsiehFreedman", thetaH0 = 1, 
-		pi1 = c(0.3,0.4), pi2 = 0.2, eventTime = 14, accrualTime = 8, 
-		followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, 
-		accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
+	sampleSizeResult <- getSampleSizeSurvival(designGS2,
+	    maxNumberOfSubjects = 0,
+	    typeOfComputation = "HsiehFreedman", thetaH0 = 1,
+	    pi1 = c(0.3, 0.4), pi2 = 0.2, eventTime = 14, accrualTime = 8,
+	    followUpTime = 10, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16,
+	    accountForObservationTimes = TRUE, allocationRatioPlanned = 3
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, c(TRUE, TRUE))
@@ -6007,7 +6031,7 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
 	# @refFS[Formula]{fs:sampleSizeSurvivalExpectedTimePoints}
 	# @refFS[Formula]{fs:sampleSizeSurvivalOptimumAllocationRatio}
-	sampleSizeResult <- getSampleSizeSurvival(maxNumberOfSubjects = 468, designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = c(0.3,0.4), pi2 = 0.2, eventTime = 14, accrualTime = 8, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime =16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
+	sampleSizeResult <- getSampleSizeSurvival(maxNumberOfSubjects = 468, designGS2, typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = c(0.3, 0.4), pi2 = 0.2, eventTime = 14, accrualTime = 8, dropoutRate1 = 0.1, dropoutRate2 = 0.05, dropoutTime = 16, accountForObservationTimes = TRUE, allocationRatioPlanned = 3)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, c(TRUE, TRUE))
@@ -6111,13 +6135,15 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 context("Testing the Sample Size Calculation of Survival Designs for Other Parameter Variants")
 
 
-test_that("'getSampleSizeSurvival': For fixed sample design, determine necessary accrual time if 200 subjects and 30 subjects per time unit can be recruited ", {
+test_that("'getSampleSizeSurvival': For fixed sample design, determine necessary accrual time if 200 subjects and 30 subjects per time unit can be recruited", {
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	# @refFS[Formula]{fs:sampleSizeSurvivalPatientNumber}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
-	sampleSizeResult <- getSampleSizeSurvival(accrualTime = c(0), accrualIntensity = c(30), 
-		maxNumberOfSubjects = 120)
+	sampleSizeResult <- getSampleSizeSurvival(
+	    accrualTime = c(0), accrualIntensity = c(30),
+	    maxNumberOfSubjects = 120
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, c(TRUE, TRUE, TRUE))
@@ -6173,8 +6199,10 @@ test_that("'getSampleSizeSurvival': Determine necessary accrual time if 200 subj
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	# @refFS[Formula]{fs:sampleSizeSurvivalPatientNumber}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
-	sampleSizeResult <- getSampleSizeSurvival(beta = 0.01, accrualTime = c(0, 4), accrualIntensity = c(10, 20), 
-		maxNumberOfSubjects = 180)
+	sampleSizeResult <- getSampleSizeSurvival(
+	    beta = 0.01, accrualTime = c(0, 4), accrualIntensity = c(10, 20),
+	    maxNumberOfSubjects = 180
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, c(TRUE, TRUE, TRUE))
@@ -6292,7 +6320,7 @@ test_that("'getSampleSizeSurvival': Specify accrual time as a list", {
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	# @refFS[Formula]{fs:sampleSizeSurvivalPatientNumber}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
-	at <- list("0 - <3"  = 20, "3 - Inf" = 30)
+	at <- list("0 - <3" = 20, "3 - Inf" = 30)
 	sampleSizeResult <- getSampleSizeSurvival(accrualTime = at, maxNumberOfSubjects = 120)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
@@ -6351,7 +6379,7 @@ test_that("'getSampleSizeSurvival': Specify accrual time as a list, if maximum n
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	# @refFS[Formula]{fs:sampleSizeSurvivalPatientNumber}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
-	at <- list("0 - <3"   = 20, "3 - <=5" = 30)
+	at <- list("0 - <3" = 20, "3 - <=5" = 30)
 	sampleSizeResult <- getSampleSizeSurvival(accrualTime = at)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
@@ -6406,7 +6434,7 @@ test_that("'getSampleSizeSurvival': Specify accrual time as a list, if maximum n
 
 })
 
-test_that("'getSampleSizeSurvival': Effect size is based on event rate at specified event time for the reference group and hazard ratio ", {
+test_that("'getSampleSizeSurvival': Effect size is based on event rate at specified event time for the reference group and hazard ratio", {
 
 	.skipTestIfDisabled()
 
@@ -6491,7 +6519,7 @@ test_that("'getSampleSizeSurvival': Effect size is based on hazard rate for the 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalPatientNumber}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventsPerStage}
-	sampleSizeResult <- getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5, lambda2 = 0.02) 
+	sampleSizeResult <- getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5, lambda2 = 0.02)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, FALSE)
@@ -6558,7 +6586,7 @@ test_that("'getSampleSizeSurvival': Effect size is based on hazard rate for the 
 
 })
 
-test_that("'getSampleSizeSurvival': Specification of piecewise exponential survival time and hazard ratios  ", {
+test_that("'getSampleSizeSurvival': Specification of piecewise exponential survival time and hazard ratios", {
 
 	.skipTestIfDisabled()
 
@@ -6627,7 +6655,7 @@ test_that("'getSampleSizeSurvival': Specification of piecewise exponential survi
 
 })
 
-test_that("'getSampleSizeSurvival': Specification of piecewise exponential survival time as a list and hazard ratios ", {
+test_that("'getSampleSizeSurvival': Specification of piecewise exponential survival time as a list and hazard ratios", {
 
 	.skipTestIfDisabled()
 
@@ -6635,7 +6663,7 @@ test_that("'getSampleSizeSurvival': Specification of piecewise exponential survi
 	# @refFS[Formula]{fs:sampleSizeSurvivalExponentialPieceWiseAccrual}
 	# @refFS[Formula]{fs:sampleSizeSurvivalGeneralPieceWiseAccrual}
 	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}
-	pws <- list("0 - <5"  = 0.01, "5 - <10" = 0.02, ">=10"    = 0.04)
+	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
 	sampleSizeResult <- getSampleSizeSurvival(design = getDesignGroupSequential(kMax = 2), piecewiseSurvivalTime = pws, hazardRatio = c(1.5, 1.8, 2))
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
@@ -6937,8 +6965,9 @@ test_that("'getSampleSizeSurvival': Specify effect size based on median survival
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:lambdabymedian}
 	sampleSizeResult <- getSampleSizeSurvival(
-		lambda1 = getLambdaByMedian(median = 5, kappa = 2), 
-		lambda2 = getLambdaByMedian(median = 3, kappa = 2), kappa = 2)
+	    lambda1 = getLambdaByMedian(median = 5, kappa = 2),
+	    lambda2 = getLambdaByMedian(median = 3, kappa = 2), kappa = 2
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, FALSE)
@@ -7036,7 +7065,7 @@ test_that("'getSampleSizeSurvival': Specify effect size based on rates with kapp
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:lambdabypi}
-	sampleSizeResult <- getSampleSizeSurvival(lambda1 = (-log(1 - 0.23))^(1/3) / 14, lambda2 = (-log(1 - 0.38))^(1/3) / 14, kappa = 3)
+	sampleSizeResult <- getSampleSizeSurvival(lambda1 = (-log(1 - 0.23))^(1 / 3) / 14, lambda2 = (-log(1 - 0.38))^(1 / 3) / 14, kappa = 3)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, FALSE)
@@ -7138,8 +7167,10 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	sampleSizeResult <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
-		lambda2 = 0.02, lambda1 = c(0.01), followUpTime = 5)
+	sampleSizeResult <- getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22, 53),
+	    lambda2 = 0.02, lambda1 = c(0.01), followUpTime = 5
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult' with expected results
 	expect_equal(sampleSizeResult$directionUpper, FALSE)
@@ -7189,8 +7220,10 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	sampleSizeResult3 <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22), 
-		lambda2 = 0.02, lambda1 = c(0.01))
+	sampleSizeResult3 <- getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22),
+	    lambda2 = 0.02, lambda1 = c(0.01)
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult3' with expected results
 	expect_equal(sampleSizeResult3$directionUpper, FALSE)
@@ -7238,8 +7271,10 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	sampleSizeResult4 <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22), 
-		lambda2 = 0.02, lambda1 = c(0.01))
+	sampleSizeResult4 <- getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22),
+	    lambda2 = 0.02, lambda1 = c(0.01)
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult4' with expected results
 	expect_equal(sampleSizeResult4$directionUpper, FALSE)
@@ -7287,8 +7322,10 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	sampleSizeResult6 <- getSampleSizeSurvival(accrualTime = c(0), accrualIntensity = c(22), 
-		lambda2 = 0.02, lambda1 = c(0.01), maxNumberOfSubjects = 300)
+	sampleSizeResult6 <- getSampleSizeSurvival(
+	    accrualTime = c(0), accrualIntensity = c(22),
+	    lambda2 = 0.02, lambda1 = c(0.01), maxNumberOfSubjects = 300
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult6' with expected results
 	expect_equal(sampleSizeResult6$directionUpper, FALSE)
@@ -7334,8 +7371,10 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	sampleSizeResult7 <- getSampleSizeSurvival(accrualTime = c(0, 3), accrualIntensity = c(22, 53), 
-		lambda2 = 0.02, lambda1 = c(0.01), followUpTime = 44)
+	sampleSizeResult7 <- getSampleSizeSurvival(
+	    accrualTime = c(0, 3), accrualIntensity = c(22, 53),
+	    lambda2 = 0.02, lambda1 = c(0.01), followUpTime = 44
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult7' with expected results
 	expect_equal(sampleSizeResult7$directionUpper, FALSE)
@@ -7385,8 +7424,10 @@ test_that("'getSampleSizeSurvival': Calculation of maximum number of subjects fo
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	sampleSizeResult8 <- getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22), 
-		lambda2 = 0.02, lambda1 = c(0.01))
+	sampleSizeResult8 <- getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22),
+	    lambda2 = 0.02, lambda1 = c(0.01)
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeResult8' with expected results
 	expect_equal(sampleSizeResult8$directionUpper, FALSE)
@@ -7438,26 +7479,30 @@ test_that("'getSampleSizeSurvival': analysis time at last stage equals accrual t
 
 	.skipTestIfDisabled()
 
-	x1 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "P"), 
-		accrualTime = 12, maxNumberOfSubjects = 766,
-		pi2 = 0.05, pi1 = 0.1)
+	x1 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "P"),
+	    accrualTime = 12, maxNumberOfSubjects = 766,
+	    pi2 = 0.05, pi1 = 0.1
+	)
 	expect_equal(x1$analysisTime[3], x1$accrualTime + x1$followUpTime)
 
-	x2 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "P"), 
-		accrualTime = 12, maxNumberOfSubjects = 766, 
-		lambda2 = 0.005, lambda1 = 0.01)
+	x2 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "P"),
+	    accrualTime = 12, maxNumberOfSubjects = 766,
+	    lambda2 = 0.005, lambda1 = 0.01
+	)
 
 	expect_equal(x2$analysisTime[3], x2$accrualTime + x2$followUpTime)
 
-	x3 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "WT", deltaWT = 0), 
-		accrualTime = c(0, 12, 15), accrualIntensity = c(20, 30), 
-		lambda2 = 0.005, lambda1 = 0.01)
+	x3 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "WT", deltaWT = 0),
+	    accrualTime = c(0, 12, 15), accrualIntensity = c(20, 30),
+	    lambda2 = 0.005, lambda1 = 0.01
+	)
 
 	expect_equal(x3$analysisTime[length(x3$analysisTime)], x3$accrualTime[length(x3$accrualTime)] + x3$followUpTime)
 
-	x4 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "WT", deltaWT = 0), 
-		accrualTime = c(0, 12, 15), accrualIntensity = c(40, 60), 
-		piecewiseSurvivalTime = c(0, 5), lambda2 = c(0.005, 0.01), hazardRatio = 0.8)
+	x4 <- getSampleSizeSurvival(getDesignGroupSequential(typeOfDesign = "WT", deltaWT = 0),
+	    accrualTime = c(0, 12, 15), accrualIntensity = c(40, 60),
+	    piecewiseSurvivalTime = c(0, 5), lambda2 = c(0.005, 0.01), hazardRatio = 0.8
+	)
 
 	expect_equal(x4$analysisTime[length(x4$analysisTime)], x4$accrualTime[length(x4$accrualTime)] + x4$followUpTime)
 
@@ -7465,108 +7510,168 @@ test_that("'getSampleSizeSurvival': analysis time at last stage equals accrual t
 
 test_that("'getSampleSizeSurvival': follow-up time is equal for different argument-target constellations", {
 
-	designGS1 <- getDesignGroupSequential(informationRates = c(0.2,0.5,1), sided = 1, 
-		beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+	designGS1 <- getDesignGroupSequential(
+	    informationRates = c(0.2, 0.5, 1), sided = 1,
+	    beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
+	)
 
-	x5 <- getSampleSizeSurvival(designGS1, 
-		typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, 
-		eventTime = 14, accrualTime = 8, followUpTime = 10, 
-		accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
-	x6 <- getSampleSizeSurvival(designGS1, 
-		typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, 
-		eventTime = 14, accrualTime = 8, maxNumberOfSubjects = x5$maxNumberOfSubjects,
-		accountForObservationTimes = TRUE, allocationRatioPlanned = 1)
+	x5 <- getSampleSizeSurvival(designGS1,
+	    typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2,
+	    eventTime = 14, accrualTime = 8, followUpTime = 10,
+	    accountForObservationTimes = TRUE, allocationRatioPlanned = 1
+	)
+	x6 <- getSampleSizeSurvival(designGS1,
+	    typeOfComputation = "Schoenfeld", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2,
+	    eventTime = 14, accrualTime = 8, maxNumberOfSubjects = x5$maxNumberOfSubjects,
+	    accountForObservationTimes = TRUE, allocationRatioPlanned = 1
+	)
 	expect_equal(x5$followUpTime, x6$followUpTime)
 
 	.skipTestIfDisabled()
 
-	x7 <- getSampleSizeSurvival(designGS1, 
-		typeOfComputation = "Freedman", thetaH0 = 1, median1 = 44, median2 = 66,
-		accrualTime = 43, followUpTime = 22, 
-		accountForObservationTimes = TRUE, allocationRatioPlanned = 2)
-	x8 <- getSampleSizeSurvival(designGS1, 
-		typeOfComputation = "Freedman", thetaH0 = 1, median1 = 44, median2 = 66,
-		accrualTime = 43, maxNumberOfSubjects = x7$maxNumberOfSubjects, 
-		accountForObservationTimes = TRUE, allocationRatioPlanned = 2)
+	x7 <- getSampleSizeSurvival(designGS1,
+	    typeOfComputation = "Freedman", thetaH0 = 1, median1 = 44, median2 = 66,
+	    accrualTime = 43, followUpTime = 22,
+	    accountForObservationTimes = TRUE, allocationRatioPlanned = 2
+	)
+	x8 <- getSampleSizeSurvival(designGS1,
+	    typeOfComputation = "Freedman", thetaH0 = 1, median1 = 44, median2 = 66,
+	    accrualTime = 43, maxNumberOfSubjects = x7$maxNumberOfSubjects,
+	    accountForObservationTimes = TRUE, allocationRatioPlanned = 2
+	)
 	expect_equal(x7$followUpTime, x8$followUpTime)
 
-	x9 <- getSampleSizeSurvival(designGS1, 
-		typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, 
-		eventTime = 16, accrualTime = 8, followUpTime = 10, 
-		accountForObservationTimes = TRUE, allocationRatioPlanned = 0.2)
-	x10 <- getSampleSizeSurvival(designGS1, 
-		typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2, 
-		eventTime = 16, accrualTime = 8, maxNumberOfSubjects = x9$maxNumberOfSubjects, 
-		accountForObservationTimes = TRUE, allocationRatioPlanned = 0.2)
+	x9 <- getSampleSizeSurvival(designGS1,
+	    typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2,
+	    eventTime = 16, accrualTime = 8, followUpTime = 10,
+	    accountForObservationTimes = TRUE, allocationRatioPlanned = 0.2
+	)
+	x10 <- getSampleSizeSurvival(designGS1,
+	    typeOfComputation = "HsiehFreedman", thetaH0 = 1, pi1 = 0.4, pi2 = 0.2,
+	    eventTime = 16, accrualTime = 8, maxNumberOfSubjects = x9$maxNumberOfSubjects,
+	    accountForObservationTimes = TRUE, allocationRatioPlanned = 0.2
+	)
 	expect_equal(x9$followUpTime, x10$followUpTime)
 
 })
 
 test_that("'getSampleSizeSurvival': testing expected warnings and errors", {
 
-	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
-		lambda2 = 0.02, lambda1 = c(0.01, 0.015), followUpTime = 5),
-		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
-		"is only available for a single 'lambda1'; lambda1 = c(0.01, 0.015)"), fixed = TRUE)
+	expect_error(getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22, 53),
+	    lambda2 = 0.02, lambda1 = c(0.01, 0.015), followUpTime = 5
+	),
+	paste0(
+	    "Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+	    "is only available for a single 'lambda1'; lambda1 = c(0.01, 0.015)"
+	),
+	fixed = TRUE
+	)
 
-	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
-		lambda2 = 0.02, median1 = c(5, 6), followUpTime = 5),
-		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
-		"is only available for a single 'lambda1'; lambda1 = c(0.139, 0.116)"), fixed = TRUE)
+	expect_error(getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22, 53),
+	    lambda2 = 0.02, median1 = c(5, 6), followUpTime = 5
+	),
+	paste0(
+	    "Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+	    "is only available for a single 'lambda1'; lambda1 = c(0.139, 0.116)"
+	),
+	fixed = TRUE
+	)
 
-	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
-		median2 = 4, median1 = c(5, 6), followUpTime = 5),
-		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
-		"is only available for a single 'median1'; median1 = c(5, 6)"), fixed = TRUE)
+	expect_error(getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22, 53),
+	    median2 = 4, median1 = c(5, 6), followUpTime = 5
+	),
+	paste0(
+	    "Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+	    "is only available for a single 'median1'; median1 = c(5, 6)"
+	),
+	fixed = TRUE
+	)
 
-	expect_error(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
-		pi2 =  0.213, pi1 = c(0.113, 0.165), followUpTime = 5),
-		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
-		"is only available for a single 'pi1'; pi1 = c(0.113, 0.165)"), fixed = TRUE)
+	expect_error(getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22, 53),
+	    pi2 = 0.213, pi1 = c(0.113, 0.165), followUpTime = 5
+	),
+	paste0(
+	    "Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+	    "is only available for a single 'pi1'; pi1 = c(0.113, 0.165)"
+	),
+	fixed = TRUE
+	)
 
-	expect_error(getSampleSizeSurvival(accrualTime = c(0), pi1 = c(0.4, 0.5), 
-		accrualIntensity = c(22), followUpTime = 6),
-		paste0("Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
-		"is only available for a single 'pi1'; pi1 = c(0.4, 0.5)"), 
-		fixed = TRUE)
+	expect_error(getSampleSizeSurvival(
+	    accrualTime = c(0), pi1 = c(0.4, 0.5),
+	    accrualIntensity = c(22), followUpTime = 6
+	),
+	paste0(
+	    "Illegal argument: the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+	    "is only available for a single 'pi1'; pi1 = c(0.4, 0.5)"
+	),
+	fixed = TRUE
+	)
 
 	expect_error(getSampleSizeSurvival(lambda2 = -1, hazardRatio = 2),
-		"Argument out of bounds: 'lambda2' (-1) must be >= 0", fixed = TRUE)
+	    "Argument out of bounds: 'lambda2' (-1) must be >= 0",
+	    fixed = TRUE
+	)
 
 	expect_error(getSampleSizeSurvival(lambda2 = 0, hazardRatio = 2),
-		"Illegal argument: 'lambda2' (0) not allowed: at least one lambda value must be > 0", fixed = TRUE)
+	    "Illegal argument: 'lambda2' (0) not allowed: at least one lambda value must be > 0",
+	    fixed = TRUE
+	)
 
 	expect_error(getSampleSizeSurvival(lambda2 = 0.9, hazardRatio = 0.8, kappa = 0),
-		"Argument out of bounds: 'kappa' (0) must be > 0", fixed = TRUE)
+	    "Argument out of bounds: 'kappa' (0) must be > 0",
+	    fixed = TRUE
+	)
 
 	expect_error(getSampleSizeSurvival(pi1 = getPiByMedian(0.1), pi2 = getPiByMedian(0.2)))
 
-	expect_warning(getSampleSizeSurvival(median1 = 0.1, median2 = 0.2, eventTime = 0.5), 
-		"'eventTime' (0.5) will be ignored", fixed = TRUE)
+	expect_warning(getSampleSizeSurvival(median1 = 0.1, median2 = 0.2, eventTime = 0.5),
+	    "'eventTime' (0.5) will be ignored",
+	    fixed = TRUE
+	)
 
-	expect_error(getSampleSizeSurvival(lambda2 = 0.2, hazardRatio = c(0.6, 0.7), 
-		followUpTime = 8, accrualIntensity = 30, accrualTime = 0))
+	expect_error(getSampleSizeSurvival(
+	    lambda2 = 0.2, hazardRatio = c(0.6, 0.7),
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	))
 
-	expect_error(getSampleSizeSurvival(lambda1 = c(0.02, 0.03), lambda2 = 0.2, hazardRatio = 0.6, 
-			followUpTime = 8, accrualIntensity = 30, accrualTime = 0))
+	expect_error(getSampleSizeSurvival(
+	    lambda1 = c(0.02, 0.03), lambda2 = 0.2, hazardRatio = 0.6,
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	))
 
-	expect_error(getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
-			piecewiseSurvivalTime = c(0, 12), hazardRatio = c(0.6, 0.8), 
-			followUpTime = 8, accrualIntensity = 30, accrualTime = 0)) 
+	expect_error(getSampleSizeSurvival(
+	    lambda2 = c(0.02, 0.03),
+	    piecewiseSurvivalTime = c(0, 12), hazardRatio = c(0.6, 0.8),
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	))
 
-	expect_warning(getSampleSizeSurvival(median1 = 0.1, median2 = 0.2, eventTime = 4), 
-		"'eventTime' (4) will be ignored", fixed = TRUE)
+	expect_warning(getSampleSizeSurvival(median1 = 0.1, median2 = 0.2, eventTime = 4),
+	    "'eventTime' (4) will be ignored",
+	    fixed = TRUE
+	)
 
 	.skipTestIfDisabled()
 
-	expect_warning(getSampleSizeSurvival(accrualTime = c(0, 6), accrualIntensity = c(22, 53), 
-			lambda2 = 0.02, lambda1 = c(0.01), followUpTime = -1),
-		"Accrual duration longer than maximal study duration (time to maximal number of events); followUpTime = -1", fixed = TRUE)
+	expect_warning(getSampleSizeSurvival(
+	    accrualTime = c(0, 6), accrualIntensity = c(22, 53),
+	    lambda2 = 0.02, lambda1 = c(0.01), followUpTime = -1
+	),
+	"Accrual duration longer than maximal study duration (time to maximal number of events); followUpTime = -1",
+	fixed = TRUE
+	)
 
-	expect_warning(getSampleSizeSurvival(accrualTime = c(0, 6, 30), pi1 = 0.4,
-			accrualIntensity = c(0.22, 0.53), maxNumberOfSubjects = 1000),
-		"Accrual duration longer than maximal study duration (time to maximal number of events); followUpTime = -17.501", 
-		fixed = TRUE)
+	expect_warning(getSampleSizeSurvival(
+	    accrualTime = c(0, 6, 30), pi1 = 0.4,
+	    accrualIntensity = c(0.22, 0.53), maxNumberOfSubjects = 1000
+	),
+	"Accrual duration longer than maximal study duration (time to maximal number of events); followUpTime = -17.501",
+	fixed = TRUE
+	)
 
 	########################################################################################################################
 	########################################################################################################################
@@ -7580,51 +7685,57 @@ test_that("'getEventProbabilities': check expected events over time for overall 
 	.skipTestIfDisabled()
 
 	design <- getDesignGroupSequential(
-		sided = 1, alpha = 0.025, beta = 0.2, 
-		informationRates = c(0.33, 0.7, 1), 
-		futilityBounds = c(0, 0), 
-		bindingFutility = FALSE)
+	    sided = 1, alpha = 0.025, beta = 0.2,
+	    informationRates = c(0.33, 0.7, 1),
+	    futilityBounds = c(0, 0),
+	    bindingFutility = FALSE
+	)
 
 	piecewiseSurvivalTime <- list(
-		"0 - <6"   = 0.025, 
-		"6 - <9"   = 0.04, 
-		"9 - <15"  = 0.015, 
-		"15 - <21" = 0.01, 
-		">=21"     = 0.007)
+	    "0 - <6"   = 0.025,
+	    "6 - <9"   = 0.04,
+	    "9 - <15"  = 0.015,
+	    "15 - <21" = 0.01,
+	    ">=21"     = 0.007
+	)
 
 	accrualTime <- list(
-		"0  - <12" = 15,
-		"12 - <13" = 21,
-		"13 - <14" = 27,
-		"14 - <15" = 33,
-		"15 - <16" = 39,
-		">=16"     = 45)
+	    "0  - <12" = 15,
+	    "12 - <13" = 21,
+	    "13 - <14" = 27,
+	    "14 - <15" = 33,
+	    "15 - <16" = 39,
+	    ">=16"     = 45
+	)
 
 	powerResults <- getPowerSurvival(
-		design = design, typeOfComputation = "Schoenfeld", 
-		thetaH0 = 1, directionUpper = FALSE,
-		dropoutRate1 = 0.05, dropoutRate2 = 0.05, dropoutTime = 12,
-		allocationRatioPlanned = 1,
-		accrualTime = accrualTime,
-		piecewiseSurvivalTime = piecewiseSurvivalTime, 
-		hazardRatio = seq(0.6, 1, 0.05),
-		maxNumberOfEvents = 404,
-		maxNumberOfSubjects = 1405)
+	    design = design, typeOfComputation = "Schoenfeld",
+	    thetaH0 = 1, directionUpper = FALSE,
+	    dropoutRate1 = 0.05, dropoutRate2 = 0.05, dropoutTime = 12,
+	    allocationRatioPlanned = 1,
+	    accrualTime = accrualTime,
+	    piecewiseSurvivalTime = piecewiseSurvivalTime,
+	    hazardRatio = seq(0.6, 1, 0.05),
+	    maxNumberOfEvents = 404,
+	    maxNumberOfSubjects = 1405
+	)
 
 	piecewiseSurvivalTimeOS <- list(
-		"0  - <14" = 0.015,
-		"14 - <24" = 0.01,
-		"24 - <44" = 0.005,
-		">=44"     = 0.0025
+	    "0  - <14" = 0.015,
+	    "14 - <24" = 0.01,
+	    "24 - <44" = 0.005,
+	    ">=44"     = 0.0025
 	)
 
 	timeOS <- c(powerResults$analysisTime[2:3, 4], 17 + 3.5 * 12)
 	eventsOS <- getEventProbabilities(
-		timeOS, accrualTime = accrualTime,
-		piecewiseSurvivalTime = piecewiseSurvivalTimeOS, kappa = 1,
-		allocationRatioPlanned = 1, hazardRatio = 0.8,
-		dropoutRate1 = 0.05, dropoutRate2 = 0.05, dropoutTime = 12,
-		maxNumberOfSubjects = 1405)$overallEventProbabilities
+	    timeOS,
+	    accrualTime = accrualTime,
+	    piecewiseSurvivalTime = piecewiseSurvivalTimeOS, kappa = 1,
+	    allocationRatioPlanned = 1, hazardRatio = 0.8,
+	    dropoutRate1 = 0.05, dropoutRate2 = 0.05, dropoutTime = 12,
+	    maxNumberOfSubjects = 1405
+	)$overallEventProbabilities
 	eventsOS <- eventsOS * 1405
 
 	expect_equal(round(timeOS, 2), c(37.60, 46.72, 59.00))
@@ -7637,27 +7748,30 @@ test_that("'getEventProbabilities': check expected events over time for overall 
 	.skipTestIfDisabled()
 
 	accrualTime <- list(
-		"0  - <12" = 15,
-		"12 - <13" = 21,
-		"13 - <14" = 27,
-		"14 - <15" = 33,
-		"15 - <16" = 39,
-		">=16"     = 45)
+	    "0  - <12" = 15,
+	    "12 - <13" = 21,
+	    "13 - <14" = 27,
+	    "14 - <15" = 33,
+	    "15 - <16" = 39,
+	    ">=16"     = 45
+	)
 
 	piecewiseSurvivalTimeOS <- list(
-		"0  - <14" = 0.015,
-		"14 - <24" = 0.01,
-		"24 - <44" = 0.005,
-		">=44"     = 0.0025
+	    "0  - <14" = 0.015,
+	    "14 - <24" = 0.01,
+	    "24 - <44" = 0.005,
+	    ">=44"     = 0.0025
 	)
 
 	timeOS <- c(37.59823, 46.71658, 59)
 	eventsOS <- getEventProbabilities(
-		timeOS, accrualTime = accrualTime,
-		piecewiseSurvivalTime = piecewiseSurvivalTimeOS, kappa = 1,
-		allocationRatioPlanned = 1, hazardRatio = 0.8,
-		dropoutRate1 = 0.05, dropoutRate2 = 0.05, dropoutTime = 12,
-		maxNumberOfSubjects = 1405)
+	    timeOS,
+	    accrualTime = accrualTime,
+	    piecewiseSurvivalTime = piecewiseSurvivalTimeOS, kappa = 1,
+	    allocationRatioPlanned = 1, hazardRatio = 0.8,
+	    dropoutRate1 = 0.05, dropoutRate2 = 0.05, dropoutTime = 12,
+	    maxNumberOfSubjects = 1405
+	)
 
 	# @refFS[Formula]{fs:sampleSizeSurvivalExponentialPieceWiseAccrual}
 	# @refFS[Formula]{fs:sampleSizeSurvivalGeneralPieceWiseAccrual}
@@ -7694,15 +7808,18 @@ test_that("'getNumberOfSubjects': check the number of recruited subjects at give
 	.skipTestIfDisabled()
 
 	accrualTime1 <- list(
-		"0  - <12" = 12,
-		"12 - <13" = 21,
-		"13 - <14" = 27,
-		"14 - <15" = 33,
-		"15 - <16" = 39,
-		">=16"     = 45)
+	    "0  - <12" = 12,
+	    "12 - <13" = 21,
+	    "13 - <14" = 27,
+	    "14 - <15" = 33,
+	    "15 - <16" = 39,
+	    ">=16"     = 45
+	)
 
-	numberOfSubjects1 <- getNumberOfSubjects(time = 1:3, 
-		accrualTime = getAccrualTime(accrualTime1, maxNumberOfSubjects = 1405))
+	numberOfSubjects1 <- getNumberOfSubjects(
+	    time = 1:3,
+	    accrualTime = getAccrualTime(accrualTime1, maxNumberOfSubjects = 1405)
+	)
 
 	## Comparison of the results of NumberOfSubjects object 'numberOfSubjects1' with expected results
 	expect_equal(numberOfSubjects1$numberOfSubjects, c(12, 24, 36), tolerance = 1e-07)
@@ -7723,11 +7840,12 @@ test_that("'getNumberOfSubjects': check the number of recruited subjects at give
 	}
 
 	accrualTime2 <- list(
-		"0  - <12" = 12,
-		"12 - <13" = 21,
-		"13 - <14" = 27,
-		"14 - <15" = 33,
-		"15 - <16" = 39)
+	    "0  - <12" = 12,
+	    "12 - <13" = 21,
+	    "13 - <14" = 27,
+	    "14 - <15" = 33,
+	    "15 - <16" = 39
+	)
 
 	# @refFS[Formula]{fs:sampleSizeSurvivalExponentialPieceWiseAccrual}
 	# @refFS[Formula]{fs:sampleSizeSurvivalGeneralPieceWiseAccrual}
@@ -7759,9 +7877,11 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 
 	.skipTestIfDisabled()
 
-	sampleSizeSurvival1 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
-		piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.6, 
-		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+	sampleSizeSurvival1 <- getSampleSizeSurvival(
+	    lambda2 = c(0.02, 0.03),
+	    piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.6,
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival1' with expected results
 	expect_equal(sampleSizeSurvival1$directionUpper, FALSE)
@@ -7803,10 +7923,13 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	sampleSizeSurvival2 <- getSampleSizeSurvival(piecewiseSurvivalTime = list(
-		"<12"  = 0.02,
-		">=12" = 0.03), hazardRatio = 0.6, 
-		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+	sampleSizeSurvival2 <- getSampleSizeSurvival(
+	    piecewiseSurvivalTime = list(
+	        "<12"  = 0.02,
+	        ">=12" = 0.03
+	    ), hazardRatio = 0.6,
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival2' with expected results
 	expect_equal(sampleSizeSurvival2$directionUpper, FALSE)
@@ -7848,9 +7971,11 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	sampleSizeSurvival3 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
-		piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.6, 
-		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+	sampleSizeSurvival3 <- getSampleSizeSurvival(
+	    lambda2 = c(0.02, 0.03),
+	    piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.6,
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival3' with expected results
 	expect_equal(sampleSizeSurvival3$directionUpper, FALSE)
@@ -7892,9 +8017,11 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	sampleSizeSurvival4 <- getSampleSizeSurvival(lambda2 = c(0.02, 0.03), 
-		piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.8, 
-		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+	sampleSizeSurvival4 <- getSampleSizeSurvival(
+	    lambda2 = c(0.02, 0.03),
+	    piecewiseSurvivalTime = c(0, 12), hazardRatio = 0.8,
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival4' with expected results
 	expect_equal(sampleSizeSurvival4$directionUpper, FALSE)
@@ -7936,8 +8063,10 @@ test_that("'getSampleSizeSurvival': check the calulation of 'maxNumberOfSubjects
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	sampleSizeSurvival5 <- getSampleSizeSurvival(lambda1 = 0.03, lambda2 = 0.02, 
-		followUpTime = 8, accrualIntensity = 30, accrualTime = 0) 
+	sampleSizeSurvival5 <- getSampleSizeSurvival(
+	    lambda1 = 0.03, lambda2 = 0.02,
+	    followUpTime = 8, accrualIntensity = 30, accrualTime = 0
+	)
 
 	## Comparison of the results of TrialDesignPlanSurvival object 'sampleSizeSurvival5' with expected results
 	expect_equal(sampleSizeSurvival5$directionUpper, TRUE)
@@ -8254,6 +8383,5 @@ test_that("'.getLambdaStepFunctionByTime': return correct lambda for specified t
 
 	## Comparison of the results of numeric object 'lambda9' with expected results
 	expect_equal(lambda9, 0.007, tolerance = 1e-07)
-
 })
 

@@ -13,12 +13,13 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5655 $
-## |  Last changed: $Date: 2021-12-15 07:19:53 +0100 (Wed, 15 Dec 2021) $
+## |  File version: $Revision: 5855 $
+## |  Last changed: $Date: 2022-02-18 13:23:48 +0100 (Fr, 18 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
 #' @include f_simulation_utilities.R
+#' @include f_core_utilities.R
 NULL
 
 .getIndicesOfSelectedSubsets <- function(gMax) {
@@ -35,17 +36,6 @@ NULL
         indexList[[length(indexList) + 1]] <- indices
     }
     return(indexList)
-}
-
-.createSelectedSubsetsTheoretical <- function(stage, selectedPopulations) {
-    gMax <- nrow(selectedPopulations)
-    selectedVector <- rep(FALSE, 2^(gMax - 1))
-
-    indices <- .getIndicesOfSelectedSubsets(gMax)
-    for (i in 1:length(indices)) {
-        selectedVector[i] <- any(selectedPopulations[indices[[i]], stage])
-    }
-    return(selectedVector)
 }
 
 .createSelectedSubsets <- function(stage, selectedPopulations) {
@@ -127,7 +117,7 @@ NULL
             stop(msg, "the output must be a logical vector of length 'gMax' (", gMax, ")")
         }
         if (!is.logical(selectedPopulations)) {
-            stop(msg, "the output must be a logical vector (is ", class(selectedPopulations), ")")
+            stop(msg, "the output must be a logical vector (is ", .getClassName(selectedPopulations), ")")
         }
     }
     return(selectedPopulations)

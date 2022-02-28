@@ -341,6 +341,7 @@ getAccrualTime <- function(accrualTime = NA_real_,
 #' 
 #' @include f_core_constants.R
 #' @include class_core_parameter_set.R
+#' @include f_core_utilities.R
 #' 
 #' @keywords internal
 #' 
@@ -722,7 +723,7 @@ PiecewiseSurvivalTime <- setRefClass("PiecewiseSurvivalTime",
 		.init = function(pwSurvTime) {
 			
 			.logDebug("pwSurvTime %s, %s", ifelse(is.numeric(pwSurvTime), 
-					.arrayToString(pwSurvTime), pwSurvTime), class(pwSurvTime[1]))
+				.arrayToString(pwSurvTime), pwSurvTime), .getClassName(pwSurvTime[1]))
 			.logDebug("lambda1 %s, %s", lambda1, .getParameterType("lambda1"))
 			.logDebug("lambda2 %s, %s", lambda2, .getParameterType("lambda2"))
 			

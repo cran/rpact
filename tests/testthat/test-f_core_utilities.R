@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_core_utilities.R
-## |  Creation date: 08 December 2021, 09:08:44
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:05:49
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Result Object Print Output")
@@ -31,7 +31,6 @@ test_that("The output does not contain any issues", {
 	expect_equal(sum(grepl("ISSUES", capture.output(getSampleSizeMeans(getDesignGroupSequential())$show()))), 0)
 	expect_equal(sum(grepl("ISSUES", capture.output(getSampleSizeRates()$show()))), 0)
 	expect_equal(sum(grepl("ISSUES", capture.output(getSampleSizeSurvival(getDesignInverseNormal(kMax = 2))$show()))), 0)
-
 })
 
 context("Testing Core Utility Functions")
@@ -1108,13 +1107,13 @@ context("Testing Utilities")
 
 
 test_that("Testing '.toCapitalized'", {
-	expect_equal(.toCapitalized("zip code"), "Zip Code")	
-	expect_equal(.toCapitalized("state of the art"), "State of the Art")	
-	expect_equal(.toCapitalized("final and count"), "Final and Count")	
+	expect_equal(.toCapitalized("zip code"), "Zip Code")
+	expect_equal(.toCapitalized("state of the art"), "State of the Art")
+	expect_equal(.toCapitalized("final and count"), "Final and Count")
 
 })
 
-test_that("Testing '.equalsRegexpIgnoreCase'	", {
+test_that("Testing '.equalsRegexpIgnoreCase'", {
 
 	expect_equal(.equalsRegexpIgnoreCase("stage2", "^stages?$"), FALSE)
 	expect_equal(.equalsRegexpIgnoreCase("stage", "^stages?$"), TRUE)
@@ -1125,7 +1124,7 @@ test_that("Testing '.equalsRegexpIgnoreCase'	", {
 	expect_equal(.equalsRegexpIgnoreCase(" stages", "^stages?$"), FALSE)
 
 	expect_equal(.equalsRegexpIgnoreCase("stages2", "stages?"), TRUE)
-	expect_equal(.equalsRegexpIgnoreCase("1stage2", "stages?"), TRUE)	
+	expect_equal(.equalsRegexpIgnoreCase("1stage2", "stages?"), TRUE)
 
 })
 
@@ -1158,10 +1157,10 @@ test_that("Testing 'isUndefinedArgument' and 'isValidArgument'", {
 	expect_error(.isDefinedArgument(notExistingTestVariable, argumentExistsValidationEnabled = FALSE))
 	expect_error(.isDefinedArgument(notExistingTestVariable))
 
-	#skip_if_translated()
-	#expect_error(.isDefinedArgument(notExistingTestVariable),
-	#	paste0("Missing argument: the object 'notExistingTestVariable' has not been defined anywhere. ",
-	#	"Please define it first, e.g., run 'notExistingTestVariable <- 1'"), fixed = TRUE)
+	# skip_if_translated()
+	# expect_error(.isDefinedArgument(notExistingTestVariable),
+	# 	paste0("Missing argument: the object 'notExistingTestVariable' has not been defined anywhere. ",
+	# 	"Please define it first, e.g., run 'notExistingTestVariable <- 1'"), fixed = TRUE)
 
 })
 
@@ -1212,6 +1211,24 @@ test_that("Testing '.arrayToString'", {
 
 })
 
+test_that("Testing '.getQNorm'", {
+
+	expect_equal(sign(.getQNorm(1)), sign(qnorm(1)))
+	expect_equal(.getQNorm(1 - 1e-12), qnorm(1 - 1e-12))
+	expect_equal(sign(.getQNorm(0)), sign(qnorm(0)))
+	expect_equal(.getQNorm(1e-12), qnorm(1e-12))
+
+})
+
+test_that("Testing '.getOneMinusQNorm'", {
+
+	expect_equal(sign(.getOneMinusQNorm(1)), sign(1 - qnorm(1)))
+	expect_equal(.getOneMinusQNorm(1 - 1e-12), -qnorm(1 - 1e-12))
+	expect_equal(sign(.getOneMinusQNorm(0)), sign(1 - qnorm(0)))
+	expect_equal(.getOneMinusQNorm(1e-12), -qnorm(1e-12))
+
+})
+
 test_that("Testing '.getInputProducingZeroOutput'", {
 
 	tolerance <- 1e-05
@@ -1247,82 +1264,123 @@ test_that("Testing '.getOneDimensionalRoot'", {
 
 	.skipTestIfDisabled()
 
-	tolerance <- 1e-08	
+	tolerance <- 1e-08
 
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 2}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x - 2
+	}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x + 2
+	}, lower = -1, upper = 1, tolerance = tolerance), NA_real_)
 
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 1 - tolerance}, lower = -1, upper = 1, tolerance = tolerance), 1)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 1 + tolerance}, lower = -1, upper = 1, tolerance = tolerance), -1)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 1}, lower = -1, upper = 1, tolerance = tolerance), 1)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 1}, lower = -1, upper = 1, tolerance = tolerance), -1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x - 1 - tolerance
+	}, lower = -1, upper = 1, tolerance = tolerance), 1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x + 1 + tolerance
+	}, lower = -1, upper = 1, tolerance = tolerance), -1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x - 1
+	}, lower = -1, upper = 1, tolerance = tolerance), 1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x + 1
+	}, lower = -1, upper = 1, tolerance = tolerance), -1)
 
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 1}, lower = 0, upper = 1, tolerance = tolerance), 1)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 1}, lower = tolerance, upper = 1, tolerance = tolerance), 1)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 1}, lower = -1, upper = 0, tolerance = tolerance), -1)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 1}, lower = -1, upper = 1- tolerance, tolerance = tolerance), -1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x - 1
+	}, lower = 0, upper = 1, tolerance = tolerance), 1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x - 1
+	}, lower = tolerance, upper = 1, tolerance = tolerance), 1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x + 1
+	}, lower = -1, upper = 0, tolerance = tolerance), -1)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x + 1
+	}, lower = -1, upper = 1 - tolerance, tolerance = tolerance), -1)
 
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 3}, lower = 1, upper = 5, tolerance = tolerance), 3)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 3}, lower = -5, upper = -1, tolerance = tolerance), -3)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x - 3
+	}, lower = 1, upper = 5, tolerance = tolerance), 3)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x + 3
+	}, lower = -5, upper = -1, tolerance = tolerance), -3)
 
-	expect_equal(.getOneDimensionalRoot(f = function(x) {3 * x - 700}, lower = 100, upper = 1000, tolerance = tolerance), 233.33333333)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {3 * x + 700}, lower = -1000, upper = -100, tolerance = tolerance), -233.33333333)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    3 * x - 700
+	}, lower = 100, upper = 1000, tolerance = tolerance), 233.33333333)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    3 * x + 700
+	}, lower = -1000, upper = -100, tolerance = tolerance), -233.33333333)
 
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x - 4}, lower = -10, upper = 10), 4, tolerance = tolerance)
-	expect_equal(.getOneDimensionalRoot(f = function(x) {x + 4}, lower = -10, upper = 10), -4, tolerance = tolerance)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x - 4
+	}, lower = -10, upper = 10), 4, tolerance = tolerance)
+	expect_equal(.getOneDimensionalRoot(f = function(x) {
+	    x + 4
+	}, lower = -10, upper = 10), -4, tolerance = tolerance)
 
 	dataExample1 <- getDataset(
-		overallEvents = c(33, 55, 129),
-		overallAllocationRatios = c(1, 1, 4),
-		overallLogRanks = c(1.02, 1.38, 2.2)
+	    overallEvents = c(33, 55, 129),
+	    overallAllocationRatios = c(1, 1, 4),
+	    overallLogRanks = c(1.02, 1.38, 2.2)
 	)
 	design1 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, typeOfDesign = "WT", deltaWT = 0.25)
-	result1 <- getRepeatedConfidenceIntervals(design1, dataExample1, stage = 3) 
+	result1 <- getRepeatedConfidenceIntervals(design1, dataExample1, stage = 3)
 
 	## Comparison of the results of matrixarray object 'result1' with expected results
 	expect_equal(result1[1, ], c(0.54923831, 0.77922365, 1.0261298), tolerance = 1e-07)
 	expect_equal(result1[2, ], c(3.7041718, 2.7014099, 2.5669073), tolerance = 1e-07)
 
-	design2 <- getDesignGroupSequential(kMax = 3, alpha = 0.025, informationRates = c(0.4, 0.7, 1),
-		typeOfDesign = "WT", deltaWT = 0.35)
+	design2 <- getDesignGroupSequential(
+	    kMax = 3, alpha = 0.025, informationRates = c(0.4, 0.7, 1),
+	    typeOfDesign = "WT", deltaWT = 0.35
+	)
 	dataExample2 <- getDataset(
-		overallN2 = c(30,80,100),
-		overallN1 = c(30,80,100),
-		overallEvents2 = c(10,25,36),
-		overallEvents1 = c(14,35,53))
-	result2 <- getRepeatedConfidenceIntervals(design = design2, dataInput = dataExample2, 
-		stage = 3, normalApproximation = TRUE, directionUpper = TRUE)
+	    overallN2 = c(30, 80, 100),
+	    overallN1 = c(30, 80, 100),
+	    overallEvents2 = c(10, 25, 36),
+	    overallEvents1 = c(14, 35, 53)
+	)
+	result2 <- getRepeatedConfidenceIntervals(
+	    design = design2, dataInput = dataExample2,
+	    stage = 3, normalApproximation = TRUE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of matrixarray object 'result2' with expected results
-	expect_equal(result2[1, ], c(-0.17491854, -0.048575312, 0.01895796), tolerance = 1e-07)
-	expect_equal(result2[2, ], c(0.41834402, 0.29168781, 0.31353692), tolerance = 1e-07)
+	expect_equal(result2[1, ], c(-0.17491833, -0.048575314, 0.018957987), tolerance = 1e-07)
+	expect_equal(result2[2, ], c(0.41834377, 0.2916876, 0.31353674), tolerance = 1e-07)
 
-	design3 <- getDesignInverseNormal(kMax = 2, alpha = 0.025, informationRates = c(0.5, 1),  
-		typeOfDesign = "WT", deltaWT = 0.25)
+	design3 <- getDesignInverseNormal(
+	    kMax = 2, alpha = 0.025, informationRates = c(0.5, 1),
+	    typeOfDesign = "WT", deltaWT = 0.25
+	)
 	dataExample3 <- getDataset(
-		events1 = c(7,57),
-		events2 = c(7,57),
-		n1 = c(30,300),
-		n2 = c(30,300)
-	) 
+	    events1 = c(7, 57),
+	    events2 = c(7, 57),
+	    n1 = c(30, 300),
+	    n2 = c(30, 300)
+	)
 	result3 <- getRepeatedConfidenceIntervals(design3, dataExample3)
 
 	## Comparison of the results of matrixarray object 'result3' with expected results
-	expect_equal(result3[1, ], c(-0.26729325, -0.071745936), tolerance = 1e-07)
-	expect_equal(result3[2, ], c(0.26729325, 0.071745764), tolerance = 1e-07)
+	expect_equal(result3[1, ], c(-0.26729325, -0.071746001), tolerance = 1e-07)
+	expect_equal(result3[2, ], c(0.26729325, 0.071746001), tolerance = 1e-07)
 
-	design4 <- getDesignInverseNormal(kMax = 2, alpha = 0.025, informationRates = c(0.5, 1),  
-		typeOfDesign = "WT", deltaWT = 0.25)
+	design4 <- getDesignInverseNormal(
+	    kMax = 2, alpha = 0.025, informationRates = c(0.5, 1),
+	    typeOfDesign = "WT", deltaWT = 0.25
+	)
 	dataExample4 <- getDataset(
-		events1 = c(4,55),
-		events2 = c(4,46),
-		n1 = c(30,300),
-		n2 = c(30,300))
+	    events1 = c(4, 55),
+	    events2 = c(4, 46),
+	    n1 = c(30, 300),
+	    n2 = c(30, 300)
+	)
 	result4 <- getRepeatedConfidenceIntervals(design4, dataExample4)
 
 	## Comparison of the results of matrixarray object 'result4' with expected results
-	expect_equal(result4[1, ], c(-0.23589449, -0.043528443), tolerance = 1e-07)
+	expect_equal(result4[1, ], c(-0.23589449, -0.043528426), tolerance = 1e-07)
 	expect_equal(result4[2, ], c(0.23589449, 0.088472144), tolerance = 1e-07)
-
 })
 

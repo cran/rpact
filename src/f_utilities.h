@@ -1,6 +1,6 @@
 /**
  *
- * -- Simulation utilities --
+ * -- Simulation of survival data with group sequential and combination test --
  *
  * This file is part of the R package rpact:
  * Confirmatory Adaptive Clinical Trial Design and Analysis
@@ -26,7 +26,17 @@ using namespace Rcpp;
 #ifndef PKG_RPACT_H
 #define PKG_RPACT_H
 
-std::string getCipheredValue(String x);
+double getQNormEpsilon();
+
+double getQNormThreshold();
+
+double getQNorm(double p, double mean = 0, double sd = 1,
+		double lowerTail = 1, double logP = 0,
+		double epsilon = getQNormEpsilon());
+
+double getOneMinusQNorm(double p, double mean = 0, double sd = 1,
+		double lowerTail = 1, double logP = 0,
+		double epsilon = getQNormEpsilon());
 
 IntegerVector getOrder(SEXP x, bool desc = false);
 
@@ -76,7 +86,17 @@ NumericVector repInt(int x, int y);
 
 std::string vectorToString(NumericVector x);
 
-double secant(std::function<double(double)> f, double x0, double x1, double tolerance, int maxIter);
+double secant(std::function<double(double)> f, double x0, double x1, double min, double max, double tolerance, int maxIter);
+
+double bisection(std::function<double(double)> f, double lower, double upper, double tolerance, int maxIter);
+
+double bisection2(std::function<double(double)> f, double lower, double upper, double tolerance, int maxIter);
+
+double bizero(std::function<double(double)> f, double lower, double upper, double tolerance, int maxIter);
+
+double zeroin(std::function<double(double)> f, double lower, double upper, double tolerance, int maxIter);
+
+//double zeroin(std::function<double(double)> f, double lower, double upper, double lowerBisection, double upperBisection, double tolerance, int maxIter);
 
 double max(NumericVector x);
 
@@ -88,7 +108,8 @@ NumericVector rangeVector(NumericVector x, int from, int to);
 
 NumericVector append(NumericVector x, NumericVector y);
 
+std::string getCipheredValue(String x);
+
 void logDebug(std::string s);
 
 #endif
-

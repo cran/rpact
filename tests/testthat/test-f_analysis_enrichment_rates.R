@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_enrichment_rates.R
-## |  Creation date: 08 December 2021, 09:04:57
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:03:22
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Analysis Enrichment Rates Function")
@@ -36,20 +36,20 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, non-strat
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
 	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, typeOfDesign = "P", informationRates = c(0.4,0.7,1))
+	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.02, typeOfDesign = "P", informationRates = c(0.4, 0.7, 1))
 
 	S1 <- getDataset(
-		sampleSize1 = c(  22,   31,   37), 
-		sampleSize2 = c(  28,   33,   39), 
-		events1     = c(  7,    16,   17),
-		events2     = c(  18,   21,   19)
+	    sampleSize1 = c(22, 31, 37),
+	    sampleSize2 = c(28, 33, 39),
+	    events1     = c(7, 16, 17),
+	    events2     = c(18, 21, 19)
 	)
 
 	F <- getDataset(
-		sampleSize1 = c(  46,   54,  NA), 
-		sampleSize2 = c(  49,   62,  NA), 
-		events1     = c(  16,   31,  NA),
-		events2     = c(  29,   35,  NA)
+	    sampleSize1 = c(46, 54, NA),
+	    sampleSize2 = c(49, 62, NA),
+	    events1     = c(16, 31, NA),
+	    events2     = c(29, 35, NA)
 	)
 
 	dataInput1 <- getDataset(S1 = S1, F = F)
@@ -74,14 +74,15 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, non-strat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x1 <- getAnalysisResults(design1, dataInput1, 
-		stratifiedAnalysis = FALSE,
-		intersectionTest = "SpiessensDebois", 
-		allocationRatioPlanned = 0.5, 
-		directionUpper = FALSE,
-		normalApproximation = TRUE, 
-		stage = 2, 
-		nPlanned = c(80))
+	x1 <- getAnalysisResults(design1, dataInput1,
+	    stratifiedAnalysis = FALSE,
+	    intersectionTest = "SpiessensDebois",
+	    allocationRatioPlanned = 0.5,
+	    directionUpper = FALSE,
+	    normalApproximation = TRUE,
+	    stage = 2,
+	    nPlanned = c(80)
+	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x1' with expected results
 	expect_equal(x1$piTreatments[1, ], 0.43396226, tolerance = 1e-07)
@@ -90,10 +91,10 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, non-strat
 	expect_equal(x1$conditionalRejectionProbabilities[2, ], c(0.17935206, 0.047432959, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower[1, ], c(NA_real_, NA_real_, 0.74825599), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower[2, ], c(NA_real_, NA_real_, 0.22069678), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.61149697, -0.44933646, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.47492289, -0.29773449, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(0.040178239, 0.029773309, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[2, ], c(0.01873388, 0.065139268, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.611497, -0.44933646, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.47492278, -0.29773456, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(0.040178241, 0.029773314, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[2, ], c(0.018733891, 0.065139268, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[1, ], c(0.031827909, 0.031827909, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[2, ], c(0.031827909, 0.031827909, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$piControls[1, ], 0.63934426, tolerance = 1e-07)
@@ -120,14 +121,15 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, non-strat
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x2 <- getAnalysisResults(design1, dataInput1, 
-		stratifiedAnalysis = FALSE,
-		intersectionTest = "Bonferroni", 
-		allocationRatioPlanned = 0.5, 
-		directionUpper = FALSE,
-		normalApproximation = TRUE, 
-		stage = 2, 
-		nPlanned = c(80))
+	x2 <- getAnalysisResults(design1, dataInput1,
+	    stratifiedAnalysis = FALSE,
+	    intersectionTest = "Bonferroni",
+	    allocationRatioPlanned = 0.5,
+	    directionUpper = FALSE,
+	    normalApproximation = TRUE,
+	    stage = 2,
+	    nPlanned = c(80)
+	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x2' with expected results
 	expect_equal(x2$piTreatments[1, ], 0.43396226, tolerance = 1e-07)
@@ -136,10 +138,10 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, non-strat
 	expect_equal(x2$conditionalRejectionProbabilities[2, ], c(0.16289564, 0.047432959, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower[1, ], c(NA_real_, NA_real_, 0.62405214), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower[2, ], c(NA_real_, NA_real_, 0.22069678), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.61554796, -0.46343398, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.47860094, -0.31516619, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[1, ], c(0.046721663, 0.04412038, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(0.02350439, 0.08157416, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.61554799, -0.46343398, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.47860086, -0.31516617, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[1, ], c(0.046721667, 0.044120395, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds[2, ], c(0.02350445, 0.081574104, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[1, ], c(0.036684009, 0.036684009, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues[2, ], c(0.036684009, 0.036684009, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$piControls[1, ], 0.63934426, tolerance = 1e-07)
@@ -184,20 +186,20 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, stratifie
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
 	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.4,0.7,1))
+	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.4, 0.7, 1))
 
 	S1 <- getDataset(
-		sampleSize1 = c(  22,   31,   37), 
-		sampleSize2 = c(  28,   33,   39), 
-		events1     = c(  7,    16,   10),
-		events2     = c(  18,   21,   19)
+	    sampleSize1 = c(22, 31, 37),
+	    sampleSize2 = c(28, 33, 39),
+	    events1     = c(7, 16, 10),
+	    events2     = c(18, 21, 19)
 	)
 
 	R <- getDataset(
-		sampleSize1 = c(  24,   23,  NA), 
-		sampleSize2 = c(  21,   29,  NA), 
-		events1     = c(  9,    15,  NA),
-		events2     = c(  11,   14,  NA)
+	    sampleSize1 = c(24, 23, NA),
+	    sampleSize2 = c(21, 29, NA),
+	    events1     = c(9, 15, NA),
+	    events2     = c(11, 14, NA)
 	)
 
 	dataInput2 <- getDataset(S1 = S1, R = R)
@@ -222,11 +224,11 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, stratifie
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x3 <- getAnalysisResults(design1, dataInput2, 
-		stratifiedAnalysis = FALSE,
-		intersectionTest = "Simes", 
-		directionUpper = FALSE,
-		normalApproximation = FALSE
+	x3 <- getAnalysisResults(design1, dataInput2,
+	    stratifiedAnalysis = FALSE,
+	    intersectionTest = "Simes",
+	    directionUpper = FALSE,
+	    normalApproximation = FALSE
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x3' with expected results
@@ -236,10 +238,10 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, stratifie
 	expect_equal(x3$conditionalRejectionProbabilities[2, ], c(0.34476337, 0.16889178, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower[1, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x3$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.62776667, -0.44175544, -0.38366306), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.4897992, -0.29886578, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[1, ], c(0.066751296, 0.016446874, -0.050014589), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[2, ], c(0.038157455, 0.063536424, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.62776669, -0.44175544, -0.38366304), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.4897991, -0.29886557, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[1, ], c(0.066751342, 0.016446892, -0.050014598), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[2, ], c(0.038157503, 0.063536395, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues[1, ], c(0.10653002, 0.10653002, 0.014413851), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues[2, ], c(0.10653002, 0.10653002, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$piControls[1, ], 0.58, tolerance = 1e-07)
@@ -266,11 +268,11 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, stratifie
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getAnalysisResults(design1, dataInput2, 
-		stratifiedAnalysis = TRUE,
-		intersectionTest = "Simes", 
-		directionUpper = FALSE,
-		normalApproximation = TRUE
+	x4 <- getAnalysisResults(design1, dataInput2,
+	    stratifiedAnalysis = TRUE,
+	    intersectionTest = "Simes",
+	    directionUpper = FALSE,
+	    normalApproximation = TRUE
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x4' with expected results
@@ -280,10 +282,10 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, stratifie
 	expect_equal(x4$conditionalRejectionProbabilities[2, ], c(0.4519333, 0.2823056, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$conditionalPower[1, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x4$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.62776667, -0.44175544, -0.38366306), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.48811635, -0.29740945, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds[1, ], c(0.066751296, 0.016446874, -0.050014589), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds[2, ], c(0.041874577, 0.064527802, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.62776669, -0.44175544, -0.38366304), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.48811625, -0.29740945, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds[1, ], c(0.066751342, 0.016446892, -0.050014598), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds[2, ], c(0.041874626, 0.06452777, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues[1, ], c(0.07212343, 0.050354903, 0.0033350387), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues[2, ], c(0.07212343, 0.065501128, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$piControls[1, ], 0.58, tolerance = 1e-07)
@@ -329,31 +331,31 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, select 
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
 	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
 	S1 <- getDataset(
-		sampleSize1 = c(  47,   33,   37), 
-		sampleSize2 = c(  48,   47,   39), 
-		events1     = c(  18,   13,   17),
-		events2     = c(  12,   11,   9)
+	    sampleSize1 = c(47, 33, 37),
+	    sampleSize2 = c(48, 47, 39),
+	    events1     = c(18, 13, 17),
+	    events2     = c(12, 11, 9)
 	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(  49,   NA,   NA), 
-		sampleSize2 = c(  45,   NA,   NA), 
-		events1     = c(  12,   NA,   NA),
-		events2     = c(  13,   NA,   NA)
+	    sampleSize1 = c(49, NA, NA),
+	    sampleSize2 = c(45, NA, NA),
+	    events1     = c(12, NA, NA),
+	    events2     = c(13, NA, NA)
 	)
 
 	S12 <- getDataset(
-		sampleSize1 = c(   35,  42,  NA), 
-		sampleSize2 = c(   36,  47,  NA), 
-		events1     = c(   19,  10,  NA), 
-		events2     = c(   13,  17,  NA)
+	    sampleSize1 = c(35, 42, NA),
+	    sampleSize2 = c(36, 47, NA),
+	    events1     = c(19, 10, NA),
+	    events2     = c(13, 17, NA)
 	)
 
 	R <- getDataset(
-		sampleSize1 = c( 43,  NA,  NA), 
-		sampleSize2 = c( 39,  NA,  NA), 
-		events1     = c( 17,  NA,  NA),
-		events2     = c( 14,  NA,  NA)
+	    sampleSize1 = c(43, NA, NA),
+	    sampleSize2 = c(39, NA, NA),
+	    events1     = c(17, NA, NA),
+	    events2     = c(14, NA, NA)
 	)
 
 	dataInput3 <- getDataset(S1 = S1, S2 = S2, S12 = S12, R = R)
@@ -378,18 +380,18 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, select 
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.4,0.7,1))
+	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.4, 0.7, 1))
 
-	x1 <- getAnalysisResults(design1, dataInput3, 
-		directionUpper = TRUE,
-		stratifiedAnalysis = FALSE,
-		intersectionTest = "Sidak", 
-		allocationRatioPlanned = 3,
-		normalApproximation = FALSE, 
-		nPlanned = c(80),
-		piControls = c(0.2, NA, NA), 
-		piTreatments = c(0.55, NA, NA),
-		stage = 2 
+	x1 <- getAnalysisResults(design1, dataInput3,
+	    directionUpper = TRUE,
+	    stratifiedAnalysis = FALSE,
+	    intersectionTest = "Sidak",
+	    allocationRatioPlanned = 3,
+	    normalApproximation = FALSE,
+	    nPlanned = c(80),
+	    piControls = c(0.2, NA, NA),
+	    piTreatments = c(0.55, NA, NA),
+	    stage = 2
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x1' with expected results
@@ -399,12 +401,12 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, select 
 	expect_equal(x1$conditionalPower[1, ], c(NA_real_, NA_real_, 0.89354539), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x1$conditionalPower[3, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.062823455, -0.036086146, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.062823383, -0.036086154, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.16425035, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[3, ], c(-0.078510363, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(0.35743976, 0.21982849, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[2, ], c(0.25557999, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[3, ], c(0.21491636, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds[3, ], c(-0.078510197, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[1, ], c(0.35743976, 0.21982839, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[2, ], c(0.25557989, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds[3, ], c(0.21491638, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[1, ], c(0.23298603, 0.23298603, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[2, ], c(0.5, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues[3, ], c(0.389024, NA_real_, NA_real_), tolerance = 1e-07)
@@ -430,12 +432,12 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, select 
 
 	design2 <- getDesignFisher(kMax = 3, method = "equalAlpha", alpha = 0.05, informationRates = c(0.4, 0.7, 1))
 
-	x2 <- getAnalysisResults(design2, dataInput3, 
-		directionUpper = TRUE,
-		stratifiedAnalysis = FALSE,
-		intersectionTest = "Sidak", 
-		normalApproximation = FALSE, 
-		stage = 3 
+	x2 <- getAnalysisResults(design2, dataInput3,
+	    directionUpper = TRUE,
+	    stratifiedAnalysis = FALSE,
+	    intersectionTest = "Sidak",
+	    normalApproximation = FALSE,
+	    stage = 3
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentFisher object 'x2' with expected results
@@ -499,38 +501,38 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, non-str
 	# @refFS[Formula]{fs:stratifiedTestEnrichmentRates}
 	# @refFS[Formula]{fs:testStatisticEnrichmentRates}
 	S1 <- getDataset(
-		sampleSize1 = c(  84,   94,   25), 
-		sampleSize2 = c(  82,   75,   23), 
-		events1     = c(  21,   28,   13),
-		events2     = c(  32,   23,   20)
+	    sampleSize1 = c(84, 94, 25),
+	    sampleSize2 = c(82, 75, 23),
+	    events1     = c(21, 28, 13),
+	    events2     = c(32, 23, 20)
 	)
 
 	S2 <- getDataset(
-		sampleSize1 = c(  81,   95,   NA), 
-		sampleSize2 = c(  84,   64,   NA), 
-		events1     = c(  26,   29,   NA),
-		events2     = c(  31,   26,   NA)
+	    sampleSize1 = c(81, 95, NA),
+	    sampleSize2 = c(84, 64, NA),
+	    events1     = c(26, 29, NA),
+	    events2     = c(31, 26, NA)
 	)
 
 	S3 <- getDataset(
-		sampleSize1 = c(  71,   NA,   NA), 
-		sampleSize2 = c(  74,   NA,   NA), 
-		events1     = c(  16,   NA,   NA),
-		events2     = c(  21,   NA,   NA)
+	    sampleSize1 = c(71, NA, NA),
+	    sampleSize2 = c(74, NA, NA),
+	    events1     = c(16, NA, NA),
+	    events2     = c(21, NA, NA)
 	)
 
-	F <-  getDataset(
-		sampleSize1 =c(  248,   NA,   NA), 
-		sampleSize2 = c( 254,   NA,  NA), 
-		events1     = c(  75,   NA,   NA),
-		events2     = c(  98,   NA,   NA)
+	F <- getDataset(
+	    sampleSize1 = c(248, NA, NA),
+	    sampleSize2 = c(254, NA, NA),
+	    events1 = c(75, NA, NA),
+	    events2 = c(98, NA, NA)
 	)
 
-	R <-  getDataset(
-		sampleSize1 =c( 12,   NA,   NA), 
-		sampleSize2 = c( 14,   NA,  NA), 
-		events1    = c(  12,   NA,   NA),
-		events2     = c(  14,   NA,   NA)
+	R <- getDataset(
+	    sampleSize1 = c(12, NA, NA),
+	    sampleSize2 = c(14, NA, NA),
+	    events1 = c(12, NA, NA),
+	    events2 = c(14, NA, NA)
 	)
 
 	dataInput4 <- getDataset(S1 = S1, S2 = S2, S3 = S3, F = F)
@@ -555,15 +557,15 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, non-str
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "asKD", gammaA = 2, informationRates = c(0.4,0.7,1))
+	design1 <- getDesignInverseNormal(kMax = 3, alpha = 0.05, typeOfDesign = "asKD", gammaA = 2, informationRates = c(0.4, 0.7, 1))
 
-	x3 <- getAnalysisResults(design1, dataInput4, 
-		directionUpper = FALSE,
-		stratifiedAnalysis = FALSE,
-		intersectionTest = "Sidak", 
-		allocationRatioPlanned = 1,
-		stage = 3, 
-		normalApproximation = TRUE
+	x3 <- getAnalysisResults(design1, dataInput4,
+	    directionUpper = FALSE,
+	    stratifiedAnalysis = FALSE,
+	    intersectionTest = "Sidak",
+	    allocationRatioPlanned = 1,
+	    stage = 3,
+	    normalApproximation = TRUE
 	)
 
 	## Comparison of the results of AnalysisResultsEnrichmentInverseNormal object 'x3' with expected results
@@ -579,14 +581,14 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, non-str
 	expect_equal(x3$conditionalPower[2, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x3$conditionalPower[3, ], c(NA_real_, NA_real_, NA_real_))
 	expect_equal(x3$conditionalPower[4, ], c(NA_real_, NA_real_, NA_real_))
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.33926099, -0.22469085, -0.248011), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.25513224, -0.21555042, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[1, ], c(-0.33926099, -0.22469062, -0.248011), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[2, ], c(-0.255132, -0.21555052, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[3, ], c(-0.26390722, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[4, ], c(-0.20314824, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[1, ], c(0.068268243, 0.059220123, -0.0081515649), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[2, ], c(0.16378176, 0.075550882, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[3, ], c(0.15232187, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[4, ], c(0.038730825, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds[4, ], c(-0.20314825, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[1, ], c(0.068268149, 0.059220127, -0.0081515662), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[2, ], c(0.16378176, 0.07555087, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[3, ], c(0.15232186, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds[4, ], c(0.038730826, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues[1, ], c(0.5, 0.26483774, 0.01063254), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues[2, ], c(0.5, 0.30264322, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues[3, ], c(0.5, NA_real_, NA_real_), tolerance = 1e-07)
@@ -622,35 +624,36 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, non-str
 test_that("'getAnalysisResults': enrichment rates, expected warning for empty subsets", {
 
 	S1 <- getDataset(
-	    sampleSize1 = c(  84,   94,   25), 
-	    sampleSize2 = c(  82,   75,   23), 
-	    events1     = c(  21,   28,   13),
-	    events2     = c(  32,   23,   20)
+	    sampleSize1 = c(84, 94, 25),
+	    sampleSize2 = c(82, 75, 23),
+	    events1     = c(21, 28, 13),
+	    events2     = c(32, 23, 20)
 	)
 
 	S2 <- getDataset(
-	    sampleSize1 = c(  81,   95,   NA), 
-	    sampleSize2 = c(  84,   64,   NA), 
-	    events1     = c(  26,   29,   NA),
-	    events2     = c(  31,   26,   NA)
+	    sampleSize1 = c(81, 95, NA),
+	    sampleSize2 = c(84, 64, NA),
+	    events1     = c(26, 29, NA),
+	    events2     = c(31, 26, NA)
 	)
 
 	S3 <- getDataset(
-	    sampleSize1 = c(  71,   NA,   NA), 
-	    sampleSize2 = c(  74,   NA,   NA), 
-	    events1     = c(  16,   NA,   NA),
-	    events2     = c(  21,   NA,   NA)
+	    sampleSize1 = c(71, NA, NA),
+	    sampleSize2 = c(74, NA, NA),
+	    events1     = c(16, NA, NA),
+	    events2     = c(21, NA, NA)
 	)
 
-	R <-  getDataset(
-	    sampleSize1 =c( 12,   NA,   NA), 
-	    sampleSize2 = c( 14,   NA,  NA), 
-	    events1    = c(  12,   NA,   NA),
-	    events2     = c(  14,   NA,   NA)
+	R <- getDataset(
+	    sampleSize1 = c(12, NA, NA),
+	    sampleSize2 = c(14, NA, NA),
+	    events1 = c(12, NA, NA),
+	    events2 = c(14, NA, NA)
 	)
 
 	expect_warning(getDataset(S1 = S1, S2 = S2, S3 = S3, R = R),
-	    "The 4 undefined subsets S12, S13, S23, S123 were defined as empty subsets", fixed = TRUE)
-
+	    "The 4 undefined subsets S12, S13, S23, S123 were defined as empty subsets",
+	    fixed = TRUE
+	)
 })
 

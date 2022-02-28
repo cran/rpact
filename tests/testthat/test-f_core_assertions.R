@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_core_assertions.R
-## |  Creation date: 08 December 2021, 09:08:43
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:05:49
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Assertion Functions")
@@ -64,32 +64,50 @@ test_that("Testing '.assertIsInOpenInterval'", {
 
 test_that("Testing '.assertDesignParameterExists'", {
 
-	expect_error(.assertDesignParameterExists(), 
-		"Missing argument: 'design' must be defined", fixed = TRUE)
+	expect_error(.assertDesignParameterExists(),
+	    "Missing argument: 'design' must be defined",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign()), 
-		"Missing argument: 'parameterName' must be defined", fixed = TRUE)
+	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign()),
+	    "Missing argument: 'parameterName' must be defined",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(), parameterName = "kMax"), 
-		"Missing argument: 'defaultValue' must be defined", fixed = TRUE)
+	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(), parameterName = "kMax"),
+	    "Missing argument: 'defaultValue' must be defined",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(), 
-		parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
-		"Missing argument: parameter 'kMax' must be specified in design", fixed = TRUE)
+	expect_error(.assertDesignParameterExists(
+	    design = getAssertionTestDesign(),
+	    parameterName = "kMax", defaultValue = C_KMAX_DEFAULT
+	),
+	"Missing argument: parameter 'kMax' must be specified in design",
+	fixed = TRUE
+	)
 
-	expect_error(.assertDesignParameterExists(design = getAssertionTestDesign(kMax = NA_integer_), 
-		parameterName = "kMax", defaultValue = C_KMAX_DEFAULT),
-		"Missing argument: parameter 'kMax' must be specified in design", fixed = TRUE)
+	expect_error(.assertDesignParameterExists(
+	    design = getAssertionTestDesign(kMax = NA_integer_),
+	    parameterName = "kMax", defaultValue = C_KMAX_DEFAULT
+	),
+	"Missing argument: parameter 'kMax' must be specified in design",
+	fixed = TRUE
+	)
 
 })
 
-test_that("Testing '.assertIsValidThetaRange'	", {
+test_that("Testing '.assertIsValidThetaRange'", {
 
-	expect_error(.assertIsValidThetaRange(thetaRange = c()), 
-		"Illegal argument: 'thetaRange' (NULL) must be a vector with two entries defining minimum and maximum or a sequence of numeric values with length > 2", fixed = TRUE)
+	expect_error(.assertIsValidThetaRange(thetaRange = c()),
+	    "Illegal argument: 'thetaRange' (NULL) must be a vector with two entries defining minimum and maximum or a sequence of numeric values with length > 2",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertIsValidThetaRange(thetaRange = c(1, -2)), 
-		"Illegal argument: 'thetaRange' with length 2 must contain minimum < maximum (1 >= -2)", fixed = TRUE)
+	expect_error(.assertIsValidThetaRange(thetaRange = c(1, -2)),
+	    "Illegal argument: 'thetaRange' with length 2 must contain minimum < maximum (1 >= -2)",
+	    fixed = TRUE
+	)
 
 	expect_equal(.assertIsValidThetaRange(thetaRange = c(1, 2, 3)), c(1, 2, 3))
 
@@ -99,30 +117,44 @@ test_that("Testing '.assertIsValidThetaRange'	", {
 
 test_that("Testing '.assertIsSingleNumber'", {
 
-	expect_error(.assertIsSingleNumber(NA, "x"), 
-		"Illegal argument: 'x' (NA) must be a valid numeric value", fixed = TRUE)
+	expect_error(.assertIsSingleNumber(NA, "x"),
+	    "Illegal argument: 'x' (NA) must be a valid numeric value",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertIsSingleNumber(NULL, "x"), 
-		"Missing argument: 'x' must be a valid numeric value", fixed = TRUE)
+	expect_error(.assertIsSingleNumber(NULL, "x"),
+	    "Missing argument: 'x' must be a valid numeric value",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertIsSingleNumber(c(1, 2), "x"), 
-		"Illegal argument: 'x' c(1, 2) must be a single numeric value", fixed = TRUE)
+	expect_error(.assertIsSingleNumber(c(1, 2), "x"),
+	    "Illegal argument: 'x' c(1, 2) must be a single numeric value",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertIsSingleNumber(numeric(0), "x"), 
-		"Missing argument: 'x' must be a valid numeric value", fixed = TRUE)
+	expect_error(.assertIsSingleNumber(numeric(0), "x"),
+	    "Missing argument: 'x' must be a valid numeric value",
+	    fixed = TRUE
+	)
 
 })
 
 test_that("Testing '.assertAssociatedArgumentsAreDefined'", {
 
-	expect_error(.assertAssociatedArgumentsAreDefined(a = NA, b = 1), 
-		"Missing argument: 'a' must be defined because 'b' is defined", fixed = TRUE)
+	expect_error(.assertAssociatedArgumentsAreDefined(a = NA, b = 1),
+	    "Missing argument: 'a' must be defined because 'b' is defined",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertAssociatedArgumentsAreDefined(a = NA, b = 1, c = NA), 
-		"Missing argument: 'a', 'c' must be defined because 'b' is defined", fixed = TRUE)
+	expect_error(.assertAssociatedArgumentsAreDefined(a = NA, b = 1, c = NA),
+	    "Missing argument: 'a', 'c' must be defined because 'b' is defined",
+	    fixed = TRUE
+	)
 
-	expect_error(.assertAssociatedArgumentsAreDefined(a = NA, b = 1, c = 2), 
-		"Missing argument: 'a' must be defined because 'b', 'c' are defined", fixed = TRUE)
+	expect_error(.assertAssociatedArgumentsAreDefined(a = NA, b = 1, c = 2),
+	    "Missing argument: 'a' must be defined because 'b', 'c' are defined",
+	    fixed = TRUE
+	)
 
 })
 
@@ -130,9 +162,10 @@ test_that("Testing '.associatedArgumentsAreDefined'", {
 
 	expect_equal(.associatedArgumentsAreDefined(nPlanned = NA_real_, thetaH1 = NA_real_), FALSE)
 
-	expect_warning(expect_equal(.associatedArgumentsAreDefined(nPlanned = NA_real_, thetaH1 = 1), FALSE), 
-		"Incomplete associated arguments: 'nPlanned' should be defined because 'thetaH1' is defined", 
-		fixed = TRUE)
+	expect_warning(expect_equal(.associatedArgumentsAreDefined(nPlanned = NA_real_, thetaH1 = 1), FALSE),
+	    "Incomplete associated arguments: 'nPlanned' should be defined because 'thetaH1' is defined",
+	    fixed = TRUE
+	)
 
 	expect_equal(.associatedArgumentsAreDefined(nPlanned = 1, thetaH1 = 1), TRUE)
 
@@ -145,12 +178,14 @@ test_that("Testing '.isValidNPlanned'", {
 	expect_silent(.isValidNPlanned(nPlanned = NA_real_, kMax = 4, stage = 2))
 
 	expect_warning(.isValidNPlanned(nPlanned = c(1), kMax = 4, stage = 2),
-		"'nPlanned' (1) will be ignored: length must be equal to 2 (kMax - stage = 4 - 2)", 
-		fixed = TRUE)
+	    "'nPlanned' (1) will be ignored: length must be equal to 2 (kMax - stage = 4 - 2)",
+	    fixed = TRUE
+	)
 
 	expect_warning(.isValidNPlanned(nPlanned = c(1, 2, 3), kMax = 4, stage = 2),
-		"'nPlanned' (1, 2, 3) will be ignored: length must be equal to 2 (kMax - stage = 4 - 2)", 
-		fixed = TRUE)
+	    "'nPlanned' (1, 2, 3) will be ignored: length must be equal to 2 (kMax - stage = 4 - 2)",
+	    fixed = TRUE
+	)
 
 })
 
@@ -213,7 +248,6 @@ test_that("Testing '.assertIsValidMatrix'", {
 	expect_error(.assertIsValidMatrix("a", "x", naAllowed = FALSE))
 	expect_error(.assertIsValidMatrix("a", "x", naAllowed = TRUE))
 	expect_error(.assertIsValidMatrix(NA, "x", naAllowed = FALSE))
-	expect_error(.assertIsValidMatrix(NA, "x", naAllowed = TRUE))
-
+	expect_error(.assertIsValidMatrix(NA, "x", naAllowed = TRUE))
 })
 

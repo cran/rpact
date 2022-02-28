@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_simulation_multiarm_means.R
-## |  Creation date: 08 December 2021, 09:09:45
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:07:15
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Simulation Multi-Arm Means Function")
@@ -29,20 +29,23 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmMeans}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansGenerate}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmMeansGenerate}
+	# @refFS[Formula]{fs:simulationMultiArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	# @refFS[Formula]{fs:adjustedPValueSubsetBonferroni}
 	# @refFS[Formula]{fs:adjustedPValueSubsetDunnett}
 	# @refFS[Formula]{fs:adjustedPValueSubsetHierarchical}
 	# @refFS[Formula]{fs:adjustedPValueSubsetSidak}
 	# @refFS[Formula]{fs:adjustedPValueSubsetSimes}
-	x1 <- getSimulationMultiArmMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms =  4, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x1 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "linear", activeArms = 4, plannedSubjects = c(10, 30, 50), stDev = 1.2,
+	    muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x1' with expected results
 	expect_equal(x1$iterations[1, ], c(10, 10, 10, 10))
@@ -94,11 +97,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x2 <- getSimulationMultiArmMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined", activeArms =  4, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, adaptations = rep(TRUE, 2), 
-		effectMatrix = matrix(c(0.1,0.2,0.3,0.4,0.2,0.3,0.4,0.5), ncol = 4),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x2 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "userDefined", activeArms = 4,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, adaptations = rep(TRUE, 2),
+	    effectMatrix = matrix(c(0.1, 0.2, 0.3, 0.4, 0.2, 0.3, 0.4, 0.5), ncol = 4),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x2' with expected results
 	expect_equal(x2$iterations[1, ], c(10, 10))
@@ -152,10 +158,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 
 	.skipTestIfDisabled()
 
-	x3 <- getSimulationMultiArmMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms =  4, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x3 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x3' with expected results
 	expect_equal(x3$iterations[1, ], c(10, 10, 10, 10))
@@ -207,10 +216,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x4 <- getSimulationMultiArmMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all", 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x4 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "all",
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x4' with expected results
 	expect_equal(x4$iterations[1, ], c(10, 10, 10, 10))
@@ -262,10 +274,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x5 <- getSimulationMultiArmMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x5 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "rBest", rValue = 2,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x5' with expected results
 	expect_equal(x5$iterations[1, ], c(10, 10, 10, 10))
@@ -317,10 +332,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x6 <- getSimulationMultiArmMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x6 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x6' with expected results
 	expect_equal(x6$iterations[1, ], c(10, 10, 10, 10))
@@ -372,10 +390,12 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x7 <- getSimulationMultiArmMeans(seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms =  4, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x7 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignInverseNormal(informationRates = c(0.2, 0.6, 1)), activeArms = 4,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x7' with expected results
 	expect_equal(x7$iterations[1, ], c(10, 10, 10, 10))
@@ -427,10 +447,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x8 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "all", 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x8 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4,
+	    typeOfSelection = "all",
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x8' with expected results
 	expect_equal(x8$iterations[1, ], c(10, 10, 10, 10))
@@ -482,10 +505,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x9 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "rBest", rValue = 2,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE),
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x9 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4,
+	    typeOfSelection = "rBest", rValue = 2,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x9' with expected results
 	expect_equal(x9$iterations[1, ], c(10, 10, 10, 10))
@@ -537,10 +563,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x10 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms =  4, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE), intersectionTest = "Bonferroni",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x10 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4,
+	    typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = c(TRUE, FALSE), intersectionTest = "Bonferroni",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x10' with expected results
 	expect_equal(x10$iterations[1, ], c(10, 10, 10, 10))
@@ -592,10 +622,12 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x11 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.1, 0.3, 0.1),  intersectionTest = "Bonferroni",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x11 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.1, 0.3, 0.1), intersectionTest = "Bonferroni",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x11' with expected results
 	expect_equal(x11$iterations[1, ], c(10, 10, 10))
@@ -647,10 +679,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x12 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms = 4, threshold = 0, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), intersectionTest = "Bonferroni",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x12 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "linear", activeArms = 4, threshold = 0,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    intersectionTest = "Bonferroni",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x12' with expected results
 	expect_equal(x12$iterations[1, ], c(10, 10, 10, 10))
@@ -702,11 +738,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x13 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "userDefined", activeArms = 4, threshold = 0, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, adaptations = rep(TRUE, 2), 
-		effectMatrix = matrix(c(0.1,0.2,0.3,0.4,0.2,0.3,0.4,0.5), ncol = 4), intersectionTest = "Sidak",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x13 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "userDefined", activeArms = 4, threshold = 0,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, adaptations = rep(TRUE, 2),
+	    effectMatrix = matrix(c(0.1, 0.2, 0.3, 0.4, 0.2, 0.3, 0.4, 0.5), ncol = 4), intersectionTest = "Sidak",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x13' with expected results
 	expect_equal(x13$iterations[1, ], c(10, 10))
@@ -758,10 +797,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x14 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4, threshold = 0, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), intersectionTest = "Sidak",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x14 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    typeOfShape = "sigmoidEmax", gED50 = 2, slope = 0.5, activeArms = 4, threshold = 0,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = rep(TRUE, 2), intersectionTest = "Sidak",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x14' with expected results
 	expect_equal(x14$iterations[1, ], c(10, 10, 10, 10))
@@ -813,10 +856,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x15 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "all", 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), intersectionTest = "Sidak", 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x15 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, threshold = 0, typeOfSelection = "all",
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = rep(TRUE, 2), intersectionTest = "Sidak",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x15' with expected results
 	expect_equal(x15$iterations[1, ], c(10, 10, 10, 10))
@@ -868,10 +915,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x16 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rBest", rValue = 2,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), intersectionTest = "Simes",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x16 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, threshold = 0, typeOfSelection = "rBest", rValue = 2,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = rep(TRUE, 2), intersectionTest = "Simes",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x16' with expected results
 	expect_equal(x16$iterations[1, ], c(10, 10, 10, 10))
@@ -923,10 +974,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x17 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2), intersectionTest = "Simes",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x17 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = rep(TRUE, 2), intersectionTest = "Simes",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x17' with expected results
 	expect_equal(x17$iterations[1, ], c(10, 10, 10, 10))
@@ -978,10 +1032,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x18 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE), intersectionTest = "Simes",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x18 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, threshold = 0,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = c(TRUE, FALSE), intersectionTest = "Simes",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x18' with expected results
 	expect_equal(x18$iterations[1, ], c(10, 10, 10, 10))
@@ -1033,10 +1091,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x19 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "all", 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE), intersectionTest = "Hierarchical", 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x19 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, threshold = 0, typeOfSelection = "all",
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), 
+	    adaptations = c(TRUE, FALSE), intersectionTest = "Hierarchical",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x19' with expected results
 	expect_equal(x19$iterations[1, ], c(10, 10, 10, 10))
@@ -1088,10 +1150,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x20 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "rBest", rValue = 2,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE), intersectionTest = "Hierarchical",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x20 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, 
+	    typeOfSelection = "rBest", rValue = 2,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = c(TRUE, FALSE), intersectionTest = "Hierarchical",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x20' with expected results
 	expect_equal(x20$iterations[1, ], c(10, 10, 10, 10))
@@ -1143,10 +1209,14 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x21 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = c(TRUE, FALSE), intersectionTest = "Hierarchical",
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10)
+	x21 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, threshold = 0, typeOfSelection = "epsilon", epsilonValue = 0.1,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1),
+	    adaptations = c(TRUE, FALSE), intersectionTest = "Hierarchical",
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x21' with expected results
 	expect_equal(x21$iterations[1, ], c(10, 10, 10, 10))
@@ -1198,10 +1268,13 @@ test_that("'getSimulationMultiArmMeans': several configurations", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	x22 <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), activeArms = 4, threshold = 0.1, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.1, 0.3, 0.1), 
-		conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 1)
+	x22 <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)),
+	    activeArms = 4, threshold = 0.1,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.1, 0.3, 0.1),
+	    conditionalPower = 0.8, minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 1
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x22' with expected results
 	expect_equal(x22$iterations[1, ], c(1, 1, 1))
@@ -1260,13 +1333,15 @@ test_that("'getSimulationMultiArmMeans': using calcSubjectsFunction", {
 	.skipTestIfDisabled()
 
 	calcSubjectsFunctionSimulationMultiArmMeans <- function(..., stage, minNumberOfSubjectsPerStage) {
-		return(ifelse(stage == 3, 33, minNumberOfSubjectsPerStage[stage]))
+	    return(ifelse(stage == 3, 33, minNumberOfSubjectsPerStage[stage]))
 	}
 
-	x <- getSimulationMultiArmMeans(seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms =  4, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
-		minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),  
-		maxNumberOfIterations = 10, calcSubjectsFunction = calcSubjectsFunctionSimulationMultiArmMeans)
+	x <- getSimulationMultiArmMeans(
+	    seed = 1234, getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms = 4,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    minNumberOfSubjectsPerStage = c(10, 4, 4), maxNumberOfSubjectsPerStage = c(10, 100, 100),
+	    maxNumberOfIterations = 10, calcSubjectsFunction = calcSubjectsFunctionSimulationMultiArmMeans
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(10, 10, 10, 10))
@@ -1327,10 +1402,10 @@ test_that("'getSimulationMultiArmMeans': using selectArmsFunction", {
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmMeans}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansGenerate}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmMeansGenerate}
+	# @refFS[Formula]{fs:simulationMultiArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	# @refFS[Formula]{fs:adjustedPValueSubsetDunnett}
 	# @refFS[Formula]{fs:adjustedPValueSubsetSidak}
@@ -1338,13 +1413,15 @@ test_that("'getSimulationMultiArmMeans': using selectArmsFunction", {
 	.skipTestIfDisabled()
 
 	selectArmsFunctionSimulationMultiArmMeans <- function(effectSizes) {
-		return(c(TRUE, FALSE, FALSE, FALSE))
+	    return(c(TRUE, FALSE, FALSE, FALSE))
 	}
 
-	x <- getSimulationMultiArmMeans(seed = 1234, 
-		getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms =  4, 
-		plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
-		maxNumberOfIterations = 10, selectArmsFunction = selectArmsFunctionSimulationMultiArmMeans, typeOfSelection = "userDefined")
+	x <- getSimulationMultiArmMeans(
+	    seed = 1234,
+	    getDesignFisher(informationRates = c(0.2, 0.6, 1)), typeOfShape = "linear", activeArms = 4,
+	    plannedSubjects = c(10, 30, 50), stDev = 1.2, muMaxVector = seq(0.3, 0.6, 0.1), adaptations = rep(TRUE, 2),
+	    maxNumberOfIterations = 10, selectArmsFunction = selectArmsFunctionSimulationMultiArmMeans, typeOfSelection = "userDefined"
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(10, 10, 10, 10))
@@ -1403,10 +1480,12 @@ test_that("'getSimulationMultiArmMeans': using intersectionTest = 'Sidak' and ty
 	.skipTestIfDisabled()
 
 	designIN <- getDesignInverseNormal(typeOfDesign = "P", kMax = 3, futilityBounds = c(0, 0))
-	x <- getSimulationMultiArmMeans(designIN, activeArms = 3, typeOfShape = "sigmoidEmax", 
-		muMaxVector = seq(0, 1, 0.2), gED50 = 2, plannedSubjects = cumsum(rep(20, 3)), 
-		intersectionTest = "Sidak", typeOfSelection = "rBest", rValue = 2, threshold = -Inf, 
-		successCriterion = "all", maxNumberOfIterations = 100, seed = 3456)
+	x <- getSimulationMultiArmMeans(designIN,
+	    activeArms = 3, typeOfShape = "sigmoidEmax",
+	    muMaxVector = seq(0, 1, 0.2), gED50 = 2, plannedSubjects = cumsum(rep(20, 3)),
+	    intersectionTest = "Sidak", typeOfSelection = "rBest", rValue = 2, threshold = -Inf,
+	    successCriterion = "all", maxNumberOfIterations = 100, seed = 3456
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(100, 100, 100, 100, 100, 100))
@@ -1467,17 +1546,21 @@ test_that("'getSimulationMultiArmMeans': plot drift - comparison of raw values",
 	designPureConditionalDunnett <- getDesignInverseNormal(typeOfDesign = "asUser", userAlphaSpending = c(0, 0.025))
 	designCombinationDunnett <- getDesignConditionalDunnett(informationAtInterim = 0.5, secondStageConditioning = TRUE)
 
-	resultsPureConditionalDunnett <- getSimulationMultiArmMeans(designPureConditionalDunnett, activeArms = 3, muMaxVector = seq(0, 1, 0.2), 
-		typeOfShape = "linear", plannedSubjects = cumsum(rep(20, 2)), intersectionTest = "Dunnett", 
-		adaptations = TRUE, typeOfSelection = "best",  effectMeasure = "effectEstimate", 
-		threshold = -Inf, maxNumberOfIterations = 100, 
-		allocationRatioPlanned = 1, seed = 123)
+	resultsPureConditionalDunnett <- getSimulationMultiArmMeans(designPureConditionalDunnett,
+	    activeArms = 3, muMaxVector = seq(0, 1, 0.2),
+	    typeOfShape = "linear", plannedSubjects = cumsum(rep(20, 2)), intersectionTest = "Dunnett",
+	    adaptations = TRUE, typeOfSelection = "best", effectMeasure = "effectEstimate",
+	    threshold = -Inf, maxNumberOfIterations = 100,
+	    allocationRatioPlanned = 1, seed = 123
+	)
 
-	resultsCombinationDunnett <- getSimulationMultiArmMeans(designCombinationDunnett, activeArms = 3, muMaxVector = seq(0, 1, 0.2), 
-		typeOfShape = "linear", plannedSubjects = cumsum(rep(20, 2)), intersectionTest = "Dunnett", 
-		adaptations = TRUE, typeOfSelection = "best",  effectMeasure = "effectEstimate", 
-		threshold = -Inf, maxNumberOfIterations = 100, 
-		allocationRatioPlanned = 1, seed = 123)
+	resultsCombinationDunnett <- getSimulationMultiArmMeans(designCombinationDunnett,
+	    activeArms = 3, muMaxVector = seq(0, 1, 0.2),
+	    typeOfShape = "linear", plannedSubjects = cumsum(rep(20, 2)), intersectionTest = "Dunnett",
+	    adaptations = TRUE, typeOfSelection = "best", effectMeasure = "effectEstimate",
+	    threshold = -Inf, maxNumberOfIterations = 100,
+	    allocationRatioPlanned = 1, seed = 123
+	)
 
 	drift <- resultsPureConditionalDunnett$effectMatrix[nrow(resultsPureConditionalDunnett$effectMatrix), ]
 
@@ -1496,17 +1579,19 @@ test_that("'getSimulationMultiArmMeans': comparison of base and multi-arm", {
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmMeans}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansGenerate}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmMeansGenerate}
+	# @refFS[Formula]{fs:simulationMultiArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	design <- getDesignInverseNormal(typeOfDesign = "WT", deltaWT = 0.15, futilityBounds = c(-0.5, 0), informationRates = c(0.4, 0.8, 1))
-	x <- getSimulationMultiArmMeans(design = design, activeArms = 1, 
-		plannedSubjects = c(20, 40, 60), stDev = 1.5, muMaxVector = seq(0, 1, 0.2), 
-		conditionalPower = 0.80, minNumberOfSubjectsPerStage = c(NA, 20, 20), 
-		maxNumberOfSubjectsPerStage = c(NA, 80, 80), #thetaH1 = 0.5, 
-		maxNumberOfIterations = 100, allocationRatioPlanned = 2, seed = 1234)
+	x <- getSimulationMultiArmMeans(
+	    design = design, activeArms = 1,
+	    plannedSubjects = c(20, 40, 60), stDev = 1.5, muMaxVector = seq(0, 1, 0.2),
+	    conditionalPower = 0.80, minNumberOfSubjectsPerStage = c(NA, 20, 20),
+	    maxNumberOfSubjectsPerStage = c(NA, 80, 80), # thetaH1 = 0.5,
+	    maxNumberOfIterations = 100, allocationRatioPlanned = 2, seed = 1234
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(100, 100, 100, 100, 100, 100))
@@ -1560,10 +1645,12 @@ test_that("'getSimulationMultiArmMeans': comparison of base and multi-arm", {
 
 	allocationRatioPlanned <- 2
 	factor <- 1 + 1 / allocationRatioPlanned
-	y <- getSimulationMeans(design, plannedSubjects = round(factor*c(20, 40, 60)), normalApproximation = TRUE,  stDev = 1.5, 
-		conditionalPower = 0.80, minNumberOfSubjectsPerStage = round(factor*c(NA, 20, 20)), 
-		maxNumberOfSubjectsPerStage = round(factor*c(NA, 80, 80)), alternative = seq(0, 1, 0.2), #thetaH1 = 0.5, 
-		maxNumberOfIterations = 100, allocationRatioPlanned = allocationRatioPlanned, seed = 5678)
+	y <- getSimulationMeans(design,
+	    plannedSubjects = round(factor * c(20, 40, 60)), normalApproximation = TRUE, stDev = 1.5,
+	    conditionalPower = 0.80, minNumberOfSubjectsPerStage = round(factor * c(NA, 20, 20)),
+	    maxNumberOfSubjectsPerStage = round(factor * c(NA, 80, 80)), alternative = seq(0, 1, 0.2), # thetaH1 = 0.5,
+	    maxNumberOfIterations = 100, allocationRatioPlanned = allocationRatioPlanned, seed = 5678
+	)
 
 	comp1 <- y$overallReject - x$rejectAtLeastOne
 
@@ -1612,17 +1699,19 @@ test_that("'getSimulationMultiArmMeans': comparison of base and multi-arm, Fishe
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmDoseResponseRelationShips}
 	# @refFS[Sec.]{fs:sec:simulatingMultiArmSelections}
 	# @refFS[Tab.]{fs:tab:output:getSimulationMultiArmMeans}
-	# @refFS[Formula]{fs:SimulationMultiArmDoseResponse}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansGenerate}
-	# @refFS[Formula]{fs:SimulationMultiArmMeansTestStatistics}
-	# @refFS[Formula]{fs:SimulationMultiArmSelections}
+	# @refFS[Formula]{fs:simulationMultiArmDoseResponse}
+	# @refFS[Formula]{fs:simulationMultiArmMeansGenerate}
+	# @refFS[Formula]{fs:simulationMultiArmMeansTestStatistics}
+	# @refFS[Formula]{fs:simulationMultiArmSelections}
 	# @refFS[Formula]{fs:multiarmRejectionRule}
 	design <- getDesignFisher(alpha0Vec = c(0.3, 0.4), informationRates = c(0.3, 0.6, 1))
-	x <- getSimulationMultiArmMeans(design = design, activeArms = 1, 
-		plannedSubjects = c(20, 40, 60), stDev = 1.5, muMaxVector = seq(0, 1, 0.2), 
-		conditionalPower = 0.80, minNumberOfSubjectsPerStage = c(NA, 20, 20), 
-		maxNumberOfSubjectsPerStage = c(NA, 80, 80), #thetaH1 = 0.5, 
-		maxNumberOfIterations = 100, allocationRatioPlanned = 2, seed = 1234)
+	x <- getSimulationMultiArmMeans(
+	    design = design, activeArms = 1,
+	    plannedSubjects = c(20, 40, 60), stDev = 1.5, muMaxVector = seq(0, 1, 0.2),
+	    conditionalPower = 0.80, minNumberOfSubjectsPerStage = c(NA, 20, 20),
+	    maxNumberOfSubjectsPerStage = c(NA, 80, 80), # thetaH1 = 0.5,
+	    maxNumberOfIterations = 100, allocationRatioPlanned = 2, seed = 1234
+	)
 
 	## Comparison of the results of SimulationResultsMultiArmMeans object 'x' with expected results
 	expect_equal(x$iterations[1, ], c(100, 100, 100, 100, 100, 100))
@@ -1676,10 +1765,12 @@ test_that("'getSimulationMultiArmMeans': comparison of base and multi-arm, Fishe
 
 	allocationRatioPlanned <- 2
 	factor <- 1 + 1 / allocationRatioPlanned
-	y <- getSimulationMeans(design, plannedSubjects = round(factor*c(20, 40, 60)), normalApproximation = TRUE,  stDev = 1.5, 
-		conditionalPower = 0.80, minNumberOfSubjectsPerStage = round(factor*c(NA, 20, 20)), 
-		maxNumberOfSubjectsPerStage = round(factor*c(NA, 80, 80)), alternative = seq(0, 1, 0.2), #thetaH1 = 0.5, 
-		maxNumberOfIterations = 100, allocationRatioPlanned = allocationRatioPlanned, seed = 5678)
+	y <- getSimulationMeans(design,
+	    plannedSubjects = round(factor * c(20, 40, 60)), normalApproximation = TRUE, stDev = 1.5,
+	    conditionalPower = 0.80, minNumberOfSubjectsPerStage = round(factor * c(NA, 20, 20)),
+	    maxNumberOfSubjectsPerStage = round(factor * c(NA, 80, 80)), alternative = seq(0, 1, 0.2), # thetaH1 = 0.5,
+	    maxNumberOfIterations = 100, allocationRatioPlanned = allocationRatioPlanned, seed = 5678
+	)
 
 	comp1 <- y$overallReject - x$rejectAtLeastOne
 
@@ -1716,6 +1807,5 @@ test_that("'getSimulationMultiArmMeans': comparison of base and multi-arm, Fishe
 	## Comparison of the results of matrixarray object 'comp6' with expected results
 	expect_equal(comp6[1, ], c(-0.19, -0.13, -0.3, -0.45, -0.28, -0.31), tolerance = 1e-07)
 	expect_equal(comp6[2, ], c(-0.62, -0.57, -0.74, -0.5, -0.42, -0.53), tolerance = 1e-07)
-
 })
 

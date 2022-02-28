@@ -13,10 +13,13 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 5686 $
+## |  Last changed: $Date: 2022-01-06 10:56:00 +0100 (Do, 06 Jan 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |
+
+#' @include f_core_utilities.R
+NULL
 
 #' @title
 #' Get Analysis Results
@@ -342,7 +345,7 @@ getAnalysisResults <- function(design, dataInput, ...,
         }
 
         if (is.null(result)) {
-            stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+            stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
         }
 
         if (informationRatesRecalculated) {
@@ -491,7 +494,7 @@ getStageResults <- function(design, dataInput, ..., stage = NA_integer_) {
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not supported")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not supported")
 }
 
 .getStageFromOptionalArguments <- function(..., dataInput, design, showWarnings = FALSE) {
@@ -761,7 +764,7 @@ getRepeatedConfidenceIntervals <- function(design, dataInput, ...,
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
 }
 
 .getStageResultsObject <- function(stageResults, ..., functionName) {
@@ -901,7 +904,7 @@ getConditionalPower <- function(stageResults, ..., nPlanned,
     } else {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-            class(stageResults$.dataInput), "' is not implemented yet"
+            .getClassName(stageResults$.dataInput), "' is not implemented yet"
         )
     }
 }
@@ -958,7 +961,7 @@ getConditionalPower <- function(stageResults, ..., nPlanned,
 
     stop(
         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        class(stageResults$.dataInput), "' is not implemented yet"
+        .getClassName(stageResults$.dataInput), "' is not implemented yet"
     )
 }
 
@@ -1540,7 +1543,7 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", class(dataInput), "' is not implemented yet")
+    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
 }
 
 

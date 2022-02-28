@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  File version: $Revision: 5747 $
+## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -705,77 +705,77 @@
     repeatedConfidenceIntervals <- matrix(NA_real_, 2, design$kMax)
     for (k in (1:stage)) {
         startTime <- Sys.time()
-
-        # finding upper and lower RCI limits through root function
-
-        if (dataInput$getNumberOfGroups() == 1) {
-            if (dataInput$overallEvents[k] == 0) {
-                repeatedConfidenceIntervals[1, k] <- 0
-            } else {
-                repeatedConfidenceIntervals[1, k] <- .getRootThetaRates(
-                    design = design, dataInput = dataInput, stage = k,
-                    directionUpper = C_DIRECTION_UPPER_DEFAULT, normalApproximation = normalApproximation,
-                    firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
-                    acceptResultsOutOfTolerance = TRUE,
-                    callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
-                )
-            }
-
-            if (dataInput$overallEvents[k] == dataInput$overallSampleSizes[k]) {
-                repeatedConfidenceIntervals[2, k] <- 1
-            } else {
-                repeatedConfidenceIntervals[2, k] <- .getRootThetaRates(
-                    design = design, dataInput = dataInput, stage = k,
-                    directionUpper = FALSE, normalApproximation = normalApproximation,
-                    firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
-                    acceptResultsOutOfTolerance = TRUE,
-                    callingFunctionInformation = paste0("Repeated confidence interval [2, ", k, "]")
-                )
-            }
-        } else if (dataInput$getNumberOfGroups() == 2) {
-            repeatedConfidenceIntervals[1, k] <- .getRootThetaRates(
-                design = design, dataInput = dataInput, stage = k,
-                directionUpper = C_DIRECTION_UPPER_DEFAULT, normalApproximation = normalApproximation,
-                firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
-                acceptResultsOutOfTolerance = TRUE,
-                callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
-            )
-
-            repeatedConfidenceIntervals[2, k] <- .getRootThetaRates(
-                design = design, dataInput = dataInput, stage = k,
-                directionUpper = FALSE, normalApproximation = normalApproximation,
-                firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
-                acceptResultsOutOfTolerance = TRUE,
-                callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
-            )
-        }
-
-
-        # adjustment for binding futility bounds
-        if (k > 1 && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {
-            parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
-
-            futilityCorr[k] <- .getRootThetaRates(
-                design = design, dataInput = dataInput, stage = k - 1,
-                directionUpper = directionUpper, normalApproximation = normalApproximation,
-                firstParameterName = parameterName, secondValue = bounds[k - 1], tolerance = tolerance,
-                acceptResultsOutOfTolerance = TRUE,
-                callingFunctionInformation = paste0("Repeated confidence interval, futility correction [", k, "]")
-            )
-
-            if (directionUpper) {
-                repeatedConfidenceIntervals[1, k] <- min(min(futilityCorr[2:k]), repeatedConfidenceIntervals[1, k])
-            } else {
-                repeatedConfidenceIntervals[2, k] <- max(max(futilityCorr[2:k]), repeatedConfidenceIntervals[2, k])
-            }
-        }
-        .logProgress("Repeated confidence interval of stage %s calculated", startTime = startTime, k)
-    }
-
-    if (!is.na(repeatedConfidenceIntervals[1, k]) && !is.na(repeatedConfidenceIntervals[2, k]) &&
-            repeatedConfidenceIntervals[1, k] > repeatedConfidenceIntervals[2, k]) {
-        repeatedConfidenceIntervals[, k] <- rep(NA_real_, 2)
-    }
+		if (criticalValues[k] < C_QNORM_MAXIMUM) {		
+		
+	        # finding upper and lower RCI limits through root function
+	        if (dataInput$getNumberOfGroups() == 1) {
+	            if (dataInput$overallEvents[k] == 0) {
+	                repeatedConfidenceIntervals[1, k] <- 0
+	            } else {
+	                repeatedConfidenceIntervals[1, k] <- .getRootThetaRates(
+	                    design = design, dataInput = dataInput, stage = k,
+	                    directionUpper = C_DIRECTION_UPPER_DEFAULT, normalApproximation = normalApproximation,
+	                    firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
+	                    acceptResultsOutOfTolerance = TRUE,
+	                    callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
+	                )
+	            }
+	
+	            if (dataInput$overallEvents[k] == dataInput$overallSampleSizes[k]) {
+	                repeatedConfidenceIntervals[2, k] <- 1
+	            } else {
+	                repeatedConfidenceIntervals[2, k] <- .getRootThetaRates(
+	                    design = design, dataInput = dataInput, stage = k,
+	                    directionUpper = FALSE, normalApproximation = normalApproximation,
+	                    firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
+	                    acceptResultsOutOfTolerance = TRUE,
+	                    callingFunctionInformation = paste0("Repeated confidence interval [2, ", k, "]")
+	                )
+	            }
+	        } else if (dataInput$getNumberOfGroups() == 2) {
+	            repeatedConfidenceIntervals[1, k] <- .getRootThetaRates(
+	                design = design, dataInput = dataInput, stage = k,
+	                directionUpper = C_DIRECTION_UPPER_DEFAULT, normalApproximation = normalApproximation,
+	                firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
+	                acceptResultsOutOfTolerance = TRUE,
+	                callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
+	            )
+	
+	            repeatedConfidenceIntervals[2, k] <- .getRootThetaRates(
+	                design = design, dataInput = dataInput, stage = k,
+	                directionUpper = FALSE, normalApproximation = normalApproximation,
+	                firstParameterName = firstParameterName, secondValue = criticalValues[k], tolerance = tolerance,
+	                acceptResultsOutOfTolerance = TRUE,
+	                callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
+	            )
+	        }
+	
+	        # adjustment for binding futility bounds
+	        if (k > 1 && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {
+	            parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
+	
+	            futilityCorr[k] <- .getRootThetaRates(
+	                design = design, dataInput = dataInput, stage = k - 1,
+	                directionUpper = directionUpper, normalApproximation = normalApproximation,
+	                firstParameterName = parameterName, secondValue = bounds[k - 1], tolerance = tolerance,
+	                acceptResultsOutOfTolerance = TRUE,
+	                callingFunctionInformation = paste0("Repeated confidence interval, futility correction [", k, "]")
+	            )
+	
+	            if (directionUpper) {
+	                repeatedConfidenceIntervals[1, k] <- min(min(futilityCorr[2:k]), repeatedConfidenceIntervals[1, k])
+	            } else {
+	                repeatedConfidenceIntervals[2, k] <- max(max(futilityCorr[2:k]), repeatedConfidenceIntervals[2, k])
+	            }
+	        }
+	        .logProgress("Repeated confidence interval of stage %s calculated", startTime = startTime, k)
+	    }
+	
+	    if (!is.na(repeatedConfidenceIntervals[1, k]) && !is.na(repeatedConfidenceIntervals[2, k]) &&
+	            repeatedConfidenceIntervals[1, k] > repeatedConfidenceIntervals[2, k]) {
+	        repeatedConfidenceIntervals[, k] <- rep(NA_real_, 2)
+	    }
+	}	
 
     return(repeatedConfidenceIntervals)
 }

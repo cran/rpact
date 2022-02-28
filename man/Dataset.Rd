@@ -8,10 +8,10 @@
 Basic class for datasets.
 }
 \details{
-\code{Dataset} is the basic class for 
+\code{Dataset} is the basic class for
 \itemize{
-  \item \code{\link{DatasetMeans}}, 
-  \item \code{\link{DatasetRates}}, and 
+  \item \code{\link{DatasetMeans}},
+  \item \code{\link{DatasetRates}}, and
   \item \code{\link{DatasetSurvival}}.
 }
 This basic class contains the fields \code{stages} and \code{groups} and several commonly used

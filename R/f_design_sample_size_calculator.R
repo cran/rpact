@@ -13,10 +13,13 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5615 $
-## |  Last changed: $Date: 2021-12-06 09:29:15 +0100 (Mo, 06 Dez 2021) $
+## |  File version: $Revision: 5883 $
+## |  Last changed: $Date: 2022-02-24 17:33:50 +0100 (Thu, 24 Feb 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
+
+#' @include f_core_utilities.R
+NULL
 
 .addEffectScaleBoundaryDataToDesignPlan <- function(designPlan) {
     .assertIsTrialDesignPlan(designPlan)
@@ -1886,9 +1889,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                 )
             }
         } else {
-            indices <- which(is.na(designPlan$followUpTime))
-            warning("Follow-up time could not be calculated for pi1 = ",
-                .arrayToString(designPlan$pi1[indices]),
+			warning("Follow-up time could not be calculated for hazardRatio = ",
+					.arrayToString(designPlan$hazardRatio[indices]),
                 call. = FALSE
             )
         }
@@ -1903,37 +1905,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
         return(designPlan)
     }
 
-    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "unknown trial plan class '", class(designPlan), "'")
-}
-
-.checkFollowUpTime <- function(followUpTime) {
-    if (is.null(followUpTime) || length(followUpTime) == 0) {
-        return(invisible())
-    }
-
-    naFollowUpTimes <- c()
-    negativeFollowUpTimes <- c()
-    for (i in 1:length(followUpTime)) {
-        if (is.na(followUpTime[i])) {
-            naFollowUpTimes <- c(naFollowUpTimes, i)
-        } else if (followUpTime[i] < -1e-02) {
-            negativeFollowUpTimes <- c(negativeFollowUpTimes, i)
-        }
-    }
-    if (length(negativeFollowUpTimes) > 0) {
-        warning("Accrual duration longer than maximal study ",
-            "duration (time to maximal number of events; 'followUpTime' = ",
-            .arrayToString(followUpTime), ")",
-            call. = FALSE
-        )
-    }
-    if (length(naFollowUpTimes) > 0) {
-        if (length(naFollowUpTimes) == 1) {
-            warning("Follow-up time could not be calculated", call. = FALSE)
-        } else {
-            warning("Follow-up time 'followUpTime[1]' could not be calculated", call. = FALSE)
-        }
-    }
+    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "unknown trial plan class '", .getClassName(designPlan), "'")
 }
 
 .getSampleSizeFixedMeans <- function(..., alpha = 0.025, beta = 0.2, sided = 1,
@@ -3498,9 +3470,10 @@ getNumberOfSubjects <- function(time, ...,
                         hazardRatio = hazardRatio[i]
                     ) - maxNumberOfSubjects
                 },
-                lower = 0, upper = up, tolerance = 1e-06, callingFunctionInformation = ".getSampleSizeFixedSurvival"
+				lower = 0, upper = up, tolerance = 1e-06, acceptResultsOutOfTolerance = TRUE,
+				callingFunctionInformation = ".getSampleSizeSequentialSurvival"
             )
-
+			
             if (!is.na(timeVector[i])) {
                 designPlan$omega[i] <- .getEventProbabilities(
                     time = timeVector[i],

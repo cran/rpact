@@ -8,7 +8,7 @@
 Class for a dataset of rates.
 }
 \details{
-This object cannot be created directly; better use \code{\link{getDataset}} 
+This object cannot be created directly; better use \code{\link{getDataset}}
 with suitable arguments to create a dataset of rates.
 }
 \section{Fields}{

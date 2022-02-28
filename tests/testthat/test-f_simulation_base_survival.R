@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_simulation_base_survival.R
-## |  Creation date: 08 December 2021, 09:09:34
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:06:40
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Simulation Survival Function")
@@ -27,14 +27,16 @@ test_that("'getSimulationSurvival': configuration 1", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
-	simulationResults <- getSimulationSurvival(maxNumberOfSubjects = 200, plannedEvents = 50, 
-		accrualTime = c(0, 3, 6, 12), accrualIntensity = c(0.1, 0.2, 0.2) , 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
+	simulationResults <- getSimulationSurvival(
+	    maxNumberOfSubjects = 200, plannedEvents = 50,
+	    accrualTime = c(0, 3, 6, 12), accrualIntensity = c(0.1, 0.2, 0.2),
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
@@ -100,21 +102,23 @@ test_that("'getSimulationSurvival': configuration 2", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	design <- getDesignFisher(kMax = 3, alpha0Vec = c(0.5, 0.5))
 
-	simulationResults <- getSimulationSurvival(design = design, pi2 = 0.6, pi1 = seq(0.3, 0.45, 0.05),  
-			directionUpper = FALSE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20, 
-			allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-			accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-			dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-			maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
-			seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design, pi2 = 0.6, pi1 = seq(0.3, 0.45, 0.05),
+	    directionUpper = FALSE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
@@ -204,21 +208,23 @@ test_that("'getSimulationSurvival': configuration 3", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	design <- getDesignFisher(kMax = 3, alpha0Vec = c(0.5, 0.5))
 
-	simulationResults <- getSimulationSurvival(design = design, pi2 = 0.2, pi1 = seq(0.3, 0.45, 0.05),  
-			directionUpper = TRUE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20, 
-			allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-			accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-			dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-			maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
-			seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design, pi2 = 0.2, pi1 = seq(0.3, 0.45, 0.05),
+	    directionUpper = TRUE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$median1, c(23.320299, 19.308487, 16.282985, 13.9131), tolerance = 1e-07)
@@ -308,29 +314,32 @@ test_that("'getSimulationSurvival': configuration 4", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 
 	piecewiseSurvivalTime <- list(
-		"<6"      = 0.025, 
-		"6 - <9"   = 0.04, 
-		"9 - <15"  = 0.015, 
-		"15 - <21" = 0.01, 
-		">=21"      = 0.007)
+	    "<6"      = 0.025,
+	    "6 - <9"   = 0.04,
+	    "9 - <15"  = 0.015,
+	    "15 - <21" = 0.01,
+	    ">=21"      = 0.007
+	)
 
-	simulationResults <- getSimulationSurvival(design = design, 
-		directionUpper = TRUE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 1.7, 
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
-		seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design,
+	    directionUpper = TRUE, maxNumberOfSubjects = 500, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 1.7,
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 100, 200), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$accrualIntensity, c(23.809524, 47.619048, 47.619048), tolerance = 1e-07)
@@ -406,21 +415,23 @@ test_that("'getSimulationSurvival': configuration 5", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 
-	simulationResults <- getSimulationSurvival(design = design, pi2 = 0.6, pi1 = seq(0.3, 0.45, 0.05), 
-		directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 40, 40), maxNumberOfIterations = 100,
-		seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design, pi2 = 0.6, pi1 = seq(0.3, 0.45, 0.05),
+	    directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 40, 40), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$median1, c(23.320299, 19.308487, 16.282985, 13.9131), tolerance = 1e-07)
@@ -510,30 +521,33 @@ test_that("'getSimulationSurvival': configuration 6", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
 
 	piecewiseSurvivalTime <- list(
-		"0 - <6"      = 0.025, 
-		"6 - <9"   = 0.04, 
-		"9 - <15"  = 0.015, 
-		"15 - <21" = 0.01, 
-		">=21"      = 0.007)
+	    "0 - <6"      = 0.025,
+	    "6 - <9"   = 0.04,
+	    "9 - <15"  = 0.015,
+	    "15 - <21" = 0.01,
+	    ">=21"      = 0.007
+	)
 
-	suppressWarnings(simulationResults <- getSimulationSurvival(design = design, 
-		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
-		seed = 1234567890))
+	suppressWarnings(simulationResults <- getSimulationSurvival(
+	    design = design,
+	    directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	))
 
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
@@ -600,38 +614,55 @@ test_that("'getSimulationSurvival': configuration 6", {
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-	expect_warning(getSimulationSurvival(design = design, 
-		directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
-		seed = 1234567890),
-		paste0("Presumably due to drop-outs, required number of events were not achieved for at least one situation. ",
-			"Increase the maximum number of subjects (200) to avoid this situation"), fixed = TRUE)
-
-	expect_warning(getSimulationSurvival(design = design, 
-		directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
-		seed = 1234567890),
-		paste0("Presumably due to drop-outs, required number of events were not achieved for at least one situation. ",
-			"Increase the maximum number of subjects (200) to avoid this situation"), fixed = TRUE)
+	expect_warning(getSimulationSurvival(
+	    design = design,
+	    directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	),
+	paste0(
+	    "Presumably due to drop-outs, required number of events were not achieved for at least one situation. ",
+	    "Increase the maximum number of subjects (200) to avoid this situation"
+	),
+	fixed = TRUE
+	)
 
 	expect_warning(getSimulationSurvival(
-			piecewiseSurvivalTime = list("<6" = 1.7, "6 - Inf" = 1.2),
-			hazardRatio = c(0.65, 0.7, 0.8),
-			plannedEvents = 98,
-			maxNumberOfSubjects = 120,
-			directionUpper = FALSE,
-			maxNumberOfIterations = 1000,
-			sided = 1, alpha = 0.1),
-		paste0("Only the first 'hazardRatio' (0.65) was used for piecewise survival time definition ",
-			"(use a loop over the function to simulate different hazard ratios)"), fixed = TRUE)
+	    design = design,
+	    directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    piecewiseSurvivalTime = piecewiseSurvivalTime, hazardRatio = 0.8,
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 400, 200), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	),
+	paste0(
+	    "Presumably due to drop-outs, required number of events were not achieved for at least one situation. ",
+	    "Increase the maximum number of subjects (200) to avoid this situation"
+	),
+	fixed = TRUE
+	)
+
+	expect_warning(getSimulationSurvival(
+	    piecewiseSurvivalTime = list("<6" = 1.7, "6 - Inf" = 1.2),
+	    hazardRatio = c(0.65, 0.7, 0.8),
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1
+	),
+	paste0(
+	    "Only the first 'hazardRatio' (0.65) was used for piecewise survival time definition ",
+	    "(use a loop over the function to simulate different hazard ratios)"
+	),
+	fixed = TRUE
+	)
 
 })
 
@@ -642,22 +673,24 @@ test_that("'getSimulationSurvival': configuration 7", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
-	simulationResults <- getSimulationSurvival(design = design, 
-		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		piecewiseSurvivalTime = list("0 - ?" = 0.025), hazardRatio = 0.8,
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 100, 100), maxNumberOfIterations = 100,
-		seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design,
+	    directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    piecewiseSurvivalTime = list("0 - ?" = 0.025), hazardRatio = 0.8,
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 100, 100), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$median1, 34.657359, tolerance = 1e-07)
@@ -737,21 +770,23 @@ test_that("'getSimulationSurvival': configuration 8", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
-	simulationResults <- getSimulationSurvival(design = design, 
-		directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		piecewiseSurvivalTime = c(0, 6), lambda2 = c(0.01, 0.03), hazardRatio = 0.8,
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0.04, dropoutRate2 = 0.08,
-		dropoutTime = 12, maxNumberOfIterations = 100,
-		seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design,
+	    directionUpper = FALSE, maxNumberOfSubjects = 200, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    piecewiseSurvivalTime = c(0, 6), lambda2 = c(0.01, 0.03), hazardRatio = 0.8,
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0.04, dropoutRate2 = 0.08,
+	    dropoutTime = 12, maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$accrualIntensity, c(9.5238095, 19.047619, 19.047619), tolerance = 1e-07)
@@ -820,29 +855,31 @@ test_that("'getSimulationSurvival': configuration 8", {
 
 })
 
-test_that("'getSimulationSurvival': configuration 9; ", {
+test_that("'getSimulationSurvival': configuration 9;", {
 
 	.skipTestIfDisabled()
 
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
 	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
-	simulationResults <- getSimulationSurvival(design = design, 
-		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		piecewiseSurvivalTime = c(0, 6), lambda2 = c(0.01, 0.03), hazardRatio = c(0.75),
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 100, 100), maxNumberOfIterations = 100,
-		seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design,
+	    directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    piecewiseSurvivalTime = c(0, 6), lambda2 = c(0.01, 0.03), hazardRatio = c(0.75),
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 100, 100), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$accrualIntensity, c(12.380952, 24.761905, 24.761905), tolerance = 1e-07)
@@ -911,29 +948,31 @@ test_that("'getSimulationSurvival': configuration 9; ", {
 
 })
 
-test_that("'getSimulationSurvival': configuration 10; ", {
+test_that("'getSimulationSurvival': configuration 10;", {
 
 	.skipTestIfDisabled()
 
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:pieceWiseExponentialRandomVariable}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	design <- getDesignGroupSequential(kMax = 3, typeOfDesign = "WT", deltaWT = 0.25)
-	simulationResults <- getSimulationSurvival(design = design, 
-		directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20, 
-		allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12), 
-		lambda2 = 0.03, hazardRatio = c(0.75, 0.8, 0.9),
-		accrualIntensity = c(0.1, 0.2, 0.2) , dropoutRate1 = 0, dropoutRate2 = 0,
-		dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10), 
-		maxNumberOfEventsPerStage = c(NA_real_, 100, 100), maxNumberOfIterations = 100,
-		seed = 1234567890)
+	simulationResults <- getSimulationSurvival(
+	    design = design,
+	    directionUpper = FALSE, maxNumberOfSubjects = 260, plannedEvents = (1:design$kMax) * 20,
+	    allocation1 = 1, allocation2 = 1, accrualTime = c(0, 3, 6, 12),
+	    lambda2 = 0.03, hazardRatio = c(0.75, 0.8, 0.9),
+	    accrualIntensity = c(0.1, 0.2, 0.2), dropoutRate1 = 0, dropoutRate2 = 0,
+	    dropoutTime = 12, conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA_real_, 10, 10),
+	    maxNumberOfEventsPerStage = c(NA_real_, 100, 100), maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResults' with expected results
 	expect_equal(simulationResults$pi1, c(0.23662051, 0.25023841, 0.27674976), tolerance = 1e-07)
@@ -1018,15 +1057,19 @@ test_that("'getSimulationSurvival': test accrual time and intensity definition",
 
 	.skipTestIfDisabled()
 
-	maxNumberOfSubjects <- getSimulationSurvival(plannedEvents = 100, 
-		accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33), 
-		maxNumberOfIterations = 100)$maxNumberOfSubjects
+	maxNumberOfSubjects <- getSimulationSurvival(
+	    plannedEvents = 100,
+	    accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33),
+	    maxNumberOfIterations = 100
+	)$maxNumberOfSubjects
 	expect_equal(maxNumberOfSubjects, 330)
 
-	accrualIntensity <- getSimulationSurvival(plannedEvents = 100, 
-		accrualTime = c(0, 6, 12), accrualIntensity = c(0.2, 0.3), 
-		maxNumberOfSubjects = 330, maxNumberOfIterations = 100,
-		seed = 1234567890)$accrualIntensity 
+	accrualIntensity <- getSimulationSurvival(
+	    plannedEvents = 100,
+	    accrualTime = c(0, 6, 12), accrualIntensity = c(0.2, 0.3),
+	    maxNumberOfSubjects = 330, maxNumberOfIterations = 100,
+	    seed = 1234567890
+	)$accrualIntensity
 	expect_equal(accrualIntensity, c(22, 33))
 
 })
@@ -1036,130 +1079,175 @@ test_that("'getSimulationSurvival': test expected warnings and errors", {
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	.skipTestIfDisabled()
 
 	dIN <- getDesignInverseNormal(informationRates = c(0.4, 0.7, 1))
 
-	expect_warning(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, plannedEvents = c(58, 102, 146), 
-			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890),
-		"'minNumberOfEventsPerStage' (NA, 44, 44) will be ignored because 'conditionalPower' is not defined", 
-		fixed = TRUE)
+	expect_warning(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"'minNumberOfEventsPerStage' (NA, 44, 44) will be ignored because 'conditionalPower' is not defined",
+	fixed = TRUE
+	)
 
-	expect_warning(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, plannedEvents = c(58, 102, 146), 
-			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890),
-		"'maxNumberOfEventsPerStage' (NA, 176, 176) will be ignored because 'conditionalPower' is not defined", 
-		fixed = TRUE)
+	expect_warning(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, plannedEvents = c(58, 102, 146),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"'maxNumberOfEventsPerStage' (NA, 176, 176) will be ignored because 'conditionalPower' is not defined",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Missing argument: 'minNumberOfEventsPerStage' must be defined because 'conditionalPower' is defined", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Missing argument: 'minNumberOfEventsPerStage' must be defined because 'conditionalPower' is defined",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			minNumberOfEventsPerStage = c(NA_real_, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Missing argument: 'maxNumberOfEventsPerStage' must be defined because 'conditionalPower' is defined", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Missing argument: 'maxNumberOfEventsPerStage' must be defined because 'conditionalPower' is defined",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, conditionalPower = -0.1, plannedEvents = c(58, 102, 146), 
-			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
-			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Argument out of bounds: 'conditionalPower' (-0.1) is out of bounds (0; 1)", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = -0.1, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Argument out of bounds: 'conditionalPower' (-0.1) is out of bounds (0; 1)",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, conditionalPower = 1.1, plannedEvents = c(58, 102, 146), 
-			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
-			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Argument out of bounds: 'conditionalPower' (1.1) is out of bounds (0; 1)", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = 1.1, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Argument out of bounds: 'conditionalPower' (1.1) is out of bounds (0; 1)",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(plannedEvents = -100, 
-			accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33), 
-			maxNumberOfIterations = 100, seed = 1234567890), 
-		"Argument out of bounds: 'plannedEvents' (-100) must be >= 1", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    plannedEvents = -100,
+	    accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33),
+	    maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Argument out of bounds: 'plannedEvents' (-100) must be >= 1",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(design = dIN, plannedEvents = c(100,100, 150), 
-				accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33), 
-				maxNumberOfIterations = 100, seed = 1234567890), 
-			"Illegal argument: 'plannedEvents' (100, 100, 150) must be strictly increasing: x_1 < .. < x_3", 
-			fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    design = dIN, plannedEvents = c(100, 100, 150),
+	    accrualTime = c(0, 6, 12), accrualIntensity = c(22, 33),
+	    maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Illegal argument: 'plannedEvents' (100, 100, 150) must be strictly increasing: x_1 < .. < x_3",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			minNumberOfEventsPerStage = c(NA_real_, 44, -44), 
-			maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Argument out of bounds: each value of 'minNumberOfEventsPerStage' (58, 44, -44) must be >= 1", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, -44),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Argument out of bounds: each value of 'minNumberOfEventsPerStage' (58, 44, -44) must be >= 1",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-			pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-			minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
-			maxNumberOfEventsPerStage = 4 * c(NA_real_, 10, 44),
-			maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Illegal argument: 'maxNumberOfEventsPerStage' (58, 40, 176) must be not smaller than minNumberOfEventsPerStage' (58, 44, 44)", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 10, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Illegal argument: 'maxNumberOfEventsPerStage' (58, 40, 176) must be not smaller than minNumberOfEventsPerStage' (58, 44, 44)",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(plannedEvents = 100, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Illegal argument: 'maxNumberOfSubjects' must be defined", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(plannedEvents = 100, maxNumberOfIterations = 100, seed = 1234567890),
+	    "Illegal argument: 'maxNumberOfSubjects' must be defined",
+	    fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, thetaH1 = 0, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Argument out of bounds: 'thetaH1' (0) must be > 0", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    plannedEvents = 100, accrualTime = c(0, 12),
+	    accrualIntensity = 20, thetaH1 = 0, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Argument out of bounds: 'thetaH1' (0) must be > 0",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, conditionalPower = 0, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Argument out of bounds: 'conditionalPower' (0) is out of bounds (0; 1)", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    plannedEvents = 100, accrualTime = c(0, 12),
+	    accrualIntensity = 20, conditionalPower = 0, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Argument out of bounds: 'conditionalPower' (0) is out of bounds (0; 1)",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, conditionalPower = 1, maxNumberOfIterations = 100, seed = 1234567890), 
-		"Argument out of bounds: 'conditionalPower' (1) is out of bounds (0; 1)", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    plannedEvents = 100, accrualTime = c(0, 12),
+	    accrualIntensity = 20, conditionalPower = 1, maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Argument out of bounds: 'conditionalPower' (1) is out of bounds (0; 1)",
+	fixed = TRUE
+	)
 
-	expect_error(getSimulationSurvival(plannedEvents = 100, accrualTime = c(0, 12), 
-			accrualIntensity = 20, conditionalPower = c(0.5, 0.8), 
-			maxNumberOfIterations = 100, seed = 1234567890), 
-		"Illegal argument: 'conditionalPower' c(0.5, 0.8) must be a single numeric value", 
-		fixed = TRUE)
+	expect_error(getSimulationSurvival(
+	    plannedEvents = 100, accrualTime = c(0, 12),
+	    accrualIntensity = 20, conditionalPower = c(0.5, 0.8),
+	    maxNumberOfIterations = 100, seed = 1234567890
+	),
+	"Illegal argument: 'conditionalPower' c(0.5, 0.8) must be a single numeric value",
+	fixed = TRUE
+	)
 
 })
 
 context("Testing the Simulation of Survival Data for Different Parameter Variants")
 
 
-test_that("'getSimulationSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default ", {
+test_that("'getSimulationSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default", {
 	.skipTestIfDisabled()
 
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:simulatingTestingOneHypothesis}
 	# @refFS[Tab.]{fs:tab:output:getSimulationSurvival}
-	# @refFS[Formula]{fs:SimulationSurvivalTimeGenerate}
+	# @refFS[Formula]{fs:simulationSurvivalTimeGenerate}
 	# @refFS[Formula]{fs:sampleSizeSurvivalDefinitionPieceWiseAccrual}
-	# @refFS[Formula]{fs:SimulationSurvivalLogRank}
-	# @refFS[Formula]{fs:SimulationSurvivalIncrements}
-	# @refFS[Formula]{fs:SimulationSurvivalHazardEstimate} 
-	simulationResult <- getSimulationSurvival(plannedEvents = 40, maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	# @refFS[Formula]{fs:simulationSurvivalLogRank}
+	# @refFS[Formula]{fs:simulationSurvivalIncrements}
+	# @refFS[Formula]{fs:simulationSurvivalHazardEstimate}
+	simulationResult <- getSimulationSurvival(
+	    plannedEvents = 40, maxNumberOfSubjects = 200,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
@@ -1210,13 +1298,15 @@ test_that("'getSimulationSurvival': Fixed sample size with minimum required defi
 
 })
 
-test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subjects and 30 subjects per time unit can be recruited ", {
+test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subjects and 30 subjects per time unit can be recruited", {
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(plannedEvents = 40, accrualTime = 0, 
-		accrualIntensity = 30, maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    plannedEvents = 40, accrualTime = 0,
+	    accrualIntensity = 30, maxNumberOfSubjects = 200,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
@@ -1265,13 +1355,15 @@ test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subj
 
 })
 
-test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subjects and if the first 6 time units 20 subjects per time unit can be recruited, then 30 subjects per time unit ", {
+test_that("'getSimulationSurvival': Determine necessary accrual time if 200 subjects and if the first 6 time units 20 subjects per time unit can be recruited, then 30 subjects per time unit", {
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(plannedEvents = 40, accrualTime = c(0, 6), 
-		accrualIntensity = c(20, 30), maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    plannedEvents = 40, accrualTime = c(0, 6),
+	    accrualIntensity = c(20, 30), maxNumberOfSubjects = 200,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
@@ -1324,8 +1416,10 @@ test_that("'getSimulationSurvival': Determine maximum number of Subjects if the 
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(plannedEvents = 40, accrualTime = c(0, 6, 10), 
-		accrualIntensity = c(20, 30), maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    plannedEvents = 40, accrualTime = c(0, 6, 10),
+	    accrualIntensity = c(20, 30), maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
@@ -1381,8 +1475,10 @@ test_that("'getSimulationSurvival': Specify accrual time as a list", {
 	.skipTestIfDisabled()
 
 	at <- list("0 - <6" = 20, "6 - Inf" = 30)
-	simulationResult <- getSimulationSurvival(plannedEvents = 40, accrualTime = at, 
-		maxNumberOfSubjects = 200, maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    plannedEvents = 40, accrualTime = at,
+	    maxNumberOfSubjects = 200, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
@@ -1436,8 +1532,10 @@ test_that("'getSimulationSurvival': Specify accrual time as a list, if maximum n
 	.skipTestIfDisabled()
 
 	at <- list("0 - <6" = 20, "6 - <=10" = 30)
-	simulationResult <- getSimulationSurvival(plannedEvents = 40, accrualTime = at, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    plannedEvents = 40, accrualTime = at,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, c(37.275405, 23.320299, 16.282985, 12), tolerance = 1e-07)
@@ -1492,9 +1590,11 @@ test_that("'getSimulationSurvival': Specify effect size for a two-stage group de
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
-		pi1 = 0.2, pi2 = 0.3, eventTime = 24, plannedEvents = c(20, 40), 
-		maxNumberOfSubjects = 200, directionUpper = FALSE, maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2),
+	    pi1 = 0.2, pi2 = 0.3, eventTime = 24, plannedEvents = c(20, 40),
+	    maxNumberOfSubjects = 200, directionUpper = FALSE, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, 74.550809, tolerance = 1e-07)
@@ -1564,9 +1664,11 @@ test_that("'getSimulationSurvival': As above, but with a three-stage O'Brien and
 	.skipTestIfDisabled()
 
 	d3 <- getDesignGroupSequential(informationRates = c(0.4, 0.7, 1))
-	simulationResult <- getSimulationSurvival(design = d3, pi1 = 0.2, pi2 = 0.3, eventTime = 24, 
-		plannedEvents = round(d3$informationRates * 40), 
-		maxNumberOfSubjects = 200, directionUpper = FALSE, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    design = d3, pi1 = 0.2, pi2 = 0.3, eventTime = 24,
+	    plannedEvents = round(d3$informationRates * 40),
+	    maxNumberOfSubjects = 200, directionUpper = FALSE, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, 74.550809, tolerance = 1e-07)
@@ -1645,9 +1747,11 @@ test_that("'getSimulationSurvival': Effect size is based on event rate at specif
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5, 
-		pi2 = 0.3, eventTime = 24, plannedEvents = c(20, 40), maxNumberOfSubjects = 200, 
-		directionUpper = FALSE, maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5,
+	    pi2 = 0.3, eventTime = 24, plannedEvents = c(20, 40), maxNumberOfSubjects = 200,
+	    directionUpper = FALSE, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$pi1, 0.16333997, tolerance = 1e-07)
@@ -1716,9 +1820,11 @@ test_that("'getSimulationSurvival': Effect size is based on hazard rate for the 
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5, 
-		lambda2 = 0.02, plannedEvents = c(20, 40), maxNumberOfSubjects = 200, 
-		directionUpper = FALSE, maxNumberOfIterations = 100, seed = 1234567890) 
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2), hazardRatio = 0.5,
+	    lambda2 = 0.02, plannedEvents = c(20, 40), maxNumberOfSubjects = 200,
+	    directionUpper = FALSE, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$median1, 69.314718, tolerance = 1e-07)
@@ -1783,10 +1889,12 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
-		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
-		hazardRatio = 1.5, plannedEvents = c(20, 40), maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2),
+	    piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04),
+	    hazardRatio = 1.5, plannedEvents = c(20, 40), maxNumberOfSubjects = 200,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -1842,10 +1950,12 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	}
 
 	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
-		piecewiseSurvivalTime = pws, hazardRatio = c(1.5), 
-		plannedEvents = c(20, 40), maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2),
+	    piecewiseSurvivalTime = pws, hazardRatio = c(1.5),
+	    plannedEvents = c(20, 40), maxNumberOfSubjects = 200,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -1902,14 +2012,16 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 
 })
 
-test_that("'getSimulationSurvival': Specification of piecewise exponential survival time for both treatment arms  ", {
+test_that("'getSimulationSurvival': Specification of piecewise exponential survival time for both treatment arms", {
 
 	.skipTestIfDisabled()
 
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
-		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
-		lambda1 = c(0.015, 0.03, 0.06), plannedEvents = c(20, 40), 
-		maxNumberOfSubjects = 200, maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2),
+	    piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04),
+	    lambda1 = c(0.015, 0.03, 0.06), plannedEvents = c(20, 40),
+	    maxNumberOfSubjects = 200, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -1964,11 +2076,13 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	pws <- list("0 - <5"  = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
-		piecewiseSurvivalTime = pws, hazardRatio = 1.5, 
-		plannedEvents = c(20, 40), maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	pws <- list("0 - <5" = 0.01, "5 - <10" = 0.02, ">=10" = 0.04)
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2),
+	    piecewiseSurvivalTime = pws, hazardRatio = 1.5,
+	    plannedEvents = c(20, 40), maxNumberOfSubjects = 200,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -2023,10 +2137,12 @@ test_that("'getSimulationSurvival': Specification of piecewise exponential survi
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	simulationResult <- getSimulationSurvival(design = getDesignGroupSequential(kMax = 2), 
-		piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04), 
-		lambda1 = c(0.01, 0.02, 0.06), plannedEvents = c(20, 40), maxNumberOfSubjects = 200, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	simulationResult <- getSimulationSurvival(
+	    design = getDesignGroupSequential(kMax = 2),
+	    piecewiseSurvivalTime = c(0, 5, 10), lambda2 = c(0.01, 0.02, 0.04),
+	    lambda1 = c(0.01, 0.02, 0.06), plannedEvents = c(20, 40), maxNumberOfSubjects = 200,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'simulationResult' with expected results
 	expect_equal(simulationResult$accrualIntensity, 16.666667, tolerance = 1e-07)
@@ -2087,20 +2203,22 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 
 	.skipTestIfDisabled()
 
-	# Perform recalculation of number of events based on conditional power for a 
-	# three-stage design with inverse normal combination test, where the conditional power 
-	# is calculated under the specified effect size thetaH1 = 1.3 and up to a four-fold 
+	# Perform recalculation of number of events based on conditional power for a
+	# three-stage design with inverse normal combination test, where the conditional power
+	# is calculated under the specified effect size thetaH1 = 1.3 and up to a four-fold
 	# increase in originally planned sample size (number of events) is allowed
-	# Note that the first value in \code{minNumberOfEventsPerStage} and 
+	# Note that the first value in \code{minNumberOfEventsPerStage} and
 	# \code{maxNumberOfEventsPerStage} is arbitrary, i.e., it has no effect.
 
 	dIN <- getDesignInverseNormal(informationRates = c(0.4, 0.7, 1))
 
-	resultsWithSSR1 <- getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-		pi2 = 0.3, conditionalPower = 0.8, thetaH1 = 1.3, plannedEvents = c(58, 102, 146), 
-		minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
-		maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
-		maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890)
+	resultsWithSSR1 <- getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = 0.8, thetaH1 = 1.3, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'resultsWithSSR1' with expected results
 	expect_equal(resultsWithSSR1$pi1, c(0.3, 0.32452723, 0.34819506, 0.37103359, 0.39307188, 0.41433798, 0.43485894), tolerance = 1e-07)
@@ -2173,14 +2291,16 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	# If thetaH1 is unspecified, the observed hazard ratio estimate 
-	# (calculated from the log-rank statistic) is used for performing the 
+	# If thetaH1 is unspecified, the observed hazard ratio estimate
+	# (calculated from the log-rank statistic) is used for performing the
 	# recalculation of the number of events
-	resultsWithSSR2 <- getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-		pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146), 
-		minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
-		maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
-		maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890)
+	resultsWithSSR2 <- getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 146),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of SimulationResultsSurvival object 'resultsWithSSR2' with expected results
 	expect_equal(resultsWithSSR2$pi1, c(0.3, 0.32452723, 0.34819506, 0.37103359, 0.39307188, 0.41433798, 0.43485894), tolerance = 1e-07)
@@ -2254,9 +2374,11 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 	}
 
 	# Compare it with design without event size recalculation
-	resultsWithoutSSR <- getSimulationSurvival(design = dIN, hazardRatio = seq(1, 1.6, 0.1), 
-		pi2 = 0.3, plannedEvents = c(58,102,145), maxNumberOfSubjects = 800, 
-		maxNumberOfIterations = 100, seed = 1234567890)
+	resultsWithoutSSR <- getSimulationSurvival(
+	    design = dIN, hazardRatio = seq(1, 1.6, 0.1),
+	    pi2 = 0.3, plannedEvents = c(58, 102, 145), maxNumberOfSubjects = 800,
+	    maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 
 	## Comparison of the results of numeric object 'resultsWithoutSSR$overallReject' with expected results
@@ -2269,16 +2391,18 @@ test_that("'getSimulationSurvival': Perform recalculation of number of events ba
 	expect_equal(resultsWithSSR2$overallReject, c(0.04, 0.16, 0.37, 0.68, 0.88, 0.92, 0.98), tolerance = 1e-07)
 })
 
-test_that("'getSimulationSurvival': Confirm that event size racalcuation increases the Type I error rate, i.e., you have to use the combination test ", {
+test_that("'getSimulationSurvival': Confirm that event size racalcuation increases the Type I error rate, i.e., you have to use the combination test", {
 
 	.skipTestIfDisabled()
 
 	dGS <- getDesignGroupSequential(informationRates = c(0.4, 0.7, 1))
-	resultsWithSSRGS <- getSimulationSurvival(design = dGS, hazardRatio = seq(1), 
-		pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 145), 
-		minNumberOfEventsPerStage = c(NA_real_, 44, 44), 
-		maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
-		maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890)
+	resultsWithSSRGS <- getSimulationSurvival(
+	    design = dGS, hazardRatio = seq(1),
+	    pi2 = 0.3, conditionalPower = 0.8, plannedEvents = c(58, 102, 145),
+	    minNumberOfEventsPerStage = c(NA_real_, 44, 44),
+	    maxNumberOfEventsPerStage = 4 * c(NA_real_, 44, 44),
+	    maxNumberOfSubjects = 800, maxNumberOfIterations = 100, seed = 1234567890
+	)
 
 	## Comparison of the results of numeric object 'resultsWithSSRGS$overallReject' with expected results
 	expect_equal(resultsWithSSRGS$overallReject, 0.05, tolerance = 1e-07)
@@ -2290,72 +2414,72 @@ test_that("'getSimulationSurvival': Confirm that different inputs of lambda, med
 	.skipTestIfDisabled()
 
 	x1 <- getSimulationSurvival(
-		lambda2 = 0.4,
-		hazardRatio = c(0.65, 0.7),
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    lambda2 = 0.4,
+	    hazardRatio = c(0.65, 0.7),
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 	x2 <- getSimulationSurvival(
-		lambda2 = x1$.piecewiseSurvivalTime$lambda2,
-		lambda1 = x1$.piecewiseSurvivalTime$lambda1,
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    lambda2 = x1$.piecewiseSurvivalTime$lambda2,
+	    lambda1 = x1$.piecewiseSurvivalTime$lambda1,
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 	x3 <- getSimulationSurvival(
-		piecewiseSurvivalTime = x2$.piecewiseSurvivalTime, 
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    piecewiseSurvivalTime = x2$.piecewiseSurvivalTime,
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 	x4 <- getSimulationSurvival(
-		pi2 = getPiByLambda(x1$.piecewiseSurvivalTime$lambda2, 12L),
-		hazardRatio = c(0.65, 0.7),
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    pi2 = getPiByLambda(x1$.piecewiseSurvivalTime$lambda2, 12L),
+	    hazardRatio = c(0.65, 0.7),
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 	x5 <- getSimulationSurvival(
-		lambda2 = 0.4,
-		lambda1 = x4$lambda1,
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    lambda2 = 0.4,
+	    lambda1 = x4$lambda1,
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 	x6 <- getSimulationSurvival(
-		median2 = x5$median2,
-		hazardRatio = c(0.65, 0.7),
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    median2 = x5$median2,
+	    hazardRatio = c(0.65, 0.7),
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 	x7 <- getSimulationSurvival(
-		median2 = x5$median2,
-		median1 = x5$median1,
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    median2 = x5$median2,
+	    median1 = x5$median1,
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 
@@ -2618,24 +2742,24 @@ test_that("'getSimulationSurvival': Confirm that different definitions of delaye
 	.skipTestIfDisabled()
 
 	x1 <- getSimulationSurvival(
-		piecewiseSurvivalTime = c(0, 6),
-		lambda2 = c(1.7, 1.2),
-		hazardRatio = c(0.65, 0.7),
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    piecewiseSurvivalTime = c(0, 6),
+	    lambda2 = c(1.7, 1.2),
+	    hazardRatio = c(0.65, 0.7),
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 	x2 <- getSimulationSurvival(
-		piecewiseSurvivalTime = list("<6" = 1.7, "6 - Inf" = 1.2),
-		hazardRatio = c(0.65, 0.7),
-		plannedEvents = 98,
-		maxNumberOfSubjects = 120,
-		directionUpper = FALSE,
-		maxNumberOfIterations = 1000,
-		sided = 1, alpha = 0.1, seed = 123
+	    piecewiseSurvivalTime = list("<6" = 1.7, "6 - Inf" = 1.2),
+	    hazardRatio = c(0.65, 0.7),
+	    plannedEvents = 98,
+	    maxNumberOfSubjects = 120,
+	    directionUpper = FALSE,
+	    maxNumberOfIterations = 1000,
+	    sided = 1, alpha = 0.1, seed = 123
 	)
 
 

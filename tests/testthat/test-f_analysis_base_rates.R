@@ -14,22 +14,24 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_base_rates.R
-## |  Creation date: 08 December 2021, 09:00:49
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:00:32
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing the Analysis Rates Functionality for One Treatment")
 
 
 test_that("'getAnalysisResults' for a group sequential design and one treatment", {
-	design0 <- getDesignGroupSequential(kMax = 2, alpha = 0.025, informationRates = c(0.2, 1), 
-			typeOfDesign = "asKD", gammaA = 2.8)
+	design0 <- getDesignGroupSequential(
+	    kMax = 2, alpha = 0.025, informationRates = c(0.2, 1),
+	    typeOfDesign = "asKD", gammaA = 2.8
+	)
 
 	dataExample0 <- getDataset(
-		n = c(33), 
-		events = c(23)
+	    n = c(33),
+	    events = c(23)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -38,8 +40,10 @@ test_that("'getAnalysisResults' for a group sequential design and one treatment"
 	# @refFS[Formula]{fs:testStatisticGroupSequential}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x0 <- getAnalysisResults(design = design0, dataInput = dataExample0,
-		thetaH0 = 0.4, normalApproximation = FALSE, directionUpper = TRUE) 
+	x0 <- getAnalysisResults(
+	    design = design0, dataInput = dataExample0,
+	    thetaH0 = 0.4, normalApproximation = FALSE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x0' with expected results
 	expect_equal(x0$pi1, 0.6969697, tolerance = 1e-06)
@@ -47,7 +51,7 @@ test_that("'getAnalysisResults' for a group sequential design and one treatment"
 	expect_equal(x0$conditionalRejectionProbabilities, c(0.28801679, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$conditionalPower, c(NA_real_, NA_real_))
 	expect_equal(x0$repeatedConfidenceIntervalLowerBounds, c(0.38475339, NA_real_), tolerance = 1e-06)
-	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(0.91556352, NA_real_), tolerance = 1e-06)
+	expect_equal(x0$repeatedConfidenceIntervalUpperBounds, c(0.91556361, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$repeatedPValues, c(0.048557231, NA_real_), tolerance = 1e-06)
 	expect_equal(x0$finalStage, NA_integer_)
 	expect_equal(x0$finalPValues, c(NA_real_, NA_real_))
@@ -87,12 +91,14 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 
 	.skipTestIfDisabled()
 
-	design1 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, informationRates = c(0.2, 0.4, 0.8, 1), 
-		futilityBounds = c(-0.5, 0, 0.5),	typeOfDesign = "asKD", gammaA = 2.8)
+	design1 <- getDesignGroupSequential(
+	    kMax = 4, alpha = 0.025, informationRates = c(0.2, 0.4, 0.8, 1),
+	    futilityBounds = c(-0.5, 0, 0.5), typeOfDesign = "asKD", gammaA = 2.8
+	)
 
 	dataExample1 <- getDataset(
-		n = c(10, 10, 20, 11), 
-		events = c(4, 5, 5, 6)
+	    n = c(10, 10, 20, 11),
+	    events = c(4, 5, 5, 6)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -103,16 +109,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
-	x1 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 2, 	thetaH0 = 0.75, normalApproximation = FALSE, directionUpper = FALSE) 
+	x1 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 2, thetaH0 = 0.75, normalApproximation = FALSE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x1' with expected results
 	expect_equal(x1$pi1, 0.45, tolerance = 1e-07)
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.13502024, 0.39663603, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.035340833, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.88809209, 0.77284164, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.49999905, 0.056127482, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -157,16 +165,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:medianUnbiasedEstimate}
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
-	x2 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 3, 	thetaH0 = 0.75, normalApproximation = TRUE, directionUpper = FALSE)
+	x2 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 3, thetaH0 = 0.75, normalApproximation = TRUE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
 	expect_equal(x2$pi1, 0.35, tolerance = 1e-07)
 	expect_equal(x2$testActions, c("continue", "reject and stop", "reject and stop", NA_character_))
 	expect_equal(x2$conditionalRejectionProbabilities, c(0.21465031, 0.55995383, 1, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, 0.20635812, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, 0.52720848, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.08898791, 0.19243551, 0.206358, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.81981977, 0.73748168, 0.52720845, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.47958473, 0.014066714, 1.9536724e-06, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 2)
 	expect_equal(x2$finalPValues, c(NA_real_, 0.0011783609, NA_real_, NA_real_), tolerance = 1e-07)
@@ -209,16 +219,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x3 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 2, 	thetaH0 = 0.75, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = FALSE, directionUpper = FALSE) 
+	x3 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 2, thetaH0 = 0.75, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = FALSE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x3$conditionalRejectionProbabilities, c(0.13502024, 0.39663603, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_, 0.85193241, 0.94869662), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.035340833, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.88809209, 0.77284164, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.49999905, 0.056127482, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$finalStage, NA_integer_)
 	expect_equal(x3$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -255,7 +267,7 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 
 	## Comparison of the results of list object 'plotData1' with expected results
 	expect_equal(plotData1$xValues, c(0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75), tolerance = 1e-07)
-	expect_equal(plotData1$condPowerValues, c(0.98024945, 0.94869662, 0.88988709, 0.79611571, 0.66506207, 0.50313625, 0.32784789), tolerance = 1e-07)
+	expect_equal(plotData1$condPowerValues, c(0.98024945, 0.94869662, 0.88988709, 0.79611571, 0.66506207, 0.50313626, 0.32784789), tolerance = 1e-07)
 	expect_equal(plotData1$likelihoodValues, c(1, 0.9039239, 0.66761715, 0.40289032, 0.19865977, 0.080038099, 0.026347981), tolerance = 1e-07)
 	expect_equal(plotData1$main, "Conditional Power with Likelihood")
 	expect_equal(plotData1$xlab, "pi1")
@@ -274,16 +286,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x4 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 2, 	thetaH0 = 0.75, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = TRUE, directionUpper = FALSE) 
+	x4 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 2, thetaH0 = 0.75, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = TRUE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x4' with expected results
 	expect_equal(x4$testActions, c("continue", "reject and stop", NA_character_, NA_character_))
 	expect_equal(x4$conditionalRejectionProbabilities, c(0.21465031, 0.55995383, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$conditionalPower, c(NA_real_, NA_real_, 0.9494174, 0.9843063), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.08898791, 0.19243551, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.81981977, 0.73748168, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.47958473, 0.014066714, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, 2)
 	expect_equal(x4$finalPValues, c(NA_real_, 0.0011783609, NA_real_, NA_real_), tolerance = 1e-07)
@@ -336,16 +350,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x5 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 3, 	thetaH0 = 0.25, normalApproximation = FALSE, directionUpper = TRUE)
+	x5 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 3, thetaH0 = 0.25, normalApproximation = FALSE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x5' with expected results
 	expect_equal(x5$pi1, 0.35, tolerance = 1e-07)
 	expect_equal(x5$testActions, c("continue", "continue", "continue", NA_character_))
-	expect_equal(x5$conditionalRejectionProbabilities, c(0.033369686, 0.13517192, 0.020135527, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$conditionalRejectionProbabilities, c(0.033369687, 0.13517192, 0.020135528, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, 0.18966473, NA_real_), tolerance = 1e-07)
-	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, 0.53925561, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.035340833, 0.15564775, 0.18966473, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.88809209, 0.77284164, 0.53925561, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$repeatedPValues, c(0.49999905, 0.49999905, 0.20027888, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$finalStage, NA_integer_)
 	expect_equal(x5$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -388,16 +404,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x6 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 3, 	thetaH0 = 0.25, normalApproximation = TRUE, directionUpper = TRUE)
+	x6 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 3, thetaH0 = 0.25, normalApproximation = TRUE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x6' with expected results
 	expect_equal(x6$pi1, 0.35, tolerance = 1e-07)
 	expect_equal(x6$testActions, c("continue", "continue", "continue", NA_character_))
-	expect_equal(x6$conditionalRejectionProbabilities, c(0.049321561, 0.20984263, 0.048813265, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$conditionalRejectionProbabilities, c(0.049321562, 0.20984263, 0.048813267, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, 0.20635812, NA_real_), tolerance = 1e-07)
-	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, 0.52720848, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.08898791, 0.19243551, 0.206358, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.81981977, 0.73748168, 0.52720845, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$repeatedPValues, c(0.49999905, 0.27035282, 0.14086509, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$finalStage, NA_integer_)
 	expect_equal(x6$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -440,16 +458,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x7 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 2, 	thetaH0 = 0.25, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = FALSE, directionUpper = TRUE) 
+	x7 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 2, thetaH0 = 0.25, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = FALSE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x7' with expected results
 	expect_equal(x7$testActions, c("continue", "continue", NA_character_, NA_character_))
-	expect_equal(x7$conditionalRejectionProbabilities, c(0.033369686, 0.13517192, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$conditionalRejectionProbabilities, c(0.033369687, 0.13517192, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$conditionalPower, c(NA_real_, NA_real_, 0.58576815, 0.82581584), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.035340812, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.88809247, 0.77284187, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.035340833, 0.15564775, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.88809209, 0.77284164, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$repeatedPValues, c(0.49999905, 0.49999905, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$finalStage, NA_integer_)
 	expect_equal(x7$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -486,7 +506,7 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 
 	## Comparison of the results of list object 'plotData3' with expected results
 	expect_equal(plotData3$xValues, c(0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55), tolerance = 1e-07)
-	expect_equal(plotData3$condPowerValues, c(0.099723847, 0.21903134, 0.37478113, 0.54310492, 0.6994843, 0.82581584, 0.91388883), tolerance = 1e-07)
+	expect_equal(plotData3$condPowerValues, c(0.099723848, 0.21903134, 0.37478113, 0.54310492, 0.6994843, 0.82581584, 0.91388884), tolerance = 1e-07)
 	expect_equal(plotData3$likelihoodValues, c(0.19865977, 0.40289032, 0.66761715, 0.9039239, 1, 0.9039239, 0.66761715), tolerance = 1e-07)
 	expect_equal(plotData3$main, "Conditional Power with Likelihood")
 	expect_equal(plotData3$xlab, "pi1")
@@ -502,16 +522,18 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x8 <- getAnalysisResults(design = design1, dataInput = dataExample1,
-		stage = 2, 	thetaH0 = 0.25, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = TRUE, directionUpper = TRUE) 
+	x8 <- getAnalysisResults(
+	    design = design1, dataInput = dataExample1,
+	    stage = 2, thetaH0 = 0.25, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = TRUE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x8' with expected results
 	expect_equal(x8$testActions, c("continue", "continue", NA_character_, NA_character_))
-	expect_equal(x8$conditionalRejectionProbabilities, c(0.049321561, 0.20984263, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$conditionalRejectionProbabilities, c(0.049321562, 0.20984263, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$conditionalPower, c(NA_real_, NA_real_, 0.76152324, 0.91259792), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.088987896, 0.19243551, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.81981958, 0.73748169, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.08898791, 0.19243551, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.81981977, 0.73748168, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$repeatedPValues, c(0.49999905, 0.27035282, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$finalStage, NA_integer_)
 	expect_equal(x8$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -548,7 +570,7 @@ test_that("'getAnalysisResults' for a four-stage group sequential design and one
 
 	## Comparison of the results of list object 'plotData4' with expected results
 	expect_equal(plotData4$xValues, c(0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55), tolerance = 1e-07)
-	expect_equal(plotData4$condPowerValues, c(0.20983878, 0.3743042, 0.54811429, 0.70471917, 0.82789376, 0.91259792, 0.96272982), tolerance = 1e-07)
+	expect_equal(plotData4$condPowerValues, c(0.20983879, 0.3743042, 0.5481143, 0.70471917, 0.82789376, 0.91259792, 0.96272982), tolerance = 1e-07)
 	expect_equal(plotData4$likelihoodValues, c(0.19865977, 0.40289032, 0.66761715, 0.9039239, 1, 0.9039239, 0.66761715), tolerance = 1e-07)
 	expect_equal(plotData4$main, "Conditional Power with Likelihood")
 	expect_equal(plotData4$xlab, "pi1")
@@ -561,12 +583,14 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 
 	.skipTestIfDisabled()
 
-	design2 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, informationRates = c(0.2, 0.4, 0.8, 1),
-		futilityBounds = c(-0.5, 0, 0.5), typeOfDesign = "asKD", gammaA = 2.8)
+	design2 <- getDesignInverseNormal(
+	    kMax = 4, alpha = 0.025, informationRates = c(0.2, 0.4, 0.8, 1),
+	    futilityBounds = c(-0.5, 0, 0.5), typeOfDesign = "asKD", gammaA = 2.8
+	)
 
 	dataExample2 <- getDataset(
-		n = c(8, 10, 9, 11), # cumsum, overall n = (8, 18, 27, 38)
-		events = c(4, 5, 5, 6) # cumsum, overall events = (4, 9, 14, 20)
+	    n = c(8, 10, 9, 11), # cumsum, overall n = (8, 18, 27, 38)
+	    events = c(4, 5, 5, 6) # cumsum, overall events = (4, 9, 14, 20)
 	)
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
 	# @refFS[Formula]{fs:testStatisticOneRateApproximation}
@@ -575,16 +599,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 
-	x1 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 3, 	thetaH0 = 0.75, normalApproximation = FALSE, directionUpper = FALSE)
+	x1 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 3, thetaH0 = 0.75, normalApproximation = FALSE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x1' with expected results
 	expect_equal(x1$pi1, 0.51851852, tolerance = 1e-07)
 	expect_equal(x1$testActions, c("continue", "continue", "continue", NA_character_))
-	expect_equal(x1$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, 0.28098687, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$conditionalRejectionProbabilities, c(0.055828725, 0.15918316, 0.28098687, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, 0.26858957, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, 0.7687011, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(0.046266926, 0.16132369, 0.26858957, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.95373307, 0.83867631, 0.76870127, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.49999905, 0.43799317, 0.045574143, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -629,16 +655,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:orderingPValueUpper}
 	# @refFS[Formula]{fs:finalCIOneRate}
 	# @refFS[Formula]{fs:medianUnbiasedEstimate}
-	x2 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 3, 	thetaH0 = 0.75, normalApproximation = TRUE, directionUpper = FALSE)
+	x2 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 3, thetaH0 = 0.75, normalApproximation = TRUE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x2' with expected results
 	expect_equal(x2$pi1, 0.51851852, tolerance = 1e-07)
 	expect_equal(x2$testActions, c("continue", "continue", "reject and stop", NA_character_))
-	expect_equal(x2$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, 0.78413538, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$conditionalRejectionProbabilities, c(0.08807963, 0.32350578, 0.78413539, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, 0.31861038, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, 0.72001939, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(0.11314487, 0.21610036, 0.31861038, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.88685513, 0.78389964, 0.72001945, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.49999905, 0.1020964, 0.0075111702, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 3)
 	expect_equal(x2$finalPValues, c(NA_real_, NA_real_, 0.0050707339, NA_real_), tolerance = 1e-07)
@@ -678,16 +706,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x3 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 2, 	thetaH0 = 0.75, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = FALSE, directionUpper = FALSE) 
+	x3 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 2, thetaH0 = 0.75, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = FALSE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
-	expect_equal(x3$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$conditionalRejectionProbabilities, c(0.055828725, 0.15918316, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_, 0.69921202, 0.88465983), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(0.046266926, 0.16132369, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.95373307, 0.83867631, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.49999905, 0.43799317, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$finalStage, NA_integer_)
 	expect_equal(x3$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -724,7 +754,7 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 
 	## Comparison of the results of list object 'plotData1' with expected results
 	expect_equal(plotData1$xValues, c(0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75), tolerance = 1e-07)
-	expect_equal(plotData1$condPowerValues, c(0.94793138, 0.88465983, 0.78396384, 0.64581102, 0.48045808, 0.30888816, 0.15917802), tolerance = 1e-07)
+	expect_equal(plotData1$condPowerValues, c(0.94793138, 0.88465983, 0.78396384, 0.64581102, 0.48045808, 0.30888817, 0.15917802), tolerance = 1e-07)
 	expect_equal(plotData1$likelihoodValues, c(0.91393119, 1, 0.91393119, 0.69767633, 0.44485807, 0.23692776, 0.10539922), tolerance = 1e-07)
 	expect_equal(plotData1$main, "Conditional Power with Likelihood")
 	expect_equal(plotData1$xlab, "pi1")
@@ -737,16 +767,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x4 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 2, 	thetaH0 = 0.75, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = TRUE, directionUpper = FALSE) 
+	x4 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 2, thetaH0 = 0.75, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = TRUE, directionUpper = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x4' with expected results
 	expect_equal(x4$testActions, c("continue", "continue", NA_character_, NA_character_))
-	expect_equal(x4$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$conditionalRejectionProbabilities, c(0.08807963, 0.32350578, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$conditionalPower, c(NA_real_, NA_real_, 0.85385983, 0.95015898), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(0.11314487, 0.21610036, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.88685513, 0.78389964, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.49999905, 0.1020964, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, NA_integer_)
 	expect_equal(x4$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -783,7 +815,7 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 
 	## Comparison of the results of list object 'plotData2' with expected results
 	expect_equal(plotData2$xValues, c(0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75), tolerance = 1e-07)
-	expect_equal(plotData2$condPowerValues, c(0.98088099, 0.95015898, 0.89232288, 0.79901831, 0.66708346, 0.50248974, 0.32350374), tolerance = 1e-07)
+	expect_equal(plotData2$condPowerValues, c(0.98088099, 0.95015898, 0.89232289, 0.79901831, 0.66708346, 0.50248974, 0.32350375), tolerance = 1e-07)
 	expect_equal(plotData2$likelihoodValues, c(0.91393119, 1, 0.91393119, 0.69767633, 0.44485807, 0.23692776, 0.10539922), tolerance = 1e-07)
 	expect_equal(plotData2$main, "Conditional Power with Likelihood")
 	expect_equal(plotData2$xlab, "pi1")
@@ -796,16 +828,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x5 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 3, 	thetaH0 = 0.25, normalApproximation = FALSE, directionUpper = TRUE)
+	x5 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 3, thetaH0 = 0.25, normalApproximation = FALSE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x5' with expected results
 	expect_equal(x5$pi1, 0.51851852, tolerance = 1e-07)
 	expect_equal(x5$testActions, c("continue", "continue", "reject and stop", NA_character_))
-	expect_equal(x5$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, 0.6508521, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$conditionalRejectionProbabilities, c(0.055828725, 0.15918316, 0.65085211, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, 0.26858957, NA_real_), tolerance = 1e-07)
-	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, 0.7687011, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalLowerBounds, c(0.046266926, 0.16132369, 0.26858957, NA_real_), tolerance = 1e-07)
+	expect_equal(x5$repeatedConfidenceIntervalUpperBounds, c(0.95373307, 0.83867631, 0.76870127, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$repeatedPValues, c(0.49999905, 0.43799317, 0.013282796, NA_real_), tolerance = 1e-07)
 	expect_equal(x5$finalStage, 3)
 	expect_equal(x5$finalPValues, c(NA_real_, NA_real_, 0.007752129, NA_real_), tolerance = 1e-07)
@@ -845,16 +879,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:testStatisticNormalCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x6 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 3, 	thetaH0 = 0.25, normalApproximation = TRUE, directionUpper = TRUE)
+	x6 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 3, thetaH0 = 0.25, normalApproximation = TRUE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x6' with expected results
 	expect_equal(x6$pi1, 0.51851852, tolerance = 1e-07)
 	expect_equal(x6$testActions, c("continue", "continue", "reject and stop", NA_character_))
-	expect_equal(x6$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, 0.96959663, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$conditionalRejectionProbabilities, c(0.08807963, 0.32350578, 0.96959663, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$conditionalPower, c(NA_real_, NA_real_, NA_real_, NA_real_))
-	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, 0.31861038, NA_real_), tolerance = 1e-07)
-	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, 0.72001939, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalLowerBounds, c(0.11314487, 0.21610036, 0.31861038, NA_real_), tolerance = 1e-07)
+	expect_equal(x6$repeatedConfidenceIntervalUpperBounds, c(0.88685513, 0.78389964, 0.72001945, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$repeatedPValues, c(0.49999905, 0.1020964, 0.0013103922, NA_real_), tolerance = 1e-07)
 	expect_equal(x6$finalStage, 3)
 	expect_equal(x6$finalPValues, c(NA_real_, NA_real_, 0.002378519, NA_real_), tolerance = 1e-07)
@@ -893,16 +929,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x7 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 2, 	thetaH0 = 0.25, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = FALSE, directionUpper = TRUE) 
+	x7 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 2, thetaH0 = 0.25, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = FALSE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x7' with expected results
 	expect_equal(x7$testActions, c("continue", "continue", NA_character_, NA_character_))
-	expect_equal(x7$conditionalRejectionProbabilities, c(0.055828724, 0.15918316, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$conditionalRejectionProbabilities, c(0.055828725, 0.15918316, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$conditionalPower, c(NA_real_, NA_real_, 0.69921202, 0.88465983), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.046266965, 0.16132361, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.95373304, 0.83867639, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalLowerBounds, c(0.046266926, 0.16132369, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x7$repeatedConfidenceIntervalUpperBounds, c(0.95373307, 0.83867631, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$repeatedPValues, c(0.49999905, 0.43799317, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x7$finalStage, NA_integer_)
 	expect_equal(x7$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -939,7 +977,7 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 
 	## Comparison of the results of list object 'plotData3' with expected results
 	expect_equal(plotData3$xValues, c(0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55), tolerance = 1e-07)
-	expect_equal(plotData3$condPowerValues, c(0.15917802, 0.30888816, 0.48045808, 0.64581102, 0.78396384, 0.88465983, 0.94793138), tolerance = 1e-07)
+	expect_equal(plotData3$condPowerValues, c(0.15917802, 0.30888817, 0.48045808, 0.64581102, 0.78396384, 0.88465983, 0.94793138), tolerance = 1e-07)
 	expect_equal(plotData3$likelihoodValues, c(0.10539922, 0.23692776, 0.44485807, 0.69767633, 0.91393119, 1, 0.91393119), tolerance = 1e-07)
 	expect_equal(plotData3$main, "Conditional Power with Likelihood")
 	expect_equal(plotData3$xlab, "pi1")
@@ -951,16 +989,18 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 	# @refFS[Formula]{fs:conditionalRejectionUnderNullGroupSequential}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerOneRateEffect}
-	x8 <- getAnalysisResults(design = design2, dataInput = dataExample2,
-		stage = 2, 	thetaH0 = 0.25, nPlanned = c(12,6), pi1 = 0.5, 
-		normalApproximation = TRUE, directionUpper = TRUE) 
+	x8 <- getAnalysisResults(
+	    design = design2, dataInput = dataExample2,
+	    stage = 2, thetaH0 = 0.25, nPlanned = c(12, 6), pi1 = 0.5,
+	    normalApproximation = TRUE, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x8' with expected results
 	expect_equal(x8$testActions, c("continue", "continue", NA_character_, NA_character_))
-	expect_equal(x8$conditionalRejectionProbabilities, c(0.088079629, 0.32350577, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$conditionalRejectionProbabilities, c(0.08807963, 0.32350578, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$conditionalPower, c(NA_real_, NA_real_, 0.85385983, 0.95015898), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.1131446, 0.21610037, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.8868554, 0.78389963, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalLowerBounds, c(0.11314487, 0.21610036, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x8$repeatedConfidenceIntervalUpperBounds, c(0.88685513, 0.78389964, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$repeatedPValues, c(0.49999905, 0.1020964, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x8$finalStage, NA_integer_)
 	expect_equal(x8$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -997,7 +1037,7 @@ test_that("'getAnalysisResults' for a  four-stage inverse sequential design and 
 
 	## Comparison of the results of list object 'plotData4' with expected results
 	expect_equal(plotData4$xValues, c(0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55), tolerance = 1e-07)
-	expect_equal(plotData4$condPowerValues, c(0.32350374, 0.50248974, 0.66708346, 0.79901831, 0.89232288, 0.95015898, 0.98088099), tolerance = 1e-07)
+	expect_equal(plotData4$condPowerValues, c(0.32350375, 0.50248974, 0.66708346, 0.79901831, 0.89232289, 0.95015898, 0.98088099), tolerance = 1e-07)
 	expect_equal(plotData4$likelihoodValues, c(0.10539922, 0.23692776, 0.44485807, 0.69767633, 0.91393119, 1, 0.91393119), tolerance = 1e-07)
 	expect_equal(plotData4$main, "Conditional Power with Likelihood")
 	expect_equal(plotData4$xlab, "pi1")
@@ -1013,8 +1053,8 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	design3 <- getDesignFisher(kMax = 4, alpha = 0.025, informationRates = c(0.2, 0.4, 0.8, 1))
 
 	dataExample3 <- getDataset(
-		n = c(8, 10, 9, 11), # cumsum, overall n = (8, 18, 27, 38)
-		events = c(4, 5, 5, 6) # cumsum, overall events = (4, 9, 14, 20)
+	    n = c(8, 10, 9, 11), # cumsum, overall n = (8, 18, 27, 38)
+	    events = c(4, 5, 5, 6) # cumsum, overall events = (4, 9, 14, 20)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1023,9 +1063,11 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x1 <- getAnalysisResults(design = design3, dataInput = dataExample3,
-		stage = 3, 	thetaH0 = 0.75, normalApproximation = FALSE, 
-		directionUpper = FALSE, iterations = 1000, seed = 123)
+	x1 <- getAnalysisResults(
+	    design = design3, dataInput = dataExample3,
+	    stage = 3, thetaH0 = 0.75, normalApproximation = FALSE,
+	    directionUpper = FALSE, iterations = 1000, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x1' with expected results
 	expect_equal(x1$pi1, 0.51851852, tolerance = 1e-07)
@@ -1073,9 +1115,11 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x2 <- getAnalysisResults(design = design3, dataInput = dataExample3,
-		stage = 3, 	thetaH0 = 0.75, normalApproximation = TRUE, 
-		directionUpper = FALSE, iterations = 1000, seed = 123)
+	x2 <- getAnalysisResults(
+	    design = design3, dataInput = dataExample3,
+	    stage = 3, thetaH0 = 0.75, normalApproximation = TRUE,
+	    directionUpper = FALSE, iterations = 1000, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x2' with expected results
 	expect_equal(x2$pi1, 0.51851852, tolerance = 1e-07)
@@ -1124,9 +1168,11 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:conditionalRejectionFisherInterim}
-	x3 <- getAnalysisResults(design = design3, dataInput = dataExample3,
-		stage = 2, 	thetaH0 = 0.75, nPlanned = c(12, 6), pi1 = 0.5, normalApproximation = FALSE, 
-		directionUpper = FALSE, iterations = 1000, seed = 123) 
+	x3 <- getAnalysisResults(
+	    design = design3, dataInput = dataExample3,
+	    stage = 2, thetaH0 = 0.75, nPlanned = c(12, 6), pi1 = 0.5, normalApproximation = FALSE,
+	    directionUpper = FALSE, iterations = 1000, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
@@ -1183,9 +1229,11 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x4 <- getAnalysisResults(design = design3, dataInput = dataExample3,
-		stage = 3, 	thetaH0 = 0.25, normalApproximation = FALSE, 
-		directionUpper = TRUE, iterations = 1000, seed = 123)
+	x4 <- getAnalysisResults(
+	    design = design3, dataInput = dataExample3,
+	    stage = 3, thetaH0 = 0.25, normalApproximation = FALSE,
+	    directionUpper = TRUE, iterations = 1000, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x4' with expected results
 	expect_equal(x4$pi1, 0.51851852, tolerance = 1e-07)
@@ -1233,9 +1281,11 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	# @refFS[Formula]{fs:testStatisticFisherCombinationTest}
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
-	x5 <- getAnalysisResults(design = design3, dataInput = dataExample3,
-		stage = 3, 	thetaH0 = 0.25, normalApproximation = TRUE, 
-		directionUpper = TRUE, iterations = 1000, seed = 123)
+	x5 <- getAnalysisResults(
+	    design = design3, dataInput = dataExample3,
+	    stage = 3, thetaH0 = 0.25, normalApproximation = TRUE,
+	    directionUpper = TRUE, iterations = 1000, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x5' with expected results
 	expect_equal(x5$pi1, 0.51851852, tolerance = 1e-07)
@@ -1284,9 +1334,11 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and one treatmen
 	# @refFS[Formula]{fs:definitionRCIFisherCombination}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:conditionalRejectionFisherInterim}
-	x6 <- getAnalysisResults(design = design3, dataInput = dataExample3,
-		stage = 2, 	thetaH0 = 0.25, nPlanned = c(12,6), pi1 = 0.5, normalApproximation = FALSE, 
-		directionUpper = TRUE, iterations = 1000, seed = 123) 
+	x6 <- getAnalysisResults(
+	    design = design3, dataInput = dataExample3,
+	    stage = 2, thetaH0 = 0.25, nPlanned = c(12, 6), pi1 = 0.5, normalApproximation = FALSE,
+	    directionUpper = TRUE, iterations = 1000, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x6' with expected results
 	expect_equal(x6$testActions, c("continue", "continue", NA_character_, NA_character_))
@@ -1345,15 +1397,17 @@ context("Testing the Analysis Rates Functionality for Two Treatments")
 test_that("'getAnalysisResults' for a  four-stage group sequential design and two treatments", {
 	.skipTestIfDisabled()
 
-	design7 <- getDesignGroupSequential(kMax = 4, alpha = 0.025, 
-		typeOfDesign = "WT", deltaWT = 0.25, informationRates = c(0.2, 0.4, 0.8, 1), 
-		futilityBounds = c(0, 0.5, 0.8), bindingFutility = TRUE)
+	design7 <- getDesignGroupSequential(
+	    kMax = 4, alpha = 0.025,
+	    typeOfDesign = "WT", deltaWT = 0.25, informationRates = c(0.2, 0.4, 0.8, 1),
+	    futilityBounds = c(0, 0.5, 0.8), bindingFutility = TRUE
+	)
 
 	dataExample5 <- getDataset(
-		n1 = c(17, 18, 22),
-		n2 = c(18, 17, 19),
-		events1 = c(11, 12, 17),
-		events2 = c(5, 10, 7)
+	    n1 = c(17, 18, 22),
+	    n2 = c(18, 17, 19),
+	    events1 = c(11, 12, 17),
+	    events2 = c(5, 10, 7)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -1366,15 +1420,17 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
-	x1 <- getAnalysisResults(design7, dataExample5, thetaH0 = 0, stage = 2, nPlanned = c(60, 30), 
-		pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2)
+	x1 <- getAnalysisResults(design7, dataExample5,
+	    thetaH0 = 0, stage = 2, nPlanned = c(60, 30),
+	    pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x1' with expected results
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.19002543, 0.18837824, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, 0.97639752, 0.99770454), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.076268589, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.49449415, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000084, -0.07626859, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492429, 0.4944942, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.083297609, 0.074571507, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -1407,7 +1463,7 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)  		
+	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)
 
 	## Comparison of the results of list object 'plotData1' with expected results
 	expect_equal(plotData1$xValues, c(0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8), tolerance = 1e-07)
@@ -1430,20 +1486,22 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
 
-	x2 <- getAnalysisResults(design7, dataExample5, thetaH0 = 0, stage = 2, nPlanned = c(60,30), 
-		pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5)
+	x2 <- getAnalysisResults(design7, dataExample5,
+	    thetaH0 = 0, stage = 2, nPlanned = c(60, 30),
+	    pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
 	expect_equal(x2$testActions, c("accept and stop", "accept and stop", NA_character_, NA_character_))
 	expect_equal(x2$conditionalRejectionProbabilities, c(0, 0, NA_real_, NA_real_))
 	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_, 0.037603851, 0.34743098), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.076268589, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.49449415, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.14000084, -0.07626859, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.72492429, 0.4944942, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.49999905, 0.49999905, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 1)
 	expect_equal(x2$finalPValues, c(0.98580558, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(0.039328967, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(0.62730986, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$finalConfidenceIntervalLowerBounds, c(0.039328966, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$finalConfidenceIntervalUpperBounds, c(0.62730979, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$medianUnbiasedEstimates, c(0.36928105, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x2), NA)))
@@ -1471,7 +1529,7 @@ test_that("'getAnalysisResults' for a  four-stage group sequential design and tw
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData2 <- testGetAnalysisResultsPlotData(x2, piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5)  		
+	plotData2 <- testGetAnalysisResultsPlotData(x2, piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5)
 
 	## Comparison of the results of list object 'plotData2' with expected results
 	expect_equal(plotData2$xValues, c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5), tolerance = 1e-07)
@@ -1488,15 +1546,17 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 
 	.skipTestIfDisabled()
 
-	design8 <- getDesignInverseNormal(kMax = 4, alpha = 0.025, 
-		typeOfDesign = "WT", deltaWT = 0.25, informationRates = c(0.2, 0.4, 0.8, 1), 
-		futilityBounds = c(0, 0.5, 0.8), bindingFutility = TRUE)
+	design8 <- getDesignInverseNormal(
+	    kMax = 4, alpha = 0.025,
+	    typeOfDesign = "WT", deltaWT = 0.25, informationRates = c(0.2, 0.4, 0.8, 1),
+	    futilityBounds = c(0, 0.5, 0.8), bindingFutility = TRUE
+	)
 
 	dataExample6 <- getDataset(
-		n1 = c(17, 18, 22),
-		n2 = c(18, 17, 19),
-		events1 = c(11, 12, 17),
-		events2 = c(5, 10, 7)
+	    n1 = c(17, 18, 22),
+	    n2 = c(18, 17, 19),
+	    events1 = c(11, 12, 17),
+	    events2 = c(5, 10, 7)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
@@ -1509,15 +1569,17 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
-	x1 <- getAnalysisResults(design8, dataExample6, thetaH0 = 0.0, stage = 2,  nPlanned = c(30,30), 
-		pi2 = 0.2, pi1 = 0.4, directionUpper = TRUE)
+	x1 <- getAnalysisResults(design8, dataExample6,
+	    thetaH0 = 0.0, stage = 2, nPlanned = c(30, 30),
+	    pi2 = 0.2, pi1 = 0.4, directionUpper = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x1' with expected results
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.19002543, 0.18093983, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_, 0.51829859, 0.74637814), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.078581055, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.48870099, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.14000084, -0.078581193, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.72492429, 0.48870113, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.083297609, 0.077943692, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$finalStage, NA_integer_)
 	expect_equal(x1$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -1550,7 +1612,7 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.4, 0.7, 0.05), nPlanned = c(30,30))
+	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.4, 0.7, 0.05), nPlanned = c(30, 30))
 
 	## Comparison of the results of list object 'plotData1' with expected results
 	expect_equal(plotData1$xValues, c(0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7), tolerance = 1e-07)
@@ -1571,15 +1633,17 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
-	x3 <- getAnalysisResults(design8, dataExample6, thetaH0 = 0, stage = 2, nPlanned = c(60, 30), 
-		pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2)
+	x3 <- getAnalysisResults(design8, dataExample6,
+	    thetaH0 = 0, stage = 2, nPlanned = c(60, 30),
+	    pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x3' with expected results
 	expect_equal(x3$testActions, c("continue", "continue", NA_character_, NA_character_))
 	expect_equal(x3$conditionalRejectionProbabilities, c(0.19002543, 0.18093983, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_, 0.97637134, 0.99770045), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.078581055, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.48870099, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.14000084, -0.078581193, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.72492429, 0.48870113, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.083297609, 0.077943692, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$finalStage, NA_integer_)
 	expect_equal(x3$finalPValues, c(NA_real_, NA_real_, NA_real_, NA_real_))
@@ -1612,7 +1676,7 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData4 <- testGetAnalysisResultsPlotData(x3, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)  		
+	plotData4 <- testGetAnalysisResultsPlotData(x3, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)
 
 	## Comparison of the results of list object 'plotData4' with expected results
 	expect_equal(plotData4$xValues, c(0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8), tolerance = 1e-07)
@@ -1635,20 +1699,22 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
-	x4 <- getAnalysisResults(design8, dataExample6, thetaH0 = 0, stage = 2, nPlanned = c(60,30), 
-		pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5)
+	x4 <- getAnalysisResults(design8, dataExample6,
+	    thetaH0 = 0, stage = 2, nPlanned = c(60, 30),
+	    pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x4' with expected results
 	expect_equal(x4$testActions, c("accept and stop", "accept and stop", NA_character_, NA_character_))
 	expect_equal(x4$conditionalRejectionProbabilities, c(0, 0, NA_real_, NA_real_))
 	expect_equal(x4$conditionalPower, c(NA_real_, NA_real_, 0.037603851, 0.34743098), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(-0.14000095, -0.078581055, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.72492425, 0.48870099, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(-0.14000084, -0.078581193, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.72492429, 0.48870113, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.49999905, 0.49999905, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, 1)
 	expect_equal(x4$finalPValues, c(0.98580558, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$finalConfidenceIntervalLowerBounds, c(0.039328967, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
-	expect_equal(x4$finalConfidenceIntervalUpperBounds, c(0.62730986, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$finalConfidenceIntervalLowerBounds, c(0.039328966, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$finalConfidenceIntervalUpperBounds, c(0.62730979, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$medianUnbiasedEstimates, c(0.36928105, NA_real_, NA_real_, NA_real_), tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(x4), NA)))
@@ -1676,7 +1742,7 @@ test_that("'getAnalysisResults' for a four-stage inverse normal design and two t
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData5 <- testGetAnalysisResultsPlotData(x4, piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5)  	
+	plotData5 <- testGetAnalysisResultsPlotData(x4, piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5)
 
 	## Comparison of the results of list object 'plotData5' with expected results
 	expect_equal(plotData5$xValues, c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5), tolerance = 1e-07)
@@ -1693,14 +1759,16 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 
 	.skipTestIfDisabled()
 
-	design9 <- getDesignFisher(kMax = 4, alpha = 0.025, method = "equalAlpha", 
-		informationRates = c(0.2, 0.4, 0.8, 1))
+	design9 <- getDesignFisher(
+	    kMax = 4, alpha = 0.025, method = "equalAlpha",
+	    informationRates = c(0.2, 0.4, 0.8, 1)
+	)
 
 	dataExample7 <- getDataset(
-		n1 = c(17, 23, 22),
-		n2 = c(18, 20, 19),
-		events1 = c(11, 12, 17),
-		events2 = c(5, 10, 7)
+	    n1 = c(17, 23, 22),
+	    n2 = c(18, 20, 19),
+	    events1 = c(11, 12, 17),
+	    events2 = c(5, 10, 7)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
@@ -1715,8 +1783,10 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
-	x1 <- getAnalysisResults(design9, dataExample7, thetaH0 = 0, stage = 2, nPlanned = c(60, 30), 
-		pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2, seed = 123)
+	x1 <- getAnalysisResults(design9, dataExample7,
+	    thetaH0 = 0, stage = 2, nPlanned = c(60, 30),
+	    pi2 = 0.4, pi1 = 0.8, directionUpper = TRUE, allocationRatioPlanned = 2, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x1' with expected results
 	expect_equal(x1$testActions, c("continue", "continue", NA_character_, NA_character_))
@@ -1756,7 +1826,7 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)  		
+	plotData1 <- testGetAnalysisResultsPlotData(x1, piTreatmentRange = seq(0.5, 0.8, 0.05), allocationRatioPlanned = 2)
 
 	## Comparison of the results of list object 'plotData1' with expected results
 	expect_equal(plotData1$xValues, c(0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8), tolerance = 1e-07)
@@ -1781,8 +1851,10 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
 
-	x2 <- getAnalysisResults(design9, dataExample7, thetaH0 = 0, stage = 2, nPlanned = c(60,30), 
-		pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5, seed = 123)
+	x2 <- getAnalysisResults(design9, dataExample7,
+	    thetaH0 = 0, stage = 2, nPlanned = c(60, 30),
+	    pi2 = 0.8, pi1 = 0.4, directionUpper = FALSE, allocationRatioPlanned = 0.5, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", "continue", NA_character_, NA_character_))
@@ -1822,7 +1894,7 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData2 <- testGetAnalysisResultsPlotData(x2,piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5) 		
+	plotData2 <- testGetAnalysisResultsPlotData(x2, piTreatmentRange = seq(0.2, 0.5, 0.05), allocationRatioPlanned = 0.5)
 
 	## Comparison of the results of list object 'plotData2' with expected results
 	expect_equal(plotData2$xValues, c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5), tolerance = 1e-07)
@@ -1835,19 +1907,21 @@ test_that("'getAnalysisResults' for a  four-stage Fisher design and two treatmen
 
 })
 
-test_that("'getAnalysisResults' produces the correct exact tests and final CIs ", {
+test_that("'getAnalysisResults' produces the correct exact tests and final CIs", {
 
 	.skipTestIfDisabled()
 
 	dataExample8 <- getDataset(
-		n2 = c(31, 72),
-		n1 = c(30, 69),
-		events2 = c(8, 54),
-		events1 = c(6, 45)
+	    n2 = c(31, 72),
+	    n1 = c(30, 69),
+	    events2 = c(8, 54),
+	    events1 = c(6, 45)
 	)
 
-	design10 <- getDesignGroupSequential(kMax = 2, alpha = 0.025, 
-		typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.3, 1))
+	design10 <- getDesignGroupSequential(
+	    kMax = 2, alpha = 0.025,
+	    typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.3, 1)
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
 	# @refFS[Formula]{fs:testStatisticTwoRatesApproximation}
@@ -1862,8 +1936,10 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	# @refFS[Formula]{fs:orderingPValueUpper}
 	# @refFS[Formula]{fs:finalCITwoRates}
 	# @refFS[Formula]{fs:medianUnbiasedEstimate}
-	x1 <- getAnalysisResults(design10, dataExample8, thetaH0 = 0, stage = 2, directionUpper = FALSE, 
-		normalApproximation = FALSE)
+	x1 <- getAnalysisResults(design10, dataExample8,
+	    thetaH0 = 0, stage = 2, directionUpper = FALSE,
+	    normalApproximation = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x1' with expected results
 	expect_equal(x1$pi1, 0.51515152, tolerance = 1e-07)
@@ -1871,8 +1947,8 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	expect_equal(x1$testActions, c("continue", "accept"))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.013966781, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.39509356, -0.22101239), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.29306133, 0.050448659), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.39509356, -0.22101238), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.29306133, 0.050448655), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.49999905, 0.15271161), tolerance = 1e-07)
 	expect_equal(x1$finalStage, 2)
 	expect_equal(x1$finalPValues, c(NA_real_, 0.13570939), tolerance = 1e-07)
@@ -1907,8 +1983,10 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design11 <- getDesignInverseNormal(kMax = 2, alpha = 0.025, 
-		typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.3, 1))
+	design11 <- getDesignInverseNormal(
+	    kMax = 2, alpha = 0.025,
+	    typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.3, 1)
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsInverseNormal}
 	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller}
@@ -1919,8 +1997,10 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
-	x2 <- getAnalysisResults(design11, dataExample8, thetaH0 = 0, stage = 2, directionUpper = FALSE, 
-		normalApproximation = FALSE)
+	x2 <- getAnalysisResults(design11, dataExample8,
+	    thetaH0 = 0, stage = 2, directionUpper = FALSE,
+	    normalApproximation = FALSE
+	)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'x2' with expected results
 	expect_equal(x2$pi1, 0.51515152, tolerance = 1e-07)
@@ -1928,8 +2008,8 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	expect_equal(x2$testActions, c("continue", "accept"))
 	expect_equal(x2$conditionalRejectionProbabilities, c(0.013966781, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.39509356, -0.20744996), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.29306133, 0.038390611), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.39509356, -0.20744977), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.29306133, 0.038390636), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.49999905, 0.171251), tolerance = 1e-07)
 	expect_equal(x2$finalStage, 2)
 	expect_equal(x2$finalPValues, c(NA_real_, 0.15026298), tolerance = 1e-07)
@@ -1964,8 +2044,10 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	design12 <- getDesignFisher(kMax = 2, alpha = 0.025, method = "fullAlpha", 
-		informationRates = c(0.3, 1))
+	design12 <- getDesignFisher(
+	    kMax = 2, alpha = 0.025, method = "fullAlpha",
+	    informationRates = c(0.3, 1)
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsFisher}
 	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeSmaller}
@@ -1978,8 +2060,10 @@ test_that("'getAnalysisResults' produces the correct exact tests and final CIs "
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityShiftedBoundaries}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesEffect}
 	# @refFS[Formula]{fs:conditionalPowerTwoRatesSampleSizes}
-	x3 <- getAnalysisResults(design12, dataExample8, thetaH0 = 0, stage = 2, directionUpper = FALSE, 
-		normalApproximation = FALSE, seed = 123)
+	x3 <- getAnalysisResults(design12, dataExample8,
+	    thetaH0 = 0, stage = 2, directionUpper = FALSE,
+	    normalApproximation = FALSE, seed = 123
+	)
 
 	## Comparison of the results of AnalysisResultsFisher object 'x3' with expected results
 	expect_equal(x3$pi1, 0.51515152, tolerance = 1e-07)
@@ -2029,14 +2113,16 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 
 	.skipTestIfDisabled()
 
-	design13 <- getDesignGroupSequential(kMax = 2, alpha = 0.025, 
-		typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.3, 1))
+	design13 <- getDesignGroupSequential(
+	    kMax = 2, alpha = 0.025,
+	    typeOfDesign = "WT", deltaWT = 0.1, informationRates = c(0.3, 1)
+	)
 
 	dataExample9 <- getDataset(
-		n1 = c(29, 70),
-		n2 = c(31, 71),
-		events1 = c(8, 54),
-		events2 = c(6, 45)
+	    n1 = c(29, 70),
+	    n2 = c(31, 71),
+	    events1 = c(8, 54),
+	    events2 = c(6, 45)
 	)
 
 	# @refFS[Tab.]{fs:tab:output:getAnalysisResultsGroupSequential}
@@ -2046,8 +2132,10 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
-	x1 <- getAnalysisResults(design13, dataExample9, thetaH0 = -0.1, stage = 2, directionUpper = TRUE, 
-		normalApproximation = TRUE)
+	x1 <- getAnalysisResults(design13, dataExample9,
+	    thetaH0 = -0.1, stage = 2, directionUpper = TRUE,
+	    normalApproximation = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x1' with expected results
 	expect_equal(x1$pi1, 0.62626263, tolerance = 1e-07)
@@ -2055,8 +2143,8 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x1$testActions, c("continue", "reject"))
 	expect_equal(x1$conditionalRejectionProbabilities, c(0.1027905, NA_real_), tolerance = 1e-07)
 	expect_equal(x1$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, -0.011398061), tolerance = 1e-07)
-	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.42527258, 0.25916403), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalLowerBounds, c(-0.26992436, -0.011398056), tolerance = 1e-07)
+	expect_equal(x1$repeatedConfidenceIntervalUpperBounds, c(0.42527258, 0.25916391), tolerance = 1e-07)
 	expect_equal(x1$repeatedPValues, c(0.17488831, 0.00058560119), tolerance = 1e-07)
 	expect_equal(x1$finalStage, 2)
 	expect_equal(x1$finalPValues, c(NA_real_, 0.0012732763), tolerance = 1e-07)
@@ -2098,14 +2186,16 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
-	x2 <- getAnalysisResults(design13, dataExample9, thetaH0 = -0.1, stage = 1, nPlanned = 40, 
-		pi1 = 0.45, pi2 = 0.4, directionUpper = TRUE, normalApproximation = TRUE)
+	x2 <- getAnalysisResults(design13, dataExample9,
+	    thetaH0 = -0.1, stage = 1, nPlanned = 40,
+	    pi1 = 0.45, pi2 = 0.4, directionUpper = TRUE, normalApproximation = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x2' with expected results
 	expect_equal(x2$testActions, c("continue", NA_character_))
 	expect_equal(x2$conditionalRejectionProbabilities, c(0.1027905, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$conditionalPower, c(NA_real_, 0.38169554), tolerance = 1e-07)
-	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, NA_real_), tolerance = 1e-07)
+	expect_equal(x2$repeatedConfidenceIntervalLowerBounds, c(-0.26992436, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedConfidenceIntervalUpperBounds, c(0.42527258, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$repeatedPValues, c(0.17488831, NA_real_), tolerance = 1e-07)
 	expect_equal(x2$finalStage, NA_integer_)
@@ -2139,7 +2229,7 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	plotData1 <- testGetAnalysisResultsPlotData(x2, piTreatmentRange = seq(0.25, 0.7, 0.05)) 
+	plotData1 <- testGetAnalysisResultsPlotData(x2, piTreatmentRange = seq(0.25, 0.7, 0.05))
 
 	## Comparison of the results of list object 'plotData1' with expected results
 	expect_equal(plotData1$xValues, c(0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7), tolerance = 1e-07)
@@ -2159,8 +2249,10 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
-	x3 <- getAnalysisResults(design13, dataExample9, thetaH0 = 0.1, stage = 2, directionUpper = FALSE, 
-		normalApproximation = TRUE)
+	x3 <- getAnalysisResults(design13, dataExample9,
+	    thetaH0 = 0.1, stage = 2, directionUpper = FALSE,
+	    normalApproximation = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x3' with expected results
 	expect_equal(x3$pi1, 0.62626263, tolerance = 1e-07)
@@ -2168,8 +2260,8 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	expect_equal(x3$testActions, c("continue", "accept"))
 	expect_equal(x3$conditionalRejectionProbabilities, c(0.012395218, NA_real_), tolerance = 1e-07)
 	expect_equal(x3$conditionalPower, c(NA_real_, NA_real_))
-	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, -0.011398061), tolerance = 1e-07)
-	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.42527258, 0.25916403), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalLowerBounds, c(-0.26992436, -0.011398056), tolerance = 1e-07)
+	expect_equal(x3$repeatedConfidenceIntervalUpperBounds, c(0.42527258, 0.25916391), tolerance = 1e-07)
 	expect_equal(x3$repeatedPValues, c(0.49999905, 0.49999905), tolerance = 1e-07)
 	expect_equal(x3$finalStage, 2)
 	expect_equal(x3$finalPValues, c(NA_real_, 0.64703032), tolerance = 1e-07)
@@ -2211,14 +2303,16 @@ test_that("'getAnalysisResults' produces the correct non-inferiority results for
 	# @refFS[Formula]{fs:definitionRCIInverseNormal}
 	# @refFS[Formula]{fs:calculationRepeatedpValue}
 	# @refFS[Formula]{fs:EstimatesDiffFarringtonManning}
-	x4 <- getAnalysisResults(design13, dataExample9, thetaH0 = 0.1, stage = 1, nPlanned = 40, 
-		pi1 = 0.4, pi2 = 0.45, directionUpper = FALSE, normalApproximation = TRUE)
+	x4 <- getAnalysisResults(design13, dataExample9,
+	    thetaH0 = 0.1, stage = 1, nPlanned = 40,
+	    pi1 = 0.4, pi2 = 0.45, directionUpper = FALSE, normalApproximation = TRUE
+	)
 
 	## Comparison of the results of AnalysisResultsGroupSequential object 'x4' with expected results
 	expect_equal(x4$testActions, c("continue", NA_character_))
 	expect_equal(x4$conditionalRejectionProbabilities, c(0.012395218, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$conditionalPower, c(NA_real_, 0.10084143), tolerance = 1e-07)
-	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(-0.26992433, NA_real_), tolerance = 1e-07)
+	expect_equal(x4$repeatedConfidenceIntervalLowerBounds, c(-0.26992436, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedConfidenceIntervalUpperBounds, c(0.42527258, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$repeatedPValues, c(0.49999905, NA_real_), tolerance = 1e-07)
 	expect_equal(x4$finalStage, NA_integer_)
@@ -2259,10 +2353,10 @@ test_that("'getAnalysisResults' with a dataset of rates and without defining a d
 	.skipTestIfDisabled()
 
 	data <- getDataset(
-		n1 = c(10),
-		n2 = c(15),
-		events1 = c(8),
-		events2 = c(6)
+	    n1 = c(10),
+	    n2 = c(15),
+	    events1 = c(8),
+	    events2 = c(6)
 	)
 	# @refFS[Formula]{fs:testStatisticTwoRatesApproximation}
 	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
@@ -2273,8 +2367,8 @@ test_that("'getAnalysisResults' with a dataset of rates and without defining a d
 	expect_equal(analysisResults1$pi1, 0.8, tolerance = 1e-07)
 	expect_equal(analysisResults1$pi2, 0.4, tolerance = 1e-07)
 	expect_equal(analysisResults1$testActions, "accept")
-	expect_equal(analysisResults1$repeatedConfidenceIntervalLowerBounds, -0.016534105, tolerance = 1e-07)
-	expect_equal(analysisResults1$repeatedConfidenceIntervalUpperBounds, 0.68698807, tolerance = 1e-07)
+	expect_equal(analysisResults1$repeatedConfidenceIntervalLowerBounds, -0.016534109, tolerance = 1e-07)
+	expect_equal(analysisResults1$repeatedConfidenceIntervalUpperBounds, 0.68698828, tolerance = 1e-07)
 	expect_equal(analysisResults1$repeatedPValues, 0.024199112, tolerance = 1e-07)
 	if (isTRUE(.isCompleteUnitTestSetEnabled())) {
 	    invisible(capture.output(expect_error(print(analysisResults1), NA)))
@@ -2303,23 +2397,32 @@ test_that("'getAnalysisResults' produces the correct critical values for a bound
 
 	.skipTestIfDisabled()
 
-	data1 <- getDataset(overallN = c(22, 33, 45),
-		overallEvents = c(11, 18, 28))
-	data2 <- getDataset(overallN = c(22, 33, 40),
-		overallEvents = c(11, 18, 23))
-	data3 <- getDataset(overallN = c(22, 33, 38),
-		overallEvents = c(11, 18, 21))
+	data1 <- getDataset(
+	    overallN = c(22, 33, 45),
+	    overallEvents = c(11, 18, 28)
+	)
+	data2 <- getDataset(
+	    overallN = c(22, 33, 40),
+	    overallEvents = c(11, 18, 23)
+	)
+	data3 <- getDataset(
+	    overallN = c(22, 33, 38),
+	    overallEvents = c(11, 18, 21)
+	)
 	design <- getDesignGroupSequential(
-		typeOfDesign = "asP")
+	    typeOfDesign = "asP"
+	)
 	expect_warning(result1 <- getAnalysisResults(design, data1,
-		thetaH0 = 0.5, maxInformation = 40))
+	    thetaH0 = 0.5, maxInformation = 40
+	))
 	result2 <- getAnalysisResults(design, data2,
-		thetaH0 = 0.5, maxInformation = 40)
+	    thetaH0 = 0.5, maxInformation = 40
+	)
 	expect_warning(result3 <- getAnalysisResults(design, data3,
-		thetaH0 = 0.5, maxInformation = 40, informationEpsilon = 2))
+	    thetaH0 = 0.5, maxInformation = 40, informationEpsilon = 2
+	))
 	expect_equal(result1$.design$criticalValues[1:2], result2$.design$criticalValues[1:2], tolerance = 1e-07)
 	expect_equal(result1$.design$criticalValues[1:2], result3$.design$criticalValues[1:2], tolerance = 1e-07)
-	expect_equal(result2$.design$criticalValues[1:2], result3$.design$criticalValues[1:2], tolerance = 1e-07)
-
+	expect_equal(result2$.design$criticalValues[1:2], result3$.design$criticalValues[1:2], tolerance = 1e-07)
 })
 

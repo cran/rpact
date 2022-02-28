@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  File version: $Revision: 5747 $
+## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -470,8 +470,8 @@
             if (!directionUpper) {
                 separatePValues[treatmentArm, k] <- 1 - separatePValues[treatmentArm, k]
                 overallPValues[treatmentArm, k] <- 1 - overallPValues[treatmentArm, k]
-                # testStatistics[g, k] <- -testStatistics[g, k]
-                # overallTestStatistics[g, k] <- -overallTestStatistics[g, k]
+                # testStatistics[treatmentArm, k] <- -testStatistics[treatmentArm, k]
+                # overallTestStatistics[treatmentArm, k] <- -overallTestStatistics[treatmentArm, k]
             }
         }
     }
@@ -782,7 +782,7 @@
         for (k in stages) {
             startTime <- Sys.time()
             for (treatmentArm in 1:gMax) {
-                if (!is.na(stageResults$testStatistics[treatmentArm, k])) {
+				if (!is.na(stageResults$testStatistics[treatmentArm, k]) && criticalValues[k] < C_QNORM_MAXIMUM) {
 
                     # finding maximum upper and minimum lower bounds for RCIs
                     thetaLow <- .getUpperLowerThetaMeansMultiArm(

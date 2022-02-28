@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-class_time.R
-## |  Creation date: 08 December 2021, 08:59:14
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 13:59:35
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Class 'PiecewiseSurvivalTime'")
@@ -255,7 +255,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	pwSurvivalTime8 <- getPiecewiseSurvivalTime( pi2 = 0.4, pi1 = 0.3)
+	pwSurvivalTime8 <- getPiecewiseSurvivalTime(pi2 = 0.4, pi1 = 0.3)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime8' with expected results
 	expect_equal(pwSurvivalTime8$piecewiseSurvivalTime, NA_real_)
@@ -739,7 +739,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	pwSurvivalTime19 <- getPiecewiseSurvivalTime(pi1 = 0.45) 
+	pwSurvivalTime19 <- getPiecewiseSurvivalTime(pi1 = 0.45)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime19' with expected results
 	expect_equal(pwSurvivalTime19$piecewiseSurvivalTime, NA_real_)
@@ -871,7 +871,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	expect_error(getPiecewiseSurvivalTime(median2 = 1.386294, lambda2 = 0.4, hazardRatio = 0.8)) 
+	expect_error(getPiecewiseSurvivalTime(median2 = 1.386294, lambda2 = 0.4, hazardRatio = 0.8))
 	expect_error(getPiecewiseSurvivalTime(median2 = c(1.5, 1.7), lambda1 = c(0.3, 0.4)))
 	expect_error(getPiecewiseSurvivalTime(median1 = c(2, 4), hazardRatio = c(1, 0.7)))
 	expect_error(getPiecewiseSurvivalTime(median1 = c(2, 4), hazardRatio = 0.7))
@@ -881,33 +881,37 @@ test_that("Testing 'getPiecewiseSurvivalTime': simple vector based definition", 
 test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 
 	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
-	pwSurvivalTime1 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
-		lambda2 = c(0.025, 0.04, 0.015), hazardRatio = 0.8)
-	expect_equal(pwSurvivalTime1$hazardRatio,  0.8)
-	expect_equal(pwSurvivalTime1$lambda1,  c(0.025, 0.04, 0.015) * 0.8)
+	pwSurvivalTime1 <- getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = c(0, 6, 9),
+	    lambda2 = c(0.025, 0.04, 0.015), hazardRatio = 0.8
+	)
+	expect_equal(pwSurvivalTime1$hazardRatio, 0.8)
+	expect_equal(pwSurvivalTime1$lambda1, c(0.025, 0.04, 0.015) * 0.8)
 	expect_false(pwSurvivalTime1$isDelayedResponseEnabled())
 
 	.skipTestIfDisabled()
 
-	pwSurvivalTime2 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 5, 10), 
-		lambda2 = c(0.1, 0.2, 0.8), hazardRatio = 0.8)
+	pwSurvivalTime2 <- getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = c(0, 5, 10),
+	    lambda2 = c(0.1, 0.2, 0.8), hazardRatio = 0.8
+	)
 	expect_true(pwSurvivalTime2$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime2$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime2$hazardRatio,  0.8)
+	expect_equal(pwSurvivalTime2$hazardRatio, 0.8)
 	expect_equal(pwSurvivalTime2$piecewiseSurvivalTime, c(0, 5, 10))
 	expect_equal(pwSurvivalTime2$lambda2, c(0.1, 0.2, 0.8))
 
 	pwSurvivalTime3 <- getPiecewiseSurvivalTime(c(0, 6), lambda2 = c(0.01, 0.03), hazardRatio = 0.8)
 	expect_true(pwSurvivalTime3$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime3$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime3$hazardRatio,  0.8)
+	expect_equal(pwSurvivalTime3$hazardRatio, 0.8)
 	expect_equal(pwSurvivalTime3$piecewiseSurvivalTime, c(0, 6))
 	expect_equal(pwSurvivalTime3$lambda2, c(0.01, 0.03))
 
 	pwSurvivalTime4 <- getPiecewiseSurvivalTime(0, lambda2 = 0.01, hazardRatio = 0.8)
 	expect_true(pwSurvivalTime4$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime4$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime4$hazardRatio,  0.8)
+	expect_equal(pwSurvivalTime4$hazardRatio, 0.8)
 	expect_equal(pwSurvivalTime4$piecewiseSurvivalTime, 0)
 	expect_equal(pwSurvivalTime4$lambda2, 0.01)
 	expect_equal(pwSurvivalTime4$lambda1, 0.01 * 0.8)
@@ -915,7 +919,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	pwSurvivalTime5 <- getPiecewiseSurvivalTime(NA_real_, lambda2 = 0.01, hazardRatio = 0.8)
 	expect_true(pwSurvivalTime5$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime5$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime5$hazardRatio,  0.8)
+	expect_equal(pwSurvivalTime5$hazardRatio, 0.8)
 	expect_equal(pwSurvivalTime5$piecewiseSurvivalTime, 0)
 	expect_equal(pwSurvivalTime5$lambda2, 0.01)
 	expect_equal(pwSurvivalTime5$lambda1, 0.01 * 0.8)
@@ -923,7 +927,7 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	pwSurvivalTime6 <- getPiecewiseSurvivalTime(0, lambda2 = 0.01, lambda1 = 0.008)
 	expect_true(pwSurvivalTime6$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime6$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime6$hazardRatio,  0.8)
+	expect_equal(pwSurvivalTime6$hazardRatio, 0.8)
 	expect_equal(pwSurvivalTime6$piecewiseSurvivalTime, 0)
 	expect_equal(pwSurvivalTime6$lambda2, 0.01)
 	expect_equal(pwSurvivalTime6$lambda1, 0.008)
@@ -931,18 +935,20 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	pwSurvivalTime7 <- getPiecewiseSurvivalTime(NA_real_, lambda2 = 0.01, lambda1 = 0.008)
 	expect_true(pwSurvivalTime7$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime7$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime7$hazardRatio,  0.8)
+	expect_equal(pwSurvivalTime7$hazardRatio, 0.8)
 	expect_equal(pwSurvivalTime7$piecewiseSurvivalTime, 0)
 	expect_equal(pwSurvivalTime7$lambda2, 0.01)
 	expect_equal(pwSurvivalTime7$lambda1, 0.008)
 
 	# case 2.2
-	pwSurvivalTime9 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
-		lambda2 = c(0.025, 0.04, 0.015), 
-		lambda1 = c(0.025, 0.04, 0.015) * 0.8)
+	pwSurvivalTime9 <- getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = c(0, 6, 9),
+	    lambda2 = c(0.025, 0.04, 0.015),
+	    lambda1 = c(0.025, 0.04, 0.015) * 0.8
+	)
 	expect_true(pwSurvivalTime9$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime9$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime9$hazardRatio,  0.8)
+	expect_equal(pwSurvivalTime9$hazardRatio, 0.8)
 
 	pwSurvivalTime10 <- getPiecewiseSurvivalTime(lambda2 = 0.025, hazardRatio = 0.8)
 
@@ -1121,33 +1127,45 @@ test_that("Testing 'getPiecewiseSurvivalTime': vector based definition", {
 	}
 
 	# case 2.2: error expected
-	expect_error(getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
-		lambda2 = c(0.025, 0.04, 0.015), 
-		lambda1 = c(0.03, 0.04, 0.025)), 
-		paste0("Illegal argument: 'hazardRatio' can only be calculated if ", 
-		"'unique(lambda1 / lambda2)' result in a single value; ", 
-		"current result = c(1.2, 1, 1.667) (delayed response is not allowed)"), fixed = TRUE)
+	expect_error(getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = c(0, 6, 9),
+	    lambda2 = c(0.025, 0.04, 0.015),
+	    lambda1 = c(0.03, 0.04, 0.025)
+	),
+	paste0(
+	    "Illegal argument: 'hazardRatio' can only be calculated if ",
+	    "'unique(lambda1 / lambda2)' result in a single value; ",
+	    "current result = c(1.2, 1, 1.667) (delayed response is not allowed)"
+	),
+	fixed = TRUE
+	)
 
 	# case 3
 	expect_false(getPiecewiseSurvivalTime(delayedResponseAllowed = TRUE)$isPiecewiseSurvivalEnabled())
-	expect_false(getPiecewiseSurvivalTime(piecewiseSurvivalTime = NA, 
-		delayedResponseAllowed = TRUE)$isPiecewiseSurvivalEnabled())
+	expect_false(getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = NA,
+	    delayedResponseAllowed = TRUE
+	)$isPiecewiseSurvivalEnabled())
 
 	# case 3.1
-	pwSurvivalTimeSim1 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
-		lambda2 = c(0.025, 0.04, 0.015), hazardRatio = 0.8, 
-		delayedResponseAllowed = TRUE)
-	expect_equal(pwSurvivalTimeSim1$hazardRatio,  0.8)
-	expect_equal(pwSurvivalTimeSim1$lambda1,  c(0.025, 0.04, 0.015) * 0.8)
+	pwSurvivalTimeSim1 <- getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = c(0, 6, 9),
+	    lambda2 = c(0.025, 0.04, 0.015), hazardRatio = 0.8,
+	    delayedResponseAllowed = TRUE
+	)
+	expect_equal(pwSurvivalTimeSim1$hazardRatio, 0.8)
+	expect_equal(pwSurvivalTimeSim1$lambda1, c(0.025, 0.04, 0.015) * 0.8)
 	expect_false(pwSurvivalTimeSim1$isDelayedResponseEnabled())
 
 	# case 3.2
-	pwSurvivalTimeSim2 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 9), 
-		lambda2 = c(0.025, 0.04, 0.015), 
-		lambda1 = c(0.03, 0.04, 0.025), delayedResponseAllowed = TRUE)
+	pwSurvivalTimeSim2 <- getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = c(0, 6, 9),
+	    lambda2 = c(0.025, 0.04, 0.015),
+	    lambda1 = c(0.03, 0.04, 0.025), delayedResponseAllowed = TRUE
+	)
 	expect_true(pwSurvivalTimeSim2$isPiecewiseSurvivalEnabled())
 	expect_true(pwSurvivalTimeSim2$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTimeSim2$hazardRatio,  c(1.2, 1, 5/3))
+	expect_equal(pwSurvivalTimeSim2$hazardRatio, c(1.2, 1, 5 / 3))
 
 	pwsTime1 <- getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), lambda2 = 0.4)
 	expect_equal(pwsTime1$.isLambdaBased(minNumberOfLambdas = 1), TRUE)
@@ -1158,36 +1176,56 @@ test_that("Testing 'getPiecewiseSurvivalTime': check error and warnings", {
 
 	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	expect_error(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), lambda2 = 0.4, pi2 = 0.4),
-		"Conflicting arguments: it is not allowed to specify 'pi2' (0.4) and 'lambda2' (0.4) concurrently", fixed = TRUE)
+	    "Conflicting arguments: it is not allowed to specify 'pi2' (0.4) and 'lambda2' (0.4) concurrently",
+	    fixed = TRUE
+	)
 
 	expect_error(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), lambda2 = 0.4, pi2 = 0.4, pi1 = 0.3),
-		"Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda2' (0.4) concurrently", fixed = TRUE)
+	    "Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda2' (0.4) concurrently",
+	    fixed = TRUE
+	)
 
 	expect_error(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), lambda2 = 0.4, pi2 = 0.4, pi1 = 0.3),
-		"Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda2' (0.4) concurrently", fixed = TRUE)
+	    "Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda2' (0.4) concurrently",
+	    fixed = TRUE
+	)
 
 	expect_error(getPiecewiseSurvivalTime(lambda2 = 0.4, lambda1 = 0.3, pi2 = 0.4, pi1 = 0.3),
-		"Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda1' (0.3) concurrently", fixed = TRUE)
+	    "Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda1' (0.3) concurrently",
+	    fixed = TRUE
+	)
 
 	expect_error(getPiecewiseSurvivalTime(lambda2 = 0.4, lambda1 = 0.3, pi2 = 0.4, pi1 = 0.3),
-		"Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda1' (0.3) concurrently", fixed = TRUE)
+	    "Conflicting arguments: it is not allowed to specify 'pi1' (0.3) and 'lambda1' (0.3) concurrently",
+	    fixed = TRUE
+	)
 
 	expect_equal(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), pi2 = 0.4)$.isPiBased(), TRUE)
 
 	expect_warning(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), pi2 = 0.4, pi1 = 0.3),
-		"'hazardRatio' (0.6, 0.8) will be ignored because it will be calculated", fixed = TRUE)
+	    "'hazardRatio' (0.6, 0.8) will be ignored because it will be calculated",
+	    fixed = TRUE
+	)
 
 	expect_warning(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), pi1 = 0.3),
-		"'hazardRatio' (0.6, 0.8) will be ignored because it will be calculated", fixed = TRUE)
+	    "'hazardRatio' (0.6, 0.8) will be ignored because it will be calculated",
+	    fixed = TRUE
+	)
 
-	expect_error(getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6), lambda2 = 0.025, hazardRatio = 0.8, delayedResponseAllowed = TRUE), 
-		"Illegal argument: length of 'piecewiseSurvivalTime' (2) and length of 'lambda2' (1) must be equal", fixed = TRUE)
+	expect_error(getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6), lambda2 = 0.025, hazardRatio = 0.8, delayedResponseAllowed = TRUE),
+	    "Illegal argument: length of 'piecewiseSurvivalTime' (2) and length of 'lambda2' (1) must be equal",
+	    fixed = TRUE
+	)
 
-	expect_error(getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 12), lambda2 = 0.025, hazardRatio = 0.8, delayedResponseAllowed = TRUE), 
-		"Illegal argument: length of 'piecewiseSurvivalTime' (3) and length of 'lambda2' (1) must be equal", fixed = TRUE)
+	expect_error(getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6, 12), lambda2 = 0.025, hazardRatio = 0.8, delayedResponseAllowed = TRUE),
+	    "Illegal argument: length of 'piecewiseSurvivalTime' (3) and length of 'lambda2' (1) must be equal",
+	    fixed = TRUE
+	)
 
-	expect_error(getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6), lambda2 = 0.025, hazardRatio = 0.8), 
-		"Illegal argument: length of 'piecewiseSurvivalTime' (2) and length of 'lambda2' (1) must be equal", fixed = TRUE)
+	expect_error(getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 6), lambda2 = 0.025, hazardRatio = 0.8),
+	    "Illegal argument: length of 'piecewiseSurvivalTime' (2) and length of 'lambda2' (1) must be equal",
+	    fixed = TRUE
+	)
 
 })
 
@@ -1195,36 +1233,41 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 
 	# @refFS[Tab.]{fs:tab:output:getPiecewiseSurvivalTime}
 	pwSurvivalTime8 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list(
-		"<6"       = 0.025, 
-		"6 - <9"   = 0.04, 
-		"9 - <15"  = 0.015, 
-		"15 - <21" = 0.01, 
-		">=21"     = 0.007), hazardRatio = 0.6)
+	    "<6"       = 0.025,
+	    "6 - <9"   = 0.04,
+	    "9 - <15"  = 0.015,
+	    "15 - <21" = 0.01,
+	    ">=21"     = 0.007
+	), hazardRatio = 0.6)
 	expect_true(pwSurvivalTime8$isPiecewiseSurvivalEnabled())
 	expect_false(pwSurvivalTime8$isDelayedResponseEnabled())
-	expect_equal(pwSurvivalTime8$hazardRatio,  0.6)
-	expect_equal(pwSurvivalTime8$piecewiseSurvivalTime, c(0, 6,9, 15, 21))
+	expect_equal(pwSurvivalTime8$hazardRatio, 0.6)
+	expect_equal(pwSurvivalTime8$piecewiseSurvivalTime, c(0, 6, 9, 15, 21))
 	expect_equal(pwSurvivalTime8$lambda2, c(0.025, 0.040, 0.015, 0.010, 0.007))
 	expect_equal(pwSurvivalTime8$lambda1, c(0.0150, 0.0240, 0.0090, 0.0060, 0.0042))
 
 	.skipTestIfDisabled()
 
 	result1 <- getPiecewiseSurvivalTime(list(
-		"<5" = 0.1, 
-		"5 - <10" = 0.2, 
-		">=10" = 0.8), hazardRatio = 0.8)
+	    "<5" = 0.1,
+	    "5 - <10" = 0.2,
+	    ">=10" = 0.8
+	), hazardRatio = 0.8)
 	expect_equal(result1$piecewiseSurvivalTime, c(0, 5, 10))
 	expect_equal(result1$lambda2, c(0.1, 0.2, 0.8))
 
 	result2 <- getPiecewiseSurvivalTime(list(
-		"0 - <5" = 0.1, 
-		"5 - <10" = 0.2, 
-		"10 - Inf" = 0.8), hazardRatio = 0.8)
+	    "0 - <5" = 0.1,
+	    "5 - <10" = 0.2,
+	    "10 - Inf" = 0.8
+	), hazardRatio = 0.8)
 	expect_equal(result2$piecewiseSurvivalTime, c(0, 5, 10))
 	expect_equal(result2$lambda2, c(0.1, 0.2, 0.8))
 
-	pwSurvivalTime2 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = c(0, 5, 10), 
-		lambda2 = c(0.1, 0.2, 0.8), hazardRatio = 0.8)
+	pwSurvivalTime2 <- getPiecewiseSurvivalTime(
+	    piecewiseSurvivalTime = c(0, 5, 10),
+	    lambda2 = c(0.1, 0.2, 0.8), hazardRatio = 0.8
+	)
 	expect_equal(pwSurvivalTime2$piecewiseSurvivalTime, c(0, 5, 10))
 	expect_equal(pwSurvivalTime2$lambda2, c(0.1, 0.2, 0.8))
 
@@ -1232,7 +1275,8 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	expect_equal(pwSurvivalTime3$piecewiseSurvivalTime, c(0, 6))
 	expect_equal(pwSurvivalTime3$lambda2, c(0.01, 0.03))
 
-	pwSurvivalTime4 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - ?" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = TRUE)
+	pwSurvivalTime4 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - ?" = 0.025), 
+	    hazardRatio = 0.8, delayedResponseAllowed = TRUE)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime4' with expected results
 	expect_equal(pwSurvivalTime4$piecewiseSurvivalTime, 0)
@@ -1276,7 +1320,8 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	pwSurvivalTime5 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = TRUE)
+	pwSurvivalTime5 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("x" = 0.025), 
+	    hazardRatio = 0.8, delayedResponseAllowed = TRUE)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime5' with expected results
 	expect_equal(pwSurvivalTime5$piecewiseSurvivalTime, 0)
@@ -1320,7 +1365,8 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	pwSurvivalTime6 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - <x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = TRUE)
+	pwSurvivalTime6 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - <x" = 0.025), 
+	    hazardRatio = 0.8, delayedResponseAllowed = TRUE)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime6' with expected results
 	expect_equal(pwSurvivalTime6$piecewiseSurvivalTime, 0)
@@ -1364,7 +1410,8 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	pwSurvivalTime7 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = FALSE)
+	pwSurvivalTime7 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("x" = 0.025), 
+	    hazardRatio = 0.8, delayedResponseAllowed = FALSE)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime7' with expected results
 	expect_equal(pwSurvivalTime7$piecewiseSurvivalTime, 0)
@@ -1408,7 +1455,8 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	pwSurvivalTime8 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - <x" = 0.025), hazardRatio = 0.8, delayedResponseAllowed = FALSE)
+	pwSurvivalTime8 <- getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("0 - <x" = 0.025), 
+	    hazardRatio = 0.8, delayedResponseAllowed = FALSE)
 
 	## Comparison of the results of PiecewiseSurvivalTime object 'pwSurvivalTime8' with expected results
 	expect_equal(pwSurvivalTime8$piecewiseSurvivalTime, 0)
@@ -1452,8 +1500,10 @@ test_that("Testing 'getPiecewiseSurvivalTime': list-wise definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	expect_warning(getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("<6" = 0.025), hazardRatio = 0.8), 
-		"Defined time period \"0 - <6\" will be ignored because 'piecewiseSurvivalTime' list has only 1 entry", fixed = TRUE)
+	expect_warning(getPiecewiseSurvivalTime(piecewiseSurvivalTime = list("<6" = 0.025), hazardRatio = 0.8),
+	    "Defined time period \"0 - <6\" will be ignored because 'piecewiseSurvivalTime' list has only 1 entry",
+	    fixed = TRUE
+	)
 
 })
 
@@ -1468,28 +1518,36 @@ test_that("Testing 'getAccrualTime': isAccrualTimeEnabled()", {
 
 test_that("Testing 'getAccrualTime': vector based definition", {
 
-	accrualTime1 <- getAccrualTime(accrualTime = c(0, 6, 9, 15), 
-		accrualIntensity = c(15, 21, 27), maxNumberOfSubjects = 315)
-	expect_equal(accrualTime1$accrualTime,  c(0, 6, 9, 15))
-	expect_equal(accrualTime1$accrualIntensity,  c(15, 21, 27))
+	accrualTime1 <- getAccrualTime(
+	    accrualTime = c(0, 6, 9, 15),
+	    accrualIntensity = c(15, 21, 27), maxNumberOfSubjects = 315
+	)
+	expect_equal(accrualTime1$accrualTime, c(0, 6, 9, 15))
+	expect_equal(accrualTime1$accrualIntensity, c(15, 21, 27))
 	expect_equal(accrualTime1$remainingTime, NA_real_)
 
-	accrualTime2 <- getAccrualTime(accrualTime = c(0, 6, 9), 
-		accrualIntensity = c(15, 21, 27), maxNumberOfSubjects = 1000)
-	expect_equal(accrualTime2$accrualTime,  c(0, 6, 9, 40.37037))
-	expect_equal(accrualTime2$accrualIntensity,  c(15, 21, 27))
+	accrualTime2 <- getAccrualTime(
+	    accrualTime = c(0, 6, 9),
+	    accrualIntensity = c(15, 21, 27), maxNumberOfSubjects = 1000
+	)
+	expect_equal(accrualTime2$accrualTime, c(0, 6, 9, 40.37037))
+	expect_equal(accrualTime2$accrualIntensity, c(15, 21, 27))
 	expect_equal(accrualTime2$remainingTime, 31.37037)
 
 	.skipTestIfDisabled()
 
-	accrualTime3 <- getAccrualTime(accrualTime = c(0, 12, 13, 14, 15, 16), 
-		accrualIntensity = c(15, 21, 27, 33, 39, 45), maxNumberOfSubjects = 1405)
-	expect_equal(accrualTime3$accrualTime,      c( 0, 12, 13, 14, 15, 16, 40.55555556))
+	accrualTime3 <- getAccrualTime(
+	    accrualTime = c(0, 12, 13, 14, 15, 16),
+	    accrualIntensity = c(15, 21, 27, 33, 39, 45), maxNumberOfSubjects = 1405
+	)
+	expect_equal(accrualTime3$accrualTime, c(0, 12, 13, 14, 15, 16, 40.55555556))
 	expect_equal(accrualTime3$accrualIntensity, c(15, 21, 27, 33, 39, 45))
 	expect_equal(accrualTime3$remainingTime, 24.55555556)
 
-	accrualTime4 <- getAccrualTime(accrualTime = c(0, 24), 
-		accrualIntensity = c(30), maxNumberOfSubjects = 720)
+	accrualTime4 <- getAccrualTime(
+	    accrualTime = c(0, 24),
+	    accrualIntensity = c(30), maxNumberOfSubjects = 720
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime4' with expected results
 	expect_equal(accrualTime4$endOfAccrualIsUserDefined, TRUE)
@@ -1529,8 +1587,10 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	accrualTime5 <- getAccrualTime(accrualTime = c(0, 24, 30), 
-		accrualIntensity = c(30, 45))
+	accrualTime5 <- getAccrualTime(
+	    accrualTime = c(0, 24, 30),
+	    accrualIntensity = c(30, 45)
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime5' with expected results
 	expect_equal(accrualTime5$endOfAccrualIsUserDefined, TRUE)
@@ -1570,8 +1630,10 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	accrualTime6 <- getAccrualTime(accrualTime = c(0, 24, 30), 
-		accrualIntensity = c(20, 25, 45), maxNumberOfSubjects = 720)
+	accrualTime6 <- getAccrualTime(
+	    accrualTime = c(0, 24, 30),
+	    accrualIntensity = c(20, 25, 45), maxNumberOfSubjects = 720
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime6' with expected results
 	expect_equal(accrualTime6$endOfAccrualIsUserDefined, FALSE)
@@ -1856,8 +1918,10 @@ test_that("Testing 'getAccrualTime': vector based definition", {
 test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 
 	# @refFS[Tab.]{fs:tab:output:getAccrualTime}
-	accrualTime1 <- getAccrualTime(accrualTime = c(0, 6, 30), 
-		accrualIntensity = c(22, 33), maxNumberOfSubjects = 924) 
+	accrualTime1 <- getAccrualTime(
+	    accrualTime = c(0, 6, 30),
+	    accrualIntensity = c(22, 33), maxNumberOfSubjects = 924
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime1' with expected results
 	expect_equal(accrualTime1$endOfAccrualIsUserDefined, TRUE)
@@ -1898,9 +1962,11 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	}
 
 	accrualTime2 <- getAccrualTime(list(
-		"0 - <6"   = 22,
-		"6 - <=30" = 33), 
-		maxNumberOfSubjects = 924) 
+	    "0 - <6"   = 22,
+	    "6 - <=30" = 33
+	),
+	maxNumberOfSubjects = 924
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime2' with expected results
 	expect_equal(accrualTime2$endOfAccrualIsUserDefined, TRUE)
@@ -1942,8 +2008,10 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 
 	.skipTestIfDisabled()
 
-	accrualTime3 <- getAccrualTime(accrualTime = c(0, 6, 30), 
-		accrualIntensity = c(0.22, 0.33), maxNumberOfSubjects = 1000) 
+	accrualTime3 <- getAccrualTime(
+	    accrualTime = c(0, 6, 30),
+	    accrualIntensity = c(0.22, 0.33), maxNumberOfSubjects = 1000
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime3' with expected results
 	expect_equal(accrualTime3$endOfAccrualIsUserDefined, TRUE)
@@ -1984,9 +2052,11 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	}
 
 	accrualTime4 <- getAccrualTime(list(
-		"0 - <6"   = 0.22,
-		"6 - <=30" = 0.33), 
-		maxNumberOfSubjects = 1000) 
+	    "0 - <6"   = 0.22,
+	    "6 - <=30" = 0.33
+	),
+	maxNumberOfSubjects = 1000
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime4' with expected results
 	expect_equal(accrualTime4$endOfAccrualIsUserDefined, TRUE)
@@ -2026,7 +2096,7 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	accrualTime5 <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(22, 33)) 
+	accrualTime5 <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(22, 33))
 
 	## Comparison of the results of AccrualTime object 'accrualTime5' with expected results
 	expect_equal(accrualTime5$endOfAccrualIsUserDefined, TRUE)
@@ -2067,8 +2137,9 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	}
 
 	accrualTime6 <- getAccrualTime(list(
-		"0 - <6"   = 22,
-		"6 - <=30" = 33)) 
+	    "0 - <6"   = 22,
+	    "6 - <=30" = 33
+	))
 
 	## Comparison of the results of AccrualTime object 'accrualTime6' with expected results
 	expect_equal(accrualTime6$endOfAccrualIsUserDefined, TRUE)
@@ -2108,7 +2179,7 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	accrualTime7 <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(0.22, 0.33)) 
+	accrualTime7 <- getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(0.22, 0.33))
 
 	## Comparison of the results of AccrualTime object 'accrualTime7' with expected results
 	expect_equal(accrualTime7$endOfAccrualIsUserDefined, TRUE)
@@ -2149,8 +2220,9 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	}
 
 	accrualTime8 <- getAccrualTime(list(
-		"0 - <6"   = 0.22,
-		"6 - <=30" = 0.33)) 
+	    "0 - <6"   = 0.22,
+	    "6 - <=30" = 0.33
+	))
 
 	## Comparison of the results of AccrualTime object 'accrualTime8' with expected results
 	expect_equal(accrualTime8$endOfAccrualIsUserDefined, TRUE)
@@ -2190,8 +2262,10 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	accrualTime9 <- getAccrualTime(accrualTime = c(0, 6), 
-		accrualIntensity = c(22, 33), maxNumberOfSubjects = 1000) 
+	accrualTime9 <- getAccrualTime(
+	    accrualTime = c(0, 6),
+	    accrualIntensity = c(22, 33), maxNumberOfSubjects = 1000
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime9' with expected results
 	expect_equal(accrualTime9$endOfAccrualIsUserDefined, FALSE)
@@ -2232,9 +2306,11 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	}
 
 	accrualTime10 <- getAccrualTime(list(
-		"0 - <6" = 22,
-		"6"      = 33), 
-		maxNumberOfSubjects = 1000) 
+	    "0 - <6" = 22,
+	    "6"      = 33
+	),
+	maxNumberOfSubjects = 1000
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime10' with expected results
 	expect_equal(accrualTime10$endOfAccrualIsUserDefined, FALSE)
@@ -2275,9 +2351,11 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	}
 
 	accrualTime12 <- getAccrualTime(list(
-		"0 - <6" = 0.22,
-		"6 - <=30"      = 0.33), 
-		maxNumberOfSubjects = 1000) 
+	    "0 - <6" = 0.22,
+	    "6 - <=30"      = 0.33
+	),
+	maxNumberOfSubjects = 1000
+	)
 
 	## Comparison of the results of AccrualTime object 'accrualTime12' with expected results
 	expect_equal(accrualTime12$endOfAccrualIsUserDefined, TRUE)
@@ -2317,7 +2395,7 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
 
-	accrualTime13 <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(22, 33)) 
+	accrualTime13 <- getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(22, 33))
 
 	## Comparison of the results of AccrualTime object 'accrualTime13' with expected results
 	expect_equal(accrualTime13$endOfAccrualIsUserDefined, FALSE)
@@ -2358,8 +2436,9 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 	}
 
 	accrualTime14 <- getAccrualTime(list(
-		"0 - <6" = 22,
-		"6 - <=30"      = 33)) 
+	    "0 - <6" = 22,
+	    "6 - <=30"      = 33
+	))
 
 	## Comparison of the results of AccrualTime object 'accrualTime14' with expected results
 	expect_equal(accrualTime14$endOfAccrualIsUserDefined, TRUE)
@@ -2404,83 +2483,111 @@ test_that("Testing 'getAccrualTime': test absolute and relative definition", {
 test_that("Testing 'getAccrualTime': check expected warnings and errors", {
 
 	# @refFS[Tab.]{fs:tab:output:getAccrualTime}
-	expect_warning(getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(0.22, 0.33)), 
-		"The specified accrual time and intensity cannot be supplemented automatically with the missing information; therefore further calculations are not possible", fixed = TRUE)
+	expect_warning(getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(0.22, 0.33)),
+	    "The specified accrual time and intensity cannot be supplemented ",
+	    "automatically with the missing information; therefore further calculations are not possible",
+	    fixed = TRUE
+	)
 
-	expect_warning(getAccrualTime(accrualTime = c(0, 24), accrualIntensity = c(30, 45), maxNumberOfSubjects = 720), 
-		"Last accrual intensity value (45) ignored", fixed = TRUE)
+	expect_warning(getAccrualTime(accrualTime = c(0, 24), accrualIntensity = c(30, 45), maxNumberOfSubjects = 720),
+	    "Last accrual intensity value (45) ignored",
+	    fixed = TRUE
+	)
 
 	.skipTestIfDisabled()
 
-	expect_warning(getAccrualTime(accrualTime = c(0, 24, 30), accrualIntensity = c(30, 45, 55), maxNumberOfSubjects = 720),
-		"Last 2 accrual intensity values (45, 55) ignored", fixed = TRUE)
+	expect_warning(getAccrualTime(accrualTime = c(0, 24, 30), 
+	        accrualIntensity = c(30, 45, 55), maxNumberOfSubjects = 720),
+	    "Last 2 accrual intensity values (45, 55) ignored",
+	    fixed = TRUE
+	)
 
-	expect_warning(getAccrualTime(accrualTime = c(0, 24, 30, 40), accrualIntensity = c(30, 45, 55, 66), maxNumberOfSubjects = 720),
-		"Last 2 accrual time values (30, 40) ignored", fixed = TRUE)
+	expect_warning(getAccrualTime(accrualTime = c(0, 24, 30, 40), 
+	        accrualIntensity = c(30, 45, 55, 66), maxNumberOfSubjects = 720),
+	    "Last 2 accrual time values (30, 40) ignored",
+	    fixed = TRUE
+	)
 
-	expect_warning(getAccrualTime(accrualTime = c(0, 24, 30, 40), accrualIntensity = c(30, 45, 55, 66), maxNumberOfSubjects = 720),
-		"Last 3 accrual intensity values (45, 55, 66) ignored", fixed = TRUE)
+	expect_warning(getAccrualTime(accrualTime = c(0, 24, 30, 40), 
+	        accrualIntensity = c(30, 45, 55, 66), maxNumberOfSubjects = 720),
+	    "Last 3 accrual intensity values (45, 55, 66) ignored",
+	    fixed = TRUE
+	)
 
 	expect_warning(getAccrualTime(accrualTime = c(0, 6, 15, 25), accrualIntensity = c(0, 22, 33)),
-		"It makes no sense to start 'accrualIntensity' (0, 22, 33) with 0", fixed = TRUE)
+	    "It makes no sense to start 'accrualIntensity' (0, 22, 33) with 0",
+	    fixed = TRUE
+	)
 
 	expect_error(getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(0)),
-		"Illegal argument: at least one 'accrualIntensity' value must be > 0", fixed = TRUE)
+	    "Illegal argument: at least one 'accrualIntensity' value must be > 0",
+	    fixed = TRUE
+	)
 
-	expect_error(getAccrualTime(accrualTime = c(0, 6, 30), accrualIntensity = c(22, 33), 
-		maxNumberOfSubjects = 1000),
-		paste0("Conflicting arguments: 'maxNumberOfSubjects' (1000) disagrees with the defined ", 
-		"accrual time (0, 6, 30) and intensity: 6 * 22 + 24 * 33 = 924"), fixed = TRUE)
+	expect_error(getAccrualTime(
+	    accrualTime = c(0, 6, 30), accrualIntensity = c(22, 33),
+	    maxNumberOfSubjects = 1000
+	),
+	paste0(
+	    "Conflicting arguments: 'maxNumberOfSubjects' (1000) disagrees with the defined ",
+	    "accrual time (0, 6, 30) and intensity: 6 * 22 + 24 * 33 = 924"
+	),
+	fixed = TRUE
+	)
 
 })
 
 test_that("Testing 'getAccrualTime': list-wise definition", {
 
 	accrualTime1 <- list(
-		"0  - <12"  = 15,
-		"12 - <13" = 21,
-		"13 - <14" = 27,
-		"14 - <15" = 33,
-		"15 - <16" = 39,
-		">=16"     = 45)
+	    "0  - <12"  = 15,
+	    "12 - <13" = 21,
+	    "13 - <14" = 27,
+	    "14 - <15" = 33,
+	    "15 - <16" = 39,
+	    ">=16"     = 45
+	)
 
 	# @refFS[Tab.]{fs:tab:output:getAccrualTime}
 	accrualTime4 <- getAccrualTime(accrualTime = accrualTime1, maxNumberOfSubjects = 1405)
-	expect_equal(accrualTime4$accrualTime,      c( 0, 12, 13, 14, 15, 16, 40.55555556))
+	expect_equal(accrualTime4$accrualTime, c(0, 12, 13, 14, 15, 16, 40.55555556))
 	expect_equal(accrualTime4$accrualIntensity, c(15, 21, 27, 33, 39, 45))
 	expect_equal(accrualTime4$remainingTime, 24.55555556)
 
 	.skipTestIfDisabled()
 
 	accrualTime2 <- list(
-		"0  - <12"  = 15,
-		"12 - <13" = 21,
-		"13 - <14" = 27,
-		"14 - <15" = 33,
-		"15 - <16" = 39,
-		"16 - ?"   = 45)
+	    "0  - <12"  = 15,
+	    "12 - <13" = 21,
+	    "13 - <14" = 27,
+	    "14 - <15" = 33,
+	    "15 - <16" = 39,
+	    "16 - ?"   = 45
+	)
 	accrualTime5 <- getAccrualTime(accrualTime = accrualTime2, maxNumberOfSubjects = 1405)
-	expect_equal(accrualTime5$accrualTime,      c( 0, 12, 13, 14, 15, 16, 40.55555556))
+	expect_equal(accrualTime5$accrualTime, c(0, 12, 13, 14, 15, 16, 40.55555556))
 	expect_equal(accrualTime5$accrualIntensity, c(15, 21, 27, 33, 39, 45))
-	expect_equal(accrualTime5$remainingTime, 24.55555556)	
+	expect_equal(accrualTime5$remainingTime, 24.55555556)
 
 	accrualTime3 <- list(
-		"0 - <11"  = 20,
-		"11 - <16" = 40,
-		">=16"     = 60)
+	    "0 - <11"  = 20,
+	    "11 - <16" = 40,
+	    ">=16"     = 60
+	)
 	accrualTime6 <- getAccrualTime(accrualTime = accrualTime3, maxNumberOfSubjects = 800)
-	expect_equal(accrualTime6$accrualTime,      c(0, 11, 16, 22.3333333))
+	expect_equal(accrualTime6$accrualTime, c(0, 11, 16, 22.3333333))
 	expect_equal(accrualTime6$accrualIntensity, c(20, 40, 60))
-	expect_equal(accrualTime6$remainingTime, 6.33333333)	
+	expect_equal(accrualTime6$remainingTime, 6.33333333)
 
 	accrualTime7 <- list(
-		"0 - <11"  = 20,
-		"11 - <16" = 40,
-		"16 - ?"   = 60)
+	    "0 - <11"  = 20,
+	    "11 - <16" = 40,
+	    "16 - ?"   = 60
+	)
 	accrualTime8 <- getAccrualTime(accrualTime = accrualTime7, maxNumberOfSubjects = 800)
-	expect_equal(accrualTime8$accrualTime,      c(0, 11, 16, 22.3333333))
+	expect_equal(accrualTime8$accrualTime, c(0, 11, 16, 22.3333333))
 	expect_equal(accrualTime8$accrualIntensity, c(20, 40, 60))
-	expect_equal(accrualTime8$remainingTime, 6.33333333)	
+	expect_equal(accrualTime8$remainingTime, 6.33333333)
 
 })
 
@@ -2620,7 +2727,8 @@ test_that("Testing 'getPiecewiseSurvivalTime': mixed arguments", {
 	}
 
 	expect_warning(getPiecewiseSurvivalTime(hazardRatio = c(0.6, 0.8), pi1 = 0.3),
-		"'hazardRatio' (0.6, 0.8) will be ignored because it will be calculated", fixed = TRUE)
-
+	    "'hazardRatio' (0.6, 0.8) will be ignored because it will be calculated",
+	    fixed = TRUE
+	)
 })
 

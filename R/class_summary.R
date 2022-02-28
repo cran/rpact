@@ -13,10 +13,13 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5684 $
-## |  Last changed: $Date: 2022-01-05 12:27:24 +0100 (Mi, 05 Jan 2022) $
+## |  File version: $Revision: 5859 $
+## |  Last changed: $Date: 2022-02-18 15:59:45 +0100 (Fri, 18 Feb 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
+
+#' @include f_core_utilities.R
+NULL
 
 SummaryItem <- setRefClass("SummaryItem",
     fields = list(
@@ -209,7 +212,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 error = function(e) {
                     stop(
                         C_EXCEPTION_TYPE_RUNTIME_ISSUE, "failed to add summary item '", title,
-                        "' = ", .arrayToString(values), " (class: ", class(values), "): ", e$message
+                        "' = ", .arrayToString(values), " (class: ", .getClassName(values), "): ", e$message
                     )
                 }
             )
@@ -218,7 +221,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
             if (!inherits(summaryItem, "SummaryItem")) {
                 stop(
                     C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "'summaryItem' must be an instance of class 'SummaryItem' (was '", class(summaryItem), "')"
+                    "'summaryItem' must be an instance of class 'SummaryItem' (was '", .getClassName(summaryItem), "')"
                 )
             }
             summaryItems <<- c(summaryItems, summaryItem)
@@ -260,7 +263,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                     warning(
                         "Failed to add parameter ", .arrayToString(parameterName), " (",
                         .arrayToString(values), ") stored in ",
-                        class(parameterSet), " because the parameter has type C_PARAM_NOT_APPLICABLE"
+                        .getClassName(parameterSet), " because the parameter has type C_PARAM_NOT_APPLICABLE"
                     )
                 }
 
@@ -272,7 +275,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 values <- parameterSet[[parameterName1]]
                 if (is.null(values)) {
                     stop(
-                        C_EXCEPTION_TYPE_RUNTIME_ISSUE, class(parameterSet),
+                        C_EXCEPTION_TYPE_RUNTIME_ISSUE, .getClassName(parameterSet),
                         " does not contain a field '", parameterName1, "'"
                     )
                 }
@@ -286,7 +289,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 parameterName <- parameterName[1]
                 if (is.null(values2)) {
                     stop(
-                        C_EXCEPTION_TYPE_RUNTIME_ISSUE, class(parameterSet),
+                        C_EXCEPTION_TYPE_RUNTIME_ISSUE, .getClassName(parameterSet),
                         " does not contain a field '", parameterName2, "'"
                     )
                 }
@@ -408,19 +411,19 @@ SummaryFactory <- setRefClass("SummaryFactory",
                     stop(
                         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                         "for varied values 'parameterSet' must be an instance of ",
-                        "class 'ParameterSet' (was '", class(parameterSet), "')"
+                        "class 'ParameterSet' (was '", .getClassName(parameterSet), "')"
                     )
                 }
 
-                transposed <- !transpose && grepl("MultiArm|Enrichment", class(parameterSet)) &&
+                transposed <- !transpose && grepl("MultiArm|Enrichment", .getClassName(parameterSet)) &&
                     (!is.matrix(values) || ncol(values) > 1)
 
                 userDefinedEffectMatrix <- FALSE
-                if (grepl("MultiArm|Enrichment", class(parameterSet)) ||
+                if (grepl("MultiArm|Enrichment", .getClassName(parameterSet)) ||
                         inherits(parameterSet, "AnalysisResultsConditionalDunnett") ||
                         inherits(parameterSet, "ClosedCombinationTestResults") ||
                         inherits(parameterSet, "ConditionalPowerResults")) {
-                    if (grepl("SimulationResults(MultiArm|Enrichment)", class(parameterSet)) &&
+                    if (grepl("SimulationResults(MultiArm|Enrichment)", .getClassName(parameterSet)) &&
                             parameterName %in% c(
                                 "rejectAtLeastOne",
                                 "earlyStop",
@@ -439,11 +442,11 @@ SummaryFactory <- setRefClass("SummaryFactory",
                         if (userDefinedEffectMatrix) {
                             legendEntry[["[j]"]] <- "effect matrix row j (situation to consider)"
                         }
-                        if (grepl("Survival", class(parameterSet)) && !grepl("Enrichment", class(parameterSet))) {
+                        if (grepl("Survival", .getClassName(parameterSet)) && !grepl("Enrichment", .getClassName(parameterSet))) {
                             legendEntry[["(i)"]] <- "results of treatment arm i vs. control arm"
                         }
 
-                        if (grepl("SimulationResultsEnrichment", class(parameterSet))) {
+                        if (grepl("SimulationResultsEnrichment", .getClassName(parameterSet))) {
                             variedParameterName <- .getSummaryVariedParameterNameEnrichment(parameterSet)
                             variedParameterValues <- parameterSet$effectList[[variedParameterName]]
                             if (variedParameterName == "piTreatments") {
@@ -525,7 +528,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                     }
                     if (length(variedParameter) == 0 || variedParameter == "") {
                         warning(
-                            "Failed to get varied parameter from ", class(parameterSet),
+                            "Failed to get varied parameter from ", .getClassName(parameterSet),
                             " (", length(parameterNames), " parameter names; numberOfVariants: ", numberOfVariants, ")"
                         )
                         return(invisible())
@@ -581,8 +584,8 @@ SummaryFactory <- setRefClass("SummaryFactory",
                             variedParameterValues[variantIndex]
                         ), colValues, legendEntry)
                     } else if (
-                        (grepl("MultiArm|Enrichment", class(parameterSet)) &&
-                            !grepl("Simulation", class(parameterSet))) ||
+                        (grepl("MultiArm|Enrichment", .getClassName(parameterSet)) &&
+                            !grepl("Simulation", .getClassName(parameterSet))) ||
                             inherits(parameterSet, "AnalysisResultsConditionalDunnett") ||
                             inherits(parameterSet, "ClosedCombinationTestResults") ||
                             inherits(parameterSet, "ConditionalPowerResults")) {
@@ -683,7 +686,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 error = function(e) {
                     stop(
                         ".getColumnValues(", dQuote(parameterName), "): ", e$message,
-                        "; class(values) = ", class(values),
+                        "; .getClassName(values) = ", .getClassName(values),
                         "; dim(values) = ", .arrayToString(dim(values), vectorLookAndFeelEnabled = TRUE),
                         "; variantIndex = ", variantIndex,
                         "; transposed = ", transposed
@@ -847,11 +850,11 @@ SummaryFactory <- setRefClass("SummaryFactory",
             title <- "Analysis results for a "
         }
 
-        if (grepl("Means", class(analysisResults$.dataInput))) {
+        if (grepl("Means", .getClassName(analysisResults$.dataInput))) {
             title <- paste0(title, "continuous endpoint")
-        } else if (grepl("Rates", class(analysisResults$.dataInput))) {
+        } else if (grepl("Rates", .getClassName(analysisResults$.dataInput))) {
             title <- paste0(title, "binary endpoint")
-        } else if (grepl("Survival", class(analysisResults$.dataInput))) {
+        } else if (grepl("Survival", .getClassName(analysisResults$.dataInput))) {
             title <- paste0(title, "survival endpoint")
         }
 
@@ -891,18 +894,18 @@ SummaryFactory <- setRefClass("SummaryFactory",
             title <- "Power calculation for a "
         }
 
-        if (grepl("Means", class(designPlan))) {
+        if (grepl("Means", .getClassName(designPlan))) {
             title <- paste0(title, "continuous endpoint")
-        } else if (grepl("Rates", class(designPlan))) {
+        } else if (grepl("Rates", .getClassName(designPlan))) {
             title <- paste0(title, "binary endpoint")
-        } else if (grepl("Survival", class(designPlan))) {
+        } else if (grepl("Survival", .getClassName(designPlan))) {
             title <- paste0(title, "survival endpoint")
         }
 
-        if (grepl("MultiArm", class(designPlan)) &&
+        if (grepl("MultiArm", .getClassName(designPlan)) &&
                 !is.null(designPlan[["activeArms"]]) && designPlan$activeArms > 1) {
             title <- .concatenateSummaryText(title, "(multi-arm design)", sep = " ")
-        } else if (grepl("Enrichment", class(designPlan))) {
+        } else if (grepl("Enrichment", .getClassName(designPlan))) {
             title <- .concatenateSummaryText(title, "(enrichment design)", sep = " ")
         }
     } else if (kMax > 1) {
@@ -928,20 +931,20 @@ SummaryFactory <- setRefClass("SummaryFactory",
 }
 
 .getSummaryObjectSettings <- function(object) {
-    multiArmEnabled <- grepl("MultiArm", class(object))
-    enrichmentEnabled <- grepl("Enrichment", class(object))
-    simulationEnabled <- grepl("Simulation", class(object))
+    multiArmEnabled <- grepl("MultiArm", .getClassName(object))
+    enrichmentEnabled <- grepl("Enrichment", .getClassName(object))
+    simulationEnabled <- grepl("Simulation", .getClassName(object))
     ratioEnabled <- FALSE
     populations <- NA_integer_
     if (inherits(object, "AnalysisResults") || inherits(object, "StageResults")) {
         groups <- object$.dataInput$getNumberOfGroups()
-        meansEnabled <- grepl("Means", class(object$.dataInput))
-        ratesEnabled <- grepl("Rates", class(object$.dataInput))
-        survivalEnabled <- grepl("Survival", class(object$.dataInput))
+        meansEnabled <- grepl("Means", .getClassName(object$.dataInput))
+        ratesEnabled <- grepl("Rates", .getClassName(object$.dataInput))
+        survivalEnabled <- grepl("Survival", .getClassName(object$.dataInput))
     } else {
-        meansEnabled <- grepl("Means", class(object))
-        ratesEnabled <- grepl("Rates", class(object))
-        survivalEnabled <- grepl("Survival", class(object))
+        meansEnabled <- grepl("Means", .getClassName(object))
+        ratesEnabled <- grepl("Rates", .getClassName(object))
+        survivalEnabled <- grepl("Survival", .getClassName(object))
         if (simulationEnabled && multiArmEnabled) {
             groups <- object$activeArms
         } else if (simulationEnabled && enrichmentEnabled) {
@@ -973,13 +976,13 @@ SummaryFactory <- setRefClass("SummaryFactory",
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "'object' must be an instance of class 'AnalysisResults', 'TrialDesignPlan' ",
-            "or 'SimulationResults' (is '", class(object), "')"
+            "or 'SimulationResults' (is '", .getClassName(object), "')"
         )
     }
 
     design <- object[[".design"]]
     if (is.null(design)) {
-        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'.design' must be defined in specified ", class(object))
+        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'.design' must be defined in specified ", .getClassName(object))
     }
 
     settings <- .getSummaryObjectSettings(object)
@@ -1130,7 +1133,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 }
 
 .addAllocationRatioToHeader <- function(parameterSet, header, sep = ", ") {
-    if (!.isTrialDesignPlanSurvival(parameterSet) && !grepl("Simulation", class(parameterSet))) {
+    if (!.isTrialDesignPlanSurvival(parameterSet) && !grepl("Simulation", .getClassName(parameterSet))) {
         numberOfGroups <- 1
         if (inherits(parameterSet, "TrialDesignPlan")) {
             numberOfGroups <- parameterSet$groups
@@ -1422,7 +1425,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 }
 
 .addEnrichmentEffectListToHeader <- function(header, designPlan) {
-    if (!grepl("SimulationResultsEnrichment", class(designPlan))) {
+    if (!grepl("SimulationResultsEnrichment", .getClassName(designPlan))) {
         return(header)
     }
 
@@ -1632,7 +1635,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 
         header <- .addEnrichmentEffectListToHeader(header, designPlan)
 
-        if (grepl("SimulationResultsEnrichment", class(designPlan))) {
+        if (grepl("SimulationResultsEnrichment", .getClassName(designPlan))) {
             stDevs <- designPlan$effectList$stDevs
             if (length(unique(stDevs)) == 1) {
                 stDevs <- unique(stDevs)
@@ -1723,7 +1726,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
         parameterNames <- designPlan$.getVisibleFieldNamesOrdered()
         numberOfVariants <- .getMultidimensionalNumberOfVariants(designPlan, parameterNames)
 
-        if (grepl("SimulationResultsEnrichment", class(designPlan))) {
+        if (grepl("SimulationResultsEnrichment", .getClassName(designPlan))) {
             userDefinedParam <- "hazardRatios"
             paramName <- "hazard ratios"
             paramValue <- designPlan$effectList$hazardRatios
@@ -1746,7 +1749,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
             } else if (userDefinedParam == "median1") {
                 paramName <- "treatment median(1)"
             } else if (userDefinedParam == "hazardRatio") {
-                paramName <- ifelse(grepl("SimulationResultsMultiArm", class(designPlan)), "omega_max", "hazard ratio")
+                paramName <- ifelse(grepl("SimulationResultsMultiArm", .getClassName(designPlan)), "omega_max", "hazard ratio")
             }
         }
 
@@ -1784,6 +1787,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
             treatmentRateText <- paste0(treatmentRateText, ", piecewise survival distribution")
             treatmentRateText <- paste0(
                 treatmentRateText, ", \n",
+				"piecewise survival time = ", .arrayToString(round(designPlan$piecewiseSurvivalTime, 4), vectorLookAndFeelEnabled = TRUE), ", \n",				
                 "control lambda(2) = ", .arrayToString(round(designPlan$lambda2, 4), vectorLookAndFeelEnabled = TRUE)
             )
         }
@@ -2096,7 +2100,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
         return(.createSummaryAnalysisResults(object, digits = digits, output = output))
     }
 
-    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'summary' not implemented yet for class ", class(object))
+    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'summary' not implemented yet for class ", .getClassName(object))
 }
 
 #
@@ -2107,7 +2111,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     if (!inherits(object, "AnalysisResults")) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'object' must be a valid analysis result object (is class ", class(object), ")"
+            "'object' must be a valid analysis result object (is class ", .getClassName(object), ")"
         )
     }
 
@@ -2432,19 +2436,6 @@ SummaryFactory <- setRefClass("SummaryFactory",
     return(summaryFactory)
 }
 
-.getFullStagesVectorAtStage <- function(value, kMax, stage) {
-    if (is.matrix(value) && nrow(value) > 1 && ncol(value) == 1) {
-        x <- matrix(rep(NA_real_, nrow(value) * kMax), nrow = nrow(value), ncol = kMax)
-        for (i in 1:nrow(value)) {
-            x[i, stage] <- value[i, 1]
-        }
-    } else {
-        x <- rep(NA_real_, kMax)
-        x[stage] <- value
-    }
-    return(x)
-}
-
 .getSummaryDigits <- function(digits = NA_integer_) {
     if (is.na(digits)) {
         digits <- as.integer(getOption("rpact.summary.digits", 3))
@@ -2553,7 +2544,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     }
 
     if (!is.null(designPlan)) {
-        if (!grepl("SimulationResults(MultiArm|Enrichment)", class(designPlan))) {
+        if (!grepl("SimulationResults(MultiArm|Enrichment)", .getClassName(designPlan))) {
             outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
             if (outputSize == "large" && inherits(designPlan, "SimulationResults")) {
                 summaryFactory$addParameter(designPlan,
@@ -2610,7 +2601,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "'object' must be a valid design, design plan, ",
-            "or simulation result object (is class ", class(object), ")"
+            "or simulation result object (is class ", .getClassName(object), ")"
         )
     }
 
@@ -2675,13 +2666,13 @@ SummaryFactory <- setRefClass("SummaryFactory",
         ))
     }
 
-    simulationEnabled <- grepl("SimulationResults", class(designPlan))
-    multiArmEnabled <- grepl("MultiArm", class(designPlan))
-    enrichmentEnabled <- grepl("Enrichment", class(designPlan))
-    baseEnabled <- grepl("(TrialDesignPlan|SimulationResults)(Means|Rates|Survival)", class(designPlan))
+    simulationEnabled <- grepl("SimulationResults", .getClassName(designPlan))
+    multiArmEnabled <- grepl("MultiArm", .getClassName(designPlan))
+    enrichmentEnabled <- grepl("Enrichment", .getClassName(designPlan))
+    baseEnabled <- grepl("(TrialDesignPlan|SimulationResults)(Means|Rates|Survival)", .getClassName(designPlan))
     planningEnabled <- .isTrialDesignPlan(designPlan)
     simulationEnabled <- .isSimulationResults(designPlan)
-    survivalEnabled <- grepl("Survival", class(designPlan))
+    survivalEnabled <- grepl("Survival", .getClassName(designPlan))
 
     probsH0 <- NULL
     probsH1 <- NULL
@@ -3130,10 +3121,10 @@ SummaryFactory <- setRefClass("SummaryFactory",
 }
 
 .getSummaryVariedParameterNameEnrichment <- function(designPlan) {
-    if (grepl("Rates", class(designPlan))) {
+    if (grepl("Rates", .getClassName(designPlan))) {
         return("piTreatments")
     }
-    if (grepl("Survival", class(designPlan))) {
+    if (grepl("Survival", .getClassName(designPlan))) {
         return("hazardRatios")
     }
     return("effects")
@@ -3150,7 +3141,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
         ))
     }
 
-    enrichmentEnabled <- grepl("SimulationResultsEnrichment", class(designPlan))
+    enrichmentEnabled <- grepl("SimulationResultsEnrichment", .getClassName(designPlan))
     if (enrichmentEnabled) {
         variedParameterName <- .getSummaryVariedParameterNameEnrichment(designPlan)
         variedParameterValues <- designPlan$effectList[[variedParameterName]]
@@ -3200,7 +3191,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 .getSummaryGroupCaption <- function(designPlan, parameterName, numberOfGroups, groupNumber) {
     listItemPrefix <- getOption("rpact.summary.list.item.prefix", C_SUMMARY_LIST_ITEM_PREFIX_DEFAULT)
 
-    if (grepl("Enrichment", class(designPlan))) {
+    if (grepl("Enrichment", .getClassName(designPlan))) {
         categoryCaption <- .getCategoryCaptionEnrichment(designPlan, parameterName, groupNumber)
         categoryCaption <- sub("^F$", "Full population F", categoryCaption)
         categoryCaption <- sub("^R$", "Remaining population R", categoryCaption)
@@ -3211,7 +3202,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 
     treatmentCaption <- ifelse(numberOfGroups > 2, paste0("Treatment arm ", groupNumber), "Treatment arm")
 
-    if (!grepl("Survival", class(designPlan)) ||
+    if (!grepl("Survival", .getClassName(designPlan)) ||
             (inherits(designPlan, "SimulationResultsMultiArmSurvival") &&
                 parameterName == "singleNumberOfEventsPerStage")) {
         return(ifelse(groupNumber == numberOfGroups,
@@ -3265,12 +3256,12 @@ SummaryFactory <- setRefClass("SummaryFactory",
         summaryFactory, roundDigits, smoothedZeroFormat = FALSE) {
     arrayData <- designPlan[[parameterName]]
     if (is.array(arrayData) && length(dim(arrayData)) == 3) {
-        totalNumberOfGroups <- dim(designPlan[[ifelse(grepl("Survival", class(designPlan)),
+        totalNumberOfGroups <- dim(designPlan[[ifelse(grepl("Survival", .getClassName(designPlan)),
             "eventsPerStage", "sampleSizes"
         )]])[3]
 
         numberOfGroups <- dim(arrayData)[3]
-        if (parameterName == "selectedArms" && !grepl("Survival", class(designPlan))) { # remove control group
+        if (parameterName == "selectedArms" && !grepl("Survival", .getClassName(designPlan))) { # remove control group
             numberOfGroups <- numberOfGroups - 1
         }
         numberOfVariedParams <- dim(arrayData)[2]
@@ -3323,23 +3314,23 @@ SummaryFactory <- setRefClass("SummaryFactory",
 }
 
 .getSummaryVariedParameterSimulationMultiArm <- function(designPlan) {
-    if (!grepl("SimulationResultsMultiArm", class(designPlan))) {
+    if (!grepl("SimulationResultsMultiArm", .getClassName(designPlan))) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'designPlan' (",
-            class(designPlan), ") must be of class 'SimulationResultsMultiArm'"
+            .getClassName(designPlan), ") must be of class 'SimulationResultsMultiArm'"
         )
     }
 
-    if (grepl("Means", class(designPlan))) {
+    if (grepl("Means", .getClassName(designPlan))) {
         return("muMaxVector")
-    } else if (grepl("Rates", class(designPlan))) {
+    } else if (grepl("Rates", .getClassName(designPlan))) {
         return("piMaxVector")
-    } else if (grepl("Survival", class(designPlan))) {
+    } else if (grepl("Survival", .getClassName(designPlan))) {
         return("omegaMaxVector")
     }
 
     stop(
         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'designPlan' (",
-        class(designPlan), ") must be of class 'SimulationResultsMultiArm'"
+        .getClassName(designPlan), ") must be of class 'SimulationResultsMultiArm'"
     )
 }

@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 3.2.1
-Date: 2022-01-06
+Version: 3.2.2
+Date: 2022-02-25
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -28,8 +28,8 @@ Suggests: parallel, ggplot2 (>= 2.2.0), testthat (>= 2.0.0), mnormt (>=
         1.5-7), knitr (>= 1.19), rmarkdown (>= 1.10)
 VignetteBuilder: knitr, rmarkdown
 RoxygenNote: 7.1.2
-Collate: 'RcppExports.R' 'f_core_assertions.R' 'f_core_constants.R'
-        'f_core_utilities.R' 'f_analysis_utilities.R'
+Collate: 'RcppExports.R' 'f_core_constants.R' 'f_core_utilities.R'
+        'f_core_assertions.R' 'f_analysis_utilities.R'
         'f_parameter_set_utilities.R' 'class_core_parameter_set.R'
         'class_core_plot_settings.R' 'f_analysis_base.R'
         'class_analysis_dataset.R' 'f_core_plot.R' 'class_design.R'
@@ -56,9 +56,9 @@ Collate: 'RcppExports.R' 'f_core_assertions.R' 'f_core_constants.R'
         'f_simulation_multiarm_survival.R' 'parameter_descriptions.R'
         'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2022-01-06 09:54:07 UTC; fried
+Packaged: 2022-02-26 18:08:49 UTC; fried
 Author: Gernot Wassmer [aut],
   Friedrich Pahlke [aut, cre]
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2022-01-06 10:20:02 UTC
+Date/Publication: 2022-02-28 09:30:08 UTC

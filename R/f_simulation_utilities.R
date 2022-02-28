@@ -13,10 +13,13 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5628 $
-## |  Last changed: $Date: 2021-12-08 14:41:03 +0100 (Mi, 08 Dez 2021) $
+## |  File version: $Revision: 5855 $
+## |  Last changed: $Date: 2022-02-18 13:23:48 +0100 (Fr, 18 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
+
+#' @include f_core_utilities.R
+NULL
 
 .getGMaxFromSubGroups <- function(subGroups) {
     .assertIsCharacter(subGroups, "subGroups")
@@ -31,13 +34,23 @@
     return(gMax)
 }
 
-.getSimulationParametersFromRawData <- function(data, ..., variantName = c("alternative", "pi1"),
-        maxNumberOfIterations = max(data$iterationNumber)) {
-    if (!is.data.frame(data)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'data' (", class(data), ") must be a data.frame")
+.getSimulationParametersFromRawData <- function(data, ..., variantName, maxNumberOfIterations = NA_integer_) {
+    
+    if (is.null(data) || length(data) != 1) {
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'data' must be a valid data.frame or a simulation result object")
     }
-
-    variantName <- match.arg(variantName)
+        
+    if (inherits(data, "SimulationResults")) {
+        data <- data[[".data"]]
+    }
+        
+    if (!is.data.frame(data)) {
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'data' (", .getClassName(data), ") must be a data.frame or a simulation result object")
+    }
+    
+    if (is.na(maxNumberOfIterations)) {
+        maxNumberOfIterations <- max(data$iterationNumber)
+    }
 
     stageNumbers <- sort(unique(na.omit(data$stageNumber)))
     kMax <- max(stageNumbers)
@@ -324,26 +337,26 @@
 }
 
 .getSimulationEnrichmentEffectMatrixName <- function(obj) {
-    if (!grepl("SimulationResultsEnrichment", class(obj))) {
+    if (!grepl("SimulationResultsEnrichment", .getClassName(obj))) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, sQuote("obj"),
-            " must be a SimulationResultsEnrichment object (is ", class(obj), ")"
+            " must be a SimulationResultsEnrichment object (is ", .getClassName(obj), ")"
         )
     }
 
-    if (grepl("Means", class(obj))) {
+    if (grepl("Means", .getClassName(obj))) {
         return("effects")
     }
 
-    if (grepl("Rates", class(obj))) {
+    if (grepl("Rates", .getClassName(obj))) {
         return("piTreatments")
     }
 
-    if (grepl("Survival", class(obj))) {
+    if (grepl("Survival", .getClassName(obj))) {
         return("hazardRatios")
     }
 
-    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "class ", class(obj), " not supported")
+    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "class ", .getClassName(obj), " not supported")
 }
 
 .getSimulationEnrichmentEffectData <- function(simulationResults, validatePlotCapability = TRUE) {

@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_core_plot.R
-## |  Creation date: 08 December 2021, 09:08:44
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 23 February 2022, 14:05:49
+## |  File version: $Revision: 5881 $
+## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing .reconstructSequenceCommand")
@@ -34,7 +34,6 @@ test_that("The output is as exptected", {
 
 	expect_true(grepl(.getRexepSaveCharacter("x$.design"), "x$.design"))
 	expect_true(grepl(.getRexepSaveCharacter("x$.design"), "c(x$.design, xxx)"))
-	expect_false(grepl(.getRexepSaveCharacter("x$.design"), "c(x$design, xxx)"))
-
+	expect_false(grepl(.getRexepSaveCharacter("x$.design"), "c(x$design, xxx)"))
 })
 

@@ -10,15 +10,205 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// getW
-NumericVector getW(double dx, const int M);
-RcppExport SEXP _rpact_getW(SEXP dxSEXP, SEXP MSEXP) {
+// isEqualCpp
+bool isEqualCpp(double x, double y);
+RcppExport SEXP _rpact_isEqualCpp(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type dx(dxSEXP);
-    Rcpp::traits::input_parameter< const int >::type M(MSEXP);
-    rcpp_result_gen = Rcpp::wrap(getW(dx, M));
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(isEqualCpp(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationCaseKmax2Cpp
+int getFisherCombinationCaseKmax2Cpp(NumericVector tVec);
+RcppExport SEXP _rpact_getFisherCombinationCaseKmax2Cpp(SEXP tVecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax2Cpp(tVec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationSizeKmax2Cpp
+double getFisherCombinationSizeKmax2Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
+RcppExport SEXP _rpact_getFisherCombinationSizeKmax2Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
+    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeKmax2Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationCaseKmax3Cpp
+double getFisherCombinationCaseKmax3Cpp(NumericVector tVec);
+RcppExport SEXP _rpact_getFisherCombinationCaseKmax3Cpp(SEXP tVecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax3Cpp(tVec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationSizeKmax3Cpp
+double getFisherCombinationSizeKmax3Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
+RcppExport SEXP _rpact_getFisherCombinationSizeKmax3Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
+    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeKmax3Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationCaseKmax4Cpp
+double getFisherCombinationCaseKmax4Cpp(NumericVector tVec);
+RcppExport SEXP _rpact_getFisherCombinationCaseKmax4Cpp(SEXP tVecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax4Cpp(tVec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationSizeApproximatelyKmax4Cpp
+double getFisherCombinationSizeApproximatelyKmax4Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
+RcppExport SEXP _rpact_getFisherCombinationSizeApproximatelyKmax4Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
+    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeApproximatelyKmax4Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationCaseKmax5Cpp
+double getFisherCombinationCaseKmax5Cpp(NumericVector tVec);
+RcppExport SEXP _rpact_getFisherCombinationCaseKmax5Cpp(SEXP tVecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax5Cpp(tVec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationSizeApproximatelyKmax5Cpp
+double getFisherCombinationSizeApproximatelyKmax5Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
+RcppExport SEXP _rpact_getFisherCombinationSizeApproximatelyKmax5Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
+    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeApproximatelyKmax5Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationCaseKmax6Cpp
+double getFisherCombinationCaseKmax6Cpp(NumericVector tVec);
+RcppExport SEXP _rpact_getFisherCombinationCaseKmax6Cpp(SEXP tVecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax6Cpp(tVec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationSizeApproximatelyKmax6Cpp
+double getFisherCombinationSizeApproximatelyKmax6Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
+RcppExport SEXP _rpact_getFisherCombinationSizeApproximatelyKmax6Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
+    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeApproximatelyKmax6Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationSizeCpp
+double getFisherCombinationSizeCpp(double kMax, NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, NumericVector cases);
+RcppExport SEXP _rpact_getFisherCombinationSizeCpp(SEXP kMaxSEXP, SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP casesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type cases(casesSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeCpp(kMax, alpha0Vec, criticalValues, tVec, cases));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getSimulatedAlphaCpp
+double getSimulatedAlphaCpp(int kMax, NumericVector alpha0, NumericVector criticalValues, NumericVector tVec, int iterations);
+RcppExport SEXP _rpact_getSimulatedAlphaCpp(SEXP kMaxSEXP, SEXP alpha0SEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP iterationsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0(alpha0SEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP);
+    rcpp_result_gen = Rcpp::wrap(getSimulatedAlphaCpp(kMax, alpha0, criticalValues, tVec, iterations));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getFisherCombinationCasesCpp
+NumericVector getFisherCombinationCasesCpp(int kMax, NumericVector tVec);
+RcppExport SEXP _rpact_getFisherCombinationCasesCpp(SEXP kMaxSEXP, SEXP tVecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
+    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCasesCpp(kMax, tVec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignFisherTryCpp
+List getDesignFisherTryCpp(int kMax, double alpha, double tolerance, NumericVector criticalValues, NumericVector scale, NumericVector alpha0Vec, NumericVector userAlphaSpending, String method);
+RcppExport SEXP _rpact_getDesignFisherTryCpp(SEXP kMaxSEXP, SEXP alphaSEXP, SEXP toleranceSEXP, SEXP criticalValuesSEXP, SEXP scaleSEXP, SEXP alpha0VecSEXP, SEXP userAlphaSpendingSEXP, SEXP methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type userAlphaSpending(userAlphaSpendingSEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignFisherTryCpp(kMax, alpha, tolerance, criticalValues, scale, alpha0Vec, userAlphaSpending, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -50,6 +240,154 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type sided(sidedSEXP);
     Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
     rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialPampallonaTsiatisCpp(tolerance, beta, alpha, kMax, deltaPT0, deltaPT1, informationRates, sided, bindingFutility));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getSpendingValueCpp
+double getSpendingValueCpp(double alpha, double x, double sided, String typeOfDesign, double gamma);
+RcppExport SEXP _rpact_getSpendingValueCpp(SEXP alphaSEXP, SEXP xSEXP, SEXP sidedSEXP, SEXP typeOfDesignSEXP, SEXP gammaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< String >::type typeOfDesign(typeOfDesignSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    rcpp_result_gen = Rcpp::wrap(getSpendingValueCpp(alpha, x, sided, typeOfDesign, gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialUserDefinedAlphaSpendingCpp
+NumericVector getDesignGroupSequentialUserDefinedAlphaSpendingCpp(int kMax, NumericVector userAlphaSpending, double sided, NumericVector informationRates, bool bindingFutility, NumericVector futilityBounds, double tolerance);
+RcppExport SEXP _rpact_getDesignGroupSequentialUserDefinedAlphaSpendingCpp(SEXP kMaxSEXP, SEXP userAlphaSpendingSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP futilityBoundsSEXP, SEXP toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type userAlphaSpending(userAlphaSpendingSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type futilityBounds(futilityBoundsSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialUserDefinedAlphaSpendingCpp(kMax, userAlphaSpending, sided, informationRates, bindingFutility, futilityBounds, tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialAlphaSpendingCpp
+NumericVector getDesignGroupSequentialAlphaSpendingCpp(int kMax, double alpha, double gammaA, String typeOfDesign, double sided, NumericVector informationRates, bool bindingFutility, NumericVector futilityBounds, double tolerance);
+RcppExport SEXP _rpact_getDesignGroupSequentialAlphaSpendingCpp(SEXP kMaxSEXP, SEXP alphaSEXP, SEXP gammaASEXP, SEXP typeOfDesignSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP futilityBoundsSEXP, SEXP toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type gammaA(gammaASEXP);
+    Rcpp::traits::input_parameter< String >::type typeOfDesign(typeOfDesignSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type futilityBounds(futilityBoundsSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialAlphaSpendingCpp(kMax, alpha, gammaA, typeOfDesign, sided, informationRates, bindingFutility, futilityBounds, tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialDeltaWTCpp
+NumericVector getDesignGroupSequentialDeltaWTCpp(int kMax, double alpha, double sided, NumericVector informationRates, bool bindingFutility, NumericVector futilityBounds, double tolerance, double deltaWT);
+RcppExport SEXP _rpact_getDesignGroupSequentialDeltaWTCpp(SEXP kMaxSEXP, SEXP alphaSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP futilityBoundsSEXP, SEXP toleranceSEXP, SEXP deltaWTSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type futilityBounds(futilityBoundsSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< double >::type deltaWT(deltaWTSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialDeltaWTCpp(kMax, alpha, sided, informationRates, bindingFutility, futilityBounds, tolerance, deltaWT));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialPocockCpp
+NumericVector getDesignGroupSequentialPocockCpp(int kMax, double alpha, double sided, NumericVector informationRates, bool bindingFutility, NumericVector futilityBounds, double tolerance);
+RcppExport SEXP _rpact_getDesignGroupSequentialPocockCpp(SEXP kMaxSEXP, SEXP alphaSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP futilityBoundsSEXP, SEXP toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type futilityBounds(futilityBoundsSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialPocockCpp(kMax, alpha, sided, informationRates, bindingFutility, futilityBounds, tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialOBrienAndFlemingCpp
+NumericVector getDesignGroupSequentialOBrienAndFlemingCpp(int kMax, double alpha, double sided, NumericVector informationRates, bool bindingFutility, NumericVector futilityBounds, double tolerance);
+RcppExport SEXP _rpact_getDesignGroupSequentialOBrienAndFlemingCpp(SEXP kMaxSEXP, SEXP alphaSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP futilityBoundsSEXP, SEXP toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type futilityBounds(futilityBoundsSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialOBrienAndFlemingCpp(kMax, alpha, sided, informationRates, bindingFutility, futilityBounds, tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialBetaSpendingCpp
+List getDesignGroupSequentialBetaSpendingCpp(NumericVector criticalValues, int kMax, NumericVector userAlphaSpending, NumericVector userBetaSpending, double sided, NumericVector informationRates, bool bindingFutility, double tolerance, String typeOfDesign, String typeBetaSpending, double gammaA, double gammaB, double alpha, double beta);
+RcppExport SEXP _rpact_getDesignGroupSequentialBetaSpendingCpp(SEXP criticalValuesSEXP, SEXP kMaxSEXP, SEXP userAlphaSpendingSEXP, SEXP userBetaSpendingSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP toleranceSEXP, SEXP typeOfDesignSEXP, SEXP typeBetaSpendingSEXP, SEXP gammaASEXP, SEXP gammaBSEXP, SEXP alphaSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type userAlphaSpending(userAlphaSpendingSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type userBetaSpending(userBetaSpendingSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< String >::type typeOfDesign(typeOfDesignSEXP);
+    Rcpp::traits::input_parameter< String >::type typeBetaSpending(typeBetaSpendingSEXP);
+    Rcpp::traits::input_parameter< double >::type gammaA(gammaASEXP);
+    Rcpp::traits::input_parameter< double >::type gammaB(gammaBSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialBetaSpendingCpp(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, typeBetaSpending, gammaA, gammaB, alpha, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getDesignGroupSequentialUserDefinedBetaSpendingCpp
+List getDesignGroupSequentialUserDefinedBetaSpendingCpp(NumericVector criticalValues, int kMax, NumericVector userAlphaSpending, NumericVector userBetaSpending, double sided, NumericVector informationRates, bool bindingFutility, double tolerance, String typeOfDesign, double gammaA, double alpha);
+RcppExport SEXP _rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp(SEXP criticalValuesSEXP, SEXP kMaxSEXP, SEXP userAlphaSpendingSEXP, SEXP userBetaSpendingSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP toleranceSEXP, SEXP typeOfDesignSEXP, SEXP gammaASEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
+    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type userAlphaSpending(userAlphaSpendingSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type userBetaSpending(userBetaSpendingSEXP);
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< String >::type typeOfDesign(typeOfDesignSEXP);
+    Rcpp::traits::input_parameter< double >::type gammaA(gammaASEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialUserDefinedBetaSpendingCpp(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, gammaA, alpha));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -94,40 +432,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// getStratifiedLogRankTestCpp
-List getStratifiedLogRankTestCpp(DataFrame survivalDataSet, double time, bool directionUpper, double thetaH0);
-RcppExport SEXP _rpact_getStratifiedLogRankTestCpp(SEXP survivalDataSetSEXP, SEXP timeSEXP, SEXP directionUpperSEXP, SEXP thetaH0SEXP) {
+// zeroin
+double zeroin(Function f, double lower, double upper, double tolerance, int maxIter);
+RcppExport SEXP _rpact_zeroin(SEXP fSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP toleranceSEXP, SEXP maxIterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type survivalDataSet(survivalDataSetSEXP);
-    Rcpp::traits::input_parameter< double >::type time(timeSEXP);
-    Rcpp::traits::input_parameter< bool >::type directionUpper(directionUpperSEXP);
-    Rcpp::traits::input_parameter< double >::type thetaH0(thetaH0SEXP);
-    rcpp_result_gen = Rcpp::wrap(getStratifiedLogRankTestCpp(survivalDataSet, time, directionUpper, thetaH0));
+    Rcpp::traits::input_parameter< Function >::type f(fSEXP);
+    Rcpp::traits::input_parameter< double >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< double >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(zeroin(f, lower, upper, tolerance, maxIter));
     return rcpp_result_gen;
 END_RCPP
 }
-// getSimulationStratifiedLogRankCpp
-List getSimulationStratifiedLogRankCpp(int kMax, NumericVector criticalValues, NumericVector lambda2, NumericVector lambda1, NumericVector prevalences, bool directionUpper, int maxNumberOfSubjects, NumericVector accrualTime, NumericVector plannedEvents, double allocation1, double allocation2, int maxIterations, DataFrame survivalDataSet);
-RcppExport SEXP _rpact_getSimulationStratifiedLogRankCpp(SEXP kMaxSEXP, SEXP criticalValuesSEXP, SEXP lambda2SEXP, SEXP lambda1SEXP, SEXP prevalencesSEXP, SEXP directionUpperSEXP, SEXP maxNumberOfSubjectsSEXP, SEXP accrualTimeSEXP, SEXP plannedEventsSEXP, SEXP allocation1SEXP, SEXP allocation2SEXP, SEXP maxIterationsSEXP, SEXP survivalDataSetSEXP) {
+// bizero
+double bizero(Function f, double lower, double upper, double tolerance, int maxIter);
+RcppExport SEXP _rpact_bizero(SEXP fSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP toleranceSEXP, SEXP maxIterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type lambda2(lambda2SEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type lambda1(lambda1SEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type prevalences(prevalencesSEXP);
-    Rcpp::traits::input_parameter< bool >::type directionUpper(directionUpperSEXP);
-    Rcpp::traits::input_parameter< int >::type maxNumberOfSubjects(maxNumberOfSubjectsSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type accrualTime(accrualTimeSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type plannedEvents(plannedEventsSEXP);
-    Rcpp::traits::input_parameter< double >::type allocation1(allocation1SEXP);
-    Rcpp::traits::input_parameter< double >::type allocation2(allocation2SEXP);
-    Rcpp::traits::input_parameter< int >::type maxIterations(maxIterationsSEXP);
-    Rcpp::traits::input_parameter< DataFrame >::type survivalDataSet(survivalDataSetSEXP);
-    rcpp_result_gen = Rcpp::wrap(getSimulationStratifiedLogRankCpp(kMax, criticalValues, lambda2, lambda1, prevalences, directionUpper, maxNumberOfSubjects, accrualTime, plannedEvents, allocation1, allocation2, maxIterations, survivalDataSet));
+    Rcpp::traits::input_parameter< Function >::type f(fSEXP);
+    Rcpp::traits::input_parameter< double >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< double >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(bizero(f, lower, upper, tolerance, maxIter));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -144,12 +475,34 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rpact_getW", (DL_FUNC) &_rpact_getW, 2},
+    {"_rpact_isEqualCpp", (DL_FUNC) &_rpact_isEqualCpp, 2},
+    {"_rpact_getFisherCombinationCaseKmax2Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax2Cpp, 1},
+    {"_rpact_getFisherCombinationSizeKmax2Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeKmax2Cpp, 5},
+    {"_rpact_getFisherCombinationCaseKmax3Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax3Cpp, 1},
+    {"_rpact_getFisherCombinationSizeKmax3Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeKmax3Cpp, 5},
+    {"_rpact_getFisherCombinationCaseKmax4Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax4Cpp, 1},
+    {"_rpact_getFisherCombinationSizeApproximatelyKmax4Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeApproximatelyKmax4Cpp, 5},
+    {"_rpact_getFisherCombinationCaseKmax5Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax5Cpp, 1},
+    {"_rpact_getFisherCombinationSizeApproximatelyKmax5Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeApproximatelyKmax5Cpp, 5},
+    {"_rpact_getFisherCombinationCaseKmax6Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax6Cpp, 1},
+    {"_rpact_getFisherCombinationSizeApproximatelyKmax6Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeApproximatelyKmax6Cpp, 5},
+    {"_rpact_getFisherCombinationSizeCpp", (DL_FUNC) &_rpact_getFisherCombinationSizeCpp, 5},
+    {"_rpact_getSimulatedAlphaCpp", (DL_FUNC) &_rpact_getSimulatedAlphaCpp, 5},
+    {"_rpact_getFisherCombinationCasesCpp", (DL_FUNC) &_rpact_getFisherCombinationCasesCpp, 2},
+    {"_rpact_getDesignFisherTryCpp", (DL_FUNC) &_rpact_getDesignFisherTryCpp, 8},
     {"_rpact_getGroupSequentialProbabilitiesCpp", (DL_FUNC) &_rpact_getGroupSequentialProbabilitiesCpp, 2},
     {"_rpact_getDesignGroupSequentialPampallonaTsiatisCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialPampallonaTsiatisCpp, 9},
+    {"_rpact_getSpendingValueCpp", (DL_FUNC) &_rpact_getSpendingValueCpp, 5},
+    {"_rpact_getDesignGroupSequentialUserDefinedAlphaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialUserDefinedAlphaSpendingCpp, 7},
+    {"_rpact_getDesignGroupSequentialAlphaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialAlphaSpendingCpp, 9},
+    {"_rpact_getDesignGroupSequentialDeltaWTCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialDeltaWTCpp, 8},
+    {"_rpact_getDesignGroupSequentialPocockCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialPocockCpp, 7},
+    {"_rpact_getDesignGroupSequentialOBrienAndFlemingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialOBrienAndFlemingCpp, 7},
+    {"_rpact_getDesignGroupSequentialBetaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialBetaSpendingCpp, 14},
+    {"_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp, 11},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},
-    {"_rpact_getStratifiedLogRankTestCpp", (DL_FUNC) &_rpact_getStratifiedLogRankTestCpp, 4},
-    {"_rpact_getSimulationStratifiedLogRankCpp", (DL_FUNC) &_rpact_getSimulationStratifiedLogRankCpp, 13},
+    {"_rpact_zeroin", (DL_FUNC) &_rpact_zeroin, 5},
+    {"_rpact_bizero", (DL_FUNC) &_rpact_bizero, 5},
     {"_rpact_getCipheredValue", (DL_FUNC) &_rpact_getCipheredValue, 1},
     {NULL, NULL, 0}
 };

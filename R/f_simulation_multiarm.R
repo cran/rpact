@@ -18,6 +18,9 @@
 ## |  Last changed by: $Author: pahlke $
 ## |
 
+#' @include f_core_utilities.R
+NULL
+
 .getIndicesOfClosedHypothesesSystemForSimulation <- function(gMax) {
     indices <- as.matrix(expand.grid(rep(list(1:0), gMax)))[1:(2^gMax - 1), ]
     if (gMax == 1) {
@@ -72,7 +75,7 @@
             stop(msg, "the output must be a logical vector of length 'gMax' (", gMax, ")")
         }
         if (!is.logical(selectedArms)) {
-            stop(msg, "the output must be a logical vector (is ", class(selectedArms), ")")
+            stop(msg, "the output must be a logical vector (is ", .getClassName(selectedArms), ")")
         }
     }
     if (!survival) {

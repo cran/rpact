@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5577 $
-## |  Last changed: $Date: 2021-11-19 09:14:42 +0100 (Fr, 19 Nov 2021) $
+## |  File version: $Revision: 5855 $
+## |  Last changed: $Date: 2022-02-18 13:23:48 +0100 (Fr, 18 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -74,9 +74,6 @@
 #' 
 "_PACKAGE"
 #> [1] "_PACKAGE"
-
-.onLoad <- function(libname, pkgname) {
-}
 
 .onAttach <- function(libname, pkgname) {
 	if (grepl("^\\d\\.\\d\\.\\d\\.\\d{4,4}$", packageVersion("rpact"))) {
