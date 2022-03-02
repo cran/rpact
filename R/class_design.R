@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5881 $
-## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  File version: $Revision: 5906 $
+## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -236,6 +236,7 @@ TrialDesignCharacteristics <- setRefClass("TrialDesignCharacteristics",
 			callSuper(.design = design, ...)
 			.parameterNames <<- .getParameterNames(design = design)
 			.parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
+            .parameterFormatFunctions[["nFixed"]] <<- ".formatProbabilities"
 			.initStages()
 		},
 		

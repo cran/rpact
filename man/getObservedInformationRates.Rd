@@ -32,29 +32,32 @@ Alternatively, a floating-point number > 0 and < 1 can be specified to define a 
 Recalculates the observed information rates from the specified dataset.
 }
 \details{
-For means and rates the maximum information is the maximum number of subjects 
-or the relative proportion if \code{informationEpsilon} < 1; 
-for survival data it is the maximum number of events 
+For means and rates the maximum information is the maximum number of subjects
+or the relative proportion if \code{informationEpsilon} < 1;
+for survival data it is the maximum number of events
 or the relative proportion if \code{informationEpsilon} < 1.
 }
 \examples{
 # Absolute information epsilon:
 # decision rule 45 >= 46 - 1, i.e., under-running
-data <- getDataset (
+data <- getDataset(
     overallN = c(22, 45),
-    overallEvents = c(11, 28))
-getObservedInformationRates (data,
-    maxInformation = 46, informationEpsilon = 1)
+    overallEvents = c(11, 28)
+)
+getObservedInformationRates(data,
+    maxInformation = 46, informationEpsilon = 1
+)
 
 # Relative information epsilon:
-# last information rate = 45/46 = 0.9783, 
+# last information rate = 45/46 = 0.9783,
 # is > 1 - 0.03 = 0.97, i.e., under-running
-data <- getDataset (
+data <- getDataset(
     overallN = c(22, 45),
-    overallEvents = c(11, 28))
-getObservedInformationRates (data,
-    maxInformation = 46, informationEpsilon = 0.03)
-
+    overallEvents = c(11, 28)
+)
+getObservedInformationRates(data,
+    maxInformation = 46, informationEpsilon = 0.03
+)
 }
 \seealso{
 \itemize{

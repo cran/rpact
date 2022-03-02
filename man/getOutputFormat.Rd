@@ -13,7 +13,7 @@ getOutputFormat(
 )
 }
 \arguments{
-\item{parameterName}{The name of the parameter whose output format shall be returned. 
+\item{parameterName}{The name of the parameter whose output format shall be returned.
 Leave the default \code{NA_character_} if
 the output format of all parameters shall be returned.}
 
@@ -23,7 +23,7 @@ that a warning will be displayed if unknown arguments are passed.}
 \item{file}{An optional file name where to write the output formats
 (see Details for more information).}
 
-\item{default}{If \code{TRUE} the default output format of the specified parameter(s) 
+\item{default}{If \code{TRUE} the default output format of the specified parameter(s)
 will be returned, default is \code{FALSE}.}
 
 \item{fields}{If \code{TRUE} the names of all affected object fields will be displayed, default is \code{TRUE}.}
@@ -32,14 +32,14 @@ will be returned, default is \code{FALSE}.}
 A named list of output formats.
 }
 \description{
-With this function the format of the standard outputs of all \code{rpact} 
+With this function the format of the standard outputs of all \code{rpact}
 objects can be shown and written to a file.
 }
 \details{
-Output formats can be written to a text file by specifying a \code{file}. 
+Output formats can be written to a text file by specifying a \code{file}.
 See \code{\link{setOutputFormat}}() to learn how to read a formerly saved file.
 
-Note that the \code{parameterName} must not match exactly, e.g., for p-values the 
+Note that the \code{parameterName} must not match exactly, e.g., for p-values the
 following parameter names will be recognized amongst others:
 \enumerate{
   \item \code{p value}
@@ -47,40 +47,6 @@ following parameter names will be recognized amongst others:
   \item \code{p-value}
   \item \code{pValue}
   \item \code{rpact.output.format.p.value}
-}
-}
-\examples{
-# show output format of p values
-getOutputFormat("p.value")
-\donttest{
-# set new p value output format
-setOutputFormat("p.value", digits = 5, nsmall = 5)
-
-# show sample sizes as smallest integers not less than the not rounded values
-setOutputFormat("sample size", digits = 0, nsmall = 0, roundFunction = "ceiling")
-getSampleSizeMeans()
-
-# show sample sizes as smallest integers not greater than the not rounded values
-setOutputFormat("sample size", digits = 0, nsmall = 0, roundFunction = "floor")
-getSampleSizeMeans()
-
-# set new sample size output format without round function
-setOutputFormat("sample size", digits = 2, nsmall = 2)
-getSampleSizeMeans()
-
-# reset sample size output format to default
-setOutputFormat("sample size")
-getSampleSizeMeans()
-getOutputFormat("sample size")
-
-# write current output format definitions to file
-getOutputFormat(file = "rpact_options.txt")
-
-# write default output format definitions to file
-getOutputFormat(file = "rpact_options.txt", default = TRUE)
-
-# load and set output format definitions from file
-setOutputFormat(file = "rpact_options.txt")
 }
 }
 \seealso{

@@ -10,7 +10,7 @@ resetLogLevel()
 Resets the \code{rpact} log level.
 }
 \details{
-This function resets the log level of the \code{rpact} internal log message 
+This function resets the log level of the \code{rpact} internal log message
 system to the default value \code{"PROGRESS"}.
 }
 \examples{

@@ -12,7 +12,7 @@ getLambdaStepFunction(timeValues, ..., piecewiseSurvivalTime, piecewiseLambda)
 \item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{piecewiseSurvivalTime}{A numeric vector that specifies the time intervals for the piecewise 
+\item{piecewiseSurvivalTime}{A numeric vector that specifies the time intervals for the piecewise
 definition of the exponential survival time cumulative distribution function (see details).}
 
 \item{piecewiseLambda}{A numeric vector that specifies the assumed hazard rate in the treatment group.}
@@ -24,8 +24,8 @@ A numeric vector containing the lambda step values that corresponds to the speci
 Calculates the lambda step values for a given time vector.
 }
 \details{
-The first element of the vector \code{piecewiseSurvivalTime} must be equal to \code{0}. 
-This function is used for plotting of sample size survival results 
+The first element of the vector \code{piecewiseSurvivalTime} must be equal to \code{0}.
+This function is used for plotting of sample size survival results
 (cf., \code{\link[=plot.TrialDesignPlan]{plot}}, \code{type = 13} and \code{type = 14}).
 }
 \keyword{internal}

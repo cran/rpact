@@ -70,44 +70,46 @@ and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample r
 A \code{\link[base]{numeric}} value or vector will be returned.
 }
 \description{
-Distribution function, quantile function and random number generation for the 
+Distribution function, quantile function and random number generation for the
 piecewise exponential distribution.
 }
 \details{
-\code{getPiecewiseExponentialDistribution} (short: \code{ppwexp}), 
-\code{getPiecewiseExponentialQuantile} (short: \code{qpwexp}), and 
-\code{getPiecewiseExponentialRandomNumbers} (short: \code{rpwexp}) provide 
-probabilities, quantiles, and random numbers according to a piecewise 
+\code{getPiecewiseExponentialDistribution} (short: \code{ppwexp}),
+\code{getPiecewiseExponentialQuantile} (short: \code{qpwexp}), and
+\code{getPiecewiseExponentialRandomNumbers} (short: \code{rpwexp}) provide
+probabilities, quantiles, and random numbers according to a piecewise
 exponential or a Weibull distribution.
-The piecewise definition is performed through a vector of 
+The piecewise definition is performed through a vector of
 starting times (\code{piecewiseSurvivalTime}) and a vector of hazard rates (\code{piecewiseLambda}).
-You can also use a list that defines the starting times and piecewise 
+You can also use a list that defines the starting times and piecewise
 lambdas together and define piecewiseSurvivalTime as this list.
-The list needs to have the form, e.g., 
+The list needs to have the form, e.g.,
 piecewiseSurvivalTime <- list(
-    "0 - <6"   = 0.025, 
-    "6 - <9"   = 0.04, 
-    "9 - <15"  = 0.015, 
+    "0 - <6"   = 0.025,
+    "6 - <9"   = 0.04,
+    "9 - <15"  = 0.015,
     ">=15"      = 0.007) .
-For the Weibull case, you can also specify a shape parameter kappa in order to 
+For the Weibull case, you can also specify a shape parameter kappa in order to
 calculate probabilities, quantiles, or random numbers.
 In this case, no piecewise definition is possible, i.e., only piecewiseLambda
 (as a single value) and kappa need to be specified.
 }
 \examples{
-# Calculate probabilties for a range of time values for a 
-# piecewise exponential distribution with hazard rates 
-# 0.025, 0.04, 0.015, and 0.007 in the intervals 
+# Calculate probabilties for a range of time values for a
+# piecewise exponential distribution with hazard rates
+# 0.025, 0.04, 0.015, and 0.007 in the intervals
 # [0, 6), [6, 9), [9, 15), [15, Inf), respectively,
-# and re-return the time values: 
+# and re-return the time values:
 piecewiseSurvivalTime <- list(
-    "0 - <6"   = 0.025, 
-    "6 - <9"   = 0.04, 
-    "9 - <15"  = 0.015, 
-    ">=15"     = 0.01)
-y <- getPiecewiseExponentialDistribution(seq(0, 150, 15), 
-    piecewiseSurvivalTime = piecewiseSurvivalTime)
-getPiecewiseExponentialQuantile(y, 
-    piecewiseSurvivalTime = piecewiseSurvivalTime)
-
+    "0 - <6"   = 0.025,
+    "6 - <9"   = 0.04,
+    "9 - <15"  = 0.015,
+    ">=15"     = 0.01
+)
+y <- getPiecewiseExponentialDistribution(seq(0, 150, 15),
+    piecewiseSurvivalTime = piecewiseSurvivalTime
+)
+getPiecewiseExponentialQuantile(y,
+    piecewiseSurvivalTime = piecewiseSurvivalTime
+)
 }

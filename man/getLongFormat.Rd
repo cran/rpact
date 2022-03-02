@@ -13,8 +13,8 @@ A \code{\link[base]{data.frame}} will be returned.
 Returns the specified dataset as a \code{\link[base]{data.frame}} in so-called long format.
 }
 \details{
-In the long format (narrow, stacked), the data are presented with one column containing 
-all the values and another column listing the context of the value, i.e.,   
+In the long format (narrow, stacked), the data are presented with one column containing
+all the values and another column listing the context of the value, i.e.,
 the data for the different groups are in one column and the dataset contains an additional "group" column.
 }
 \seealso{

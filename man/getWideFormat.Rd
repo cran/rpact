@@ -13,7 +13,7 @@ A \code{\link[base]{data.frame}} will be returned.
 Returns the specified dataset as a \code{\link[base]{data.frame}} in so-called wide format.
 }
 \details{
-In the wide format (unstacked), the data are presented with each different data variable in a separate column, i.e.,   
+In the wide format (unstacked), the data are presented with each different data variable in a separate column, i.e.,
 the different groups are in separate columns.
 }
 \seealso{

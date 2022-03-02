@@ -14,12 +14,11 @@ Returns \code{NULL} if the specified \code{parameterCaption} does not exist.
 Returns the parameter name for a given object and parameter caption.
 }
 \details{
-This function identifies and returns the parameter name for a given caption 
+This function identifies and returns the parameter name for a given caption
 that will be used in print outputs of an rpact result object.
 }
 \examples{
 getParameterName(getDesignInverseNormal(), "Maximum number of stages")
-
 }
 \seealso{
 \code{\link{getParameterCaption}} for getting the parameter caption for a given name.

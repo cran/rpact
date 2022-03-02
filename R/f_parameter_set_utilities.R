@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5884 $
-## |  Last changed: $Date: 2022-02-25 08:34:20 +0100 (Fr, 25 Feb 2022) $
+## |  File version: $Revision: 5906 $
+## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -83,7 +83,7 @@ NULL
             result <- obj$.extractParameterNameAndValue(parameterName)
             parameterName <- result$parameterName
             paramValue <- result$paramValue
-            
+
             if (isS4(paramValue)) {
                 return(NULL)
             }
@@ -175,12 +175,6 @@ NULL
             } else if (parameterName == "sided") {
                 paramValueFormatted <- ifelse(paramValue == 1, "one-sided", "two-sided")
             }
-
-            # 		if (type == "array" && length(dim(paramValue)) == 3 && length(paramValue) != length(paramValueFormatted)) {
-            # 			stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE,
-            # 				sprintf("length of 'paramValue' (%s) != length of 'paramValueFormatted' (%s)",
-            # 				length(paramValue), length(paramValueFormatted)))
-            # 		}
 
             return(list(
                 paramName = parameterName,

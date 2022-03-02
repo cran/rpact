@@ -17,25 +17,25 @@ setOutputFormat(
 )
 }
 \arguments{
-\item{parameterName}{The name of the parameter whose output format shall be edited. 
+\item{parameterName}{The name of the parameter whose output format shall be edited.
 Leave the default \code{NA_character_} if
 the output format of all parameters shall be edited.}
 
 \item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{digits}{How many significant digits are to be used for a numeric value. 
-The default, \code{NULL}, uses getOption("digits"). 
+\item{digits}{How many significant digits are to be used for a numeric value.
+The default, \code{NULL}, uses getOption("digits").
 Allowed values are \code{0 <= digits <= 20}.}
 
-\item{nsmall}{The minimum number of digits to the right of the decimal point in 
-formatting real numbers in non-scientific formats. 
+\item{nsmall}{The minimum number of digits to the right of the decimal point in
+formatting real numbers in non-scientific formats.
 Allowed values are \code{0 <= nsmall <= 20}.}
 
 \item{trimSingleZeros}{If \code{TRUE} zero values will be trimmed in the output, e.g.,
 "0.00" will displayed as "0"}
 
-\item{futilityProbabilityEnabled}{If \code{TRUE} very small value (< 1e-09) will 
+\item{futilityProbabilityEnabled}{If \code{TRUE} very small value (< 1e-09) will
 be displayed as "0", default is \code{FALSE}.}
 
 \item{file}{An optional file name of an existing text file that contains output format definitions
@@ -44,20 +44,20 @@ be displayed as "0", default is \code{FALSE}.}
 \item{resetToDefault}{If \code{TRUE} all output formats will be reset to default value.
 Note that other settings will be executed afterwards if specified, default is \code{FALSE}.}
 
-\item{roundFunction}{A character value that specifies the R base round function 
+\item{roundFunction}{A character value that specifies the R base round function
 to use, default is \code{NA_character_}.
 Allowed values are "ceiling", "floor", "trunc", "round", "signif", and \code{NA_character_}.}
 }
 \description{
-With this function the format of the standard outputs of all \code{rpact} 
+With this function the format of the standard outputs of all \code{rpact}
 objects can be changed and set user defined respectively.
 }
 \details{
-Output formats can be written to a text file (see \code{\link{getOutputFormat}}). 
+Output formats can be written to a text file (see \code{\link{getOutputFormat}}).
 To load your personal output formats read a formerly saved file at the beginning of your
 work with \code{rpact}, e.g. execute \code{setOutputFormat(file = "my_rpact_output_formats.txt")}.
 
-Note that the \code{parameterName} must not match exactly, e.g., for p-values the 
+Note that the \code{parameterName} must not match exactly, e.g., for p-values the
 following parameter names will be recognized amongst others:
 \enumerate{
   \item \code{p value}
@@ -67,42 +67,8 @@ following parameter names will be recognized amongst others:
   \item \code{rpact.output.format.p.value}
 }
 }
-\examples{
-# show output format of p values
-getOutputFormat("p.value")
-\donttest{
-# set new p value output format
-setOutputFormat("p.value", digits = 5, nsmall = 5)
-
-# show sample sizes as smallest integers not less than the not rounded values
-setOutputFormat("sample size", digits = 0, nsmall = 0, roundFunction = "ceiling")
-getSampleSizeMeans()
-
-# show sample sizes as smallest integers not greater than the not rounded values
-setOutputFormat("sample size", digits = 0, nsmall = 0, roundFunction = "floor")
-getSampleSizeMeans()
-
-# set new sample size output format without round function
-setOutputFormat("sample size", digits = 2, nsmall = 2)
-getSampleSizeMeans()
-
-# reset sample size output format to default
-setOutputFormat("sample size")
-getSampleSizeMeans()
-getOutputFormat("sample size")
-
-# write current output format definitions to file
-getOutputFormat(file = "rpact_options.txt")
-
-# write default output format definitions to file
-getOutputFormat(file = "rpact_options.txt", default = TRUE)
-
-# load and set output format definitions from file
-setOutputFormat(file = "rpact_options.txt")
-}
-}
 \seealso{
-\code{\link[base]{format}} for details on the 
+\code{\link[base]{format}} for details on the
          function used internally to format the values.
 
 Other output formats: 

@@ -35,7 +35,7 @@ getObjectRCode(
 \item{...}{Ensures that all arguments (starting from the "...") are to be named and 
 that a warning will be displayed if unknown arguments are passed.}
 
-\item{leadingArguments}{A character vector with arguments that shall be inserted at the beginning of the function command, 
+\item{leadingArguments}{A character vector with arguments that shall be inserted at the beginning of the function command,
 e.g., \code{design = x}. Be careful with this option because the created R command may no longer be valid if used.}
 
 \item{includeDefaultParameters}{If \code{TRUE}, default parameters will be included in all \code{rpact} commands;
@@ -50,7 +50,7 @@ set to \code{NULL} to insert no line breaks.}
 
 \item{stringWrapPrefix}{A prefix character string that shall be added to each new line, typically some spaces.}
 
-\item{newArgumentValues}{A named list with arguments that shall be renewed in the R command, e.g., 
+\item{newArgumentValues}{A named list with arguments that shall be renewed in the R command, e.g.,
 \code{newArgumentValues = list(informationRates = c(0.5, 1))}.}
 }
 \value{
@@ -60,7 +60,7 @@ A \code{\link[base]{character}} value or vector will be returned.
 Returns the R source command of a result object.
 }
 \details{
-\code{\link{getObjectRCode}} (short: \code{\link{rcmd}}) recreates 
-the R commands that result in the specified object \code{obj}.  
+\code{\link{getObjectRCode}} (short: \code{\link{rcmd}}) recreates
+the R commands that result in the specified object \code{obj}.
 \code{obj} must be an instance of class \code{ParameterSet}.
 }

@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5810 $
-## |  Last changed: $Date: 2022-02-11 11:40:04 +0100 (Fri, 11 Feb 2022) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 5906 $
+## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |
 
 #' @include class_simulation_results.R

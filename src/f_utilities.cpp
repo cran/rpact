@@ -356,7 +356,6 @@ std::string vectorToString(NumericVector x) {
 
 /**
  * Calculates root of function f in given interval using the secant method
- * [[Rcpp::export]]
  */
 double secant(Function f, double x0, double x1, double min, double max, double tolerance, int maxIter) {
     int step = 1;
@@ -534,7 +533,7 @@ double bizero(std::function<double(double)> f, double lower, double upper, doubl
 
         if (std::abs(prev_step) >= tol_act
         		&& std::abs(fa) > std::abs(fb)) {
-            register double t1, cb, t2;
+            double t1, cb, t2;
             cb = c - b;
             if (a == c) {
                 t1 = fb / fa;
@@ -627,7 +626,7 @@ double zeroin(std::function<double(double)> f, double lower, double upper, doubl
 
         if (std::abs(prev_step) >= tol_act
         		&& std::abs(fa) > std::abs(fb)) {
-            register double t1, cb, t2;
+            double t1, cb, t2;
             cb = c - b;
             if (a == c) {
                 t1 = fb / fa;
@@ -674,22 +673,11 @@ double zeroin(std::function<double(double)> f, double lower, double upper, doubl
     return NA_REAL;
 }
 
-//double zeroin(std::function<double(double)> f, double lower, double upper,
-//		double lowerBisection, double upperBisection, double tolerance, int maxIter) {
-//	double result = zeroin(f, lower, upper, tolerance, maxIter);
-//	if (!R_IsNA(result) && !R_IsNaN(result)) {
-//		return result;
-//	}
-//
-//	return bisection(f, lower, upper, tolerance, maxIter);
-//}
-
 // [[Rcpp::export]]
 double zeroin(Function f, double lower, double upper, double tolerance, int maxIter) {
     return zeroin([&](double x){return Rf_asReal(f(x));}, lower, upper, tolerance, maxIter);
 }
 
-// [[Rcpp::export]]
 double bizero(Function f, double lower, double upper, double tolerance, int maxIter) {
     return bizero([&](double x){return Rf_asReal(f(x));}, lower, upper, tolerance, maxIter);
 }

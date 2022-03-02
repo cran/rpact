@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5883 $
-## |  Last changed: $Date: 2022-02-24 17:33:50 +0100 (Thu, 24 Feb 2022) $
+## |  File version: $Revision: 5910 $
+## |  Last changed: $Date: 2022-03-02 08:14:01 +0100 (Mi, 02 Mrz 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -804,12 +804,16 @@ getSampleSizeSurvival <- function(design = NULL, ...,
         .warnInCaseOfUnknownArguments(
             functionName = "getSampleSizeSurvival",
             ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
-                design, powerCalculationEnabled = FALSE), "accountForObservationTimes"), ...
+                design,
+                powerCalculationEnabled = FALSE
+            ), "accountForObservationTimes"), ...
         )
     } else {
         .assertIsTrialDesign(design)
-        .warnInCaseOfUnknownArguments(functionName = "getSampleSizeSurvival", ..., 
-            ignore = c("accountForObservationTimes"))
+        .warnInCaseOfUnknownArguments(
+            functionName = "getSampleSizeSurvival", ...,
+            ignore = c("accountForObservationTimes")
+        )
         .warnInCaseOfTwoSidedPowerArgument(...)
     }
 
@@ -835,12 +839,16 @@ getSampleSizeSurvival <- function(design = NULL, ...,
             accrualSetup$followUpTimeMustBeUserDefined) {
         if (is.na(followUpTime)) {
             if (accrualSetup$piecewiseAccrualEnabled && !accrualSetup$endOfAccrualIsUserDefined) {
-                stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-                    "'followUpTime', 'maxNumberOfSubjects' or end of accrual must be defined")
+                stop(
+                    C_EXCEPTION_TYPE_MISSING_ARGUMENT,
+                    "'followUpTime', 'maxNumberOfSubjects' or end of accrual must be defined"
+                )
             }
 
-            stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, 
-                "'followUpTime' or 'maxNumberOfSubjects' must be defined")
+            stop(
+                C_EXCEPTION_TYPE_MISSING_ARGUMENT,
+                "'followUpTime' or 'maxNumberOfSubjects' must be defined"
+            )
         }
 
         if (followUpTime == Inf) {
@@ -920,8 +928,9 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                         maxNumberOfSubjectsLower < 1e8)) {
                     tryCatch(
                         {
-                            maxNumberOfSubjectsLowerBefore <- ifelse(is.na(maxNumberOfSubjectsLower), 
-                                0, maxNumberOfSubjectsLower)
+                            maxNumberOfSubjectsLowerBefore <- ifelse(is.na(maxNumberOfSubjectsLower),
+                                0, maxNumberOfSubjectsLower
+                            )
                             maxNumberOfSubjectsLower <- getAccrualTime(
                                 accrualTime = c(at, at[length(at)] + additionalAccrual),
                                 accrualIntensity = accrualSetup$accrualIntensity,
@@ -967,8 +976,10 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                     as.vector(sampleSize$eventsPerStage)
                 ))))
                 if (is.na(maxNumberOfSubjectsLower)) {
-                    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-                        "'maxNumberOfSubjectsLower' could not be found", call. = FALSE)
+                    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                        "'maxNumberOfSubjectsLower' could not be found",
+                        call. = FALSE
+                    )
                 }
 
                 # check whether accrual time already fulfills requirement
@@ -982,8 +993,10 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                     fut <- 2 * abs(fut)
                     iterations <- iterations + 1
                     if (iterations > 50) {
-                        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
-                            "search algorithm failed to end", call. = FALSE)
+                        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE,
+                            "search algorithm failed to end",
+                            call. = FALSE
+                        )
                     }
                 }
                 while (!is.na(fut) && fut > followUpTime && maxSearchIterations >= 0) {
@@ -1024,11 +1037,11 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                     if (is.na(allocationRatioPlanned)) {
                         allocationRatioPlanned <- C_ALLOCATION_RATIO_DEFAULT
                     }
+
                     maxNumberOfSubjectsLower <- maxNumberOfSubjectsLower /
-                        ((allocationRatioPlanned * (1 - dropoutRate1)^((accrualSetup$accrualTime[length(accrualSetup$accrualTime)] +
-                            additionalAccrual) / dropoutTime) +
-                            (1 - dropoutRate2)^((accrualSetup$accrualTime[length(accrualSetup$accrualTime)] +
-                                additionalAccrual) / dropoutTime)) /
+                        ((allocationRatioPlanned * (1 - dropoutRate1)^(
+                            accrualSetup$accrualTime[length(accrualSetup$accrualTime)] / dropoutTime) +
+                            (1 - dropoutRate2)^(accrualSetup$accrualTime[length(accrualSetup$accrualTime)] / dropoutTime)) /
                             (allocationRatioPlanned + 1))
 
                     prec <- 1
@@ -1577,7 +1590,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 
 .initDesignPlanSurvival <- function(designPlan) {
     numberOfResults <- .initDesignPlanSurvivalByPiecewiseSurvivalTimeObject(
-        designPlan, designPlan$.piecewiseSurvivalTime)
+        designPlan, designPlan$.piecewiseSurvivalTime
+    )
 
     if (designPlan$.piecewiseSurvivalTime$.isLambdaBased()) {
         if (length(designPlan$accountForObservationTimes) == 0 ||
@@ -1889,8 +1903,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                 )
             }
         } else {
-			warning("Follow-up time could not be calculated for hazardRatio = ",
-					.arrayToString(designPlan$hazardRatio[indices]),
+            warning("Follow-up time could not be calculated for hazardRatio = ",
+                .arrayToString(designPlan$hazardRatio[indices]),
                 call. = FALSE
             )
         }
@@ -2688,8 +2702,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
             }
         } else if (i > 3) {
             cdfFactor <- piecewiseLambda[1] * piecewiseSurvivalTime[1] +
-                sum(piecewiseLambda[2:(i - 2)] * (piecewiseSurvivalTime[2:(i - 2)] - 
-                piecewiseSurvivalTime[1:(i - 3)]))
+                sum(piecewiseLambda[2:(i - 2)] * (piecewiseSurvivalTime[2:(i - 2)] -
+                    piecewiseSurvivalTime[1:(i - 3)]))
             cdfPart <- cdfPart + piecewiseLambda[i - 1] / (piecewiseLambda[i - 1] + phi) * exp(-cdfFactor) * (
                 exp(-phi * piecewiseSurvivalTime[i - 2]) - exp(-piecewiseLambda[i - 1] *
                     (piecewiseSurvivalTime[i - 1] - piecewiseSurvivalTime[i - 2]) - phi * piecewiseSurvivalTime[i - 1]))
@@ -3470,10 +3484,10 @@ getNumberOfSubjects <- function(time, ...,
                         hazardRatio = hazardRatio[i]
                     ) - maxNumberOfSubjects
                 },
-				lower = 0, upper = up, tolerance = 1e-06, acceptResultsOutOfTolerance = TRUE,
-				callingFunctionInformation = ".getSampleSizeSequentialSurvival"
+                lower = 0, upper = up, tolerance = 1e-06, acceptResultsOutOfTolerance = TRUE,
+                callingFunctionInformation = ".getSampleSizeSequentialSurvival"
             )
-			
+
             if (!is.na(timeVector[i])) {
                 designPlan$omega[i] <- .getEventProbabilities(
                     time = timeVector[i],
@@ -3959,7 +3973,9 @@ getNumberOfSubjects <- function(time, ...,
     if (groups == 1) {
         if (isTRUE(meanRatio)) {
             warning("'meanRatio' (", meanRatio, ") will be ignored ",
-                "because it is not applicable for 'groups' = 1", call. = FALSE)
+                "because it is not applicable for 'groups' = 1",
+                call. = FALSE
+            )
         }
         designPlan$.setParameterType("meanRatio", C_PARAM_NOT_APPLICABLE)
 
@@ -4112,13 +4128,17 @@ getNumberOfSubjects <- function(time, ...,
     if (groups == 1) {
         if (designPlan$.getParameterType("pi2") == C_PARAM_USER_DEFINED) {
             warning("'pi2' (", pi2, ") will be ignored ",
-                "because it is not applicable for 'groups' = 1", call. = FALSE)
+                "because it is not applicable for 'groups' = 1",
+                call. = FALSE
+            )
         }
         designPlan$.setParameterType("pi2", C_PARAM_NOT_APPLICABLE)
 
         if (isTRUE(riskRatio)) {
             warning("'riskRatio' (", riskRatio, ") will be ignored ",
-                "because it is not applicable for 'groups' = 1", call. = FALSE)
+                "because it is not applicable for 'groups' = 1",
+                call. = FALSE
+            )
         }
         designPlan$.setParameterType("riskRatio", C_PARAM_NOT_APPLICABLE)
 
@@ -4256,7 +4276,7 @@ getPowerMeans <- function(design = NULL, ...,
             )
         } else {
             thetaAdj <- (sign(theta) * .getOneMinusQNorm(design$alpha / design$sided) -
-                    .getQNorm(stats::pt(
+                .getQNorm(stats::pt(
                     sign(theta) * stats::qt(1 - design$alpha / design$sided, maxNumberOfSubjects - 2),
                     maxNumberOfSubjects - 2,
                     theta * sqrt(maxNumberOfSubjects)
@@ -4715,7 +4735,7 @@ getPowerSurvival <- function(design = NULL, ...,
                 },
                 lower = 0, upper = up, tolerance = 1e-06,
                 callingFunctionInformation = "getPowerSurvival"
-            ) 
+            )
             if (is.na(designPlan$analysisTime[j, i])) {
                 warning("Cannot calculate analysis time at stage ", j, ": ",
                     "'maxNumberOfSubjects' (", designPlan$maxNumberOfSubjects, ") is too ",

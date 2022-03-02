@@ -118,9 +118,6 @@ double getRandomSurvivalDistribution(double rate, double kappa) {
 	return pow(-log(1 - R::runif(0.0, 1.0)), 1 / kappa) / rate;
 }
 
-/**
- * [[Rcpp::export]]
- */
 double getRandomPiecewiseExponentialDistribution(
 		NumericVector cdfValues,
 		NumericVector piecewiseLambda,

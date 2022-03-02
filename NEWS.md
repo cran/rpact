@@ -1,4 +1,10 @@
 
+# rpact 3.2.3
+
+* Performance of group sequential and Fisher's combination test designs improved
+* 'register' storage class specifier removed from C++ sources
+* Minor improvements
+
 # rpact 3.2.2
 
 * Performance of group sequential and Fisher's combination test designs improved (by translating from R to C++)

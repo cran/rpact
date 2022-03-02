@@ -12,17 +12,14 @@ String C_FISHER_METHOD_EQUAL_ALPHA = "equalAlpha";
 String C_FISHER_METHOD_FULL_ALPHA = "fullAlpha";
 String C_FISHER_METHOD_NO_INTERACTION = "noInteraction";
 
-// [[Rcpp::export]]
 bool isEqualCpp(double x, double y) {
     return std::abs(x - y) < 1e-10;
 }
 
-// [[Rcpp::export]]
 int getFisherCombinationCaseKmax2Cpp(NumericVector tVec) {
     return isEqualCpp((double) tVec[0], 1.0) ? 1 : 2;
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationSizeKmax2Cpp(
 		NumericVector alpha0Vec,
 		NumericVector criticalValues, NumericVector tVec, double piValue,
@@ -46,7 +43,6 @@ double getFisherCombinationSizeKmax2Cpp(
 		alpha0Vec, criticalValues, tVec, piValue, getFisherCombinationCaseKmax2Cpp(tVec));
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationCaseKmax3Cpp(NumericVector tVec) {
     double t2 = tVec[0];
     double t3 = tVec[1];
@@ -64,7 +60,6 @@ double getFisherCombinationCaseKmax3Cpp(NumericVector tVec) {
     } else return -1;
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationSizeKmax3Cpp(
 		NumericVector alpha0Vec, NumericVector criticalValues,
 		NumericVector tVec, double piValue, int caseKmax) {
@@ -106,7 +101,6 @@ double getFisherCombinationSizeKmax3Cpp(
 		alpha0Vec, criticalValues, tVec, piValue, getFisherCombinationCaseKmax2Cpp(tVec));
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationCaseKmax4Cpp(NumericVector tVec) {
     double t2 = tVec[0];
     double t3 = tVec[1];
@@ -114,7 +108,6 @@ double getFisherCombinationCaseKmax4Cpp(NumericVector tVec) {
     return isEqualCpp(t2, 1) && isEqualCpp(t3, 1) && isEqualCpp(t4, 1) ? 1L : 2L;
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationSizeApproximatelyKmax4Cpp(
 		NumericVector alpha0Vec, NumericVector criticalValues,
 		NumericVector tVec, double piValue, int caseKmax) {
@@ -165,7 +158,6 @@ double getFisherCombinationSizeApproximatelyKmax4Cpp(
 		alpha0Vec, criticalValues, tVec, piValue, getFisherCombinationCaseKmax4Cpp(tVec));
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationCaseKmax5Cpp(NumericVector tVec) {
     double t2 = tVec[0];
     double t3 = tVec[1];
@@ -174,7 +166,6 @@ double getFisherCombinationCaseKmax5Cpp(NumericVector tVec) {
     return isEqualCpp(t2, 1) && isEqualCpp(t3, 1) && isEqualCpp(t4, 1) && isEqualCpp(t5, 1) ? 1 : 2;
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationSizeApproximatelyKmax5Cpp(
 		NumericVector alpha0Vec, NumericVector criticalValues,
 		NumericVector tVec, double piValue, int caseKmax) {
@@ -253,7 +244,6 @@ double getFisherCombinationSizeApproximatelyKmax5Cpp(
             alpha0Vec, criticalValues, tVec, piValue, getFisherCombinationCaseKmax5Cpp(tVec));
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationCaseKmax6Cpp(NumericVector tVec) {
     double t2 = tVec[0];
     double t3 = tVec[1];
@@ -264,7 +254,6 @@ double getFisherCombinationCaseKmax6Cpp(NumericVector tVec) {
 		? 1 : 2;
 }
 
-// [[Rcpp::export]]
 double getFisherCombinationSizeApproximatelyKmax6Cpp(
 		NumericVector alpha0Vec,
 	 NumericVector criticalValues, NumericVector tVec, double piValue,

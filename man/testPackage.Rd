@@ -25,8 +25,8 @@ be executed; a subset of all unit tests will be used otherwise.}
 \item{types}{The type(s) of tests to be done. Can be one or more of
 \code{c("tests", "examples", "vignettes")}, default is "tests" only.}
 
-\item{connection}{A \code{list} where owners of the rpact validation documentation 
-can enter a \code{token} and a \code{secret} to get full access to all unit tests, e.g.,  
+\item{connection}{A \code{list} where owners of the rpact validation documentation
+can enter a \code{token} and a \code{secret} to get full access to all unit tests, e.g.,
 to fulfill regulatory requirements (see \href{https://www.rpact.com}{www.rpact.com} for more information).}
 }
 \value{
@@ -38,8 +38,8 @@ This function allows the installed package \code{rpact} to be tested.
 \details{
 This function creates the subdirectory \code{rpact-tests} in the specified output directory
 and copies all unit test files of the package to this newly created directory.
-Then the function runs all tests (or a subset of all tests if 
-\code{completeUnitTestSetEnabled} is \code{FALSE}) using 
+Then the function runs all tests (or a subset of all tests if
+\code{completeUnitTestSetEnabled} is \code{FALSE}) using
 \code{\link[tools]{testInstalledPackage}}.
 The test results will be saved to the text file \code{testthat.Rout} that can be found
 in the subdirectory \code{rpact-tests}.

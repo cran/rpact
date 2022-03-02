@@ -965,7 +965,7 @@ getDesignInverseNormal <- function(...,
     if (!cppEnabled) {
         stop("The R version of getDesignInverseNormal() is deprecated and no longer available in rpact")
     }
-    
+
     return(.getDesignGroupSequential(
         designClass = C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL,
         kMax = kMax,
@@ -1268,12 +1268,14 @@ getDesignInverseNormal <- function(...,
     # we use 7.5 instead of C_QNORM_THRESHOLD as threshold
     design$criticalValues[!is.na(design$criticalValues) & design$criticalValues <= -7.5] <- -Inf
     design$criticalValues[!is.na(design$criticalValues) & design$criticalValues >= 7.5] <- Inf
-    
+
     if (design$kMax == 1) {
         if (!identical(design$informationRates, 1)) {
-            warning("Information rate", ifelse(length(design$informationRates) != 1, "s", ""), " ", 
-                .arrayToString(design$informationRates, vectorLookAndFeelEnabled = TRUE), 
-                " will be ignored", call. = FALSE)
+            warning("Information rate", ifelse(length(design$informationRates) != 1, "s", ""), " ",
+                .arrayToString(design$informationRates, vectorLookAndFeelEnabled = TRUE),
+                " will be ignored",
+                call. = FALSE
+            )
             design$informationRates <- 1
         }
         design$.setParameterType("informationRates", C_PARAM_NOT_APPLICABLE)
@@ -1288,11 +1290,11 @@ getDesignInverseNormal <- function(...,
     if (!userFunctionCallEnabled) {
         return(invisible())
     }
-    
+
     if (design$informationRates[design$kMax] != 1) {
         return(invisible())
     }
-    
+
     if (is.na(design$alphaSpent[design$kMax]) || abs(design$alphaSpent[design$kMax] - design$alpha) > 1e-05) {
         stop(
             C_EXCEPTION_TYPE_RUNTIME_ISSUE, "critical values cannot be calculated ",
@@ -1309,7 +1311,7 @@ getDesignInverseNormal <- function(...,
     if (design$informationRates[design$kMax] != 1) {
         return(invisible())
     }
-    
+
     if (iteration < 0) {
         stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "critical values cannot be calculated")
     }
@@ -1402,7 +1404,7 @@ getDesignGroupSequential <- function(...,
     if (!cppEnabled) {
         stop("The R version of getDesignGroupSequential() is deprecated and no longer available in rpact")
     }
-    
+
     return(.getDesignGroupSequential(
         designClass = C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL,
         kMax = kMax,
@@ -1706,7 +1708,8 @@ getDesignCharacteristics <- function(design) {
                 sqrt(shift * informationRates) / 2), nrow = 2, byrow = TRUE)
         }
         probs01 <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
-        designCharacteristics$averageSampleNumber01 <- .getAverageSampleNumber(design$kMax, design$informationRates, probs01, shift, nFixed)
+        designCharacteristics$averageSampleNumber01 <- .getAverageSampleNumber(
+            design$kMax, design$informationRates, probs01, shift, nFixed)
     }
     design$criticalValues[design$criticalValues >= 7.5 - 1e-8] <- Inf
     designCharacteristics$.setParameterType("shift", C_PARAM_GENERATED)

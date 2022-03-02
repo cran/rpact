@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5859 $
-## |  Last changed: $Date: 2022-02-18 15:59:45 +0100 (Fri, 18 Feb 2022) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 5906 $
+## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |
 
 #' @include f_core_utilities.R
@@ -1561,7 +1561,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     if (settings$meansEnabled) {
         if (settings$multiArmEnabled && settings$groups > 1) {
             header <- .concatenateSummaryText(header, "multi-arm comparisons for means", sep = "")
-        } else if (settings$enrichmentEnabled && settings$groups > 1) {
+        } else if (settings$enrichmentEnabled && settings$populations > 1) {
             header <- .concatenateSummaryText(header, "population enrichment comparisons for means", sep = "")
         } else if (settings$groups == 1 && !settings$multiArmEnabled) {
             header <- .concatenateSummaryText(header, "one-sample t-test", sep = "")
@@ -1571,7 +1571,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     } else if (settings$ratesEnabled) {
         if (settings$multiArmEnabled && settings$groups > 1) {
             header <- .concatenateSummaryText(header, "multi-arm comparisons for rates", sep = "")
-        } else if (settings$enrichmentEnabled && settings$groups > 1) {
+        } else if (settings$enrichmentEnabled && settings$populations > 1) {
             header <- .concatenateSummaryText(header, "population enrichment comparisons for rates", sep = "")
         } else if (settings$groups == 1 && !settings$multiArmEnabled) {
             header <- .concatenateSummaryText(header, "one-sample test for rates", sep = "")
@@ -1581,7 +1581,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     } else if (settings$survivalEnabled) {
         if (settings$multiArmEnabled && settings$groups > 1) {
             header <- .concatenateSummaryText(header, "multi-arm logrank test", sep = "")
-        } else if (settings$enrichmentEnabled && settings$groups > 1) {
+        } else if (settings$enrichmentEnabled && settings$populations > 1) {
             header <- .concatenateSummaryText(header, "population enrichment logrank test", sep = "")
         } else if (settings$groups == 2 || settings$multiArmEnabled) {
             header <- .concatenateSummaryText(header, "two-sample logrank test", sep = "")
@@ -1942,8 +1942,13 @@ SummaryFactory <- setRefClass("SummaryFactory",
     }
 
     if (settings$multiArmEnabled && designPlan$activeArms > 1) {
-        header <- .addShapeSelectionToHeader(header, designPlan)
+        header <- .addShapeToHeader(header, designPlan)
+		header <- .addSelectionToHeader(header, designPlan)
     }
+	
+	if (settings$enrichmentEnabled && settings$populations > 1) {
+		header <- .addSelectionToHeader(header, designPlan)
+	}
 
     functionName <- ifelse(settings$survivalEnabled, "calcEventsFunction", "calcSubjectsFunction")
     userDefinedFunction <- !is.null(designPlan[[functionName]]) &&
@@ -2052,38 +2057,44 @@ SummaryFactory <- setRefClass("SummaryFactory",
     return(header)
 }
 
-.addShapeSelectionToHeader <- function(header, designPlan) {
-    header <- .concatenateSummaryText(header, paste0("intersection test = ", designPlan$intersectionTest))
-    header <- .concatenateSummaryText(header, paste0("effect shape = ", .formatCamelCase(designPlan$typeOfShape)))
+.addShapeToHeader <- function(header, designPlan) {
+    
+	header <- .concatenateSummaryText(header, paste0("effect shape = ", .formatCamelCase(designPlan$typeOfShape)))
     if (designPlan$typeOfShape == "sigmoidEmax") {
         header <- .concatenateSummaryText(header, paste0("slope = ", designPlan$slope))
         header <- .concatenateSummaryText(header, paste0("ED50 = ", designPlan$gED50))
     }
 
-    if (designPlan$.design$kMax > 1) {
-        typeOfSelectionText <- paste0("selection = ", .formatCamelCase(designPlan$typeOfSelection))
-        if (designPlan$typeOfSelection == "rBest") {
-            typeOfSelectionText <- paste0(typeOfSelectionText, ", r = ", designPlan$rValue)
-        } else if (designPlan$typeOfSelection == "epsilon") {
-            typeOfSelectionText <- paste0(typeOfSelectionText, " rule, eps = ", designPlan$epsilonValue)
-        }
-        if (!is.null(designPlan$threshold) && length(designPlan$threshold) == 1 && designPlan$threshold > -Inf) {
-            typeOfSelectionText <- paste0(typeOfSelectionText, ", threshold = ", designPlan$threshold)
-        }
-        header <- .concatenateSummaryText(header, typeOfSelectionText)
-
-        header <- .concatenateSummaryText(
-            header,
-            paste0("effect measure based on ", .formatCamelCase(designPlan$effectMeasure))
-        )
-    }
-
-    header <- .concatenateSummaryText(
-        header,
-        paste0("success criterion: ", .formatCamelCase(designPlan$successCriterion))
-    )
-
     return(header)
+}
+
+.addSelectionToHeader <- function(header, designPlan) {
+	header <- .concatenateSummaryText(header, paste0("intersection test = ", designPlan$intersectionTest))
+	
+	if (designPlan$.design$kMax > 1) {
+		typeOfSelectionText <- paste0("selection = ", .formatCamelCase(designPlan$typeOfSelection))
+		if (designPlan$typeOfSelection == "rBest") {
+			typeOfSelectionText <- paste0(typeOfSelectionText, ", r = ", designPlan$rValue)
+		} else if (designPlan$typeOfSelection == "epsilon") {
+			typeOfSelectionText <- paste0(typeOfSelectionText, " rule, eps = ", designPlan$epsilonValue)
+		}
+		if (!is.null(designPlan$threshold) && length(designPlan$threshold) == 1 && designPlan$threshold > -Inf) {
+			typeOfSelectionText <- paste0(typeOfSelectionText, ", threshold = ", designPlan$threshold)
+		}
+		header <- .concatenateSummaryText(header, typeOfSelectionText)
+		
+		header <- .concatenateSummaryText(
+				header,
+				paste0("effect measure based on ", .formatCamelCase(designPlan$effectMeasure))
+		)
+	}
+	
+	header <- .concatenateSummaryText(
+			header,
+			paste0("success criterion: ", .formatCamelCase(designPlan$successCriterion))
+	)
+	
+	return(header)
 }
 
 .createSummary <- function(object, digits = NA_integer_, output = c("all", "title", "overview", "body")) {

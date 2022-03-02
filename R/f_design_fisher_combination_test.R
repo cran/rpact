@@ -86,7 +86,7 @@ getDesignFisher <- function(...,
     if (!cppEnabled) {
         stop("The R version of getDesignFisher() is deprecated and no longer available in rpact")
     }
-    
+
     return(.getDesignFisher(
         kMax = kMax, alpha = alpha, method = method,
         userAlphaSpending = userAlphaSpending, alpha0Vec = alpha0Vec, informationRates = informationRates,
@@ -147,7 +147,7 @@ getDesignFisher <- function(...,
         bindingFutility <- C_BINDING_FUTILITY_FISHER_DEFAULT
     } else if (userFunctionCallEnabled &&
             ((!is.na(kMax) && kMax == 1) ||
-            (!any(is.na(alpha0Vec)) && all(alpha0Vec == C_ALPHA_0_VEC_DEFAULT)))) {
+                (!any(is.na(alpha0Vec)) && all(alpha0Vec == C_ALPHA_0_VEC_DEFAULT)))) {
         warning("'bindingFutility' (", bindingFutility, ") will be ignored", call. = FALSE)
     }
 
@@ -248,7 +248,7 @@ getDesignFisher <- function(...,
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "for specified 'method' (\"", C_FISHER_METHOD_NO_INTERACTION,
             "\") the 'alpha0Vec' must be unequal to ", .arrayToString(alpha0Vec, vectorLookAndFeelEnabled = TRUE),
-			" and 'bindingFutility' must be TRUE"
+            " and 'bindingFutility' must be TRUE"
         )
     }
 
@@ -257,57 +257,61 @@ getDesignFisher <- function(...,
     design$.setParameterType("nonStochasticCurtailment", C_PARAM_GENERATED)
 
     maxIter <- NA_integer_
-    tryCatch({
-        cases <- .getFisherCombinationCases(kMax = design$kMax, tVec = design$scale)
-        result <- getDesignFisherTryCpp(design$kMax, design$alpha, design$tolerance, 
-            design$criticalValues, design$scale, alpha0Vec, design$userAlphaSpending, design$method)
-        design$criticalValues <- result$criticalValues
-        design$alphaSpent <- result$alphaSpent
-        design$stageLevels <- result$stageLevels
-        design$nonStochasticCurtailment <- result$nonStochasticCurtailment
-        size <- result$size
+    tryCatch(
+        {
+            cases <- .getFisherCombinationCases(kMax = design$kMax, tVec = design$scale)
+            result <- getDesignFisherTryCpp(
+                design$kMax, design$alpha, design$tolerance,
+                design$criticalValues, design$scale, alpha0Vec, design$userAlphaSpending, design$method
+            )
+            design$criticalValues <- result$criticalValues
+            design$alphaSpent <- result$alphaSpent
+            design$stageLevels <- result$stageLevels
+            design$nonStochasticCurtailment <- result$nonStochasticCurtailment
+            size <- result$size
 
-        design$stageLevels <- sapply(1:design$kMax, function(k) {
-            .getFisherCombinationSize(k, rep(1, k - 1),
-                rep(design$criticalValues[k], k), design$scale,
-                cases = cases
-            )
-        })
+            design$stageLevels <- sapply(1:design$kMax, function(k) {
+                .getFisherCombinationSize(k, rep(1, k - 1),
+                    rep(design$criticalValues[k], k), design$scale,
+                    cases = cases
+                )
+            })
 
-        design$alphaSpent <- sapply(1:design$kMax, function(k) {
-            .getFisherCombinationSize(k, alpha0Vec[1:(k - 1)],
-                design$criticalValues[1:k], design$scale,
-                cases = cases
-            )
-        })
+            design$alphaSpent <- sapply(1:design$kMax, function(k) {
+                .getFisherCombinationSize(k, alpha0Vec[1:(k - 1)],
+                    design$criticalValues[1:k], design$scale,
+                    cases = cases
+                )
+            })
 
-        design$nonStochasticCurtailment <- FALSE
-        if (design$stageLevels[1] < 1e-10) {
-            design$criticalValues[1:(design$kMax - 1)] <- design$criticalValues[design$kMax]
-            design$stageLevels <- sapply(
-                1:design$kMax,
-                function(k) {
-                    .getFisherCombinationSize(k, rep(1, k - 1),
-                        rep(design$criticalValues[k], k), design$scale,
-                        cases = cases
-                    )
-                }
-            )
-            design$alphaSpent <- sapply(
-                1:design$kMax,
-                function(k) {
-                    .getFisherCombinationSize(k, alpha0Vec[1:(k - 1)],
-                        design$criticalValues[1:k], design$scale,
-                        cases = cases
-                    )
-                }
-            )
-            design$nonStochasticCurtailment <- TRUE
+            design$nonStochasticCurtailment <- FALSE
+            if (design$stageLevels[1] < 1e-10) {
+                design$criticalValues[1:(design$kMax - 1)] <- design$criticalValues[design$kMax]
+                design$stageLevels <- sapply(
+                    1:design$kMax,
+                    function(k) {
+                        .getFisherCombinationSize(k, rep(1, k - 1),
+                            rep(design$criticalValues[k], k), design$scale,
+                            cases = cases
+                        )
+                    }
+                )
+                design$alphaSpent <- sapply(
+                    1:design$kMax,
+                    function(k) {
+                        .getFisherCombinationSize(k, alpha0Vec[1:(k - 1)],
+                            design$criticalValues[1:k], design$scale,
+                            cases = cases
+                        )
+                    }
+                )
+                design$nonStochasticCurtailment <- TRUE
+            }
+        },
+        error = function(e) {
+            warning("Output may be wrong because an error occured: ", e$message, call. = FALSE)
         }
-    },
-    error = function(e) {
-        warning("Output may be wrong because an error occured: ", e$message, call. = FALSE)
-    })
+    )
 
     if (userFunctionCallEnabled) {
         if (design$method == C_FISHER_METHOD_NO_INTERACTION && abs(size - design$alpha) > 1e-03) {
@@ -315,7 +319,7 @@ getDesignFisher <- function(...,
         }
 
         if (design$method == C_FISHER_METHOD_EQUAL_ALPHA && !all(is.na(design$stageLevels)) &&
-            abs(mean(na.omit(design$stageLevels)) - design$stageLevels[1]) > 1e-03) {
+                abs(mean(na.omit(design$stageLevels)) - design$stageLevels[1]) > 1e-03) {
             stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "numerical overflow in computation routine")
         }
 
@@ -342,7 +346,7 @@ getDesignFisher <- function(...,
                 )
             }
         }
-        
+
         if (!is.na(maxIter) && maxIter < 0) {
             stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "no calculation possible")
         }
@@ -351,8 +355,9 @@ getDesignFisher <- function(...,
     design$.setParameterType("simAlpha", C_PARAM_NOT_APPLICABLE)
     design$simAlpha <- NA_real_
     if (!is.null(design$iterations) && !is.na(design$iterations) && design$iterations > 0) {
-        design$.setParameterType("seed", ifelse(!is.null(design$seed) && !is.na(design$seed), 
-            C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE))
+        design$.setParameterType("seed", ifelse(!is.null(design$seed) && !is.na(design$seed),
+            C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE
+        ))
         design$seed <- .setSeed(design$seed)
         design$simAlpha <- getSimulatedAlphaCpp(
             kMax = design$kMax,

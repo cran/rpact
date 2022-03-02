@@ -10,148 +10,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// isEqualCpp
-bool isEqualCpp(double x, double y);
-RcppExport SEXP _rpact_isEqualCpp(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(isEqualCpp(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationCaseKmax2Cpp
-int getFisherCombinationCaseKmax2Cpp(NumericVector tVec);
-RcppExport SEXP _rpact_getFisherCombinationCaseKmax2Cpp(SEXP tVecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax2Cpp(tVec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationSizeKmax2Cpp
-double getFisherCombinationSizeKmax2Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
-RcppExport SEXP _rpact_getFisherCombinationSizeKmax2Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
-    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeKmax2Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationCaseKmax3Cpp
-double getFisherCombinationCaseKmax3Cpp(NumericVector tVec);
-RcppExport SEXP _rpact_getFisherCombinationCaseKmax3Cpp(SEXP tVecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax3Cpp(tVec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationSizeKmax3Cpp
-double getFisherCombinationSizeKmax3Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
-RcppExport SEXP _rpact_getFisherCombinationSizeKmax3Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
-    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeKmax3Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationCaseKmax4Cpp
-double getFisherCombinationCaseKmax4Cpp(NumericVector tVec);
-RcppExport SEXP _rpact_getFisherCombinationCaseKmax4Cpp(SEXP tVecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax4Cpp(tVec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationSizeApproximatelyKmax4Cpp
-double getFisherCombinationSizeApproximatelyKmax4Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
-RcppExport SEXP _rpact_getFisherCombinationSizeApproximatelyKmax4Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
-    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeApproximatelyKmax4Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationCaseKmax5Cpp
-double getFisherCombinationCaseKmax5Cpp(NumericVector tVec);
-RcppExport SEXP _rpact_getFisherCombinationCaseKmax5Cpp(SEXP tVecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax5Cpp(tVec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationSizeApproximatelyKmax5Cpp
-double getFisherCombinationSizeApproximatelyKmax5Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
-RcppExport SEXP _rpact_getFisherCombinationSizeApproximatelyKmax5Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
-    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeApproximatelyKmax5Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationCaseKmax6Cpp
-double getFisherCombinationCaseKmax6Cpp(NumericVector tVec);
-RcppExport SEXP _rpact_getFisherCombinationCaseKmax6Cpp(SEXP tVecSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationCaseKmax6Cpp(tVec));
-    return rcpp_result_gen;
-END_RCPP
-}
-// getFisherCombinationSizeApproximatelyKmax6Cpp
-double getFisherCombinationSizeApproximatelyKmax6Cpp(NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, double piValue, int caseKmax);
-RcppExport SEXP _rpact_getFisherCombinationSizeApproximatelyKmax6Cpp(SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP piValueSEXP, SEXP caseKmaxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type alpha0Vec(alpha0VecSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type criticalValues(criticalValuesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tVec(tVecSEXP);
-    Rcpp::traits::input_parameter< double >::type piValue(piValueSEXP);
-    Rcpp::traits::input_parameter< int >::type caseKmax(caseKmaxSEXP);
-    rcpp_result_gen = Rcpp::wrap(getFisherCombinationSizeApproximatelyKmax6Cpp(alpha0Vec, criticalValues, tVec, piValue, caseKmax));
-    return rcpp_result_gen;
-END_RCPP
-}
 // getFisherCombinationSizeCpp
 double getFisherCombinationSizeCpp(double kMax, NumericVector alpha0Vec, NumericVector criticalValues, NumericVector tVec, NumericVector cases);
 RcppExport SEXP _rpact_getFisherCombinationSizeCpp(SEXP kMaxSEXP, SEXP alpha0VecSEXP, SEXP criticalValuesSEXP, SEXP tVecSEXP, SEXP casesSEXP) {
@@ -447,21 +305,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// bizero
-double bizero(Function f, double lower, double upper, double tolerance, int maxIter);
-RcppExport SEXP _rpact_bizero(SEXP fSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP toleranceSEXP, SEXP maxIterSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Function >::type f(fSEXP);
-    Rcpp::traits::input_parameter< double >::type lower(lowerSEXP);
-    Rcpp::traits::input_parameter< double >::type upper(upperSEXP);
-    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
-    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
-    rcpp_result_gen = Rcpp::wrap(bizero(f, lower, upper, tolerance, maxIter));
-    return rcpp_result_gen;
-END_RCPP
-}
 // getCipheredValue
 std::string getCipheredValue(String x);
 RcppExport SEXP _rpact_getCipheredValue(SEXP xSEXP) {
@@ -475,17 +318,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rpact_isEqualCpp", (DL_FUNC) &_rpact_isEqualCpp, 2},
-    {"_rpact_getFisherCombinationCaseKmax2Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax2Cpp, 1},
-    {"_rpact_getFisherCombinationSizeKmax2Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeKmax2Cpp, 5},
-    {"_rpact_getFisherCombinationCaseKmax3Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax3Cpp, 1},
-    {"_rpact_getFisherCombinationSizeKmax3Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeKmax3Cpp, 5},
-    {"_rpact_getFisherCombinationCaseKmax4Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax4Cpp, 1},
-    {"_rpact_getFisherCombinationSizeApproximatelyKmax4Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeApproximatelyKmax4Cpp, 5},
-    {"_rpact_getFisherCombinationCaseKmax5Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax5Cpp, 1},
-    {"_rpact_getFisherCombinationSizeApproximatelyKmax5Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeApproximatelyKmax5Cpp, 5},
-    {"_rpact_getFisherCombinationCaseKmax6Cpp", (DL_FUNC) &_rpact_getFisherCombinationCaseKmax6Cpp, 1},
-    {"_rpact_getFisherCombinationSizeApproximatelyKmax6Cpp", (DL_FUNC) &_rpact_getFisherCombinationSizeApproximatelyKmax6Cpp, 5},
     {"_rpact_getFisherCombinationSizeCpp", (DL_FUNC) &_rpact_getFisherCombinationSizeCpp, 5},
     {"_rpact_getSimulatedAlphaCpp", (DL_FUNC) &_rpact_getSimulatedAlphaCpp, 5},
     {"_rpact_getFisherCombinationCasesCpp", (DL_FUNC) &_rpact_getFisherCombinationCasesCpp, 2},
@@ -502,7 +334,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp, 11},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},
     {"_rpact_zeroin", (DL_FUNC) &_rpact_zeroin, 5},
-    {"_rpact_bizero", (DL_FUNC) &_rpact_bizero, 5},
     {"_rpact_getCipheredValue", (DL_FUNC) &_rpact_getCipheredValue, 1},
     {NULL, NULL, 0}
 };

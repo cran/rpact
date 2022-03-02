@@ -18,7 +18,6 @@ This function identifies and returns the caption that will be used in print outp
 }
 \examples{
 getParameterCaption(getDesignInverseNormal(), "kMax")
-
 }
 \seealso{
 \code{\link{getParameterName}} for getting the parameter name for a given caption.

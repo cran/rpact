@@ -18,7 +18,6 @@ This function gets the log level of the \code{rpact} internal log message system
 \examples{
 # show current log level
 getLogLevel()
-
 }
 \seealso{
 \itemize{

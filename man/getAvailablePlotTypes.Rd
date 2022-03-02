@@ -23,18 +23,18 @@ getAvailablePlotTypes(
 
 \item{output}{The output type. Can be one of \code{c("numeric", "caption", "numcap", "capnum")}.}
 
-\item{numberInCaptionEnabled}{If \code{TRUE}, the number will be added to the 
+\item{numberInCaptionEnabled}{If \code{TRUE}, the number will be added to the
 caption, default is \code{FALSE}.}
 }
 \value{
-Depending on how the \code{output} is specified, 
+Depending on how the \code{output} is specified,
 a numeric vector, a character vector, or a list will be returned.
 }
 \description{
 Function to identify the available plot types of an object.
 }
 \details{
-\code{plotTypes} and \code{getAvailablePlotTypes} are equivalent, i.e., 
+\code{plotTypes} and \code{getAvailablePlotTypes} are equivalent, i.e.,
 \code{plotTypes} is a short form of \code{getAvailablePlotTypes}.
 
 \code{output}:
@@ -51,5 +51,4 @@ getAvailablePlotTypes(design, "numeric")
 plotTypes(design, "caption")
 getAvailablePlotTypes(design, "numcap")
 plotTypes(design, "capnum")
-
 }

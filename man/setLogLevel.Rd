@@ -10,7 +10,7 @@ setLogLevel(
 }
 \arguments{
 \item{logLevel}{The new log level to set. Can be one of
-"PROGRESS", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "DISABLED". 
+"PROGRESS", "ERROR", "WARN", "INFO", "DEBUG", "TRACE", "DISABLED".
 Default is "PROGRESS".}
 }
 \description{

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5855 $
-## |  Last changed: $Date: 2022-02-18 13:23:48 +0100 (Fr, 18 Feb 2022) $
+## |  File version: $Revision: 5906 $
+## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -926,7 +926,9 @@ NULL
     }
 
     .assertValuesAreInsideBounds("informationRates", informationRates,
-        0, 1, lowerBoundInclusive = FALSE)
+        0, 1,
+        lowerBoundInclusive = FALSE
+    )
 
     if (min(informationRates) <= 0 || max(informationRates) > 1 ||
             any(informationRates[2:kMax] <= informationRates[1:(kMax - 1)])) {
