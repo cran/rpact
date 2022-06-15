@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
+## |  File version: $Revision: 6058 $
+## |  Last changed: $Date: 2022-04-26 08:36:08 +0200 (Tue, 26 Apr 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -192,12 +192,12 @@ NULL
             if (adaptations[k]) {
                 if (effectMeasure == "testStatistic") {
                     selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(
-                        k, overallTestStatistics[, k] + runif(gMax, -1E-5, 1E-5),
+                        k, overallTestStatistics[, k] + runif(gMax, -1e-05, 1e-05),
                         typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction
                     ))
                 } else if (effectMeasure == "effectEstimate") {
                     selectedArms[, k + 1] <- (selectedArms[, k] & .selectTreatmentArms(
-                        k, overallEffectSizes[, k] + runif(gMax, -1E-5, 1E-5),
+                        k, overallEffectSizes[, k] + runif(gMax, -1e-05, 1e-05),
                         typeOfSelection, epsilonValue, rValue, threshold, selectArmsFunction
                     ))
                 }

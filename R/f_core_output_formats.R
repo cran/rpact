@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6050 $
+## |  Last changed: $Date: 2022-04-22 10:21:18 +0200 (Fri, 22 Apr 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -96,13 +96,18 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
     if ((is.na(scientific) || scientific) && any(grepl("e", formattedValue))) {
         formattedValueTemp <- c()
         for (valueTemp in value) {
-            formattedValueTemp <- c(
-                formattedValueTemp,
-                format(valueTemp,
+            if (!is.na(scientific) && !scientific && digits > 0 && nsmall == 0) {
+                maxValue <- 1 / 10^digits
+                if (valueTemp < maxValue) {
+                    valueTemp <- paste0("<", maxValue)
+                }
+            } else {
+                valueTemp <- format(valueTemp,
                     digits = digits, nsmall = nsmall,
                     scientific = scientific, justify = "left", trim = TRUE
                 )
-            )
+            }
+            formattedValueTemp <- c(formattedValueTemp, valueTemp)
         }
         formattedValue <- formattedValueTemp
     }

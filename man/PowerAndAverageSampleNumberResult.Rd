@@ -8,7 +8,7 @@
 Class for power and average sample number (ASN) results.
 }
 \details{
-This object cannot be created directly; use \code{getPowerAndAverageSampleNumber} 
+This object cannot be created directly; use \code{getPowerAndAverageSampleNumber}
 with suitable arguments to create it.
 }
 

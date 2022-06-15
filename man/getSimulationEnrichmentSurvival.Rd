@@ -207,26 +207,26 @@ p2 <- c(0.3, 0.4)
 range1 <- p2[1] + seq(0, 0.3, 0.05)
 
 p1 <- c()
-for (x1 in range1){
-	p1 <- c(p1, x1, p2[2] + 0.1)
+for (x1 in range1) {
+    p1 <- c(p1, x1, p2[2] + 0.1)
 }		
 hazardRatios <- log(matrix(1 - p1, byrow = TRUE, ncol = 2)) /
-	matrix(log(1 - p2), byrow = TRUE, ncol = 2,
-	nrow = length(range1))
+    matrix(log(1 - p2), byrow = TRUE, ncol = 2,
+    nrow = length(range1))
 
 effectList <- list(subGroups=subGroups, prevalences=prevalences,
-hazardRatios = hazardRatios)
+    hazardRatios = hazardRatios)
 
 ds <- getDesignInverseNormal(informationRates = c(0.3, 0.7, 1),
 typeOfDesign = "asOF")
 
 simResultsPE <- getSimulationEnrichmentSurvival(ds, 
-	plannedEvents = c(40, 90, 120),
-	effectList = effectList,
-	typeOfSelection = "rbest", rValue = 2,
-	conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA,50,30),
-	maxNumberOfEventsPerStage = c(NA,150,30), thetaH1 = 4/3,
-	maxNumberOfIterations = 100)
+    plannedEvents = c(40, 90, 120),
+    effectList = effectList,
+    typeOfSelection = "rbest", rValue = 2,
+    conditionalPower = 0.8, minNumberOfEventsPerStage = c(NA, 50, 30),
+    maxNumberOfEventsPerStage = c(NA, 150, 30), thetaH1 = 4/3,
+    maxNumberOfIterations = 100)
 print(simResultsPE)
 }
 

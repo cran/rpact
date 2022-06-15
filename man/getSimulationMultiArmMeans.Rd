@@ -261,7 +261,7 @@ for (design in c(designIN, designCD)) {
         typeOfSelection = "all", maxNumberOfIterations = maxNumberOfIterations)
     if (index == 1) {
         drift <- results$effectMatrix[nrow(results$effectMatrix), ]
-        plot(drift,results$rejectAtLeastOne, type = "l", lty = 1, 
+        plot(drift, results$rejectAtLeastOne, type = "l", lty = 1, 
             lwd = 3, col = "black", ylab = "Power")
     } else {
         lines(drift,results$rejectAtLeastOne, type = "l", 
@@ -294,7 +294,7 @@ results <- getSimulationMultiArmMeans(designIN, activeArms = 3,
 
 options(rpact.summary.output.size = "medium")         
 summary(results)
-plot(results, type = c(5,3,9), grid = 4)
+if (require(ggplot2)) plot(results, type = c(5,3,9), grid = 4)
 }
 
 }

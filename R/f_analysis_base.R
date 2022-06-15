@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6287 $
+## |  Last changed: $Date: 2022-06-10 12:24:18 +0200 (Fri, 10 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -148,7 +148,8 @@ getAnalysisResults <- function(design, dataInput, ...,
 
     repeatedPValues <- NULL
     informationRatesRecalculated <- FALSE
-    if (.isAlphaSpendingDesign(design) && .isTrialDesignGroupSequential(design) && !.isMultiArmDataset(dataInput)) {
+
+    if (.isAlphaSpendingDesign(design) && (design$typeBetaSpending == "none") && .isTrialDesignGroupSequential(design) && !.isMultiArmDataset(dataInput)) {
         observedInformationRates <- NULL
         absoluteInformations <- NULL
         status <- NULL
@@ -265,15 +266,15 @@ getAnalysisResults <- function(design, dataInput, ...,
     } else {
         if (!is.null(maxInformation) && !is.na(maxInformation)) {
             warning("'maxInformation' (", .arrayToString(maxInformation),
-                ") will be ignored because it is only applicable for ",
-                "alpha spending group sequential designs with a single hypothesis",
+                ") will be ignored because it is only applicable for alpha spending", "\n",
+                "group sequential designs with no or fixed futility bounds and a single hypothesis",
                 call. = FALSE
             )
         }
         if (!is.null(informationEpsilon) && !is.na(informationEpsilon)) {
             warning("'informationEpsilon' (", .arrayToString(informationEpsilon),
-                ") will be ignored because it is only applicable for ",
-                "alpha spending group sequential designs with a single hypothesis",
+                ") will be ignored because it is only applicable for alpha spending", "\n",
+                "group sequential designs with no or fixed futility bounds and a single hypothesis",
                 call. = FALSE
             )
         }
@@ -1527,25 +1528,28 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
 
     if (dataInput$isDatasetMeans()) {
         return(.getFinalConfidenceIntervalMeans(
-            design = design, dataInput = dataInput, stage = stage, ...
+            design = design, dataInput = dataInput, directionUpper = directionUpper,
+            thetaH0 = thetaH0, tolerance = tolerance, stage = stage, ...
         ))
     }
 
     if (dataInput$isDatasetRates()) {
         return(.getFinalConfidenceIntervalRates(
-            design = design, dataInput = dataInput, stage = stage, ...
+            design = design, dataInput = dataInput, directionUpper = directionUpper,
+            thetaH0 = thetaH0, tolerance = tolerance, stage = stage, ...
         ))
     }
 
+
     if (dataInput$isDatasetSurvival()) {
         return(.getFinalConfidenceIntervalSurvival(
-            design = design, dataInput = dataInput, stage = stage, ...
+            design = design, dataInput = dataInput, directionUpper = directionUpper,
+            thetaH0 = thetaH0, tolerance = tolerance, stage = stage
         ))
     }
 
     stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
 }
-
 
 #
 # Get repeated p-values based on group sequential test
@@ -1954,14 +1958,16 @@ getFinalConfidenceInterval <- function(design, dataInput, ...,
     }
 
     if (design$bindingFutility) {
-        for (k in (1:min(kMax - 1, stageResults$stage))) {
-            if (.isTrialDesignInverseNormal(design)) {
-                if (stageResults$combInverseNormal[k] <= futilityBounds[k]) {
-                    conditionalRejectionProbabilities[k:stageResults$stage] <- 0
-                }
-            } else {
-                if (.getOneMinusQNorm(stageResults$overallPValues[k]) <= futilityBounds[k]) {
-                    conditionalRejectionProbabilities[k:stageResults$stage] <- 0
+        for (k in 1:min(kMax - 1, stageResults$stage)) {
+            if (!is.na(futilityBounds[k])) {
+                if (.isTrialDesignInverseNormal(design)) {
+                    if (stageResults$combInverseNormal[k] <= futilityBounds[k]) {
+                        conditionalRejectionProbabilities[k:stageResults$stage] <- 0
+                    }
+                } else {
+                    if (.getOneMinusQNorm(stageResults$overallPValues[k]) <= futilityBounds[k]) {
+                        conditionalRejectionProbabilities[k:stageResults$stage] <- 0
+                    }
                 }
             }
         }

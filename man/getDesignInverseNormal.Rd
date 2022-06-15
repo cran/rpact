@@ -9,7 +9,7 @@ getDesignInverseNormal(
   kMax = NA_integer_,
   alpha = NA_real_,
   beta = NA_real_,
-  sided = 1,
+  sided = 1L,
   informationRates = NA_real_,
   futilityBounds = NA_real_,
   typeOfDesign = c("OF", "P", "WT", "PT", "HP", "WToptimum", "asP", "asOF", "asKD",
@@ -26,6 +26,7 @@ getDesignInverseNormal(
   bindingFutility = NA,
   constantBoundsHP = 3,
   twoSidedPower = NA,
+  delayedInformation = NA_real_,
   tolerance = 1e-08
 )
 }
@@ -100,6 +101,9 @@ the sample size calculation is performed by considering both tails of the distri
 Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 should be directed to one part.}
 
+\item{delayedInformation}{Delay of information for delayed response designs. Can be a numeric value or a
+numeric vector of length \code{kMax - 1}}
+
 \item{tolerance}{The numerical tolerance, default is \code{1e-08}.}
 }
 \value{
@@ -159,6 +163,7 @@ Other design functions:
 \code{\link{getDesignConditionalDunnett}()},
 \code{\link{getDesignFisher}()},
 \code{\link{getDesignGroupSequential}()},
+\code{\link{getGroupSequentialProbabilities}()},
 \code{\link{getPowerAndAverageSampleNumber}()}
 }
 \concept{design functions}

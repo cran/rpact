@@ -61,6 +61,7 @@ Other design functions:
 \code{\link{getDesignConditionalDunnett}()},
 \code{\link{getDesignFisher}()},
 \code{\link{getDesignGroupSequential}()},
-\code{\link{getDesignInverseNormal}()}
+\code{\link{getDesignInverseNormal}()},
+\code{\link{getGroupSequentialProbabilities}()}
 }
 \concept{design functions}

@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6287 $
+## |  Last changed: $Date: 2022-06-10 12:24:18 +0200 (Fri, 10 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -401,12 +401,14 @@ C_PARAMETER_NAMES <- list(
 	
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constants",
+    betaAdjustment = "Beta adjustment",
 	
 	kMax = "Maximum number of stages",
 	alpha = "Significance level",
 	finalStage = "Final stage",
 	informationRates = "Information rates", 
 	criticalValues = "Critical values",
+	criticalValuesDelayedInformation = "Upper bounds of continuation",
 	stageLevels = "Stage levels (one-sided)", 
 	alphaSpent = "Cumulative alpha spending",
 	tolerance = "Tolerance",
@@ -420,7 +422,9 @@ C_PARAMETER_NAMES <- list(
 	sided = "Test",
 	futilityBounds = "Futility bounds (binding)",
 	futilityBoundsNonBinding = "Futility bounds (non-binding)",
-	typeOfDesign = "Type of design",
+    futilityBoundsDelayedInformation = "Lower bounds of continuation (binding)",
+    futilityBoundsDelayedInformationNonBinding = "Lower bounds of continuation (non-binding)",
+    typeOfDesign = "Type of design",
 	deltaWT = "Delta for Wang & Tsiatis Delta class",
 	deltaPT0 = "Delta0 for Pampallona & Tsiatis class", 
 	deltaPT1 = "Delta1 for Pampallona & Tsiatis class", 
@@ -599,12 +603,17 @@ C_PARAMETER_NAMES <- list(
 	maxNumberOfEvents = "Maximum number of events",
 	
 	criticalValuesEffectScale = "Critical values (treatment effect scale)",
+	criticalValuesEffectScaleDelayedInformation = "Upper bounds of continuation (treatment effect scale)",
 	criticalValuesEffectScaleLower = "Lower critical values (treatment effect scale)",
 	criticalValuesEffectScaleUpper = "Upper critical values (treatment effect scale)",
 	criticalValuesPValueScale = "Local one-sided significance levels",
 	".design$stageLevels" = "Local one-sided significance levels",
 	futilityBoundsEffectScale = "Futility bounds (treatment effect scale)",
+	futilityBoundsEffectScaleDelayedInformation = "Lower bounds of continuation (treatment effect scale)",
+	futilityBoundsEffectScaleLower = "Lower futility bounds (treatment effect scale)",
+    futilityBoundsEffectScaleUpper = "Upper futility bounds (treatment effect scale)",
 	futilityBoundsPValueScale = "Futility bounds (one-sided p-value scale)",
+	futilityBoundsPValueScaleDelayedInformation = "Lower bounds of continuation (one-sided p-value scale)",
 	
 	analysisTime = "Analysis time",
 	eventsPerStage1 = "Observed # events by stage (1)",
@@ -620,7 +629,8 @@ C_PARAMETER_NAMES <- list(
 	median1 = "median(1)",
 	median2 = "median(2)",
 	
-	eventsPerStage = "Cumulative number of events",
+	eventsPerStage = "Number of events per stage",
+    overallEventsPerStage = "Cumulative number of events",
 	expectedNumberOfEvents = "Observed number of events",
 	expectedNumberOfSubjects = "Observed number of subjects",
 	singleNumberOfEventsPerStage = "Single number of events",
@@ -693,7 +703,6 @@ C_PARAMETER_NAMES <- list(
 	selectPopulationsFunction = "Select populations function",
 	numberOfPopulations = "Number of populations",
 	
-	
 	correlationComputation = "Correlation computation method",
 	
 	subsets = "Subsets",
@@ -707,7 +716,11 @@ C_PARAMETER_NAMES <- list(
 	subGroups = "Sub-groups",
 	prevalences = "Prevalences",
 	effects = "Effects",
-	situation = "Situation"
+	situation = "Situation",
+    
+    delayedInformation = "Delayed information",
+    decisionCriticalValues = "Decision critical values",
+    reversalProbabilities = "Reversal probabilities"
 )
 
 .getParameterNames <- function(..., 
@@ -720,8 +733,24 @@ C_PARAMETER_NAMES <- list(
         
 	parameterNames <- C_PARAMETER_NAMES
 	
-	if (!is.null(design) && !is.na(design$bindingFutility) && !design$bindingFutility) {
-		parameterNames$futilityBounds <- C_PARAMETER_NAMES[["futilityBoundsNonBinding"]]
+	if (!is.null(design)) {
+        parameterNameFutilityBounds <- "futilityBounds"
+        if (.isDelayedInformationEnabled(design = design)) {
+            if (!is.na(design$bindingFutility) && !design$bindingFutility) {
+                parameterNameFutilityBounds <- "futilityBoundsDelayedInformationNonBinding"
+            } else {
+                parameterNameFutilityBounds <- "futilityBoundsDelayedInformation"
+            }
+            parameterNames$criticalValues <- C_PARAMETER_NAMES[["criticalValuesDelayedInformation"]]
+            
+            parameterNames$criticalValuesEffectScale <- C_PARAMETER_NAMES[["criticalValuesEffectScaleDelayedInformation"]]
+            parameterNames$futilityBoundsEffectScale <- C_PARAMETER_NAMES[["futilityBoundsEffectScaleDelayedInformation"]]
+            parameterNames$futilityBoundsPValueScale <- C_PARAMETER_NAMES[["futilityBoundsPValueScaleDelayedInformation"]]
+        }
+        else if (!is.na(design$bindingFutility) && !design$bindingFutility) {
+            parameterNameFutilityBounds <- "futilityBoundsNonBinding"
+        }
+        parameterNames$futilityBounds <- C_PARAMETER_NAMES[[parameterNameFutilityBounds]]
 	}
 	
 	if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlanSurvival") &&
@@ -787,13 +816,15 @@ C_TABLE_COLUMN_NAMES <- list(
 	
 	bindingFutility = "Binding futility",
 	constantBoundsHP = "Haybittle Peto constant",
+    betaAdjustment = "Beta adjustment",
 	
 	kMax = "Maximum # stages",
 	alpha = "Significance level",
 	finalStage = "Final stage",
 	informationRates = "Information rate",
 	criticalValues = "Critical value",
-	stageLevels = "Stage level", 
+    criticalValuesDelayedInformation = "Upper bounds of continuation",
+    stageLevels = "Stage level", 
 	alphaSpent = "Cumulative alpha spending",
 	tolerance = "Tolerance",
 	method = "Method",
@@ -806,6 +837,8 @@ C_TABLE_COLUMN_NAMES <- list(
 	sided = "Test",
 	futilityBounds = "Futility bound (binding)",
 	futilityBoundsNonBinding = "Futility bound (non-binding)",
+	futilityBoundsDelayedInformation = "Lower bounds of continuation (binding)",
+	futilityBoundsDelayedInformationNonBinding = "Lower bounds of continuation (non-binding)",
 	typeOfDesign = "Type of design",
 	deltaWT = "Delta (Wang & Tsiatis)",
 	deltaPT0 = "Delta0 (Pampallona & Tsiatis)", 
@@ -985,13 +1018,18 @@ C_TABLE_COLUMN_NAMES <- list(
 	maxNumberOfEvents = "Maximum # events",
 	
 	criticalValuesEffectScale = "Critical value (treatment effect scale)",
-	criticalValuesEffectScaleLower = "Lower critical value (treatment effect scale)",
+    criticalValuesEffectScaleDelayedInformation = "Upper bound of continuation (treatment effect scale)",
+    criticalValuesEffectScaleLower = "Lower critical value (treatment effect scale)",
 	criticalValuesEffectScaleUpper = "Upper critical value (treatment effect scale)",
 	criticalValuesPValueScale = "Local one-sided significance level",
 	".design$stageLevels" = "Local one-sided significance level",
 	futilityBoundsEffectScale = "Futility bound (treatment effect scale)",
+    futilityBoundsEffectScaleDelayedInformation = "Lower bounds of continuation (treatment effect scale)",
+    futilityBoundsEffectScaleLower = "Lower futility bound (treatment effect scale)",
+	futilityBoundsEffectScaleUpper = "Upper futility bound (treatment effect scale)",
 	futilityBoundsPValueScale = "Futility bound (one-sided p-value scale)",
-	
+    futilityBoundsPValueScaleDelayedInformation = "Lower bound of continuation (one-sided p-value scale)",
+    
 	delayedResponseAllowed = "Delayed response allowed",
 	delayedResponseEnabled = "Delayed response enabled",
 	piecewiseSurvivalEnabled = "Piecewise exponential survival enabled",
@@ -1000,6 +1038,9 @@ C_TABLE_COLUMN_NAMES <- list(
 	median2 = "median(2)",
 	
 	eventsPerStage = "Cumulative # events", 
+    eventsPerStage = "# events per stage",
+    overallEventsPerStage = "Cumulative # events",
+    
 	expectedNumberOfEvents = "Observed # events",
 	expectedNumberOfSubjects = "Observed # subjects",
 	singleNumberOfEventsPerStage = "Single # events",
@@ -1081,46 +1122,121 @@ C_TABLE_COLUMN_NAMES <- list(
 	subGroups = "Sub-group",
 	prevalences = "Prevalence",
 	effects = "Effect",
-	situation = "Situation"
+	situation = "Situation",
+    
+    delayedInformation = "Delayed information",
+    decisionCriticalValues = "Decision critical value",
+    reversalProbabilities = "Reversal probability"
 )
 
-.getTableColumnNames <- function(design = NULL, designPlan = NULL) {
-	tableColumnNames <- C_TABLE_COLUMN_NAMES
-	
-	if (!is.null(design) && !is.na(design$bindingFutility) && !design$bindingFutility) {
-		tableColumnNames$futilityBounds <- C_TABLE_COLUMN_NAMES[["futilityBoundsNonBinding"]]
-	}
-	
-	if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlanSurvival") &&
-			!is.null(designPlan$.piecewiseSurvivalTime) &&
-			designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
-		tableColumnNames$lambda2 = "Piecewise survival lambda (2)"
-		tableColumnNames$lambda1 = "Piecewise survival lambda (1)"
-	}
-	
-	if (!is.null(designPlan) && 
-			inherits(designPlan, "TrialDesignPlanSurvival") && 
-			identical(designPlan$.design$kMax, 1L)) {
-		tableColumnNames$maxNumberOfEvents <- "Number of events"
-	}
-	
-	if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlan") && 
-			identical(designPlan$.design$kMax, 1L)) {
-		tableColumnNames$studyDuration <- "Study duration"
-	}
-	
-	if (!is.null(designPlan) && 
-			(inherits(designPlan, "TrialDesignPlanMeans") || 
-				inherits(designPlan, "SimulationResultsMeans")) && 
-			isTRUE(designPlan$meanRatio)) {
-		tableColumnNames$stDev <- "Coefficient of variation"
-	}
-	
-	if (!is.null(design) && .getClassName(design) != "TrialDesign" && design$sided == 2) {
-		tableColumnNames$criticalValuesPValueScale <- "Local two-sided significance level"
-	}
-	
-	return(tableColumnNames)
+.getParameterCaptions <- function(
+        captionList, ..., 
+        design = NULL, 
+        designPlan = NULL, 
+        stageResults = NULL, 
+        analysisResults = NULL,
+        dataset = NULL,
+        designCharacteristics = NULL,
+        tableColumns = FALSE) {
+    
+    parameterNames <- captionList
+    
+    if (!is.null(design)) {
+        parameterNameFutilityBounds <- "futilityBounds"
+        if (.isDelayedInformationEnabled(design = design)) {
+            if (!is.na(design$bindingFutility) && !design$bindingFutility) {
+                parameterNameFutilityBounds <- "futilityBoundsDelayedInformationNonBinding"
+            } else {
+                parameterNameFutilityBounds <- "futilityBoundsDelayedInformation"
+            }
+            parameterNames$criticalValues <- captionList[["criticalValuesDelayedInformation"]]
+            
+            parameterNames$criticalValuesEffectScale <- captionList[["criticalValuesEffectScaleDelayedInformation"]]
+            parameterNames$futilityBoundsEffectScale <- captionList[["futilityBoundsEffectScaleDelayedInformation"]]
+            parameterNames$futilityBoundsPValueScale <- captionList[["futilityBoundsPValueScaleDelayedInformation"]]
+        }
+        else if (!is.na(design$bindingFutility) && !design$bindingFutility) {
+            parameterNameFutilityBounds <- "futilityBoundsNonBinding"
+        }
+        parameterNames$futilityBounds <- captionList[[parameterNameFutilityBounds]]
+    }
+    
+    if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlanSurvival") &&
+        !is.null(designPlan$.piecewiseSurvivalTime) &&
+        designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
+        parameterNames$lambda2 <- "Piecewise survival lambda (2)"
+        parameterNames$lambda1 <- "Piecewise survival lambda (1)"
+    }
+    
+    if (!is.null(designPlan) && 
+        inherits(designPlan, "TrialDesignPlanSurvival") && 
+        identical(designPlan$.design$kMax, 1L)) {
+        parameterNames$maxNumberOfEvents <- "Number of events"
+    }
+    
+    if (!is.null(designPlan) && inherits(designPlan, "TrialDesignPlan") && 
+        identical(designPlan$.design$kMax, 1L)) {
+        parameterNames$studyDuration <- "Study duration"
+    }
+    
+    if (!is.null(analysisResults) && identical(analysisResults$.design$kMax, 1L)) {
+        parameterNames$repeatedConfidenceIntervalLowerBounds <- "Confidence intervals (lower)"
+        parameterNames$repeatedConfidenceIntervalUpperBounds <- "Confidence intervals (upper)"
+        parameterNames$repeatedPValues = paste0("Overall p-value", ifelse(tableColumns, "", "s"))
+    }
+    
+    if (!is.null(designPlan) && 
+        (inherits(designPlan, "TrialDesignPlanMeans") || 
+            inherits(designPlan, "SimulationResultsMeans")) && 
+        isTRUE(designPlan$meanRatio)) {
+        parameterNames$stDev <- "Coefficient of variation"
+    }
+    
+    if (!is.null(design) && .getClassName(design) != "TrialDesign" && design$sided == 2) {
+        parameterNames$criticalValuesPValueScale <- paste0("Local two-sided significance level", ifelse(tableColumns, "", "s"))
+    }
+    
+    if ((!is.null(stageResults) && stageResults$isOneSampleDataset()) ||
+        (!is.null(dataset) && inherits(dataset, "DatasetMeans"))) {
+        parameterNames$overallStDevs <- paste0("Cumulative standard deviation", ifelse(tableColumns, "", "s"))
+    }
+    
+    return(parameterNames)
+}
+
+.getParameterNames <- function(..., 
+        design = NULL, 
+        designPlan = NULL, 
+        stageResults = NULL, 
+        analysisResults = NULL,
+        dataset = NULL,
+        designCharacteristics = NULL) {
+    .getParameterCaptions(
+        captionList = C_PARAMETER_NAMES, 
+        design = design, 
+        designPlan = designPlan, 
+        stageResults = stageResults, 
+        analysisResults = analysisResults,
+        dataset = dataset,
+        designCharacteristics = designCharacteristics)
+}
+
+.getTableColumnNames <- function(..., 
+        design = NULL, 
+        designPlan = NULL, 
+        stageResults = NULL, 
+        analysisResults = NULL,
+        dataset = NULL,
+        designCharacteristics = NULL) {
+    .getParameterCaptions(
+        captionList = C_TABLE_COLUMN_NAMES, 
+        design = design, 
+        designPlan = designPlan, 
+        stageResults = stageResults, 
+        analysisResults = analysisResults,
+        dataset = dataset,
+        designCharacteristics = designCharacteristics,
+        tableColumns = TRUE)
 }
 
 C_PARAMETER_FORMAT_FUNCTIONS <- list(
@@ -1147,7 +1263,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	
 	constantBoundsHP = ".formatCriticalValues",
 	
-	nMax = ".formatSampleSizes",
+	nMax = ".formatProbabilities",
 	nFixed = ".formatSampleSizes",
 	nFixed1 = ".formatSampleSizes",
 	nFixed2 = ".formatSampleSizes",
@@ -1340,7 +1456,11 @@ C_PARAMETER_FORMAT_FUNCTIONS <- list(
 	numberOfActiveArms = ".formatRates",
 	
 	maxInformation = ".formatHowItIs",
-	informationEpsilon = ".formatProbabilities"
+	informationEpsilon = ".formatProbabilities",
+    
+    delayedInformation = ".formatRates",
+    decisionCriticalValues = ".formatCriticalValues",
+    reversalProbabilities = ".formatProbabilities"
 )
 
 

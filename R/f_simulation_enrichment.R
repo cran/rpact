@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6285 $
+## |  Last changed: $Date: 2022-06-10 10:49:23 +0200 (Fri, 10 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -401,16 +401,17 @@ NULL
     if (endpoint %in% c("rates", "survival")) {
         .setValueAndParameterType(simulationResults, "directionUpper", directionUpper, TRUE)
     }
+    
+    if (!stratifiedAnalysis && endpoint %in% c("means", "survival")) {
+        stop(
+            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+            "For testing ", endpoint, ifelse(endpoint == "survival", " designs", ""), 
+            ", only stratified analysis is supported"
+        )
+    }
 
     effectList <- .getValidatedEffectList(effectList, gMax = gMax)
     if (endpoint == "means") {
-        if (!stratifiedAnalysis) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "For testing means, only stratified analysis can be selected"
-            )
-        }
-
         stDevH1 <- .ignoreParameterIfNotUsed(
             "stDevH1", stDevH1, kMax > 1,
             "design is fixed ('kMax' = 1)", "Assumed standard deviation"
@@ -422,10 +423,6 @@ NULL
             "piTreatmentH1", piTreatmentH1, kMax > 1,
             "design is fixed ('kMax' = 1)", "Assumed active rate(s)"
         )
-# 		if (is.na(conditionalPower) && is.null(calcSubjectsFunction) && !is.na(piTreatmentH1)) {
-# 			warning("'piTreatmentH1' will be ignored because neither 'conditionalPower' nor ",
-# 				"'calcSubjectsFunction' is defined", call. = FALSE)
-# 		}
         .setValueAndParameterType(simulationResults, "piTreatmentH1", piTreatmentH1, NA_real_)
 
         .assertIsSingleNumber(piControlH1, "piControlH1", naAllowed = TRUE)
@@ -434,18 +431,8 @@ NULL
             "piControlH1", piControlH1, kMax > 1,
             "design is fixed ('kMax' = 1)", "Assumed control rate(s)"
         )
-# 		if (is.na(conditionalPower) && is.null(calcSubjectsFunction) && !is.na(piControlH1)) {
-# 			warning("'piControlH1' will be ignored because neither 'conditionalPower' nor ",
-# 				"'calcSubjectsFunction' is defined", call. = FALSE)
-# 		}
         .setValueAndParameterType(simulationResults, "piControlH1", piControlH1, NA_real_)
     } else if (endpoint == "survival") {
-        if (!stratifiedAnalysis) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "For survival designs, only stratified analysis is possible"
-            )
-        }
         .assertIsIntegerVector(plannedEvents, "plannedEvents", validateType = FALSE)
         if (length(plannedEvents) != kMax) {
             stop(
@@ -748,7 +735,7 @@ NULL
     .setValueAndParameterType(simulationResults, "successCriterion", successCriterion, C_SUCCESS_CRITERION_DEFAULT)
     .setValueAndParameterType(simulationResults, "effectMeasure", effectMeasure, C_EFFECT_MEASURE_DEFAULT)
 
-    warning("Simulation of enrichment designs is experimental and hence not fully validated", call. = FALSE)
+    warning("Simulation of enrichment designs is experimental and hence not fully validated (see www.rpact.com/experimental)", call. = FALSE)
     
     return(simulationResults)
 }

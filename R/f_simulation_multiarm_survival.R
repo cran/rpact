@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5594 $
-## |  Last changed: $Date: 2021-11-26 15:24:35 +0100 (Fr, 26 Nov 2021) $
+## |  File version: $Revision: 6275 $
+## |  Last changed: $Date: 2022-06-09 13:35:36 +0200 (Thu, 09 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -51,11 +51,11 @@ NULL
                     ), 1 - 1e-07))
                 }
             } else {
-				if (directionUpper) {
-					thetaStandardized <- log(max(thetaH1, 1 + 1e-07))
-				} else {
-					thetaStandardized <- log(min(thetaH1, 1 - 1e-07))
-				}	
+                if (directionUpper) {
+                    thetaStandardized <- log(max(thetaH1, 1 + 1e-07))
+                } else {
+                    thetaStandardized <- log(min(thetaH1, 1 - 1e-07))
+                }
             }
             if (conditionalCriticalValue[stage] > 8) {
                 newEvents <- maxNumberOfEventsPerStage[stage + 1]
@@ -517,7 +517,7 @@ getSimulationMultiArmSurvival <- function(design = NULL, ...,
     choleskyDecomposition <- NULL
 
     if (correlationComputation == "null") {
-        # Not accounting for alternative
+        # not accounting for alternative
         corrMatrix <- matrix(rep(allocationRatioPlanned / (1 + allocationRatioPlanned), gMax^2), ncol = gMax, nrow = gMax)
         diag(corrMatrix) <- 1
         choleskyDecomposition <- chol(corrMatrix)
@@ -597,9 +597,31 @@ getSimulationMultiArmSurvival <- function(design = NULL, ...,
                 if (k == 1) {
                     simulatedOverallEventsPerStage[k, i] <- simulatedOverallEventsPerStage[k, i] +
                         stageResults$plannedEvents[k]
+                    for (g in 1:gMax) {
+                        if (closedTest$selectedArms[g, k]) {
+                            simulatedSingleEventsPerStage[k, i, g] <- simulatedSingleEventsPerStage[k, i, g] +
+                                stageResults$plannedEvents[k] *
+                                    allocationRatioPlanned * effectMatrix[i, g] / (1 + allocationRatioPlanned *
+                                        sum(effectMatrix[i, closedTest$selectedArms[, k]]))
+                        }
+                    }
+                    simulatedSingleEventsPerStage[k, i, gMax + 1] <- simulatedSingleEventsPerStage[k, i, gMax + 1] +
+                        stageResults$plannedEvents[k] /
+                            (1 + allocationRatioPlanned * sum(effectMatrix[i, closedTest$selectedArms[, k]]))
                 } else {
                     simulatedOverallEventsPerStage[k, i] <- simulatedOverallEventsPerStage[k, i] +
                         stageResults$plannedEvents[k] - stageResults$plannedEvents[k - 1]
+                    for (g in 1:gMax) {
+                        if (closedTest$selectedArms[g, k]) {
+                            simulatedSingleEventsPerStage[k, i, g] <- simulatedSingleEventsPerStage[k, i, g] +
+                                (stageResults$plannedEvents[k] - stageResults$plannedEvents[k - 1]) *
+                                    allocationRatioPlanned * effectMatrix[i, g] / (1 + allocationRatioPlanned *
+                                        sum(effectMatrix[i, closedTest$selectedArms[, k]]))
+                        }
+                    }
+                    simulatedSingleEventsPerStage[k, i, gMax + 1] <- simulatedSingleEventsPerStage[k, i, gMax + 1] +
+                        (stageResults$plannedEvents[k] - stageResults$plannedEvents[k - 1]) /
+                            (1 + allocationRatioPlanned * sum(effectMatrix[i, closedTest$selectedArms[, k]]))
                 }
 
                 for (g in 1:gMax) {
@@ -642,13 +664,7 @@ getSimulationMultiArmSurvival <- function(design = NULL, ...,
         }
 
         simulatedOverallEventsPerStage[, i] <- simulatedOverallEventsPerStage[, i] / iterations[, i]
-
-        for (g in 1:gMax) {
-            simulatedSingleEventsPerStage[, i, g] <- simulatedOverallEventsPerStage[, i] *
-                allocationRatioPlanned * effectMatrix[i, g] / (1 + allocationRatioPlanned * sum(effectMatrix[i, ]))
-        }
-        simulatedSingleEventsPerStage[, i, gMax + 1] <- simulatedOverallEventsPerStage[, i] /
-            (1 + allocationRatioPlanned * sum(effectMatrix[i, ]))
+        simulatedSingleEventsPerStage[, i, ] <- simulatedSingleEventsPerStage[, i, ] / iterations[, i]
 
         if (kMax > 1) {
             simulatedRejections[2:kMax, i, ] <- simulatedRejections[2:kMax, i, ] - simulatedRejections[1:(kMax - 1), i, ]

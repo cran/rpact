@@ -14,9 +14,9 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_base_rates.R
-## |  Creation date: 23 February 2022, 14:00:32
-## |  File version: $Revision: 5881 $
-## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  Creation date: 18 March 2022, 10:57:15
+## |  File version: $Revision: 5931 $
+## |  Last changed: $Date: 2022-03-18 13:45:05 +0100 (Fr, 18 Mrz 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |  
 
@@ -2358,9 +2358,9 @@ test_that("'getAnalysisResults' with a dataset of rates and without defining a d
 	    events1 = c(8),
 	    events2 = c(6)
 	)
+
 	# @refFS[Formula]{fs:testStatisticTwoRatesApproximation}
 	# @refFS[Formula]{fs:pValuesTwoRatesAlternativeGreater}
-
 	analysisResults1 <- getAnalysisResults(data, alpha = 0.02)
 
 	## Comparison of the results of AnalysisResultsInverseNormal object 'analysisResults1' with expected results
@@ -2412,6 +2412,9 @@ test_that("'getAnalysisResults' produces the correct critical values for a bound
 	design <- getDesignGroupSequential(
 	    typeOfDesign = "asP"
 	)
+
+	# @refFS[Formula]{fs:getAnalysisResults:maxInformation}
+	# @refFS[Formula]{fs:getAnalysisResults:maxInformation:methods}
 	expect_warning(result1 <- getAnalysisResults(design, data1,
 	    thetaH0 = 0.5, maxInformation = 40
 	))

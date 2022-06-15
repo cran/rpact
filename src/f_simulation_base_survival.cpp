@@ -14,8 +14,8 @@
  *
  * Contact us for information about our services: info@rpact.com
  *
- * File version: $Revision: 5620 $
- * Last changed: $Date: 2021-12-06 17:15:42 +0100 (Mo, 06 Dez 2021) $
+ * File version: $Revision: 6285 $
+ * Last changed: $Date: 2022-06-10 10:49:23 +0200 (Fri, 10 Jun 2022) $
  * Last changed by: $Author: pahlke $
  *
  */
@@ -721,7 +721,6 @@ List getSimulationSurvivalCpp(
 			vectorSumC(pi1Index, 8, kMax, REAL(durationsSum), stepResults);
 			vectorSumC(pi1Index, 9, kMax, REAL(iterationsSum), stepResults);
 			vectorSumC(pi1Index, 16, kMax, REAL(conditionalPowerAchievedSum), stepResults); // conditionalPowerAchieved
-			// pValuesSeparate
 
 			// get data
 			for (int k = 0; k < kMax; k++) {

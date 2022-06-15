@@ -112,4 +112,5 @@ y <- getPiecewiseExponentialDistribution(seq(0, 150, 15),
 getPiecewiseExponentialQuantile(y,
     piecewiseSurvivalTime = piecewiseSurvivalTime
 )
+
 }

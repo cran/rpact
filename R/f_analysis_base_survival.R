@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5747 $
-## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 6139 $
+## |  Last changed: $Date: 2022-05-10 14:45:01 +0200 (Tue, 10 May 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |
 
 .getAnalysisResultsSurvival <- function(..., design, dataInput) {
@@ -263,9 +263,8 @@
         # final confidence interval & median unbiased estimate
         startTime <- Sys.time()
         finalConfidenceIntervals <- .getFinalConfidenceIntervalSurvival(
-            design = design,
-            dataInput = dataInput, thetaH0 = thetaH0, stage = stage, directionUpper = directionUpper,
-            tolerance = tolerance
+            design = design, dataInput = dataInput, thetaH0 = thetaH0, stage = stage, 
+            directionUpper = directionUpper, tolerance = tolerance
         )
 
         if (!is.null(finalConfidenceIntervals)) {
@@ -532,7 +531,7 @@
 	        )
 	
 	        # Adjustment for binding futility bounds
-	        if (k > 1 && conditionFunction(bounds[k - 1], border) & design$bindingFutility) {
+			if (k > 1 && !is.na(bounds[k - 1]) && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {		
 	            parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
 	
 	            futilityCorr[k] <- .getRootThetaSurvival(
@@ -1063,7 +1062,7 @@
     stageResults <- .getStageResultsSurvival(
         design = design, dataInput = dataInput, stage = stage,
         thetaH0 = thetaH0, directionUpper = directionUpper
-    )
+    )    
 
     finalConfidenceIntervalGeneral <- rep(NA_real_, 2)
     medianUnbiasedGeneral <- NA_real_
@@ -1151,6 +1150,10 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiasedGeneral = medianUnbiasedGeneral,
         finalConfidenceIntervalGeneral = sort(finalConfidenceIntervalGeneral),
@@ -1260,6 +1263,10 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiasedGeneral = medianUnbiasedGeneral,
         finalConfidenceIntervalGeneral = sort(finalConfidenceIntervalGeneral),
@@ -1300,6 +1307,10 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiased = medianUnbiased,
         finalConfidenceInterval = finalConfidenceInterval

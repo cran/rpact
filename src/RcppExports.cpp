@@ -205,8 +205,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // getDesignGroupSequentialBetaSpendingCpp
-List getDesignGroupSequentialBetaSpendingCpp(NumericVector criticalValues, int kMax, NumericVector userAlphaSpending, NumericVector userBetaSpending, double sided, NumericVector informationRates, bool bindingFutility, double tolerance, String typeOfDesign, String typeBetaSpending, double gammaA, double gammaB, double alpha, double beta);
-RcppExport SEXP _rpact_getDesignGroupSequentialBetaSpendingCpp(SEXP criticalValuesSEXP, SEXP kMaxSEXP, SEXP userAlphaSpendingSEXP, SEXP userBetaSpendingSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP toleranceSEXP, SEXP typeOfDesignSEXP, SEXP typeBetaSpendingSEXP, SEXP gammaASEXP, SEXP gammaBSEXP, SEXP alphaSEXP, SEXP betaSEXP) {
+List getDesignGroupSequentialBetaSpendingCpp(NumericVector criticalValues, int kMax, NumericVector userAlphaSpending, NumericVector userBetaSpending, NumericVector informationRates, bool bindingFutility, double tolerance, String typeOfDesign, String typeBetaSpending, double gammaA, double gammaB, double alpha, double beta, double sided, bool betaAdjustment, bool twoSidedPower);
+RcppExport SEXP _rpact_getDesignGroupSequentialBetaSpendingCpp(SEXP criticalValuesSEXP, SEXP kMaxSEXP, SEXP userAlphaSpendingSEXP, SEXP userBetaSpendingSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP toleranceSEXP, SEXP typeOfDesignSEXP, SEXP typeBetaSpendingSEXP, SEXP gammaASEXP, SEXP gammaBSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP sidedSEXP, SEXP betaAdjustmentSEXP, SEXP twoSidedPowerSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -214,7 +214,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type kMax(kMaxSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type userAlphaSpending(userAlphaSpendingSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type userBetaSpending(userBetaSpendingSEXP);
-    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type informationRates(informationRatesSEXP);
     Rcpp::traits::input_parameter< bool >::type bindingFutility(bindingFutilitySEXP);
     Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
@@ -224,13 +223,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type gammaB(gammaBSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
-    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialBetaSpendingCpp(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, typeBetaSpending, gammaA, gammaB, alpha, beta));
+    Rcpp::traits::input_parameter< double >::type sided(sidedSEXP);
+    Rcpp::traits::input_parameter< bool >::type betaAdjustment(betaAdjustmentSEXP);
+    Rcpp::traits::input_parameter< bool >::type twoSidedPower(twoSidedPowerSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialBetaSpendingCpp(criticalValues, kMax, userAlphaSpending, userBetaSpending, informationRates, bindingFutility, tolerance, typeOfDesign, typeBetaSpending, gammaA, gammaB, alpha, beta, sided, betaAdjustment, twoSidedPower));
     return rcpp_result_gen;
 END_RCPP
 }
 // getDesignGroupSequentialUserDefinedBetaSpendingCpp
-List getDesignGroupSequentialUserDefinedBetaSpendingCpp(NumericVector criticalValues, int kMax, NumericVector userAlphaSpending, NumericVector userBetaSpending, double sided, NumericVector informationRates, bool bindingFutility, double tolerance, String typeOfDesign, double gammaA, double alpha);
-RcppExport SEXP _rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp(SEXP criticalValuesSEXP, SEXP kMaxSEXP, SEXP userAlphaSpendingSEXP, SEXP userBetaSpendingSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP toleranceSEXP, SEXP typeOfDesignSEXP, SEXP gammaASEXP, SEXP alphaSEXP) {
+List getDesignGroupSequentialUserDefinedBetaSpendingCpp(NumericVector criticalValues, int kMax, NumericVector userAlphaSpending, NumericVector userBetaSpending, double sided, NumericVector informationRates, bool bindingFutility, double tolerance, String typeOfDesign, double gammaA, double alpha, bool betaAdjustment, bool twoSidedPower);
+RcppExport SEXP _rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp(SEXP criticalValuesSEXP, SEXP kMaxSEXP, SEXP userAlphaSpendingSEXP, SEXP userBetaSpendingSEXP, SEXP sidedSEXP, SEXP informationRatesSEXP, SEXP bindingFutilitySEXP, SEXP toleranceSEXP, SEXP typeOfDesignSEXP, SEXP gammaASEXP, SEXP alphaSEXP, SEXP betaAdjustmentSEXP, SEXP twoSidedPowerSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -245,7 +247,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< String >::type typeOfDesign(typeOfDesignSEXP);
     Rcpp::traits::input_parameter< double >::type gammaA(gammaASEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialUserDefinedBetaSpendingCpp(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, gammaA, alpha));
+    Rcpp::traits::input_parameter< bool >::type betaAdjustment(betaAdjustmentSEXP);
+    Rcpp::traits::input_parameter< bool >::type twoSidedPower(twoSidedPowerSEXP);
+    rcpp_result_gen = Rcpp::wrap(getDesignGroupSequentialUserDefinedBetaSpendingCpp(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, gammaA, alpha, betaAdjustment, twoSidedPower));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -330,8 +334,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rpact_getDesignGroupSequentialDeltaWTCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialDeltaWTCpp, 8},
     {"_rpact_getDesignGroupSequentialPocockCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialPocockCpp, 7},
     {"_rpact_getDesignGroupSequentialOBrienAndFlemingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialOBrienAndFlemingCpp, 7},
-    {"_rpact_getDesignGroupSequentialBetaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialBetaSpendingCpp, 14},
-    {"_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp, 11},
+    {"_rpact_getDesignGroupSequentialBetaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialBetaSpendingCpp, 16},
+    {"_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp", (DL_FUNC) &_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp, 13},
     {"_rpact_getSimulationSurvivalCpp", (DL_FUNC) &_rpact_getSimulationSurvivalCpp, 31},
     {"_rpact_zeroin", (DL_FUNC) &_rpact_zeroin, 5},
     {"_rpact_getCipheredValue", (DL_FUNC) &_rpact_getCipheredValue, 1},

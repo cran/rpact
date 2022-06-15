@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5747 $
-## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
+## |  File version: $Revision: 6015 $
+## |  Last changed: $Date: 2022-04-08 14:23:17 +0200 (Fr, 08 Apr 2022) $
 ## |  Last changed by: $Author: wassmer $
 ## |
 
@@ -823,7 +823,7 @@
                     )
 
                     # adjustment for binding futility bounds
-                    if (k > 1 && conditionFunction(bounds[k - 1], border) & design$bindingFutility) {
+					if (k > 1 && !is.na(bounds[k - 1]) && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {
                         parameterName <- ifelse(.isTrialDesignFisher(design),
                             "singleStepAdjustedPValues", firstParameterName
                         )

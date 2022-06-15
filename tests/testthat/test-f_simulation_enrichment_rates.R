@@ -15,9 +15,9 @@
 ## |  
 ## |  File name: test-f_simulation_enrichment_rates.R
 ## |  Creation date: 23 February 2022, 14:06:53
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  File version: $Revision: 6279 $
+## |  Last changed: $Date: 2022-06-09 17:48:13 +0200 (Thu, 09 Jun 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Simulation Enrichment Rates Function")
@@ -105,6 +105,8 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
+    
+    .skipTestIfDisabled()
 	.skipTestIfNotX64()
 
 	suppressWarnings(simResult2 <- getSimulationEnrichmentRates(design,
@@ -117,7 +119,6 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 	    typeOfSelection = "epsilon", epsilonValue = 0.025,
 	    intersectionTest = "Simes", seed = 123
 	))
-
 
 	## Comparison of the results of SimulationResultsEnrichmentRates object 'simResult2' with expected results
 	expect_equal(simResult2$iterations[1, ], c(100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100))
@@ -266,7 +267,10 @@ test_that("'getSimulationEnrichmentRates': gMax = 2", {
 })
 
 test_that("'getSimulationEnrichmentRates': gMax = 3", {
-
+        
+    .skipTestIfDisabled()
+    .skipTestIfNotX64()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:subsec:intersectionTestsEnrichment}
@@ -284,8 +288,6 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
-	.skipTestIfNotX64()
 
 	piTreatments <- c(
 	    0.30, 0.40, 0.30, 0.55, 0.30, 0.40, 0.30, 0.75, 0.30, 0.40, 0.50, 0.55, 0.30, 0.40, 0.50,
@@ -523,6 +525,9 @@ test_that("'getSimulationEnrichmentRates': gMax = 3", {
 
 test_that("'getSimulationEnrichmentRates': gMax = 4", {
 
+    .skipTestIfDisabled()
+    .skipTestIfNotX64()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:subsec:intersectionTestsEnrichment}
@@ -540,8 +545,6 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
-	.skipTestIfNotX64()
 
 	effectList <- list(
 	    subGroups = c("S1", "S2", "S3", "S12", "S13", "S23", "S123", "R"),
@@ -778,7 +781,10 @@ test_that("'getSimulationEnrichmentRates': gMax = 4", {
 })
 
 test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for inverse normal", {
-
+        
+    .skipTestIfDisabled()
+    .skipTestIfNotX64()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:sec:simulationFunctions}
@@ -790,8 +796,6 @@ test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
-	.skipTestIfNotX64()
 
 	effectList <- list(
 	    subGroups = "F",
@@ -842,7 +846,10 @@ test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for
 })
 
 test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for Fisher combination", {
-
+        
+    .skipTestIfDisabled()
+    .skipTestIfNotX64()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:sec:simulationFunctions}
@@ -854,8 +861,6 @@ test_that("'getSimulationEnrichmentRates': comparison of base and enrichment for
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
-	.skipTestIfNotX64()
 
 	effectList <- list(
 	    subGroups = "F",

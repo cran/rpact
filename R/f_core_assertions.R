@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6291 $
+## |  Last changed: $Date: 2022-06-13 08:36:13 +0200 (Mon, 13 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -887,7 +887,7 @@ NULL
 }
 
 .assertAreValidInformationRates <- function(informationRates, kMax = length(informationRates),
-        kMaxLowerBound = 1, kMaxUpperBound = C_KMAX_UPPER_BOUND) {
+        kMaxLowerBound = 1L, kMaxUpperBound = C_KMAX_UPPER_BOUND) {
     if (length(informationRates) < kMaxLowerBound) {
         stop(sprintf(
             paste0(
@@ -2325,9 +2325,9 @@ NULL
     if (typeOfSelection == "rBest") {
         .assertIsSingleNumber(rValue, "rValue", naAllowed = FALSE, noDefaultAvailable = TRUE)
         if (activeArms == 1) {
-            warning("'typeOfSelection' (\"", typeOfSelection, "\") will be ignored because 'activeArms' = 1", call. = FALSE)
+            warning("'typeOfSelection' (\"", typeOfSelection, "\") will be ignored because 'activeArms' or 'populations' = 1", call. = FALSE)
         } else if (rValue > activeArms) {
-            warning("'rValue' (", rValue, ") is larger than activeArms (", activeArms, ") and will be ignored", call. = FALSE)
+            warning("'rValue' (", rValue, ") is larger than activeArms or populations (", activeArms, ") and will be ignored", call. = FALSE)
         }
     } else if (!is.na(rValue)) {
         warning("'rValue' (", rValue, ") will be ignored because 'typeOfSelection' != \"rBest\"", call. = FALSE)
@@ -2413,6 +2413,18 @@ NULL
     return(invisible(x))
 }
 
+.assertIsValidDecisionMatrix <- function(decisionMatrix, kMax) {
+    .assertIsValidMatrix(decisionMatrix, "decisionMatrix", naAllowed = FALSE)
+    if (!(nrow(decisionMatrix) %in% c(2, 4))) {
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'decisionMatrix' must have two or four rows")
+    }
+    if (ncol(decisionMatrix) != kMax) {
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'decisionMatrix' must have 'kMax' (= length(informationRates) = ", kMax, ") columns")
+    }
+    if (any(decisionMatrix[2:nrow(decisionMatrix), ] < decisionMatrix[1:(nrow(decisionMatrix) - 1), ])) {
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'decisionMatrix' needs to be increasing in each column")
+    }
+}
 
 .assertIsValidTypeOfShape <- function(typeOfShape) {
     .assertIsCharacter(typeOfShape, "typeOfShape")
@@ -2580,4 +2592,23 @@ NULL
     }
 
     return(grepl("^as", design$typeOfDesign))
+}
+
+.isDelayedInformationEnabled <- function(..., design = NULL, delayedInformation = NULL) {
+    if (is.null(design) && is.null(delayedInformation)) {
+        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "either 'design' or 'delayedInformation' must be specified")
+    }
+    
+    if (!is.null(design)) {
+        if (!.isTrialDesignInverseNormalOrGroupSequential(design)) {
+            return(FALSE)
+        }
+        
+        delayedInformation <- design[["delayedInformation"]]
+    }
+    if (is.null(delayedInformation)) {
+        return(FALSE)
+    }
+    
+    return(all(!is.na(delayedInformation)) && any(delayedInformation >= 1e-03))
 }

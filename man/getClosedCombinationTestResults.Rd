@@ -42,7 +42,7 @@ obtain the specific help documentation linked above by typing \code{?plot.Analys
 # at the first stage the second treatment arm was dropped. With the Bonferroni 
 # intersection test, the results of a closed adaptive test procedure are 
 # obtained as follows with the given data (treatment arm 4 refers to the 
-# reference group:
+# reference group):
 data <- getDataset(
     n1 = c(22, 23),
     n2 = c(21, NA),
@@ -58,8 +58,8 @@ data <- getDataset(
     stds4 = c(1.02, 1.18))
 
 design <- getDesignInverseNormal(kMax = 4)
-stageResults <- 
-getStageResults(design, dataInput = data, intersectionTest = "Bonferroni")  
+stageResults <- getStageResults(design, dataInput = data, 
+    intersectionTest = "Bonferroni")  
 getClosedCombinationTestResults(stageResults)
 }
 

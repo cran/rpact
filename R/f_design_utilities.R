@@ -13,14 +13,18 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6291 $
+## |  Last changed: $Date: 2022-06-13 08:36:13 +0200 (Mon, 13 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
 #' @include f_core_assertions.R
 #' @include f_core_utilities.R
 NULL
+
+.getInformationRatesDefault <- function(kMax) {
+    return(c(1:kMax) / kMax)
+}
 
 .getDefaultDesign <- function(...,
         type = c("sampleSize", "power", "simulation", "analysis"),
@@ -131,8 +135,10 @@ NULL
     }
 
     if (design$sided == 2 && .isDefinedArgument(parameterValues) &&
-            (!.isTrialDesignInverseNormalOrGroupSequential(design) || design$typeOfDesign != C_TYPE_OF_DESIGN_PT) &&
-            (twoSidedWarningForDefaultValues && !all(is.na(parameterValues)) ||
+            (!.isTrialDesignInverseNormalOrGroupSequential(design) || 
+				(design$typeOfDesign != C_TYPE_OF_DESIGN_PT) && !.isBetaSpendingDesignType(design$typeBetaSpending)
+				) &&
+	            (twoSidedWarningForDefaultValues && !all(is.na(parameterValues)) ||
                 (!twoSidedWarningForDefaultValues && any(na.omit(parameterValues) != defaultValue)))) {
         warning("'", parameterName, "' (", .arrayToString(parameterValues),
             ") will be ignored because the design is two-sided",
@@ -242,7 +248,7 @@ NULL
     invisible(kMax)
 }
 
-.getValidatedInformationRates <- function(design, kMaxLowerBound = 1, writeToDesign = TRUE) {
+.getValidatedInformationRates <- function(design, kMaxLowerBound = 1L, writeToDesign = TRUE) {
     kMaxUpperBound <- ifelse(.isTrialDesignFisher(design), C_KMAX_UPPER_BOUND_FISHER, C_KMAX_UPPER_BOUND)
     if (.isDefinedArgument(design$informationRates) && .isDefinedArgument(design$kMax)) {
         .assertAreValidInformationRates(
@@ -706,6 +712,7 @@ NULL
 #' getPiecewiseExponentialQuantile(y,
 #'     piecewiseSurvivalTime = piecewiseSurvivalTime
 #' )
+#' 
 #' @name utilitiesForPiecewiseExponentialDistribution
 #'
 NULL
@@ -995,8 +1002,14 @@ getMedianByPi <- function(piValue,
             } else if (.isTrialDesignFisher(design)) {
                 designParametersToShow <- c(designParametersToShow, ".stageResults$weightsFisher")
             }
+            if (design$.isDelayedResponseDesign()) {
+                designParametersToShow <- c(designParametersToShow, ".design$delayedInformation")
+            }
         }
         designParametersToShow <- c(designParametersToShow, ".design$criticalValues")
+        if (design$.isDelayedResponseDesign()) {
+            designParametersToShow <- c(designParametersToShow, ".design$decisionCriticalValues")
+        }
         if (design$kMax > 1) {
             if (.isTrialDesignFisher(design)) {
                 designParametersToShow <- c(designParametersToShow, ".design$alpha0Vec")
@@ -1038,4 +1051,15 @@ getMedianByPi <- function(piValue,
 
     indices <- design$userAlphaSpending == 0
     return(all(indices[1:(length(indices) - 1)]))
+}
+
+.addDelayedInformationRates <- function(dataFrame) {
+    if (all(c("informationRates", "delayedInformation", "kMax", "stages") %in% colnames(dataFrame))) {
+        kMax <- max(dataFrame$kMax)
+        if (kMax > 1) {
+            dataFrame$delayedInformationRates <- dataFrame$informationRates + dataFrame$delayedInformation
+            dataFrame$delayedInformationRates[dataFrame$stages == kMax] <- NA_real_
+        }
+    }
+    return(dataFrame)
 }

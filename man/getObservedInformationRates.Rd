@@ -58,6 +58,7 @@ data <- getDataset(
 getObservedInformationRates(data,
     maxInformation = 46, informationEpsilon = 0.03
 )
+
 }
 \seealso{
 \itemize{

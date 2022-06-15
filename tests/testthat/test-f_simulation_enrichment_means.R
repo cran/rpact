@@ -15,9 +15,9 @@
 ## |  
 ## |  File name: test-f_simulation_enrichment_means.R
 ## |  Creation date: 23 February 2022, 14:06:45
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  File version: $Revision: 6279 $
+## |  Last changed: $Date: 2022-06-09 17:48:13 +0200 (Thu, 09 Jun 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing Simulation Enrichment Means Function")
@@ -108,6 +108,8 @@ test_that("'getSimulationEnrichmentMeans': gMax = 2", {
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
+    
+    .skipTestIfDisabled()
 
 	suppressWarnings(simResult2 <- getSimulationEnrichmentMeans(design,
 	    populations = 2,
@@ -266,6 +268,8 @@ test_that("'getSimulationEnrichmentMeans': gMax = 2", {
 
 test_that("'getSimulationEnrichmentMeans': gMax = 3", {
 
+    .skipTestIfDisabled()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:subsec:intersectionTestsEnrichment}
@@ -282,7 +286,6 @@ test_that("'getSimulationEnrichmentMeans': gMax = 3", {
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
 
 	effectList <- list(
 	    subGroups = c("S1", "S2", "S12", "R"),
@@ -476,6 +479,8 @@ test_that("'getSimulationEnrichmentMeans': gMax = 3", {
 
 test_that("'getSimulationEnrichmentMeans': gMax = 4", {
 
+    .skipTestIfDisabled()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:subsec:intersectionTestsEnrichment}
@@ -492,7 +497,6 @@ test_that("'getSimulationEnrichmentMeans': gMax = 4", {
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
 
 	effects <- matrix(c(2.3, 3.1, 0.9, 1.2, 2.1, 3.4, 0.9, 0.2), byrow = TRUE, ncol = 8)
 	effectList <- list(subGroups = c("S1", "S2", "S3", "S12", "S13", "S23", "S123", "R"),
@@ -611,6 +615,8 @@ test_that("'getSimulationEnrichmentMeans': gMax = 4", {
 
 test_that("'getSimulationEnrichmentMeans': comparison of base and enrichment for inverse normal", {
 
+    .skipTestIfDisabled()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:sec:simulationFunctions}
@@ -621,7 +627,6 @@ test_that("'getSimulationEnrichmentMeans': comparison of base and enrichment for
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
 
 	effectSeq <- seq(0, 0.7, 0.1)
 	effects <- matrix(effectSeq, byrow = TRUE, ncol = 1)
@@ -663,7 +668,9 @@ test_that("'getSimulationEnrichmentMeans': comparison of base and enrichment for
 })
 
 test_that("'getSimulationEnrichmentMeans': comparison of base and enrichment for Fisher combination", {
-
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Sec.]{fs:sec:reproducibilityOfSimulationResults}
 	# @refFS[Sec.]{fs:sec:enrichmentDesigns}
 	# @refFS[Sec.]{fs:sec:simulationFunctions}
@@ -674,7 +681,6 @@ test_that("'getSimulationEnrichmentMeans': comparison of base and enrichment for
 	# @refFS[Formula]{fs:simulationEnrichmentSelections}
 	# @refFS[Formula]{fs:simulatingEnrichmentEffectSpecification}
 	# @refFS[Formula]{fs:enrichmentRejectionRule}
-	.skipTestIfDisabled()
 
 	effectSeq <- seq(0, 0.7, 0.1)
 	effects <- matrix(effectSeq, byrow = TRUE, ncol = 1)

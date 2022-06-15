@@ -9,9 +9,9 @@ Basic class for trial designs.
 }
 \details{
 \code{TrialDesign} is the basic class for
-\itemize{ 
-  \item \code{\link{TrialDesignFisher}}, 
-  \item \code{\link{TrialDesignGroupSequential}}, and 
+\itemize{
+  \item \code{\link{TrialDesignFisher}},
+  \item \code{\link{TrialDesignGroupSequential}}, and
   \item \code{\link{TrialDesignInverseNormal}}.
 }
 }

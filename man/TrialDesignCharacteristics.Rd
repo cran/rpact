@@ -9,7 +9,7 @@ Class for trial design characteristics.
 }
 \details{
 \code{TrialDesignCharacteristics} contains all fields required to collect the characteristics of a design.
-This object should not be created directly; use \code{getDesignCharacteristics} 
+This object should not be created directly; use \code{getDesignCharacteristics}
 with suitable arguments to create it.
 }
 

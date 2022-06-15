@@ -25,7 +25,7 @@
 
 using namespace Rcpp;
 
-const double C_QNORM_EPSILON = 1.0e-323; // a value between 1e-323 and 1e-16
+const double C_QNORM_EPSILON = 1.0e-100; // a value between 1e-323 and 1e-16
 const double C_QNORM_MAXIMUM = -R::qnorm(C_QNORM_EPSILON, 0, 1, 1, 0);
 const double C_QNORM_MINIMUM = -C_QNORM_MAXIMUM;
 const double C_QNORM_THRESHOLD = floor(C_QNORM_MAXIMUM);
@@ -704,26 +704,20 @@ double min(NumericVector x) {
  * Returns the subvector of vector x with the given interval
  */
 NumericVector rangeVector(NumericVector x, int from, int to) {
+	int index = 0;
     NumericVector res;
     if (from <= to) {
+    	res = NumericVector(to - from + 1);
         for (int i = from; i <= to; i++) {
-            res.push_back(x[i]);
+            res[index] = x[i];
+            index++;
         }
     } else {
+    	res = NumericVector(from - to + 1);
         for (int i = from; i >= to; i--) {
-            res.push_back(x[i]);
+            res[index] = x[i];
+            index++;
         }
-    }
-    return res;
-}
-
-/**
- * Appends vector y to vector x and returns the resulting vector
- */
-NumericVector append(NumericVector x, NumericVector y) {
-    NumericVector res = clone(x);
-    for (NumericVector::iterator i = y.begin(); i != y.end(); i++) {
-        res.push_back(*i);
     }
     return res;
 }

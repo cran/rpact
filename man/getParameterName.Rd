@@ -19,6 +19,7 @@ that will be used in print outputs of an rpact result object.
 }
 \examples{
 getParameterName(getDesignInverseNormal(), "Maximum number of stages")
+
 }
 \seealso{
 \code{\link{getParameterCaption}} for getting the parameter caption for a given name.

@@ -28,7 +28,7 @@ names will be used; syntactic names (variable names) otherwise
 parameters will be included in the data frame; 
 a meaningful parameter selection otherwise, default is \code{FALSE}.}
 
-\item{addPowerAndAverageSampleNumber}{If \code{TRUE}, power and average sample size will 
+\item{addPowerAndAverageSampleNumber}{If \code{TRUE}, power and average sample size will
 be added to data frame, default is \code{FALSE}.}
 
 \item{theta}{A vector of standardized effect sizes (theta values), default is a sequence from -1 to 1.}

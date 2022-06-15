@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6276 $
+## |  Last changed: $Date: 2022-06-09 14:07:33 +0200 (Thu, 09 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -912,8 +912,9 @@ ParameterSet <- setRefClass("ParameterSet",
 			} 
 			
 			if (.containsMultidimensionalParameters(parameterNames)) {
-				return(.getAsDataFrameMultidimensional(.self, parameterNames, niceColumnNamesEnabled, 
-					includeAllParameters, returnParametersAsCharacter, tableColumnNames))
+				return(.addDelayedInformationRates(.getAsDataFrameMultidimensional(
+                    .self, parameterNames, niceColumnNamesEnabled, 
+					includeAllParameters, returnParametersAsCharacter, tableColumnNames)))
 			} 
 			
 			# remove matrices
@@ -928,8 +929,8 @@ ParameterSet <- setRefClass("ParameterSet",
 				return(data.frame())
 			}
 			
-			return(.getAsDataFrameUnidimensional(parameterNames, niceColumnNamesEnabled, 
-				includeAllParameters, returnParametersAsCharacter, tableColumnNames))
+			return(.addDelayedInformationRates(.getAsDataFrameUnidimensional(parameterNames, niceColumnNamesEnabled, 
+				includeAllParameters, returnParametersAsCharacter, tableColumnNames)))
 		},
 		
 		# 
@@ -1352,8 +1353,14 @@ setMethod("t", "FieldSet",
 #' @export
 #' 
 kable.ParameterSet <- function(x, ...) {
+    fCall = match.call(expand.dots = FALSE)
 	if (inherits(x, "ParameterSet")) {
-		return(print(x, markdown = TRUE))
+        objName <- deparse(fCall$x)
+        if (all(grepl("^ *print\\(", objName))) {
+            stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "kable(", objName, ") does not work correctly. ",
+                "Use ", sub("print", "kable", objName), " without 'print' instead or ", sub("\\)", ", markdown = TRUE)", objName))
+        }
+        return(print(x, markdown = TRUE))
 	}
 	
 	.assertPackageIsInstalled("knitr")

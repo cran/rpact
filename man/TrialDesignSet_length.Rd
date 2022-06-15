@@ -11,7 +11,7 @@
 \item{x}{A \code{\link{TrialDesignSet}} object.}
 }
 \value{
-Returns a non-negative \code{\link[base]{integer}} of length 1 
+Returns a non-negative \code{\link[base]{integer}} of length 1
 representing the number of design in the \code{TrialDesignSet}.
 }
 \description{

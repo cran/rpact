@@ -109,14 +109,16 @@ Generic function to plot a trial design set.
 Is, e.g., useful to compare different designs or design parameters visual.
 }
 \examples{
-design <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
-    typeOfDesign = "asKD", gammaA = 2, 
-    informationRates = c(0.2, 0.7, 1), typeBetaSpending = "bsOF")
- 
-# Create a set of designs based on the master design defined above 
+design <- getDesignInverseNormal(
+    kMax = 3, alpha = 0.025,
+    typeOfDesign = "asKD", gammaA = 2,
+    informationRates = c(0.2, 0.7, 1), typeBetaSpending = "bsOF"
+)
+
+# Create a set of designs based on the master design defined above
 # and varied parameter 'gammaA'
 designSet <- getDesignSet(design = design, gammaA = 4)
-  
+
 if (require(ggplot2)) plot(designSet, type = 1, legendPosition = 6)
 
 }

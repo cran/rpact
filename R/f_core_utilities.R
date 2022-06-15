@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6293 $
+## |  Last changed: $Date: 2022-06-14 07:19:38 +0200 (Tue, 14 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -135,6 +135,7 @@ setLogLevel <- function(logLevel = c(
 #' @examples
 #' # show current log level
 #' getLogLevel()
+#' 
 #' @keywords internal
 #'
 #' @export
@@ -237,7 +238,8 @@ resetLogLevel <- function() {
         if (title) {
             y <- .firstCharacterToUpperCase(y)
         }
-        result <- paste0(result, parts[i], " ", y)
+        value <- ifelse(title, .firstCharacterToUpperCase(parts[i]), parts[i])
+        result <- paste0(result, value, " ", y)
     }
     if (length(parts) > length(indices)) {
         result <- paste0(result, parts[length(parts)])
@@ -1630,7 +1632,7 @@ testPackage <- function(outDir = ".", ...,
 
     if (completeUnitTestSetEnabled && fullTestEnabled) {
         cat("Run all tests. Please wait...\n")
-        cat("Have a break - it takes about 20 to 25 minutes.\n")
+        cat("Have a break - it takes about 30 minutes.\n")
         cat("Exceution of all available unit tests startet at ",
             format(startTime, "%H:%M (%d-%B-%Y)"), "\n",
             sep = ""
@@ -1879,6 +1881,7 @@ testPackage <- function(outDir = ".", ...,
 #'
 #' @examples
 #' printCitation()
+#' 
 #' @keywords internal
 #'
 #' @export
@@ -2000,6 +2003,7 @@ printCitation <- function(inclusiveR = TRUE) {
 #'
 #' @examples
 #' getParameterCaption(getDesignInverseNormal(), "kMax")
+#' 
 #' @keywords internal
 #'
 #' @export
@@ -2048,6 +2052,7 @@ getParameterCaption <- function(obj, parameterName) {
 #'
 #' @examples
 #' getParameterName(getDesignInverseNormal(), "Maximum number of stages")
+#' 
 #' @keywords internal
 #'
 #' @export
@@ -2351,6 +2356,7 @@ rcmd <- function(obj, ...,
 #' @param stringWrapPrefix A prefix character string that shall be added to each new line, typically some spaces.
 #' @param newArgumentValues A named list with arguments that shall be renewed in the R command, e.g.,
 #'        \code{newArgumentValues = list(informationRates = c(0.5, 1))}.
+#' @param tolerance The tolerance for defining a value as default.
 #' @inheritParams param_three_dots
 #'
 #' @details
@@ -2369,9 +2375,14 @@ getObjectRCode <- function(obj, ...,
         prefix = "",
         postfix = "",
         stringWrapPrefix = "",
-        newArgumentValues = list()) {
+        newArgumentValues = list(),
+        tolerance = 1e-07) {
+        
     functionName <- deparse(substitute(obj))
     functionName <- sub("\\(.*\\)$", "", functionName)
+    
+    .assertIsSingleNumber(tolerance, "tolerance")
+    .assertIsInClosedInterval(tolerance, "tolerance", lower = 1e-15, upper = 1e-03)
 
     if (!is.null(obj) && is.function(obj)) {
         lines <- .getFunctionAsString(obj,
@@ -2608,6 +2619,7 @@ getObjectRCode <- function(obj, ...,
         objNames <- c(objNames, "accrualIntensity")
     }
 
+    newArgumentValueNames <- character(0)
     if (length(newArgumentValues) > 0) {
         newArgumentValueNames <- names(newArgumentValues)
         illegalArgumentValueNames <- newArgumentValueNames[which(!(newArgumentValueNames %in% names(obj)))]
@@ -2622,12 +2634,16 @@ getObjectRCode <- function(obj, ...,
         objNames <- c(objNames, defaultParams)
     }
 
-    if (inherits(obj, "TrialDesign") && "kMax" %in% objNames && "informationRates" %in% objNames) {
+    if (inherits(obj, "TrialDesign") && "informationRates" %in% objNames && !("informationRates" %in% newArgumentValueNames)) {
         informationRates <- obj[["informationRates"]]
         if (!is.null(informationRates) && length(informationRates) > 0) {
             kMax <- obj[["kMax"]]
-            if (isTRUE(all.equal(target = c(1:kMax) / kMax, current = informationRates, tolerance = 1e-15))) {
+            if (isTRUE(all.equal(target = .getInformationRatesDefault(kMax), 
+                    current = informationRates, tolerance = tolerance))) {
                 objNames <- objNames[objNames != "informationRates"]
+                if (!("kMax" %in% objNames) && kMax != 3) {
+                    objNames <- c("kMax", objNames)
+                }
             }
         }
     }
@@ -2716,7 +2732,7 @@ getObjectRCode <- function(obj, ...,
                 }
             }
         }
-
+        
         if (inherits(obj, "TrialDesignPlanSurvival")) {
             if (!("accrualTime" %in% objNames) &&
                     obj$.getParameterType("accrualTime") == "g" && !all(is.na(obj$accrualTime))) {

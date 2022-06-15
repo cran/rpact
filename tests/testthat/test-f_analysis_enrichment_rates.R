@@ -120,7 +120,9 @@ test_that("'getAnalysisResults': enrichment rates, one sub-population, non-strat
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-
+    
+    .skipTestIfDisabled()
+    
 	x2 <- getAnalysisResults(design1, dataInput1,
 	    stratifiedAnalysis = FALSE,
 	    intersectionTest = "Bonferroni",
@@ -487,7 +489,9 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, select 
 })
 
 test_that("'getAnalysisResults': enrichment rates, more sub-populations, non-stratified input, select S1 and S2 at first IA, select S1 at second, directionUpper = FALSE, gMax = 4", {
-
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -622,7 +626,7 @@ test_that("'getAnalysisResults': enrichment rates, more sub-populations, non-str
 })
 
 test_that("'getAnalysisResults': enrichment rates, expected warning for empty subsets", {
-
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(84, 94, 25),
 	    sampleSize2 = c(82, 75, 23),

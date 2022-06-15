@@ -9,7 +9,7 @@ getDesignGroupSequential(
   kMax = NA_integer_,
   alpha = NA_real_,
   beta = NA_real_,
-  sided = 1,
+  sided = 1L,
   informationRates = NA_real_,
   futilityBounds = NA_real_,
   typeOfDesign = c("OF", "P", "WT", "PT", "HP", "WToptimum", "asP", "asOF", "asKD",
@@ -24,8 +24,10 @@ getDesignGroupSequential(
   userBetaSpending = NA_real_,
   gammaB = NA_real_,
   bindingFutility = NA,
+  betaAdjustment = NA,
   constantBoundsHP = 3,
   twoSidedPower = NA,
+  delayedInformation = NA_real_,
   tolerance = 1e-08
 )
 }
@@ -92,6 +94,10 @@ beta-spending up to each interim stage.}
 the critical values is affected by the futility bounds and the futility threshold is binding in the 
 sense that the study must be stopped if the futility condition was reached (default is \code{FALSE}).}
 
+\item{betaAdjustment}{For two-sided beta spending designs, if \code{betaAdjustement = TRUE} a linear
+adjustment of the beta spending values is performed if an overlapping of decision regions for futility
+stopping at earlier stages occurs, otherwise no adjustement is performed (default is \code{TRUE}).}
+
 \item{constantBoundsHP}{The constant bounds up to stage \code{kMax - 1} for the
 Haybittle & Peto design (default is \code{3}).}
 
@@ -99,6 +105,9 @@ Haybittle & Peto design (default is \code{3}).}
 the sample size calculation is performed by considering both tails of the distribution.
 Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
 should be directed to one part.}
+
+\item{delayedInformation}{Delay of information for delayed response designs. Can be a numeric value or a
+numeric vector of length \code{kMax - 1}}
 
 \item{tolerance}{The numerical tolerance, default is \code{1e-08}.}
 }
@@ -145,6 +154,14 @@ obtain the specific help documentation linked above by typing \code{?plot.Analys
 # Wang & Tsiatis design with Delta = 0.25 at level alpha = 0.05
 getDesignGroupSequential(kMax = 4, sided = 2, typeOfDesign = "WT", deltaWT = 0.25) 
 
+\donttest{
+# Calculate one-sided critical values and binding futility bounds for a three-stage 
+# design with alpha- and beta-spending functions according to Kim & DeMets with gamma = 2.5
+# (planned informationRates as specified)
+getDesignGroupSequential(kMax = 3, informationRates = c(0.3, 0.75, 1), typeOfDesign = "asKD", 
+	gammaA = 2.5, typeBetaSpending = "bsKD", gammaB = 2.5, bindingFutility = TRUE)
+} 
+
 # Calculate the Pocock type alpha spending critical values if the second 
 # interim analysis was performed after 70\% of the maximum information was observed
 getDesignGroupSequential(informationRates = c(0.4, 0.7), typeOfDesign = "asP") 
@@ -158,6 +175,7 @@ Other design functions:
 \code{\link{getDesignConditionalDunnett}()},
 \code{\link{getDesignFisher}()},
 \code{\link{getDesignInverseNormal}()},
+\code{\link{getGroupSequentialProbabilities}()},
 \code{\link{getPowerAndAverageSampleNumber}()}
 }
 \concept{design functions}

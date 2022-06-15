@@ -49,12 +49,12 @@ getDesignGroupSequentialOBrienAndFlemingCpp <- function(kMax, alpha, sided, info
     .Call(`_rpact_getDesignGroupSequentialOBrienAndFlemingCpp`, kMax, alpha, sided, informationRates, bindingFutility, futilityBounds, tolerance)
 }
 
-getDesignGroupSequentialBetaSpendingCpp <- function(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, typeBetaSpending, gammaA, gammaB, alpha, beta) {
-    .Call(`_rpact_getDesignGroupSequentialBetaSpendingCpp`, criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, typeBetaSpending, gammaA, gammaB, alpha, beta)
+getDesignGroupSequentialBetaSpendingCpp <- function(criticalValues, kMax, userAlphaSpending, userBetaSpending, informationRates, bindingFutility, tolerance, typeOfDesign, typeBetaSpending, gammaA, gammaB, alpha, beta, sided, betaAdjustment, twoSidedPower) {
+    .Call(`_rpact_getDesignGroupSequentialBetaSpendingCpp`, criticalValues, kMax, userAlphaSpending, userBetaSpending, informationRates, bindingFutility, tolerance, typeOfDesign, typeBetaSpending, gammaA, gammaB, alpha, beta, sided, betaAdjustment, twoSidedPower)
 }
 
-getDesignGroupSequentialUserDefinedBetaSpendingCpp <- function(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, gammaA, alpha) {
-    .Call(`_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp`, criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, gammaA, alpha)
+getDesignGroupSequentialUserDefinedBetaSpendingCpp <- function(criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, gammaA, alpha, betaAdjustment, twoSidedPower) {
+    .Call(`_rpact_getDesignGroupSequentialUserDefinedBetaSpendingCpp`, criticalValues, kMax, userAlphaSpending, userBetaSpending, sided, informationRates, bindingFutility, tolerance, typeOfDesign, gammaA, alpha, betaAdjustment, twoSidedPower)
 }
 
 getSimulationSurvivalCpp <- function(designNumber, kMax, sided, criticalValues, informationRates, conditionalPower, plannedEvents, thetaH1, minNumberOfEventsPerStage, maxNumberOfEventsPerStage, directionUpper, allocation1, allocation2, accrualTime, treatmentGroup, thetaH0, futilityBounds, alpha0Vec, pi1Vec, pi2, eventTime, piecewiseSurvivalTime, cdfValues1, cdfValues2, lambdaVec1, lambdaVec2, phi, maxNumberOfSubjects, maxNumberOfIterations, maxNumberOfRawDatasetsPerStage, kappa) {

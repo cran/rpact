@@ -15,8 +15,8 @@
 ## |  
 ## |  File name: test-f_design_group_sequential.R
 ## |  Creation date: 23 February 2022, 14:05:54
-## |  File version: $Revision: 5881 $
-## |  Last changed: $Date: 2022-02-24 12:35:06 +0100 (Do, 24 Feb 2022) $
+## |  File version: $Revision: 5976 $
+## |  Last changed: $Date: 2022-04-01 10:23:44 +0200 (Fr, 01 Apr 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |  
 
@@ -399,7 +399,6 @@ test_that("'getDesignGroupSequential' with type of design = 'asP' and 'bsUser' a
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-
 })
 
 test_that("'getDesignGroupSequential' with type of design = 'asP' and information rate < 1 at maximum stage", {

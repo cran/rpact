@@ -13,8 +13,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6293 $
+## |  Last changed: $Date: 2022-06-14 07:19:38 +0200 (Tue, 14 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -1344,12 +1344,12 @@ AccrualTime <- setRefClass("AccrualTime",
 								accrualIntensityStr[i], "\n",
 								consoleOutputEnabled = consoleOutputEnabled)
 						}
-						else if (!maxNumberOfSubjectsIsUserDefined) {
+						else if (!maxNumberOfSubjectsIsUserDefined && !is.na(accrualIntensityStr[i]) && 
+                                accrualIntensityStr[i] != "NA") {
 							.cat("  ", accrualTimeStr[i], " - <=[?]: ",
 								accrualIntensityStr[i], "\n",
 								consoleOutputEnabled = consoleOutputEnabled)
 						}
-						
 					}
 					.cat("", consoleOutputEnabled = consoleOutputEnabled)
 				}
@@ -1538,7 +1538,7 @@ AccrualTime <- setRefClass("AccrualTime",
 				caseIsAllowed <- FALSE
 				.cat("Case (#6):\n", sep = "", heading = 1, consoleOutputEnabled = consoleOutputEnabled)
 				.cat(prefix, "'maxNumberOfSubjects' and relative accrual intensity are given, ",
-					"absolute accrual intensity[x], end of accrual* and 'followUpTime'** shall be calculated\n", 
+					"absolute accrual intensity@, end of accrual* and 'followUpTime'** shall be calculated\n", 
 					consoleOutputEnabled = consoleOutputEnabled)
 				.cat(prefix, "Example: getAccrualTime(accrualTime = c(0, 6), ",
 					"accrualIntensity = c(0.22, 0.33), maxNumberOfSubjects = 1000)\n", 
@@ -1564,15 +1564,15 @@ AccrualTime <- setRefClass("AccrualTime",
 				caseIsAllowed <- FALSE
 				.cat("Case (#8):\n", sep = "", heading = 1, consoleOutputEnabled = consoleOutputEnabled)
 				.cat(prefix, "'followUpTime' and relative accrual intensity are given, ", 
-					"absolute accrual intensity[x], end of accrual and 'maxNumberOfSubjects' shall be calculated\n", 
+					"absolute accrual intensity@, end of accrual and 'maxNumberOfSubjects' shall be calculated\n", 
 					consoleOutputEnabled = consoleOutputEnabled)
 				.cat(prefix, "Example: getAccrualTime(accrualTime = c(0, 6), accrualIntensity = c(0.22, 0.33))\n", 
 					consoleOutputEnabled = consoleOutputEnabled)
 			}
 
-			.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
+			#.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
 			if (!caseIsAllowed) {
-				.cat(prefix, "[x] Cannot be calculated.\n", 
+				.cat(prefix, "(@) Cannot be calculated.\n", 
 					consoleOutputEnabled = consoleOutputEnabled)
 			}			
 			.cat(prefix, "(*) Can be calculated directly.\n", 
@@ -1625,7 +1625,7 @@ AccrualTime <- setRefClass("AccrualTime",
 			if (!endOfAccrualIsUserDefined && maxNumberOfSubjectsIsUserDefined &&
 					!absoluteAccrualIntensityEnabled) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"the calulation of 'followUpTime' for given 'maxNumberOfSubjects' ",
+					"the calculation of 'followUpTime' for given 'maxNumberOfSubjects' ",
 					"and relative accrual intensities (< 1) ",
 					"can only be done if end of accrual is defined")
 			}
@@ -1634,7 +1634,7 @@ AccrualTime <- setRefClass("AccrualTime",
 			else if (!endOfAccrualIsUserDefined && !maxNumberOfSubjectsIsUserDefined && 
 					followUpTimeMustBeUserDefined && !absoluteAccrualIntensityEnabled) {
 				stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-					"the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+					"the calculation of 'maxNumberOfSubjects' for given 'followUpTime' ",
 					"and relative accrual intensities (< 1) ",
 					"can only be done if end of accrual is defined")
 			}

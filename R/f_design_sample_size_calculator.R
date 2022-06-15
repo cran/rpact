@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5910 $
-## |  Last changed: $Date: 2022-03-02 08:14:01 +0100 (Mi, 02 Mrz 2022) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 6293 $
+## |  Last changed: $Date: 2022-06-14 07:19:38 +0200 (Tue, 14 Jun 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |
 
 #' @include f_core_utilities.R
@@ -65,9 +65,13 @@ NULL
         designPlan$criticalValuesEffectScale <- boundaries$criticalValuesEffectScaleUpper
         designPlan$.setParameterType("criticalValuesEffectScale", C_PARAM_GENERATED)
     } else {
-        designPlan$criticalValuesEffectScaleUpper <- boundaries$criticalValuesEffectScaleUpper
-        designPlan$criticalValuesEffectScaleLower <- boundaries$criticalValuesEffectScaleLower
-
+        if (all(boundaries$criticalValuesEffectScaleLower < boundaries$criticalValuesEffectScaleUpper, na.rm = TRUE)) {
+            designPlan$criticalValuesEffectScaleLower <- boundaries$criticalValuesEffectScaleLower
+            designPlan$criticalValuesEffectScaleUpper <- boundaries$criticalValuesEffectScaleUpper
+        } else {
+            designPlan$criticalValuesEffectScaleLower <- boundaries$criticalValuesEffectScaleUpper
+            designPlan$criticalValuesEffectScaleUpper <- boundaries$criticalValuesEffectScaleLower
+        }
         designPlan$.setParameterType("criticalValuesEffectScaleUpper", C_PARAM_GENERATED)
         designPlan$.setParameterType("criticalValuesEffectScaleLower", C_PARAM_GENERATED)
     }
@@ -77,9 +81,13 @@ NULL
             designPlan$futilityBoundsEffectScale <- round(boundaries$futilityBoundsEffectScaleUpper, 8)
             designPlan$.setParameterType("futilityBoundsEffectScale", C_PARAM_GENERATED)
         } else {
-            designPlan$futilityBoundsEffectScaleUpper <- round(boundaries$futilityBoundsEffectScaleUpper, 8)
-            designPlan$futilityBoundsEffectScaleLower <- round(boundaries$futilityBoundsEffectScaleLower, 8)
-
+            if (all(designPlan$futilityBoundsEffectScaleLower < designPlan$futilityBoundsEffectScaleUpper, na.rm = TRUE)) {
+                designPlan$futilityBoundsEffectScaleLower <- round(boundaries$futilityBoundsEffectScaleLower, 8)
+                designPlan$futilityBoundsEffectScaleUpper <- round(boundaries$futilityBoundsEffectScaleUpper, 8)
+            } else {
+                designPlan$futilityBoundsEffectScaleLower <- round(boundaries$futilityBoundsEffectScaleUpper, 8)
+                designPlan$futilityBoundsEffectScaleUpper <- round(boundaries$futilityBoundsEffectScaleLower, 8)
+            }
             designPlan$.setParameterType("futilityBoundsEffectScaleLower", C_PARAM_GENERATED)
             designPlan$.setParameterType("futilityBoundsEffectScaleUpper", C_PARAM_GENERATED)
         }
@@ -890,7 +898,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
             if (!is.null(paramValue) && length(paramValue) > 1) {
                 stop(
                     C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "the calulation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+                    "the calculation of 'maxNumberOfSubjects' for given 'followUpTime' ",
                     "is only available for a single '", paramName, "'; ",
                     paramName, " = ", .arrayToString(
                         paramValue,

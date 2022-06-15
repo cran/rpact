@@ -15,8 +15,8 @@
 ## |  
 ## |  File name: test-f_parameter_set_utilities.R
 ## |  Creation date: 23 February 2022, 14:06:28
-## |  File version: $Revision: 5901 $
-## |  Last changed: $Date: 2022-02-25 16:32:46 +0100 (Fr, 25 Feb 2022) $
+## |  File version: $Revision: 6265 $
+## |  Last changed: $Date: 2022-06-08 14:07:39 +0200 (Wed, 08 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |  
 
@@ -30,7 +30,7 @@ test_that("'.getParameterValueFormatted' produce correct results if parameter is
 	expect_equal("sampleSizes", y1$paramName)
 	expect_equal(c(x1$.design$kMax, length(x1$muMaxVector), x1$activeArms + 1), dim(y1$paramValue))
 	expect_equal(length(as.vector(y1$paramValue)), length(y1$paramValueFormatted))
-	expect_equal("character", class(y1$paramValueFormatted))
+	expect_equal("character", class(y1$paramValueFormatted)[1])
 	expect_equal("array", y1$type)
 
 	x2 <- getSimulationMultiArmMeans(getDesignInverseNormal(kMax = 2), plannedSubjects = c(50, 100), muMaxVector = c(0, 1), seed = 123, maxNumberOfIterations = 50L)
@@ -52,7 +52,7 @@ test_that("'.getParameterValueFormatted' produce correct results if parameter is
 	expect_equal("sampleSizes", y3$paramName)
 	expect_equal(c(x3$.design$kMax, length(x3$muMaxVector), x3$activeArms + 1), dim(y3$paramValue))
 	expect_equal(length(as.vector(y3$paramValue)), length(y3$paramValueFormatted) * 2)
-	expect_equal("character", class(y3$paramValueFormatted))
+	expect_equal("character", class(y3$paramValueFormatted)[1])
 	expect_equal("array", y3$type)
 
 	lines3a <- capture.output(print(x3))
@@ -69,7 +69,7 @@ test_that("'.getParameterValueFormatted' produce correct results if parameter is
 	expect_equal("sampleSizes", y4$paramName)
 	expect_equal(c(x4$.design$kMax, length(x4$muMaxVector), x4$activeArms + 1), dim(y4$paramValue))
 	expect_equal(length(as.vector(y4$paramValue)), length(y4$paramValueFormatted))
-	expect_equal("character", class(y4$paramValueFormatted))
+	expect_equal("character", class(y4$paramValueFormatted)[1])
 	expect_equal("array", y4$type)
 
 	lines4a <- capture.output(print(x4))

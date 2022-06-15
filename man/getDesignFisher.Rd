@@ -101,6 +101,7 @@ Other design functions:
 \code{\link{getDesignConditionalDunnett}()},
 \code{\link{getDesignGroupSequential}()},
 \code{\link{getDesignInverseNormal}()},
+\code{\link{getGroupSequentialProbabilities}()},
 \code{\link{getPowerAndAverageSampleNumber}()}
 }
 \concept{design functions}

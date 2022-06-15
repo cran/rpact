@@ -130,7 +130,9 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 2, inverse normal
 })
 
 test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMax = 2, Fisher design", {
-
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -614,6 +616,9 @@ context("Testing Analysis Enrichment Means Function (two sub-populations)")
 
 
 test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMax = 3", {
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -688,7 +693,9 @@ test_that("'getAnalysisResults': stratified analysis, select S1 at first IA, gMa
 })
 
 test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at second, gMax = 3", {
-
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -700,7 +707,6 @@ test_that("'getAnalysisResults': select S1 and S2 at first IA, select S1 at seco
 	# @refFS[Formula]{fs:conditionalPowerEnrichment}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
-	.skipTestIfDisabled()
 
 	design1 <- getDesignInverseNormal(
 	    kMax = 3, alpha = 0.02, futilityBounds = c(-0.5, 0),
@@ -986,6 +992,9 @@ context("Testing Analysis Enrichment Means Function (more sub-populations)")
 
 
 test_that("'getAnalysisResults': select S1 and S3 at first IA, select S1 at second, gMax = 4", {
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -997,7 +1006,6 @@ test_that("'getAnalysisResults': select S1 and S3 at first IA, select S1 at seco
 	# @refFS[Formula]{fs:conditionalPowerEnrichment}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
-	.skipTestIfDisabled()
 
 	S1 <- getDataset(
 	    sampleSize1 = c(14, 22, 24),
@@ -1309,6 +1317,9 @@ context("Testing Analysis Enrichment Means Function (more sub-populations)")
 
 
 test_that("'getAnalysisResults': select S1 at first IA, gMax = 3, no early efficacy stop", {
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -1320,7 +1331,6 @@ test_that("'getAnalysisResults': select S1 at first IA, gMax = 3, no early effic
 	# @refFS[Formula]{fs:conditionalPowerEnrichment}
 	# @refFS[Formula]{fs:conditionalRejectionProbabilityEnrichment}
 	# @refFS[Formula]{fs:stratifiedtTestEnrichment}
-	.skipTestIfDisabled()
 
 	S1 <- getDataset(
 	    sampleSize1 = c(14, 22, 24),

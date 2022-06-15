@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5800 $
-## |  Last changed: $Date: 2022-02-10 16:54:44 +0100 (Do, 10 Feb 2022) $
+## |  File version: $Revision: 6139 $
+## |  Last changed: $Date: 2022-05-10 14:45:01 +0200 (Tue, 10 May 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -810,7 +810,7 @@
 	        )
 	
 	        # adjustment for binding futility bounds
-	        if (k > 1 && conditionFunction(bounds[k - 1], border) & design$bindingFutility) {
+	        if (k > 1 && !is.na(bounds[k - 1]) && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {
 	            parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
 	
 	            #  Calculate new lower and upper bounds
@@ -1546,6 +1546,12 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        normalApproximation = normalApproximation,
+        equalVariances = equalVariances, 
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiasedGeneral = medianUnbiasedGeneral,
         finalConfidenceIntervalGeneral = sort(finalConfidenceIntervalGeneral),
@@ -1597,7 +1603,7 @@
                         1 / stageResults$overallSampleSizes2[finalStage])
             }
         } else {
-            if ((design$kMax > 2) && !.isNoEarlyEfficacy(design)){
+            if ((design$kMax > 2) && !.isNoEarlyEfficacy(design)) {
                 message(
                     "Calculation of final confidence interval performed for kMax = ", design$kMax,
                     " (for kMax > 2, it is theoretically shown that it is valid only ",
@@ -1671,6 +1677,12 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        normalApproximation = normalApproximation,
+        equalVariances = equalVariances, 
+        tolerance = tolerance,                        
         finalStage = finalStage,
         medianUnbiasedGeneral = medianUnbiasedGeneral,
         finalConfidenceIntervalGeneral = sort(finalConfidenceIntervalGeneral),
@@ -1843,6 +1855,12 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        normalApproximation = normalApproximation,
+        equalVariances = equalVariances, 
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiased = medianUnbiased,
         finalConfidenceInterval = finalConfidenceInterval

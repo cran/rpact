@@ -215,7 +215,9 @@ test_that("'getAnalysisResults': enrichment survival, one sub-population, non-st
 })
 
 test_that("'getAnalysisResults': enrichment survival, one sub-population, stratified data input, select S1 at first, gMax = 2", {
-
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}
@@ -432,7 +434,9 @@ test_that("'getAnalysisResults': enrichment survival, two sub-populations, non-s
 })
 
 test_that("'getAnalysisResults': enrichment survival, two sub-populations, stratified analysis, select S1 and S2 at first IA, select S1 at second, gMax = 3", {
-
+        
+    .skipTestIfDisabled()
+        
 	# @refFS[Formula]{fs:adjustedPValueBonferroniEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCIBonferroniSimesEnrichment}
 	# @refFS[Formula]{fs:adjustedPValueForRCISidakEnrichment}

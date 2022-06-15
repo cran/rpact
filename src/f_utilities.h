@@ -20,6 +20,7 @@
  *
  */
 
+// [[Rcpp::plugins(cpp11)]]
 #include <Rcpp.h>
 using namespace Rcpp;
 
@@ -96,8 +97,6 @@ double bizero(std::function<double(double)> f, double lower, double upper, doubl
 
 double zeroin(std::function<double(double)> f, double lower, double upper, double tolerance, int maxIter);
 
-//double zeroin(std::function<double(double)> f, double lower, double upper, double lowerBisection, double upperBisection, double tolerance, int maxIter);
-
 double max(NumericVector x);
 
 double min(NumericVector x);
@@ -105,8 +104,6 @@ double min(NumericVector x);
 NumericVector range(int from, int to);
 
 NumericVector rangeVector(NumericVector x, int from, int to);
-
-NumericVector append(NumericVector x, NumericVector y);
 
 std::string getCipheredValue(String x);
 

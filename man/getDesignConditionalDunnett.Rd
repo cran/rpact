@@ -16,8 +16,8 @@ getDesignConditionalDunnett(
 \item{informationAtInterim}{The information to be expected at interim, default is \code{informationAtInterim = 0.5}.}
 
 \item{secondStageConditioning}{The way the second stage p-values are calculated within the closed system of hypotheses.
-If \code{secondStageConditioning = FALSE} is specified, the unconditional adjusted p-values are used, otherwise 
-conditional adjusted p-values are calculated, default is \code{secondStageConditioning = TRUE} 
+If \code{secondStageConditioning = FALSE} is specified, the unconditional adjusted p-values are used, otherwise
+conditional adjusted p-values are calculated, default is \code{secondStageConditioning = TRUE}
 (for details, see Koenig et al., 2008).}
 }
 \value{
@@ -36,9 +36,9 @@ The following generics (R generic functions) are available for this result objec
 Defines the design to perform an analysis with the conditional Dunnett test.
 }
 \details{
-For performing the conditional Dunnett test the design must be defined through this function. 
-You can define the information fraction and the way of how to compute the second stage 
-p-values only in the design definition, and not in the analysis call.\cr 
+For performing the conditional Dunnett test the design must be defined through this function.
+You can define the information fraction and the way of how to compute the second stage
+p-values only in the design definition, and not in the analysis call.\cr
 See \code{\link{getClosedConditionalDunnettTestResults}} for an example and Koenig et al. (2008) and
 Wassmer & Brannath (2016), chapter 11 for details of the test procedure.
 }
@@ -59,6 +59,7 @@ Other design functions:
 \code{\link{getDesignFisher}()},
 \code{\link{getDesignGroupSequential}()},
 \code{\link{getDesignInverseNormal}()},
+\code{\link{getGroupSequentialProbabilities}()},
 \code{\link{getPowerAndAverageSampleNumber}()}
 }
 \concept{design functions}

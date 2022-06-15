@@ -531,7 +531,7 @@ List getDesignFisherTryCpp(int kMax, double alpha, double tolerance,
             double alpha1 = (cLower + cUpper) * 0.5;
             if (method == C_FISHER_METHOD_EQUAL_ALPHA) {
                 criticalValues = sapply(seq_len(kMax), [=](int k) {
-                    return zeroin([=](double c) {
+                    return zeroin([&](double c) {
                         return getFisherCombinationSizeCpp(
                                 k, rep(1.0, k - 1), rep(c, k), scale, cases) - alpha1;
                     }, tolerance, alpha, tolerance, 1000);
@@ -554,11 +554,11 @@ List getDesignFisherTryCpp(int kMax, double alpha, double tolerance,
                     }
                     criticalValues[k] = c;
                 }
-                criticalValues[kMax - 1] = zeroin([=](double c) {
+                criticalValues[kMax - 1] = zeroin([&](double c) {
                     return getFisherCombinationSizeCpp(kMax, rep(1.0, kMax - 1), rep(c, kMax), scale, cases) - alpha;
                 }, tolerance, alpha, tolerance, 1000);
             } else if (method == C_FISHER_METHOD_NO_INTERACTION) {
-                criticalValues[kMax - 1] = zeroin([=](double c) {
+                criticalValues[kMax - 1] = zeroin([&](double c) {
                     return getFisherCombinationSizeCpp(kMax, rep(1.0, kMax - 1), rep(c, kMax), scale, cases) - alpha;
                 }, tolerance, alpha, tolerance, 1000);
                 criticalValues[0] = alpha1;

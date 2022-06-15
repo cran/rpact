@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6285 $
+## |  Last changed: $Date: 2022-06-10 10:49:23 +0200 (Fri, 10 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -770,7 +770,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
         tryCatch(
             {
                 if (!is.null(parameterName) && length(parameterName) == 1 && !is.na(parameterName) &&
-                        parameterName %in% c("criticalValues", "overallAdjustedTestStatistics")) {
+                        parameterName %in% c("criticalValues", "decisionCriticalValue", "overallAdjustedTestStatistics")) {
                     design <- fieldSet
                     if (!.isTrialDesign(design)) {
                         design <- fieldSet[[".design"]]
@@ -867,8 +867,9 @@ SummaryFactory <- setRefClass("SummaryFactory",
             }
         }
     } else if (kMax > 1) {
+        prefix <- ifelse(design$.isDelayedResponseDesign(), "delayed response ", "")
         title <- .concatenateSummaryText(title,
-            paste0("(", design$.toString(startWithUpperCase = FALSE), ")"),
+            paste0("(", prefix, design$.toString(startWithUpperCase = FALSE), ")"),
             sep = " "
         )
     }
@@ -909,8 +910,9 @@ SummaryFactory <- setRefClass("SummaryFactory",
             title <- .concatenateSummaryText(title, "(enrichment design)", sep = " ")
         }
     } else if (kMax > 1) {
+        prefix <- ifelse(design$.isDelayedResponseDesign(), "delayed response ", "")
         title <- .concatenateSummaryText(title,
-            paste0("(", design$.toString(startWithUpperCase = FALSE), ")"),
+            paste0("(", prefix, design$.toString(startWithUpperCase = FALSE), ")"),
             sep = " "
         )
     }
@@ -1458,6 +1460,9 @@ SummaryFactory <- setRefClass("SummaryFactory",
         }
         header <- .firstCharacterToUpperCase(designType)
         header <- paste0(header, " design")
+        if (design$.isDelayedResponseDesign()) {
+            header <- paste0(header, " with delayed response")
+        }
         if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design)) {
             if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT) {
                 header <- .concatenateSummaryText(header,
@@ -1511,8 +1516,9 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 }
             }
         }
-        if ((.isTrialDesignInverseNormalOrGroupSequential(design) && any(design$futilityBounds > -6)) ||
-                (.isTrialDesignFisher(design) && any(design$alpha0Vec < 1))) {
+        if (!.isDelayedInformationEnabled(design = design) && 
+            ((.isTrialDesignInverseNormalOrGroupSequential(design) && any(design$futilityBounds > -6, na.rm = TRUE)) ||
+                (.isTrialDesignFisher(design) && any(design$alpha0Vec < 1)))) {
             header <- .concatenateSummaryText(
                 header,
                 paste0(ifelse(design$bindingFutility, "binding", "non-binding"), " futility")
@@ -1530,6 +1536,22 @@ SummaryFactory <- setRefClass("SummaryFactory",
             header <- .concatenateSummaryText(header, paste0("power ", round(100 * (1 - design$beta), 1), "%"))
         }
         header <- .concatenateSummaryText(header, "undefined endpoint")
+        
+        if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design)) {
+            outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
+            designCharacteristics <- getDesignCharacteristics(design)
+            header <- .concatenateSummaryText(header, 
+                paste0("inflation factor ", round(designCharacteristics$inflationFactor, 4)))
+            if (outputSize == "large") {
+                header <- .concatenateSummaryText(header, 
+                    paste0("ASN H1 ", round(designCharacteristics$averageSampleNumber1, 4)))
+                header <- .concatenateSummaryText(header, 
+                    paste0("ASN H01 ", round(designCharacteristics$averageSampleNumber01, 4)))
+                header <- .concatenateSummaryText(header, 
+                    paste0("ASN H0 ", round(designCharacteristics$averageSampleNumber0, 4)))
+            }
+        }
+        
         header <- paste0(header, ".")
         return(header)
     }
@@ -1539,8 +1561,9 @@ SummaryFactory <- setRefClass("SummaryFactory",
         header <- paste0(header, "Fixed sample analysis,")
     } else {
         header <- paste0(header, "Sequential analysis with a maximum of ", design$kMax, " looks")
+        prefix <- ifelse(design$.isDelayedResponseDesign(), "delayed response ", "")
         header <- .concatenateSummaryText(header,
-            paste0("(", design$.toString(startWithUpperCase = FALSE), ")"),
+            paste0("(", prefix, design$.toString(startWithUpperCase = FALSE), ")"),
             sep = " "
         )
     }
@@ -2114,6 +2137,25 @@ SummaryFactory <- setRefClass("SummaryFactory",
     stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "function 'summary' not implemented yet for class ", .getClassName(object))
 }
 
+.getSummaryParameterCaptionCriticalValues <- function(design) {
+    parameterCaption <- ifelse(.isTrialDesignFisher(design),
+        "Efficacy boundary (p product scale)", "Efficacy boundary (z-value scale)"
+    )
+    parameterCaption <- ifelse(.isDelayedInformationEnabled(design = design),
+        "Upper bounds of continuation", parameterCaption
+    )
+    return(parameterCaption)
+}
+
+.getSummaryParameterCaptionFutilityBounds <- function(design) {
+    bindingInfo <- ifelse(design$bindingFutility, "binding", "non-binding")
+    parameterCaption <- ifelse(.isDelayedInformationEnabled(design = design),
+        paste0("Lower bounds of continuation (", bindingInfo, ")"), 
+        paste0("Futility boundary (z-value scale)")
+    )
+    return(parameterCaption)
+}
+
 #
 # Main function for creating a summary of an analysis result
 #
@@ -2161,9 +2203,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     if (!.isTrialDesignConditionalDunnett(design)) {
         summaryFactory$addParameter(design,
             parameterName = "criticalValues",
-            parameterCaption = ifelse(.isTrialDesignFisher(design),
-                "Efficacy boundary (p product scale)", "Efficacy boundary (z-value scale)"
-            ),
+            parameterCaption = .getSummaryParameterCaptionCriticalValues(design),
             roundDigits = digitsProbabilities - ifelse(.isTrialDesignFisher(design) || digitsProbabilities <= 1, 0, 1),
             smoothedZeroFormat = !.isTrialDesignFisher(design)
         )
@@ -2181,7 +2221,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
         if (any(design$futilityBounds > -6)) {
             summaryFactory$addParameter(design,
                 parameterName = "futilityBounds",
-                parameterCaption = "Futility boundary (z-value scale)",
+                parameterCaption = .getSummaryParameterCaptionFutilityBounds(design),
                 roundDigits = ifelse(digitsProbabilities > 1, digitsProbabilities - 1, digitsProbabilities),
                 smoothedZeroFormat = TRUE
             )
@@ -2532,12 +2572,15 @@ SummaryFactory <- setRefClass("SummaryFactory",
             .getSummaryValuesInPercent(design$informationRates)
         )
     }
+    if (design$.isDelayedResponseDesign()) {
+        summaryFactory$addItem("Delayed information", .getSummaryValuesInPercent(design$delayedInformation, TRUE))
+    }
 
     return(invisible(summaryFactory))
 }
 
 .addDesignParameterToSummary <- function(design, designPlan,
-        designCharacteristics, summaryFactory, digitsProbabilities) {
+        designCharacteristics, summaryFactory, digitsGeneral, digitsProbabilities) {
     if (design$kMax > 1 && !inherits(designPlan, "SimulationResults") &&
             !.isTrialDesignConditionalDunnett(design)) {
         summaryFactory$addParameter(design,
@@ -2577,6 +2620,36 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 parameterName = "power",
                 parameterCaption = ifelse(design$kMax == 1, "Power", "Overall power"),
                 roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+            )
+        }
+        if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design)) {
+            designCharacteristics <- getDesignCharacteristics(design)
+            if (!any(is.na(designCharacteristics$futilityProbabilities)) && 
+                    any(designCharacteristics$futilityProbabilities > 0)) {
+                summaryFactory$addParameter(designCharacteristics,
+                    parameterName = "futilityProbabilities",
+                    parameterCaption = "Futility probabilities under H1",
+                    roundDigits = digitsGeneral, smoothedZeroFormat = TRUE
+                )
+            }
+        }
+    }
+    
+    if (design$.isDelayedResponseDesign()) {
+        summaryFactory$addParameter(design,
+            parameterName = "decisionCriticalValues",
+            parameterCaption = "Decision critical values", 
+            roundDigits = digitsGeneral, 
+            smoothedZeroFormat = TRUE
+        )
+        
+        outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
+        if (outputSize == "large") {
+            summaryFactory$addParameter(design,
+                parameterName = "reversalProbabilities",
+                parameterCaption = "Reversal probabilities", 
+                roundDigits = digitsProbabilities, 
+                smoothedZeroFormat = TRUE
             )
         }
     }
@@ -2640,9 +2713,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     if (!.isTrialDesignConditionalDunnett(design)) {
         summaryFactory$addParameter(design,
             parameterName = "criticalValues",
-            parameterCaption = ifelse(.isTrialDesignFisher(design),
-                "Efficacy boundary (p product scale)", "Efficacy boundary (z-value scale)"
-            ),
+            parameterCaption = .getSummaryParameterCaptionCriticalValues(design),
             roundDigits = digitsGeneral
         )
     }
@@ -2656,10 +2727,10 @@ SummaryFactory <- setRefClass("SummaryFactory",
             )
         }
     } else if (!.isTrialDesignConditionalDunnett(design)) {
-        if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+        if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) {
             summaryFactory$addParameter(design,
                 parameterName = "futilityBounds",
-                parameterCaption = "Futility boundary (z-value scale)",
+                parameterCaption = .getSummaryParameterCaptionFutilityBounds(design),
                 roundDigits = digitsGeneral
             )
         }
@@ -2671,10 +2742,8 @@ SummaryFactory <- setRefClass("SummaryFactory",
     }
 
     if (is.null(designPlan)) {
-        return(.addDesignParameterToSummary(
-            design, designPlan,
-            designCharacteristics, summaryFactory, digitsProbabilities
-        ))
+        return(.addDesignParameterToSummary(design, designPlan, 
+            designCharacteristics, summaryFactory, digitsGeneral, digitsProbabilities))
     }
 
     simulationEnabled <- grepl("SimulationResults", .getClassName(designPlan))
@@ -2927,7 +2996,8 @@ SummaryFactory <- setRefClass("SummaryFactory",
             if (outputSize %in% c("medium", "large")) {
                 summaryFactory$addParameter(designPlan,
                     parameterName = parameterName2,
-                    parameterCaption = ifelse(design$kMax == 1, "Number of events", "Cumulative number of events"),
+                    parameterCaption = ifelse(design$kMax == 1, 
+                        "Number of events", "Cumulative number of events"), 
                     roundDigits = digitsSampleSize, cumsumEnabled = FALSE
                 )
             }
@@ -2955,10 +3025,8 @@ SummaryFactory <- setRefClass("SummaryFactory",
         )
     }
 
-    .addDesignParameterToSummary(
-        design, designPlan,
-        designCharacteristics, summaryFactory, digitsProbabilities
-    )
+    .addDesignParameterToSummary(design, designPlan, designCharacteristics, 
+        summaryFactory, digitsGeneral, digitsProbabilities)
 
     if (baseEnabled && !planningEnabled && !is.null(designPlan[["futilityPerStage"]]) &&
             !any(is.na(designPlan[["futilityPerStage"]])) &&
@@ -2990,58 +3058,44 @@ SummaryFactory <- setRefClass("SummaryFactory",
         if (ncol(designPlan$criticalValuesEffectScale) > 0) {
             summaryFactory$addParameter(designPlan,
                 parameterName = "criticalValuesEffectScale",
-                parameterCaption = "Efficacy boundary (t)",
+                parameterCaption = ifelse(.isDelayedInformationEnabled(design = design), 
+                    "Upper bounds of continuation (t)", "Efficacy boundary (t)"),
                 roundDigits = digitsGeneral, legendEntry = legendEntry
             )
         } else if (ncol(designPlan$criticalValuesEffectScaleUpper) > 0) {
-            if (as.logical(getOption("rpact.summary.enforceIntervalView", FALSE))) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = c("criticalValuesEffectScaleLower", "criticalValuesEffectScaleUpper"),
-                    parameterCaption = "Efficacy boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            } else {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "criticalValuesEffectScaleLower",
-                    parameterCaption = "Lower efficacy boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "criticalValuesEffectScaleUpper",
-                    parameterCaption = "Upper efficacy boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            }
+            summaryFactory$addParameter(designPlan,
+                parameterName = "criticalValuesEffectScaleLower",
+                parameterCaption = "Lower efficacy boundary (t)",
+                roundDigits = digitsGeneral, legendEntry = legendEntry
+            )
+            summaryFactory$addParameter(designPlan,
+                parameterName = "criticalValuesEffectScaleUpper",
+                parameterCaption = "Upper efficacy boundary (t)",
+                roundDigits = digitsGeneral, legendEntry = legendEntry
+            )
         }
 
         if (ncol(designPlan$futilityBoundsEffectScale) > 0 &&
                 !all(is.na(designPlan$futilityBoundsEffectScale))) {
             summaryFactory$addParameter(designPlan,
                 parameterName = "futilityBoundsEffectScale",
-                parameterCaption = "Futility boundary (t)",
+                parameterCaption = ifelse(.isDelayedInformationEnabled(design = design), 
+                    "Lower bounds of continuation (t)", "Futility boundary (t)"),
                 roundDigits = digitsGeneral, legendEntry = legendEntry
             )
         } else if (ncol(designPlan$futilityBoundsEffectScaleUpper) > 0 &&
                 (any(!is.na(designPlan$futilityBoundsEffectScaleLower)) ||
                     any(!is.na(designPlan$futilityBoundsEffectScaleUpper)))) {
-            if (as.logical(getOption("rpact.summary.enforceIntervalView", FALSE))) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = c("futilityBoundsEffectScaleLower", "futilityBoundsEffectScaleUpper"),
-                    parameterCaption = "Futility boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            } else {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "futilityBoundsEffectScaleLower",
-                    parameterCaption = "Lower futility boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "futilityBoundsEffectScaleUpper",
-                    parameterCaption = "Upper futility boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            }
+            summaryFactory$addParameter(designPlan,
+                parameterName = "futilityBoundsEffectScaleLower",
+                parameterCaption = "Lower futility boundary (t)",
+                roundDigits = digitsGeneral, legendEntry = legendEntry
+            )
+            summaryFactory$addParameter(designPlan,
+                parameterName = "futilityBoundsEffectScaleUpper",
+                parameterCaption = "Upper futility boundary (t)",
+                roundDigits = digitsGeneral, legendEntry = legendEntry
+            )
         }
 
         if (!is.null(probsH1) && !is.null(probsH0) && design$kMax > 1) {
@@ -3295,7 +3349,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 if (numberOfGroups > 1) {
                     groupCaption <- .getSummaryGroupCaption(
                         designPlan,
-                        parameterName, numberOfGroups, groupNumber
+                        parameterName, totalNumberOfGroups, groupNumber
                     )
                 }
                 summaryFactory$addParameter(designPlan,

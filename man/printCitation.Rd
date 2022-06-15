@@ -17,5 +17,6 @@ This function shows how to cite \code{rpact} and \code{R} (\code{inclusiveR = TR
 }
 \examples{
 printCitation()
+
 }
 \keyword{internal}

@@ -9,7 +9,7 @@ getDesignSet(...)
 \arguments{
 \item{...}{\code{designs} or \code{design} and one or more design parameters, e.g., \code{deltaWT = c(0.1, 0.3, 0.4)}.
 \itemize{
-  \item \code{design} The master design (optional, you need to specify an 
+  \item \code{design} The master design (optional, you need to specify an
         additional parameter that shall be varied).
   \item \code{designs} The designs to compare (optional, you need to specify the variable \code{variedParameters}).
 }}
@@ -46,8 +46,10 @@ obtain the specific help documentation linked above by typing \code{?plot.Analys
 
 \examples{
 # Example 1
-design <- getDesignGroupSequential(alpha = 0.05, kMax = 6, 
-    sided = 2, typeOfDesign = "WT", deltaWT = 0.1)
+design <- getDesignGroupSequential(
+    alpha = 0.05, kMax = 6,
+    sided = 2, typeOfDesign = "WT", deltaWT = 0.1
+)
 designSet <- getDesignSet()
 designSet$add(design = design, deltaWT = c(0.3, 0.4))
 \donttest{
@@ -55,24 +57,32 @@ if (require(ggplot2)) plot(designSet, type = 1)
 }
 
 # Example 2 (shorter script)
-design <- getDesignGroupSequential(alpha = 0.05, kMax = 6, 
-    sided = 2, typeOfDesign = "WT", deltaWT = 0.1)
+design <- getDesignGroupSequential(
+    alpha = 0.05, kMax = 6,
+    sided = 2, typeOfDesign = "WT", deltaWT = 0.1
+)
 designSet <- getDesignSet(design = design, deltaWT = c(0.3, 0.4))
 \donttest{
 if (require(ggplot2)) plot(designSet, type = 1)
 }
 
 # Example 3 (use of designs instead of design)
-d1 <- getDesignGroupSequential(alpha = 0.05, kMax = 2,
- 	 sided = 1, beta = 0.2, typeOfDesign = "asHSD",
- 	 gammaA = 0.5, typeBetaSpending = "bsHSD", gammaB = 0.5)
-d2 <- getDesignGroupSequential(alpha = 0.05, kMax = 4,
- 	 sided = 1, beta = 0.2, typeOfDesign = "asP",
- 	 typeBetaSpending = "bsP")
-designSet <- getDesignSet (designs = c(d1, d2),
- 	 variedParameters = c("typeOfDesign", "kMax"))
+d1 <- getDesignGroupSequential(
+    alpha = 0.05, kMax = 2,
+    sided = 1, beta = 0.2, typeOfDesign = "asHSD",
+    gammaA = 0.5, typeBetaSpending = "bsHSD", gammaB = 0.5
+)
+d2 <- getDesignGroupSequential(
+    alpha = 0.05, kMax = 4,
+    sided = 1, beta = 0.2, typeOfDesign = "asP",
+    typeBetaSpending = "bsP"
+)
+designSet <- getDesignSet(
+    designs = c(d1, d2),
+    variedParameters = c("typeOfDesign", "kMax")
+)
 \donttest{
 if (require(ggplot2)) plot(designSet, type = 8, nMax = 20)
-} 
+}
 
 }

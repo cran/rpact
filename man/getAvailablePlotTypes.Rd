@@ -51,4 +51,5 @@ getAvailablePlotTypes(design, "numeric")
 plotTypes(design, "caption")
 getAvailablePlotTypes(design, "numcap")
 plotTypes(design, "capnum")
+
 }

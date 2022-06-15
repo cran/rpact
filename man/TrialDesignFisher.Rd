@@ -8,7 +8,7 @@
 Trial design for Fisher's combination test.
 }
 \details{
-This object should not be created directly; use \code{\link{getDesignFisher}} 
+This object should not be created directly; use \code{\link{getDesignFisher}}
 with suitable arguments to create a Fisher combination test design.
 }
 

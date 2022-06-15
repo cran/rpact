@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6238 $
+## |  Last changed: $Date: 2022-06-03 10:47:52 +0200 (Fri, 03 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -783,11 +783,12 @@ getSimulationSurvival <- function(design = NULL, ...,
         if (!is.null(simulationResults$eventsPerStage) &&
                 nrow(simulationResults$eventsPerStage) > 0 &&
                 ncol(simulationResults$eventsPerStage) > 0) {
-            simulationResults$eventsPerStage <- .convertStageWiseToOverallValues(
+			simulationResults$overallEventsPerStage <- .convertStageWiseToOverallValues(
                 simulationResults$eventsPerStage
             )
+            simulationResults$.setParameterType("overallEventsPerStage", C_PARAM_GENERATED)
             simulationResults$expectedNumberOfEvents <-
-                diag(t(simulationResults$eventsPerStage) %*% pStop)
+                diag(t(simulationResults$overallEventsPerStage) %*% pStop)
         }
     } else {
         simulationResults$expectedNumberOfSubjects <-
@@ -795,8 +796,9 @@ getSimulationSurvival <- function(design = NULL, ...,
         if (!is.null(simulationResults$eventsPerStage) &&
                 nrow(simulationResults$eventsPerStage) > 0 &&
                 ncol(simulationResults$eventsPerStage) > 0) {
+			simulationResults$overallEventsPerStage <- simulationResults$eventsPerStage
             simulationResults$expectedNumberOfEvents <-
-                as.numeric(simulationResults$eventsPerStage)
+                as.numeric(simulationResults$overallEventsPerStage)
         }
     }
     if (is.null(simulationResults$expectedNumberOfEvents) ||
@@ -813,11 +815,11 @@ getSimulationSurvival <- function(design = NULL, ...,
         if (directionUpper) {
             data$hazardRatioEstimateLR <- exp(data$logRankStatistic *
                 (1 + allocation1 / allocation2) / sqrt(allocation1 / allocation2 *
-                    data$eventsPerStage))
+					(data$overallEvents1 + data$overallEvents2)))
         } else {
             data$hazardRatioEstimateLR <- exp(-data$logRankStatistic *
                 (1 + allocation1 / allocation2) / sqrt(allocation1 / allocation2 *
-                    data$eventsPerStage))
+                    (data$overallEvents1 + data$overallEvents2)))
         }
     }
 

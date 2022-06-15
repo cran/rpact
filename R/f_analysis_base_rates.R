@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5747 $
-## |  Last changed: $Date: 2022-01-24 12:14:58 +0100 (Mo, 24 Jan 2022) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 6139 $
+## |  Last changed: $Date: 2022-05-10 14:45:01 +0200 (Tue, 10 May 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |
 
 # @title
@@ -749,9 +749,9 @@
 	                callingFunctionInformation = paste0("Repeated confidence interval [1, ", k, "]")
 	            )
 	        }
-	
+			
 	        # adjustment for binding futility bounds
-	        if (k > 1 && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {
+			if (k > 1 && !is.na(bounds[k - 1]) && conditionFunction(bounds[k - 1], border) && design$bindingFutility) {
 	            parameterName <- ifelse(.isTrialDesignFisher(design), "pValues", firstParameterName)
 	
 	            futilityCorr[k] <- .getRootThetaRates(
@@ -1435,6 +1435,11 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        normalApproximation = normalApproximation,
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiasedGeneral = medianUnbiasedGeneral,
         finalConfidenceIntervalGeneral = finalConfidenceIntervalGeneral,
@@ -1608,6 +1613,11 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        normalApproximation = normalApproximation,
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiasedGeneral = medianUnbiasedGeneral,
         finalConfidenceIntervalGeneral = finalConfidenceIntervalGeneral,
@@ -1649,6 +1659,11 @@
     }
 
     return(list(
+        stage = stage,
+        thetaH0 = thetaH0, 
+        directionUpper = directionUpper,
+        normalApproximation = normalApproximation,
+        tolerance = tolerance,            
         finalStage = finalStage,
         medianUnbiased = medianUnbiased,
         finalConfidenceInterval = finalConfidenceInterval

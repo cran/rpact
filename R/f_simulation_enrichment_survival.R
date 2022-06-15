@@ -246,14 +246,14 @@ NULL
         # 		simLogRanks[selsubs, k] <- (2 * directionUpper - 1) *
         # 				stats::rnorm(rep(1, sum(selsubs)), log(hazardRatios[selsubs]) * sqrt(const * eventsPerStage[selsubs, k]), 1)
         #
-        # 		if (gMax == 1){
+        # 		if (gMax == 1) {
         # 			testStatistics[1, k] <- simLogRanks[1, k]
         # 			populationEventsPerStage[1, k] <- eventsPerStage[1, k]
         # 			overallTestStatistics[1, k] <- sum(sqrt(eventsPerStage[1, 1:k]) * testStatistics[1, 1:k], na.rm = TRUE)	/
         # 					sqrt(sum(eventsPerStage[1, 1:k], na.rm = TRUE))
         # 			overallEffects[1, k] <- exp((2 * directionUpper - 1) * overallTestStatistics[1, k] /
         # 							 sqrt(const) / sqrt(sum(eventsPerStage[1, 1:k], na.rm = TRUE)))
-        # 		 } else if (gMax == 2){
+        # 		 } else if (gMax == 2) {
         # 			# Population S1
         # 			testStatistics[1, k] <- simLogRanks[1, k]
         # 			populationEventsPerStage[1, k] <- eventsPerStage[1, k]
@@ -269,7 +269,7 @@ NULL
         # 			overallEffects[2, k] <- exp((2 * directionUpper - 1) * overallTestStatistics[2, k] /
         # 							sqrt(const) / sqrt(sum(populationEventsPerStage[2, 1:k], na.rm = TRUE)))
         #
-        # 		} else if (gMax == 3){
+        # 		} else if (gMax == 3) {
         # 			# Population S1
         # 			testStatistics[1, k] <- sum(sqrt(eventsPerStage[c(1,3), k]) * simLogRanks[c(1,3), k], na.rm = TRUE) / sqrt(sum(eventsPerStage[c(1,3), k], na.rm = TRUE))
         # 			populationEventsPerStage[1, k] <- sum(eventsPerStage[c(1,3), k], na.rm = TRUE)
@@ -292,7 +292,7 @@ NULL
         # 			overallEffects[3, k] <- exp((2 * directionUpper - 1) * overallTestStatistics[3, k] /
         # 							sqrt(const) / sqrt(sum(populationEventsPerStage[3, 1:k], na.rm = TRUE)))
         #
-        # 		} else if (gMax == 4){
+        # 		} else if (gMax == 4) {
         # 			# Population S1
         # 			testStatistics[1, k] <- sum(sqrt(eventsPerStage[c(1,4,5,7), k]) * simLogRanks[c(1,4,5,7), k], na.rm = TRUE) / sqrt(sum(eventsPerStage[c(1,4,5,7), k], na.rm = TRUE))
         # 			populationEventsPerStage[1, k] <- sum(eventsPerStage[c(1,4,5,7), k], na.rm = TRUE)

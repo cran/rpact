@@ -14,8 +14,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6276 $
+## |  Last changed: $Date: 2022-06-09 14:07:33 +0200 (Thu, 09 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -193,10 +193,10 @@ SimulationResults <- setRefClass("SimulationResults",
 							"eventsPerStage1",
 							"eventsPerStage2",
 							"eventsPerStage",
-							"testStatistic",
-							"logRankStatistic",
-							"hazardRatioEstimateLR")
-					}
+                            "testStatistic",
+                            "logRankStatistic",
+                            "hazardRatioEstimateLR")
+                    }
 					else if (inherits(.self, "SimulationResultsMultiArmMeans") || 
 							inherits(.self, "SimulationResultsMultiArmRates")) {
 						params <- c(
@@ -500,7 +500,9 @@ SimulationResults <- setRefClass("SimulationResults",
 		.getParametersToShow = function() {
 			parametersToShow <- .getVisibleFieldNames()
 			y <- c(
-				"iterations",
+                "eventsPerStage",
+                "overallEventsPerStage", 
+                "iterations",
 				"overallReject",  # base
 				"rejectAtLeastOne",
 				"rejectPerStage",
@@ -521,7 +523,6 @@ SimulationResults <- setRefClass("SimulationResults",
 				"expectedNumberOfSubjects",
 				"expectedNumberOfEvents",
 				"sampleSizes",
-				"eventsPerStage",
 				"singleNumberOfEventsPerStage",
 				"conditionalPowerAchieved" # base
 			)
@@ -875,7 +876,6 @@ SimulationResultsBaseSurvival <- setRefClass("SimulationResultsBaseSurvival",
 		maxNumberOfEventsPerStage = "numeric", 
 		thetaH1 = "numeric",
 		calcEventsFunction = "function", 
-		
 		expectedNumberOfEvents = "numeric"
 	),
 	methods = list(
@@ -956,7 +956,8 @@ SimulationResultsSurvival <- setRefClass("SimulationResultsSurvival",
 			numberOfSubjects1 = "matrix",
 			numberOfSubjects2 = "matrix",
 			eventsPerStage = "matrix", 
-			expectedNumberOfSubjects = "numeric", 
+            overallEventsPerStage = "matrix",
+            expectedNumberOfSubjects = "numeric", 
 			rejectPerStage = "matrix",
 			overallReject = "numeric",		
 			conditionalPowerAchieved = "matrix"
@@ -1167,7 +1168,7 @@ SimulationResultsEnrichmentRates <- setRefClass("SimulationResultsEnrichmentRate
 		epsilonValue = "numeric", 
 		rValue = "numeric",
 		threshold = "numeric",		
-		selectArmsFunction = "function",
+		selectPopulationsFunction = "function",
 		earlyStop = "matrix",
 		selectedPopulations = "array",
 		numberOfPopulations = "matrix",
@@ -1231,7 +1232,7 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 		epsilonValue = "numeric", 
 		rValue = "numeric",
 		threshold = "numeric",		
-		selectArmsFunction = "function",
+		selectPopulationsFunction = "function",
 		correlationComputation = "character",
 		earlyStop = "matrix",
 		selectedPopulations = "array",

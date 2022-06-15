@@ -14,10 +14,10 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_analysis_utilities.R
-## |  Creation date: 23 February 2022, 14:25:41
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  Creation date: 18 March 2022, 10:58:32
+## |  File version: $Revision: 6279 $
+## |  Last changed: $Date: 2022-06-09 17:48:13 +0200 (Thu, 09 Jun 2022) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 context("Testing the Function Get Observed Information Rates")
@@ -25,6 +25,8 @@ context("Testing the Function Get Observed Information Rates")
 
 test_that("'getObservedInformationRates': final-stage", {
 	data1 <- getDataset(overallN = c(22, 45), overallEvents = c(11, 28))
+	# @refFS[Formula]{fs:getObservedInformationRates}
+	# @refFS[Formula]{fs:getObservedInformationRates:finalStageReached}
 	result1 <- getObservedInformationRates(data1, maxInformation = 45)
 
 	## Comparison of the results of list object 'result1' with expected results
@@ -38,6 +40,8 @@ test_that("'getObservedInformationRates': final-stage", {
 test_that("'getObservedInformationRates': over-running", {
 
 	data2 <- getDataset(overallN = c(22, 45), overallEvents = c(11, 28))
+	# @refFS[Formula]{fs:getObservedInformationRates}
+	# @refFS[Formula]{fs:getObservedInformationRates:overRunning}
 	result2 <- getObservedInformationRates(data2, maxInformation = 44)
 
 	## Comparison of the results of list object 'result2' with expected results
@@ -51,6 +55,8 @@ test_that("'getObservedInformationRates': over-running", {
 test_that("'getObservedInformationRates': interim-stage", {
 
 	data3 <- getDataset(overallN = c(22, 45), overallEvents = c(11, 28))
+	# @refFS[Formula]{fs:getObservedInformationRates}
+	# @refFS[Formula]{fs:getObservedInformationRates:interimStage}
 	result3 <- getObservedInformationRates(data3, maxInformation = 46)
 
 	## Comparison of the results of list object 'result3' with expected results
@@ -64,6 +70,8 @@ test_that("'getObservedInformationRates': interim-stage", {
 test_that("'getObservedInformationRates': under-running with absolute information epsilon", {
 
 	data4 <- getDataset(overallN = c(22, 45), overallEvents = c(11, 28))
+	# @refFS[Formula]{fs:getObservedInformationRates}
+	# @refFS[Formula]{fs:getObservedInformationRates:underRunning}
 	result4 <- getObservedInformationRates(data4, maxInformation = 46, informationEpsilon = 1)
 
 	## Comparison of the results of list object 'result4' with expected results
@@ -78,6 +86,8 @@ test_that("'getObservedInformationRates': under-running with absolute informatio
 test_that("'getObservedInformationRates': under-running with relative information epsilon", {
 
 	data5 <- getDataset(overallN = c(22, 45), overallEvents = c(11, 28))
+	# @refFS[Formula]{fs:getObservedInformationRates}
+	# @refFS[Formula]{fs:getObservedInformationRates:underRunningRelative}
 	result5 <- getObservedInformationRates(data5, maxInformation = 46, informationEpsilon = 0.03) 
 
 	## Comparison of the results of list object 'result5' with expected results

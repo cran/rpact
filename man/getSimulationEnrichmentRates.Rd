@@ -217,24 +217,27 @@ range2 <- p2[2] + seq(0.0, 0.2, 0.2)
 range3 <- p2[3] + seq(0.0, 0.2, 0.2)
 range4 <- p2[4] + seq(0.0, 0.2, 0.2)
 piTreatments <- c()
-for (x1 in range1){
-	for (x2 in range2){
-		for (x3 in range3){
-			for (x4 in range4){
-				piTreatments <- c(piTreatments, x1, x2, x3, x4)
-}}}}		
+for (x1 in range1) {
+    for (x2 in range2) {
+        for (x3 in range3) {
+            for (x4 in range4) {
+                piTreatments <- c(piTreatments, x1, x2, x3, x4)
+            }
+        }
+    }
+}
 effectList <- list(subGroups=subGroups, prevalences=prevalences,
 piControl = p2, piTreatments = matrix(piTreatments, byrow = TRUE, ncol = 4))
 
 ds <- getDesignInverseNormal(informationRates = c(0.4, 1),
-	typeOfDesign = "noEarlyEfficacy")
+    typeOfDesign = "noEarlyEfficacy")
 
 simResultsPE <- getSimulationEnrichmentRates(ds, plannedSubjects = c(150, 300),
-	allocationRatioPlanned = 1.5, directionUpper = TRUE,
-	effectList = effectList, stratifiedAnalysis = TRUE,
-	intersectionTest = "Sidak",
-	typeOfSelection = "epsilon", epsilonValue = 0.025,
-	maxNumberOfIterations = 100)
+    allocationRatioPlanned = 1.5, directionUpper = TRUE,
+    effectList = effectList, stratifiedAnalysis = TRUE,
+    intersectionTest = "Sidak",
+    typeOfSelection = "epsilon", epsilonValue = 0.025,
+    maxNumberOfIterations = 100)
 print(simResultsPE)	
 }
 

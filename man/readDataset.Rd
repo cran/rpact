@@ -99,6 +99,7 @@ if (dataFileSurvivalMultiArm != "") {
     datasetSurvivalMultiArm <- readDataset(dataFileSurvivalMultiArm)
     datasetSurvivalMultiArm
 }
+
 }
 \seealso{
 \itemize{

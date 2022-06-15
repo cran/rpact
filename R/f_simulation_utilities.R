@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6155 $
+## |  Last changed: $Date: 2022-05-18 12:33:04 +0200 (Wed, 18 May 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -190,7 +190,15 @@ NULL
                 gMax <- length(subGroups)
             }
         }
-        expectedSubGroups <- .createSubsetsByGMax(gMax, all = FALSE) # expectedNumberOfColumns = 2^(gMax - 1)
+        if ("F" %in% subGroups) {
+            stop(
+                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "definition of full population 'F' ", 
+                "together with sub-groups", ifelse(length(subGroups) == 2, "", "s"), " ",
+                .arrayToString(subGroups[subGroups != "F"], encapsulate = TRUE, mode = "and"), 
+                " makes no sense and is not allowed (use remaining population 'R' instead of 'F')"
+            )
+        }
+        expectedSubGroups <- .createSubsetsByGMax(gMax, stratifiedInput = TRUE, all = FALSE) 
         if (gMax < 3) {
             expectedSubGroups <- gsub("\\d", "", expectedSubGroups)
         }

@@ -8,7 +8,7 @@
 Trial design for inverse normal method.
 }
 \details{
-This object should not be created directly; use \code{\link{getDesignInverseNormal}} 
+This object should not be created directly; use \code{\link{getDesignInverseNormal}}
 with suitable arguments to create a inverse normal design.
 }
 

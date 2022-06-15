@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6094 $
+## |  Last changed: $Date: 2022-04-28 11:33:20 +0200 (Thu, 28 Apr 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -155,6 +155,7 @@ C_KEY_WORDS <- c(
 #'     datasetSurvivalMultiArm <- readDataset(dataFileSurvivalMultiArm)
 #'     datasetSurvivalMultiArm
 #' }
+#' 
 #' @export
 #'
 readDataset <- function(file, ..., header = TRUE, sep = ",", quote = "\"",

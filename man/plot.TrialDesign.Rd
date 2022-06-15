@@ -112,18 +112,20 @@ Generic function to plot a trial design.
 
 Generic function to plot a trial design.
 
-Note that \code{\link[=param_nMax]{nMax}} is not an argument that it passed to \code{ggplot2}. 
-Rather, the underlying calculations (e.g. power for different theta's or average sample size) are based 
-on calls to function \code{\link{getPowerAndAverageSampleNumber}} which has argument \code{\link[=param_nMax]{nMax}}. 
-I.e., \code{\link[=param_nMax]{nMax}} is not an argument to ggplot2 but to \code{\link{getPowerAndAverageSampleNumber}} 
+Note that \code{\link[=param_nMax]{nMax}} is not an argument that it passed to \code{ggplot2}.
+Rather, the underlying calculations (e.g. power for different theta's or average sample size) are based
+on calls to function \code{\link{getPowerAndAverageSampleNumber}} which has argument \code{\link[=param_nMax]{nMax}}.
+I.e., \code{\link[=param_nMax]{nMax}} is not an argument to ggplot2 but to \code{\link{getPowerAndAverageSampleNumber}}
 which is called prior to plotting.
 }
 \examples{
 \donttest{
-design <- getDesignInverseNormal(kMax = 3, alpha = 0.025, 
-    typeOfDesign = "asKD", gammaA = 2, 
-    informationRates = c(0.2, 0.7, 1), 
-    typeBetaSpending = "bsOF")
+design <- getDesignInverseNormal(
+    kMax = 3, alpha = 0.025,
+    typeOfDesign = "asKD", gammaA = 2,
+    informationRates = c(0.2, 0.7, 1),
+    typeBetaSpending = "bsOF"
+)
 if (require(ggplot2)) {
     plot(design) # default: type = 1
 }

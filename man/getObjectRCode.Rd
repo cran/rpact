@@ -26,7 +26,8 @@ getObjectRCode(
   prefix = "",
   postfix = "",
   stringWrapPrefix = "",
-  newArgumentValues = list()
+  newArgumentValues = list(),
+  tolerance = 1e-07
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ set to \code{NULL} to insert no line breaks.}
 
 \item{newArgumentValues}{A named list with arguments that shall be renewed in the R command, e.g.,
 \code{newArgumentValues = list(informationRates = c(0.5, 1))}.}
+
+\item{tolerance}{The tolerance for defining a value as default.}
 }
 \value{
 A \code{\link[base]{character}} value or vector will be returned.

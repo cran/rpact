@@ -14,12 +14,13 @@
  *
  * Contact us for information about our services: info@rpact.com
  *
- * File version: $Revision: 5875 $
- * Last changed: $Date: 2022-02-23 08:12:38 +0100 (Mi, 23 Feb 2022) $
+ * File version: $Revision: 6294 $
+ * Last changed: $Date: 2022-06-14 12:08:55 +0200 (Di, 14 Jun 2022) $
  * Last changed by: $Author: pahlke $
  *
  */
 
+// [[Rcpp::plugins(cpp11)]]
 #include <Rcpp.h>
 #include <cmath>
 #include "f_utilities.h"
@@ -133,7 +134,8 @@ NumericVector getXValues(NumericMatrix decisionMatrix, int k, int M, int rowInde
 	return x;
 }
 
-NumericVector getGroupSequentialProbabilitiesFast(NumericMatrix decisionMatrix,
+NumericVector getGroupSequentialProbabilitiesFast(
+		NumericMatrix decisionMatrix,
 		NumericVector informationRates) {
 
 	// maximum number of stages
@@ -191,7 +193,8 @@ NumericVector getGroupSequentialProbabilitiesFast(NumericMatrix decisionMatrix,
 }
 
 // [[Rcpp::export]]
-NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
+NumericMatrix getGroupSequentialProbabilitiesCpp(
+		NumericMatrix decisionMatrix,
 		NumericVector informationRates) {
 
 	NumericMatrix decMatrix(Rcpp::clone(decisionMatrix));
@@ -226,7 +229,6 @@ NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
 	}
 
 	if (decMatrix.nrow() == 2) {
-
 		for (int i = 0; i < decMatrix.nrow(); i++) {
 			for (int j = 0; j < decMatrix.ncol(); j++) {
 				if (decMatrix(i, j) <= C_FUTILITY_BOUNDS_DEFAULT) {
@@ -258,7 +260,6 @@ NumericMatrix getGroupSequentialProbabilitiesCpp(NumericMatrix decisionMatrix,
 			probs(1, k - 1) = seq2;
 			probs(2, k - 1) = probs(1, k - 2) - probs(0, k - 2);
 		}
-
 	}
 	else if (decMatrix.nrow() == 4) {
 
@@ -450,14 +451,20 @@ List getDesignGroupSequentialPampallonaTsiatisCpp(
 	);
 }
 
-NumericMatrix getDecisionMatrixOneSided(int kMax,
-		NumericVector criticalValues, NumericVector futilityBounds, bool bindingFutility) {
-	NumericMatrix decisionMatrix(2, criticalValues.length());
+NumericMatrix getDecisionMatrixOneSided(
+		NumericVector criticalValues,
+		NumericVector futilityBounds,
+		bool bindingFutility) {
+
+	int kMax = criticalValues.length();
+	NumericMatrix decisionMatrix(2, kMax);
 	if (bindingFutility) {
-		NumericVector helperVec = futilityBounds;
-		// adds C_FUTILITY_BOUNDS_DEFAULT at the end of the vector, after its current last element
-		helperVec.push_back(C_FUTILITY_BOUNDS_DEFAULT);
-		decisionMatrix(0, _) = helperVec;
+		// add C_FUTILITY_BOUNDS_DEFAULT at the end of the vector, after its current last element
+		NumericVector futilityBoundsTemp = Rcpp::clone(futilityBounds);
+		if (futilityBoundsTemp.length() < kMax) {
+			futilityBoundsTemp.push_back(C_FUTILITY_BOUNDS_DEFAULT);
+		}
+		decisionMatrix(0, _) = futilityBoundsTemp;
 		decisionMatrix(1, _) = criticalValues;
 	} else {
 		decisionMatrix(0, _) = rep(C_FUTILITY_BOUNDS_DEFAULT, kMax);
@@ -473,28 +480,27 @@ NumericMatrix getDecisionMatrixTwoSided(NumericVector criticalValues) {
 	return decisionMatrix;
 }
 
-NumericMatrix getDecisionMatrixHelper(NumericMatrix decisionMatrix, int k) {
-	NumericMatrix decisionMatrixHelper(2, k);
+NumericMatrix getDecisionMatrixSubset(NumericMatrix decisionMatrix, int k) {
+	NumericMatrix decisionMatrixSubset(decisionMatrix.nrow(), k);
     for (int i = 0; i < k; i++) {
-    	decisionMatrixHelper(_, i) = decisionMatrix(_, i); // decisionMatrix[, 1:k]
+    	decisionMatrixSubset(_, i) = decisionMatrix(_, i);
     }
-	return decisionMatrixHelper;
+	return decisionMatrixSubset;
 }
 
-NumericMatrix getDecisionMatrix(int kMax,
+NumericMatrix getDecisionMatrix(
 		NumericVector criticalValues, NumericVector futilityBounds,
 		bool bindingFutility, int sided, int k = -1) {
 	NumericMatrix decisionMatrix;
 	if (sided == 1) {
-		decisionMatrix = getDecisionMatrixOneSided(kMax,
-			criticalValues, futilityBounds, bindingFutility);
+		decisionMatrix = getDecisionMatrixOneSided(criticalValues, futilityBounds, bindingFutility);
 	} else {
 		decisionMatrix = getDecisionMatrixTwoSided(criticalValues);
 	}
 	if (k < 0) {
 		return decisionMatrix;
 	}
-	return getDecisionMatrixHelper(decisionMatrix, k);
+	return getDecisionMatrixSubset(decisionMatrix, k);
 }
 
 double getZeroApproximation(NumericMatrix probs, double alpha, int sided) {
@@ -530,7 +536,6 @@ double getSpendingValueCpp(double alpha, double x, double sided, String typeOfDe
 }
 
 double getCriticalValue(
-		int kMax,
 		int k,
 		NumericVector criticalValues,
 		NumericVector userAlphaSpending,
@@ -544,7 +549,7 @@ double getCriticalValue(
 		double tolerance) {
 
 	double alphaSpendingValue;
-	if (typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
+	if (typeOfDesign == C_TYPE_OF_DESIGN_AS_USER || typeOfDesign == C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY) {
 		alphaSpendingValue = userAlphaSpending[k - 1];
 	} else {
 		alphaSpendingValue = getSpendingValueCpp(alpha, (double) informationRates[k - 1], sided, typeOfDesign, gammaA);
@@ -559,7 +564,7 @@ double getCriticalValue(
     bisection2([&](double scale) {
     	criticalValue = scale;
     	criticalValuesTemp[k - 1] = criticalValue;
-		NumericMatrix decisionMatrix = getDecisionMatrix(kMax,
+		NumericMatrix decisionMatrix = getDecisionMatrix(
 			criticalValuesTemp, futilityBounds,
 			bindingFutility, sided, k);
 		NumericMatrix probs = getGroupSequentialProbabilitiesCpp(
@@ -582,10 +587,9 @@ NumericVector getDesignGroupSequentialAlphaSpending(
 		NumericVector futilityBounds,
 		double tolerance) {
 
-	NumericVector criticalValues(kMax);
+	NumericVector criticalValues = NumericVector(kMax, NA_REAL);
     for (int k = 1; k <= kMax; k++) {
     	criticalValues[k - 1] = getCriticalValue(
-			kMax,
 			k,
 			criticalValues,
 			userAlphaSpending,
@@ -663,7 +667,7 @@ NumericVector getDesignGroupSequentialDeltaWTCpp(
 		for (int k = 0; k < kMax; k++) {
 			criticalValues[k] = scale * pow((double) informationRates[k], deltaWT - 0.5);
 		}
-		NumericMatrix decisionMatrix = getDecisionMatrix(kMax,
+		NumericMatrix decisionMatrix = getDecisionMatrix(
 				criticalValues, futilityBounds,
 				bindingFutility, sided);
 		NumericMatrix probs = getGroupSequentialProbabilitiesCpp(
@@ -718,7 +722,34 @@ NumericVector getDesignGroupSequentialOBrienAndFlemingCpp(
 		0);
 }
 
-double getFutilityBound(int k,
+NumericMatrix getDecisionMatrixForFutilityBounds(
+		NumericVector informationRates,
+		NumericVector criticalValues,
+		NumericVector futilityBoundsTemp,
+		double shift,
+		double sided) {
+
+	int kMax = criticalValues.length();
+	if (futilityBoundsTemp.length() < kMax) {
+		futilityBoundsTemp.push_back(C_FUTILITY_BOUNDS_DEFAULT);
+	}
+
+	if (sided == 1) {
+		NumericMatrix decisionMatrix(2, kMax);
+		decisionMatrix(0, _) = futilityBoundsTemp - sqrt(informationRates) * shift;
+		decisionMatrix(1, _) = criticalValues - sqrt(informationRates) * shift;
+		return decisionMatrix;
+	}
+
+	NumericMatrix decisionMatrix(4, kMax);
+	decisionMatrix(0, _) = -criticalValues - sqrt(informationRates) * shift;
+	decisionMatrix(1, _) = -futilityBoundsTemp - sqrt(informationRates) * shift;
+	decisionMatrix(2, _) = futilityBoundsTemp - sqrt(informationRates) * shift;
+	decisionMatrix(3, _) = criticalValues - sqrt(informationRates) * shift;
+	return decisionMatrix;
+}
+
+double getFutilityBoundOneSided(int k,
 		NumericVector betaSpendingValues,
 		NumericVector informationRates,
 		NumericVector futilityBounds,
@@ -731,21 +762,22 @@ double getFutilityBound(int k,
 
 	double futilityBound = NA_REAL;
 	NumericVector futilityBoundsTemp = Rcpp::clone(futilityBounds);
+	NumericVector probs;
+	NumericMatrix decisionMatrix;
 	bisection2([&](double scale) {
 		futilityBound = scale;
 		futilityBoundsTemp[k - 1] = futilityBound;
-		NumericMatrix decisionMatrix(2, futilityBoundsTemp.length());
-		decisionMatrix(0, _) = futilityBoundsTemp - sqrt(informationRates) * shift;
-		decisionMatrix(1, _) = criticalValues - sqrt(informationRates) * shift;
-		NumericVector probs = getGroupSequentialProbabilitiesFast(
-			getDecisionMatrixHelper(decisionMatrix, k),
+		decisionMatrix = getDecisionMatrixForFutilityBounds(
+			informationRates, criticalValues, futilityBoundsTemp, shift, 1);
+		probs = getGroupSequentialProbabilitiesFast(
+			getDecisionMatrixSubset(decisionMatrix, k),
 			rangeVector(informationRates, 0, k - 1));
 		return (double) betaSpendingValues[k - 1] - sum(probs);
 	}, -6.0, 5.0, tolerance, C_MAX_NUMBER_OF_ITERATIONS);
 	return futilityBound;
 }
 
-NumericVector getFutilityBounds(int kMax,
+NumericVector getFutilityBoundsOneSided(int kMax,
 		NumericVector betaSpendingValues,
 		NumericVector informationRates,
 		NumericVector criticalValues,
@@ -753,7 +785,7 @@ NumericVector getFutilityBounds(int kMax,
 		double tolerance) {
 	NumericVector futilityBounds = NumericVector(kMax, NA_REAL);
     for (int k = 1; k <= kMax; k++) {
-    	futilityBounds[k - 1] = getFutilityBound(k,
+    	futilityBounds[k - 1] = getFutilityBoundOneSided(k,
 			betaSpendingValues,
 			informationRates,
 			futilityBounds,
@@ -764,13 +796,26 @@ NumericVector getFutilityBounds(int kMax,
 	return futilityBounds;
 }
 
-// [[Rcpp::export]]
-List getDesignGroupSequentialBetaSpendingCpp(
+NumericMatrix getProbabilitiesForFutilityBounds(
+		NumericVector informationRates,
+		NumericVector criticalValues,
+		NumericVector futilityBounds,
+		double shift,
+		int k,
+		double sided) {
+
+	NumericMatrix decisionMatrix = getDecisionMatrixForFutilityBounds(
+		informationRates, criticalValues, futilityBounds, shift, sided);
+	return getGroupSequentialProbabilitiesCpp(
+		getDecisionMatrixSubset(decisionMatrix, k),
+		rangeVector(informationRates, 0, k - 1));
+}
+
+List getDesignGroupSequentialBetaSpendingOneSidedCpp(
 		NumericVector criticalValues,
 		int kMax,
 		NumericVector userAlphaSpending,
 		NumericVector userBetaSpending,
-		double sided,
 		NumericVector informationRates,
 		bool bindingFutility,
 		double tolerance,
@@ -781,6 +826,10 @@ List getDesignGroupSequentialBetaSpendingCpp(
 		double alpha,
 		double beta
 		) {
+
+	double sided = 1.0;
+
+	criticalValues = Rcpp::clone(criticalValues);
 
 	if (typeOfDesign == C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY) {
         for (int k = 0; k < kMax - 1; k++) {
@@ -797,7 +846,8 @@ List getDesignGroupSequentialBetaSpendingCpp(
 	} else {
 		betaSpendingValues = NumericVector(kMax, NA_REAL);
 		for (int k = 0; k < kMax; k++) {
-			betaSpendingValues[k] = getSpendingValueCpp(beta, (double) informationRates[k], sided, typeBetaSpending, gammaB);
+			betaSpendingValues[k] = getSpendingValueCpp(beta,
+				(double) informationRates[k], sided, typeBetaSpending, gammaB);
 		}
 	}
 
@@ -805,7 +855,7 @@ List getDesignGroupSequentialBetaSpendingCpp(
     double shiftResult;
     if (!bindingFutility) {
 		shiftResult = bizero([&](double shift) {
-            futilityBounds = getFutilityBounds(kMax,
+            futilityBounds = getFutilityBoundsOneSided(kMax,
 				betaSpendingValues,
 				informationRates,
 				criticalValues,
@@ -819,7 +869,6 @@ List getDesignGroupSequentialBetaSpendingCpp(
             for (int k = 1; k <= kMax; k++) {
                 if (typeOfDesign != C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY) {
                 	criticalValues[k - 1] = getCriticalValue(
-						kMax,
 						k,
 						criticalValues,
 						userAlphaSpending,
@@ -833,7 +882,7 @@ List getDesignGroupSequentialBetaSpendingCpp(
 						tolerance);
                 }
 
-            	futilityBounds[k - 1] = getFutilityBound(k,
+            	futilityBounds[k - 1] = getFutilityBoundOneSided(k,
         			betaSpendingValues,
         			informationRates,
         			futilityBounds,
@@ -843,13 +892,362 @@ List getDesignGroupSequentialBetaSpendingCpp(
 			}
             return (double) criticalValues[kMax - 1] - (double) futilityBounds[kMax - 1];
         }, -4.0, 10.0, tolerance, C_MAX_NUMBER_OF_ITERATIONS);
-    	// zeroin: -8.0, 5.0
-    	// bisection: -4.0, 10.0
     }
+
+    NumericMatrix probs = getProbabilitiesForFutilityBounds(informationRates,
+		criticalValues, futilityBounds, shiftResult, kMax, sided);
+	NumericVector betaSpent = cumsum(probs(0, _));
+	NumericVector power = cumsum(probs(2, _) - probs(1, _));
+
+	futilityBounds = rangeVector(futilityBounds, 0, kMax - 2);
+
     return List::create(
     	_["futilityBounds"] = futilityBounds,
 		_["criticalValues"] = criticalValues,
+		_["betaSpent"] = betaSpent,
+		_["power"] = power,
 		_["shift"] = shiftResult
+	);
+}
+
+int getFirstIndexOfValuLargerZero(NumericVector vec) {
+	for (int i = 0; i < vec.size(); i++) {
+		if (!R_IsNA((double) vec[i]) && vec[i] > 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+// Add additional option betaAdjustment for group sequential design (default = FALSE)
+NumericVector getAdjustedBetaSpendingValues(
+		int kMax,
+		int kMin,
+		NumericVector betaSpendingValues,
+		bool betaAdjustment) {
+    if (kMin <= 0) {
+    	return betaSpendingValues;
+    }
+
+	NumericVector betaSpendingValuesAdjusted = Rcpp::clone(betaSpendingValues);
+	for (int k = 0; k < kMin; k++) {
+		betaSpendingValuesAdjusted[k] = 0;
+	}
+	if (betaAdjustment) {
+		for (int k = kMin - 1; k < kMax; k++) {
+			betaSpendingValuesAdjusted[k] =
+				(betaSpendingValues[k] - betaSpendingValues[kMin - 1]) /
+				(betaSpendingValues[kMax - 1] - betaSpendingValues[kMin - 1]) *
+				betaSpendingValues[kMax - 1];
+		}
+	}
+	return betaSpendingValuesAdjusted;
+}
+
+double getFutilityBoundTwoSided(
+		int k,
+		NumericVector betaSpendingValues,
+		NumericVector informationRates,
+		NumericVector futilityBounds,
+		NumericVector futilityBoundsOneSided,
+		NumericVector criticalValues,
+		double shift,
+		double tolerance) {
+	if (k == 1) {
+		double futilityBound = bizero([&](double u) {
+			return getNormalDistribution(u - sqrt((double) informationRates[0]) * shift) -
+					getNormalDistribution(-u - sqrt((double) informationRates[0]) * shift) -
+					betaSpendingValues[0];
+		}, -8.0, 8.0, tolerance, C_MAX_NUMBER_OF_ITERATIONS);
+        if (futilityBound > criticalValues[0]) {
+        	futilityBound = criticalValues[0];
+        }
+        if (futilityBoundsOneSided[0] < 0) {
+            futilityBound = 0;
+        }
+        return futilityBound;
+	}
+
+	double futilityBound = NA_REAL;
+	double futilityBoundOneSided = 1;
+	if (k <= futilityBoundsOneSided.length()) {
+		futilityBoundOneSided = futilityBoundsOneSided[k - 1];
+	}
+	NumericVector futilityBoundsTemp = Rcpp::clone(futilityBounds);
+	NumericMatrix decisionMatrix;
+	bizero([&](double scale) {
+		futilityBound = scale;
+        if (futilityBound > criticalValues[k - 1]) {
+        	futilityBound = criticalValues[k - 1];
+        }
+        if (futilityBoundOneSided < 0) {
+            futilityBound = 0;
+        }
+		futilityBoundsTemp[k - 1] = futilityBound;
+
+		decisionMatrix = getDecisionMatrixForFutilityBounds(
+			informationRates, criticalValues, futilityBoundsTemp, shift, 2);
+		NumericMatrix probs = getGroupSequentialProbabilitiesCpp(
+			decisionMatrix(_, Range(0, k - 1)),
+			informationRates[Range(0, k - 1)]);
+		double probsSum = sum(probs.row(2) - probs.row(1));
+		return (double) betaSpendingValues[k - 1] - probsSum;
+	}, -6.0, 5.0, tolerance, C_MAX_NUMBER_OF_ITERATIONS);
+	return futilityBound;
+}
+
+NumericVector getFutilityBoundsTwoSided(
+		int kMax,
+		NumericVector betaSpendingValues,
+		NumericVector informationRates,
+		NumericVector futilityBoundsOneSided,
+		NumericVector criticalValues,
+		double shift,
+		double tolerance) {
+	NumericVector futilityBounds = NumericVector(kMax, NA_REAL);
+    for (int k = 1; k <= kMax; k++) {
+    	futilityBounds[k - 1] = getFutilityBoundTwoSided(
+			k,
+			betaSpendingValues,
+			informationRates,
+			futilityBounds,
+			futilityBoundsOneSided,
+			criticalValues,
+			shift,
+			tolerance);
+    }
+	return futilityBounds;
+}
+
+double getCriticalValueTwoSided(
+		int kMax,
+		int k,
+		NumericVector criticalValues,
+		NumericVector userAlphaSpending,
+		double alpha,
+		double gammaA,
+		String typeOfDesign,
+		NumericVector informationRates,
+		bool bindingFutility,
+		NumericVector futilityBounds,
+		double tolerance) {
+
+	double sided = 2.0;
+	double alphaSpendingValue;
+	if (typeOfDesign == C_TYPE_OF_DESIGN_AS_USER || typeOfDesign == C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY) {
+		alphaSpendingValue = userAlphaSpending[k - 1];
+	} else {
+		alphaSpendingValue = getSpendingValueCpp(alpha, (double) informationRates[k - 1], sided, typeOfDesign, gammaA);
+	}
+
+	if (k == 1) {
+		return(getOneMinusQNorm(alphaSpendingValue / sided));
+	}
+
+	double criticalValue = NA_REAL;
+	NumericVector criticalValuesTemp = Rcpp::clone(criticalValues);
+    bisection2([&](double scale) {
+    	criticalValue = scale;
+    	criticalValuesTemp[k - 1] = criticalValue;
+
+		NumericMatrix decisionMatrix(4, futilityBounds.length());
+		decisionMatrix(0, _) = -criticalValuesTemp;
+		decisionMatrix(1, _) = -futilityBounds;
+		decisionMatrix(2, _) = futilityBounds;
+		decisionMatrix(3, _) = criticalValuesTemp;
+		NumericMatrix probs = getGroupSequentialProbabilitiesCpp(
+			decisionMatrix(_, Range(0, k - 1)),
+			informationRates[Range(0, k - 1)]);
+		return sum(probs(4, _) - probs(3, _) + probs(0, _)) - alphaSpendingValue;
+	}, 0.0, 8.0, tolerance, C_MAX_NUMBER_OF_ITERATIONS);
+
+    return criticalValue;
+}
+
+List getDesignGroupSequentialBetaSpendingTwoSidedCpp(
+		NumericVector criticalValues,
+		int kMax,
+		NumericVector userAlphaSpending,
+		NumericVector userBetaSpending,
+		NumericVector informationRates,
+		bool bindingFutility,
+		double tolerance,
+		String typeOfDesign,
+		String typeBetaSpending,
+		double gammaA,
+		double gammaB,
+		double alpha,
+		double beta,
+		bool betaAdjustment,
+		bool twoSidedPower
+		) {
+
+	double sided = 2;
+
+	criticalValues = Rcpp::clone(criticalValues);
+
+	if (typeOfDesign == C_TYPE_OF_DESIGN_NO_EARLY_EFFICACY) {
+        for (int k = 0; k < kMax - 1; k++) {
+        	userAlphaSpending[k] = 0;
+        	criticalValues[k] = getQNormThreshold();
+        }
+        userAlphaSpending[kMax - 1] = alpha;
+		criticalValues[kMax - 1] = getOneMinusQNorm(alpha / sided);
+    }
+
+	// Check which of the futilityBounds are negative for the corresponding one-sided case.
+	// For these stages, no two-sided futlityBounds are calculated.
+	NumericVector futilityBoundsOneSided = getDesignGroupSequentialBetaSpendingOneSidedCpp(
+		criticalValues,
+		kMax,
+		userAlphaSpending / 2.0,
+		userBetaSpending,
+		informationRates,
+		bindingFutility,
+		tolerance,
+		typeOfDesign,
+		typeBetaSpending,
+		gammaA,
+		gammaB,
+		alpha / 2.0,
+		beta
+	)["futilityBounds"];
+
+	NumericVector betaSpendingValues;
+	if (typeBetaSpending == C_TYPE_OF_DESIGN_BS_USER) {
+		betaSpendingValues = userBetaSpending;
+	} else {
+		betaSpendingValues = NumericVector(kMax, NA_REAL);
+		for (int k = 0; k < kMax; k++) {
+			betaSpendingValues[k] = getSpendingValueCpp(beta,
+				(double) informationRates[k], sided, typeBetaSpending, gammaB);
+		}
+	}
+
+	double kMin = getFirstIndexOfValuLargerZero(futilityBoundsOneSided);
+
+	betaSpendingValues = getAdjustedBetaSpendingValues(
+		kMax, kMin, betaSpendingValues, betaAdjustment);
+
+    NumericVector futilityBounds;
+    double shiftResult;
+    if (!bindingFutility) {
+		shiftResult = bisection2([&](double shift) {
+			futilityBounds = getFutilityBoundsTwoSided(
+				kMax,
+				betaSpendingValues,
+				informationRates,
+				futilityBoundsOneSided,
+				criticalValues,
+				shift,
+				tolerance);
+            return (double) criticalValues[kMax - 1] - (double) futilityBounds[kMax - 1];
+        }, -4.0, 10.0, tolerance, C_MAX_NUMBER_OF_ITERATIONS);
+    } else {
+    	futilityBounds = NumericVector(kMax, NA_REAL);
+    	shiftResult = bisection2([&](double shift) {
+            for (int k = 1; k <= kMax; k++) {
+				criticalValues[k - 1] = getCriticalValueTwoSided(
+					kMax,
+					k,
+					criticalValues,
+					userAlphaSpending,
+					alpha,
+					gammaA,
+					typeOfDesign,
+					informationRates,
+					bindingFutility,
+					futilityBounds,
+					tolerance);
+
+            	futilityBounds[k - 1] = getFutilityBoundTwoSided(k,
+        			betaSpendingValues,
+        			informationRates,
+        			futilityBounds,
+					futilityBoundsOneSided,
+					criticalValues,
+        			shift,
+        			tolerance);
+			}
+            return (double) criticalValues[kMax - 1] - (double) futilityBounds[kMax - 1];
+        }, -4.0, 10.0, tolerance, C_MAX_NUMBER_OF_ITERATIONS);
+    }
+
+    NumericMatrix probs = getProbabilitiesForFutilityBounds(informationRates,
+		criticalValues, futilityBounds, shiftResult, kMax, sided);
+	NumericVector betaSpent = cumsum(probs(2, _) - probs(1, _));
+	NumericVector power(kMax);
+    if (twoSidedPower) {
+    	power = (NumericVector) cumsum(probs(4, _) - probs(3, _) + probs(0, _));
+    } else {
+    	power = (NumericVector) cumsum(probs(4, _) - probs(3, _));
+    }
+
+	futilityBounds = rangeVector(futilityBounds, 0, kMax - 2);
+	futilityBounds[futilityBounds <= 1e-05] = NA_REAL;
+
+    return List::create(
+    	_["futilityBounds"] = futilityBounds,
+		_["criticalValues"] = criticalValues,
+		_["betaSpent"] = betaSpent,
+		_["power"] = power,
+		_["shift"] = shiftResult
+	);
+}
+
+// [[Rcpp::export]]
+List getDesignGroupSequentialBetaSpendingCpp(
+		NumericVector criticalValues,
+		int kMax,
+		NumericVector userAlphaSpending,
+		NumericVector userBetaSpending,
+		NumericVector informationRates,
+		bool bindingFutility,
+		double tolerance,
+		String typeOfDesign,
+		String typeBetaSpending,
+		double gammaA,
+		double gammaB,
+		double alpha,
+		double beta,
+		double sided,
+		bool betaAdjustment,
+		bool twoSidedPower
+		) {
+	if (sided == 1) {
+		return getDesignGroupSequentialBetaSpendingOneSidedCpp(
+			criticalValues,
+			kMax,
+			userAlphaSpending,
+			userBetaSpending,
+			informationRates,
+			bindingFutility,
+			tolerance,
+			typeOfDesign,
+			typeBetaSpending,
+			gammaA,
+			gammaB,
+			alpha,
+			beta
+		);
+	}
+
+	return getDesignGroupSequentialBetaSpendingTwoSidedCpp(
+		criticalValues,
+		kMax,
+		userAlphaSpending,
+		userBetaSpending,
+		informationRates,
+		bindingFutility,
+		tolerance,
+		typeOfDesign,
+		typeBetaSpending,
+		gammaA,
+		gammaB,
+		alpha,
+		beta,
+		betaAdjustment,
+		twoSidedPower
 	);
 }
 
@@ -865,17 +1263,19 @@ List getDesignGroupSequentialUserDefinedBetaSpendingCpp(
 		double tolerance,
 		String typeOfDesign,
 		double gammaA,
-		double alpha
+		double alpha,
+		bool betaAdjustment,
+		bool twoSidedPower
 		) {
 	String typeBetaSpending = C_TYPE_OF_DESIGN_BS_USER;
 	double gammaB = NA_REAL;
 	double beta = NA_REAL;
+
 	return getDesignGroupSequentialBetaSpendingCpp(
 		criticalValues,
 		kMax,
 		userAlphaSpending,
 		userBetaSpending,
-		sided,
 		informationRates,
 		bindingFutility,
 		tolerance,
@@ -884,7 +1284,9 @@ List getDesignGroupSequentialUserDefinedBetaSpendingCpp(
 		gammaA,
 		gammaB,
 		alpha,
-		beta
-		);
+		beta,
+		sided,
+		betaAdjustment,
+		twoSidedPower
+	);
 }
-

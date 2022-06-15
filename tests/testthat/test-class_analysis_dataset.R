@@ -2304,6 +2304,8 @@ test_that("Creation of a dataset of means with subsets", {
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
+    
+    .skipTestIfDisabled()
 
 	x2 <- getDataset(
 	    stages = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
@@ -2555,7 +2557,8 @@ test_that("Illegal creation of a dataset of means with subsets: wrong deselectio
 
 test_that("Illegal creation of a dataset of means with subsets: inconsistent number of stages", {
 
-	## S1
+    .skipTestIfDisabled()
+        
 	expect_error(getDataset(
 	    sampleSize1 = c(12, NA, 21),
 	    sampleSize2 = c(18, NA, 21),
@@ -2601,6 +2604,8 @@ test_that("Illegal creation of a dataset of means with subsets: inconsistent num
 
 test_that("Illegal creation of a dataset of means with subsets: too small standard deviation in F (two subsets)", {
 
+    .skipTestIfDisabled()
+        
 	S1N <- getDataset(
 	    sampleSize1 = c(39, 34, NA),
 	    sampleSize2 = c(33, 45, NA),
@@ -2640,6 +2645,8 @@ test_that("Illegal creation of a dataset of means with subsets: too small standa
 
 test_that("Illegal creation of a dataset of means with subsets: too small sample size in F (two subsets)", {
 
+    .skipTestIfDisabled()
+        
 	S1N <- getDataset(
 	    sampleSize1 = c(39, 34, NA),
 	    sampleSize2 = c(33, 45, NA),
@@ -2679,6 +2686,8 @@ test_that("Illegal creation of a dataset of means with subsets: too small sample
 
 test_that("Illegal creation of a dataset of means with subsets: wrong deselection (three subsets)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize2 = c(12, 33, 21),
 	    sampleSize1 = c(18, 17, 23),
@@ -2727,6 +2736,8 @@ test_that("Illegal creation of a dataset of means with subsets: wrong deselectio
 
 test_that("Valid creation of a dataset of means with subsets: no error occurs", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize2 = c(12, 33, 21),
 	    sampleSize1 = c(18, 17, 23),
@@ -2769,6 +2780,8 @@ test_that("Valid creation of a dataset of means with subsets: no error occurs", 
 
 test_that("Illegal creation of a dataset of rates with subsets: too small number of events in F (one subset)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(22, 31, 37),
 	    sampleSize2 = c(28, 33, 39),
@@ -2792,6 +2805,8 @@ test_that("Illegal creation of a dataset of rates with subsets: too small number
 
 test_that("Illegal creation of a dataset of rates with subsets: too small sample size in F (one subset)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(22, 31, 37),
 	    sampleSize2 = c(28, 33, 39),
@@ -2815,6 +2830,8 @@ test_that("Illegal creation of a dataset of rates with subsets: too small sample
 
 test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (one subset)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(22, 31, NA),
 	    sampleSize2 = c(28, 33, NA),
@@ -2841,6 +2858,8 @@ test_that("Illegal creation of a dataset of rates with subsets: wrong deselectio
 
 test_that("Illegal creation of a dataset of rates with subsets: too small sample size in F (three subsets)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(84, 94, 25),
 	    sampleSize2 = c(82, 75, 23),
@@ -2881,6 +2900,8 @@ test_that("Illegal creation of a dataset of rates with subsets: too small sample
 
 test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (three subsets)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(47, 33, 37),
 	    sampleSize2 = c(48, 47, 39),
@@ -2921,6 +2942,8 @@ test_that("Illegal creation of a dataset of rates with subsets: wrong deselectio
 
 test_that("Creation of a dataset of rates with subsets: empty subsets", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(84, 94, 25),
 	    sampleSize2 = c(82, 75, 23),
@@ -2958,6 +2981,8 @@ test_that("Creation of a dataset of rates with subsets: empty subsets", {
 
 test_that("Illegal creation of a dataset of rates with subsets: wrong deselection (R)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    sampleSize1 = c(84, 94, 25),
 	    sampleSize2 = c(82, 75, 23),
@@ -2998,6 +3023,8 @@ test_that("Illegal creation of a dataset of rates with subsets: wrong deselectio
 
 test_that("Illegal creation of a dataset of survival data with subsets: too small number of events (one group)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    events = c(37, 56, 22),
 	    logRanks = c(1.66, 1.38, 1.22),
@@ -3022,6 +3049,8 @@ test_that("Illegal creation of a dataset of survival data with subsets: too smal
 
 test_that("Illegal creation of a dataset of survival data with subsets: wrong deselection (one group)", {
 
+    .skipTestIfDisabled()
+    
 	S1 <- getDataset(
 	    overallExpectedEvents = c(13.3, NA, NA),
 	    overallEvents = c(16, NA, NA),
@@ -3048,6 +3077,8 @@ test_that("Illegal creation of a dataset of survival data with subsets: wrong de
 
 test_that("Creation of a dataset of survival data with subsets: no error occurs", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    events = c(37, 13, 26),
 	    logRanks = -c(1.66, 1.239, 0.785)
@@ -3069,6 +3100,8 @@ test_that("Creation of a dataset of survival data with subsets: no error occurs"
 
 test_that("Illegal creation of a dataset of survival data with subsets: too small number of events (two groups)", {
 
+    .skipTestIfDisabled()
+        
 	S1 <- getDataset(
 	    events = c(37, 13, 26),
 	    logRanks = -c(1.66, 1.239, 0.785)
@@ -3095,7 +3128,9 @@ test_that("Illegal creation of a dataset of survival data with subsets: too smal
 })
 
 test_that("Illegal creation of a dataset of survival data with subsets: inconsistent deselection", {
-
+        
+    .skipTestIfDisabled()
+        
 	expect_error(getDataset(
 	    overallExpectedEvents = c(13.4, 35.4, 43.7),
 	    overallEvents = c(16, 37, 47),

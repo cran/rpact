@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 5906 $
-## |  Last changed: $Date: 2022-02-26 19:10:21 +0100 (Sa, 26 Feb 2022) $
+## |  File version: $Revision: 6293 $
+## |  Last changed: $Date: 2022-06-14 07:19:38 +0200 (Tue, 14 Jun 2022) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -385,6 +385,7 @@ plotTypes <- function(obj, output = c("numeric", "caption", "numcap", "capnum"),
 #' plotTypes(design, "caption")
 #' getAvailablePlotTypes(design, "numcap")
 #' plotTypes(design, "capnum")
+#' 
 #' @export
 #'
 getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap", "capnum"),
@@ -619,7 +620,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
     }
     cat("  x-axis: ", xAxisCmd, "\n", sep = "")
 
-    if (identical(yParameterNames, c("futilityBounds", "criticalValues"))) {
+    if (all(c("futilityBounds", "criticalValues") %in% yParameterNames)) {
         yParameterNames[1] <- paste0(
             "c(", objectName, "$futilityBounds, ",
             objectName, "$criticalValues[length(", objectName, "$criticalValues)])"
@@ -736,7 +737,8 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
     if (!.isTrialDesignSet(parameterSet)) {
         variedParameters <- logical(0)
         if ("stages" %in% colnames(data)) {
-            if (!.isTrialDesignPlan(parameterSet) || any(grepl("rejectPerStage|numberOfSubjects", yParameterNames))) {
+            if ((!.isTrialDesignPlan(parameterSet) && !("overallReject" %in% yParameterNames)) || 
+                    any(grepl("rejectPerStage|numberOfSubjects", yParameterNames))) {
                 variedParameters <- "stages"
                 names(variedParameters) <- "Stage"
             }
@@ -953,6 +955,11 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
             yAxisLabel1 <- paste0(yAxisLabel1, " (", .getAxisLabel(yParameterName1, tableColumnNames), ")")
         }
     }
+    
+    yAxisLabel1 <- sub(paste0(C_PARAMETER_NAMES[["futilityBoundsDelayedInformation"]], " and"), 
+        "Lower and", yAxisLabel1, fixed = TRUE)
+    yAxisLabel1 <- sub(paste0(C_PARAMETER_NAMES[["futilityBoundsDelayedInformationNonBinding"]], " and"), 
+        "Lower and", yAxisLabel1, fixed = TRUE)
 
     if (!("xValues" %in% colnames(data)) || !("yValues" %in% colnames(data))) {
         data$xValues <- data[[xParameterName]]
@@ -1012,7 +1019,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
             categories = uc
         ), data)
     }
-
+    
     scalingFactor1 <- 1
     scalingFactor2 <- 1
     if (!is.null(yParameterName2) && "yValues2" %in% colnames(data) && "yValues3" %in% colnames(data)) {
@@ -1055,8 +1062,8 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
         # sort categories for pairwise printing of the legend
         unqiueValues <- unique(as.character(data$categories))
         decreasing <- addPowerAndAverageSampleNumber && xParameterName %in% c("effect", "effectMatrix")
-        data$categories <- factor(data$categories, levels = unqiueValues[order(unqiueValues, decreasing = decreasing)])
-
+        catLevels <- unqiueValues[order(unqiueValues, decreasing = decreasing)]
+        data$categories <- factor(data$categories, levels = catLevels)
         if (!is.na(legendTitle) && yParameterName1 == "alphaSpent" && yParameterName2 == "betaSpent") {
             sep <- ifelse(length(legendTitle) > 0 && nchar(legendTitle) > 0, "\n", "")
             legendTitle <- paste(legendTitle, "Type of error", sep = sep)
@@ -1075,7 +1082,7 @@ getAvailablePlotTypes <- function(obj, output = c("numeric", "caption", "numcap"
             (.isTrialDesignPlanMeans(parameterSet) && parameterSet$meanRatio) ||
             (.isTrialDesignPlanRates(parameterSet) && parameterSet$riskRatio)
     }
-
+    
     plotDashedHorizontalLine <- "criticalValuesEffectScale" %in% yParameterNames && designMaster$sided == 2
     p <- .plotDataFrame(data,
         mainTitle = mainTitle, xlab = xlab, ylab = ylab,
