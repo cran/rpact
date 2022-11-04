@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 3.3.1
-Date: 2022-08-24
+Version: 3.3.2
+Date: 2022-11-04
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -23,19 +23,22 @@ URL: https://www.rpact.org, https://www.rpact.com,
 BugReports: https://github.com/rpact-com/rpact/issues
 Language: en-US
 Depends: R (>= 3.5.0)
-Imports: methods, stats, utils, graphics, tools, Rcpp (>= 1.0.0)
+Imports: methods, stats, utils, graphics, tools, Rcpp (>= 1.0.3)
 LinkingTo: Rcpp
-Suggests: parallel, ggplot2 (>= 2.2.0), testthat (>= 2.0.0), mnormt (>=
+SystemRequirements: C++11
+Suggests: parallel, ggplot2 (>= 2.2.0), testthat (>= 3.0.0), mnormt (>=
         1.5-7), knitr (>= 1.19), rmarkdown (>= 1.10)
 VignetteBuilder: knitr, rmarkdown
 RoxygenNote: 7.2.1
 Config/testthat/edition: 3
+Config/testthat/parallel: true
+Config/testthat/start-first: *analysis*
 Collate: 'RcppExports.R' 'f_logger.R' 'f_core_constants.R'
         'f_core_utilities.R' 'f_core_assertions.R'
         'f_analysis_utilities.R' 'f_parameter_set_utilities.R'
         'class_core_parameter_set.R' 'class_core_plot_settings.R'
-        'f_analysis_base.R' 'class_analysis_dataset.R' 'f_core_plot.R'
-        'class_design.R' 'class_analysis_stage_results.R'
+        'f_core_plot.R' 'class_design.R' 'f_analysis_base.R'
+        'class_analysis_dataset.R' 'class_analysis_stage_results.R'
         'class_analysis_results.R' 'class_time.R' 'class_design_set.R'
         'f_design_utilities.R' 'class_design_plan.R'
         'class_design_power_and_asn.R' 'class_event_probabilities.R'
@@ -58,9 +61,9 @@ Collate: 'RcppExports.R' 'f_logger.R' 'f_core_constants.R'
         'f_simulation_multiarm_survival.R' 'parameter_descriptions.R'
         'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2022-08-24 09:18:23 UTC; fried
+Packaged: 2022-11-04 10:37:32 UTC; fried
 Author: Gernot Wassmer [aut],
   Friedrich Pahlke [aut, cre]
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2022-08-24 10:50:02 UTC
+Date/Publication: 2022-11-04 15:30:21 UTC
