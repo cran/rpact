@@ -14,8 +14,8 @@ getFinalPValue(stageResults, ...)
 \value{
 Returns a \code{\link[base]{list}} containing
 \itemize{
-  \item \code{finalStage},
-  \item \code{pFinal}.
+\item \code{finalStage},
+\item \code{pFinal}.
 }
 }
 \description{
@@ -27,7 +27,7 @@ This enables the calculation for both the non-adaptive and the adaptive case.
 For Fisher's combination test, it is available for \code{kMax = 2} only.
 }
 \examples{
-\donttest{
+\dontrun{
 design <- getDesignInverseNormal(kMax = 2)
 data <- getDataset(
     n      = c( 20,  30),
@@ -40,7 +40,6 @@ getFinalPValue(getStageResults(design, dataInput = data))
 }
 \seealso{
 Other analysis functions: 
-\code{\link{getAnalysisResults}()},
 \code{\link{getClosedCombinationTestResults}()},
 \code{\link{getClosedConditionalDunnettTestResults}()},
 \code{\link{getConditionalPower}()},

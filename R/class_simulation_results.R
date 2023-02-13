@@ -14,8 +14,8 @@
 ## | 
 ## |  Contact us for information about our services: info@rpact.com
 ## | 
-## |  File version: $Revision: 6619 $
-## |  Last changed: $Date: 2022-10-20 11:41:21 +0200 (Thu, 20 Oct 2022) $
+## |  File version: $Revision: 6801 $
+## |  Last changed: $Date: 2023-02-06 15:29:57 +0100 (Mon, 06 Feb 2023) $
 ## |  Last changed by: $Author: pahlke $
 ## | 
 
@@ -553,7 +553,7 @@ SimulationResultsBaseMeans <- setRefClass("SimulationResultsBaseMeans",
 		maxNumberOfSubjectsPerStage = "numeric",
 		thetaH1 = "numeric",
 		stDevH1 = "numeric",
-		calcSubjectsFunction = "function",
+		calcSubjectsFunction = "ANY",
 		expectedNumberOfSubjects = "numeric"
 	),
 	methods = list(
@@ -613,9 +613,6 @@ SimulationResultsMeans <- setRefClass("SimulationResultsMeans",
 		alternative = "numeric",
 		groups = "integer",
 		directionUpper = "logical",
-		
-		thetaH1 = "numeric",
-		srDevH1 = "numeric",
 		
 		effect = "numeric",
 		earlyStop = "numeric",
@@ -706,7 +703,7 @@ SimulationResultsBaseRates <- setRefClass("SimulationResultsBaseRates",
 		plannedSubjects = "numeric", 
 		minNumberOfSubjectsPerStage = "numeric",
 		maxNumberOfSubjectsPerStage = "numeric",
-		calcSubjectsFunction = "function",
+		calcSubjectsFunction = "ANY",
 		expectedNumberOfSubjects = "numeric"
 	),
 	methods = list(
@@ -836,7 +833,7 @@ SimulationResultsMultiArmRates <- setRefClass("SimulationResultsMultiArmRates",
 		typeOfShape = "character",
 		piMaxVector = "numeric", 
 		piControl = "numeric", 
-		piH1 = "numeric", 
+        piTreatmentsH1 = "numeric", 
 		piControlH1 = "numeric", 
 		gED50 = "numeric",
 		slope = "numeric",
@@ -883,7 +880,7 @@ SimulationResultsBaseSurvival <- setRefClass("SimulationResultsBaseSurvival",
 		minNumberOfEventsPerStage = "numeric",
 		maxNumberOfEventsPerStage = "numeric", 
 		thetaH1 = "numeric",
-		calcEventsFunction = "function", 
+		calcEventsFunction = "ANY", 
 		expectedNumberOfEvents = "numeric"
 	),
 	methods = list(
@@ -2145,7 +2142,7 @@ SimulationResultsEnrichmentSurvival <- setRefClass("SimulationResultsEnrichmentS
 #' @template return_object_ggplot
 #' 
 #' @examples 
-#' \donttest{
+#' \dontrun{
 #' results <- getSimulationMeans(alternative = 0:4, stDev = 5, 
 #'     plannedSubjects = 40, maxNumberOfIterations = 1000)
 #' plot(results, type = 5)
@@ -2416,7 +2413,7 @@ getData.SimulationResults <- function(x) {
 #' @template return_dataframe
 #' 
 #' @examples 
-#' \donttest{
+#' \dontrun{
 #' results <- getSimulationSurvival(pi1 = seq(0.3,0.6,0.1), pi2 = 0.3, eventTime = 12, 
 #'     accrualTime = 24, plannedEvents = 40, maxNumberOfSubjects = 200, 
 #'     maxNumberOfIterations = 50, maxNumberOfRawDatasetsPerStage = 5)

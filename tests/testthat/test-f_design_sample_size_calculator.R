@@ -14,9 +14,9 @@
 ## |  Contact us for information about our services: info@rpact.com
 ## |  
 ## |  File name: test-f_design_sample_size_calculator.R
-## |  Creation date: 12 August 2022, 09:11:07
-## |  File version: $Revision: 6512 $
-## |  Last changed: $Date: 2022-08-19 08:30:41 +0200 (Fr, 19 Aug 2022) $
+## |  Creation date: 06 February 2023, 12:13:20
+## |  File version: $Revision: 6801 $
+## |  Last changed: $Date: 2023-02-06 15:29:57 +0100 (Mon, 06 Feb 2023) $
 ## |  Last changed by: $Author: pahlke $
 ## |  
 
@@ -24,7 +24,6 @@ test_plan_section("Testing the Sample Size Calculation of Testing Means for Diff
 
 
 test_that("'getSampleSizeMeans': Sample size calculation of testing means for one sided group sequential design", {
-        
 	# @refFS[Formula]{fs:criticalValuesWangTiatis}
 	# @refFS[Formula]{fs:inflationFactor}
 	# @refFS[Formula]{fs:expectedReduction}
@@ -54,7 +53,7 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-
+    
 	designGS1 <- getDesignGroupSequential(
 	    informationRates = c(0.2, 0.5, 1), sided = 1,
 	    beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
@@ -103,8 +102,8 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-
-	.skipTestIfDisabled()
+    
+    .skipTestIfDisabled()
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:sampleSizeOneMeanVarianceKnownOnesided}
@@ -836,7 +835,7 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for on
 })
 
 test_that("'getSampleSizeMeans': Sample size calculation of testing means for two sided group sequential design", {
-        
+
     .skipTestIfDisabled()
         
 	# @refFS[Formula]{fs:criticalValuesWangTiatis}
@@ -868,7 +867,7 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-
+    
 	designGS2 <- getDesignGroupSequential(
 	    informationRates = c(0.2, 0.5, 1), alpha = 0.4,
 	    sided = 2, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3
@@ -925,8 +924,6 @@ test_that("'getSampleSizeMeans': Sample size calculation of testing means for tw
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-
-	.skipTestIfDisabled()
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeMeans}
 	# @refFS[Formula]{fs:sampleSizeOneMeanVarianceKnownOnesided}
@@ -1226,8 +1223,10 @@ test_plan_section("Testing the Sample Size Calculation of Testing Rates for Diff
 
 
 test_that("'getSampleSizeRates': Sample size calculation of testing rates for one sided group sequential design", {
-	
-    designGS1 <- getDesignGroupSequential(informationRates = c(0.2, 0.5, 1), sided = 1, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
+        
+    .skipTestIfDisabled()
+        
+	designGS1 <- getDesignGroupSequential(informationRates = c(0.2, 0.5, 1), sided = 1, beta = 0.1, typeOfDesign = "WT", deltaWT = 0.3)
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeRates}
 	# @refFS[Formula]{fs:sampleSizeOneRateExactOnesidedLargerpi1}
@@ -2004,8 +2003,10 @@ test_plan_section("Testing the Sample Size Calculation of Survival Designs for D
 
 
 test_that("'getSampleSizeSurvival': Fixed sample size with minimum required definitions, pi1 = c(0.4, 0.5, 0.6) and pi2 = 0.2 at event time 12, accrual time 12 and follow-up time 6 as default, only alpha = 0.01 is specified", {
-	
-    # @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
+        
+    .skipTestIfDisabled()
+        
+	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalSchoenfeld}
 	# @refFS[Formula]{fs:sampleSizeSurvivalPatientNumber}
 	# @refFS[Formula]{fs:sampleSizeSurvivalEventProbabilityNotAcccountForOberservationTimes}
@@ -4836,8 +4837,6 @@ test_that("'getSampleSizeSurvival': sample size calculation of survival data for
 	    expect_true(is.matrix(mtx))
 	    expect_true(nrow(mtx) > 0 && ncol(mtx) > 0)
 	}
-
-	.skipTestIfDisabled()
 
 	# @refFS[Tab.]{fs:tab:output:getSampleSizeSurvival}
 	# @refFS[Formula]{fs:sampleSizeSurvivalFreedman}
@@ -7807,8 +7806,8 @@ test_plan_section("Testing Other Functions of the Sample Size Calculator for Sur
 
 
 test_that("'getEventProbabilities': check expected events over time for overall survival (case 1)", {
-	
-    .skipTestIfDisabled()
+        
+	.skipTestIfDisabled()
 
 	design <- getDesignGroupSequential(
 	    sided = 1, alpha = 0.025, beta = 0.2,
@@ -8448,7 +8447,7 @@ test_that("'getSampleSizeSurvival': check calculations for fixed design with rel
 })
 
 test_that("'.getLambdaStepFunctionByTime': return correct lambda for specified time and piecewise exponential bounds", {
-
+        
     .skipTestIfDisabled()
         
 	# @refFS[Formula]{fs:pieceWiseExponentialSurvival}

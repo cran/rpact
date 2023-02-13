@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 6585 $
-## |  Last changed: $Date: 2022-09-23 14:23:08 +0200 (Fr, 23 Sep 2022) $
+## |  File version: $Revision: 6802 $
+## |  Last changed: $Date: 2023-02-07 17:07:25 +0100 (Di, 07 Feb 2023) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -59,7 +59,7 @@ NULL
 #' )
 #' designSet <- getDesignSet()
 #' designSet$add(design = design, deltaWT = c(0.3, 0.4))
-#' \donttest{
+#' \dontrun{
 #' if (require(ggplot2)) plot(designSet, type = 1)
 #' }
 #'
@@ -69,7 +69,7 @@ NULL
 #'     sided = 2, typeOfDesign = "WT", deltaWT = 0.1
 #' )
 #' designSet <- getDesignSet(design = design, deltaWT = c(0.3, 0.4))
-#' \donttest{
+#' \dontrun{
 #' if (require(ggplot2)) plot(designSet, type = 1)
 #' }
 #'
@@ -88,7 +88,7 @@ NULL
 #'     designs = c(d1, d2),
 #'     variedParameters = c("typeOfDesign", "kMax")
 #' )
-#' \donttest{
+#' \dontrun{
 #' if (require(ggplot2)) plot(designSet, type = 8, nMax = 20)
 #' }
 #'
@@ -551,7 +551,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
 #' Function to the \code{TrialDesign} at position \code{i} in a \code{TrialDesignSet} object.
 #'
 #' @details
-#' Can be used to iterate with "[index]"-syntax over all designs in a design set.
+#' Can be used to iterate over all designs in a design set.
 #'
 #' @examples
 #' designSet <- getDesignSet(design = getDesignFisher(), alpha = c(0.01, 0.05))
@@ -615,7 +615,7 @@ names.TrialDesignSet <- function(x) {
 #' @param x A \code{\link{TrialDesignSet}} object.
 #'
 #' @details
-#' Is helpful for iteration over all designs in a design set with "[index]"-syntax.
+#' Is helpful for iteration over all designs in a design set.
 #'
 #' @return Returns a non-negative \code{\link[base]{integer}} of length 1
 #' representing the number of design in the \code{TrialDesignSet}.
@@ -781,6 +781,7 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 #' @template return_object_ggplot
 #'
 #' @examples
+#' \dontrun{
 #' design <- getDesignInverseNormal(
 #'     kMax = 3, alpha = 0.025,
 #'     typeOfDesign = "asKD", gammaA = 2,
@@ -792,6 +793,7 @@ as.data.frame.TrialDesignSet <- function(x, row.names = NULL,
 #' designSet <- getDesignSet(design = design, gammaA = 4)
 #'
 #' if (require(ggplot2)) plot(designSet, type = 1, legendPosition = 6)
+#' }
 #'
 #' @export
 #'

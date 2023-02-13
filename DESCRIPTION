@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 3.3.2
-Date: 2022-11-04
+Version: 3.3.3
+Date: 2023-02-13
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -11,7 +11,8 @@ Authors@R: c(
     person(
     	given = "Friedrich", 
     	family = "Pahlke", 
-    	email = "friedrich.pahlke@rpact.com", 
+    	email = "friedrich.pahlke@rpact.com",
+    	comment = c(ORCID = "0000-0003-2105-2582"), 
     	role = c("aut", "cre"))
     )
 Description: Design and analysis of confirmatory adaptive clinical trials with continuous, binary, and survival endpoints according to the methods described in the monograph by Wassmer and Brannath (2016) <doi:10.1007/978-3-319-32562-0>. This includes classical group sequential as well as multi-stage adaptive hypotheses tests that are based on the combination testing principle.
@@ -22,14 +23,13 @@ URL: https://www.rpact.org, https://www.rpact.com,
         https://github.com/rpact-com/rpact
 BugReports: https://github.com/rpact-com/rpact/issues
 Language: en-US
-Depends: R (>= 3.5.0)
-Imports: methods, stats, utils, graphics, tools, Rcpp (>= 1.0.3)
+Depends: R (>= 3.6.0)
+Imports: methods, stats, utils, graphics, tools, rlang, Rcpp (>= 1.0.3)
 LinkingTo: Rcpp
-SystemRequirements: C++11
 Suggests: parallel, ggplot2 (>= 2.2.0), testthat (>= 3.0.0), mnormt (>=
         1.5-7), knitr (>= 1.19), rmarkdown (>= 1.10)
 VignetteBuilder: knitr, rmarkdown
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/testthat/start-first: *analysis*
@@ -54,16 +54,18 @@ Collate: 'RcppExports.R' 'f_logger.R' 'f_core_constants.R'
         'f_design_group_sequential.R'
         'f_design_sample_size_calculator.R' 'f_quality_assurance.R'
         'f_simulation_base_means.R' 'f_simulation_base_rates.R'
+        'f_simulation_calc_subjects_function.R'
         'f_simulation_enrichment.R' 'f_simulation_enrichment_means.R'
         'f_simulation_enrichment_rates.R'
         'f_simulation_enrichment_survival.R' 'f_simulation_multiarm.R'
         'f_simulation_multiarm_means.R' 'f_simulation_multiarm_rates.R'
-        'f_simulation_multiarm_survival.R' 'parameter_descriptions.R'
+        'f_simulation_multiarm_survival.R'
+        'f_simulation_performance_score.R' 'parameter_descriptions.R'
         'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2022-11-04 10:37:32 UTC; fried
+Packaged: 2023-02-13 11:57:28 UTC; fried
 Author: Gernot Wassmer [aut],
-  Friedrich Pahlke [aut, cre]
+  Friedrich Pahlke [aut, cre] (<https://orcid.org/0000-0003-2105-2582>)
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2022-11-04 15:30:21 UTC
+Date/Publication: 2023-02-13 12:20:02 UTC
