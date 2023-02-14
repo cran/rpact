@@ -15,9 +15,9 @@
 ## |  
 ## |  File name: test-f_design_power_calculator.R
 ## |  Creation date: 13 February 2023, 12:02:47
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  File version: $Revision: 6810 $
+## |  Last changed: $Date: 2023-02-13 12:58:47 +0100 (Mo, 13 Feb 2023) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 test_plan_section("Testing the Power Calculation of Testing Means for Different Designs and Arguments")

@@ -91,9 +91,10 @@ with `testPackage()`.
 > [www.rpact.org](https://www.rpact.org)
 
 -   **RPACT** is a company which offers
-    -   enterprise software development services
-    -   technical support for the `rpact` package
-    -   consultancy and user training for clinical research using R
+    -   enterprise R/Shiny software development services
+    -   technical support for the
+        [rpact](https://cran.r-project.org/package=rpact) package
+    -   consultancy and user training for scientists using R
     -   validated software solutions and R package development for
         clinical research
 

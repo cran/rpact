@@ -23,7 +23,6 @@
 
 // [[Rcpp::plugins(cpp11)]]
 
-#include <cmath>
 #include "f_utilities.h"
 #include "f_simulation_survival_utilities.h"
 

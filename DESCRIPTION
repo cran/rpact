@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 3.3.3
-Date: 2023-02-13
+Version: 3.3.4
+Date: 2023-02-14
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -63,9 +63,9 @@ Collate: 'RcppExports.R' 'f_logger.R' 'f_core_constants.R'
         'f_simulation_performance_score.R' 'parameter_descriptions.R'
         'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2023-02-13 11:57:28 UTC; fried
+Packaged: 2023-02-14 09:08:38 UTC; fried
 Author: Gernot Wassmer [aut],
   Friedrich Pahlke [aut, cre] (<https://orcid.org/0000-0003-2105-2582>)
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2023-02-13 12:20:02 UTC
+Date/Publication: 2023-02-14 15:50:02 UTC
