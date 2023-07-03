@@ -51,7 +51,8 @@ The documentation is hosted at <https://www.rpact.org>
 
 ## Vignettes
 
-The vignettes are hosted at <https://www.rpact.com/vignettes>
+The vignettes are hosted at
+[www.rpact.org/vignettes](https://www.rpact.org/vignettes/)
 
 ## The rpact user group
 
