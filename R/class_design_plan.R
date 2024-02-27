@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7592 $
-## |  Last changed: $Date: 2024-01-24 10:48:09 +0100 (Mi, 24 Jan 2024) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 7651 $
+## |  Last changed: $Date: 2024-02-20 15:45:44 +0100 (Di, 20 Feb 2024) $
+## |  Last changed by: $Author: pahlke $
 ## |
 
 #' @include f_core_constants.R
@@ -112,8 +112,6 @@ TrialDesignPlan <- setRefClass("TrialDesignPlan",
             callSuper(.design = design, ...)
 
             .plotSettings <<- PlotSettings()
-            .parameterNames <<- .getParameterNames(design = design, designPlan = .self)
-            .parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 
             if (.isTrialDesignPlanMeans(.self)) {
                 defaultValueList <- C_TRIAL_DESIGN_PLAN_DEFAULT_VALUES_MEANS
@@ -701,6 +699,8 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 #' @template field_studyDuration
 #' @template field_maxStudyDuration
 #' @template field_eventsPerStage
+#' @template field_singleEventsPerStage
+#' @template field_cumulativeEventsPerStage
 #' @template field_expectedEventsH0
 #' @template field_expectedEventsH01
 #' @template field_expectedEventsH1
@@ -717,7 +717,7 @@ TrialDesignPlanRates <- setRefClass("TrialDesignPlanRates",
 #' @template field_futilityBoundsEffectScaleLower
 #' @template field_futilityBoundsEffectScaleUpper
 #' @template field_futilityBoundsPValueScale
-#'
+#' 
 #' @details
 #' This object cannot be created directly; use \code{\link[=getSampleSizeSurvival]{getSampleSizeSurvival()}}
 #' with suitable arguments to create a design plan for a dataset of survival data.
@@ -785,7 +785,9 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
         studyDurationH1 = "numeric",
         studyDuration = "numeric",
         maxStudyDuration = "numeric",
-        eventsPerStage = "matrix",
+        eventsPerStage = "matrix", # deprecated
+        singleEventsPerStage = "matrix",
+        cumulativeEventsPerStage = "matrix",
         expectedEventsH0 = "numeric",
         expectedEventsH01 = "numeric",
         expectedEventsH1 = "numeric",
@@ -828,6 +830,8 @@ TrialDesignPlanSurvival <- setRefClass("TrialDesignPlanSurvival",
             .setParameterType("futilityBoundsEffectScale", C_PARAM_NOT_APPLICABLE)
             .setParameterType("futilityBoundsEffectScaleLower", C_PARAM_NOT_APPLICABLE)
             .setParameterType("futilityBoundsEffectScaleUpper", C_PARAM_NOT_APPLICABLE)
+            
+            .setParameterType("singleEventsPerStage", C_PARAM_NOT_APPLICABLE)
 
             # set default values
             for (parameterName in c(
@@ -1066,7 +1070,6 @@ TrialDesignPlanCountData <- setRefClass("TrialDesignPlanCountData",
 
             groups <<- 2L
             optimumAllocationRatio <<- FALSE
-            .parameterFormatFunctions$maxInformation <<- ".formatRatesDynamic"
             .self$.setParameterType("groups", C_PARAM_NOT_APPLICABLE)
             .self$.setParameterType("directionUpper", C_PARAM_NOT_APPLICABLE)
             .self$.setParameterType("optimumAllocationRatio", C_PARAM_NOT_APPLICABLE)

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7558 $
-## |  Last changed: $Date: 2024-01-12 15:29:16 +0100 (Fri, 12 Jan 2024) $
+## |  File version: $Revision: 7645 $
+## |  Last changed: $Date: 2024-02-16 16:12:34 +0100 (Fr, 16 Feb 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -179,7 +179,7 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
         initialize = function(...) {
             .plotSettings <<- PlotSettings()
             designs <<- list()
-            variedParameters <<- character(0)
+            variedParameters <<- character()
             if (length(list(...)) > 0) {
                 add(...)
             }
@@ -319,13 +319,13 @@ TrialDesignSet <- setRefClass("TrialDesignSet",
         .getArgumentNames = function(validatedDesign, ...) {
             args <- list(...)
             if (length(args) == 0) {
-                return(character(0))
+                return(character())
             }
 
             argumentNames <- names(args)
             if (length(argumentNames) == 0) {
                 warning("No argument names available for ", paste(args, collapse = ", "), call. = FALSE)
-                return(character(0))
+                return(character())
             }
 
             argumentNames <- argumentNames[nchar(argumentNames) != 0]
@@ -642,7 +642,7 @@ length.TrialDesignSet <- function(x) {
             length(colNames1), " != ", length(colNames2), ")")
     }
     
-    colNames <- character(0)
+    colNames <- character()
     for (i in 1:length(colNames1)) {
         colName1 <- colNames1[i]
         colName2 <- colNames2[i]
@@ -767,7 +767,7 @@ as.data.frame.TrialDesignSet <- function(x,
         if (.isTrialDesignWithValidFutilityBounds(design)) {
             futilityBoundsName <- "futilityBounds"
             if (niceColumnNamesEnabled) {
-                futilityBoundsName <- .getTableColumnNames(design = design)[["futilityBounds"]]
+                futilityBoundsName <- .getParameterCaption("futilityBounds", design, tableOutputEnabled = TRUE)
             }
 
             kMax <- design$kMax
@@ -776,7 +776,7 @@ as.data.frame.TrialDesignSet <- function(x,
         if (.isTrialDesignWithValidAlpha0Vec(design)) {
             alpha0VecName <- "alpha0Vec"
             if (niceColumnNamesEnabled) {
-                alpha0VecName <- .getTableColumnNames(design = design)[["alpha0Vec"]]
+                alpha0VecName <- .getParameterCaption("alpha0Vec", design, tableOutputEnabled = TRUE)
             }
 
             kMax <- design$kMax

@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7592 $
-## |  Last changed: $Date: 2024-01-24 10:48:09 +0100 (Mi, 24 Jan 2024) $
-## |  Last changed by: $Author: wassmer $
+## |  File version: $Revision: 7644 $
+## |  Last changed: $Date: 2024-02-16 10:36:28 +0100 (Fr, 16 Feb 2024) $
+## |  Last changed by: $Author: pahlke $
 ## |
 
 #' Parameter Description: "..."
@@ -335,7 +335,7 @@ NULL
 NULL
 
 #' Parameter Description: followUpTime for Counts
-#' @param followUpTime If specified, The assumed (additional) follow-up time for the study, there is no default.
+#' @param followUpTime If specified, the assumed (additional) follow-up time for the study, there is no default.
 #'        The total study duration is \code{accrualTime + followUpTime}.
 #' @name param_followUpTime_counts
 #' @keywords internal
@@ -373,9 +373,10 @@ NULL
 #' Parameter Description: Allocation Ratio Planned
 #' @param allocationRatioPlanned The planned allocation ratio \code{n1 / n2} for a two treatment groups
 #'   design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.
-#'   For simulating means and rates for a two treatment groups design, it can be a vector of length kMax, the number of stages.
+#'   For simulating means and rates for a two treatment groups design, it can be a vector of length `kMax`, the number of stages.
 #'   It can be a vector of length kMax, too, for multi-arm and enrichment designs.
 #' 	 In these cases, a change of allocating subjects to treatment groups over the stages can be assessed.
+#'   Note that internally `allocationRatioPlanned` is treated as a vector of length `kMax`, not a scalar.
 #' @name param_allocationRatioPlanned
 #' @keywords internal
 NULL

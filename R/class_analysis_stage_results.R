@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7554 $
-## |  Last changed: $Date: 2024-01-12 10:19:05 +0100 (Fr, 12 Jan 2024) $
+## |  File version: $Revision: 7645 $
+## |  Last changed: $Date: 2024-02-16 16:12:34 +0100 (Fr, 16 Feb 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -92,9 +92,7 @@ StageResults <- setRefClass("StageResults",
                 } else {
                     .setParameterType("stages", C_PARAM_USER_DEFINED)
                 }
-                .parameterNames <<- .getParameterNames(design = design)
             }
-            .parameterFormatFunctions <<- C_PARAMETER_FORMAT_FUNCTIONS
 
             .setParameterType("stage", C_PARAM_NOT_APPLICABLE)
 
@@ -1213,8 +1211,7 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
             parameterSet = x,
             parameterNames = parametersToShow,
             niceColumnNamesEnabled = niceColumnNamesEnabled,
-            includeAllParameters = includeAllParameters,
-            tableColumnNames = .getTableColumnNames(design = x$.design)
+            includeAllParameters = includeAllParameters
         ))
     }
 
@@ -1440,7 +1437,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
         data <- data.frame(
             xValues = numeric(0),
             yValues = numeric(0),
-            categories = character(0),
+            categories = character(),
             treatmentArms = numeric(0)
         )
         for (treatmentArm in treatmentArmsToShow) {
@@ -1489,7 +1486,7 @@ plot.StageResults <- function(x, y, ..., type = 1L,
         data <- data.frame(
             xValues = numeric(0),
             yValues = numeric(0),
-            categories = character(0),
+            categories = character(),
             populations = numeric(0)
         )
         for (population in populationsToShow) {

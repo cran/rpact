@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7595 $
-## |  Last changed: $Date: 2024-01-25 13:19:41 +0100 (Do, 25 Jan 2024) $
+## |  File version: $Revision: 7668 $
+## |  Last changed: $Date: 2024-02-26 10:47:27 +0100 (Mo, 26 Feb 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -525,7 +525,8 @@ SummaryFactory <- setRefClass("SummaryFactory",
                                 "successPerStage",
                                 "expectedNumberOfSubjects",
                                 "expectedNumberOfEvents",
-                                "singleNumberOfEventsPerStage",
+                                "singleEventsPerArmAndStage",
+                                "singleEventsPerSubsetAndStage",
                                 "numberOfActiveArms",
                                 "numberOfPopulations",
                                 "conditionalPowerAchieved"
@@ -546,7 +547,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                             if (variedParameterName == "piTreatments") {
                                 variedParameterCaption <- "pi(treatment)"
                             } else {
-                                variedParameterCaption <- C_PARAMETER_NAMES[[variedParameterName]]
+                                variedParameterCaption <- .getParameterCaption(variedParameterName)
                                 if (is.matrix(variedParameterValues) && ncol(variedParameterValues) == 1) {
                                     variedParameterCaption <- sub("s$", "", variedParameterCaption)
                                 }
@@ -559,7 +560,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                         } else {
                             variedParameterName <- .getVariedParameterSimulationMultiArm(parameterSet)
                             variedParameterValues <- parameterSet[[variedParameterName]]
-                            variedParameterCaption <- C_PARAMETER_NAMES[[variedParameterName]]
+                            variedParameterCaption <- .getParameterCaption(variedParameterName)
                             numberOfVariants <- length(variedParameterValues)
                         }
                         variedParameterCaption <- tolower(variedParameterCaption)
@@ -626,17 +627,18 @@ SummaryFactory <- setRefClass("SummaryFactory",
                     } else {
                         variedParameter <- parameterSet$.getVariedParameter(parameterNames, numberOfVariants)
                     }
-                    if (length(variedParameter) == 0 || variedParameter == "") {
-                        warning(
-                            "Failed to get varied parameter from ", .getClassName(parameterSet),
-                            " (", length(parameterNames), " parameter names; numberOfVariants: ", numberOfVariants, ")"
-                        )
+                    if (is.null(variedParameter) || length(variedParameter) == 0 || variedParameter == "") {
+                        if (.getLogicalEnvironmentVariable("RPACT_DEVELOPMENT_MODE")) {
+                            warning( 
+                                "Failed to get varied parameter from ", .getClassName(parameterSet),
+                                " (", length(parameterNames), " parameter names; numberOfVariants: ", numberOfVariants, ")"
+                            )
+                        }
                         return(invisible())
                     }
 
-                    variedParameterCaption <- parameterSet$.getDataFrameColumnCaption(variedParameter,
-                        tableColumnNames = C_TABLE_COLUMN_NAMES, niceColumnNamesEnabled = TRUE
-                    )
+                    variedParameterCaption <- parameterSet$.getDataFrameColumnCaption(
+                        variedParameter, niceColumnNamesEnabled = TRUE)
                     variedParameterCaption <- tolower(variedParameterCaption)
 
                     if (variedParameterCaption == "alternative" || variedParameterCaption == ".alternative") {
@@ -765,6 +767,10 @@ SummaryFactory <- setRefClass("SummaryFactory",
                     if (length(values) <= 1 && !is.matrix(values)) {
                         colValues <- values
                     } else if (is.matrix(values)) {
+                        if (length(values) == 0 || nrow(values) == 0 || ncol(values) == 0) {
+                            return("")
+                        }
+                        
                         if (nrow(values) == 1 && ncol(values) == 1) {
                             colValues <- values[1, 1]
                         } else if (ncol(values) == 1) {
@@ -887,12 +893,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                         if (inherits(fieldSet, "Dataset") &&
                                 grepl("samplesize|event", tolower(parameterName))) {
                         } else {
-                            if (inherits(fieldSet, "FieldSet")) {
-                                formatFunctionName <- fieldSet$.parameterFormatFunctions[[parameterName]]
-                            }
-                            if (is.null(formatFunctionName)) {
-                                formatFunctionName <- C_PARAMETER_FORMAT_FUNCTIONS[[parameterName]]
-                            }
+                            formatFunctionName <- .getParameterFormatFunction(parameterName, fieldSet)
                         }
                     }
                 }
@@ -3167,10 +3168,10 @@ SummaryFactory <- setRefClass("SummaryFactory",
         if (outputSize %in% c("medium", "large")) {
             if (survivalEnabled) {
                 if (enrichmentEnabled) {
-                    parameterName <- "singleNumberOfEventsPerStage"
+                    parameterName <- "singleEventsPerSubsetAndStage"
                     parameterCaption <- "Single number of events"
                 } else {
-                    parameterName <- "eventsPerStage"
+                    parameterName <- "cumulativeEventsPerStage" 
                     parameterCaption <- "Cumulative number of events"
                 }
             } else {
@@ -3251,7 +3252,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 
         if (inherits(designPlan, "SimulationResults")) {
             parameterNameSubjects <- ifelse(survivalEnabled, "numberOfSubjects", "sampleSizes")
-            parameterNameEvents <- "eventsPerStage"
+            parameterNameEvents <- "cumulativeEventsPerStage"
         } else {
             if (design$kMax == 1 && (
                     designPlan$.isSampleSizeObject() ||
@@ -3268,7 +3269,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
                 parameterNameEvents <- "expectedNumberOfEvents"
             } else {
                 parameterNameSubjects <- "numberOfSubjects"
-                parameterNameEvents <- "eventsPerStage"
+                parameterNameEvents <- "cumulativeEventsPerStage"
             }
         }
 
@@ -3641,7 +3642,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
         if (variedParameterName == "piTreatments") {
             variedParameterCaption <- "pi(treatment)"
         } else {
-            variedParameterCaption <- C_PARAMETER_NAMES[[variedParameterName]]
+            variedParameterCaption <- .getParameterCaption(variedParameterName)
         }
         if (is.matrix(variedParameterValues) && ncol(variedParameterValues) == 1) {
             variedParameterCaption <- sub("s$", "", variedParameterCaption)
@@ -3649,7 +3650,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     } else {
         variedParameterName <- .getVariedParameterSimulationMultiArm(designPlan)
         variedParameterValues <- designPlan[[variedParameterName]]
-        variedParameterCaption <- C_PARAMETER_NAMES[[variedParameterName]]
+        variedParameterCaption <- .getParameterCaption(variedParameterName)
     }
 
     userDefinedEffectMatrix <- !enrichmentEnabled &&
@@ -3697,7 +3698,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
 
     if (!grepl("Survival", .getClassName(designPlan)) ||
             (inherits(designPlan, "SimulationResultsMultiArmSurvival") &&
-                parameterName == "singleNumberOfEventsPerStage")) {
+                parameterName == "singleEventsPerArmAndStage")) {
         return(ifelse(groupNumber == numberOfGroups,
             paste0(listItemPrefix, "Control arm"),
             paste0(listItemPrefix, treatmentCaption)
@@ -3755,7 +3756,7 @@ SummaryFactory <- setRefClass("SummaryFactory",
     arrayData <- designPlan[[parameterName]]
     if (is.array(arrayData) && length(dim(arrayData)) == 3) {
         totalNumberOfGroups <- dim(designPlan[[ifelse(grepl("Survival", .getClassName(designPlan)),
-            "eventsPerStage", "sampleSizes"
+            "cumulativeEventsPerStage", "sampleSizes"
         )]])[3]
 
         numberOfGroups <- dim(arrayData)[3]

@@ -74,14 +74,15 @@ default is \code{0}.}
 
 \item{accrualIntensity}{If specified, the assumed accrual intensities for the study, there is no default.}
 
-\item{followUpTime}{If specified, The assumed (additional) follow-up time for the study, there is no default.
+\item{followUpTime}{If specified, the assumed (additional) follow-up time for the study, there is no default.
 The total study duration is \code{accrualTime + followUpTime}.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.
-For simulating means and rates for a two treatment groups design, it can be a vector of length kMax, the number of stages.
+For simulating means and rates for a two treatment groups design, it can be a vector of length \code{kMax}, the number of stages.
 It can be a vector of length kMax, too, for multi-arm and enrichment designs.
-In these cases, a change of allocating subjects to treatment groups over the stages can be assessed.}
+In these cases, a change of allocating subjects to treatment groups over the stages can be assessed.
+Note that internally \code{allocationRatioPlanned} is treated as a vector of length \code{kMax}, not a scalar.}
 }
 \value{
 Returns a \code{\link{TrialDesignPlan}} object.
