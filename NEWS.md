@@ -1,4 +1,20 @@
 
+# rpact 4.0.0
+
+## New features
+
+* All reference classes in the package have been replaced by [R6](https://cran.r-project.org/package=R6) classes. This change brings significant advantages, including improved performance, more flexible and cleaner object-oriented programming, and enhanced encapsulation of methods and properties. The transition to R6 classes allows for more efficient memory management and faster execution, making the package more robust and scalable. Additionally, R6 classes provide a more intuitive and user-friendly interface for developers, facilitating the creation and maintenance of complex data structures and workflows.
+* Extension of the function `getPerformanceScore()` for sample size recalculation rules to the setting of binary endpoints according to [Bokelmann et al. (2024)](https://doi.org/10.1186/s12874-024-02150-4)
+* The `getSimulationMultiArmMeans()`, `getSimulationMultiArmRates()`, and `getSimulationMultiArmSurvival()` functions now support an enhanced `selectArmsFunction` argument. Previously, only `effectVector` and `stage` were allowed as arguments. Now, users can optionally utilize additional arguments for more powerful custom function implementations, including `conditionalPower`, `conditionalCriticalValue`, `plannedSubjects/plannedEvents`, `allocationRatioPlanned`, `selectedArms`, `thetaH1` (for means and survival), `stDevH1` (for means), `overallEffects`, and for rates additionally: `piTreatmentsH1`, `piControlH1`, `overallRates`, and `overallRatesControl`.
+* Same as above for`getSimulationEnrichmentMeans()`, `getSimulationEnrichmentRates()`, and `getSimulationEnrichmentSurvival()`. Specifically, support for population selection with `selectPopulationsFunction` argument based on predictive/posterior probabilities added (see [#32](https://github.com/rpact-com/rpact/issues/32))
+* The `fetch()` and `obtain()` functions can be used to extract a single parameter from an rpact result object, which is useful for writing pipe-operator linked commands
+
+## Improvements, issues, and changes
+
+* Issues [#25](https://github.com/rpact-com/rpact/issues/25), [#35](https://github.com/rpact-com/rpact/issues/35), and [#36](https://github.com/rpact-com/rpact/issues/36) fixed
+* Minor improvements
+
+
 # rpact 3.5.1
 
 * The internal fields `.parameterNames` and `.parameterFormatFunctions` were removed from all rpact result objects in favor of a more efficient solution
@@ -40,7 +56,7 @@
 
 ## New features
 
-* The new function `getPerformanceScore()` calculates the conditional performance score, its sub-scores and components according to Herrmann et al. (2020) for a given simulation result from a two-stage design
+* The new function `getPerformanceScore()` calculates the conditional performance score, its sub-scores and components according to [Herrmann et al. (2020)](https://doi.org/10.1002/sim.8534) for a given simulation result from a two-stage design
 * `allocationRatioPlanned` for simulating multi-arm and enrichment designs can be a vector of length kMax, the number of stages 
 * `getObjectRCode()` (short: `rcmd()`): with the new arguments `pipeOperator` and `output` many new output variants can be specified, e.g., the native R pipe operator or the magrittr pipe operator can be used
 * Generic function `knitr::knit_print` for all result objects implemented and automatic code chunk option `results = 'asis'` activated

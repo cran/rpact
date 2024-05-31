@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7408 $
-## |  Last changed: $Date: 2023-11-09 10:36:19 +0100 (Do, 09 Nov 2023) $
+## |  File version: $Revision: 7742 $
+## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -112,17 +112,16 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT) {
         .assertDesignParameterExists(design, "deltaWT", NA_real_)
         .assertIsSingleNumber(design$deltaWT, "deltaWT", naAllowed = FALSE)
-        .assertIsInClosedInterval(design$deltaWT, "deltaWT", lower = -0.5, upper = 1)
+        .showParameterOutOfValidatedBoundsMessage(design$deltaWT, "deltaWT", lowerBound = -0.5, upperBound = 1)
     } else if (design$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
         .assertDesignParameterExists(design, "deltaPT1", NA_real_)
         .assertIsSingleNumber(design$deltaPT1, "deltaPT1", naAllowed = FALSE)
-        .assertIsInClosedInterval(design$deltaPT1, "deltaPT1", lower = -0.5, upper = 1)
+        .showParameterOutOfValidatedBoundsMessage(design$deltaPT1, "deltaPT1", lowerBound = -0.5, upperBound = 1)
         .assertDesignParameterExists(design, "deltaPT0", NA_real_)
         .assertIsSingleNumber(design$deltaPT0, "deltaPT0", naAllowed = FALSE)
-        .assertIsInClosedInterval(design$deltaPT0, "deltaPT0", lower = -0.5, upper = 1)
+        .showParameterOutOfValidatedBoundsMessage(design$deltaPT0, "deltaPT0", lowerBound = -0.5, upperBound = 1)
     } else if (design$typeOfDesign == C_TYPE_OF_DESIGN_WT_OPTIMUM) {
         .assertDesignParameterExists(design, "optimizationCriterion", C_OPTIMIZATION_CRITERION_DEFAULT)
-
         if (!.isOptimizationCriterion(design$optimizationCriterion)) {
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
@@ -132,27 +131,21 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     } else if (design$typeOfDesign == C_TYPE_OF_DESIGN_HP) {
         .assertDesignParameterExists(design, "constantBoundsHP", C_CONST_BOUND_HP_DEFAULT)
         .assertIsSingleNumber(design$constantBoundsHP, "constantBoundsHP")
-        .assertIsInClosedInterval(design$constantBoundsHP, "constantBoundsHP", lower = 2, upper = NULL)
+        .showParameterOutOfValidatedBoundsMessage(design$constantBoundsHP, "constantBoundsHP", lowerBound = 2)
     } else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_KD) {
         .assertDesignParameterExists(design, "gammaA", NA_real_)
         .assertIsSingleNumber(design$gammaA, "gammaA", naAllowed = FALSE)
-        if (design$gammaA < 0.4 || design$gammaA > 8) {
-            stop(
-                C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                "parameter 'gammaA' (", design$gammaA, ") for Kim & DeMets alpha ",
-                "spending function is out of bounds [0.4; 8]"
-            )
-        }
+        .showParameterOutOfValidatedBoundsMessage(design$gammaA, "gammaA",
+            lowerBound = 0.4, upperBound = 8,
+            spendingFunctionName = "Kim & DeMets alpha spending"
+        )
     } else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_HSD) {
         .assertDesignParameterExists(design, "gammaA", NA_real_)
         .assertIsSingleNumber(design$gammaA, "gammaA", naAllowed = FALSE)
-        if (design$gammaA < -10 || design$gammaA > 5) {
-            stop(
-                C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                "Parameter 'gammaA' (", design$gammaA, ") for Hwang, Shih & DeCani ",
-                "alpha spending function is out of bounds [-10; 5]"
-            )
-        }
+        .showParameterOutOfValidatedBoundsMessage(design$gammaA, "gammaA",
+            lowerBound = -10, upperBound = 5,
+            spendingFunctionName = "Hwang, Shih & DeCani alpha spending"
+        )
     } else if (design$typeOfDesign == C_TYPE_OF_DESIGN_AS_USER) {
         .validateUserAlphaSpending(design)
         design$.setParameterType("userAlphaSpending", C_PARAM_USER_DEFINED)
@@ -189,25 +182,19 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
         if (design$typeBetaSpending == C_TYPE_OF_DESIGN_BS_KD) {
             .assertDesignParameterExists(design, "gammaB", NA_real_)
             .assertIsSingleNumber(design$gammaB, "gammaB", naAllowed = FALSE)
-            if (design$gammaB < 0.4 || design$gammaB > 8) {
-                stop(
-                    C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                    "parameter 'gammaB' (", design$gammaB, ") for Kim & DeMets beta ",
-                    "spending function out of bounds [0.4; 8]"
-                )
-            }
+            .showParameterOutOfValidatedBoundsMessage(design$gammaB, "gammaB",
+                lowerBound = 0.4, upperBound = 8,
+                spendingFunctionName = "Kim & DeMets beta spending", c(-0.4, 8)
+            )
         }
 
         if (design$typeBetaSpending == C_TYPE_OF_DESIGN_BS_HSD) {
             .assertDesignParameterExists(design, "gammaB", NA_real_)
             .assertIsSingleNumber(design$gammaB, "gammaB", naAllowed = FALSE)
-            if (design$gammaB < -10 || design$gammaB > 5) {
-                stop(
-                    C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                    "parameter 'gammaB' (", design$gammaB, ") for Hwang, Shih & DeCani ",
-                    "beta spending out of bounds [-10; 5]"
-                )
-            }
+            .showParameterOutOfValidatedBoundsMessage(design$gammaB, "gammaB",
+                lowerBound = -10, upperBound = 5,
+                spendingFunctionName = "Hwang, Shih & DeCani beta spending"
+            )
         }
 
         if (design$typeBetaSpending == C_TYPE_OF_DESIGN_BS_USER) {
@@ -325,12 +312,12 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     .assertIsInClosedInterval(delayedInformation, "delayedInformation", lower = 0, upper = NULL, naAllowed = TRUE)
 
     if (designClass == C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
-        design <- TrialDesignInverseNormal(
+        design <- TrialDesignInverseNormal$new(
             kMax = kMax, bindingFutility = bindingFutility,
             delayedInformation = delayedInformation
         )
     } else if (designClass == C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL) {
-        design <- TrialDesignGroupSequential(
+        design <- TrialDesignGroupSequential$new(
             kMax = kMax, bindingFutility = bindingFutility,
             delayedInformation = delayedInformation
         )
@@ -1769,7 +1756,7 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         writeToDesign = FALSE, twoSidedWarningForDefaultValues = FALSE
     )
 
-    designCharacteristics <- TrialDesignCharacteristics(design = design)
+    designCharacteristics <- TrialDesignCharacteristics$new(design = design)
 
     designCharacteristics$rejectionProbabilities <- rep(NA_real_, design$kMax)
     designCharacteristics$.setParameterType("rejectionProbabilities", C_PARAM_NOT_APPLICABLE)
@@ -1868,7 +1855,7 @@ getDesignCharacteristics <- function(design = NULL, ...) {
 
         designCharacteristics$rejectionProbabilities <- rejectionProbabilities
         designCharacteristics$futilityProbabilities <- futilityProbabilities
-    } else if ((design$typeOfDesign == C_TYPE_OF_DESIGN_PT || 
+    } else if ((design$typeOfDesign == C_TYPE_OF_DESIGN_PT ||
             .isBetaSpendingDesignType(design$typeBetaSpending)) && design$sided == 2) {
         design$futilityBounds[is.na(design$futilityBounds)] <- 0
 
@@ -2116,7 +2103,7 @@ getPowerAndAverageSampleNumber <- function(design, theta = seq(-1, 1, 0.02), nMa
     .assertIsTrialDesign(design)
     .assertIsSingleNumber(nMax, "nMax")
     .assertIsInClosedInterval(nMax, "nMax", lower = 1, upper = NULL)
-    return(PowerAndAverageSampleNumberResult(design = design, theta = theta, nMax = nMax))
+    return(PowerAndAverageSampleNumberResult$new(design = design, theta = theta, nMax = nMax))
 }
 
 .getSimulatedRejectionsDelayedResponse <- function(delta, informationRates, delayedInformation,
@@ -2160,18 +2147,18 @@ getPowerAndAverageSampleNumber <- function(design, theta = seq(-1, 1, 0.02), nMa
 
 
 #'
-#' @title 
+#' @title
 #' Simulated Rejections Delayed Response
-#' 
-#' @description 
+#'
+#' @description
 #' Simulates the rejection probability of a delayed response group sequential design with specified parameters.
-#' 
+#'
 #' @inheritParams param_design
 #' @param delta The delay value.
 #' @param iterations The number of simulation iterations.
 #' @inheritParams param_seed
-#' 
-#' @details 
+#'
+#' @details
 #' By default, delta = 0, i.e., the Type error rate is simulated.
 #'
 #' @return Returns a list summarizing the rejection probabilities.

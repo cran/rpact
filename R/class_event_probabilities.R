@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7620 $
-## |  Last changed: $Date: 2024-02-09 12:57:37 +0100 (Fr, 09 Feb 2024) $
+## |  File version: $Revision: 7958 $
+## |  Last changed: $Date: 2024-05-30 09:56:27 +0200 (Do, 30 Mai 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -56,69 +56,98 @@
 #'
 #' @keywords internal
 #'
-EventProbabilities <- setRefClass("EventProbabilities",
-    contains = "ParameterSet",
-    fields = list(
-        .piecewiseSurvivalTime = "PiecewiseSurvivalTime",
-        .accrualTime = "AccrualTime",
-        .plotSettings = "PlotSettings",
-        time = "numeric",
-        accrualTime = "numeric",
-        accrualIntensity = "numeric",
-        kappa = "numeric",
-        piecewiseSurvivalTime = "numeric",
-        lambda1 = "numeric",
-        lambda2 = "numeric",
-        allocationRatioPlanned = "numeric",
-        hazardRatio = "numeric",
-        dropoutRate1 = "numeric",
-        dropoutRate2 = "numeric",
-        dropoutTime = "numeric",
-        maxNumberOfSubjects = "numeric",
-        overallEventProbabilities = "numeric", # deprecated
-        cumulativeEventProbabilities = "numeric",
-        eventProbabilities1 = "numeric",
-        eventProbabilities2 = "numeric"
-    ),
-    methods = list(
-        initialize = function(...) {
-            callSuper(...)
-            .plotSettings <<- PlotSettings()
-            .setParameterType("overallEventProbabilities", C_PARAM_NOT_APPLICABLE) # deprecated
+EventProbabilities <- R6::R6Class("EventProbabilities",
+    inherit = ParameterSet,
+    public = list(
+        .piecewiseSurvivalTime = NULL,
+        .accrualTime = NULL,
+        .plotSettings = NULL,
+        time = NULL,
+        accrualTime = NULL,
+        accrualIntensity = NULL,
+        kappa = NULL,
+        piecewiseSurvivalTime = NULL,
+        lambda1 = NULL,
+        lambda2 = NULL,
+        allocationRatioPlanned = NULL,
+        hazardRatio = NULL,
+        dropoutRate1 = NULL,
+        dropoutRate2 = NULL,
+        dropoutTime = NULL,
+        maxNumberOfSubjects = NULL,
+        overallEventProbabilities = NULL, # deprecated
+        cumulativeEventProbabilities = NULL,
+        eventProbabilities1 = NULL,
+        eventProbabilities2 = NULL,
+        initialize = function(..., .piecewiseSurvivalTime = NULL,
+                .accrualTime = NULL,
+                time = NULL,
+                accrualTime = NULL,
+                accrualIntensity = NULL,
+                kappa = NULL,
+                piecewiseSurvivalTime = NULL,
+                lambda1 = NULL,
+                lambda2 = NULL,
+                allocationRatioPlanned = NULL,
+                hazardRatio = NULL,
+                dropoutRate1 = NULL,
+                dropoutRate2 = NULL,
+                dropoutTime = NULL,
+                maxNumberOfSubjects = NULL) {
+            self$.piecewiseSurvivalTime <- .piecewiseSurvivalTime
+            self$.accrualTime <- .accrualTime
+            self$time <- time
+            self$accrualTime <- accrualTime
+            self$accrualIntensity <- accrualIntensity
+            self$kappa <- kappa
+            self$piecewiseSurvivalTime <- piecewiseSurvivalTime
+            self$lambda1 <- lambda1
+            self$lambda2 <- lambda2
+            self$allocationRatioPlanned <- allocationRatioPlanned
+            self$hazardRatio <- hazardRatio
+            self$dropoutRate1 <- dropoutRate1
+            self$dropoutRate2 <- dropoutRate2
+            self$dropoutTime <- dropoutTime
+            self$maxNumberOfSubjects <- maxNumberOfSubjects
+
+            super$initialize()
+
+            self$.plotSettings <- PlotSettings$new()
+            self$.setParameterType("overallEventProbabilities", C_PARAM_NOT_APPLICABLE) # deprecated
         },
         getPlotSettings = function() {
-            return(.plotSettings)
+            return(self$.plotSettings)
         },
         show = function(showType = 1, digits = NA_integer_) {
-            .show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
+            self$.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
         },
         .show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
             "Method for automatically printing event probabilities objects"
-            .resetCat()
+            self$.resetCat()
             if (showType == 2) {
-                callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
+                super$.show(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
             } else {
-                .cat("Event probabilities at given time:\n\n",
+                self$.cat("Event probabilities at given time:\n\n",
                     heading = 1,
                     consoleOutputEnabled = consoleOutputEnabled
                 )
 
-                .showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
+                self$.showParametersOfOneGroup(self$.getUserDefinedParameters(), "User defined parameters",
                     orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled
                 )
-                .showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
+                self$.showParametersOfOneGroup(self$.getDefaultParameters(), "Default parameters",
                     orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled
                 )
-                .showParametersOfOneGroup(.getGeneratedParameters(), "Time and output",
+                self$.showParametersOfOneGroup(self$.getGeneratedParameters(), "Time and output",
                     orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled
                 )
 
-                .showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
+                self$.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 
-                .cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
-                .cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
+                self$.cat("Legend:\n", heading = 2, consoleOutputEnabled = consoleOutputEnabled)
+                self$.cat("  (i): values of treatment arm i\n", consoleOutputEnabled = consoleOutputEnabled)
 
-                .cat("\n", consoleOutputEnabled = consoleOutputEnabled)
+                self$.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
             }
         }
     )
@@ -150,52 +179,63 @@ EventProbabilities <- setRefClass("EventProbabilities",
 #'
 #' @keywords internal
 #'
-NumberOfSubjects <- setRefClass("NumberOfSubjects",
-    contains = "ParameterSet",
-    fields = list(
-        .accrualTime = "AccrualTime",
-        .plotSettings = "PlotSettings",
-        time = "numeric",
-        accrualTime = "numeric",
-        accrualIntensity = "numeric",
-        maxNumberOfSubjects = "numeric",
-        numberOfSubjects = "numeric"
-    ),
-    methods = list(
-        initialize = function(...) {
-            callSuper(...)
-            .plotSettings <<- PlotSettings()
+NumberOfSubjects <- R6::R6Class("NumberOfSubjects",
+    inherit = ParameterSet,
+    public = list(
+        .accrualTime = NULL,
+        .plotSettings = NULL,
+        time = NULL,
+        accrualTime = NULL,
+        accrualIntensity = NULL,
+        maxNumberOfSubjects = NULL,
+        numberOfSubjects = NULL,
+        initialize = function(..., accrualSetup = NULL,
+                time = NULL,
+                accrualTime = NULL,
+                accrualIntensity = NULL,
+                maxNumberOfSubjects = NULL,
+                numberOfSubjects = NULL) {
+            self$.accrualTime <- accrualSetup
+            self$time <- time
+            self$accrualTime <- accrualTime
+            self$accrualIntensity <- accrualIntensity
+            self$maxNumberOfSubjects <- maxNumberOfSubjects
+            self$numberOfSubjects <- numberOfSubjects
+
+            super$initialize()
+
+            self$.plotSettings <- PlotSettings$new()
         },
         getPlotSettings = function() {
-            return(.plotSettings)
+            return(self$.plotSettings)
         },
         show = function(showType = 1, digits = NA_integer_) {
-            .show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
+            self$.show(showType = showType, digits = digits, consoleOutputEnabled = TRUE)
         },
         .show = function(showType = 1, digits = NA_integer_, consoleOutputEnabled = TRUE) {
             "Method for automatically printing number of subjects objects"
-            .resetCat()
+            self$.resetCat()
             if (showType == 2) {
-                callSuper(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
+                super$.show(showType = showType, digits = digits, consoleOutputEnabled = consoleOutputEnabled)
             } else {
-                .cat("Number of recruited subjects at given time:\n\n",
+                self$.cat("Number of recruited subjects at given time:\n\n",
                     heading = 1,
                     consoleOutputEnabled = consoleOutputEnabled
                 )
 
-                .showParametersOfOneGroup(.getUserDefinedParameters(), "User defined parameters",
+                self$.showParametersOfOneGroup(self$.getUserDefinedParameters(), "User defined parameters",
                     orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled
                 )
-                .showParametersOfOneGroup(.getDefaultParameters(), "Default parameters",
+                self$.showParametersOfOneGroup(self$.getDefaultParameters(), "Default parameters",
                     orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled
                 )
-                .showParametersOfOneGroup(.getGeneratedParameters(), "Time and output",
+                self$.showParametersOfOneGroup(self$.getGeneratedParameters(), "Time and output",
                     orderByParameterName = FALSE, consoleOutputEnabled = consoleOutputEnabled
                 )
 
-                .showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
+                self$.showUnknownParameters(consoleOutputEnabled = consoleOutputEnabled)
 
-                .cat("\n", consoleOutputEnabled = consoleOutputEnabled)
+                self$.cat("\n", consoleOutputEnabled = consoleOutputEnabled)
             }
         }
     )
@@ -246,7 +286,6 @@ plot.EventProbabilities <- function(x, y, ...,
     .assertGgplotIsInstalled()
     .assertIsValidLegendPosition(legendPosition)
     .assertIsValidAllocationRatioPlanned(allocationRatioPlanned, 2L)
-    # .assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
 
     numberOfSubjectsObject <- NULL
     if (!missing(y) && inherits(y, "NumberOfSubjects")) {
@@ -265,8 +304,12 @@ plot.EventProbabilities <- function(x, y, ...,
 
     if (is.na(maxNumberOfSubjectsToUse)) {
         maxNumberOfSubjectsToUse <- x$maxNumberOfSubjects
-    } else if (!is.na(x$maxNumberOfSubjects) && x$maxNumberOfSubjects != maxNumberOfSubjectsToUse) {
-        stop("'x' (EventProbabilities) and 'y' (NumberOfSubjects) must have the same 'maxNumberOfSubjects' defined")
+    } else if (!is.na(x$maxNumberOfSubjects) &&
+            x$maxNumberOfSubjects != maxNumberOfSubjectsToUse) {
+        stop(
+            "'x' (EventProbabilities) and 'y' (NumberOfSubjects) ",
+            "must have the same 'maxNumberOfSubjects' defined"
+        )
     }
 
     if (!is.na(maxNumberOfSubjectsToUse)) {
@@ -328,7 +371,10 @@ plot.EventProbabilities <- function(x, y, ...,
     srcCmd <- .showPlotSourceInformation(
         objectName = xObjectName,
         xParameterName = "time",
-        yParameterNames = c("cumulativeEventProbabilities", "eventProbabilities1", "eventProbabilities2"),
+        yParameterNames = c(
+            "cumulativeEventProbabilities",
+            "eventProbabilities1", "eventProbabilities2"
+        ),
         type = type,
         showSource = showSource
     )
@@ -418,12 +464,12 @@ plot.NumberOfSubjects <- function(x, y, ...,
     fCall <- match.call(expand.dots = FALSE)
     objectName <- deparse(fCall$x)
 
-    # .assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
-
     if (!missing(y) && inherits(y, "EventProbabilities")) {
         return(plot.EventProbabilities(
             x = y, y = x,
-            allocationRatioPlanned = ifelse(is.na(allocationRatioPlanned), y$allocationRatioPlanned, allocationRatioPlanned),
+            allocationRatioPlanned = ifelse(is.na(allocationRatioPlanned),
+                y$allocationRatioPlanned, allocationRatioPlanned
+            ),
             main = main, xlab = xlab, ylab = ylab, type = type,
             legendTitle = legendTitle, palette = palette,
             plotPointsEnabled = plotPointsEnabled, legendPosition = legendPosition,
@@ -433,7 +479,8 @@ plot.NumberOfSubjects <- function(x, y, ...,
 
     if (!is.na(allocationRatioPlanned)) {
         warning("'allocationRatioPlanned' (", allocationRatioPlanned,
-            ") will be ignored because 'y' is undefined (for more information see ?plot.NumberOfSubjects)",
+            ") will be ignored because 'y' is undefined ",
+            "(for more information see ?plot.NumberOfSubjects)",
             call. = FALSE
         )
     }

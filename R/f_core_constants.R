@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7656 $
-## |  Last changed: $Date: 2024-02-22 10:55:00 +0100 (Do, 22 Feb 2024) $
+## |  File version: $Revision: 7946 $
+## |  Last changed: $Date: 2024-05-28 12:08:57 +0200 (Di, 28 Mai 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -78,6 +78,8 @@ C_ACCEPT_DEVIATION_INFORMATIONRATES <- 0.05
 
 C_THETA_RANGE_SEQUENCE_LENGTH_DEFAULT <- 50
 C_VARIED_PARAMETER_SEQUENCE_LENGTH_DEFAULT <- 30
+
+C_HEADING_BASE_NUMBER_DEFAULT <- -2L
 
 C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL <- "TrialDesignGroupSequential"
 C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL <- "TrialDesignInverseNormal"
@@ -163,7 +165,7 @@ C_ALLOCATION_1_DEFAULT <- 1
 C_ALLOCATION_2_DEFAULT <- 1
 C_MAX_ITERATIONS_DEFAULT <- 10L
 C_MAX_SIMULATION_ITERATIONS_DEFAULT <- 1000L
-C_ACCRUAL_TIME_DEFAULT <- c(0, 12)
+C_ACCRUAL_TIME_DEFAULT <- c(0L, 12L)
 C_ACCRUAL_INTENSITY_DEFAULT <- 0.1
 C_FOLLOW_UP_TIME_DEFAULT <- 6
 
@@ -913,7 +915,7 @@ C_TABLE_COLUMN_NAMES <- createDictionary("C_TABLE_COLUMN_NAMES", list(
     piecewiseSurvivalEnabled = "Piecewise exponential survival enabled",
     median1 = "median(1)",
     median2 = "median(2)",
-    eventsPerStage = "Events per stage", 
+    eventsPerStage = "Events per stage",
     cumulativeEventsPerStage = "Cumulative events",
     expectedNumberOfEvents = "Expected events",
     expectedNumberOfSubjects = "Expected subjects",
@@ -1021,6 +1023,40 @@ C_PARAMETER_NAMES_PLOT_SETTINGS <- createDictionary("C_PARAMETER_NAMES_PLOT_SETT
     "scalingFactor" = "Scaling factor"
 ))
 
+.getParameterNameTrialDesign <- function(parameterName, obj) {
+    if (inherits(obj, "TrialDesignSet") && length(obj$designs) > 0) {
+        obj <- obj$designs[[1]]
+    }
+    
+    if (!inherits(obj, "TrialDesign")) {
+        return(parameterName)
+    }
+    
+    if (identical(parameterName, "futilityBounds")) {
+        if (.isDelayedInformationEnabled(design = obj)) {
+            if (!is.na(obj$bindingFutility) && !obj$bindingFutility) {
+                return("futilityBoundsDelayedInformationNonBinding")
+            }
+            return("futilityBoundsDelayedInformation")
+        } else if (!is.na(obj$bindingFutility) && !obj$bindingFutility) {
+            return("futilityBoundsNonBinding")
+        }
+    }
+    if (identical(parameterName, "criticalValues") && .isDelayedInformationEnabled(design = obj)) {
+        return("criticalValuesDelayedInformation")
+    }
+    if (identical(parameterName, "criticalValuesEffectScale") && .isDelayedInformationEnabled(design = obj)) {
+        return("criticalValuesEffectScaleDelayedInformation")
+    }
+    if (identical(parameterName, "futilityBoundsEffectScale") && .isDelayedInformationEnabled(design = obj)) {
+        return("futilityBoundsEffectScaleDelayedInformation")
+    }
+    if (identical(parameterName, "futilityBoundsPValueScale") && .isDelayedInformationEnabled(design = obj)) {
+        return("futilityBoundsPValueScaleDelayedInformation")
+    }
+    return(parameterName)
+}
+
 .getParameterCaption <- function(parameterName, obj = NULL, ..., tableOutputEnabled = FALSE) {
     if (is.null(obj)) {
         if (tableOutputEnabled) {
@@ -1029,35 +1065,16 @@ C_PARAMETER_NAMES_PLOT_SETTINGS <- createDictionary("C_PARAMETER_NAMES_PLOT_SETT
 
         return(C_PARAMETER_NAMES[[parameterName]])
     }
+    
+    parameterName <- .getParameterNameTrialDesign(parameterName, obj)
 
     if (inherits(obj, "PlotSettings")) {
         return(C_PARAMETER_NAMES_PLOT_SETTINGS[[parameterName]])
     }
 
-    if (inherits(obj, "TrialDesign")) {
-        if (identical(parameterName, "futilityBounds")) {
-            if (.isDelayedInformationEnabled(design = obj)) {
-                if (!is.na(obj$bindingFutility) && !obj$bindingFutility) {
-                    return("futilityBoundsDelayedInformationNonBinding")
-                }
-                return("futilityBoundsDelayedInformation")
-            } else if (!is.na(obj$bindingFutility) && !obj$bindingFutility) {
-                return("futilityBoundsNonBinding")
-            }
-        }
-        if (identical(parameterName, "criticalValues") && .isDelayedInformationEnabled(design = obj)) {
-            return("criticalValuesDelayedInformation")
-        }
-        if (identical(parameterName, "criticalValuesEffectScale") && .isDelayedInformationEnabled(design = obj)) {
-            return("criticalValuesEffectScaleDelayedInformation")
-        }
-        if (identical(parameterName, "futilityBoundsEffectScale") && .isDelayedInformationEnabled(design = obj)) {
-            return("futilityBoundsEffectScaleDelayedInformation")
-        }
-        if (identical(parameterName, "futilityBoundsPValueScale") && .isDelayedInformationEnabled(design = obj)) {
-            return("futilityBoundsPValueScaleDelayedInformation")
-        }
-    }
+    parameterName <- .getParameterNameTrialDesign(parameterName, obj)
+    
+    pluralExt <- ifelse(tableOutputEnabled, "", "s")
 
     if (identical(parameterName, "futilityBounds") &&
             inherits(obj, "TrialDesignSet") && length(obj$designs) > 1) {
@@ -1066,12 +1083,12 @@ C_PARAMETER_NAMES_PLOT_SETTINGS <- createDictionary("C_PARAMETER_NAMES_PLOT_SETT
             bindingFutilityValues <- unique(c(bindingFutilityValues, design$bindingFutility))
         }
         if (length(bindingFutilityValues) > 1) {
-            return("Futility bound")
+            return(paste0("Futility bound", pluralExt))
         }
     }
 
     if (identical(parameterName, "eventsPerStage") &&
-            (inherits(obj, "TrialDesignPlanSurvival") || 
+            (inherits(obj, "TrialDesignPlanSurvival") ||
                 inherits(obj, "SimulationResultsMultiArmSurvival"))) {
         return(ifelse(tableOutputEnabled, "Cumulative events", "Cumulative events per stage"))
     }
@@ -1103,7 +1120,6 @@ C_PARAMETER_NAMES_PLOT_SETTINGS <- createDictionary("C_PARAMETER_NAMES_PLOT_SETT
     }
 
     if (inherits(obj, "AnalysisResults")) {
-        pluralExt <- ifelse(tableOutputEnabled, "", "s")
         if (identical(parameterName, "repeatedConfidenceIntervalLowerBounds")) {
             if (.isTrialDesignConditionalDunnett(obj$.design)) {
                 return(paste0("Overall confidence interval", pluralExt, " (lower)"))
@@ -1136,7 +1152,7 @@ C_PARAMETER_NAMES_PLOT_SETTINGS <- createDictionary("C_PARAMETER_NAMES_PLOT_SETT
 
     if (identical(parameterName, "overallStDevs") &&
             ((inherits(obj, "StageResults") && obj$isOneSampleDataset()) ||
-            inherits(obj, "DatasetMeans"))) {
+                inherits(obj, "DatasetMeans"))) {
         return(paste0("Cumulative standard deviation", ifelse(tableOutputEnabled, "", "s")))
     }
 

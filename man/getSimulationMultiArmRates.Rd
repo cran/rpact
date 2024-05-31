@@ -128,14 +128,14 @@ In these cases, a change of allocating subjects to treatment groups over the sta
 Note that internally \code{allocationRatioPlanned} is treated as a vector of length \code{kMax}, not a scalar.}
 
 \item{minNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation,
-the numeric vector \code{minNumberOfSubjectsPerStage} with length kMax determines the
+the numeric vector \code{minNumberOfSubjectsPerStage} with length \code{kMax} determines the
 minimum number of subjects per stage (i.e., not cumulated), the first element
 is not taken into account. For two treatment arms, it is the number of subjects for both treatment arms.
 For multi-arm designs \code{minNumberOfSubjectsPerStage} refers
 to the minimum number of subjects per selected active arm.}
 
 \item{maxNumberOfSubjectsPerStage}{When performing a data driven sample size recalculation,
-the numeric vector \code{maxNumberOfSubjectsPerStage} with length kMax determines the maximum number
+the numeric vector \code{maxNumberOfSubjectsPerStage} with length \code{kMax} determines the maximum number
 of subjects per stage (i.e., not cumulated), the first element is not taken into account.
 For two treatment arms, it is the number of subjects for both treatment arms.
 For multi-arm designs \code{maxNumberOfSubjectsPerStage} refers
@@ -164,8 +164,11 @@ recalculation. By default, sample size recalculation is performed with condition
 \code{minNumberOfSubjectsPerStage} and \code{maxNumberOfSubjectsPerStage} (see details and examples).}
 
 \item{selectArmsFunction}{Optionally, a function can be entered that defines the way of how treatment arms
-are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms}
-and \code{stage} (see examples).}
+are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms},
+\code{stage}, \code{"conditionalPower"}, \code{"conditionalCriticalValue"}, \code{"plannedSubjects/plannedEvents"},
+\code{"allocationRatioPlanned"}, \code{"selectedArms"}, \code{"thetaH1"} (for means and survival), \code{"stDevH1"} (for means),
+\code{"overallEffects"}, and for rates additionally: \code{"piTreatmentsH1"}, \code{"piControlH1"}, \code{"overallRates"}, and
+\code{"overallRatesControl"}.}
 
 \item{showStatistics}{Logical. If \code{TRUE}, summary statistics of the simulated data
 are displayed for the \code{print} command, otherwise the output is suppressed, default

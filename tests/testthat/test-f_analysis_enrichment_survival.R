@@ -15,9 +15,9 @@
 ## |  
 ## |  File name: test-f_analysis_enrichment_survival.R
 ## |  Creation date: 08 November 2023, 08:55:32
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  File version: $Revision: 7920 $
+## |  Last changed: $Date: 2024-05-23 13:56:24 +0200 (Do, 23 Mai 2024) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 test_plan_section("Testing Analysis Enrichment Survival Function")

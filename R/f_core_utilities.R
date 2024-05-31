@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7645 $
-## |  Last changed: $Date: 2024-02-16 16:12:34 +0100 (Fr, 16 Feb 2024) $
+## |  File version: $Revision: 7940 $
+## |  Last changed: $Date: 2024-05-27 15:47:41 +0200 (Mo, 27 Mai 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -31,7 +31,7 @@ NULL
     .assertIsSingleCharacter(functionName, "functionName")
     tryCatch(
         {
-            return(environmentName(environment(get(functionName))))
+            return(environmentName(environment(base::get(functionName))))
         },
         error = function(e) {
             return(NA_character_)
@@ -166,17 +166,20 @@ NULL
             if (length(arg) > 1) {
                 return(FALSE)
             }
+            
+            return(is.na(arg))
         },
-        error = function(e) {
+        warning = function(w) {
             paramName <- deparse(substitute(arg))
             .logWarn(
                 "Failed to execute '.isUndefinedArgument(%s)' ('%s' is an instance of class '%s'): %s",
-                paramName, paramName, .getClassName(arg), e
+                paramName, paramName, .getClassName(arg), w$message
             )
+            return(FALSE)
         }
     )
-
-    return(is.na(arg))
+    
+    return(FALSE)
 }
 
 .isDefinedArgument <- function(arg, argumentExistsValidationEnabled = TRUE) {
@@ -212,8 +215,10 @@ NULL
             if (length(arg) > 1) {
                 return(TRUE)
             }
+            
+            return(!is.na(arg))
         },
-        error = function(e) {
+        warning = function(e) {
             paramName <- deparse(substitute(arg))
             .logWarn(
                 "Failed to execute '.isDefinedArgument(%s)' ('%s' is an instance of class '%s'): %s",
@@ -222,7 +227,7 @@ NULL
         }
     )
 
-    return(!is.na(arg))
+    return(FALSE)
 }
 
 .getConcatenatedValues <- function(x, separator = ", ", mode = c("csv", "vector", "and", "or")) {
@@ -541,7 +546,7 @@ NULL
         if (is.na(direction)) {
             return(NA_real_)
         }
-        
+
         return(.getOneDimensionalRootBisectionMethod(
             fun = fun,
             lower = lower, upper = upper, tolerance = tolerance,
@@ -764,7 +769,7 @@ NULL
         stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'parameterSet' must be not null")
     }
 
-    if (!(parameterName %in% names(parameterSet$getRefClass()$fields()))) {
+    if (!(parameterName %in% names(parameterSet))) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "'", .getClassName(parameterSet), "' does not contain a field with name '", parameterName, "'"
@@ -1017,6 +1022,10 @@ printCitation <- function(inclusiveR = TRUE, language = "en") {
     return(decimalPlaces)
 }
 
+.isResultObjectBaseClass <- function(x) {
+    return(R6::is.R6(x))
+}
+
 #'
 #' @title
 #' Get Parameter Caption
@@ -1041,11 +1050,11 @@ printCitation <- function(inclusiveR = TRUE, language = "en") {
 #' @export
 #'
 getParameterCaption <- function(obj, parameterName) {
-    if (is.null(obj) || length(obj) != 1 || !isS4(obj) || !inherits(obj, "FieldSet")) {
+    if (is.null(obj) || !.isResultObjectBaseClass(obj) || !inherits(obj, "FieldSet")) {
         stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", .getClassName(obj), ") must be an rpact result object")
     }
     .assertIsSingleCharacter(parameterName, "parameterName", naAllowed = FALSE)
-    
+
     return(.getParameterCaption(parameterName, obj))
 }
 
@@ -1074,27 +1083,27 @@ getParameterCaption <- function(obj, parameterName) {
 #' @export
 #'
 getParameterName <- function(obj, parameterCaption) {
-    if (is.null(obj) || length(obj) != 1 || !isS4(obj) || !inherits(obj, "FieldSet")) {
+    if (is.null(obj) || !.isResultObjectBaseClass(obj) || !inherits(obj, "FieldSet")) {
         stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'obj' (", .getClassName(obj), ") must be an rpact result object")
     }
     .assertIsSingleCharacter(parameterCaption, "parameterCaption", naAllowed = FALSE)
-    
+
     parameterName <- getDictionaryKeyByValue(C_PARAMETER_NAMES, parameterCaption)
     if (!is.null(parameterName)) {
         return(parameterName)
     }
-    
+
     parameterName <- getDictionaryKeyByValue(C_PARAMETER_NAMES_PLOT_SETTINGS, parameterCaption)
     if (!is.null(parameterName)) {
         return(parameterName)
     }
-    
+
     fieldNames <- obj$.getVisibleFieldNames()
     for (parameterName in fieldNames) {
         if (identical(.getParameterCaption(parameterName, obj), parameterCaption)) {
             return(parameterName)
         }
-        
+
         if (identical(.getParameterCaption(parameterName, obj, tableOutputEnabled = TRUE), parameterCaption)) {
             return(parameterName)
         }
@@ -1483,4 +1492,3 @@ getParameterName <- function(obj, parameterCaption) {
     parameterSet$.setParameterType(fieldName, C_PARAM_NOT_APPLICABLE)
     parameterSet$.deprecatedFieldNames <- unique(c(parameterSet$.deprecatedFieldNames, fieldName))
 }
-

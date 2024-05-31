@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7620 $
-## |  Last changed: $Date: 2024-02-09 12:57:37 +0100 (Fr, 09 Feb 2024) $
+## |  File version: $Revision: 7961 $
+## |  Last changed: $Date: 2024-05-30 14:58:05 +0200 (Thu, 30 May 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -22,11 +22,27 @@
 NULL
 
 # See testthat::skip_on_cran()
-.skipTestIfDisabled <- function() {
+.skipTestIfDisabled <- function(msg = "Test is disabled", ..., ignoreInTestPlan = FALSE) {
     if (!isTRUE(.isCompleteUnitTestSetEnabled()) &&
             base::requireNamespace("testthat", quietly = TRUE)) {
-        testthat::skip("Test is disabled")
+        if (isTRUE(ignoreInTestPlan)) {
+            msg <- paste(msg, "and ignored in test plan")
+        }
+        testthat::skip(msg)
     }
+}
+
+.skipTestIfCppCompilerIsMissing <- function() {
+    if (.Platform$OS.type != "windows") {
+        return(invisible())
+    }
+
+    if (.isPackageInstalled("pkgbuild") &&
+            isTRUE(eval(parse(text = "pkgbuild::has_build_tools(debug = FALSE)")))) {
+        return(invisible())
+    }
+
+    testthat::skip("The test requires a C++ compiler")
 }
 
 .skipTestIfNotX64 <- function() {
@@ -37,8 +53,10 @@ NULL
 
 .skipTestIfPipeOperatorNotAvailable <- function() {
     if (!.isPipeOperatorAvailable()) {
-        testthat::skip(paste0("The test is disabled because it works only for ",
-            "R version >= 4.1.0 (pipe operator is available)"))
+        testthat::skip(paste0(
+            "The test is disabled because it works only for ",
+            "R version >= 4.1.0 (pipe operator is available)"
+        ))
     }
 }
 
@@ -196,8 +214,10 @@ NULL
             for (testFile in testFiles) {
                 file.copy(file.path(testthatTempSubDirectory, testFile), file.path(testFileTargetDirectory, testFile))
             }
-            message(length(testFiles), " extracted from ", sQuote(packageSource), 
-                " and copied to ", sQuote(testFileTargetDirectory))
+            message(
+                length(testFiles), " extracted from ", sQuote(packageSource),
+                " and copied to ", sQuote(testFileTargetDirectory)
+            )
         },
         finally = {
             if (!is.null(testthatTempDirectory)) {
@@ -400,8 +420,10 @@ NULL
             "mode", "cacheEnabled", "extra", "cleanOldFiles", "connectionType"
         )) {
     if (is.null(connection) || !is.list(connection)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
-            "'connection' must be a list (is ", .getClassName(connection), ")")
+        stop(
+            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+            "'connection' must be a list (is ", .getClassName(connection), ")"
+        )
     }
 
     name <- match.arg(name)
@@ -498,7 +520,7 @@ testPackage <- function(outDir = ".", ...,
 
     if (completeUnitTestSetEnabled && fullTestEnabled) {
         cat("Run all tests. Please wait...\n")
-        cat("Have a break - it takes about 30 minutes.\n")
+        cat("Have a break - it takes about 20 minutes.\n")
         cat("Exceution of all available unit tests startet at ",
             format(startTime, "%H:%M (%d-%B-%Y)"), "\n",
             sep = ""

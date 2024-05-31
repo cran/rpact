@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7672 $
-## |  Last changed: $Date: 2024-02-27 10:42:41 +0100 (Di, 27 Feb 2024) $
+## |  File version: $Revision: 7742 $
+## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -37,7 +37,7 @@ NULL
 }
 
 .isParameterSet <- function(x) {
-    return(isS4(x) && inherits(x, "ParameterSet"))
+    return(.isResultObjectBaseClass(x) && inherits(x, "ParameterSet"))
 }
 
 .assertIsParameterSetClass <- function(x, objectName = "x") {
@@ -559,7 +559,7 @@ NULL
     if ((!naAllowed && is.na(x)) || !is.logical(x)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (",
-            ifelse(isS4(x), .getClassName(x), x), ") must be a single logical value",
+            ifelse(.isResultObjectBaseClass(x), .getClassName(x), x), ") must be a single logical value",
             call. = call.
         )
     }
@@ -586,7 +586,7 @@ NULL
     if ((!naAllowed && is.na(x)) || !is.numeric(x)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'", argumentName, "' (",
-            ifelse(isS4(x), .getClassName(x), x), ") must be a valid numeric value",
+            ifelse(.isResultObjectBaseClass(x), .getClassName(x), x), ") must be a valid numeric value",
             call. = call.
         )
     }
@@ -629,7 +629,7 @@ NULL
             (!validateType && !is.na(x) && !is.infinite(x) && as.integer(x) != x)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'", argumentName, "' (", ifelse(isS4(x), .getClassName(x), x), ") must be a ", prefix, "integer value",
+            "'", argumentName, "' (", ifelse(.isResultObjectBaseClass(x), .getClassName(x), x), ") must be a ", prefix, "integer value",
             call. = call.
         )
     }
@@ -637,7 +637,7 @@ NULL
     if (mustBePositive && !is.na(x) && !is.infinite(x) && x <= 0) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'", argumentName, "' (", ifelse(isS4(x), .getClassName(x), x), ") must be a ", prefix, "integer value",
+            "'", argumentName, "' (", ifelse(.isResultObjectBaseClass(x), .getClassName(x), x), ") must be a ", prefix, "integer value",
             call. = call.
         )
     }
@@ -779,15 +779,78 @@ NULL
     }
 }
 
+.showParameterOutOfValidatedBoundsMessage <- function(
+        parameterValue,
+        parameterName, ...,
+        lowerBound = NA_real_,
+        upperBound = NA_real_,
+        spendingFunctionName = NA_character_,
+        closedLowerBound = TRUE,
+        closedUpperBound = TRUE,
+        suffix = NA_character_) {
+    .assertIsSingleNumber(lowerBound, "lowerBound", naAllowed = TRUE)
+    .assertIsSingleNumber(upperBound, "upperBound", naAllowed = TRUE)
+    if (is.na(lowerBound) && is.na(upperBound)) {
+        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'lowerBound' or 'upperBound' must be defined")
+    }
+
+    if (is.na(lowerBound)) {
+        lowerBound <- -Inf
+    }
+
+    if (is.na(upperBound)) {
+        upperBound <- Inf
+    }
+
+    if (closedLowerBound) {
+        bracketLowerBound <- "["
+        conditionLowerBound <- parameterValue < lowerBound
+    } else {
+        bracketLowerBound <- "("
+        conditionLowerBound <- parameterValue <= lowerBound
+    }
+    if (closedUpperBound) {
+        bracketUpperBound <- "]"
+        conditionUpperBound <- parameterValue > upperBound
+    } else {
+        bracketUpperBound <- ")"
+        conditionUpperBound <- parameterValue >= upperBound
+    }
+
+    if (conditionLowerBound || conditionUpperBound) {
+        if (!is.null(spendingFunctionName) && !is.na(spendingFunctionName)) {
+            spendingFunctionName <- paste0("for ", spendingFunctionName, " function ")
+        } else {
+            spendingFunctionName <- ""
+        }
+
+        if (is.na(suffix)) {
+            suffix <- ""
+        } else {
+            suffix <- paste0(" ", trimws(suffix))
+        }
+
+        type <- getOption("rpact.out.of.validated.bounds.message.type", "warning")
+        if (identical(type, "warning")) {
+            warning("The parameter ", sQuote(parameterName), " (", parameterValue, ") ",
+                spendingFunctionName, "is out of validated bounds ",
+                bracketLowerBound, lowerBound, "; ", upperBound, bracketUpperBound, suffix,
+                call. = FALSE
+            )
+        } else if (identical(type, "message")) {
+            message(
+                "Note that parameter ", sQuote(parameterName), " (", parameterValue, ") ",
+                spendingFunctionName, "is out of validated bounds ",
+                bracketLowerBound, lowerBound, "; ", upperBound, bracketUpperBound, suffix
+            )
+        }
+    }
+}
+
 .assertIsValidAlpha <- function(alpha) {
     .assertIsSingleNumber(alpha, "alpha")
-
-    if (alpha < 1e-06 || alpha >= 0.5) {
-        stop(
-            C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-            "'alpha' (", alpha, ") is out of bounds [1e-06; 0.5)"
-        )
-    }
+    .assertIsInOpenInterval(alpha, "alpha", lower = 0, upper = NULL)
+    .showParameterOutOfValidatedBoundsMessage(alpha, "alpha", lowerBound = 1e-06, upperBound = 0.5, closedUpperBound = FALSE)
 }
 
 .assertIsValidKappa <- function(kappa) {
@@ -861,14 +924,12 @@ NULL
 .assertIsValidBeta <- function(beta, alpha) {
     .assertIsSingleNumber(beta, "beta")
     .assertIsSingleNumber(alpha, "alpha")
-
-    if (beta < 1e-04 || beta >= 1 - alpha) {
-        stop(
-            C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-            "'beta' (", beta, ") is out of bounds [1e-04; ", (1 - alpha), "); ",
-            "condition: 1e-05 <= alpha < 1 - beta <= 1 - 1e-04"
-        )
-    }
+    .assertIsInOpenInterval(beta, "beta", lower = 0, upper = NULL)
+    .showParameterOutOfValidatedBoundsMessage(beta, "beta",
+        lowerBound = 1e-04,
+        upperBound = 1 - alpha, closedUpperBound = FALSE,
+        suffix = "condition: 1e-06 <= alpha < 1 - beta <= 1 - 1e-04"
+    )
 }
 
 .assertIsValidAlphaAndBeta <- function(alpha, beta) {
@@ -1349,7 +1410,7 @@ NULL
             argNames[i]
         )
         if (!(argName %in% ignore) && !grepl("^\\.", argName)) {
-            if (isS4(arg) || is.environment(arg)) {
+            if (.isResultObjectBaseClass(arg) || is.environment(arg)) {
                 arg <- .getClassName(arg)
             }
             if (is.function(arg)) {

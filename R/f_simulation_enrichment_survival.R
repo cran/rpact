@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7656 $
-## |  Last changed: $Date: 2024-02-22 10:55:00 +0100 (Do, 22 Feb 2024) $
+## |  File version: $Revision: 7910 $
+## |  Last changed: $Date: 2024-05-22 10:02:23 +0200 (Mi, 22 Mai 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -278,24 +278,41 @@ NULL
             }
 
             if (adaptations[k]) {
+                selectPopulationsFunctionArgs <- list(
+                    effectVector = NULL,
+                    stage = k,
+                    directionUpper = directionUpper,
+                    conditionalPower = conditionalPower,
+                    conditionalCriticalValue = conditionalCriticalValue,
+                    plannedEvents = plannedEvents,
+                    allocationRatioPlanned = allocationRatioPlanned,
+                    selectedPopulations = selectedPopulations,
+                    thetaH1 = thetaH1,
+                    overallEffects = overallEffects
+                )
+
+                args <- list(
+                    typeOfSelection = typeOfSelection,
+                    epsilonValue = epsilonValue,
+                    rValue = rValue,
+                    threshold = threshold,
+                    selectPopulationsFunction = selectPopulationsFunction
+                )
+
                 if (effectMeasure == "testStatistic") {
-                    selectedPopulations[, k + 1] <- (selectedPopulations[, k] & .selectPopulations(
-                        k, overallTestStatistics[, k],
-                        typeOfSelection, epsilonValue, rValue, threshold, selectPopulationsFunction
-                    ))
+                    selectPopulationsFunctionArgs$effectVector <- overallTestStatistics[, k]
                 } else if (effectMeasure == "effectEstimate") {
                     if (directionUpper) {
-                        selectedPopulations[, k + 1] <- (selectedPopulations[, k] & .selectPopulations(
-                            k, overallEffects[, k],
-                            typeOfSelection, epsilonValue, rValue, threshold, selectPopulationsFunction
-                        ))
+                        selectPopulationsFunctionArgs$effectVector <- overallEffects[, k]
                     } else {
-                        selectedPopulations[, k + 1] <- (selectedPopulations[, k] & .selectPopulations(
-                            k, 1 / overallEffects[, k],
-                            typeOfSelection, epsilonValue, rValue, 1 / threshold, selectPopulationsFunction
-                        ))
+                        selectPopulationsFunctionArgs$effectVector <- 1 / overallEffects[, k]
+                        args$threshold <- 1 / threshold
                     }
                 }
+
+                args$selectPopulationsFunctionArgs <- selectPopulationsFunctionArgs
+
+                selectedPopulations[, k + 1] <- (selectedPopulations[, k] & do.call(.selectPopulations, args))
 
                 newEvents <- calcEventsFunction(
                     stage = k + 1, # to be consistent with non-enrichment situation, cf. line 38
@@ -581,7 +598,7 @@ getSimulationEnrichmentSurvival <- function(design = NULL, ...,
             closedTest <- .performClosedCombinationTestForSimulationEnrichment(
                 stageResults = stageResults,
                 design = design, indices = indices,
-                intersectionTest = intersectionTest, 
+                intersectionTest = intersectionTest,
                 successCriterion = successCriterion
             )
 

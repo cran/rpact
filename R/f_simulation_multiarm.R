@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7645 $
-## |  Last changed: $Date: 2024-02-16 16:12:34 +0100 (Fr, 16 Feb 2024) $
+## |  File version: $Revision: 7910 $
+## |  Last changed: $Date: 2024-05-22 10:02:23 +0200 (Mi, 22 Mai 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -29,8 +29,14 @@ NULL
     return(indices)
 }
 
-.selectTreatmentArms <- function(stage, effectVector, typeOfSelection,
-        epsilonValue, rValue, threshold, selectArmsFunction, survival = FALSE) {
+.selectTreatmentArms <- function(typeOfSelection,
+        epsilonValue,
+        rValue,
+        threshold,
+        selectArmsFunction,
+        selectArmsFunctionArgs,
+        survival = FALSE) {
+    effectVector <- selectArmsFunctionArgs$effectVector
     gMax <- length(effectVector)
 
     if (typeOfSelection != "userDefined") {
@@ -51,21 +57,13 @@ NULL
         selectedArms[effectVector <= threshold] <- FALSE
     } else {
         functionArgumentNames <- .getFunctionArgumentNames(selectArmsFunction, ignoreThreeDots = TRUE)
-        if (length(functionArgumentNames) == 1) {
-            .assertIsValidFunction(
-                fun = selectArmsFunction,
-                funArgName = "selectArmsFunction",
-                expectedArguments = c("effectVector"), validateThreeDots = FALSE
-            )
-            selectedArms <- selectArmsFunction(effectVector)
-        } else {
-            .assertIsValidFunction(
-                fun = selectArmsFunction,
-                funArgName = "selectArmsFunction",
-                expectedArguments = c("effectVector", "stage"), validateThreeDots = FALSE
-            )
-            selectedArms <- selectArmsFunction(effectVector = effectVector, stage = stage)
-        }
+        .assertIsValidFunction(
+            fun = selectArmsFunction,
+            funArgName = "selectArmsFunction",
+            expectedArguments = names(selectArmsFunctionArgs),
+            validateThreeDots = FALSE
+        )
+        selectedArms <- do.call(what = selectArmsFunction, args = selectArmsFunctionArgs[functionArgumentNames])
 
         msg <- paste0(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
@@ -468,11 +466,11 @@ NULL
     effectMeasure <- .assertIsValidEffectMeasure(effectMeasure)
 
     if (endpoint == "means") {
-        simulationResults <- SimulationResultsMultiArmMeans(design, showStatistics = showStatistics)
+        simulationResults <- SimulationResultsMultiArmMeans$new(design, showStatistics = showStatistics)
     } else if (endpoint == "rates") {
-        simulationResults <- SimulationResultsMultiArmRates(design, showStatistics = showStatistics)
+        simulationResults <- SimulationResultsMultiArmRates$new(design, showStatistics = showStatistics)
     } else if (endpoint == "survival") {
-        simulationResults <- SimulationResultsMultiArmSurvival(design, showStatistics = showStatistics)
+        simulationResults <- SimulationResultsMultiArmSurvival$new(design, showStatistics = showStatistics)
     }
 
     gMax <- activeArms
