@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7958 $
-## |  Last changed: $Date: 2024-05-30 09:56:27 +0200 (Do, 30 Mai 2024) $
+## |  File version: $Revision: 8277 $
+## |  Last changed: $Date: 2024-09-27 08:16:45 +0200 (Fr, 27 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -67,6 +67,7 @@ names.SimulationResults <- function(x) {
 #'   \item \code{\link{SimulationResultsMeans}},
 #'   \item \code{\link{SimulationResultsRates}},
 #'   \item \code{\link{SimulationResultsSurvival}},
+#'   \item \code{\link{SimulationResultsCountData}},
 #'   \item \code{\link{SimulationResultsMultiArmMeans}},
 #'   \item \code{\link{SimulationResultsMultiArmRates}},
 #'   \item \code{\link{SimulationResultsMultiArmSurvival}},
@@ -519,7 +520,7 @@ SimulationResults <- R6::R6Class("SimulationResults",
                 s <- paste(s, "rates")
             } else if (inherits(self, "SimulationResultsBaseSurvival")) {
                 s <- paste(s, "survival data")
-            } else if (inherits(self, "SimulationResultsBaseCountData")) {
+            } else if (inherits(self, "SimulationResultsCountData")) {
                 s <- paste(s, "count data")
             } else {
                 s <- paste(s, "UNDEFINED")
@@ -566,6 +567,9 @@ SimulationResults <- R6::R6Class("SimulationResults",
                 "numberOfPopulations",
                 "expectedNumberOfSubjects",
                 "expectedNumberOfEvents",
+                "numberOfSubjects",
+                "numberOfSubjects1",
+                "numberOfSubjects2",
                 "sampleSizes",
                 "singleEventsPerArmAndStage",
                 "singleEventsPerSubsetAndStage",
@@ -907,6 +911,7 @@ SimulationResultsRates <- R6::R6Class("SimulationResultsRates",
         effect = NULL,
         earlyStop = NULL,
         sampleSizes = NULL,
+        expectedNumberOfSubjects = NULL,
         overallReject = NULL,
         rejectPerStage = NULL,
         conditionalPowerAchieved = matrix(),
@@ -1650,7 +1655,7 @@ SimulationResultsEnrichmentSurvival <- R6::R6Class("SimulationResultsEnrichmentS
 )
 
 #'
-#' @name SimulationResultsBaseCountData
+#' @name SimulationResultsCountData
 #'
 #' @title
 #' Class for Simulation Results Count Data
@@ -1671,6 +1676,7 @@ SimulationResultsEnrichmentSurvival <- R6::R6Class("SimulationResultsEnrichmentS
 #' @template field_directionUpper
 #' @template field_earlyStop
 #' @template field_sampleSizes
+#' @template field_expectedNumberOfSubjects
 #' @template field_overallReject
 #' @template field_rejectPerStage
 #'
@@ -1688,10 +1694,10 @@ SimulationResultsEnrichmentSurvival <- R6::R6Class("SimulationResultsEnrichmentS
 #'
 #' @importFrom methods new
 #'
-SimulationResultsBaseCountData <- R6::R6Class("SimulationResultsBaseCountData",
+SimulationResultsCountData <- R6::R6Class("SimulationResultsCountData",
     inherit = SimulationResults,
     public = list(
-        plannedMaxSubjects = NULL,
+        maxNumberOfSubjects = NULL,
         plannedCalendarTime = NULL,
         directionUpper = NULL,
         lambda1 = NULL,
@@ -1705,6 +1711,7 @@ SimulationResultsBaseCountData <- R6::R6Class("SimulationResultsBaseCountData",
         accrualIntensity = NULL,
         followUpTime = NULL,
         groups = NULL,
+        expectedNumberOfSubjects = NULL,
         numberOfSubjects = NULL,
         numberOfSubjects1 = NULL,
         numberOfSubjects2 = NULL,
@@ -1720,6 +1727,8 @@ SimulationResultsBaseCountData <- R6::R6Class("SimulationResultsBaseCountData",
             self$groups <- 2L
             self$.setParameterType("conditionalPower", C_PARAM_NOT_APPLICABLE)
             self$.setParameterType("futilityStop", C_PARAM_NOT_APPLICABLE)
+            self$.setParameterType("numberOfSubjects", C_PARAM_NOT_APPLICABLE)
+            self$.setParameterType("expectedNumberOfSubjects", C_PARAM_NOT_APPLICABLE)
         }
     )
 )
@@ -1754,3 +1763,4 @@ print.SimulationResults <- function(x, ..., showStatistics = FALSE, markdown = F
     x$show(showStatistics = showStatistics)
     invisible(x)
 }
+

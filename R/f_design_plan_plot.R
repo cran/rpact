@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8212 $
+## |  Last changed: $Date: 2024-09-13 14:01:23 +0200 (Fr, 13 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -274,7 +274,7 @@
 
             xParameterName <- "cumulativeEventsPerStage"
             if (designMaster$sided == 1) {
-                if (any(designMaster$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+                if (!all(is.na(designMaster$futilityBounds))) {
                     yParameterNames <- c("futilityBounds", "criticalValues")
                 } else {
                     yParameterNames <- "criticalValues"
@@ -351,7 +351,7 @@
         groupedPlotEnabled <- FALSE
         yParameterNamesSrc <- c()
         if (designMaster$sided == 1) {
-            if (any(designMaster$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+            if (!all(is.na(designMaster$futilityBounds))) {
                 data <- data.frame(
                     criticalValuesEffectScale = designPlan$criticalValuesEffectScale[, 1],
                     futilityBoundsEffectScale = c(
@@ -413,7 +413,7 @@
             data <- cbind(data.frame(informationRates = designMaster$informationRates), data)
         }
         if (designMaster$sided == 1 || designMaster$typeOfDesign == C_TYPE_OF_DESIGN_PT) {
-            if (any(designMaster$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+            if (!all(is.na(designMaster$futilityBounds))) {
                 yParameterNames <- c("futilityBoundsEffectScale", "criticalValuesEffectScale")
             } else {
                 yParameterNames <- "criticalValuesEffectScale"
@@ -943,7 +943,7 @@
     )
 
     if (type == 1 && survivalDesignPlanEnabled) {
-        p <- .addDecistionCriticalValuesToPlot(p = p, designMaster = designMaster, type = type, nMax = nMax)
+        p <- .addDecisionCriticalValuesToPlot(p = p, designMaster = designMaster, type = type, nMax = nMax)
     }
     return(p)
 }
@@ -1373,18 +1373,78 @@
 #'
 #' @export
 #'
-plot.TrialDesignPlan <- function(x, y, ...,
+plot.TrialDesignPlan <- function(
+        x, 
+        y, ...,
         main = NA_character_,
         xlab = NA_character_,
         ylab = NA_character_,
         type = NA_integer_,
         palette = "Set1",
-        theta = NA_real_, plotPointsEnabled = NA,
+        theta = NA_real_, 
+        plotPointsEnabled = NA,
+        legendPosition = NA_integer_,
+        showSource = FALSE,
+        grid = 1,
+        plotSettings = NULL) {
+        
+    .assertIsValidPlotType(type, naAllowed = TRUE)
+    .assertIsSingleInteger(grid, "grid", validateType = FALSE)
+    markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
+    if (is.na(markdown)) {
+        markdown <- .isMarkdownEnabled("plot")
+    }
+    
+    args <- list(
+        x = x, 
+        y = NULL,
+        main = main,
+        xlab = xlab,
+        ylab = ylab,
+        type = type,
+        palette = palette,
+        theta = theta, 
+        plotPointsEnabled = plotPointsEnabled,
+        legendPosition = legendPosition,
+        showSource = showSource,
+        grid = grid,
+        plotSettings = plotSettings, 
+        ...)
+
+    if (markdown) {
+        sep <- .getMarkdownPlotPrintSeparator()
+        if (!all(is.na(type)) && length(type) > 1 && grid == 1) {
+            grid <- 0
+            args$grid <- 0
+        }
+        if (grid > 0) {
+            print(do.call(.plot.TrialDesignPlan, args))            
+        } else {
+            do.call(.plot.TrialDesignPlan, args)
+        }
+        return(.knitPrintQueue(x, sep = sep, prefix = sep))
+    }
+    
+    return(do.call(.plot.TrialDesignPlan, args))
+}
+  
+.plot.TrialDesignPlan <- function(
+        x, 
+        y, 
+        ...,
+        main = NA_character_,
+        xlab = NA_character_,
+        ylab = NA_character_,
+        type = NA_integer_,
+        palette = "Set1",
+        theta = NA_real_, 
+        plotPointsEnabled = NA,
         legendPosition = NA_integer_,
         showSource = FALSE,
         grid = 1,
         plotSettings = NULL) {
     fCall <- match.call(expand.dots = FALSE)
+    
     designPlanName <- deparse(fCall$x)
     .assertGgplotIsInstalled()
     .assertIsSingleInteger(grid, "grid", validateType = FALSE)
@@ -1398,8 +1458,14 @@ plot.TrialDesignPlan <- function(x, y, ...,
     }
 
     if (all(is.na(type))) {
-        type <- 1L
         availablePlotTypes <- getAvailablePlotTypes(x)
+        if (length(availablePlotTypes) == 0) {
+            stop("No plot available for this ", 
+                .formatCamelCaseSingleWord(x$.objectType), " ", x$.toString(), 
+                " result object")
+        }
+        
+        type <- 1L
         if (length(availablePlotTypes) > 0 && !(type %in% availablePlotTypes)) {
             type <- availablePlotTypes[1]
         }

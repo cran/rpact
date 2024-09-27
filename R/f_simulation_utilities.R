@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8200 $
+## |  Last changed: $Date: 2024-09-12 15:05:38 +0200 (Do, 12 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -36,10 +36,11 @@ NULL
 #' @return the (generated) seed.
 #'
 #' @examples
-#'
+#' \dontrun{
 #' .setSeed(12345)
-#'
 #' mySeed <- .setSeed()
+#' mySeed
+#' }
 #'
 #' @keywords internal
 #'
@@ -69,7 +70,7 @@ NULL
         },
         error = function(e) {
             .logError("Failed to set seed to '%s' (%s): %s", seed, .getClassName(seed), e)
-            seed <- NA_real_
+            seed <<- NA_real_
             traceback()
         }
     )
@@ -692,6 +693,7 @@ C_EFFECT_LIST_NAMES_EXPECTED_SURVIVAL <- c("subGroups", "prevalences", "piContro
 #' @template return_dataframe
 #'
 #' @examples
+#' \dontrun{
 #' results <- getSimulationSurvival(
 #'     pi1 = seq(0.3, 0.6, 0.1), pi2 = 0.3, eventTime = 12,
 #'     accrualTime = 24, plannedEvents = 40, maxNumberOfSubjects = 200,
@@ -700,7 +702,8 @@ C_EFFECT_LIST_NAMES_EXPECTED_SURVIVAL <- c("subGroups", "prevalences", "piContro
 #' data <- getData(results)
 #' head(data)
 #' dim(data)
-#'
+#' }
+#' 
 #' @export
 #'
 getData <- function(x) {

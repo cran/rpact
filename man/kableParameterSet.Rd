@@ -3,10 +3,34 @@
 \name{kableParameterSet}
 \alias{kableParameterSet}
 \alias{kable.ParameterSet}
+\alias{kable.FieldSet}
+\alias{kable.data.frame}
+\alias{kable.table}
+\alias{kable.matrix}
+\alias{kable.array}
+\alias{kable.numeric}
+\alias{kable.character}
+\alias{kable.logical}
 \alias{kable}
 \title{Create output in Markdown}
 \usage{
 \method{kable}{ParameterSet}(x, ...)
+
+\method{kable}{FieldSet}(x, ..., enforceRowNames = TRUE, niceColumnNamesEnabled = TRUE)
+
+\method{kable}{data.frame}(x, ...)
+
+\method{kable}{table}(x, ...)
+
+\method{kable}{matrix}(x, ...)
+
+\method{kable}{array}(x, ...)
+
+\method{kable}{numeric}(x, ...)
+
+\method{kable}{character}(x, ...)
+
+\method{kable}{logical}(x, ...)
 
 kable(x, ...)
 }
@@ -20,9 +44,10 @@ kable(x, ...)
 The \code{kable()} function returns the output of the specified object formatted in Markdown.
 }
 \details{
-Generic function to represent a parameter set in Markdown.
-Use \code{options("rpact.print.heading.base.number" = "NUMBER")} (where \code{NUMBER} is an integer value >= -1) to
-specify the heading level. The default is \code{options("rpact.print.heading.base.number" = "0")}, i.e., the
-top headings start with \code{##} in Markdown. \code{options("rpact.print.heading.base.number" = "-1")} means
-that all headings will be written bold but are not explicit defined as header.
+This function is deprecated and should no longer be used.
+Manual use of kable() for rpact result objects is no longer needed,
+as the formatting and display will be handled automatically by the rpact package.
+Please remove any manual kable() calls from your code to avoid redundancy and potential issues.
+The results will be displayed in a consistent format automatically.
 }
+\keyword{internal}

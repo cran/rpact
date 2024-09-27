@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8124 $
+## |  Last changed: $Date: 2024-08-23 08:41:16 +0200 (Fr, 23 Aug 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -138,7 +138,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
     }
 
     fv <- .getFormattedValue(value[value >= 1e-04], digits = 4, nsmall = 4)
-    fv <- fv[!((1:length(fv)) %in% grep("e", fv))]
+    fv <- fv[!((seq_len(length(fv))) %in% grep("e", fv))]
     numberOfCharacters <- ifelse(length(fv) > 0, nchar(fv[1]), 6)
     numberOfCharacters <- ifelse(numberOfCharacters < 6, 6, numberOfCharacters)
     decimalPlaces <- numberOfCharacters - 2
@@ -721,6 +721,10 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
         return(x)
     }
     return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 3))
+}
+
+.formatSided <- function(value) {
+    return(ifelse(value == 1, "one-sided", "two-sided"))
 }
 
 .formatHowItIs <- function(value) {

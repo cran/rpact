@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8225 $
+## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -78,8 +78,10 @@ NULL
             designPlan$cumulativeEventsPerStage <- matrix(designPlan$eventsFixed, nrow = 1)
         }
         boundaries <- .getEffectScaleBoundaryDataSurvival(designPlan)
+    } else if (.isTrialDesignPlanCountData(designPlan)) {
+        boundaries <- .getEffectScaleBoundaryDataCounts(designPlan)
     }
-
+    
     if (designPlan$.design$sided == 1) {
         designPlan$criticalValuesEffectScale <- boundaries$criticalValuesEffectScaleUpper
         designPlan$.setParameterType("criticalValuesEffectScale", C_PARAM_GENERATED)
@@ -95,7 +97,7 @@ NULL
         designPlan$.setParameterType("criticalValuesEffectScaleLower", C_PARAM_GENERATED)
     }
 
-    if (!.isTrialDesignFisher(design) && any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+    if (.hasApplicableFutilityBounds(design)) {
         if (design$sided == 1) {
             designPlan$futilityBoundsEffectScale <- round(boundaries$futilityBoundsEffectScaleUpper, 8)
             designPlan$.setParameterType("futilityBoundsEffectScale", C_PARAM_GENERATED)
@@ -385,7 +387,7 @@ NULL
             accrualTime[1:(length(accrualTime) - 1)]
     }
     densityVector <- accrualIntensity / sum(densityIntervals * accrualIntensity)
-    for (l in 1:length(densityVector)) {
+    for (l in seq_len(length(densityVector))) {
         if (timeValue <= accrualTime[l]) {
             if (l == 1) {
                 return(timeValue * densityVector[l] * maxNumberOfSubjects)
@@ -438,3 +440,5 @@ NULL
         }
     }
 }
+
+

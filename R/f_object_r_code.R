@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8216 $
+## |  Last changed: $Date: 2024-09-16 11:45:02 +0200 (Mo, 16 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -108,7 +108,7 @@ NULL
         x <- t(x)
     }
 
-    for (i in 1:length(x)) {
+    for (i in seq_len(length(x))) {
         if (nchar(expectedResult) > 0) {
             expectedResult <- paste0(expectedResult, ", ")
         }
@@ -189,6 +189,10 @@ NULL
         return("getSimulationSurvival")
     }
 
+    if (inherits(obj, "SimulationResultsCountData")) {
+        return("getSimulationCounts")
+    }
+
     if (inherits(obj, "SimulationResultsMultiArmMeans")) {
         return("getSimulationMultiArmMeans")
     }
@@ -257,14 +261,21 @@ NULL
 
 #' @rdname getObjectRCode
 #' @export
-rcmd <- function(obj, ...,
+rcmd <- function(
+        obj, 
+        ...,
         leadingArguments = NULL,
         includeDefaultParameters = FALSE,
         stringWrapParagraphWidth = 90,
         prefix = "",
         postfix = "",
         stringWrapPrefix = "",
-        newArgumentValues = list()) {
+        newArgumentValues = list(),
+        
+        tolerance = 1e-07,
+        pipeOperator = c("auto", "none", "magrittr", "R"),
+        output = c("vector", "cat", "test", "markdown", "internal"),
+        explicitPrint = FALSE) {
     getObjectRCode(
         obj = obj,
         leadingArguments = leadingArguments,
@@ -273,7 +284,11 @@ rcmd <- function(obj, ...,
         prefix = prefix,
         postfix = postfix,
         stringWrapPrefix = stringWrapPrefix,
-        newArgumentValues = newArgumentValues
+        newArgumentValues = newArgumentValues,
+        tolerance = tolerance,
+        pipeOperator = pipeOperator,
+        output = output,
+        explicitPrint = explicitPrint
     )
 }
 
@@ -311,7 +326,9 @@ rcmd <- function(obj, ...,
 #'
 #' @export
 #'
-getObjectRCode <- function(obj, ...,
+getObjectRCode <- function(
+        obj, 
+        ...,
         leadingArguments = NULL,
         includeDefaultParameters = FALSE,
         stringWrapParagraphWidth = 90,
@@ -367,10 +384,7 @@ getObjectRCode <- function(obj, ...,
     }
 
     if (!is.null(obj) && is.function(obj)) {
-        lines <- .getFunctionAsString(obj,
-            stringWrapPrefix = stringWrapPrefix,
-            stringWrapParagraphWidth = stringWrapParagraphWidth
-        )
+        lines <- .getFunctionAsString(obj, stringWrapPrefix = stringWrapPrefix)
         if (length(lines) == 0) {
             return("")
         }
@@ -841,21 +855,26 @@ getObjectRCode <- function(obj, ...,
             is.character(stringWrapPrefix)) {
         rCodeNew <- character()
         for (rCodeLine in rCode) {
-            rCodeLine <- gsub("   ", "___", rCodeLine)
-            rCodeLine <- gsub("  ", "__", rCodeLine)
-            rCodeLines <- strwrap(rCodeLine, width = stringWrapParagraphWidth)
+            for (i in 12:2) {
+                rCodeLine <- gsub(paste(rep(" ", i), collapse = ""), 
+                    paste(rep("_", i), collapse = ""), rCodeLine)
+            }
+            rCodeLines <- strwrap(rCodeLine, width = stringWrapParagraphWidth - 2)
             if (length(rCodeLines) > 1) {
                 for (i in 2:length(rCodeLines)) {
                     if (grepl("^ *(\\|>|%>%) *", rCodeLines[i])) {
                         rCodeLines[i - 1] <- paste0(rCodeLines[i - 1], pipeOperatorPostfix)
                         rCodeLines[i] <- sub("^ *(\\|>|%>%) *", "", rCodeLines[i])
-                    } else if (!grepl("^ *([a-zA-Z0-9]+ *<-)|(^ *get[a-zA-Z]+\\()|summary\\(", rCodeLines[i])) {
+                    } else if (!grepl("^ *([a-zA-Z0-9]+ *<-)|(^ *get[a-zA-Z]+\\()|summary\\(", 
+                            rCodeLines[i])) {
                         rCodeLines[i] <- paste0(stringWrapPrefix, rCodeLines[i])
                     }
                 }
             }
-            rCodeLines <- gsub("___", "   ", rCodeLines)
-            rCodeLines <- gsub("__", "  ", rCodeLines)
+            for (i in 12:2) {
+                rCodeLines <- gsub(paste(rep("_", i), collapse = ""), 
+                    paste(rep(" ", i), collapse = ""), rCodeLines)
+            }
             rCodeLines <- rCodeLines[nchar(trimws(rCodeLines)) > 0]
             rCodeNew <- c(rCodeNew, rCodeLines)
         }

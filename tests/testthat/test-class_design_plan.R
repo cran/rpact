@@ -15,8 +15,8 @@
 ## |
 ## |  File name: test-class_design_plan.R
 ## |  Creation date: 27 May 2024, 11:11:19
-## |  File version: $Revision: 7940 $
-## |  Last changed: $Date: 2024-05-27 15:47:41 +0200 (Mo, 27 Mai 2024) $
+## |  File version: $Revision: 7968 $
+## |  Last changed: $Date: 2024-06-07 15:03:21 +0200 (Fr, 07 Jun 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -24,16 +24,13 @@ test_plan_section("Testing Class 'TrialDesignPlan'")
 
 
 test_that("Test design plan classes and utility functions", {
-    .skipTestIfDisabled()
-
     expect_error(.addPlotSubTitleItems())
 })
 
 test_that("Sample size means result object clone function", {
-    .skipTestIfDisabled()
-
     x1 <- getSampleSizeMeans(groups = 1, thetaH0 = 0.1, stDev = 2)
     x2 <- x1$clone()
+
 
     ## Pairwise comparison of the results of x1 with the results of x2
     expect_equal(x1$meanRatio, x2$meanRatio)
@@ -52,8 +49,6 @@ test_that("Sample size means result object clone function", {
 })
 
 test_that("Sample size means result object utility functions", {
-    .skipTestIfDisabled()
-
     sampleSizeResult <- getSampleSizeMeans(groups = 1, thetaH0 = 0.1, stDev = 2)
     expect_true(R6::is.R6(sampleSizeResult$getPlotSettings()))
     expect_true(any(grepl("Technical developer summary", utils::capture.output(sampleSizeResult$show(showType = 2)))))
@@ -61,10 +56,9 @@ test_that("Sample size means result object utility functions", {
 })
 
 test_that("Power means result object clone function", {
-    .skipTestIfDisabled()
-
     x1 <- getPowerMeans(groups = 1, thetaH0 = -0.5, stDev = 2, alternative = -1.2, maxNumberOfSubjects = 50)
     x2 <- x1$clone()
+
 
     ## Pairwise comparison of the results of x1 with the results of x2
     expect_equal(x1$meanRatio, x2$meanRatio)
@@ -92,8 +86,6 @@ test_that("Power means result object clone function", {
 })
 
 test_that("Power means result object utility functions", {
-    .skipTestIfDisabled()
-
     powerResult <- getPowerMeans(groups = 1, thetaH0 = -0.5, stDev = 2, alternative = -1.2, maxNumberOfSubjects = 50)
     expect_true(R6::is.R6(powerResult$getPlotSettings()))
     expect_true(any(grepl("Technical developer summary", utils::capture.output(powerResult$show(showType = 2)))))
@@ -101,10 +93,9 @@ test_that("Power means result object utility functions", {
 })
 
 test_that("Sample size rates result object clone function", {
-    .skipTestIfDisabled()
-
     x1 <- getSampleSizeRates(groups = 1, thetaH0 = 0.5, pi1 = 0.8, normalApproximation = FALSE)
     x2 <- x1$clone()
+
 
     ## Pairwise comparison of the results of x1 with the results of x2
     expect_equal(x1$riskRatio, x2$riskRatio)
@@ -124,8 +115,6 @@ test_that("Sample size rates result object clone function", {
 })
 
 test_that("Sample size rates result object utility functions", {
-    .skipTestIfDisabled()
-
     sampleSizeResult <- getSampleSizeRates(groups = 1, thetaH0 = 0.5, pi1 = 0.8, normalApproximation = FALSE)
     expect_true(R6::is.R6(sampleSizeResult$getPlotSettings()))
     expect_true(any(grepl("Technical developer summary", utils::capture.output(sampleSizeResult$show(showType = 2)))))
@@ -133,10 +122,9 @@ test_that("Sample size rates result object utility functions", {
 })
 
 test_that("Power rates result object clone function", {
-    .skipTestIfDisabled()
-
     x1 <- getPowerRates(groups = 1, thetaH0 = 0.4, pi1 = c(0.2, 0.3, 0.4), directionUpper = FALSE, maxNumberOfSubjects = 40)
     x2 <- x1$clone()
+
 
     ## Pairwise comparison of the results of x1 with the results of x2
     expect_equal(x1$riskRatio, x2$riskRatio)
@@ -164,8 +152,6 @@ test_that("Power rates result object clone function", {
 })
 
 test_that("Power rates result object utility functions", {
-    .skipTestIfDisabled()
-
     powerResult <- getPowerRates(groups = 1, thetaH0 = 0.4, pi1 = c(0.2, 0.3, 0.4), directionUpper = FALSE, maxNumberOfSubjects = 40)
     expect_true(R6::is.R6(powerResult$getPlotSettings()))
     expect_true(any(grepl("Technical developer summary", utils::capture.output(powerResult$show(showType = 2)))))
@@ -173,10 +159,9 @@ test_that("Power rates result object utility functions", {
 })
 
 test_that("Sample size survival result object clone function", {
-    .skipTestIfDisabled()
-
     x1 <- getSampleSizeSurvival(alpha = 0.01)
     x2 <- x1$clone()
+
 
     ## Pairwise comparison of the results of x1 with the results of x2
     expect_equal(x1$thetaH0, x2$thetaH0)
@@ -233,10 +218,9 @@ test_that("Sample size survival result object utility functions", {
 })
 
 test_that("Power survival result object clone function", {
-    .skipTestIfDisabled()
-
     x1 <- getPowerSurvival(maxNumberOfEvents = 40, maxNumberOfSubjects = 200)
     x2 <- x1$clone()
+
 
     ## Pairwise comparison of the results of x1 with the results of x2
     expect_equal(x1$thetaH0, x2$thetaH0)
@@ -290,13 +274,12 @@ test_that("Power survival result object utility functions", {
 })
 
 test_that("Sample size counts result object clone function", {
-    .skipTestIfDisabled()
-
     x1 <- getSampleSizeCounts(
         alpha = 0.01, beta = 0.05, lambda = 0.234, theta = 0.7,
         overdispersion = 0.71, accrualTime = 7, fixedExposureTime = 1
     )
     x2 <- x1$clone()
+
 
     ## Pairwise comparison of the results of x1 with the results of x2
     expect_equal(x1$thetaH0, x2$thetaH0)
@@ -374,8 +357,6 @@ test_that("Power counts result object clone function", {
 })
 
 test_that("Power counts result object utility functions", {
-    .skipTestIfDisabled()
-
     powerResult <- getPowerCounts(
         maxNumberOfSubjects = 400, directionUpper = FALSE,
         overdispersion = 1, fixedExposureTime = 1, lambda1 = seq(1.05, 1.55, 0.1), lambda2 = 1.4
@@ -399,8 +380,6 @@ test_that("Design plan utility functions", {
 })
 
 test_that("Sample size means recreate function", {
-    .skipTestIfDisabled()
-
     trialDesignPlan <- getSampleSizeMeans()
     trialDesignPlanCopy <- trialDesignPlan$recreate()
 
@@ -412,8 +391,6 @@ test_that("Sample size means recreate function", {
 })
 
 test_that("Sample size rates recreate function", {
-    .skipTestIfDisabled()
-
     trialDesignPlan <- getSampleSizeRates()
     trialDesignPlanCopy <- trialDesignPlan$recreate()
 
@@ -426,8 +403,6 @@ test_that("Sample size rates recreate function", {
 })
 
 test_that("Sample size survival recreate function", {
-    .skipTestIfDisabled()
-
     trialDesignPlan <- getSampleSizeSurvival()
     trialDesignPlanCopy <- trialDesignPlan$recreate()
 
@@ -443,8 +418,6 @@ test_that("Sample size survival recreate function", {
 })
 
 test_that("Count data recreate function", {
-    .skipTestIfDisabled()
-
     trialDesignPlan <- getSampleSizeCounts(
         alpha = 0.01, beta = 0.05, lambda = 0.234, theta = 0.7,
         overdispersion = 0.71, accrualTime = 7, fixedExposureTime = 1

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7962 $
-## |  Last changed: $Date: 2024-05-31 13:41:37 +0200 (Fr, 31 Mai 2024) $
+## |  File version: $Revision: 8266 $
+## |  Last changed: $Date: 2024-09-25 15:19:20 +0200 (Mi, 25 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -389,13 +389,12 @@ NULL
     futilityBounds <- design$futilityBounds
     futilityBounds[!is.na(futilityBounds) & futilityBounds <= C_FUTILITY_BOUNDS_DEFAULT] <- NA_real_
 
-    criticalValues <- design$criticalValues
-
     criticalValuesEffectScaleUpper <- matrix(, nrow = design$kMax, ncol = nParameters)
     criticalValuesEffectScaleLower <- matrix(, nrow = design$kMax, ncol = nParameters)
     futilityBoundsEffectScaleUpper <- matrix(, nrow = design$kMax - 1, ncol = nParameters)
     futilityBoundsEffectScaleLower <- matrix(, nrow = design$kMax - 1, ncol = nParameters)
 
+    criticalValues <- .getCriticalValues(design)
     for (j in (1:nParameters)) {
         if (design$sided == 1) {
             criticalValuesEffectScaleUpper[, j] <- thetaH0 * (exp((2 * directionUpper[j] - 1) * criticalValues *
@@ -615,7 +614,9 @@ NULL
 .createDesignPlanSurvival <- function(..., objectType = c("sampleSize", "power"),
         design,
         typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
-        thetaH0, pi2, pi1,
+        thetaH0, 
+        pi2, 
+        pi1,
         allocationRatioPlanned,
         accountForObservationTimes,
         eventTime,
@@ -649,9 +650,7 @@ NULL
         .assertIsValidThetaH0(thetaH0, endpoint = "survival", groups = 2)
         .assertIsValidKappa(kappa)
         directionUpper <- .assertIsValidDirectionUpper(directionUpper,
-            design$sided, objectType,
-            userFunctionCallEnabled = TRUE
-        )
+            design, objectType = objectType, userFunctionCallEnabled = TRUE)
 
         if (objectType == "power") {
             .assertIsSingleNumber(maxNumberOfEvents, "maxNumberOfEvents")
@@ -759,10 +758,10 @@ NULL
     designPlan$criticalValuesPValueScale <- matrix(design$stageLevels, ncol = 1)
     if (design$sided == 2) {
         designPlan$criticalValuesPValueScale <- designPlan$criticalValuesPValueScale * 2
-        designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_GENERATED)
     }
+    designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_NOT_APPLICABLE)
 
-    if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+    if (.hasApplicableFutilityBounds(design)) {
         designPlan$futilityBoundsPValueScale <- matrix(1 - stats::pnorm(design$futilityBounds), ncol = 1)
         designPlan$.setParameterType("futilityBoundsPValueScale", C_PARAM_GENERATED)
     }
@@ -1479,7 +1478,7 @@ NULL
             }
 
             stoppingProbs[kMax] <- 1 - sum(stoppingProbs[1:(kMax - 1)])
-
+            
             studyDuration[i] <- analysisTime[, i] %*% stoppingProbs
 
             expectedNumberOfSubjectsH1[i] <- numberOfSubjects[, i] %*% stoppingProbs
@@ -2042,6 +2041,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
             ignore = c("accountForObservationTimes")
         )
         .warnInCaseOfTwoSidedPowerArgument(...)
+        design <- .resetPipeOperatorQueue(design)
     }
 
     if (!is.na(maxNumberOfSubjects) && maxNumberOfSubjects == 0) {
@@ -2508,6 +2508,7 @@ getPowerSurvival <- function(design = NULL, ...,
         .warnInCaseOfUnknownArguments(functionName = "getPowerSurvival", ...)
         .warnInCaseOfTwoSidedPowerArgument(...)
         .warnInCaseOfTwoSidedPowerIsDisabled(design)
+        design <- .resetPipeOperatorQueue(design)
     }
 
     designPlan <- .createDesignPlanSurvival(
@@ -2590,6 +2591,7 @@ getPowerSurvival <- function(design = NULL, ...,
         lambda1 <- rep(NA_real_, numberOfResults)
     }
 
+    studyDuration <- rep(NA_real_, numberOfResults)
     for (i in 1:numberOfResults) {
         # Analysis times
         up <- 2
@@ -2651,10 +2653,10 @@ getPowerSurvival <- function(design = NULL, ...,
             powerAndAverageSampleNumber$futilityPerStage[is.na(
                 powerAndAverageSampleNumber$futilityPerStage[, i]
             ), i] <- 0
-
+        
             stoppingProbs[, i] <- powerAndAverageSampleNumber$rejectPerStage[, i] +
                 c(powerAndAverageSampleNumber$futilityPerStage[, i], 0)
-
+            
             stoppingProbs[kMax, i] <- 1 - sum(stoppingProbs[1:(kMax - 1), i])
             designPlan$studyDuration[i] <- designPlan$analysisTime[, i] %*% stoppingProbs[, i]
             designPlan$.setParameterType("studyDuration", C_PARAM_GENERATED)

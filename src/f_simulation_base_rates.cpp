@@ -14,8 +14,8 @@
  *
  * Contact us for information about our services: info@rpact.com
  *
- * File version: $Revision: 7461 $
- * Last changed: $Date: 2023-12-01 10:24:25 +0100 (Fr, 01 Dez 2023) $
+ * File version: $Revision: 8188 $
+ * Last changed: $Date: 2024-09-10 09:56:44 +0200 (Di, 10 Sep 2024) $
  * Last changed by: $Author: pahlke $
  *
  */
@@ -132,7 +132,7 @@ List getTestStatisticsRatesCpp(int designNumber, NumericVector informationRates,
 					value = getOneMinusQNorm(R::pbinom(e1, n1, thetaH0, true, false));
 				}
 			} else {
-				value = (r1 - thetaH0) / sqrt(thetaH0 * (1.0 - thetaH0)) * sqrt(n1);
+				value = (2.0 * directionUpper - 1.0) * (r1 - thetaH0) / sqrt(thetaH0 * (1.0 - thetaH0)) * sqrt(n1);
 			}
 		} else {
 			double n2 = sum(sampleSizesPerStage(1, _));
@@ -409,7 +409,10 @@ List getSimulationStepRatesCpp(int k, int kMax, int designNumber, NumericVector 
 
 	double stageSubjects = plannedSubjects[0];
 
-	double allocationRatio = allocationRatioPlanned[k - 1];
+	double allocationRatio = NA_REAL;
+	if (groups == 2L) {
+		allocationRatio = allocationRatioPlanned[k - 1];
+	}
 
 	// perform event size recalculation for stages 2, ..., kMax
 	double simulatedConditionalPower = 0;
@@ -531,7 +534,7 @@ List getSimulationStepRatesCpp(int k, int kMax, int designNumber, NumericVector 
 				}
 			}
 		}
-		if (!directionUpper) {
+		if (!R_IsNA(directionUpper) && !directionUpper) {
 			theta = -theta;
 		}
 		simulatedConditionalPower = getOneMinusPNorm(conditionalCriticalValue - theta * sqrt(stageSubjects));

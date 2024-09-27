@@ -1,4 +1,25 @@
 
+# rpact 4.1.0
+
+## New features
+
+* The new function `getSimulationCounts()` can be used to perform power simulations for clinical trials with negative binomial distributed count data. The function returns the simulated power, stopping probabilities, conditional power, and expected sample size for testing mean rates for negative binomial distributed event numbers in the two treatment groups testing situation.
+* The functions `getDesignGroupSequential()`, `getDesignInverseNormal()`, and `getDesignFisher()` now support the argument `directionUpper` to specify the direction of the alternative for one-sided testing early at the design phase, see enhancement [#26](https://github.com/rpact-com/rpact/issues/26)
+* `getSampleSizeCounts()` and `getPowerCounts()` output boundary values also on the treatment effect scale, see enhancement [#40](https://github.com/rpact-com/rpact/issues/40)
+* The `fetch()` and `obtain()` functions can be used to extract multiple parameters from an rpact result object and support various output formats
+
+## Improvements, issues, and changes
+
+* Usage of pipe-operators improved
+* Analysis progress messages are only displayed when R is used interactively
+* Manual use of `kable()` for rpact result objects marked as deprecated, as the formatting and display will be handled automatically by rpact
+* The order of all summary entries has been revised and optimized
+* Minimum version of suggested package `ggplot2` changed from 2.2.0 to 3.2.0
+* Issues [#41](https://github.com/rpact-com/rpact/issues/41), [#44](https://github.com/rpact-com/rpact/issues/44), [#46](https://github.com/rpact-com/rpact/issues/46), and [#47](https://github.com/rpact-com/rpact/issues/47) fixed
+* When analyzing with a two-sided test, an issue with the calculation of the conditional rejection probability was fixed
+* Bug is fixed: `directionUpper = FALSE` has no influence in simulation for testing rates in one-sample situation
+
+
 # rpact 4.0.0
 
 ## New features
@@ -6,7 +27,7 @@
 * All reference classes in the package have been replaced by [R6](https://cran.r-project.org/package=R6) classes. This change brings significant advantages, including improved performance, more flexible and cleaner object-oriented programming, and enhanced encapsulation of methods and properties. The transition to R6 classes allows for more efficient memory management and faster execution, making the package more robust and scalable. Additionally, R6 classes provide a more intuitive and user-friendly interface for developers, facilitating the creation and maintenance of complex data structures and workflows.
 * Extension of the function `getPerformanceScore()` for sample size recalculation rules to the setting of binary endpoints according to [Bokelmann et al. (2024)](https://doi.org/10.1186/s12874-024-02150-4)
 * The `getSimulationMultiArmMeans()`, `getSimulationMultiArmRates()`, and `getSimulationMultiArmSurvival()` functions now support an enhanced `selectArmsFunction` argument. Previously, only `effectVector` and `stage` were allowed as arguments. Now, users can optionally utilize additional arguments for more powerful custom function implementations, including `conditionalPower`, `conditionalCriticalValue`, `plannedSubjects/plannedEvents`, `allocationRatioPlanned`, `selectedArms`, `thetaH1` (for means and survival), `stDevH1` (for means), `overallEffects`, and for rates additionally: `piTreatmentsH1`, `piControlH1`, `overallRates`, and `overallRatesControl`.
-* Same as above for`getSimulationEnrichmentMeans()`, `getSimulationEnrichmentRates()`, and `getSimulationEnrichmentSurvival()`. Specifically, support for population selection with `selectPopulationsFunction` argument based on predictive/posterior probabilities added (see [#32](https://github.com/rpact-com/rpact/issues/32))
+* Same as above for `getSimulationEnrichmentMeans()`, `getSimulationEnrichmentRates()`, and `getSimulationEnrichmentSurvival()`. Specifically, support for population selection with `selectPopulationsFunction` argument based on predictive/posterior probabilities added (see [#32](https://github.com/rpact-com/rpact/issues/32))
 * The `fetch()` and `obtain()` functions can be used to extract a single parameter from an rpact result object, which is useful for writing pipe-operator linked commands
 
 ## Improvements, issues, and changes

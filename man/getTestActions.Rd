@@ -13,15 +13,18 @@ getTestActions(stageResults, ...)
 }
 \value{
 Returns a \code{\link[base]{character}} vector of length \code{kMax}
-Returns a \code{\link[base]{numeric}} vector of length \code{kMax}containing the test actions of each stage.
+Returns a \code{\link[base]{numeric}} vector of length \code{kMax}
+containing the test actions of each stage.
 }
 \description{
 Returns test actions.
 }
 \details{
-Returns the test actions of the specified design and stage results at the specified stage.
+Returns the test actions of the specified design and
+stage results at the specified stage.
 }
 \examples{
+\dontrun{
 design <- getDesignInverseNormal(kMax = 2)
 data <- getDataset(
     n      = c( 20,  30),
@@ -29,6 +32,7 @@ data <- getDataset(
     stDevs = c(130, 140)
 )
 getTestActions(getStageResults(design, dataInput = data))
+}
 
 }
 \seealso{

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7962 $
-## |  Last changed: $Date: 2024-05-31 13:41:37 +0200 (Fr, 31 Mai 2024) $
+## |  File version: $Revision: 8141 $
+## |  Last changed: $Date: 2024-08-28 15:03:46 +0200 (Mi, 28 Aug 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -1520,31 +1520,84 @@ as.data.frame.StageResults <- function(x, row.names = NULL,
 #' @template return_object_ggplot
 #'
 #' @examples
+#' \dontrun{
 #' design <- getDesignGroupSequential(
 #'     kMax = 4, alpha = 0.025,
 #'     informationRates = c(0.2, 0.5, 0.8, 1),
 #'     typeOfDesign = "WT", deltaWT = 0.25
 #' )
-#'
 #' dataExample <- getDataset(
 #'     n = c(20, 30, 30),
 #'     means = c(50, 51, 55),
 #'     stDevs = c(130, 140, 120)
 #' )
-#'
 #' stageResults <- getStageResults(design, dataExample, thetaH0 = 20)
-#'
-#' \dontrun{
 #' if (require(ggplot2)) plot(stageResults, nPlanned = c(30), thetaRange = c(0, 100))
 #' }
 #'
 #' @export
 #'
-plot.StageResults <- function(x, y, ..., type = 1L,
-        nPlanned, allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
-        main = NA_character_, xlab = NA_character_, ylab = NA_character_,
-        legendTitle = NA_character_, palette = "Set1", legendPosition = NA_integer_,
-        showSource = FALSE, plotSettings = NULL) {
+plot.StageResults <- function(
+        x, 
+        y, 
+        ..., 
+        type = 1L,
+        nPlanned, 
+        allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
+        main = NA_character_, 
+        xlab = NA_character_, 
+        ylab = NA_character_,
+        legendTitle = NA_character_, 
+        palette = "Set1", 
+        legendPosition = NA_integer_,
+        showSource = FALSE, 
+        plotSettings = NULL) {
+    
+    markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
+    if (is.na(markdown)) {
+        markdown <- .isMarkdownEnabled("plot")
+    }
+    
+    args <- list(
+        x = x, 
+        y = NULL,
+        type = type,
+        nPlanned = nPlanned,
+        allocationRatioPlanned = allocationRatioPlanned,
+        main = main,
+        xlab = xlab,
+        ylab = ylab,
+        legendTitle = legendTitle,
+        palette = palette,
+        legendPosition = legendPosition,
+        showSource = showSource,
+        plotSettings = plotSettings, 
+        ...)
+    
+    if (markdown) {
+        sep <- .getMarkdownPlotPrintSeparator()
+        print(do.call(.plot.StageResults, args))
+        return(.knitPrintQueue(x, sep = sep, prefix = sep))
+    }
+    
+    return(do.call(.plot.StageResults, args))
+}
+
+.plot.StageResults <- function(
+        x, 
+        y, 
+        ..., 
+        type = 1L,
+        nPlanned, 
+        allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
+        main = NA_character_, 
+        xlab = NA_character_, 
+        ylab = NA_character_,
+        legendTitle = NA_character_, 
+        palette = "Set1", 
+        legendPosition = NA_integer_,
+        showSource = FALSE, 
+        plotSettings = NULL) {
     fCall <- match.call(expand.dots = FALSE)
 
     .assertGgplotIsInstalled()

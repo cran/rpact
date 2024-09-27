@@ -14,6 +14,7 @@ getDesignFisher(
   informationRates = NA_real_,
   sided = 1,
   bindingFutility = NA,
+  directionUpper = NA,
   tolerance = 1e-14,
   iterations = 0,
   seed = NA_real_
@@ -49,6 +50,10 @@ Must be a positive integer of length 1.}
 
 \item{bindingFutility}{If \code{bindingFutility = TRUE} is specified the calculation of
 the critical values is affected by the futility bounds (default is \code{TRUE}).}
+
+\item{directionUpper}{Logical. Specifies the direction of the alternative,
+only applicable for one-sided testing; default is \code{TRUE}
+which means that larger values of the test statistics yield smaller p-values.}
 
 \item{tolerance}{The numerical tolerance, default is \code{1e-14}.}
 
@@ -90,10 +95,12 @@ obtain the specific help documentation linked above by typing \code{?plot.Analys
 }
 
 \examples{
+\dontrun{
 # Calculate critical values for a two-stage Fisher's combination test 
 # with full level alpha = 0.05 at the final stage and stopping for 
 # futility bound alpha0 = 0.50, as described in Bauer and Koehne (1994). 
 getDesignFisher(kMax = 2, method = "fullAlpha", alpha = 0.05, alpha0Vec = 0.50) 
+}
 
 }
 \seealso{

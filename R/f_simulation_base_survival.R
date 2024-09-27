@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8225 $
+## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -234,7 +234,7 @@ NULL
 #'
 getSimulationSurvival <- function(design = NULL, ...,
         thetaH0 = 1, # C_THETA_H0_SURVIVAL_DEFAULT
-        directionUpper = TRUE, # C_DIRECTION_UPPER_DEFAULT
+        directionUpper = NA, # C_DIRECTION_UPPER_DEFAULT
         pi1 = NA_real_,
         pi2 = NA_real_,
         lambda1 = NA_real_,
@@ -283,9 +283,11 @@ getSimulationSurvival <- function(design = NULL, ...,
             ignore = "showStatistics", ...
         )
         .warnInCaseOfTwoSidedPowerArgument(...)
+        design <- .resetPipeOperatorQueue(design)
     }
 
-    .assertIsSingleLogical(directionUpper, "directionUpper")
+    directionUpper <- .assertIsValidDirectionUpper(directionUpper, 
+        design, objectType = "power", userFunctionCallEnabled = TRUE)
     .assertIsSingleNumber(thetaH0, "thetaH0")
     .assertIsInOpenInterval(thetaH0, "thetaH0", 0, NULL, naAllowed = TRUE)
     .assertIsNumericVector(minNumberOfEventsPerStage, "minNumberOfEventsPerStage", naAllowed = TRUE)
@@ -661,11 +663,7 @@ getSimulationSurvival <- function(design = NULL, ...,
     accrualTimeValue <- accrualTimeValue[1:accrualSetup$maxNumberOfSubjects]
 
     # to avoid last value to be NA_real_
-    i <- accrualSetup$maxNumberOfSubjects
-    while (is.na(accrualTimeValue[i])) {
-        accrualTimeValue[i] <- accrualTime[length(accrualTime)]
-        i <- i - 1
-    }
+    accrualTimeValue[is.na(accrualTimeValue)] <- accrualTime[length(accrualTime)]
 
     treatmentGroup <- rep(
         c(rep(1, allocation1), rep(2, allocation2)),
@@ -714,7 +712,7 @@ getSimulationSurvival <- function(design = NULL, ...,
         designNumber                   = designNumber,
         kMax                           = design$kMax,
         sided                          = design$sided,
-        criticalValues                 = design$criticalValues,
+        criticalValues                 = .getCriticalValues(design),
         informationRates               = design$informationRates,
         conditionalPower               = conditionalPower,
         plannedEvents                  = plannedEvents,

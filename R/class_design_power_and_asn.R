@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7958 $
-## |  Last changed: $Date: 2024-05-30 09:56:27 +0200 (Do, 30 Mai 2024) $
+## |  File version: $Revision: 8225 $
+## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -182,7 +182,7 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
             kMax <- self$.design$kMax
             futilityBounds <- self$.design$futilityBounds
             informationRates <- self$.design$informationRates
-            criticalValues <- self$.design$criticalValues
+            criticalValues <- .getCriticalValues(self$.design)
             sided <- self$.design$sided
             delayedInformation <- self$.design$delayedInformation
 
@@ -195,7 +195,11 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
                 decisionCriticalValues <- self$.design$decisionCriticalValues
                 probs <- .calculateDecisionProbabilities(
                     sqrtShift = sqrt(self$nMax) * theta,
-                    informationRates, delayedInformation, contRegionUpper, contRegionLower, decisionCriticalValues
+                    informationRates, 
+                    delayedInformation, 
+                    contRegionUpper, 
+                    contRegionLower, 
+                    decisionCriticalValues
                 )
 
                 .averageSampleNumber <- self$nMax - sum(probs$stoppingProbabilities *
@@ -310,10 +314,12 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
 #' @template return_dataframe
 #'
 #' @examples
+#' \dontrun{
 #' data <- as.data.frame(getPowerAndAverageSampleNumber(getDesignGroupSequential()))
 #' head(data)
 #' dim(data)
-#'
+#' }
+#' 
 #' @export
 #'
 #' @keywords internal

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7962 $
-## |  Last changed: $Date: 2024-05-31 13:41:37 +0200 (Fr, 31 Mai 2024) $
+## |  File version: $Revision: 8180 $
+## |  Last changed: $Date: 2024-09-06 10:13:14 +0200 (Fr, 06 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -75,6 +75,7 @@ TrialDesign <- R6::R6Class("TrialDesign",
         stageLevels = NULL,
         alphaSpent = NULL,
         bindingFutility = NULL,
+        directionUpper = NULL,
         tolerance = NULL,
         initialize = function(...,
                 kMax = NA_integer_,
@@ -85,6 +86,7 @@ TrialDesign <- R6::R6Class("TrialDesign",
                 stageLevels = NA_real_,
                 alphaSpent = NA_real_,
                 bindingFutility = NA,
+                directionUpper = NA,
                 tolerance = 1e-06 # C_ANALYSIS_TOLERANCE_DEFAULT
                 ) {
             self$kMax <- kMax
@@ -95,6 +97,7 @@ TrialDesign <- R6::R6Class("TrialDesign",
             self$stageLevels <- stageLevels
             self$alphaSpent <- alphaSpent
             self$bindingFutility <- bindingFutility
+            self$directionUpper <- directionUpper
             self$tolerance <- tolerance
             super$initialize(...)
 
@@ -293,7 +296,32 @@ TrialDesignCharacteristics <- R6::R6Class("TrialDesignCharacteristics",
 #'
 #' @export
 #'
-print.TrialDesignCharacteristics <- function(x, ..., markdown = FALSE, showDesign = TRUE) {
+print.TrialDesignCharacteristics <- function(x, ..., markdown = NA, showDesign = TRUE) {
+    sysCalls <- sys.calls()
+    
+    if (is.na(markdown)) {
+        markdown <- .isMarkdownEnabled("print")
+    }
+    
+    if (isTRUE(markdown)) {
+        if (.isPrintCall(sysCalls)) {
+            result <- paste0(utils::capture.output(x$.catMarkdownText()), collapse = "\n")
+            return(knitr::asis_output(result))
+        }
+        
+        attr(x, "markdown") <- TRUE
+        queue <- attr(x, "queue")
+        if (is.null(queue)) {
+            queue <- list()
+        }
+        if (showDesign) {
+            queue[[length(queue) + 1]] <- x$.design
+        }
+        queue[[length(queue) + 1]] <- x
+        attr(x, "queue") <- queue
+        return(invisible(x))
+    }
+    
     if (showDesign) {
         print.ParameterSet(x$.design, ..., markdown = markdown)
     }
@@ -318,8 +346,10 @@ print.TrialDesignCharacteristics <- function(x, ..., markdown = FALSE, showDesig
 #' @template return_dataframe
 #'
 #' @examples
+#' \dontrun{
 #' as.data.frame(getDesignCharacteristics(getDesignGroupSequential()))
-#'
+#' }
+#' 
 #' @export
 #'
 #' @keywords internal
@@ -466,6 +496,7 @@ TrialDesignFisher <- R6::R6Class("TrialDesignFisher",
                 "alpha",
                 "alpha0Vec",
                 "bindingFutility",
+                "directionUpper",
                 "sided",
                 "tolerance",
                 "iterations",
@@ -787,6 +818,7 @@ TrialDesignInverseNormal <- R6::R6Class("TrialDesignInverseNormal",
                 "deltaPT0",
                 "futilityBounds",
                 "bindingFutility",
+                "directionUpper",
                 "constantBoundsHP",
                 "gammaA",
                 "gammaB",
@@ -1075,11 +1107,81 @@ getDesignConditionalDunnett <- function(alpha = 0.025, # C_ALPHA_DEFAULT
 #'
 #' @export
 #'
-plot.TrialDesign <- function(x, y, ..., main = NA_character_,
-        xlab = NA_character_, ylab = NA_character_, type = 1L, palette = "Set1",
-        theta = seq(-1, 1, 0.01), nMax = NA_integer_, plotPointsEnabled = NA,
-        legendPosition = NA_integer_, showSource = FALSE,
-        grid = 1, plotSettings = NULL) {
+plot.TrialDesign <- function(
+        x, 
+        y, 
+        ..., 
+        main = NA_character_,
+        xlab = NA_character_, 
+        ylab = NA_character_, 
+        type = 1L, 
+        palette = "Set1",
+        theta = seq(-1, 1, 0.01), 
+        nMax = NA_integer_, 
+        plotPointsEnabled = NA,
+        legendPosition = NA_integer_, 
+        showSource = FALSE,
+        grid = 1, 
+        plotSettings = NULL) {
+        
+    .assertIsValidPlotType(type, naAllowed = FALSE)
+    .assertIsSingleInteger(grid, "grid", naAllowed = FALSE, validateType = FALSE)
+    markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
+    if (is.na(markdown)) {
+        markdown <- .isMarkdownEnabled("plot")
+    }
+    
+    args <- list(
+        x = x, 
+        y = NULL,
+        main = main,
+        xlab = xlab,
+        ylab = ylab,
+        type = type,
+        palette = palette,
+        theta = theta, 
+        nMax = nMax, 
+        plotPointsEnabled = plotPointsEnabled,
+        legendPosition = legendPosition,
+        showSource = showSource,
+        grid = grid,
+        plotSettings = plotSettings, 
+        ...)
+    
+    if (markdown) {
+        sep <- .getMarkdownPlotPrintSeparator()
+        if (length(type) > 1 && grid == 1) {
+            grid <- 0
+            args$grid <- 0
+        }
+        if (grid > 0) {
+            print(do.call(.plot.TrialDesign, args))
+        } else {
+            do.call(.plot.TrialDesign, args)
+        }
+        return(.knitPrintQueue(x, sep = sep, prefix = sep))
+    }
+    
+    return(do.call(.plot.TrialDesign, args))
+}
+
+.plot.TrialDesign <- function(
+        x, 
+        y, 
+        ..., 
+        main = NA_character_,
+        xlab = NA_character_, 
+        ylab = NA_character_, 
+        type = 1L, 
+        palette = "Set1",
+        theta = seq(-1, 1, 0.01), 
+        nMax = NA_integer_, 
+        plotPointsEnabled = NA,
+        legendPosition = NA_integer_, 
+        showSource = FALSE,
+        grid = 1, 
+        plotSettings = NULL) {
+        
     fCall <- match.call(expand.dots = FALSE)
     designName <- deparse(fCall$x)
     .assertGgplotIsInstalled()
@@ -1122,7 +1224,28 @@ plot.TrialDesign <- function(x, y, ..., main = NA_character_,
 
 #' @rdname plot.TrialDesign
 #' @export
-plot.TrialDesignCharacteristics <- function(x, y, ...) {
+plot.TrialDesignCharacteristics <- function(x, y, ..., type = 1L, grid = 1) {
+    .assertIsValidPlotType(type, naAllowed = FALSE)
+    .assertIsSingleInteger(grid, "grid", naAllowed = FALSE, validateType = FALSE)
+    markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
+    if (is.na(markdown)) {
+        markdown <- .isMarkdownEnabled("plot")
+    }
+    
+    if (markdown) {
+        sep <- .getMarkdownPlotPrintSeparator()
+        if (length(type) > 1 && grid == 1) {
+            grid <- 0
+            args$grid <- 0
+        }
+        if (grid > 0) {
+            print(.plot.TrialDesign(x = x$.design, y = y, type = type, grid = grid, ...))            
+        } else {
+            .plot.TrialDesign(x = x$.design, y = y, type = type, grid = grid, ...)
+        }
+        return(.knitPrintQueue(x, sep = sep, prefix = sep))
+    }
+    
     plot(x = x$.design, y = y, ...)
 }
 
@@ -1203,8 +1326,10 @@ plot.TrialDesignCharacteristics <- function(x, y, ...) {
 #' @template return_dataframe
 #'
 #' @examples
+#' \dontrun{
 #' as.data.frame(getDesignGroupSequential())
-#'
+#' }
+#' 
 #' @export
 #'
 #' @keywords internal

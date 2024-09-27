@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8273 $
+## |  Last changed: $Date: 2024-09-25 17:19:43 +0200 (Mi, 25 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -27,7 +27,7 @@ NULL
 }
 
 .getDefaultDesign <- function(...,
-        type = c("sampleSize", "power", "simulation", "analysis", "characteristics"),
+        type = c("sampleSize", "power", "simulation", "simulationCounts", "analysis", "characteristics"),
         ignore = c()) {
     type <- match.arg(type)
 
@@ -52,25 +52,40 @@ NULL
         ignore <- c(ignore, "sided")
     }
 
+    directionUpper <- .getOptionalArgument("directionUpper", ...)
+    if (is.null(directionUpper)) {
+        directionUpper <- NA
+    } else {
+        ignore <- c(ignore, "directionUpper")
+    }
+
     twoSidedPower <- .getOptionalArgument("twoSidedPower", ...)
     if (is.null(twoSidedPower)) {
-        if (type %in% c("power", "simulation") && sided == 2) {
+        if (type %in% c("power", "simulation", "simulationCounts") && sided == 2) {
             twoSidedPower <- TRUE
         } else {
-            twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
+            twoSidedPower <- NA
         }
     } else {
         ignore <- c(ignore, "twoSidedPower")
     }
     if (type %in% c("analysis", "simulation")) {
         design <- getDesignInverseNormal(
-            kMax = 1, alpha = alpha, beta = beta,
-            sided = sided, twoSidedPower = twoSidedPower
+            kMax = 1, 
+            alpha = alpha, 
+            beta = beta,
+            sided = sided, 
+            twoSidedPower = twoSidedPower,
+            directionUpper = directionUpper
         )
     } else {
         design <- getDesignGroupSequential(
-            kMax = 1, alpha = alpha, beta = beta,
-            sided = sided, twoSidedPower = twoSidedPower
+            kMax = 1, 
+            alpha = alpha, 
+            beta = beta,
+            sided = sided, 
+            twoSidedPower = twoSidedPower,
+            directionUpper = directionUpper
         )
     }
     return(design)
@@ -133,7 +148,7 @@ NULL
             )
         }
     }
-
+    
     if (design$sided == 2 && .isDefinedArgument(parameterValues) &&
             (!.isTrialDesignInverseNormalOrGroupSequential(design) ||
                 (design$typeOfDesign != C_TYPE_OF_DESIGN_PT) && !.isBetaSpendingDesignType(design$typeBetaSpending)
@@ -695,6 +710,7 @@ NULL
 #' @return A \code{\link[base]{numeric}} value or vector will be returned.
 #'
 #' @examples
+#' \dontrun{
 #' # Calculate probabilties for a range of time values for a
 #' # piecewise exponential distribution with hazard rates
 #' # 0.025, 0.04, 0.015, and 0.007 in the intervals
@@ -712,6 +728,7 @@ NULL
 #' getPiecewiseExponentialQuantile(y,
 #'     piecewiseSurvivalTime = piecewiseSurvivalTime
 #' )
+#' }
 #'
 #' @name utilitiesForPiecewiseExponentialDistribution
 #'

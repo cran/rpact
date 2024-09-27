@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8262 $
+## |  Last changed: $Date: 2024-09-25 10:43:45 +0200 (Mi, 25 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -118,7 +118,8 @@ NULL
     if (!.isTrialDesignPlan(designPlan)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'designPlan' must be an instance of 'TrialDesignPlan' (is '", .getClassName(designPlan), "')"
+            "'designPlan' must be an instance of 'TrialDesignPlan' (is '", .getClassName(designPlan), "')", 
+            call. = FALSE
         )
     }
 }
@@ -128,7 +129,7 @@ NULL
         stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'design' must be an instance of ", .arrayToString(
             .getTrialDesignClassNames(),
             vectorLookAndFeelEnabled = FALSE
-        ), " (is '", .getClassName(design), "')")
+        ), " (is '", .getClassName(design), "')", call. = FALSE)
     }
 }
 
@@ -136,7 +137,9 @@ NULL
     if (!.isTrialDesignInverseNormal(design)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'design' must be an instance of class 'TrialDesignInverseNormal' (is '", .getClassName(design), "')"
+            "'design' must be an instance of class ",
+            "'TrialDesignInverseNormal' (is '", .getClassName(design), "')", 
+            call. = FALSE
         )
     }
 }
@@ -145,7 +148,9 @@ NULL
     if (!.isTrialDesignFisher(design)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'design' must be an instance of class 'TrialDesignFisher' (is '", .getClassName(design), "')"
+            "'design' must be an instance of class ",
+            "'TrialDesignFisher' (is '", .getClassName(design), "')", 
+            call. = FALSE
         )
     }
 }
@@ -154,7 +159,9 @@ NULL
     if (!.isTrialDesignGroupSequential(design)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'design' must be an instance of class 'TrialDesignGroupSequential' (is '", .getClassName(design), "')"
+            "'design' must be an instance of class ",
+            "'TrialDesignGroupSequential' (is '", .getClassName(design), "')", 
+            call. = FALSE
         )
     }
 }
@@ -163,7 +170,9 @@ NULL
     if (!.isTrialDesignConditionalDunnett(design)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'design' must be an instance of class 'TrialDesignConditionalDunnett' (is '", .getClassName(design), "')"
+            "'design' must be an instance of class ",
+            "'TrialDesignConditionalDunnett' (is '", .getClassName(design), "')", 
+            call. = FALSE
         )
     }
 }
@@ -172,8 +181,20 @@ NULL
     if (!.isTrialDesignInverseNormalOrGroupSequential(design)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'design' must be an instance of class 'TrialDesignInverseNormal' or 'TrialDesignGroupSequential' (is '",
-            .getClassName(design), "')"
+            "'design' must be an instance of class ",
+            "'TrialDesignInverseNormal' or 'TrialDesignGroupSequential' (is '",
+            .getClassName(design), "')", call. = FALSE
+        )
+    }
+}
+
+.assertIsTrialDesignInverseNormalOrGroupSequentialOrFisher <- function(design) {
+    if (!.isTrialDesignInverseNormalOrGroupSequential(design) && !.isTrialDesignFisher(design)) {
+        stop(
+            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+            "'design' must be an instance of class 'TrialDesignInverseNormal', ",
+            "'TrialDesignGroupSequential', or 'TrialDesignFisher' (is '",
+            .getClassName(design), "')", call. = FALSE
         )
     }
 }
@@ -182,8 +203,9 @@ NULL
     if (!.isTrialDesignInverseNormalOrFisher(design)) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'design' must be an instance of class 'TrialDesignInverseNormal' or 'TrialDesignFisher' (is '",
-            .getClassName(design), "')"
+            "'design' must be an instance of class ",
+            "'TrialDesignInverseNormal' or 'TrialDesignFisher' (is '",
+            .getClassName(design), "')", call. = FALSE
         )
     }
 }
@@ -595,15 +617,25 @@ NULL
 .assertIsSingleInteger <- function(x, argumentName, ..., naAllowed = FALSE,
         validateType = TRUE, noDefaultAvailable = FALSE, call. = TRUE) {
     .assertIsSinglePositiveInteger(
-        x = x, argumentName = argumentName,
-        naAllowed = naAllowed, validateType = validateType,
-        mustBePositive = FALSE, noDefaultAvailable = noDefaultAvailable,
+        x = x, 
+        argumentName = argumentName,
+        naAllowed = naAllowed, 
+        validateType = validateType,
+        mustBePositive = FALSE, 
+        noDefaultAvailable = noDefaultAvailable,
         call. = call.
     )
 }
 
-.assertIsSinglePositiveInteger <- function(x, argumentName, ...,
-        naAllowed = FALSE, validateType = TRUE, mustBePositive = TRUE, noDefaultAvailable = FALSE, call. = TRUE) {
+.assertIsSinglePositiveInteger <- function(
+        x, 
+        argumentName, 
+        ...,
+        naAllowed = FALSE, 
+        validateType = TRUE, 
+        mustBePositive = TRUE, 
+        noDefaultAvailable = FALSE, 
+        call. = TRUE) {
     prefix <- ifelse(mustBePositive, "single positive ", "single ")
     if (missing(x) || is.null(x) || length(x) == 0) {
         .assertIsNoDefault(x, argumentName, noDefaultAvailable, checkNA = FALSE)
@@ -899,15 +931,21 @@ NULL
 .assertIsValidAccrualTime <- function(accrualTime, ..., naAllowed = TRUE) {
     .assertIsNumericVector(accrualTime, "accrualTime", naAllowed = naAllowed)
 
-    if (is.null(accrualTime) || length(accrualTime) == 0 || all(is.na(accrualTime))) {
+    if (length(accrualTime) == 0 || all(is.na(accrualTime))) {
         return(invisible())
     }
 
-    if (!is.null(accrualTime) && (length(accrualTime) > 1) && (accrualTime[1] != 0)) {
+    if (length(accrualTime) > 1 && accrualTime[1] != 0) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "the first value of 'accrualTime' (", .arrayToString(accrualTime), ") must be 0"
         )
+    }
+    if (identical(accrualTime, 0) || identical(accrualTime, 0L)) {
+      stop(
+        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+        "single 'accrualTime' is not allowed to be 0"
+      )
     }
     .assertIsInClosedInterval(accrualTime, "accrualTime", lower = 0, upper = NULL, naAllowed = naAllowed)
     .assertValuesAreStrictlyIncreasing(accrualTime, "accrualTime")
@@ -917,7 +955,8 @@ NULL
     .assertIsSingleNumber(stDev, "stDev")
 
     if (stDev <= 0) {
-        stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, "standard deviation 'stDev' (", stDev, ") must be > 0")
+        stop(C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS, 
+            "standard deviation 'stDev' (", stDev, ") must be > 0")
     }
 }
 
@@ -1298,8 +1337,8 @@ NULL
 
     definedArguments <- c()
     undefinedArguments <- c()
-    for (i in 1:length(args)) {
-        arg <- args[i]
+    for (i in seq_len(length(args))) {
+        arg <- args[[i]]
         argName <- argNames[i]
         if (missing(arg) || (!is.null(arg) && sum(is.na(arg)) > 0)) {
             undefinedArguments <- c(undefinedArguments, argName)
@@ -1403,7 +1442,7 @@ NULL
     }
     ignore <- c(ignore, "showWarnings")
     argNames <- names(args)
-    for (i in 1:length(args)) {
+    for (i in seq_len(length(args))) {
         arg <- args[[i]]
         argName <- ifelse(is.null(argNames[i]) || argNames[i] == "",
             ifelse(inherits(arg, "StageResults"), "stageResultsName", paste0("%param", i, "%")),
@@ -1898,15 +1937,33 @@ NULL
     }
 }
 
-.assertIsValidDirectionUpper <- function(directionUpper, sided,
-        objectType = c("sampleSize", "power"), userFunctionCallEnabled = FALSE) {
+.assertIsValidDirectionUpper <- function(
+        directionUpper, 
+        design,
+        ..., 
+        objectType = c("sampleSize", "power", "analysis"), 
+        userFunctionCallEnabled = FALSE) {
     objectType <- match.arg(objectType)
 
     .assertIsSingleLogical(directionUpper, "directionUpper", naAllowed = TRUE)
+    
+    if (!is.na(directionUpper) && !is.na(design$directionUpper) && 
+            !identical(directionUpper, design$directionUpper)) {
+        stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
+            "in the design directionUpper = ", design$directionUpper, " is defined. ",
+            "In the ", ifelse(objectType == "sampleSize", "sample size", objectType), 
+            " function the same direction must be specified, but it is ", directionUpper, 
+            call. = FALSE)
+    }
 
-    if (objectType == "power") {
+    if (objectType %in% c("power", "analysis")) {
+        sided <- design$sided
         if (sided == 1 && is.na(directionUpper)) {
-            directionUpper <- TRUE
+            if (!is.na(design$directionUpper)) {
+                directionUpper <- design$directionUpper
+            } else {
+                directionUpper <- C_DIRECTION_UPPER_DEFAULT
+            }
         }
         if (userFunctionCallEnabled && sided == 2 && !is.na(directionUpper)) {
             warning("'directionUpper' will be ignored because it ",
@@ -1915,18 +1972,22 @@ NULL
             )
         }
     } else if (is.na(directionUpper)) {
-        directionUpper <- TRUE
+        if (!is.na(design$directionUpper)) {
+            directionUpper <- design$directionUpper
+        } else {
+            directionUpper <- C_DIRECTION_UPPER_DEFAULT
+        }
     }
-
+    
     return(directionUpper)
 }
 
 .assertIsFunction <- function(fun) {
     if (is.null(fun)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'fun' must be a valid function")
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'fun' must be a valid function", call. = FALSE)
     }
     if (!is.function(fun)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'fun' must be a function (is ", .getClassName(fun), ")")
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'fun' must be a function (is ", .getClassName(fun), ")", call. = FALSE)
     }
 }
 
@@ -2230,6 +2291,15 @@ NULL
 .isEnrichmentConditionalPowerResults <- function(conditionalPowerResults) {
     return(inherits(conditionalPowerResults, "ConditionalPowerResults") &&
         grepl("Enrichment", .getClassName(conditionalPowerResults)))
+}
+
+.isMultiHypothesesObject = function(x) {
+    return(.isEnrichmentAnalysisResults(x) || .isEnrichmentStageResults(x) ||
+            .isMultiArmAnalysisResults(x) || .isMultiArmStageResults(x))
+}
+
+.isEnrichmentObject = function(x) {
+    return(.isEnrichmentAnalysisResults(x) || .isEnrichmentStageResults(x))
 }
 
 .isMultiArmAnalysisResults <- function(analysisResults) {
@@ -2949,7 +3019,8 @@ NULL
         followUpTime,
         accrualTime,
         accrualIntensity,
-        maxNumberOfSubjects) {
+        maxNumberOfSubjects,
+        accrualIntensityValidationEnabled = TRUE) {
     .assertIsSingleLogical(sampleSizeEnabled, "sampleSizeEnabled")
     .assertIsSingleNumber(fixedExposureTime, "fixedExposureTime", naAllowed = TRUE)
     .assertIsInOpenInterval(fixedExposureTime, "fixedExposureTime", lower = 0, upper = NULL, naAllowed = TRUE)
@@ -2986,7 +3057,7 @@ NULL
             "maxNumberOfSubjects" = maxNumberOfSubjects,
             "accrualIntensity" = accrualIntensity,
             case = "eitherOr",
-            .paramNames = if (simulationEnabled) c("plannedMaxSubjects", "accrualIntensity") else NULL
+            .paramNames = if (simulationEnabled) c("maxNumberOfSubjects", "accrualIntensity") else NULL
         )
     }
     if (any(is.na(accrualTime)) && !is.na(followUpTime)) {
@@ -3035,7 +3106,7 @@ NULL
         if (is.na(maxNumberOfSubjects) && (any(is.na(accrualIntensity)) || any(is.na(accrualTime)))) {
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "'accrualTime' and 'accrualIntensity' need to be specified if 'plannedMaxSubjects' is not specified"
+                "'accrualTime' and 'accrualIntensity' need to be specified if 'maxNumberOfSubjects' is not specified"
             )
         }
     }
@@ -3043,10 +3114,10 @@ NULL
     .assertParametersAreSpecifiedCorrectlyTogether(
         "maxNumberOfSubjects" = maxNumberOfSubjects,
         "accrualIntensity" = accrualIntensity,
-        .paramNames = if (simulationEnabled) c("plannedMaxSubjects", "accrualIntensity") else NULL
+        .paramNames = if (simulationEnabled) c("maxNumberOfSubjects", "accrualIntensity") else NULL
     )
 
-    if (!any(is.na(accrualIntensity)) &&
+    if (!any(is.na(accrualIntensity)) && (accrualTime[1] != 0) &&
             length(accrualIntensity) == 1 &&
             length(accrualTime) != length(accrualIntensity)) {
         stop(
@@ -3055,7 +3126,16 @@ NULL
             "'accrualIntensity' (", .arrayToString(accrualIntensity), ") does not match"
         )
     }
-    if (any(is.na(accrualIntensity)) && length(accrualTime) > 1) {
+    if (!any(is.na(accrualIntensity)) && (length(accrualIntensity) > 1) &&
+        length(accrualTime) != length(accrualIntensity) + 1) {
+      stop(
+        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+        "'accrualTime' (", .arrayToString(accrualTime), ") and ",
+        "'accrualIntensity' (", .arrayToString(accrualIntensity), ") does not match"
+      )
+    }    
+    if (accrualIntensityValidationEnabled && any(is.na(accrualIntensity)) && 
+        length(accrualTime) > 1) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "'accrualIntensity' (", .arrayToString(accrualIntensity), ") is not correctly specified"
@@ -3076,4 +3156,28 @@ NULL
             length(plannedCalendarTime), kMax
         ))
     }
+}
+
+.assertIsValidPlotType <- function(type, naAllowed = FALSE) {
+    if (is.null(type) || length(type) == 0 || (!naAllowed && all(is.na(type)))) {
+        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'type' must be defined")
+    }
+    
+    if (!is.numeric(type) && !is.character(type)) {
+        stop(
+            C_EXCEPTION_TYPE_MISSING_ARGUMENT,
+            "'type' must be an integer or character value or vector (is ", .getClassName(type), ")"
+        )
+    }
+    
+    if (is.numeric(type)) {
+        .assertIsIntegerVector(type, "type", naAllowed = naAllowed, validateType = FALSE)
+    }
+}
+
+.hasApplicableFutilityBounds <- function(design) {
+    return(
+        !all(is.na(design$futilityBounds)) && 
+        any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)
+    )
 }

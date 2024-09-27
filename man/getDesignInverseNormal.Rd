@@ -24,6 +24,7 @@ getDesignInverseNormal(
   userBetaSpending = NA_real_,
   gammaB = NA_real_,
   bindingFutility = NA,
+  directionUpper = NA,
   betaAdjustment = NA,
   constantBoundsHP = 3,
   twoSidedPower = NA,
@@ -96,6 +97,10 @@ beta-spending up to each interim stage.}
 the critical values is affected by the futility bounds and the futility threshold is binding in the
 sense that the study must be stopped if the futility condition was reached (default is \code{FALSE}).}
 
+\item{directionUpper}{Logical. Specifies the direction of the alternative,
+only applicable for one-sided testing; default is \code{TRUE}
+which means that larger values of the test statistics yield smaller p-values.}
+
 \item{betaAdjustment}{For two-sided beta spending designs, if \code{betaAdjustement = TRUE} a linear
 adjustment of the beta spending values is performed if an overlapping of decision regions for futility
 stopping at earlier stages occurs, otherwise no adjustment is performed (default is \code{TRUE}).}
@@ -150,6 +155,7 @@ obtain the specific help documentation linked above by typing \code{?plot.Analys
 }
 
 \examples{
+\dontrun{
 # Calculate two-sided critical values for a four-stage 
 # Wang & Tsiatis design with Delta = 0.25 at level alpha = 0.05
 getDesignInverseNormal(kMax = 4, alpha = 0.05, sided = 2, 
@@ -160,7 +166,6 @@ getDesignInverseNormal(kMax = 4, alpha = 0.05, sided = 2,
 # The futility bound is non-binding.
 getDesignInverseNormal(kMax = 2, typeOfDesign = "noEarlyEfficacy", futilityBounds = 0)  
 
-\dontrun{
 # Calculate one-sided critical values and binding futility bounds for a three-stage 
 # design with alpha- and beta-spending functions according to Kim & DeMets with gamma = 2.5
 # (planned informationRates as specified, default alpha = 0.025 and beta = 0.2)

@@ -4,7 +4,12 @@
 \alias{getParameterCaption}
 \title{Get Parameter Caption}
 \usage{
-getParameterCaption(obj, parameterName)
+getParameterCaption(obj, var)
+}
+\arguments{
+\item{obj}{The rpact result object.}
+
+\item{var}{The variable/parameter name.}
 }
 \value{
 Returns a \code{\link[base]{character}} of specifying the corresponding caption of a given parameter name.
@@ -17,7 +22,9 @@ Returns the parameter caption for a given object and parameter name.
 This function identifies and returns the caption that will be used in print outputs of an rpact result object.
 }
 \examples{
+\dontrun{
 getParameterCaption(getDesignInverseNormal(), "kMax")
+}
 
 }
 \seealso{

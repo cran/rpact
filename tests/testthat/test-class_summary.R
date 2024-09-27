@@ -15,9 +15,9 @@
 ## |  
 ## |  File name: test-class_summary.R
 ## |  Creation date: 08 November 2023, 08:49:48
-## |  File version: $Revision$
-## |  Last changed: $Date$
-## |  Last changed by: $Author$
+## |  File version: $Revision: 8151 $
+## |  Last changed: $Date: 2024-08-30 10:39:49 +0200 (Fr, 30 Aug 2024) $
+## |  Last changed by: $Author: pahlke $
 ## |  
 
 test_plan_section("Testing Class 'SummaryFactory'")
@@ -94,7 +94,6 @@ test_that("Testing 'summary.ParameterSet': no errors occur", {
 	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 1)), NA)))
 	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 4), digits = 5), NA)))
 	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 4), digits = 0), NA)))
-	invisible(capture.output(expect_error(summary(getDesignFisher(kMax = 1)), NA)))
 
 	## test design plans - means
 
@@ -402,7 +401,6 @@ test_that("Testing 'summary.ParameterSet': output will be produced", {
 	expect_output(summary(getDesignFisher(kMax = 1))$show())
 	expect_output(summary(getDesignFisher(kMax = 4), digits = 5)$show())
 	expect_output(summary(getDesignFisher(kMax = 4), digits = 0)$show())
-	expect_output(summary(getDesignFisher(kMax = 1))$show())
 
 	## test design plans - means
 

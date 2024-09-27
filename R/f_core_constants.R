@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7946 $
-## |  Last changed: $Date: 2024-05-28 12:08:57 +0200 (Di, 28 Mai 2024) $
+## |  File version: $Revision: 8274 $
+## |  Last changed: $Date: 2024-09-26 11:33:59 +0200 (Do, 26 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -52,7 +52,7 @@ C_ALPHA_DEFAULT <- 0.025
 C_BETA_DEFAULT <- 0.2
 C_SIDED_DEFAULT <- 1L
 C_KMAX_DEFAULT <- 3L
-C_KMAX_UPPER_BOUND <- 20L
+C_KMAX_UPPER_BOUND <- 50L
 C_KMAX_UPPER_BOUND_FISHER <- 6L
 
 C_NA_MAX_DEFAULT <- 100L
@@ -97,6 +97,8 @@ C_CLASS_NAME_TRIAL_DESIGN_CONDITIONAL_DUNNETT <- "TrialDesignConditionalDunnett"
     }
     return(trialDesignClassNames)
 }
+
+C_MARKDOWN_PLOT_PRINT_SEPARATOR <- "\n\n-----\n\n"
 
 C_EXCEPTION_TYPE_RUNTIME_ISSUE <- "Runtime exception: "
 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT <- "Illegal argument: "
@@ -237,6 +239,13 @@ C_TYPE_OF_DESIGN_LIST <- createDictionary("C_TYPE_OF_DESIGN_LIST", list(
     "asHSD" = "Hwang, Shi & DeCani alpha spending",
     "asUser" = "User defined alpha spending",
     "noEarlyEfficacy" = "No early efficacy stop"
+))
+
+C_TYPE_OF_FISHER_LIST <- createDictionary("C_TYPE_OF_FISHER_LIST", list(
+    "equalAlpha" = "Constant levels",
+    "fullAlpha" = "Full last stage level",
+    "noInteraction" = "Levels with no Interaction",
+    "userDefinedAlpha" = "User defined levels"
 ))
 
 C_PLOT_SHOW_SOURCE_ARGUMENTS <- c("commands", "axes", "test", "validate")
@@ -703,7 +712,6 @@ C_PARAMETER_NAMES <- createDictionary("C_PARAMETER_NAMES", list(
     expectedInformationH0 = "Expected information under H0",
     expectedInformationH01 = "Expected information under H0/H1",
     expectedInformationH1 = "Expected information under H1",
-    plannedMaxSubjects = "Planned maximum number of subjects",
     plannedCalendarTime = "Planned calendar time"
 ))
 
@@ -1009,7 +1017,6 @@ C_TABLE_COLUMN_NAMES <- createDictionary("C_TABLE_COLUMN_NAMES", list(
     expectedInformationH0 = "Expected information under H0",
     expectedInformationH01 = "Expected information under H0/H1",
     expectedInformationH1 = "Expected information under H1",
-    plannedMaxSubjects = "Planned max. number of subjects",
     plannedCalendarTime = "Planned calendar time"
 ))
 
@@ -1029,6 +1036,10 @@ C_PARAMETER_NAMES_PLOT_SETTINGS <- createDictionary("C_PARAMETER_NAMES_PLOT_SETT
     }
     
     if (!inherits(obj, "TrialDesign")) {
+        obj <- obj[[".design"]]
+    }
+    
+    if (is.null(obj) || !inherits(obj, "TrialDesign")) {
         return(parameterName)
     }
     
@@ -1058,6 +1069,18 @@ C_PARAMETER_NAMES_PLOT_SETTINGS <- createDictionary("C_PARAMETER_NAMES_PLOT_SETT
 }
 
 .getParameterCaption <- function(parameterName, obj = NULL, ..., tableOutputEnabled = FALSE) {
+    .assertIsSingleCharacter(parameterName, "parameterName")
+    
+    if (grepl("\\$", parameterName)) {
+        parts <- strsplit(parameterName, "\\$", fixed = TRUE)[[1]]
+        if (length(parts) == 2) {
+            if (!is.null(obj[[parts[1]]])) {
+                obj <- obj[[parts[1]]]
+            }
+            parameterName <- parts[2]
+        }
+    }
+    
     if (is.null(obj)) {
         if (tableOutputEnabled) {
             return(C_TABLE_COLUMN_NAMES[[parameterName]])
@@ -1225,6 +1248,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- createDictionary("C_PARAMETER_FORMAT_FUNCTIONS",
     inflationFactor = ".formatProbabilities",
     information = ".formatRates",
     power = ".formatProbabilities",
+    sided = ".formatSided",
     rejectionProbabilities = ".formatProbabilities",
     futilityProbabilities = ".formatFutilityProbabilities",
     probs = ".formatProbabilities",
@@ -1316,6 +1340,7 @@ C_PARAMETER_FORMAT_FUNCTIONS <- createDictionary("C_PARAMETER_FORMAT_FUNCTIONS",
     overallEvents = ".formatEvents",
     expectedNumberOfEvents = ".formatEvents",
     expectedNumberOfEventsPerStage = ".formatEvents",
+    cumulativeEventsPerStage = ".formatEvents",
     eventsNotAchieved = ".formatRates",
     subjects = ".formatSampleSizes",
     futilityStop = ".formatProbabilities",
@@ -1402,6 +1427,5 @@ C_PARAMETER_FORMAT_FUNCTIONS <- createDictionary("C_PARAMETER_FORMAT_FUNCTIONS",
     informationOverStages = ".formatRatesDynamic",
     expectedInformationH0 = ".formatRatesDynamic",
     expectedInformationH01 = ".formatRatesDynamic",
-    expectedInformationH1 = ".formatRatesDynamic",
-    plannedMaxSubjects = ".formatSampleSizes"
+    expectedInformationH1 = ".formatRatesDynamic"
 ))

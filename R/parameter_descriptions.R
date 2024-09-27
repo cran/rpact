@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7941 $
-## |  Last changed: $Date: 2024-05-28 08:44:36 +0200 (Di, 28 Mai 2024) $
+## |  File version: $Revision: 8232 $
+## |  Last changed: $Date: 2024-09-19 08:22:37 +0200 (Do, 19 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -343,8 +343,6 @@ NULL
 #' @name param_followUpTime_counts
 #' @keywords internal
 NULL
-
-
 
 ##
 ## Analysis

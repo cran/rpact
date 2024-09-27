@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8274 $
+## |  Last changed: $Date: 2024-09-26 11:33:59 +0200 (Do, 26 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -38,12 +38,15 @@ NULL
 #' Given a sequence of information rates (fixing the correlation structure), and
 #' decisionMatrix with either 2 or 4 rows and kMax = length(informationRates) columns,
 #' this function calculates a probability matrix containing, for two rows, the probabilities:\cr
-#' P(Z_1 <- l_1), P(l_1 <- Z_1 < u_1, Z_2 < l_1),..., P(l_kMax-1 <- Z_kMax-1 < u_kMax-1, Z_kMax < l_l_kMax)\cr
-#' P(Z_1 <- u_1), P(l_1 <- Z_1 < u_1, Z_2 < u_1),..., P(l_kMax-1 <- Z_kMax-1 < u_kMax-1, Z_kMax < u_l_kMax)\cr
-#' P(Z_1 <- Inf), P(l_1 <- Z_1 < u_1, Z_2 < Inf),..., P(l_kMax-1 <- Z_kMax-1 < u_kMax-1, Z_kMax < Inf)\cr
+#' P(Z_1 < l_1), P(l_1 < Z_1 < u_1, Z_2 < l_2),..., P(l_kMax-1 < Z_kMax-1 < u_kMax-1, Z_kMax < l_l_kMax)\cr
+#' P(Z_1 < u_1), P(l_1 < Z_1 < u_1, Z_2 < u_2),..., P(l_kMax-1 < Z_kMax-1 < u_kMax-1, Z_kMax < u_l_kMax)\cr
+#' P(Z_1 < Inf), P(l_1 < Z_1 < u_1, Z_2 < Inf),..., P(l_kMax-1 < Z_kMax-1 < u_kMax-1, Z_kMax < Inf)\cr
 #' with continuation matrix\cr
 #' l_1,...,l_kMax\cr
 #' u_1,...,u_kMax\cr
+#' That is, the output matrix of the function provides per stage (column) the cumulative probabilities 
+#' for values specified in decisionMatrix and Inf, and reaching the stage, i.e., the test 
+#' statistics is in the continuation region for the preceding stages. 
 #' For 4 rows, the continuation region contains of two regions and the probability matrix is
 #' obtained analogously (cf., Wassmer and Brannath, 2016).
 #'
@@ -282,6 +285,7 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
         userBetaSpending = NA_real_,
         gammaB = NA_real_,
         bindingFutility = C_BINDING_FUTILITY_DEFAULT,
+        directionUpper = NA,
         constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
         twoSidedPower = NA,
         betaAdjustment = NA,
@@ -308,17 +312,22 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     }
 
     .assertIsSingleLogical(bindingFutility, "bindingFutility")
+    .assertIsSingleLogical(directionUpper, "directionUpper", naAllowed = TRUE)
     .assertIsNumericVector(delayedInformation, "delayedInformation", naAllowed = TRUE)
     .assertIsInClosedInterval(delayedInformation, "delayedInformation", lower = 0, upper = NULL, naAllowed = TRUE)
 
     if (designClass == C_CLASS_NAME_TRIAL_DESIGN_INVERSE_NORMAL) {
         design <- TrialDesignInverseNormal$new(
-            kMax = kMax, bindingFutility = bindingFutility,
+            kMax = kMax, 
+            bindingFutility = bindingFutility,
+            directionUpper = directionUpper,
             delayedInformation = delayedInformation
         )
     } else if (designClass == C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL) {
         design <- TrialDesignGroupSequential$new(
-            kMax = kMax, bindingFutility = bindingFutility,
+            kMax = kMax, 
+            bindingFutility = bindingFutility,
+            directionUpper = directionUpper,
             delayedInformation = delayedInformation
         )
     } else {
@@ -371,6 +380,9 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     if (!all(is.na(delayedInformation)) && any(delayedInformation > 0)) {
         design$.setParameterType("delayedInformation", C_PARAM_USER_DEFINED)
     }
+    
+    design$.setParameterType("directionUpper", ifelse(!is.na(directionUpper), 
+        C_PARAM_USER_DEFINED, C_PARAM_NOT_APPLICABLE))
 
     if (design$typeOfDesign != C_TYPE_OF_DESIGN_WT_OPTIMUM && optimizationCriterion != C_OPTIMIZATION_CRITERION_DEFAULT) {
         warning(
@@ -390,14 +402,23 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
             call. = FALSE
         )
     }
-    if (is.na(twoSidedPower)) {
+    if (design$sided == 1) {
         design$twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
-        design$.setParameterType("twoSidedPower", C_PARAM_DEFAULT_VALUE)
+        design$.setParameterType("twoSidedPower", C_PARAM_NOT_APPLICABLE)
+        if (!is.na(twoSidedPower)) {
+            warning("'twoSidedPower' (", twoSidedPower, ") will be ignored because it is ",
+                "only applicable for two-sided testing", call. = FALSE)
+        }
     } else {
-        design$twoSidedPower <- twoSidedPower
-        design$.setParameterType("twoSidedPower", ifelse(
-            twoSidedPower == C_TWO_SIDED_POWER_DEFAULT, C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED
-        ))
+        if (is.na(twoSidedPower)) {
+            design$twoSidedPower <- C_TWO_SIDED_POWER_DEFAULT
+            design$.setParameterType("twoSidedPower", C_PARAM_DEFAULT_VALUE)
+        } else {
+            design$twoSidedPower <- twoSidedPower
+            design$.setParameterType("twoSidedPower", ifelse(
+                twoSidedPower == C_TWO_SIDED_POWER_DEFAULT, C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED
+            ))
+        }
     }
     if (design$sided == 2 && grepl("^bs", design$typeBetaSpending)) {
         if (is.na(betaAdjustment)) {
@@ -423,6 +444,10 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
 .getDesignGroupSequentialKMax1 <- function(design) {
     design$criticalValues <- .getOneMinusQNorm(design$alpha / design$sided)
     design$alphaSpent[1] <- design$alpha
+    design$.setParameterType("typeOfDesign", C_PARAM_NOT_APPLICABLE)
+    if (!identical(design$typeOfDesign, C_DEFAULT_TYPE_OF_DESIGN)) {
+        warning("'typeOfDesign' (", design$typeOfDesign, ") will be ignored because design is fixed", call. = FALSE)
+    }
     return(invisible(design))
 }
 
@@ -506,27 +531,29 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
 }
 
 .calculateAlphaSpent <- function(design) {
+    criticalValues <- .getCriticalValues(design)
     if (design$sided == 2) {
         if (design$bindingFutility) {
             futilityBounds <- design$futilityBounds
             futilityBounds[is.na(futilityBounds)] <- 0
             decisionMatrix <- matrix(c(
-                -design$criticalValues, -futilityBounds, 0,
-                futilityBounds, 0, design$criticalValues
+                -criticalValues, -futilityBounds, 0,
+                futilityBounds, 0, criticalValues
             ), nrow = 4, byrow = TRUE)
         } else {
-            decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
+            decisionMatrix <- matrix(c(-criticalValues, 
+                criticalValues), nrow = 2, byrow = TRUE)
         }
     } else {
         if (design$bindingFutility) {
             decisionMatrix <- matrix(c(
                 design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT,
-                design$criticalValues
+                criticalValues
             ), nrow = 2, byrow = TRUE)
         } else {
             decisionMatrix <- matrix(c(
                 rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax),
-                design$criticalValues
+                criticalValues
             ), nrow = 2, byrow = TRUE)
         }
     }
@@ -560,21 +587,21 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
 .getDesignGroupSequentialHaybittleAndPeto <- function(design) {
     scale <- .getOneDimensionalRoot(
         function(scale) {
-            design$criticalValues <- c(rep(design$constantBoundsHP, design$kMax - 1), scale)
+            criticalValues <- c(rep(design$constantBoundsHP, design$kMax - 1), scale)
             if (design$sided == 2) {
-                decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
+                decisionMatrix <- matrix(c(-criticalValues, criticalValues), nrow = 2, byrow = TRUE)
                 probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
                 return(sum(probs[3, ] - probs[2, ] + probs[1, ]) - design$alpha)
             } else {
                 if (design$bindingFutility) {
                     decisionMatrix <- matrix(c(
                         design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT,
-                        design$criticalValues
+                        criticalValues
                     ), nrow = 2, byrow = TRUE)
                 } else {
                     decisionMatrix <- matrix(c(
                         rep(C_FUTILITY_BOUNDS_DEFAULT, design$kMax),
-                        design$criticalValues
+                        criticalValues
                     ), nrow = 2, byrow = TRUE)
                 }
                 probs <- .getGroupSequentialProbabilities(decisionMatrix, design$informationRates)
@@ -664,6 +691,7 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
         design$tolerance,
         design$deltaWT
     )
+
     designCharacteristics <- .getDesignCharacteristics(design = design)
     design$power <- designCharacteristics$power
     design$.setParameterType("power", C_PARAM_GENERATED)
@@ -756,7 +784,7 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
 #'
 .getDesignGroupSequentialBetaSpending <- function(design, userFunctionCallEnabled) {
     cppResult <- .getDesignGroupSequentialBetaSpendingCpp(
-        design$criticalValues,
+        .getCriticalValues(design),
         design$kMax,
         design$userAlphaSpending,
         design$userBetaSpending,
@@ -778,7 +806,7 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     design$criticalValues <- cppResult$criticalValues
     design$betaSpent <- cppResult$betaSpent
     design$power <- cppResult$power
-
+    
     if (design$sided == 2) {
         .calculateAlphaSpent(design)
     }
@@ -806,7 +834,7 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     }
 
     cppResult <- .getDesignGroupSequentialUserDefinedBetaSpendingCpp(
-        design$criticalValues,
+        .getCriticalValues(design),
         design$kMax,
         design$userAlphaSpending,
         design$userBetaSpending,
@@ -841,16 +869,21 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
 #'
 #' @noRd
 #'
-.calculateDecisionProbabilities <- function(sqrtShift, informationRates, delayedInformation,
-        contRegionUpper, contRegionLower, decisionCriticalValues) {
+.calculateDecisionProbabilities <- function(
+        sqrtShift, 
+        informationRates, 
+        delayedInformation,
+        contRegionUpper, 
+        contRegionLower, 
+        decisionCriticalValues) {
     kMax <- length(informationRates)
     power <- numeric(kMax)
     futilityProbabilities <- numeric(kMax - 1)
     stoppingProbabilities <- numeric(kMax - 1)
     rejectionProbabilities <- numeric(kMax)
     contRegionLower <- c(contRegionLower, decisionCriticalValues[kMax])
-
-    for (stage in 1:(kMax)) {
+    
+    for (stage in 1:kMax) {
         if (!is.na(delayedInformation[stage]) && delayedInformation[stage] > 0) {
             # information rate vector in case of recruitment stop at 'stage'
             informationRatesUponDelay <- c(
@@ -1008,6 +1041,7 @@ getDesignInverseNormal <- function(...,
         userBetaSpending = NA_real_,
         gammaB = NA_real_,
         bindingFutility = NA,
+        directionUpper = NA,
         betaAdjustment = NA,
         constantBoundsHP = 3, # C_CONST_BOUND_HP_DEFAULT,
         twoSidedPower = NA,
@@ -1033,6 +1067,7 @@ getDesignInverseNormal <- function(...,
         userBetaSpending = userBetaSpending,
         gammaB = gammaB,
         bindingFutility = bindingFutility,
+        directionUpper = directionUpper,
         betaAdjustment = betaAdjustment,
         constantBoundsHP = constantBoundsHP,
         twoSidedPower = twoSidedPower,
@@ -1092,8 +1127,19 @@ getDesignInverseNormal <- function(...,
     ))
 }
 
-.getDesignGroupSequentialDefaultValues <- function() {
-    return(list(
+.assertAllArgumentsHaveDefaultValues <- function(designFun, defaultValues) {
+    argNames <- methods::formalArgs(designFun)
+    argNames <- argNames[argNames != "..."]
+    missingArgNames <- argNames[!(argNames %in% names(defaultValues))]
+    if (length(missingArgNames) > 0) {
+        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, 
+            ".getDesignGroupSequentialDefaultValues() does return the arguments ",
+            .arrayToString(missingArgNames, encapsulate = TRUE))
+    }
+}
+
+.getDesignGroupSequentialDefaultValues <- function(designFun = NULL) {
+    defaultValues <- list(
         kMax = NA_integer_,
         alpha = NA_real_,
         beta = NA_real_,
@@ -1110,9 +1156,20 @@ getDesignInverseNormal <- function(...,
         userAlphaSpending = NA_real_,
         userBetaSpending = NA_real_,
         gammaB = NA_real_,
-        twoSidedPower = C_TWO_SIDED_POWER_DEFAULT,
+        bindingFutility = NA,
+        directionUpper = NA,
+        betaAdjustment = NA,
+        constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
+        twoSidedPower = NA,
+        delayedInformation = NA_real_,
         tolerance = C_DESIGN_TOLERANCE_DEFAULT
-    ))
+    )
+    if (is.null(designFun)) {
+        return(defaultValues)
+    }
+    
+    .assertAllArgumentsHaveDefaultValues(designFun, defaultValues)
+    return(defaultValues)
 }
 
 .getDesignInverseNormalDefaultValues <- function() {
@@ -1141,6 +1198,7 @@ getDesignInverseNormal <- function(...,
         userBetaSpending = NA_real_,
         gammaB = NA_real_,
         bindingFutility = C_BINDING_FUTILITY_DEFAULT,
+        directionUpper = NA,
         constantBoundsHP = C_CONST_BOUND_HP_DEFAULT,
         twoSidedPower = NA,
         betaAdjustment = NA,
@@ -1167,6 +1225,9 @@ getDesignInverseNormal <- function(...,
                 (!any(is.na(futilityBounds)) && all(futilityBounds == C_FUTILITY_BOUNDS_DEFAULT)))) {
         warning("'bindingFutility' (", bindingFutility, ") will be ignored", call. = FALSE)
     }
+    
+    futilityBounds <- .applyDirectionOfAlternative(futilityBounds, 
+        directionUpper, type = "negateIfLower", phase = "design", syncLength = TRUE)
 
     design <- .createDesign(
         designClass = designClass,
@@ -1187,6 +1248,7 @@ getDesignInverseNormal <- function(...,
         userBetaSpending = userBetaSpending,
         gammaB = gammaB,
         bindingFutility = bindingFutility,
+        directionUpper = directionUpper,
         constantBoundsHP = constantBoundsHP,
         twoSidedPower = twoSidedPower,
         betaAdjustment = betaAdjustment,
@@ -1298,19 +1360,19 @@ getDesignInverseNormal <- function(...,
         }
     }
 
-    design$stageLevels <- 1 - stats::pnorm(design$criticalValues)
+    design$stageLevels <- 1 - stats::pnorm(.getCriticalValues(design)) 
     design$.setParameterType("stageLevels", C_PARAM_GENERATED)
 
     if (design$kMax == 1) {
         design$.setParameterType("futilityBounds", C_PARAM_NOT_APPLICABLE)
     }
 
-    if (!all(is.na(design$futilityBounds))) {
+    if (.hasApplicableFutilityBounds(design)) {
         if (length(design$futilityBounds) == 0 || all(design$futilityBounds == C_FUTILITY_BOUNDS_DEFAULT)) {
             design$.setParameterType("bindingFutility", C_PARAM_NOT_APPLICABLE)
             design$.setParameterType("futilityBounds", C_PARAM_NOT_APPLICABLE)
         } else if (userFunctionCallEnabled &&
-                any(design$futilityBounds > design$criticalValues[1:(design$kMax - 1)] - 0.01, na.rm = TRUE)) {
+                any(design$futilityBounds > .getCriticalValues(design, 1:(design$kMax - 1)) - 0.01, na.rm = TRUE)) { 
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "'futilityBounds' (", .arrayToString(design$futilityBounds), ") too extreme for this situation"
@@ -1325,6 +1387,9 @@ getDesignInverseNormal <- function(...,
     # we use 7.5 instead of C_QNORM_THRESHOLD as threshold
     design$criticalValues[!is.na(design$criticalValues) & design$criticalValues <= -7.5] <- -Inf
     design$criticalValues[!is.na(design$criticalValues) & design$criticalValues >= 7.5] <- Inf
+    
+    design$criticalValues <- .applyDirectionOfAlternative(design$criticalValues, 
+        design$directionUpper, type = "negateIfLower", phase = "design")
 
     design$futilityBounds[!is.na(design$futilityBounds) & design$futilityBounds <=
         C_FUTILITY_BOUNDS_DEFAULT] <- C_FUTILITY_BOUNDS_DEFAULT
@@ -1346,6 +1411,10 @@ getDesignInverseNormal <- function(...,
 
     .assertIsNumericVector(delayedInformation, "delayedInformation", naAllowed = TRUE)
     if (all(is.na(delayedInformation))) {
+        design$futilityBounds <- .applyDirectionOfAlternative(
+            design$futilityBounds, directionUpper, 
+            type = "negateIfLower", phase = "design")
+        
         # delayed response design is disabled
         return(design)
     }
@@ -1355,13 +1424,18 @@ getDesignInverseNormal <- function(...,
             " 'delayedInformation' (", .arrayToString(delayedInformation), ") will be ignored",
             call. = FALSE
         )
+        
+        design$futilityBounds <- .applyDirectionOfAlternative(
+            design$futilityBounds, directionUpper, 
+            type = "negateIfLower", phase = "design")
+        
         return(design)
     }
 
     # proceed with delayed response design
     .assertIsInClosedInterval(delayedInformation, "delayedInformation", lower = 0, upper = NULL)
     kMax <- design$kMax
-    contRegionUpper <- design$criticalValues
+    contRegionUpper <- .getCriticalValues(design)
     contRegionLower <- design$futilityBounds
     informationRates <- design$informationRates
 
@@ -1424,7 +1498,8 @@ getDesignInverseNormal <- function(...,
             if (stage == 1) {
                 decisionCriticalValues[stage] <- .getOneDimensionalRoot(function(secondCriticalValue) {
                     probs1 <- .getGroupSequentialProbabilities(
-                        matrix(c(contRegionUpper[stage], secondCriticalValue, C_UPPER_BOUNDS_DEFAULT, C_UPPER_BOUNDS_DEFAULT),
+                        matrix(c(contRegionUpper[stage], secondCriticalValue, 
+                            C_UPPER_BOUNDS_DEFAULT, C_UPPER_BOUNDS_DEFAULT),
                             nrow = 2, byrow = TRUE
                         ), informationRatesUponDelay
                     )
@@ -1438,7 +1513,9 @@ getDesignInverseNormal <- function(...,
                         ), informationRatesUponDelay
                     )
                     return(probs1[1, stage + 1] - probs2[2, stage + 1] + probs2[1, stage + 1])
-                }, lower = -C_UPPER_BOUNDS_DEFAULT, upper = C_UPPER_BOUNDS_DEFAULT, tolerance = design$tolerance)
+                }, lower = -C_UPPER_BOUNDS_DEFAULT, 
+                    upper = C_UPPER_BOUNDS_DEFAULT, 
+                    tolerance = design$tolerance)
 
                 probs <- .getGroupSequentialProbabilities(
                     matrix(
@@ -1506,6 +1583,9 @@ getDesignInverseNormal <- function(...,
     design$delayedInformation[design$delayedInformation < 1e-03] <- 0
     design$.setParameterType("decisionCriticalValues", C_PARAM_GENERATED)
     design$.setParameterType("reversalProbabilities", C_PARAM_GENERATED)
+    design$futilityBounds <- .applyDirectionOfAlternative(
+        design$futilityBounds, directionUpper, 
+        type = "negateIfLower", phase = "design")
 
     warning("The delayed information design feature is experimental and ",
         "hence not fully validated (see www.rpact.com/experimental)",
@@ -1570,6 +1650,7 @@ getDesignInverseNormal <- function(...,
 #' @param futilityBounds The futility bounds, defined on the test statistic z scale
 #'        (numeric vector of length \code{kMax - 1}).
 #' @inheritParams param_bindingFutility
+#' @inheritParams param_directionUpper
 #' @param deltaWT Delta for Wang & Tsiatis Delta class.
 #' @param deltaPT1 Delta1 for Pampallona & Tsiatis class rejecting H0 boundaries.
 #' @param deltaPT0 Delta0 for Pampallona & Tsiatis class rejecting H1 boundaries.
@@ -1611,7 +1692,8 @@ getDesignInverseNormal <- function(...,
 #'
 #' @export
 #'
-getDesignGroupSequential <- function(...,
+getDesignGroupSequential <- function(
+        ...,
         kMax = NA_integer_,
         alpha = NA_real_,
         beta = NA_real_,
@@ -1629,12 +1711,14 @@ getDesignGroupSequential <- function(...,
         userBetaSpending = NA_real_,
         gammaB = NA_real_,
         bindingFutility = NA,
+        directionUpper = NA,
         betaAdjustment = NA,
         constantBoundsHP = 3, # C_CONST_BOUND_HP_DEFAULT,
         twoSidedPower = NA,
         delayedInformation = NA_real_,
         tolerance = 1e-08 # C_DESIGN_TOLERANCE_DEFAULT
         ) {
+            
     .warnInCaseOfUnknownArguments(functionName = "getDesignGroupSequential", ...)
     return(.getDesignGroupSequential(
         designClass = C_CLASS_NAME_TRIAL_DESIGN_GROUP_SEQUENTIAL,
@@ -1655,6 +1739,7 @@ getDesignGroupSequential <- function(...,
         userBetaSpending = userBetaSpending,
         gammaB = gammaB,
         bindingFutility = bindingFutility,
+        directionUpper = directionUpper,
         constantBoundsHP = constantBoundsHP,
         twoSidedPower = twoSidedPower,
         betaAdjustment = betaAdjustment,
@@ -1664,14 +1749,14 @@ getDesignGroupSequential <- function(...,
     ))
 }
 
-.getFixedSampleSize <- function(alpha, beta, sided, twoSidedPower = C_TWO_SIDED_POWER_DEFAULT) {
+.getFixedSampleSize <- function(..., alpha, beta, sided, twoSidedPower) {
     .assertIsValidAlphaAndBeta(alpha = alpha, beta = beta)
     .assertIsValidSidedParameter(sided)
 
     if (sided == 1) {
         return((.getOneMinusQNorm(alpha) + .getOneMinusQNorm(beta))^2)
     }
-    if (twoSidedPower) {
+    if (isTRUE(twoSidedPower)) {
         n <- .getOneDimensionalRoot(
             function(n) {
                 stats::pnorm(-.getOneMinusQNorm(alpha / 2) - sqrt(n)) -
@@ -1765,15 +1850,21 @@ getDesignCharacteristics <- function(design = NULL, ...) {
     designCharacteristics$.setParameterType("futilityProbabilities", C_PARAM_NOT_APPLICABLE)
 
     nFixed <- .getFixedSampleSize(
-        alpha = design$alpha, beta = design$beta,
-        sided = design$sided, twoSidedPower = design$twoSidedPower
+        alpha = design$alpha, 
+        beta = design$beta,
+        sided = design$sided, 
+        twoSidedPower = design$twoSidedPower
     )
     designCharacteristics$nFixed <- nFixed
     designCharacteristics$.setParameterType("nFixed", C_PARAM_GENERATED)
 
     design$criticalValues[design$criticalValues > 7.5] <- 7.5
+    design$criticalValues[design$criticalValues < -7.5] <- -7.5
     if (length(design$decisionCriticalValues) > 0) {
-        design$decisionCriticalValues[!is.na(design$decisionCriticalValues) & design$decisionCriticalValues > 7.5] <- 7.5
+        design$decisionCriticalValues[!is.na(design$decisionCriticalValues) & 
+            design$decisionCriticalValues > 7.5] <- 7.5
+        design$decisionCriticalValues[!is.na(design$decisionCriticalValues) & 
+            design$decisionCriticalValues < -7.5] <- -7.5
     }
     informationRates <- design$informationRates
 
@@ -1797,9 +1888,11 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         return(designCharacteristics)
     }
 
-    if (!any(is.na(design$delayedInformation)) && length(design$decisionCriticalValues) > 0) {
+    criticalValues <- .getCriticalValues(design)
+    if (!any(is.na(design$delayedInformation)) && 
+            length(design$decisionCriticalValues) > 0) {
         kMax <- design$kMax
-        contRegionUpper <- design$criticalValues
+        contRegionUpper <-criticalValues
         contRegionLower <- design$futilityBounds
         informationRates <- design$informationRates
         decisionCriticalValues <- design$decisionCriticalValues
@@ -1809,11 +1902,19 @@ getDesignCharacteristics <- function(design = NULL, ...) {
 
         shift <- .getOneDimensionalRoot(
             function(shift) {
-                resultsH1 <- .calculateDecisionProbabilities(sqrt(shift), informationRates, delayedInformation, contRegionUpper, contRegionLower, decisionCriticalValues)
+                resultsH1 <- .calculateDecisionProbabilities(
+                    sqrt(shift), 
+                    informationRates, 
+                    delayedInformation, 
+                    contRegionUpper, 
+                    contRegionLower, 
+                    decisionCriticalValues)
                 return(resultsH1$power[kMax] - 1 + design$beta)
             },
-            lower = 0, upper = 4 * nFixed,
-            tolerance = design$tolerance, callingFunctionInformation = ".getDesignCharacteristics"
+            lower = 0, 
+            upper = 4 * nFixed,
+            tolerance = design$tolerance, 
+            callingFunctionInformation = ".getDesignCharacteristics"
         )
 
         stopping <- numeric(kMax)
@@ -1862,10 +1963,10 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         shift <- .getOneDimensionalRoot(
             function(shift) {
                 decisionMatrix <- matrix(c(
-                    -design$criticalValues - sqrt(shift * informationRates),
+                    -criticalValues - sqrt(shift * informationRates),
                     c(-design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]), 0),
                     c(design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]), 0),
-                    design$criticalValues - sqrt(shift * informationRates)
+                    criticalValues - sqrt(shift * informationRates)
                 ), nrow = 4, byrow = TRUE)
                 probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
                 if (design$twoSidedPower) {
@@ -1879,10 +1980,10 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         )
 
         decisionMatrix <- matrix(c(
-            -design$criticalValues - sqrt(shift * informationRates),
+            -criticalValues - sqrt(shift * informationRates),
             c(-design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]), 0),
             c(design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]), 0),
-            design$criticalValues - sqrt(shift * informationRates)
+            criticalValues - sqrt(shift * informationRates)
         ), nrow = 4, byrow = TRUE)
         probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
         designCharacteristics$shift <- shift
@@ -1904,10 +2005,10 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         )
 
         decisionMatrix <- matrix(c(
-            -design$criticalValues,
+            -criticalValues,
             c(-design$futilityBounds, 0),
             c(design$futilityBounds, 0),
-            design$criticalValues
+            criticalValues
         ), nrow = 4, byrow = TRUE)
         probs0 <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
         designCharacteristics$averageSampleNumber0 <- .getAverageSampleNumber(
@@ -1915,10 +2016,10 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         )
 
         decisionMatrix <- matrix(c(
-            -design$criticalValues - sqrt(shift * informationRates) / 2,
+            -criticalValues - sqrt(shift * informationRates) / 2,
             c(-design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]) / 2, 0),
             c(design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]) / 2, 0),
-            design$criticalValues - sqrt(shift * informationRates) / 2
+            criticalValues - sqrt(shift * informationRates) / 2
         ), nrow = 4, byrow = TRUE)
         probs01 <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
         designCharacteristics$averageSampleNumber01 <- .getAverageSampleNumber(
@@ -1931,8 +2032,8 @@ getDesignCharacteristics <- function(design = NULL, ...) {
             function(shift) {
                 if (design$sided == 2) {
                     decisionMatrix <- matrix(c(
-                        -design$criticalValues - sqrt(shift * informationRates),
-                        design$criticalValues - sqrt(shift * informationRates)
+                        -criticalValues - sqrt(shift * informationRates),
+                        criticalValues - sqrt(shift * informationRates)
                     ), nrow = 2, byrow = TRUE)
                     probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
                     if (design$twoSidedPower) {
@@ -1946,7 +2047,7 @@ getDesignCharacteristics <- function(design = NULL, ...) {
                         C_FUTILITY_BOUNDS_DEFAULT
                     decisionMatrix <- matrix(c(
                         shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT,
-                        design$criticalValues - sqrt(shift * informationRates)
+                        criticalValues - sqrt(shift * informationRates)
                     ), nrow = 2, byrow = TRUE)
                     probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
                     return(sum(probs[3, ] - probs[2, ]) - 1 + design$beta)
@@ -1958,8 +2059,8 @@ getDesignCharacteristics <- function(design = NULL, ...) {
 
         if (design$sided == 2) {
             decisionMatrix <- matrix(c(
-                -design$criticalValues - sqrt(shift * informationRates),
-                design$criticalValues - sqrt(shift * informationRates)
+                -criticalValues - sqrt(shift * informationRates),
+                criticalValues - sqrt(shift * informationRates)
             ), nrow = 2, byrow = TRUE)
         } else {
             shiftedFutilityBounds <- design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)])
@@ -1967,7 +2068,7 @@ getDesignCharacteristics <- function(design = NULL, ...) {
                 C_FUTILITY_BOUNDS_DEFAULT
             decisionMatrix <- matrix(c(
                 shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT,
-                design$criticalValues - sqrt(shift * informationRates)
+                criticalValues - sqrt(shift * informationRates)
             ), nrow = 2, byrow = TRUE)
         }
         probs <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
@@ -2001,11 +2102,11 @@ getDesignCharacteristics <- function(design = NULL, ...) {
             design$informationRates, probs, shift, nFixed
         )
         if (design$sided == 2) {
-            decisionMatrix <- matrix(c(-design$criticalValues, design$criticalValues), nrow = 2, byrow = TRUE)
+            decisionMatrix <- matrix(c(-criticalValues, criticalValues), nrow = 2, byrow = TRUE)
         } else {
             decisionMatrix <- matrix(c(
                 design$futilityBounds, C_FUTILITY_BOUNDS_DEFAULT,
-                design$criticalValues
+                criticalValues
             ), nrow = 2, byrow = TRUE)
         }
         probs0 <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
@@ -2015,13 +2116,13 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         )
         if (design$sided == 2) {
             decisionMatrix <- matrix(c(
-                -design$criticalValues - sqrt(shift * informationRates) / 2,
-                design$criticalValues - sqrt(shift * informationRates) / 2
+                -criticalValues - sqrt(shift * informationRates) / 2,
+                criticalValues - sqrt(shift * informationRates) / 2
             ), nrow = 2, byrow = TRUE)
         } else {
             shiftedFutilityBounds <- design$futilityBounds - sqrt(shift * informationRates[1:(design$kMax - 1)]) / 2
             shiftedFutilityBounds[design$futilityBounds <= C_FUTILITY_BOUNDS_DEFAULT] <- C_FUTILITY_BOUNDS_DEFAULT
-            decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, design$criticalValues -
+            decisionMatrix <- matrix(c(shiftedFutilityBounds, C_FUTILITY_BOUNDS_DEFAULT, criticalValues -
                 sqrt(shift * informationRates) / 2), nrow = 2, byrow = TRUE)
         }
         probs01 <- .getGroupSequentialProbabilities(decisionMatrix, informationRates)
@@ -2030,6 +2131,7 @@ getDesignCharacteristics <- function(design = NULL, ...) {
         )
     }
     design$criticalValues[design$criticalValues >= 7.5 - 1e-8] <- Inf
+    design$criticalValues[design$criticalValues <= -7.5 + 1e-8] <- -Inf
     designCharacteristics$.setParameterType("shift", C_PARAM_GENERATED)
     designCharacteristics$.setParameterType("power", C_PARAM_GENERATED)
     designCharacteristics$.setParameterType(".probs", C_PARAM_GENERATED)
@@ -2177,7 +2279,7 @@ getSimulatedRejectionsDelayedResponse <- function(design, ..., delta = 0, iterat
         delta = delta,
         informationRates = design$informationRates,
         delayedInformation = design$delayedInformation,
-        contRegionUpper = design$criticalValues,
+        contRegionUpper = .getCriticalValues(design), 
         contRegionLower = design$futilityBounds,
         decisionCriticalValues = design$decisionCriticalValues,
         iterations = iterations,

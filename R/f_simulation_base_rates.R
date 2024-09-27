@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7742 $
-## |  Last changed: $Date: 2024-03-22 13:46:29 +0100 (Fr, 22 Mrz 2024) $
+## |  File version: $Revision: 8225 $
+## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -182,7 +182,7 @@ getSimulationRates <- function(design = NULL, ...,
         pi1 = seq(0.2, 0.5, 0.1), # C_PI_1_DEFAULT
         pi2 = NA_real_,
         plannedSubjects = NA_real_,
-        directionUpper = TRUE, # C_DIRECTION_UPPER_DEFAULT
+        directionUpper = NA, # C_DIRECTION_UPPER_DEFAULT
         allocationRatioPlanned = NA_real_,
         minNumberOfSubjectsPerStage = NA_real_,
         maxNumberOfSubjectsPerStage = NA_real_,
@@ -209,8 +209,10 @@ getSimulationRates <- function(design = NULL, ...,
             ignore = c("showStatistics"), ...
         )
         .warnInCaseOfTwoSidedPowerArgument(...)
+        design <- .resetPipeOperatorQueue(design)
     }
-    .assertIsSingleLogical(directionUpper, "directionUpper")
+    directionUpper <- .assertIsValidDirectionUpper(directionUpper, 
+        design, objectType = "power", userFunctionCallEnabled = TRUE)
     .assertIsSingleNumber(thetaH0, "thetaH0")
     .assertIsValidGroupsParameter(groups)
     .assertIsSingleLogical(normalApproximation, "normalApproximation")
@@ -479,7 +481,7 @@ getSimulationRates <- function(design = NULL, ...,
     cppResult <- .getSimulationRatesCpp(
         kMax                        = design$kMax,
         informationRates            = design$informationRates,
-        criticalValues              = design$criticalValues,
+        criticalValues              = .getCriticalValues(design),
         pi1                         = pi1,
         pi2                         = pi2,
         maxNumberOfIterations       = maxNumberOfIterations,
@@ -502,11 +504,11 @@ getSimulationRates <- function(design = NULL, ...,
         calcSubjectsFunctionR       = calcSubjectsFunctionR,
         calcSubjectsFunctionCpp     = calcSubjectsFunctionCpp
     )
-
+    
     data <- cppResult$data
     data <- data[!is.na(data$pi1), ]
     simulationResults$.data <- data
-
+    
     simulationResults$iterations <- cppResult$iterations
     simulationResults$sampleSizes <- cppResult$sampleSizes
     simulationResults$rejectPerStage <- cppResult$rejectPerStage

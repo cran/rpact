@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 7958 $
-## |  Last changed: $Date: 2024-05-30 09:56:27 +0200 (Do, 30 Mai 2024) $
+## |  File version: $Revision: 8281 $
+## |  Last changed: $Date: 2024-09-27 11:53:54 +0200 (Fr, 27 Sep 2024) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -81,19 +81,93 @@ SummaryItem <- R6::R6Class("SummaryItem",
 #' @export
 #'
 plot.SummaryFactory <- function(x, y, ..., showSummary = FALSE) {
-    fCall <- match.call(expand.dots = FALSE)
+    fCall <- match.call(expand.dots = TRUE)
+    cmd <- paste0(paste(trimws(capture.output(print(fCall$x))), collapse = " "), "$object")
+
+    parentFunctionCallArgs <- .addAnalysisPlotArgumentsToFunctionCall(x$object, fCall, result = list())
     if (isTRUE(showSummary) || .isSummaryPipe(fCall)) {
         markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
         if (is.na(markdown)) {
-            markdown <- .isMarkdownEnabled()
+            markdown <- .isMarkdownEnabled("plot")
         }
         if (markdown) {
-            x$.catMarkdownText()
+            sep <- .getMarkdownPlotPrintSeparator()
+            type <- .getOptionalArgument("type", optionalArgumentDefaultValue = NA_integer_, ...)
+            grid <- .getOptionalArgument("grid", optionalArgumentDefaultValue = 1, ...)
+            .assertIsValidPlotType(type, naAllowed = TRUE)
+            .assertIsSingleInteger(grid, "grid", naAllowed = FALSE, validateType = FALSE)
+
+            if (!all(is.na(type)) && length(type) > 1 && grid == 1) {
+                grid <- 0
+            }
+            if (grid > 0) {
+                suppressWarnings(print(plot(
+                    x = x$object, y = NULL, markdown = FALSE,
+                    parentFunctionCallArgs = parentFunctionCallArgs,
+                    cmd = cmd,
+                    ...
+                )))
+            } else {
+                suppressWarnings(plot(
+                    x = x$object, y = NULL, markdown = TRUE,
+                    parentFunctionCallArgs = parentFunctionCallArgs,
+                    cmd = cmd,
+                    ...
+                ))
+            }
+            return(.knitPrintQueue(x, sep = sep, prefix = sep))
         } else {
             x$show()
         }
     }
-    plot(x = x$object, y = y, ...)
+    suppressWarnings(print(plot(
+        x = x$object, y = NULL,
+        parentFunctionCallArgs = parentFunctionCallArgs,
+        cmd = cmd,
+        ...
+    )))
+}
+
+.getKnitPrintPart <- function(x) {
+    part <- paste0(utils::capture.output(x$.catMarkdownText()), collapse = "\n")
+    part <- na.omit(part)
+    return(part)
+}
+
+.addKnitPrintPart <- function(x, result, ..., sep, prefix = "", suffix = "") {
+    result <- na.omit(result)
+    return(paste0(prefix, paste0(c(result, .getKnitPrintPart(x)), collapse = sep), suffix))
+}
+
+.knitPrintQueue <- function(x, ..., sep = NA_character_, prefix = "") {
+    on.exit({
+        attr(x, "queue") <- NULL
+    })
+    result <- character()
+    if (inherits(x, "SummaryFactory")) {
+        queue <- attr(x$object, "queue")
+    } else {
+        queue <- attr(x, "queue")
+    }
+
+    if (is.na(sep)) {
+        sep <- .getMarkdownPlotPrintSeparator()
+    }
+
+    if (!is.null(queue) && length(queue) > 0) {
+        result <- ifelse(!inherits(x, "SummaryFactory"), "", result)
+        for (obj in queue) {
+            result <- .addKnitPrintPart(obj, result, sep = sep)
+        }
+    }
+    if (inherits(x, "SummaryFactory")) {
+        result <- .addKnitPrintPart(x, result, sep = sep, prefix = prefix)
+    }
+    if (length(result) == 0 || all(nchar(trimws(result)) == 0)) {
+        return(invisible())
+    }
+
+    return(knitr::asis_output(result))
 }
 
 #'
@@ -113,37 +187,13 @@ plot.SummaryFactory <- function(x, y, ..., showSummary = FALSE) {
 #'
 #' @details
 #' Generic function to print a summary object in Markdown.
-#' Use \code{options("rpact.print.heading.base.number" = "NUMBER")}
-#' (where \code{NUMBER} is an integer value >= -1) to
-#' specify the heading level. The default is
-#' \code{options("rpact.print.heading.base.number" = "0")}, i.e., the
-#' top headings start with \code{##} in Markdown.
-#' \code{options("rpact.print.heading.base.number" = "-1")} means
-#' that all headings will be written bold but are not
-#' explicit defined as header.
+#'
+#' @template details_knit_print
 #'
 #' @export
 #'
 knit_print.SummaryFactory <- function(x, ...) {
-    result <- paste0(utils::capture.output(x$.catMarkdownText()), collapse = "\n")
-
-    if (isTRUE(base::attr(x$object, "printObject"))) {
-        sep <- base::attr(x$object, "printObjectSeparator")
-        if (is.null(sep) || !is.character(sep)) {
-            sep <- "\n-----\n\n"
-        }
-        result <- paste0(
-            result, sep,
-            paste0(utils::capture.output(x$object$.catMarkdownText()), collapse = "\n")
-        )
-    }
-
-    if (isTRUE(x[["markdown"]])) {
-        sep <- "\n-----\n\n"
-        result <- paste0(sep, result)
-    }
-
-    return(knitr::asis_output(result))
+    .knitPrintQueue(x, sep = .getMarkdownPlotPrintSeparator(), ...)
 }
 
 #'
@@ -154,7 +204,7 @@ knit_print.SummaryFactory <- function(x, ...) {
 #' @param markdown If \code{TRUE}, the object \code{x}
 #'        will be printed using markdown syntax;
 #'        normal representation will be used otherwise (default is \code{FALSE})
-#' @param sep The separator line between the summary and the print output.
+#' @param sep The separator line between the summary and the print output, default is \code{"\n\n-----\n\n"}.
 #' @inheritParams param_three_dots_plot
 #'
 #' @description
@@ -167,16 +217,25 @@ knit_print.SummaryFactory <- function(x, ...) {
 #'
 print.SummaryFactory <- function(x, ...,
         markdown = NA,
-        sep = "\n-----\n\n") {
+        sep = NA_character_) {
+    .assertIsSingleCharacter(sep, "sep", naAllowed = TRUE)
+
     if (is.na(markdown)) {
-        markdown <- .isMarkdownEnabled()
+        markdown <- .isMarkdownEnabled("summary")
+    }
+    if (is.na(sep)) {
+        sep <- .getMarkdownPlotPrintSeparator()
     }
 
     if (markdown || isTRUE(x[["markdown"]])) {
-        result <- paste0(utils::capture.output(x$.catMarkdownText()), collapse = "\n")
-        cat(sep)
-        cat(trimws(result), "\n")
-        return(invisible())
+        queue <- attr(x$object, "queue")
+        if (is.null(queue)) {
+            queue <- list()
+        }
+        queue[[length(queue) + 1]] <- x$object
+        attr(x$object, "queue") <- queue
+
+        return(.knitPrintQueue(x, sep = sep))
     }
 
     x$show()
@@ -273,7 +332,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             tableColumns <- 0
             maxValueWidth <- 1
             if (length(self$summaryItems) > 0) {
-                for (i in 1:length(self$summaryItems)) {
+                for (i in seq_len(length(self$summaryItems))) {
                     validValues <- na.omit(self$summaryItems[[i]]$values)
                     if (length(validValues) > 0) {
                         w <- max(nchar(validValues))
@@ -282,7 +341,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     }
                 }
                 spaceString <- paste0(rep(" ", maxValueWidth + 1), collapse = "")
-                for (i in 1:length(self$summaryItems)) {
+                for (i in seq_len(length(self$summaryItems))) {
                     itemTitle <- self$summaryItems[[i]]$title
                     if (!is.null(itemTitle) && length(itemTitle) == 1 && !is.na(itemTitle)) {
                         summaryItemName <- summaryItemNames[i]
@@ -346,16 +405,16 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         .getFormattedParameterValue = function(valuesToShow, valuesToShow2) {
             naText <- getOption("rpact.summary.na", "")
             if (length(valuesToShow) == length(valuesToShow2) && !all(is.na(valuesToShow2))) {
-                for (variantIndex in 1:length(valuesToShow)) {
-                    value1 <- as.character(valuesToShow[variantIndex])
-                    value2 <- as.character(valuesToShow2[variantIndex])
+                for (variantIndex in seq_len(length(valuesToShow))) {
+                    value1 <- trimws(as.character(valuesToShow[variantIndex]))
+                    value2 <- trimws(as.character(valuesToShow2[variantIndex]))
                     if (grepl("^ *NA *$", value1)) {
                         value1 <- naText
                     }
                     if (grepl("^ *NA *$", value2)) {
                         value2 <- naText
                     }
-                    if (trimws(value1) == "" && trimws(value2) == "") {
+                    if (value1 == "" && value2 == "") {
                         valuesToShow[variantIndex] <- naText
                     } else {
                         valuesToShow[variantIndex] <- sprintf(self$intervalFormat, value1, value2)
@@ -367,17 +426,30 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
             return(valuesToShow)
         },
-        addParameter = function(parameterSet, ...,
-                parameterName = NULL, values = NULL, parameterCaption,
-                roundDigits = NA_integer_, ceilingEnabled = FALSE, cumsumEnabled = FALSE,
-                twoSided = FALSE, transpose = FALSE, smoothedZeroFormat = FALSE,
-                parameterCaptionSingle = parameterCaption, legendEntry = list(),
-                enforceFirstCase = FALSE, formatRepeatedPValues = FALSE,
-                validateParameterType = TRUE) {
+        addParameter = function(parameterSet,
+                ...,
+                parameterName = NULL,
+                values = NULL,
+                parameterCaption,
+                roundDigits = NA_integer_,
+                ceilingEnabled = FALSE,
+                cumsumEnabled = FALSE,
+                twoSided = FALSE,
+                transpose = FALSE,
+                smoothedZeroFormat = FALSE,
+                parameterCaptionSingle = parameterCaption,
+                legendEntry = list(),
+                enforceFirstCase = FALSE,
+                formatRepeatedPValues = FALSE,
+                validateParameterType = TRUE,
+                lastStage = NA_integer_,
+                roundDigitsAsInformation = FALSE,
+                showNA = FALSE) {
             if (!is.null(parameterName) && length(parameterName) == 1 &&
                     inherits(parameterSet, "ParameterSet") &&
                     parameterSet$.getParameterType(parameterName) == C_PARAM_NOT_APPLICABLE) {
-                if (.getLogicalEnvironmentVariable("RPACT_DEVELOPMENT_MODE") && validateParameterType) {
+                if (!is.null(values) && .getLogicalEnvironmentVariable("RPACT_DEVELOPMENT_MODE") &&
+                        validateParameterType && !.isMarkdownEnabled()) {
                     warning(
                         "Failed to add parameter ", .arrayToString(parameterName), " (",
                         .arrayToString(values), ") stored in ",
@@ -415,12 +487,30 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             }
 
             if (is.null(values) && is.null(parameterName1)) {
-                stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'parameterName' or 'values' must be defined")
+                stop(
+                    C_EXCEPTION_TYPE_RUNTIME_ISSUE,
+                    "'parameterName' or 'values' must be defined"
+                )
             }
 
+            transposed <- NA
             if (transpose) {
                 if (!is.matrix(values)) {
                     values <- as.matrix(values)
+                    if (!is.na(lastStage) && lastStage > ncol(values)) {
+                        nCol <- lastStage - ncol(values)
+                        values <- cbind(matrix(rep(NA_real_, nCol * nrow(values)), nrow = nrow(values)), values)
+                        if (parameterName %in% c(
+                                "expectedNumberOfSubjects", 
+                                "expectedNumberOfSubjectsH1",
+                                "expectedEventsH1", 
+                                "expectedNumberOfEvents", 
+                                "expectedStudyDurationH1",
+                                "studyDuration",
+                                "earlyStop")) {
+                            transposed <- TRUE
+                        }
+                    }
                 } else {
                     values <- t(values)
                 }
@@ -499,11 +589,16 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
             if (.isConditionTrue(caseCondition, "or", showDebugMessages = FALSE)) {
                 valuesToShow <- .getSummaryValuesFormatted(
-                    parameterSet, parameterName1, values,
+                    parameterSet,
+                    parameterName1,
+                    values,
                     roundDigits = roundDigits,
-                    ceilingEnabled = ceilingEnabled, cumsumEnabled = cumsumEnabled,
+                    ceilingEnabled = ceilingEnabled,
+                    cumsumEnabled = cumsumEnabled,
                     smoothedZeroFormat = smoothedZeroFormat,
-                    formatRepeatedPValues = formatRepeatedPValues
+                    formatRepeatedPValues = formatRepeatedPValues,
+                    roundDigitsAsInformation = roundDigitsAsInformation,
+                    showNA = showNA
                 )
 
                 if (parameterName1 %in% c("piControl", "overallPiControl", "overallPooledStDevs")) {
@@ -517,9 +612,12 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     valuesToShow2 <- .getSummaryValuesFormatted(parameterSet,
                         parameterName1, values2,
                         roundDigits = roundDigits,
-                        ceilingEnabled = ceilingEnabled, cumsumEnabled = cumsumEnabled,
+                        ceilingEnabled = ceilingEnabled,
+                        cumsumEnabled = cumsumEnabled,
                         smoothedZeroFormat = smoothedZeroFormat,
-                        formatRepeatedPValues = formatRepeatedPValues
+                        formatRepeatedPValues = formatRepeatedPValues,
+                        roundDigitsAsInformation = roundDigitsAsInformation,
+                        showNA = showNA
                     )
                     valuesToShow2 <- self$.getInnerValues(valuesToShow2, transpose = transpose)
                 }
@@ -535,9 +633,12 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     )
                 }
 
-                transposed <- !transpose && grepl("MultiArm|Enrichment", .getClassName(parameterSet)) &&
-                    (!is.matrix(values) || ncol(values) > 1)
-
+                if (is.na(transposed)) {
+                    transposed <- !transpose && 
+                        grepl("MultiArm|Enrichment", .getClassName(parameterSet)) &&
+                        (!is.matrix(values) || ncol(values) > 1)
+                }
+                
                 userDefinedEffectMatrix <- FALSE
                 if (grepl("MultiArm|Enrichment", .getClassName(parameterSet)) ||
                         inherits(parameterSet, "AnalysisResultsConditionalDunnett") ||
@@ -555,7 +656,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                                 "singleEventsPerSubsetAndStage",
                                 "numberOfActiveArms",
                                 "numberOfPopulations",
-                                "conditionalPowerAchieved"
+                                "conditionalPowerAchieved",
+                                "plannedCalendarTime"
                             )) {
                         transposed <- TRUE
                         userDefinedEffectMatrix <-
@@ -584,11 +686,16 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                             } else {
                                 numberOfVariants <- length(variedParameterValues)
                             }
-                        } else {
+                        } else if (grepl("SimulationResultsMultiArm", .getClassName(parameterSet))) {
                             variedParameterName <- .getVariedParameterSimulationMultiArm(parameterSet)
                             variedParameterValues <- parameterSet[[variedParameterName]]
                             variedParameterCaption <- .getParameterCaption(variedParameterName)
                             numberOfVariants <- length(variedParameterValues)
+                        } else {
+                            stop(
+                                C_EXCEPTION_TYPE_RUNTIME_ISSUE, "varied parameter identification ",
+                                "is not implemented for ", .getClassName(parameterSet)
+                            )
                         }
                         variedParameterCaption <- tolower(variedParameterCaption)
                     } else if (self$.isEnrichmentObject(parameterSet)) {
@@ -688,21 +795,31 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
                 for (variantIndex in 1:numberOfVariants) {
                     colValues <- self$.getColumnValues(parameterName, values, variantIndex, transposed)
-                    colValues <- .getSummaryValuesFormatted(parameterSet, parameterName1,
-                        colValues,
+                    colValues <- .getSummaryValuesFormatted(
+                        parameterSet,
+                        parameterName1,
+                        values = colValues,
                         roundDigits = roundDigits,
                         ceilingEnabled = ceilingEnabled, cumsumEnabled = cumsumEnabled,
                         smoothedZeroFormat = smoothedZeroFormat,
-                        formatRepeatedPValues = formatRepeatedPValues
+                        formatRepeatedPValues = formatRepeatedPValues,
+                        roundDigitsAsInformation = roundDigitsAsInformation,
+                        showNA = showNA
                     )
                     colValues2 <- NA_real_
                     if (!all(is.na(values2))) {
                         colValues2 <- self$.getColumnValues(parameterName, values2, variantIndex, transposed)
-                        colValues2 <- .getSummaryValuesFormatted(parameterSet, parameterName2, colValues2,
-                            roundDigits = roundDigits, ceilingEnabled = ceilingEnabled,
+                        colValues2 <- .getSummaryValuesFormatted(
+                            parameterSet,
+                            parameterName2,
+                            values = colValues2,
+                            roundDigits = roundDigits,
+                            ceilingEnabled = ceilingEnabled,
                             cumsumEnabled = cumsumEnabled,
                             smoothedZeroFormat = smoothedZeroFormat,
-                            formatRepeatedPValues = formatRepeatedPValues
+                            formatRepeatedPValues = formatRepeatedPValues,
+                            roundDigitsAsInformation = roundDigitsAsInformation,
+                            showNA = showNA
                         )
                     }
                     colValues <- self$.getFormattedParameterValue(valuesToShow = colValues, valuesToShow2 = colValues2)
@@ -832,7 +949,12 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     )
 )
 
-.formatSummaryValues <- function(values, digits, smoothedZeroFormat = FALSE, formatRepeatedPValues = FALSE) {
+.formatSummaryValues <- function(values,
+        ...,
+        digits,
+        smoothedZeroFormat = FALSE,
+        formatRepeatedPValues = FALSE,
+        showNA = FALSE) {
     if (is.na(digits)) {
         digits <- 3
     }
@@ -882,15 +1004,29 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             formattedValue[zeroes] <- "0"
         }
     }
+    
+    if (any(is.nan(formattedValue)) || any(trimws(formattedValue) == "NaN")) {
+        formattedValue[is.nan(formattedValue) | trimws(formattedValue) == "NaN"] <- NA_real_
+        showNA <- TRUE
+    }
 
-    formattedValue[is.na(formattedValue) | trimws(formattedValue) == "NA"] <- getOption("rpact.summary.na", "")
+    formattedValue[is.na(formattedValue) | trimws(formattedValue) == "NA"] <-
+        ifelse(showNA, "n/a", getOption("rpact.summary.na", ""))
 
     return(formattedValue)
 }
 
-.getSummaryValuesFormatted <- function(fieldSet, parameterName, values,
-        roundDigits = NA_integer_, ceilingEnabled = FALSE, cumsumEnabled = FALSE,
-        smoothedZeroFormat = FALSE, formatRepeatedPValues = FALSE) {
+.getSummaryValuesFormatted <- function(fieldSet,
+        parameterName,
+        values,
+        ...,
+        roundDigits = NA_integer_,
+        ceilingEnabled = FALSE,
+        cumsumEnabled = FALSE,
+        smoothedZeroFormat = FALSE,
+        formatRepeatedPValues = FALSE,
+        roundDigitsAsInformation = FALSE,
+        showNA = FALSE) {
     if (!is.numeric(values)) {
         return(values)
     }
@@ -905,10 +1041,20 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         tryCatch(
             {
                 formatFunctionName <- NULL
-
-                if (!is.null(parameterName) && length(parameterName) == 1 && !is.na(parameterName)) {
+                if (roundDigitsAsInformation) {
+                    maxValue <- max(values, na.rm = TRUE)
+                    if (length(maxValue) == 1) {
+                        if (maxValue > 10) {
+                            roundDigits <- 1
+                        } else if (maxValue < 1) {
+                            roundDigits <- 3
+                        } else {
+                            roundDigits <- 2
+                        }
+                    }
+                } else if (!is.null(parameterName) && length(parameterName) == 1 && !is.na(parameterName)) {
                     if (parameterName == "futilityBounds") {
-                        values[!is.na(values) & values <= -6] <- -Inf
+                        values[!is.na(values) & values <= C_FUTILITY_BOUNDS_DEFAULT] <- -Inf
                     } else if (parameterName %in% c(
                             "criticalValues",
                             "decisionCriticalValue", "overallAdjustedTestStatistics"
@@ -936,7 +1082,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     values <- .formatSummaryValues(values,
                         digits = roundDigits,
                         smoothedZeroFormat = smoothedZeroFormat,
-                        formatRepeatedPValues = formatRepeatedPValues
+                        formatRepeatedPValues = formatRepeatedPValues,
+                        showNA = showNA
                     )
                 }
             },
@@ -1079,7 +1226,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 }
 
 .getSummaryObjectSettings <- function(object) {
-    multiArmEnabled <- grepl("MultiArm", .getClassName(object))
+    multiArmEnabled <- grepl("MultiArm", .getClassName(object)) ||
+        grepl("ConditionalDunnett", .getClassName(object))
     enrichmentEnabled <- grepl("Enrichment", .getClassName(object))
     simulationEnabled <- grepl("Simulation", .getClassName(object))
     countDataEnabled <- FALSE
@@ -1149,7 +1297,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     comparisonH0 <- " = "
     comparisonH1 <- NA_character_
     if (inherits(object, "AnalysisResults") && !is.null(directionUpper)) {
-        comparisonH1 <- ifelse(sided == 2, " != ", ifelse(directionUpper, " > ", " < "))
+        comparisonH1 <- ifelse(sided == 2, " != ", ifelse(!isFALSE(directionUpper), " > ", " < "))
     }
 
     if (!is.null(object[["thetaH0"]])) {
@@ -1200,7 +1348,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         value <- "lambda"
     }
 
-    calcSep <- ifelse(settings$ratioEnabled, " / ", " - ")
+    calcSep <- ifelse(settings$ratioEnabled || settings$countDataEnabled, " / ", " - ")
     hypothesis <- ""
     if (!settings$survivalEnabled && (settings$multiArmEnabled ||
             settings$enrichmentEnabled || settings$groups == 2)) {
@@ -1230,7 +1378,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 }
 
 .createSummaryHypothesisPowerDirectionText <- function(object, sided, directionUpper) {
-    if (sided == 2 || is.null(directionUpper)) {
+    if (sided == 2 || is.null(directionUpper) || all(is.na(directionUpper))) {
         return("")
     }
 
@@ -1346,7 +1494,6 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
 .createSummaryHeaderAnalysisResults <- function(design, analysisResults, summaryFactory, digits) {
     digitSettings <- .getSummaryDigits(digits)
-    digitsGeneral <- digitSettings$digitsGeneral
 
     stageResults <- analysisResults$.stageResults
     dataInput <- analysisResults$.dataInput
@@ -1357,14 +1504,15 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
     header <- ""
     if (design$kMax == 1) {
-        header <- paste0(header, "Fixed sample analysis.")
+        header <- paste0(header, "Fixed sample analysis")
     } else {
         header <- paste0(header, "Sequential analysis with ", design$kMax, " looks")
         header <- .concatenateSummaryText(header,
-            paste0("(", design$.toString(startWithUpperCase = FALSE), ")."),
+            paste0("(", design$.toString(startWithUpperCase = FALSE), ")"),
             sep = " "
         )
     }
+    header <- .addAlphaAndBetaToHeader(header, design, designPlan = NULL, powerEnabled = FALSE, endOfRecord = TRUE)
     header <- paste0(header, "\n")
 
     header <- paste0(header, "The results were calculated using a ")
@@ -1391,14 +1539,6 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             header <- paste0(header, "multi-arm logrank test")
         }
     }
-
-    header <- .concatenateSummaryText(header,
-        paste0(
-            "(", ifelse(design$sided == 1, "one", "two"),
-            "-sided, alpha = ", round(design$alpha, 4), ")"
-        ),
-        sep = " "
-    )
 
     if (!.isTrialDesignConditionalDunnett(design) && multiHypothesesEnabled) {
         if (stageResults$intersectionTest == "Dunnett") {
@@ -1472,8 +1612,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             paramCaption2 = "assumed standard deviation",
             shortcut1 = "thetaH1",
             shortcut2 = "sd",
-            digits1 = digitsGeneral,
-            digits2 = digitsGeneral
+            digits1 = digitSettings$digitsGeneral,
+            digits2 = digitSettings$digitsGeneral
         )
     } else if (stageResults$isDatasetRates()) {
         header <- .getSummaryHeaderEntryAnalysisResults(header, analysisResults,
@@ -1489,7 +1629,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             paramName1 = "thetaH1",
             paramCaption1 = "assumed effect",
             shortcut1 = "thetaH1",
-            digits1 = digitsGeneral
+            digits1 = digitSettings$digitsGeneral
         )
     }
 
@@ -1508,7 +1648,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     value[!is.na(value)] <- round(value[!is.na(value)], 2)
 
     if ((is.matrix(value) && nrow(value) > 1) || length(value) > 1) {
-        treatmentNames <- 1:length(value)
+        treatmentNames <- seq_len(length(value))
         if (.isEnrichmentAnalysisResults(analysisResults)) {
             populations <- paste0("S", treatmentNames)
             gMax <- analysisResults$.stageResults$getGMax()
@@ -1520,11 +1660,17 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     return(value)
 }
 
-.getSummaryHeaderEntryAnalysisResults <- function(header, analysisResults, ...,
-        paramName1, paramName2 = NA_character_,
-        paramCaption1, paramCaption2 = NA_character_,
-        shortcut1, shortcut2 = NA_character_,
-        digits1 = 2, digits2 = 2) {
+.getSummaryHeaderEntryAnalysisResults <- function(header,
+        analysisResults,
+        ...,
+        paramName1,
+        paramName2 = NA_character_,
+        paramCaption1,
+        paramCaption2 = NA_character_,
+        shortcut1,
+        shortcut2 = NA_character_,
+        digits1 = 3,
+        digits2 = 3) {
     if (analysisResults$.design$kMax == 1) {
         return(header)
     }
@@ -1609,6 +1755,36 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     return(header)
 }
 
+.addAlphaAndBetaToHeader <- function(header,
+        design,
+        designPlan,
+        ...,
+        endOfRecord = FALSE,
+        powerEnabled = NA,
+        sep = ", ") {
+    if (is.na(powerEnabled)) {
+        powerEnabled <- .isTrialDesignInverseNormalOrGroupSequential(design) &&
+            (is.null(designPlan) || (!.isSimulationResults(designPlan) &&
+                !identical("power", designPlan[[".objectType"]])))
+    }
+    header <- .concatenateSummaryText(header,
+        paste0(
+            ifelse(design$sided == 1, "one-sided", "two-sided"),
+            ifelse(design$kMax == 1, "", " overall"),
+            " significance level ", round(100 * design$alpha, 2), "%",
+            ifelse(!powerEnabled && endOfRecord, ".", "")
+        ),
+        sep = sep
+    )
+    if (powerEnabled) {
+        header <- .concatenateSummaryText(
+            header,
+            paste0("power ", round(100 * (1 - design$beta), 1), "%", ifelse(endOfRecord, ".", ""))
+        )
+    }
+    return(header)
+}
+
 .addEnrichmentEffectListToHeader <- function(header, designPlan) {
     if (!grepl("SimulationResultsEnrichment", .getClassName(designPlan)) ||
             is.null(designPlan[["effectList"]])) {
@@ -1649,16 +1825,40 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     return(header)
 }
 
+.getSummaryDesignCharacteristics <- function(design, kMaxMin = 2) {
+    if (design$kMax < kMaxMin) {
+        return(NULL)
+    }
+
+    if (!.isTrialDesignInverseNormalOrGroupSequential(design)) {
+        return(NULL)
+    }
+
+    tryCatch(
+        {
+            return(getDesignCharacteristics(design))
+        },
+        error = function(e) {
+            .logError("Cannot add design characteristics to summary: ", e$message)
+        }
+    )
+    return(NULL)
+}
+
 .createSummaryHeaderDesign <- function(design, designPlan, summaryFactory) {
     if (is.null(designPlan)) {
-        if (.isTrialDesignFisher(design)) {
-            designType <- "Fisher's combination test"
-        } else if (.isTrialDesignConditionalDunnett(design)) {
-            designType <- "Conditional Dunnett test"
+        if (design$kMax == 1) {
+            header <- "Fixed"
         } else {
-            designType <- C_TYPE_OF_DESIGN_LIST[[design$typeOfDesign]]
+            if (.isTrialDesignFisher(design)) {
+                designType <- C_TYPE_OF_FISHER_LIST[[design$method]]
+            } else if (.isTrialDesignConditionalDunnett(design)) {
+                designType <- "Conditional Dunnett test"
+            } else {
+                designType <- C_TYPE_OF_DESIGN_LIST[[design$typeOfDesign]]
+            }
+            header <- .firstCharacterToUpperCase(designType)
         }
-        header <- .firstCharacterToUpperCase(designType)
         header <- paste0(header, " design")
         if (design$.isDelayedResponseDesign()) {
             header <- paste0(header, " with delayed response")
@@ -1717,56 +1917,37 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             }
         }
         if (!.isDelayedInformationEnabled(design = design) &&
-                ((.isTrialDesignInverseNormalOrGroupSequential(design) && any(design$futilityBounds > -6, na.rm = TRUE)) ||
+                ((.isTrialDesignInverseNormalOrGroupSequential(design) &&
+                    any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) ||
                     (.isTrialDesignFisher(design) && any(design$alpha0Vec < 1)))) {
             header <- .concatenateSummaryText(
                 header,
                 paste0(ifelse(design$bindingFutility, "binding", "non-binding"), " futility")
             )
         }
-        header <- .concatenateSummaryText(header, paste0(
-            ifelse(design$sided == 1, "one-sided", "two-sided"),
-            ifelse(design$kMax == 1, "", " overall")
-        ))
-        header <- .concatenateSummaryText(header,
-            paste0("significance level ", round(100 * design$alpha, 2), "%"),
-            sep = " "
-        )
-        if (.isTrialDesignInverseNormalOrGroupSequential(design)) {
-            header <- .concatenateSummaryText(header, paste0("power ", round(100 * (1 - design$beta), 1), "%"))
-        }
+        header <- .addAlphaAndBetaToHeader(header, design, designPlan)
         header <- .concatenateSummaryText(header, "undefined endpoint")
 
-        if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design)) {
-            outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
-            designCharacteristics <- NULL
-            tryCatch(
-                {
-                    designCharacteristics <- getDesignCharacteristics(design)
-                },
-                error = function(e) {
-                    .logError("Cannot add design characteristics to summary: ", e$message)
-                }
+        designCharacteristics <- .getSummaryDesignCharacteristics(design)
+        if (!is.null(designCharacteristics)) {
+            header <- .concatenateSummaryText(
+                header,
+                paste0("inflation factor ", round(designCharacteristics$inflationFactor, 4))
             )
-            if (!is.null(designCharacteristics)) {
+            outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
+            if (outputSize == "large") {
                 header <- .concatenateSummaryText(
                     header,
-                    paste0("inflation factor ", round(designCharacteristics$inflationFactor, 4))
+                    paste0("ASN H1 ", round(designCharacteristics$averageSampleNumber1, 4))
                 )
-                if (outputSize == "large") {
-                    header <- .concatenateSummaryText(
-                        header,
-                        paste0("ASN H1 ", round(designCharacteristics$averageSampleNumber1, 4))
-                    )
-                    header <- .concatenateSummaryText(
-                        header,
-                        paste0("ASN H01 ", round(designCharacteristics$averageSampleNumber01, 4))
-                    )
-                    header <- .concatenateSummaryText(
-                        header,
-                        paste0("ASN H0 ", round(designCharacteristics$averageSampleNumber0, 4))
-                    )
-                }
+                header <- .concatenateSummaryText(
+                    header,
+                    paste0("ASN H01 ", round(designCharacteristics$averageSampleNumber01, 4))
+                )
+                header <- .concatenateSummaryText(
+                    header,
+                    paste0("ASN H0 ", round(designCharacteristics$averageSampleNumber0, 4))
+                )
             }
         }
 
@@ -1778,7 +1959,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
     header <- ""
     if (design$kMax == 1) {
-        header <- paste0(header, "Fixed sample analysis,")
+        header <- paste0(header, "Fixed sample analysis")
     } else {
         header <- paste0(header, "Sequential analysis with a maximum of ", design$kMax, " looks")
         prefix <- ifelse(design$.isDelayedResponseDesign(), "delayed response ", "")
@@ -1787,13 +1968,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             sep = " "
         )
     }
-    header <- .concatenateSummaryText(header, ifelse(design$kMax == 1, "", "overall"))
-    header <- .concatenateSummaryText(header,
-        paste0("significance level ", round(100 * design$alpha, 2), "%"),
-        sep = " "
-    )
-    header <- .concatenateSummaryText(header, ifelse(design$sided == 1, "(one-sided).", "(two-sided)."), sep = " ")
-
+    header <- .addAlphaAndBetaToHeader(header, design, designPlan, endOfRecord = TRUE)
     header <- paste0(header, "\n")
 
     header <- paste0(header, "The results were ")
@@ -1828,7 +2003,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             header <- .concatenateSummaryText(header, "two-sample logrank test", sep = "")
         }
     } else if (settings$countDataEnabled) {
-        header <- .concatenateSummaryText(header, "two-sample test for count data", sep = "")
+        header <- .concatenateSummaryText(header, "two-sample Wald-test for count data", sep = "")
     }
 
     part <- ""
@@ -1919,9 +2094,9 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             inherits(designPlan, "SimulationResults"))) {
         if (settings$groups == 1) {
             if (!is.null(designPlan[["pi1"]]) && length(designPlan$pi1) == 1) {
-                treatmentRateText <- paste0("H1: treatment rate pi = ", round(designPlan$pi1, 3))
+                treatmentRateText <- paste0("H1: pi = ", round(designPlan$pi1, 3))
             } else {
-                treatmentRateText <- "H1: treatment rate pi as specified"
+                treatmentRateText <- "H1: pi as specified"
             }
 
             header <- paste0(header, ",\n", .createSummaryHypothesisText(designPlan, summaryFactory))
@@ -1929,10 +2104,10 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             header <- .addAdditionalArgumentsToHeader(header, designPlan, settings)
         } else {
             if (!is.null(designPlan[["pi1"]]) && length(designPlan$pi1) == 1) {
-                treatmentRateText <- paste0("H1: treatment rate pi(1) = ", round(designPlan$pi1, 3))
+                treatmentRateText <- paste0("H1: pi(1) = ", round(designPlan$pi1, 3))
             } else if (!is.null(designPlan[["piMaxVector"]]) && length(designPlan$piMaxVector) == 1) {
                 treatmentRateText <- paste0(
-                    "H1: treatment rate pi_max = ",
+                    "H1: pi_max = ",
                     .arrayToString(round(designPlan$piMaxVector, 3), vectorLookAndFeelEnabled = TRUE)
                 )
             } else if (settings$enrichmentEnabled && !is.null(designPlan[["effectList"]]) &&
@@ -1940,15 +2115,15 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 piTreatments <- designPlan$effectList[["piTreatments"]]
                 if (is.matrix(piTreatments) && nrow(piTreatments) == 1) {
                     treatmentRateText <- paste0(
-                        "H1: assumed treatment rate pi(treatment) = ",
+                        "H1: assumed pi(treatment) = ",
                         .arrayToString(round(designPlan$effectList$piTreatments, 3), vectorLookAndFeelEnabled = TRUE)
                     )
                 } else {
-                    treatmentRateText <- paste0("H1: assumed treatment rate pi(treatment) as specified")
+                    treatmentRateText <- paste0("H1: assumed pi(treatment) as specified")
                 }
             } else {
                 treatmentRateText <- paste0(
-                    "H1: treatment rate pi",
+                    "H1: pi",
                     ifelse(settings$multiArmEnabled, "_max", "(1)"), " as specified"
                 )
             }
@@ -2067,10 +2242,6 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         header <- .addEnrichmentEffectListToHeader(header, designPlan)
         header <- .addAdditionalArgumentsToHeader(header, designPlan, settings)
     }
-    if (!inherits(designPlan, "SimulationResults") && designPlan$.isSampleSizeObject()) {
-        header <- .concatenateSummaryText(header, paste0("power ", round(100 * (1 - design$beta), 1), "%"))
-    }
-
 
     if (inherits(designPlan, "SimulationResults")) {
         header <- .concatenateSummaryText(
@@ -2209,6 +2380,14 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 !is.na(designPlan[["fixedExposureTime"]])) {
             header <- .concatenateSummaryText(header, paste0(
                 "fixed exposure time = ", designPlan$fixedExposureTime[1]
+            ))
+        }
+        if (!is.null(designPlan[["plannedCalendarTime"]]) && !all(is.na(designPlan$plannedCalendarTime))) {
+            header <- .concatenateSummaryText(header, paste0(
+                "calendar time = ",
+                .arrayToString(designPlan$plannedCalendarTime,
+                    vectorLookAndFeelEnabled = (length(designPlan$plannedCalendarTime) > 1)
+                )
             ))
         }
         if (!is.null(designPlan[["accrualTime"]]) && !all(is.na(designPlan$accrualTime))) {
@@ -2444,7 +2623,9 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     return(header)
 }
 
-.createSummary <- function(object, digits = NA_integer_, output = c("all", "title", "overview", "body")) {
+.createSummary <- function(object,
+        digits = NA_integer_,
+        output = c("all", "title", "overview", "body")) {
     output <- match.arg(output)
 
     markdown <- attr(object, "markdown")
@@ -2454,15 +2635,17 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
     if (inherits(object, "TrialDesignCharacteristics")) {
         return(.createSummaryDesignPlan(object,
-            digits = digits, output = output,
-            showStageLevels = TRUE, markdown = markdown
+            digits = digits,
+            output = output,
+            markdown = markdown
         ))
     }
 
     if (.isTrialDesign(object) || .isTrialDesignPlan(object) || inherits(object, "SimulationResults")) {
         return(.createSummaryDesignPlan(object,
-            digits = digits, output = output,
-            showStageLevels = !.isTrialDesignPlan(object), markdown = markdown
+            digits = digits,
+            output = output,
+            markdown = markdown
         ))
     }
 
@@ -2484,13 +2667,15 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     )
 }
 
-.createSummaryPerformanceScore <- function(object, ...,
+.createSummaryPerformanceScore <- function(object,
+        ...,
         digits = NA_integer_,
         output = c("all", "title", "overview", "body"),
         markdown = FALSE) {
     .createSummaryDesignPlan(object$.simulationResults,
-        digits = digits, output = output,
-        showStageLevels = TRUE, performanceScore = object,
+        digits = digits,
+        output = output,
+        performanceScore = object,
         markdown = markdown
     )
 }
@@ -2519,8 +2704,11 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 #'
 #' @noRd
 #'
-.createSummaryAnalysisResults <- function(object, ..., digits = NA_integer_,
-        output = c("all", "title", "overview", "body"), markdown = FALSE) {
+.createSummaryAnalysisResults <- function(object,
+        ...,
+        digits = NA_integer_,
+        output = c("all", "title", "overview", "body"),
+        markdown = FALSE) {
     output <- match.arg(output)
     if (!inherits(object, "AnalysisResults")) {
         stop(
@@ -2530,10 +2718,6 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     }
 
     digitSettings <- .getSummaryDigits(digits)
-    digits <- digitSettings$digits
-    digitsSampleSize <- digitSettings$digitsSampleSize
-    digitsGeneral <- digitSettings$digitsGeneral
-    digitsProbabilities <- digitSettings$digitsProbabilities
 
     outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
 
@@ -2559,64 +2743,22 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
     summaryFactory <- SummaryFactory$new(
         object = object,
-        intervalFormat = intervalFormat, output = output, markdown = markdown
+        intervalFormat = intervalFormat, 
+        output = output, 
+        markdown = markdown
     )
 
-    .addDesignInformationToSummary(design, object, summaryFactory, output = output)
-
-    if (!.isTrialDesignConditionalDunnett(design)) {
-        summaryFactory$addParameter(design,
-            parameterName = "criticalValues",
-            parameterCaption = .getSummaryParameterCaptionCriticalValues(design),
-            roundDigits = digitsProbabilities - ifelse(.isTrialDesignFisher(design) ||
-                digitsProbabilities <= 1, 0, 1),
-            smoothedZeroFormat = !.isTrialDesignFisher(design)
-        )
-    }
-
-    if (.isTrialDesignFisher(design)) {
-        if (any(design$alpha0Vec < 1)) {
-            summaryFactory$addParameter(design,
-                parameterName = "alpha0Vec",
-                parameterCaption = "Futility boundary (separate p-value scale)",
-                roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-            )
-        }
-    } else if (!.isTrialDesignConditionalDunnett(design)) {
-        if (any(design$futilityBounds > -6)) {
-            summaryFactory$addParameter(design,
-                parameterName = "futilityBounds",
-                parameterCaption = .getSummaryParameterCaptionFutilityBounds(design),
-                roundDigits = ifelse(digitsProbabilities > 1,
-                    digitsProbabilities - 1, digitsProbabilities
-                ),
-                smoothedZeroFormat = TRUE
-            )
-        }
-    }
-
-    if (design$kMax > 1 && !.isTrialDesignConditionalDunnett(design)) {
-        summaryFactory$addParameter(design,
-            parameterName = "alphaSpent",
-            parameterCaption = "Cumulative alpha spent",
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-        )
-    }
-
-    if (!.isTrialDesignConditionalDunnett(design)) {
-        summaryFactory$addParameter(design,
-            parameterName = "stageLevels",
-            parameterCaption = "Stage level", roundDigits = digitsProbabilities,
-            smoothedZeroFormat = TRUE
-        )
-    }
+    .addDesignInformationToSummary(design, object, summaryFactory,
+        output = output, digits = digits
+    )
 
     summaryFactory$addParameter(stageResults,
         parameterName = "effectSizes",
         parameterCaption = ifelse(stageResults$isDatasetRates() &&
             dataInput$getNumberOfGroups() == 1,
         "Cumulative treatment rate", "Cumulative effect size"
-        ), roundDigits = digitsGeneral
+        ),
+        roundDigits = digitSettings$digitsGeneral
     )
 
     if (stageResults$isDatasetMeans()) {
@@ -2629,28 +2771,34 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         )
         summaryFactory$addParameter(stageResults,
             parameterName = parameterName,
-            parameterCaption = parameterCaption, roundDigits = digitsGeneral,
+            parameterCaption = parameterCaption,
+            roundDigits = digitSettings$digitsGeneral,
             enforceFirstCase = (parameterName == "overallPooledStDevs")
         )
     } else if (stageResults$isDatasetRates()) {
         if (outputSize != "small" && dataInput$getNumberOfGroups() > 1) {
             treatmentRateParamName <- "overallPi1"
             controlRateParamName <- "overallPi2"
+            enforceFirstCase <- TRUE
             if (.isEnrichmentStageResults(stageResults)) {
                 treatmentRateParamName <- "overallPisTreatment"
                 controlRateParamName <- "overallPisControl"
+                enforceFirstCase <- FALSE
             } else if (.isMultiArmStageResults(stageResults)) {
                 treatmentRateParamName <- "overallPiTreatments"
                 controlRateParamName <- "overallPiControl"
             }
             summaryFactory$addParameter(stageResults,
                 parameterName = treatmentRateParamName,
-                parameterCaption = "Cumulative treatment rate", roundDigits = digitsGeneral
+                parameterCaption = "Cumulative treatment rate",
+                roundDigits = digitSettings$digitsGeneral
             )
+
             summaryFactory$addParameter(stageResults,
                 parameterName = controlRateParamName,
                 parameterCaption = "Cumulative control rate",
-                roundDigits = digitsGeneral, enforceFirstCase = TRUE
+                roundDigits = digitSettings$digitsGeneral,
+                enforceFirstCase = enforceFirstCase
             )
         }
     }
@@ -2659,8 +2807,9 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         summaryFactory$addParameter(stageResults,
             parameterName = "overallTestStatistics",
             parameterCaption = "Overall test statistic",
-            roundDigits = ifelse(digitsProbabilities > 1,
-                digitsProbabilities - 1, digitsProbabilities
+            roundDigits = ifelse(digitSettings$digitsProbabilities > 1,
+                digitSettings$digitsProbabilities - 1,
+                digitSettings$digitsProbabilities
             ),
             smoothedZeroFormat = TRUE
         )
@@ -2668,20 +2817,23 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             parameterName = ifelse(multiHypothesesEnabled,
                 "separatePValues", "overallPValues"
             ),
-            parameterCaption = "Overall p-value", roundDigits = digitsProbabilities
+            parameterCaption = "Overall p-value",
+            roundDigits = digitSettings$digitsProbabilities
         )
     } else {
         summaryFactory$addParameter(stageResults,
             parameterName = "testStatistics",
             parameterCaption = "Stage-wise test statistic",
-            roundDigits = ifelse(digitsProbabilities > 1,
-                digitsProbabilities - 1, digitsProbabilities
+            roundDigits = ifelse(digitSettings$digitsProbabilities > 1,
+                digitSettings$digitsProbabilities - 1,
+                digitSettings$digitsProbabilities
             ),
             smoothedZeroFormat = TRUE
         )
         summaryFactory$addParameter(stageResults,
             parameterName = ifelse(multiHypothesesEnabled, "separatePValues", "pValues"),
-            parameterCaption = "Stage-wise p-value", roundDigits = digitsProbabilities
+            parameterCaption = "Stage-wise p-value",
+            roundDigits = digitSettings$digitsProbabilities
         )
     }
 
@@ -2691,24 +2843,27 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 summaryFactory$addParameter(closedTestResults,
                     parameterName = "conditionalErrorRate",
                     parameterCaption = "Conditional error rate",
-                    roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+                    roundDigits = digitSettings$digitsProbabilities,
+                    smoothedZeroFormat = TRUE
                 )
                 summaryFactory$addParameter(closedTestResults,
                     parameterName = "secondStagePValues",
                     parameterCaption = "Second stage p-value",
-                    roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+                    roundDigits = digitSettings$digitsProbabilities,
+                    smoothedZeroFormat = TRUE
                 )
             } else {
                 summaryFactory$addParameter(closedTestResults,
                     parameterName = "adjustedStageWisePValues",
                     parameterCaption = "Adjusted stage-wise p-value",
-                    roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+                    roundDigits = digitSettings$digitsProbabilities,
+                    smoothedZeroFormat = TRUE
                 )
                 summaryFactory$addParameter(closedTestResults,
                     parameterName = "overallAdjustedTestStatistics",
                     parameterCaption = "Overall adjusted test statistic",
-                    roundDigits = digitsProbabilities -
-                        ifelse(.isTrialDesignFisher(design) || digitsProbabilities <= 1, 0, 1),
+                    roundDigits = digitSettings$digitsProbabilities -
+                        ifelse(.isTrialDesignFisher(design) || digitSettings$digitsProbabilities <= 1, 0, 1),
                     smoothedZeroFormat = !.isTrialDesignFisher(design)
                 )
             }
@@ -2722,7 +2877,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     parameterCaption = paste0(
                         "Conditional error rate (",
                         paste0(1:gMax, collapse = ", "), ")"
-                    ), roundDigits = digitsProbabilities,
+                    ), roundDigits = digitSettings$digitsProbabilities,
                     smoothedZeroFormat = TRUE,
                     legendEntry = legendEntry
                 )
@@ -2733,7 +2888,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                         "Second stage p-value (",
                         paste0(1:gMax, collapse = ", "), ")"
                     ),
-                    roundDigits = digitsProbabilities + ifelse(.isTrialDesignFisher(design), 1, 0),
+                    roundDigits = digitSettings$digitsProbabilities +
+                        ifelse(.isTrialDesignFisher(design), 1, 0),
                     smoothedZeroFormat = !.isTrialDesignFisher(design),
                     legendEntry = legendEntry
                 )
@@ -2744,7 +2900,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     parameterCaption = paste0(
                         "Adjusted stage-wise p-value (",
                         paste0(1:gMax, collapse = ", "), ")"
-                    ), roundDigits = digitsProbabilities,
+                    ), roundDigits = digitSettings$digitsProbabilities,
                     smoothedZeroFormat = TRUE, legendEntry = legendEntry
                 )
                 summaryFactory$addParameter(closedTestResults,
@@ -2754,8 +2910,9 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                         "Overall adjusted test statistic (",
                         paste0(1:gMax, collapse = ", "), ")"
                     ),
-                    roundDigits = digitsProbabilities -
-                        ifelse(.isTrialDesignFisher(design) || digitsProbabilities <= 1, 0, 1),
+                    roundDigits = digitSettings$digitsProbabilities -
+                        ifelse(.isTrialDesignFisher(design) ||
+                            digitSettings$digitsProbabilities <= 1, 0, 1),
                     smoothedZeroFormat = !.isTrialDesignFisher(design),
                     legendEntry = legendEntry
                 )
@@ -2766,27 +2923,31 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     if (multiHypothesesEnabled) {
         summaryFactory$addParameter(closedTestResults,
             parameterName = "rejected",
-            parameterCaption = "Test action: reject", roundDigits = digitsGeneral
+            parameterCaption = "Test action: reject",
+            roundDigits = digitSettings$digitsGeneral
         )
     } else {
         if (.isTrialDesignFisher(design)) {
             summaryFactory$addParameter(stageResults,
                 parameterName = "combFisher",
-                parameterCaption = "Fisher combination", roundDigits = 0
+                parameterCaption = "Fisher combination",
+                roundDigits = 0
             )
         } else if (.isTrialDesignInverseNormal(design)) {
             summaryFactory$addParameter(stageResults,
                 parameterName = "combInverseNormal",
                 parameterCaption = "Inverse normal combination",
-                roundDigits = ifelse(digitsProbabilities > 1,
-                    digitsProbabilities - 1, digitsProbabilities
+                roundDigits = ifelse(digitSettings$digitsProbabilities > 1,
+                    digitSettings$digitsProbabilities - 1,
+                    digitSettings$digitsProbabilities
                 ),
                 smoothedZeroFormat = TRUE
             )
         }
         summaryFactory$addParameter(analysisResults,
             parameterName = "testActions",
-            parameterCaption = "Test action", roundDigits = digitsGeneral
+            parameterCaption = "Test action",
+            roundDigits = digitSettings$digitsGeneral
         )
     }
 
@@ -2794,7 +2955,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         summaryFactory$addParameter(analysisResults,
             parameterName = "conditionalRejectionProbabilities",
             parameterCaption = "Conditional rejection probability",
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+            roundDigits = digitSettings$digitsProbabilities,
+            smoothedZeroFormat = TRUE
         )
     }
 
@@ -2802,12 +2964,14 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         if (!is.null(conditionalPowerResults)) {
             summaryFactory$addParameter(conditionalPowerResults,
                 parameterName = "nPlanned",
-                parameterCaption = "Planned sample size", roundDigits = -1
+                parameterCaption = "Planned sample size",
+                roundDigits = -1
             )
         } else if (analysisResults$.getParameterType("nPlanned") != C_PARAM_NOT_APPLICABLE) {
             summaryFactory$addParameter(analysisResults,
                 parameterName = "nPlanned",
-                parameterCaption = "Planned sample size", roundDigits = -1
+                parameterCaption = "Planned sample size",
+                roundDigits = -1
             )
         }
     }
@@ -2817,7 +2981,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             summaryFactory$addParameter(conditionalPowerResults,
                 parameterName = "conditionalPower",
                 parameterCaption = "Conditional power",
-                roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+                roundDigits = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
             )
         } else if (!multiHypothesesEnabled &&
                 analysisResults$.getParameterType("nPlanned") != C_PARAM_NOT_APPLICABLE) {
@@ -2829,7 +2994,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             summaryFactory$addParameter(analysisResults,
                 parameterName = parameterName,
                 parameterCaption = "Conditional power",
-                roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+                roundDigits = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
             )
         }
     }
@@ -2855,31 +3021,35 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             "repeatedConfidenceIntervalUpperBounds"
         ),
         parameterCaption = parameterCaptionRepeatedCI,
-        roundDigits = digitsGeneral
+        roundDigits = digitSettings$digitsGeneral
     )
 
     summaryFactory$addParameter(analysisResults,
         parameterName = "repeatedPValues",
         parameterCaption = parameterCaptionRepeatedPValues,
-        roundDigits = digitsProbabilities, formatRepeatedPValues = TRUE
+        roundDigits = digitSettings$digitsProbabilities,
+        formatRepeatedPValues = TRUE
     )
 
     if (!multiHypothesesEnabled && !is.null(analysisResults[["finalStage"]]) &&
             !all(is.na(analysisResults$finalStage))) {
         summaryFactory$addParameter(analysisResults,
             parameterName = "finalPValues",
-            parameterCaption = "Final p-value", roundDigits = digitsProbabilities
+            parameterCaption = "Final p-value",
+            roundDigits = digitSettings$digitsProbabilities
         )
         summaryFactory$addParameter(analysisResults,
             parameterName = c(
                 "finalConfidenceIntervalLowerBounds",
                 "finalConfidenceIntervalUpperBounds"
             ),
-            parameterCaption = "Final confidence interval", roundDigits = digitsGeneral
+            parameterCaption = "Final confidence interval",
+            roundDigits = digitSettings$digitsGeneral
         )
         summaryFactory$addParameter(analysisResults,
             parameterName = "medianUnbiasedEstimates",
-            parameterCaption = "Median unbiased estimate", roundDigits = digitsGeneral
+            parameterCaption = "Median unbiased estimate",
+            roundDigits = digitSettings$digitsGeneral
         )
     }
 
@@ -2936,46 +3106,60 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     return(paste0(round(100 * values, digits), "%"))
 }
 
-.addDesignInformationToSummary <- function(design, designPlan, summaryFactory,
-        output = c("all", "title", "overview", "body")) {
+.addDesignInformationToSummary <- function(design,
+        designPlan,
+        summaryFactory,
+        output = c("all", "title", "overview", "body"),
+        digits = NA_integer_) {
     if (!(output %in% c("all", "overview"))) {
         return(invisible(summaryFactory))
     }
 
     if (design$kMax == 1) {
         summaryFactory$addItem("Stage", "Fixed")
-        return(invisible(summaryFactory))
+    } else {
+        summaryFactory$addItem("Stage", c(1:design$kMax))
     }
 
-    summaryFactory$addItem("Stage", c(1:design$kMax))
+    digitSettings <- .getSummaryDigits(digits)
 
     if (.isTrialDesignConditionalDunnett(design)) {
         summaryFactory$addItem(
             "Fixed information at interim",
             .getSummaryValuesInPercent(design$informationAtInterim, FALSE)
         )
+
+        summaryFactory$addParameter(design,
+            parameterName = "alpha",
+            parameterCaption = "Significance level",
+            roundDigits = digitSettings$digitsProbabilities,
+            smoothedZeroFormat = TRUE
+        )
+
         return(invisible(summaryFactory))
     }
 
-    informationRatesCaption <- "Planned information rate"
-    percentFormatEnabled <- TRUE
-    if (.isTrialDesignFisher(design)) {
-        weights <- .getWeightsFisher(design)
-        informationRatesCaption <- "Fixed weight"
-        percentFormatEnabled <- FALSE
-    } else if (.isTrialDesignInverseNormal(design)) {
-        weights <- .getWeightsInverseNormal(design)
-        informationRatesCaption <- "Fixed weight"
-        percentFormatEnabled <- FALSE
-    } else {
-        weights <- design$informationRates
+    if (design$kMax > 1) {
+        informationRatesCaption <- "Planned information rate"
+        percentFormatEnabled <- TRUE
+        if (.isTrialDesignFisher(design)) {
+            weights <- .getWeightsFisher(design)
+            informationRatesCaption <- "Fixed weight"
+            percentFormatEnabled <- FALSE
+        } else if (.isTrialDesignInverseNormal(design)) {
+            weights <- .getWeightsInverseNormal(design)
+            informationRatesCaption <- "Fixed weight"
+            percentFormatEnabled <- FALSE
+        } else {
+            weights <- design$informationRates
+        }
+        summaryFactory$addItem(
+            informationRatesCaption,
+            .getSummaryValuesInPercent(weights, percentFormatEnabled = percentFormatEnabled)
+        )
     }
-    summaryFactory$addItem(
-        informationRatesCaption,
-        .getSummaryValuesInPercent(weights, percentFormatEnabled = percentFormatEnabled)
-    )
 
-    if (design$.isDelayedResponseDesign()) {
+    if (design$kMax > 1 && design$.isDelayedResponseDesign()) {
         summaryFactory$addItem(
             "Delayed information",
             .getSummaryValuesInPercent(design$delayedInformation,
@@ -2984,108 +3168,97 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         )
     }
 
-    return(invisible(summaryFactory))
-}
-
-.addDesignParameterToSummary <- function(design, designPlan,
-        designCharacteristics, summaryFactory, digitsGeneral, digitsProbabilities) {
-    if (design$kMax > 1 && !inherits(designPlan, "SimulationResults") &&
-            !.isTrialDesignConditionalDunnett(design)) {
+    if (design$kMax > 1) {
         summaryFactory$addParameter(design,
             parameterName = "alphaSpent",
             parameterCaption = "Cumulative alpha spent",
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+            roundDigits = digitSettings$digitsProbabilities,
+            smoothedZeroFormat = TRUE
         )
+
         if (design$.getParameterType("betaSpent") == C_PARAM_GENERATED) {
             summaryFactory$addParameter(design,
                 parameterName = "betaSpent",
                 parameterCaption = "Cumulative beta spent",
-                roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-            )
-        }
-    }
-
-    if (!is.null(designPlan)) {
-        if (!grepl("SimulationResults(MultiArm|Enrichment)", .getClassName(designPlan))) {
-            outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
-            if (outputSize == "large" && inherits(designPlan, "SimulationResults")) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "conditionalPowerAchieved",
-                    parameterCaption = "Conditional power (achieved)",
-                    roundDigits = digitsProbabilities
-                )
-            }
-        }
-    } else {
-        powerObject <- NULL
-        if (!is.null(designCharacteristics)) {
-            powerObject <- designCharacteristics
-        } else if (design$.getParameterType("power") == C_PARAM_GENERATED) {
-            powerObject <- design
-        }
-        if (!is.null(powerObject)) {
-            summaryFactory$addParameter(powerObject,
-                parameterName = "power",
-                parameterCaption = ifelse(design$kMax == 1, "Power", "Cumulative power"),
-                roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-            )
-        }
-        if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design)) {
-            tryCatch(
-                {
-                    designCharacteristics <- getDesignCharacteristics(design)
-                },
-                error = function(e) {
-                    designCharacteristics <- NULL
-                }
-            )
-            if (!is.null(designCharacteristics) &&
-                    !any(is.na(designCharacteristics$futilityProbabilities)) &&
-                    any(designCharacteristics$futilityProbabilities > 0)) {
-                summaryFactory$addParameter(designCharacteristics,
-                    parameterName = "futilityProbabilities",
-                    parameterCaption = "Futility probabilities under H1",
-                    roundDigits = digitsGeneral, smoothedZeroFormat = TRUE
-                )
-            }
-        }
-    }
-
-    if (design$.isDelayedResponseDesign()) {
-        summaryFactory$addParameter(design,
-            parameterName = "decisionCriticalValues",
-            parameterCaption = "Decision critical values",
-            roundDigits = digitsGeneral,
-            smoothedZeroFormat = TRUE
-        )
-
-        outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
-        if (outputSize == "large") {
-            summaryFactory$addParameter(design,
-                parameterName = "reversalProbabilities",
-                parameterCaption = "Reversal probabilities",
-                roundDigits = digitsProbabilities,
+                roundDigits = digitSettings$digitsProbabilities,
                 smoothedZeroFormat = TRUE
             )
         }
     }
 
-    if (.isTrialDesignConditionalDunnett(design)) {
-        summaryFactory$addParameter(design,
-            parameterName = "alpha",
-            parameterCaption = "Significance level", roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-        )
-    } else if (!is.null(designPlan) && !inherits(designPlan, "SimulationResults")) {
-        summaryFactory$addParameter(design,
-            parameterName = "stageLevels",
-            twoSided = design$sided == 2,
-            parameterCaption = paste0(
-                ifelse(design$sided == 2, "Two", "One"),
-                "-sided local significance level"
-            ),
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+    summaryFactory$addParameter(design,
+        parameterName = "stageLevels",
+        twoSided = design$sided == 2,
+        parameterCaption = paste0(
+            "Stage level", ifelse(design$kMax > 1, "s", ""),
+            " (", ifelse(design$sided == 2, "two", "one"), "-sided)"
+        ),
+        roundDigits = digitSettings$digitsProbabilities,
+        smoothedZeroFormat = TRUE
+    )
+
+    summaryFactory$addParameter(design,
+        parameterName = "criticalValues",
+        parameterCaption = .getSummaryParameterCaptionCriticalValues(design),
+        roundDigits = digitSettings$digitsProbabilities - ifelse(.isTrialDesignFisher(design) ||
+            digitSettings$digitsProbabilities <= 1, 0, 1),
+        smoothedZeroFormat = !.isTrialDesignFisher(design)
+    )
+
+    if (.isTrialDesignFisher(design)) {
+        if (any(design$alpha0Vec < 1)) {
+            summaryFactory$addParameter(design,
+                parameterName = "alpha0Vec",
+                parameterCaption = "Futility boundary (separate p-value scale)",
+                roundDigits = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
+            )
+        }
+    } else {
+        if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
+            summaryFactory$addParameter(design,
+                parameterName = "futilityBounds",
+                parameterCaption = .getSummaryParameterCaptionFutilityBounds(design),
+                roundDigits = ifelse(digitSettings$digitsProbabilities > 1,
+                    digitSettings$digitsProbabilities - 1, digitSettings$digitsProbabilities
+                ),
+                smoothedZeroFormat = TRUE
+            )
+        }
+    }
+
+    return(invisible(summaryFactory))
+}
+
+.addDesignCharacteristicsToSummary <- function(designCharacteristics,
+        summaryFactory,
+        digits) {
+    if (is.null(designCharacteristics)) {
+        return(summaryFactory)
+    }
+
+    digitSettings <- .getSummaryDigits(digits)
+    design <- designCharacteristics$.design
+
+    summaryFactory$addParameter(
+        designCharacteristics,
+        parameterName = "power",
+        parameterCaption = ifelse(design$kMax == 1, "Power", "Cumulative power"),
+        roundDigits = digitSettings$digitsProbabilities,
+        smoothedZeroFormat = TRUE
+    )
+
+    if (design$kMax > 1 && !is.null(designCharacteristics[["futilityProbabilities"]]) &&
+            !any(is.na(designCharacteristics$futilityProbabilities)) &&
+            any(designCharacteristics$futilityProbabilities > 0)) {
+        summaryFactory$addParameter(designCharacteristics,
+            parameterName = "futilityProbabilities",
+            parameterCaption = "Futility probabilities under H1",
+            roundDigits = digitSettings$digitsGeneral,
+            smoothedZeroFormat = TRUE
         )
     }
+
     return(summaryFactory)
 }
 
@@ -3094,8 +3267,9 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 #'
 #' @noRd
 #'
-.createSummaryDesignPlan <- function(object, digits = NA_integer_,
-        output = c("all", "title", "overview", "body"), showStageLevels = FALSE,
+.createSummaryDesignPlan <- function(object,
+        digits = NA_integer_,
+        output = c("all", "title", "overview", "body"),
         performanceScore = NULL, markdown = FALSE) {
     output <- match.arg(output)
     designPlan <- NULL
@@ -3104,7 +3278,6 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         designPlan <- object
     } else if (inherits(object, "TrialDesignCharacteristics")) {
         design <- object$.design
-        # designPlan <- object
     } else if (.isTrialDesign(object)) {
         design <- object
     } else {
@@ -3116,12 +3289,6 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
     }
 
     digitSettings <- .getSummaryDigits(digits)
-    digits <- digitSettings$digits
-    digitsSampleSize <- digitSettings$digitsSampleSize
-    digitsGeneral <- digitSettings$digitsGeneral
-    digitsProbabilities <- digitSettings$digitsProbabilities
-    digitsTime <- digitSettings$digitsTime
-
     outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
 
     intervalFormat <- getOption("rpact.summary.intervalFormat", "[%s; %s]")
@@ -3129,85 +3296,543 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 
     summaryFactory <- SummaryFactory$new(
         object = object,
-        intervalFormat = intervalFormat, output = output, markdown = markdown
+        intervalFormat = intervalFormat,
+        output = output,
+        markdown = markdown
     )
 
     if (output %in% c("all", "title", "overview")) {
-        .addDesignInformationToSummary(design, designPlan, summaryFactory, output = output)
+        .addDesignInformationToSummary(design, designPlan,
+            summaryFactory,
+            output = output, digits = digits
+        )
     }
 
     if (!(output %in% c("all", "body"))) {
         return(summaryFactory)
     }
 
-    if (!.isTrialDesignConditionalDunnett(design)) {
+    multiArmEnabled <- FALSE
+    enrichmentEnabled <- FALSE
+    baseEnabled <- FALSE
+    planningEnabled <- FALSE
+    simulationEnabled <- FALSE
+    survivalEnabled <- FALSE
+    countDataEnabled <- FALSE
+    if (!is.null(designPlan)) {
+        multiArmEnabled <- grepl("MultiArm", .getClassName(designPlan))
+        enrichmentEnabled <- grepl("Enrichment", .getClassName(designPlan))
+        baseEnabled <- grepl(
+            "(TrialDesignPlan|SimulationResults)(Means|Rates|Survival|CountData)",
+            .getClassName(designPlan)
+        )
+        planningEnabled <- .isTrialDesignPlan(designPlan)
+        simulationEnabled <- .isSimulationResults(designPlan)
+        survivalEnabled <- grepl("Survival", .getClassName(designPlan))
+        countDataEnabled <- grepl("CountData", .getClassName(designPlan))
+    }
+
+    if (planningEnabled) {
+        legendEntry <- list("(t)" = "treatment effect scale")
+
+        if (!is.null(designPlan[["criticalValuesEffectScale"]]) &&
+                ncol(designPlan$criticalValuesEffectScale) > 0 &&
+                !all(is.na(designPlan$criticalValuesEffectScale))) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "criticalValuesEffectScale",
+                parameterCaption = ifelse(.isDelayedInformationEnabled(design = design),
+                    "Upper bounds of continuation (t)", "Efficacy boundary (t)"
+                ),
+                roundDigits = digitSettings$digitsGeneral,
+                legendEntry = legendEntry
+            )
+        } else if (!is.null(designPlan[["criticalValuesEffectScaleUpper"]]) &&
+                ncol(designPlan$criticalValuesEffectScaleUpper) > 0) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "criticalValuesEffectScaleLower",
+                parameterCaption = "Lower efficacy boundary (t)",
+                roundDigits = digitSettings$digitsGeneral,
+                legendEntry = legendEntry
+            )
+            summaryFactory$addParameter(designPlan,
+                parameterName = "criticalValuesEffectScaleUpper",
+                parameterCaption = "Upper efficacy boundary (t)",
+                roundDigits = digitSettings$digitsGeneral,
+                legendEntry = legendEntry
+            )
+        }
+
+        if (!is.null(designPlan[["futilityBoundsEffectScale"]]) &&
+                ncol(designPlan$futilityBoundsEffectScale) > 0 &&
+                !all(is.na(designPlan$futilityBoundsEffectScale))) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "futilityBoundsEffectScale",
+                parameterCaption = ifelse(.isDelayedInformationEnabled(design = design),
+                    "Lower bounds of continuation (t)", "Futility boundary (t)"
+                ),
+                roundDigits = digitSettings$digitsGeneral,
+                legendEntry = legendEntry
+            )
+        } else if (!is.null(designPlan[["futilityBoundsEffectScaleUpper"]]) &&
+                ncol(designPlan$futilityBoundsEffectScaleUpper) > 0 &&
+                (any(!is.na(designPlan$futilityBoundsEffectScaleLower)) ||
+                    any(!is.na(designPlan$futilityBoundsEffectScaleUpper)))) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "futilityBoundsEffectScaleLower",
+                parameterCaption = "Lower futility boundary (t)",
+                roundDigits = digitSettings$digitsGeneral,
+                legendEntry = legendEntry
+            )
+            summaryFactory$addParameter(designPlan,
+                parameterName = "futilityBoundsEffectScaleUpper",
+                parameterCaption = "Upper futility boundary (t)",
+                roundDigits = digitSettings$digitsGeneral,
+                legendEntry = legendEntry
+            )
+        }
+    }
+
+    if (design$.isDelayedResponseDesign()) {
         summaryFactory$addParameter(design,
-            parameterName = "criticalValues",
-            parameterCaption = .getSummaryParameterCaptionCriticalValues(design),
-            roundDigits = digitsGeneral
+            parameterName = "decisionCriticalValues",
+            parameterCaption = "Decision critical values",
+            roundDigits = digitSettings$digitsGeneral,
+            smoothedZeroFormat = TRUE
         )
 
-        if (showStageLevels) {
+        outputSize <- getOption("rpact.summary.output.size", C_SUMMARY_OUTPUT_SIZE_DEFAULT)
+        if (outputSize == "large") {
             summaryFactory$addParameter(design,
-                parameterName = "stageLevels",
-                parameterCaption = "Stage levels (one-sided)",
-                roundDigits = digitsProbabilities,
+                parameterName = "reversalProbabilities",
+                parameterCaption = "Reversal probabilities",
+                roundDigits = digitSettings$digitsProbabilities,
                 smoothedZeroFormat = TRUE
             )
         }
     }
 
-    if (.isTrialDesignFisher(design)) {
-        if (any(design$alpha0Vec < 1)) {
-            summaryFactory$addParameter(design,
-                parameterName = "alpha0Vec",
-                parameterCaption = "Futility boundary (separate p-value scale)",
-                roundDigits = digitsGeneral
-            )
-        }
-    } else if (!.isTrialDesignConditionalDunnett(design)) {
-        if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) {
-            summaryFactory$addParameter(design,
-                parameterName = "futilityBounds",
-                parameterCaption = .getSummaryParameterCaptionFutilityBounds(design),
-                roundDigits = digitsGeneral
-            )
-        }
-    }
-
-    designCharacteristics <- NULL
-    if (design$kMax > 1 && .isTrialDesignInverseNormalOrGroupSequential(design)) {
-        tryCatch(
-            {
-                designCharacteristics <- getDesignCharacteristics(design)
-            },
-            error = function(e) {
-                designCharacteristics <- NULL
-            }
-        )
-    }
-
+    designCharacteristics <- .getSummaryDesignCharacteristics(design, kMaxMin = 2)
     if (is.null(designPlan)) {
-        return(.addDesignParameterToSummary(
-            design,
-            designPlan,
+        return(.addDesignCharacteristicsToSummary(
             designCharacteristics,
             summaryFactory,
-            digitsGeneral,
-            digitsProbabilities
+            digits = digits
         ))
     }
 
-    multiArmEnabled <- grepl("MultiArm", .getClassName(designPlan))
-    enrichmentEnabled <- grepl("Enrichment", .getClassName(designPlan))
-    baseEnabled <- grepl(
-        "(TrialDesignPlan|SimulationResults)(Means|Rates|Survival|CountData)",
-        .getClassName(designPlan)
-    )
-    planningEnabled <- .isTrialDesignPlan(designPlan)
-    simulationEnabled <- .isSimulationResults(designPlan)
-    survivalEnabled <- grepl("Survival", .getClassName(designPlan))
-    countDataEnabled <- .isTrialDesignPlanCountData(designPlan)
+    if (baseEnabled && countDataEnabled && !is.null(designPlan[["lambda1"]]) &&
+            designPlan$.getParameterType("lambda1") == C_PARAM_GENERATED) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "lambda1",
+            parameterCaption = "Lambda(1)",
+            roundDigits = digitSettings$digitsGeneral
+        )
+    }
+
+    if (baseEnabled && countDataEnabled && !is.null(designPlan[["lambda2"]]) &&
+            designPlan$.getParameterType("lambda2") == C_PARAM_GENERATED) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "lambda2",
+            parameterCaption = "Lambda(2)",
+            roundDigits = digitSettings$digitsGeneral
+        )
+    }
+
+    if (simulationEnabled && (multiArmEnabled || enrichmentEnabled)) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "rejectAtLeastOne",
+            parameterCaption = "Reject at least one",
+            roundDigits = digitSettings$digitsProbabilities,
+            smoothedZeroFormat = TRUE, transpose = TRUE,
+            lastStage = design$kMax,
+            legendEntry = {
+                if (multiArmEnabled) list("(i)" = "treatment arm i") else list()
+            }
+        )
+
+        if (outputSize == "large" && multiArmEnabled) {
+            .addSimulationMultiArmArrayParameter(designPlan,
+                parameterName = "rejectedArmsPerStage",
+                parameterCaption = ifelse(design$kMax == 1,
+                    "Rejected arms", "Rejected arms per stage"
+                ),
+                summaryFactory,
+                roundDigits = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
+            )
+        }
+
+        if (outputSize == "large" && enrichmentEnabled) {
+            .addSimulationArrayToSummary(designPlan,
+                parameterName = "rejectedPopulationsPerStage",
+                parameterCaption = ifelse(design$kMax == 1,
+                    "Rejected populations", "Rejected populations per stage"
+                ),
+                summaryFactory,
+                digitsSampleSize = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
+            )
+        }
+
+        summaryFactory$addParameter(designPlan,
+            parameterName = "successPerStage",
+            parameterCaption = "Success per stage",
+            roundDigits = digitSettings$digitsProbabilities,
+            smoothedZeroFormat = TRUE,
+            transpose = TRUE
+        )
+    }
+
+    if (baseEnabled) {
+        parameterName <- "rejectPerStage"
+        if (design$kMax == 1) {
+            parameterName <- "overallReject"
+        }
+        if (any(!is.na(designPlan[[parameterName]]))) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = parameterName,
+                parameterCaption = ifelse(design$kMax == 1, "Power", "Cumulative power"),
+                roundDigits = digitSettings$digitsProbabilities,
+                cumsumEnabled = TRUE,
+                smoothedZeroFormat = TRUE
+            )
+        }
+    }
+
+    if (simulationEnabled && (multiArmEnabled || enrichmentEnabled)) {
+        if (outputSize %in% c("medium", "large")) {
+            if (survivalEnabled) {
+                if (enrichmentEnabled) {
+                    parameterName <- "singleEventsPerSubsetAndStage"
+                    parameterCaption <- "Single number of events"
+                } else {
+                    parameterName <- "cumulativeEventsPerStage"
+                    parameterCaption <- "Cumulative number of events"
+                }
+            } else {
+                parameterName <- "sampleSizes"
+                parameterCaption <- "Stage-wise number of subjects"
+            }
+            .addSimulationArrayToSummary(
+                designPlan,
+                parameterName,
+                parameterCaption,
+                summaryFactory,
+                digitsSampleSize = digitSettings$digitsSampleSize,
+                smoothedZeroFormat = TRUE
+            )
+        }
+    } else if (baseEnabled && outputSize %in% c("medium", "large")) {
+            
+        parameterNameSubjects <- NULL
+        transpose <- FALSE
+        lastStage <- NA_integer_
+        if (baseEnabled) {
+            if (inherits(designPlan, "SimulationResults")) {
+                parameterNameSubjects <- ifelse(survivalEnabled || countDataEnabled,
+                    "numberOfSubjects", "sampleSizes"
+                )
+            } else {
+                if (design$kMax == 1 && (
+                        designPlan$.isSampleSizeObject() ||
+                        .isTrialDesignPlanMeans(designPlan) ||
+                        .isTrialDesignPlanRates(designPlan) ||
+                        countDataEnabled
+                        )) {
+                    parameterNameSubjects <- "nFixed"
+                } else if (countDataEnabled) {
+                    parameterNameSubjects <- "numberOfSubjects"
+                } else if (design$kMax == 1 && designPlan$.isPowerObject()) {
+                    parameterNameSubjects <- "expectedNumberOfSubjects" 
+                    transpose <- TRUE
+                    lastStage <- design$kMax 
+                } else {
+                    parameterNameSubjects <- "numberOfSubjects"
+                }
+            }
+        }
+        
+        if (designPlan$.getParameterType(parameterNameSubjects) == C_PARAM_GENERATED) {
+            subjectsCaption <- ifelse(design$kMax > 1 && 
+                    inherits(designPlan, "SimulationResults") && !survivalEnabled, 
+                    "Stage-wise number of subjects", "Number of subjects")
+            summaryFactory$addParameter(designPlan,
+                parameterName = parameterNameSubjects,
+                parameterCaption = subjectsCaption,
+                roundDigits = digitSettings$digitsSampleSize,
+                validateParameterType = !countDataEnabled,
+                showNA = TRUE,
+                transpose = transpose,
+                lastStage = lastStage
+            )
+        }
+    }
+    
+    if (simulationEnabled && (multiArmEnabled || enrichmentEnabled || countDataEnabled)) {
+        if (survivalEnabled) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "expectedNumberOfEvents", 
+                parameterCaption = "Expected number of events under H1",
+                roundDigits = digitSettings$digitsSampleSize,
+                transpose = TRUE,
+                lastStage = design$kMax
+            )
+        } else {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "expectedNumberOfSubjects", 
+                parameterCaption = "Expected number of subjects under H1",
+                roundDigits = digitSettings$digitsSampleSize,
+                transpose = TRUE,
+                lastStage = design$kMax
+            )
+        }
+    }
+    else if (baseEnabled && design$kMax > 1) {
+        parameterName <- ifelse(inherits(designPlan, "TrialDesignPlan") &&
+            (designPlan$.isSampleSizeObject() || countDataEnabled),
+            "expectedNumberOfSubjectsH1", "expectedNumberOfSubjects") 
+        summaryFactory$addParameter(designPlan,
+            parameterName = parameterName, 
+            parameterCaption = "Expected number of subjects under H1",
+            roundDigits = digitSettings$digitsSampleSize,
+            transpose = TRUE,
+            validateParameterType = !countDataEnabled,
+            lastStage = design$kMax
+        )
+        if (countDataEnabled &&
+                (is.null(designPlan[[parameterName]]) || all(is.na(designPlan[[parameterName]]))) &&
+                !is.null(designPlan[["maxNumberOfSubjects"]]) &&
+                designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_GENERATED) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "maxNumberOfSubjects",
+                parameterCaption = "Maximum number of subjects",
+                roundDigits = digitSettings$digitsSampleSize
+            )
+        }
+    }
+    
+    if (baseEnabled && survivalEnabled && outputSize %in% c("medium", "large")) {
+        parameterNameEvents <- NULL
+        if (inherits(designPlan, "SimulationResults")) {
+            parameterNameEvents <- "cumulativeEventsPerStage"
+        } else {
+            if (design$kMax == 1 && (
+                    designPlan$.isSampleSizeObject() ||
+                    .isTrialDesignPlanMeans(designPlan) ||
+                    .isTrialDesignPlanRates(designPlan) ||
+                    countDataEnabled
+                    )) {
+                parameterNameEvents <- "eventsFixed"
+            } else if (design$kMax == 1 && designPlan$.isPowerObject()) {
+                parameterNameEvents <- "expectedNumberOfEvents" 
+            } else {
+                parameterNameEvents <- "cumulativeEventsPerStage"
+            }
+        }
+        summaryFactory$addParameter(designPlan,
+            parameterName = parameterNameEvents,
+            parameterCaption = ifelse(design$kMax == 1,
+                "Number of events", "Cumulative number of events"
+            ),
+            roundDigits = digitSettings$digitsSampleSize,
+            cumsumEnabled = FALSE
+        )
+    }
+    
+    if (baseEnabled && survivalEnabled && design$kMax > 1 && 
+            !(inherits(designPlan, "TrialDesignPlanSurvival") &&
+            designPlan$.isSampleSizeObject())) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "expectedNumberOfEvents",
+            parameterCaption = "Expected number of events under H1",
+            roundDigits = digitSettings$digitsSampleSize,
+            transpose = TRUE,
+            lastStage = design$kMax
+        )
+    }
+    else if (baseEnabled && survivalEnabled && outputSize %in% c("medium", "large") && 
+            !enrichmentEnabled && design$kMax > 1) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = ifelse(designPlan$.isSampleSizeObject(),
+                "expectedEventsH1", "expectedNumberOfEvents" 
+            ),
+            parameterCaption = "Expected number of events under H1",
+            roundDigits = digitSettings$digitsSampleSize,
+            cumsumEnabled = FALSE
+        )
+    }
+    
+    if (simulationEnabled && (multiArmEnabled || enrichmentEnabled || countDataEnabled) &&
+            design$kMax > 1 && outputSize %in% c("medium", "large")) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "earlyStop",
+            parameterCaption = "Overall exit probability", # (under H1)
+            roundDigits = digitSettings$digitsProbabilities,
+            smoothedZeroFormat = TRUE,
+            transpose = TRUE,
+            lastStage = design$kMax 
+        )
+    }
+
+    if (simulationEnabled && (multiArmEnabled || enrichmentEnabled)) {
+        if (multiArmEnabled && outputSize %in% c("medium", "large")) {
+            .addSimulationMultiArmArrayParameter(
+                designPlan = designPlan,
+                parameterName = "selectedArms",
+                parameterCaption = "Selected arms",
+                summaryFactory = summaryFactory,
+                roundDigits = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
+            )
+        }
+
+        if (enrichmentEnabled && outputSize %in% c("medium", "large")) {
+            .addSimulationArrayToSummary(
+                designPlan = designPlan,
+                parameterName = "selectedPopulations",
+                parameterCaption = "Selected populations",
+                summaryFactory = summaryFactory,
+                digitsSampleSize = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
+            )
+        }
+
+        if (multiArmEnabled && outputSize %in% c("medium", "large")) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "numberOfActiveArms",
+                parameterCaption = "Number of active arms",
+                roundDigits = digitSettings$digitsGeneral,
+                transpose = TRUE
+            )
+        }
+
+        if (enrichmentEnabled && outputSize %in% c("medium", "large")) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "numberOfPopulations",
+                parameterCaption = "Number of populations",
+                roundDigits = digitSettings$digitsGeneral,
+                transpose = TRUE
+            )
+        }
+
+        if (outputSize == "large") {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "conditionalPowerAchieved",
+                parameterCaption = "Conditional power (achieved)",
+                roundDigits = digitSettings$digitsProbabilities,
+                transpose = TRUE
+            )
+        }
+    }
+
+    if (baseEnabled && countDataEnabled && !is.null(designPlan[["calendarTime"]]) &&
+            designPlan$.getParameterType("calendarTime") == C_PARAM_GENERATED) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "calendarTime",
+            parameterCaption = "Calendar time",
+            roundDigits = digitSettings$digitsTime
+        )
+    }
+
+    if (baseEnabled && countDataEnabled && !is.null(designPlan[["expectedStudyDurationH1"]]) &&
+            designPlan$.getParameterType("expectedStudyDurationH1") == C_PARAM_GENERATED) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "expectedStudyDurationH1",
+            parameterCaption = "Expected study duration under H1",
+            roundDigits = digitSettings$digitsTime,
+            transpose = TRUE,
+            lastStage = design$kMax
+        )
+    }
+
+    if (baseEnabled && countDataEnabled && !is.null(designPlan[["studyTime"]]) &&
+            designPlan$.getParameterType("studyTime") == C_PARAM_GENERATED) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "studyTime",
+            parameterCaption = "Study time",
+            roundDigits = digitSettings$digitsTime
+        )
+    }
+
+    if (baseEnabled && countDataEnabled && design$kMax > 1 && outputSize %in% c("medium", "large") &&
+            designPlan$.isSampleSizeObject()) {
+        if (outputSize == "large") {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "informationOverStages",
+                parameterCaption = "Information over stages",
+                roundDigits = digitSettings$digitsSampleSize,
+                roundDigitsAsInformation = TRUE
+            )
+        }
+
+        summaryFactory$addParameter(designPlan,
+            parameterName = "expectedInformationH0",
+            parameterCaption = "Expected information under H0",
+            roundDigits = digitSettings$digitsSampleSize,
+            transpose = TRUE,
+            roundDigitsAsInformation = TRUE
+        )
+        summaryFactory$addParameter(designPlan,
+            parameterName = "expectedInformationH01",
+            parameterCaption = "Expected information under H0/H1",
+            roundDigits = digitSettings$digitsSampleSize,
+            transpose = TRUE,
+            roundDigitsAsInformation = TRUE
+        )
+        summaryFactory$addParameter(designPlan,
+            parameterName = "expectedInformationH1",
+            parameterCaption = "Expected information under H1",
+            roundDigits = digitSettings$digitsSampleSize,
+            transpose = TRUE,
+            roundDigitsAsInformation = TRUE
+        )
+    }
+
+    if (baseEnabled && countDataEnabled && designPlan$.isSampleSizeObject()) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "maxInformation",
+            parameterCaption = "Maximum information",
+            roundDigits = digitSettings$digitsSampleSize,
+            transpose = TRUE
+        )
+    }
+        
+    if (baseEnabled && survivalEnabled) {
+        if (outputSize == "large") {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "analysisTime",
+                parameterCaption = "Analysis time",
+                roundDigits = digitSettings$digitsTime
+            )
+        }
+
+        summaryFactory$addParameter(designPlan,
+            parameterName = "studyDuration",
+            parameterCaption = "Expected study duration under H1",
+            roundDigits = digitSettings$digitsTime,
+            smoothedZeroFormat = TRUE,
+            transpose = TRUE,
+            lastStage = design$kMax
+        )
+    }
+
+    if (!is.null(designPlan[["allocationRatioPlanned"]]) &&
+            length(unique(designPlan$allocationRatioPlanned)) > 1) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "allocationRatioPlanned",
+            parameterCaption = "Optimum allocation ratio",
+            roundDigits = digitSettings$digitsGeneral
+        )
+    }
+
+    if (inherits(designPlan, "SimulationResults") &&
+            !grepl("SimulationResults(MultiArm|Enrichment|CountData)", .getClassName(designPlan))) {
+        summaryFactory$addParameter(designPlan,
+            parameterName = "conditionalPowerAchieved",
+            parameterCaption = "Conditional power (achieved)",
+            roundDigits = digitSettings$digitsProbabilities
+        )
+    }
 
     probsH0 <- NULL
     probsH1 <- NULL
@@ -3240,440 +3865,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         }
     }
 
-    if (simulationEnabled && (multiArmEnabled || enrichmentEnabled)) {
-        # simulation multi-arm #1:rejectAtLeastOne per mu_max
-        summaryFactory$addParameter(designPlan,
-            parameterName = "rejectAtLeastOne",
-            parameterCaption = "Reject at least one", roundDigits = digitsProbabilities,
-            smoothedZeroFormat = TRUE, transpose = TRUE,
-            legendEntry = {
-                if (multiArmEnabled) list("(i)" = "treatment arm i") else list()
-            }
-        )
-
-        # simulation multi-arm #2: rejectedArmsPerStage
-        if (outputSize == "large" && multiArmEnabled) {
-            .addSimulationMultiArmArrayParameter(designPlan,
-                parameterName = "rejectedArmsPerStage",
-                parameterCaption = ifelse(design$kMax == 1,
-                    "Rejected arms", "Rejected arms per stage"
-                ),
-                summaryFactory, roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-            )
-        }
-        # simulation enrichment #2: rejectedPopulationsPerStage
-        if (outputSize == "large" && enrichmentEnabled) {
-            .addSimulationArrayToSummary(designPlan,
-                parameterName = "rejectedPopulationsPerStage",
-                parameterCaption = ifelse(design$kMax == 1,
-                    "Rejected populations", "Rejected populations per stage"
-                ),
-                summaryFactory, digitsSampleSize = digitsProbabilities, smoothedZeroFormat = TRUE
-            )
-        }
-
-        # simulation multi-arm #3: successPerStage
-        summaryFactory$addParameter(designPlan,
-            parameterName = "successPerStage",
-            parameterCaption = "Success per stage",
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE, transpose = TRUE
-        )
-
-        # simulation multi-arm #4: futilityPerStage
-        if (!planningEnabled && !baseEnabled && any(designPlan$futilityPerStage != 0)) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "futilityPerStage",
-                parameterCaption = "Exit probability for futility", # (under H1)
-                roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE, transpose = TRUE
-            )
-        }
-
-        if (survivalEnabled) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "expectedNumberOfEvents",
-                parameterCaption = "Expected number of events under H1",
-                roundDigits = digitsSampleSize,
-                transpose = TRUE
-            )
-        } else {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "expectedNumberOfSubjects",
-                parameterCaption = "Expected number of subjects under H1",
-                roundDigits = digitsSampleSize,
-                transpose = TRUE
-            )
-        }
-
-        # simulation multi-arm #5: earlyStop per mu_max
-        if (design$kMax > 1 && outputSize %in% c("medium", "large")) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "earlyStop",
-                parameterCaption = "Overall exit probability", # (under H1)
-                roundDigits = digitsProbabilities,
-                smoothedZeroFormat = TRUE,
-                transpose = TRUE
-            )
-        }
-
-        # simulation multi-arm / enrichment #6: sampleSizes
-        if (outputSize %in% c("medium", "large")) {
-            if (survivalEnabled) {
-                if (enrichmentEnabled) {
-                    parameterName <- "singleEventsPerSubsetAndStage"
-                    parameterCaption <- "Single number of events"
-                } else {
-                    parameterName <- "cumulativeEventsPerStage"
-                    parameterCaption <- "Cumulative number of events"
-                }
-            } else {
-                parameterName <- "sampleSizes"
-                parameterCaption <- "Stagewise number of subjects"
-            }
-            .addSimulationArrayToSummary(
-                designPlan,
-                parameterName,
-                parameterCaption,
-                summaryFactory,
-                digitsSampleSize,
-                smoothedZeroFormat = TRUE
-            )
-        }
-
-        # simulation multi-arm #7: selectedArms
-        if (multiArmEnabled && outputSize %in% c("medium", "large")) {
-            .addSimulationMultiArmArrayParameter(
-                designPlan = designPlan,
-                parameterName = "selectedArms",
-                parameterCaption = "Selected arms",
-                summaryFactory = summaryFactory,
-                roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-            )
-        }
-
-        # simulation enrichment #7: selectedPopulations
-        if (enrichmentEnabled && outputSize %in% c("medium", "large")) {
-            .addSimulationArrayToSummary(
-                designPlan = designPlan,
-                parameterName = "selectedPopulations",
-                parameterCaption = "Selected populations",
-                summaryFactory = summaryFactory,
-                digitsSampleSize = digitsProbabilities, smoothedZeroFormat = TRUE
-            )
-        }
-
-        # simulation multi-arm #8: numberOfActiveArms
-        if (multiArmEnabled && outputSize %in% c("medium", "large")) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "numberOfActiveArms",
-                parameterCaption = "Number of active arms",
-                roundDigits = digitsGeneral,
-                transpose = TRUE
-            )
-        }
-
-        # simulation enrichment #8: numberOfPopulations
-        if (enrichmentEnabled && outputSize %in% c("medium", "large")) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "numberOfPopulations",
-                parameterCaption = "Number of populations",
-                roundDigits = digitsGeneral,
-                transpose = TRUE
-            )
-        }
-
-        if (outputSize == "large") {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "conditionalPowerAchieved",
-                parameterCaption = "Conditional power (achieved)",
-                roundDigits = digitsProbabilities,
-                transpose = TRUE
-            )
-        }
-    }
-
-    if (baseEnabled) {
-        parameterName <- "rejectPerStage"
-        if (design$kMax == 1) {
-            parameterName <- "overallReject"
-        }
-        if (any(!is.na(designPlan[[parameterName]]))) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = parameterName,
-                parameterCaption = ifelse(design$kMax == 1, "Power", "Cumulative power"),
-                roundDigits = digitsProbabilities,
-                cumsumEnabled = TRUE,
-                smoothedZeroFormat = TRUE
-            )
-        }
-
-        if (inherits(designPlan, "SimulationResults")) {
-            parameterNameSubjects <- ifelse(survivalEnabled,
-                "numberOfSubjects", "sampleSizes"
-            )
-            parameterNameEvents <- "cumulativeEventsPerStage"
-        } else {
-            if (design$kMax == 1 && (
-                    designPlan$.isSampleSizeObject() ||
-                        .isTrialDesignPlanMeans(designPlan) ||
-                        .isTrialDesignPlanRates(designPlan) ||
-                        countDataEnabled
-                )) {
-                parameterNameSubjects <- "nFixed"
-                parameterNameEvents <- "eventsFixed"
-            } else if (countDataEnabled) {
-                parameterNameSubjects <- "numberOfSubjects"
-            } else if (design$kMax == 1 && designPlan$.isPowerObject()) {
-                parameterNameSubjects <- "expectedNumberOfSubjects"
-                parameterNameEvents <- "expectedNumberOfEvents"
-            } else {
-                parameterNameSubjects <- "numberOfSubjects"
-                parameterNameEvents <- "cumulativeEventsPerStage"
-            }
-        }
-
-        if (countDataEnabled && !is.null(designPlan[["calendarTime"]]) &&
-                designPlan$.getParameterType("calendarTime") == C_PARAM_GENERATED) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "calendarTime",
-                parameterCaption = "Calendar time",
-                roundDigits = digitsTime
-            )
-        }
-
-        if (countDataEnabled && !is.null(designPlan[["expectedStudyDurationH1"]]) &&
-                designPlan$.getParameterType("expectedStudyDurationH1") == C_PARAM_GENERATED) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "expectedStudyDurationH1",
-                parameterCaption = "Expected study duration under H1",
-                roundDigits = digitsTime,
-                transpose = TRUE
-            )
-        }
-
-        if (countDataEnabled && !is.null(designPlan[["studyTime"]]) &&
-                designPlan$.getParameterType("studyTime") == C_PARAM_GENERATED) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "studyTime",
-                parameterCaption = "Study time",
-                roundDigits = digitsTime
-            )
-        }
-
-
-        if (outputSize %in% c("medium", "large")) {
-            subjectsCaption <- ifelse(design$kMax > 1 && inherits(designPlan, "SimulationResults") &&
-                !survivalEnabled, "Stagewise number of subjects", "Number of subjects")
-            summaryFactory$addParameter(designPlan,
-                parameterName = parameterNameSubjects,
-                parameterCaption = subjectsCaption, roundDigits = digitsSampleSize,
-                validateParameterType = !countDataEnabled
-            )
-        }
-
-        if (design$kMax > 1) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = ifelse(inherits(designPlan, "TrialDesignPlan") &&
-                    (designPlan$.isSampleSizeObject() || countDataEnabled),
-                "expectedNumberOfSubjectsH1", "expectedNumberOfSubjects"
-                ),
-                parameterCaption = "Expected number of subjects under H1",
-                roundDigits = digitsSampleSize, transpose = TRUE,
-                validateParameterType = !countDataEnabled
-            )
-        }
-
-        if (countDataEnabled && design$kMax > 1 &&
-                !is.null(designPlan[["maxNumberOfSubjects"]]) &&
-                designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_GENERATED) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "maxNumberOfSubjects",
-                parameterCaption = "Maximum number of subjects",
-                roundDigits = digitsSampleSize
-            )
-        }
-
-        if (countDataEnabled && !is.null(designPlan[["lambda1"]]) &&
-                designPlan$.getParameterType("lambda1") == C_PARAM_GENERATED) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "lambda1",
-                parameterCaption = "Lambda(1)",
-                roundDigits = digitsGeneral
-            )
-        }
-
-        if (countDataEnabled && !is.null(designPlan[["lambda2"]]) &&
-                designPlan$.getParameterType("lambda2") == C_PARAM_GENERATED) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "lambda2",
-                parameterCaption = "Lambda(2)",
-                roundDigits = digitsGeneral
-            )
-        }
-
-        if (countDataEnabled && design$kMax > 1 && outputSize %in% c("medium", "large") &&
-                designPlan$.isSampleSizeObject()) {
-            if (outputSize == "large") {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "informationOverStages",
-                    parameterCaption = "Information over stages",
-                    roundDigits = digitsSampleSize
-                )
-            }
-
-            summaryFactory$addParameter(designPlan,
-                parameterName = "expectedInformationH0",
-                parameterCaption = "Expected information under H0",
-                roundDigits = digitsSampleSize,
-                transpose = TRUE
-            )
-            summaryFactory$addParameter(designPlan,
-                parameterName = "expectedInformationH01",
-                parameterCaption = "Expected information under H0/H1",
-                roundDigits = digitsSampleSize,
-                transpose = TRUE
-            )
-            summaryFactory$addParameter(designPlan,
-                parameterName = "expectedInformationH1",
-                parameterCaption = "Expected information under H1",
-                roundDigits = digitsSampleSize,
-                transpose = TRUE
-            )
-        }
-
-        if (countDataEnabled && designPlan$.isSampleSizeObject()) {
-            summaryFactory$addParameter(designPlan,
-                parameterName = "maxInformation",
-                parameterCaption = "Maximum information",
-                roundDigits = digitsSampleSize,
-                transpose = TRUE
-            )
-        }
-
-        if (survivalEnabled) {
-            if (design$kMax > 1 && !(inherits(designPlan, "TrialDesignPlanSurvival") &&
-                    designPlan$.isSampleSizeObject())) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "expectedNumberOfEvents",
-                    parameterCaption = "Expected number of events",
-                    roundDigits = digitsSampleSize, transpose = TRUE
-                )
-            }
-
-            if (outputSize %in% c("medium", "large")) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = parameterNameEvents,
-                    parameterCaption = ifelse(design$kMax == 1,
-                        "Number of events", "Cumulative number of events"
-                    ),
-                    roundDigits = digitsSampleSize, cumsumEnabled = FALSE
-                )
-            }
-
-            if (outputSize == "large") {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "analysisTime",
-                    parameterCaption = "Analysis time",
-                    roundDigits = digitsTime
-                )
-            }
-
-            summaryFactory$addParameter(designPlan,
-                parameterName = "studyDuration",
-                parameterCaption = "Expected study duration",
-                roundDigits = digitsTime,
-                smoothedZeroFormat = TRUE,
-                transpose = TRUE
-            )
-        }
-    }
-
-    if (!is.null(designPlan[["allocationRatioPlanned"]]) &&
-            length(unique(designPlan$allocationRatioPlanned)) > 1) {
-        summaryFactory$addParameter(designPlan,
-            parameterName = "allocationRatioPlanned",
-            parameterCaption = "Optimum allocation ratio", roundDigits = digitsGeneral
-        )
-    }
-
-    .addDesignParameterToSummary(
-        design, designPlan, designCharacteristics,
-        summaryFactory, digitsGeneral, digitsProbabilities
-    )
-
-    if (baseEnabled && !planningEnabled && !is.null(designPlan[["futilityPerStage"]]) &&
-            !any(is.na(designPlan[["futilityPerStage"]])) &&
-            any(designPlan$futilityPerStage != 0) && any(designPlan$futilityPerStage > 1e-08)) {
-        summaryFactory$addParameter(designPlan,
-            parameterName = "futilityPerStage",
-            parameterCaption = "Exit probability for futility", # (under H1)
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-        )
-    }
-
-    if (baseEnabled && simulationEnabled && design$kMax > 1) {
-        values <- NULL
-        if (!is.null(probsH1)) {
-            values <- probsH1$rejectPerStage
-        }
-        summaryFactory$addParameter(designPlan,
-            parameterName = "rejectPerStage",
-            values = values,
-            parameterCaption = "Exit probability for efficacy",
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
-        )
-    }
-
-    # sample size and power only
     if (planningEnabled) {
-        if (!countDataEnabled) {
-            legendEntry <- list("(t)" = "treatment effect scale")
-
-            if (ncol(designPlan$criticalValuesEffectScale) > 0) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "criticalValuesEffectScale",
-                    parameterCaption = ifelse(.isDelayedInformationEnabled(design = design),
-                        "Upper bounds of continuation (t)", "Efficacy boundary (t)"
-                    ),
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            } else if (ncol(designPlan$criticalValuesEffectScaleUpper) > 0) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "criticalValuesEffectScaleLower",
-                    parameterCaption = "Lower efficacy boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "criticalValuesEffectScaleUpper",
-                    parameterCaption = "Upper efficacy boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            }
-
-            if (ncol(designPlan$futilityBoundsEffectScale) > 0 &&
-                    !all(is.na(designPlan$futilityBoundsEffectScale))) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "futilityBoundsEffectScale",
-                    parameterCaption = ifelse(.isDelayedInformationEnabled(design = design),
-                        "Lower bounds of continuation (t)", "Futility boundary (t)"
-                    ),
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            } else if (ncol(designPlan$futilityBoundsEffectScaleUpper) > 0 &&
-                    (any(!is.na(designPlan$futilityBoundsEffectScaleLower)) ||
-                        any(!is.na(designPlan$futilityBoundsEffectScaleUpper)))) {
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "futilityBoundsEffectScaleLower",
-                    parameterCaption = "Lower futility boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-                summaryFactory$addParameter(designPlan,
-                    parameterName = "futilityBoundsEffectScaleUpper",
-                    parameterCaption = "Upper futility boundary (t)",
-                    roundDigits = digitsGeneral, legendEntry = legendEntry
-                )
-            }
-        }
-
         if (!is.null(probsH1) && !is.null(probsH0) && design$kMax > 1) {
             probsH0$earlyStop <- matrix(probsH0$earlyStop[1:(design$kMax - 1), 1], ncol = 1)
             probsH0$rejectPerStage <- matrix(probsH0$rejectPerStage[1:(design$kMax - 1), 1], ncol = 1)
@@ -3690,7 +3882,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 probsH1$rejectPerStage <- probsH1$rejectPerStage[1:(design$kMax - 1)]
             }
 
-            if (any(design$futilityBounds > -6)) {
+            if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT)) {
                 if (is.matrix(probsH1$earlyStop)) {
                     probsH1$earlyStop <- matrix(probsH1$earlyStop[1:(design$kMax - 1), ],
                         ncol = ncol(probsH1$earlyStop)
@@ -3701,7 +3893,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 summaryFactory$addParameter(probsH0,
                     parameterName = "earlyStop",
                     parameterCaption = "Overall exit probability (under H0)",
-                    roundDigits = digitsProbabilities,
+                    roundDigits = digitSettings$digitsProbabilities,
                     smoothedZeroFormat = TRUE
                 )
                 x <- designPlan
@@ -3712,14 +3904,14 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     parameterName = "earlyStop",
                     values = probsH1$earlyStop,
                     parameterCaption = "Overall exit probability (under H1)",
-                    roundDigits = digitsProbabilities,
+                    roundDigits = digitSettings$digitsProbabilities,
                     smoothedZeroFormat = TRUE
                 )
             }
             summaryFactory$addParameter(probsH0,
                 parameterName = "rejectPerStage",
                 parameterCaption = "Exit probability for efficacy (under H0)",
-                roundDigits = digitsProbabilities,
+                roundDigits = digitSettings$digitsProbabilities,
                 smoothedZeroFormat = TRUE
             )
             if (designPlan$.isPowerObject()) {
@@ -3727,39 +3919,68 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     parameterName = "rejectPerStage",
                     values = probsH1$rejectPerStage,
                     parameterCaption = "Exit probability for efficacy (under H1)",
-                    roundDigits = digitsProbabilities,
+                    roundDigits = digitSettings$digitsProbabilities,
                     smoothedZeroFormat = TRUE
                 )
             } else {
                 summaryFactory$addParameter(probsH1,
                     parameterName = "rejectPerStage",
                     parameterCaption = "Exit probability for efficacy (under H1)",
-                    roundDigits = digitsProbabilities,
+                    roundDigits = digitSettings$digitsProbabilities,
                     smoothedZeroFormat = TRUE
                 )
             }
 
-            if (any(design$futilityBounds > -6)) {
+            if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) {
                 summaryFactory$addParameter(probsH0,
                     parameterName = "futilityPerStage",
                     parameterCaption = "Exit probability for futility (under H0)",
-                    roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+                    roundDigits = digitSettings$digitsProbabilities,
+                    smoothedZeroFormat = TRUE
                 )
-                x <- designPlan
-                if (is.null(x)) {
-                    x <- design
-                }
                 futilityPerStage <- probsH1$futilityPerStage
-                if (.isTrialDesignPlan(x) && x$.isSampleSizeObject() && ncol(futilityPerStage) > 1) {
+                if (designPlan$.isSampleSizeObject() && ncol(futilityPerStage) > 1) {
                     futilityPerStage <- futilityPerStage[, 1]
                 }
-                summaryFactory$addParameter(x,
+                summaryFactory$addParameter(designPlan,
                     parameterName = "futilityPerStage",
                     values = futilityPerStage,
                     parameterCaption = "Exit probability for futility (under H1)",
-                    roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+                    roundDigits = digitSettings$digitsProbabilities,
+                    smoothedZeroFormat = TRUE
                 )
             }
+        }
+    } else {
+        rejectPerStageValues <- NULL
+        if (!is.null(probsH1)) {
+            if (is.matrix(probsH1$rejectPerStage)) {
+                rejectPerStageValues <- matrix(probsH1$rejectPerStage[1:(design$kMax - 1), ], ncol = ncol(probsH1$rejectPerStage))
+            } else {
+                rejectPerStageValues <- probsH1$rejectPerStage[1:(design$kMax - 1)]
+            }
+        }
+        if (!is.null(rejectPerStageValues)) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "rejectPerStage",
+                values = rejectPerStageValues,
+                parameterCaption = "Exit probability for efficacy",
+                roundDigits = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE
+            )
+        }
+        
+        if (any(design$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE) &&
+                !is.null(designPlan[["futilityPerStage"]]) &&
+                !any(is.na(designPlan[["futilityPerStage"]])) &&
+                any(designPlan$futilityPerStage != 0) && any(designPlan$futilityPerStage > 1e-08)) {
+            summaryFactory$addParameter(designPlan,
+                parameterName = "futilityPerStage",
+                parameterCaption = "Exit probability for futility", # under H1
+                roundDigits = digitSettings$digitsProbabilities,
+                smoothedZeroFormat = TRUE,
+                transpose = grepl("MultiArm|Enrichment", .getClassName(designPlan)) 
+            )
         }
     }
 
@@ -3768,7 +3989,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         summaryFactory$addParameter(performanceScore,
             parameterName = "performanceScore",
             parameterCaption = "Performance score",
-            roundDigits = digitsProbabilities, smoothedZeroFormat = TRUE
+            roundDigits = digitSettings$digitsProbabilities,
+            smoothedZeroFormat = TRUE
         )
     }
 
@@ -3855,7 +4077,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
         return(paste0(listItemPrefix, categoryCaption))
     }
 
-    treatmentCaption <- ifelse(numberOfGroups > 2, paste0("Treatment arm ", groupNumber), "Treatment arm")
+    treatments <- ifelse(grepl("Survival", .getClassName(designPlan)), 1, 2)
+    treatmentCaption <- ifelse(numberOfGroups > treatments, paste0("Treatment arm ", groupNumber), "Treatment arm")
 
     if (!grepl("Survival", .getClassName(designPlan)) ||
             (inherits(designPlan, "SimulationResultsMultiArmSurvival") &&
@@ -3870,8 +4093,11 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
 }
 
 .addSimulationArrayToSummary <- function(designPlan,
-        parameterName, parameterCaption, summaryFactory,
-        digitsSampleSize, smoothedZeroFormat = FALSE) {
+        parameterName,
+        parameterCaption,
+        summaryFactory,
+        digitsSampleSize,
+        smoothedZeroFormat = FALSE) {
     arrayData <- designPlan[[parameterName]]
     if (is.null(arrayData)) {
         stop(
@@ -3948,13 +4174,17 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 if (numberOfGroups > 1) {
                     groupCaption <- .getSummaryGroupCaption(
                         designPlan,
-                        parameterName, totalNumberOfGroups, groupNumber
+                        parameterName,
+                        totalNumberOfGroups,
+                        groupNumber
                     )
                 }
                 summaryFactory$addParameter(designPlan,
                     parameterName = parameterName,
-                    values = dataPerGroupAndStage, parameterCaption = groupCaption,
-                    roundDigits = roundDigits, smoothedZeroFormat = smoothedZeroFormat,
+                    values = dataPerGroupAndStage,
+                    parameterCaption = groupCaption,
+                    roundDigits = roundDigits,
+                    smoothedZeroFormat = smoothedZeroFormat,
                     enforceFirstCase = TRUE
                 )
             }
@@ -3971,7 +4201,8 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                     paste0(parameterCaption, ", control"),
                     paste0(parameterCaption, ", treatment ", groupNumber)
                 ),
-                roundDigits = roundDigits, smoothedZeroFormat = smoothedZeroFormat
+                roundDigits = roundDigits,
+                smoothedZeroFormat = smoothedZeroFormat
             )
         }
     }
