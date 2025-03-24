@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 4.1.0
-Date: 2024-09-27
+Version: 4.2.0
+Date: 2025-03-24
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -24,9 +24,17 @@ Authors@R: c(
     	role = c("ctb")
 	),
     person(
+    	given = "Daniel", 
+    	family = "Sabanes Bove", 
+    	email = "daniel.sabanes_bove@rconis.com",
+        comment = c(ORCID = "0000-0002-0176-9239"), 
+    	role = c("ctb")
+	),
+    person(
     	given = "Stephen", 
     	family = "Schueuerhuis", 
     	email = "stephen.schueuerhuis@charite.de",
+        comment = c(ORCID = "0009-0006-3124-6056"), 
     	role = c("ctb")
 	),
     person(
@@ -42,14 +50,16 @@ Encoding: UTF-8
 LazyData: true
 URL: https://www.rpact.org, https://www.rpact.com,
         https://github.com/rpact-com/rpact,
-        https://rpact-com.github.io/rpact/
+        https://rpact-com.github.io/rpact/,
+        https://rpact.shinyapps.io/connect
 BugReports: https://github.com/rpact-com/rpact/issues
 Language: en-US
 Depends: R (>= 3.6.0)
 Imports: methods, stats, utils, graphics, tools, rlang, R6 (>= 2.5.1),
         knitr (>= 1.19), Rcpp (>= 1.0.3)
 LinkingTo: Rcpp
-Suggests: ggplot2 (>= 3.2.0), testthat (>= 3.0.0), rmarkdown (>= 1.10)
+Suggests: ggplot2 (>= 3.5.0), testthat (>= 3.0.0), rmarkdown (>= 1.10),
+        rappdirs (>= 0.3.3)
 VignetteBuilder: knitr, rmarkdown
 RoxygenNote: 7.3.2
 Config/testthat/edition: 3
@@ -65,17 +75,18 @@ Collate: 'RcppExports.R' 'f_logger.R' 'class_dictionary.R'
         'f_design_general_utilities.R' 'class_time.R'
         'class_design_set.R' 'class_design_plan.R'
         'class_design_power_and_asn.R' 'class_event_probabilities.R'
-        'f_simulation_base_count_data.R' 'f_simulation_utilities.R'
+        'f_simulation_base_counts.R' 'f_simulation_utilities.R'
         'f_simulation_base_survival.R' 'class_simulation_results.R'
         'class_performance_score.R' 'class_summary.R' 'data.R'
         'f_analysis_base_means.R' 'f_analysis_base_rates.R'
-        'f_analysis_base_survival.R' 'f_analysis_enrichment.R'
+        'f_analysis_base_survival.R'
+        'f_analysis_boundary_recalculation.R' 'f_analysis_enrichment.R'
         'f_analysis_enrichment_means.R' 'f_analysis_enrichment_rates.R'
         'f_analysis_enrichment_survival.R' 'f_analysis_multiarm.R'
         'f_analysis_multiarm_means.R' 'f_analysis_multiarm_rates.R'
         'f_analysis_multiarm_survival.R' 'f_as251.R'
         'f_core_output_formats.R' 'f_design_fisher_combination_test.R'
-        'f_design_group_sequential.R' 'f_design_plan_count_data.R'
+        'f_design_group_sequential.R' 'f_design_plan_counts.R'
         'f_design_plan_means.R' 'f_design_plan_plot.R'
         'f_design_plan_rates.R' 'f_design_plan_survival.R'
         'f_design_plan_utilities.R' 'f_quality_assurance.R'
@@ -89,12 +100,13 @@ Collate: 'RcppExports.R' 'f_logger.R' 'class_dictionary.R'
         'f_simulation_performance_score.R' 'f_simulation_plot.R'
         'parameter_descriptions.R' 'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2024-09-27 10:02:02 UTC; fried
+Packaged: 2025-03-24 16:53:34 UTC; fried
 Author: Gernot Wassmer [aut] (<https://orcid.org/0000-0001-9397-1794>),
   Friedrich Pahlke [aut, cre] (<https://orcid.org/0000-0003-2105-2582>),
   Till Jensen [ctb],
-  Stephen Schueuerhuis [ctb],
+  Daniel Sabanes Bove [ctb] (<https://orcid.org/0000-0002-0176-9239>),
+  Stephen Schueuerhuis [ctb] (<https://orcid.org/0009-0006-3124-6056>),
   Tobias Muetze [ctb] (<https://orcid.org/0000-0002-4111-1941>)
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2024-09-27 15:50:02 UTC
+Date/Publication: 2025-03-24 17:20:02 UTC

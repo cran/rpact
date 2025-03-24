@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8225 $
-## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 8449 $
+## |  Last changed: $Date: 2024-12-10 09:39:04 +0100 (Tue, 10 Dec 2024) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 #' @include f_simulation_multiarm.R
@@ -335,7 +335,7 @@ NULL
 #' @inheritParams param_effectMatrix
 #' @inheritParams param_activeArms
 #' @inheritParams param_successCriterion
-#' @inheritParams param_typeOfShape
+#' @inheritParams param_typeOfShapeRates
 #' @inheritParams param_typeOfSelection
 #' @inheritParams param_design_with_default
 #' @inheritParams param_directionUpper
@@ -351,6 +351,7 @@ NULL
 #' @inheritParams param_epsilonValue
 #' @inheritParams param_gED50
 #' @inheritParams param_slope
+#' @inheritParams param_doseLevels
 #' @inheritParams param_seed
 #' @inheritParams param_three_dots
 #' @inheritParams param_showStatistics
@@ -400,6 +401,7 @@ getSimulationMultiArmRates <- function(design = NULL, ...,
         piControl = 0.2, # C_PI_2_DEFAULT
         gED50 = NA_real_,
         slope = 1,
+        doseLevels = NA_real_,
         intersectionTest = c("Dunnett", "Bonferroni", "Simes", "Sidak", "Hierarchical"), # C_INTERSECTION_TEST_MULTIARMED_DEFAULT
         directionUpper = NA, # C_DIRECTION_UPPER_DEFAULT
         adaptations = NA,
@@ -455,6 +457,7 @@ getSimulationMultiArmRates <- function(design = NULL, ...,
         piControl                   = piControl, # rates only
         gED50                       = gED50,
         slope                       = slope,
+        doseLevels                  = doseLevels,
         intersectionTest            = intersectionTest,
         directionUpper              = directionUpper, # rates + survival only
         adaptations                 = adaptations,

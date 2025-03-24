@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8124 $
-## |  Last changed: $Date: 2024-08-23 08:41:16 +0200 (Fr, 23 Aug 2024) $
+## |  File version: $Revision: 8507 $
+## |  Last changed: $Date: 2025-01-24 07:27:53 +0100 (Fr, 24 Jan 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -32,7 +32,7 @@ C_OUTPUT_FORMAT_ARGUMENTS <- c(
 C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
     "rpact.output.format.p.value" = "digits = 4, nsmall = 4",
     "rpact.output.format.repeated.p.value" = "digits = 4, nsmall = 4",
-    "rpact.output.format.probability" = "digits = 3, nsmall = 3",
+    "rpact.output.format.probability" = "digits = 4, nsmall = 4",
     "rpact.output.format.futility.probability" = "digits = 4, nsmall = 4, futilityProbabilityEnabled = TRUE",
     "rpact.output.format.sample.size" = "digits = 1, nsmall = 1",
     "rpact.output.format.event" = "digits = 1, nsmall = 1, trimSingleZeros = TRUE",
@@ -55,10 +55,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 .getFormattedValue <- function(value, ..., digits, nsmall = NA_integer_,
         futilityProbabilityEnabled = FALSE, roundFunction = NA_character_, scientific = NA,
         trimEndingZerosAfterDecimalPoint = FALSE) {
-    if (missing(value)) {
-        return("NA")
-    }
-
+   
     if (is.null(value) || length(value) == 0) {
         return(value)
     }
@@ -243,8 +240,15 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
     return(result)
 }
 
-.getOptionBasedFormattedValue <- function(optionKey, value, digits, nsmall = NA_integer_,
-        trimSingleZeros = FALSE, futilityProbabilityEnabled = FALSE, roundFunction = NA_character_) {
+.getOptionBasedFormattedValue <- function(
+        optionKey, 
+        value, 
+        digits, 
+        nsmall = NA_integer_,
+        trimSingleZeros = FALSE, 
+        futilityProbabilityEnabled = FALSE, 
+        roundFunction = NA_character_,
+        trimEndingZerosAfterDecimalPoint = FALSE) {
     outputFormatOptions <- .getOutputFormatOptions(optionKey)
     if (is.null(outputFormatOptions) || length(outputFormatOptions) == 0) {
         return(NULL)
@@ -271,8 +275,11 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
     }
 
     return(.getFormattedValue(value,
-        digits = digits, nsmall = nsmall,
-        futilityProbabilityEnabled = futilityProbabilityEnabled, roundFunction = roundFunction
+        digits = digits, 
+        nsmall = nsmall,
+        futilityProbabilityEnabled = futilityProbabilityEnabled, 
+        roundFunction = roundFunction,
+        trimEndingZerosAfterDecimalPoint = trimEndingZerosAfterDecimalPoint
     ))
 }
 
@@ -290,16 +297,22 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 #
 # @param value a vector of p-values.
 #
-.formatPValues <- function(value) {
+.formatPValues <- function(value, repeated = FALSE) {
     if (sum(is.na(value)) == length(value)) {
         return(value)
     }
-
-    x <- .getOptionBasedFormattedValue("rpact.output.format.p.value",
-        value = value, digits = 4, nsmall = 4
-    )
-    if (!is.null(x)) {
-        return(x)
+    
+    optionKey = ifelse(repeated, 
+        "rpact.output.format.repeated.p.value", 
+        "rpact.output.format.p.value")
+    outputFormatOptions <- .getOutputFormatOptions(optionKey)
+    if (!is.null(outputFormatOptions) && length(outputFormatOptions) > 0) {
+        if (!is.null(outputFormatOptions[["digits"]])) {
+            digits <- outputFormatOptions[["digits"]]
+        }
+        if (!is.null(outputFormatOptions[["nsmall"]])) {
+            nsmall <- outputFormatOptions[["nsmall"]]
+        }
     }
 
     decimalPlaces <- .getPValueDecimalPlaces(value)
@@ -316,10 +329,13 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
     }
     text <- paste0(text, "1")
 
-    indices <- (value < threshold)
+    indices <- which(value < threshold)
     value[indices] <- threshold
     formattedValue <- .getFormattedValue(value, digits = 4, nsmall = 4)
     formattedValue[indices] <- text
+    if (repeated) {
+        formattedValue[value > 0.4999] <- ">0.5"
+    }
     return(formattedValue)
 }
 
@@ -336,15 +352,7 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 # @param value a vector of p-values.
 #
 .formatRepeatedPValues <- function(value) {
-    x <- .getOptionBasedFormattedValue("rpact.output.format.repeated.p.value",
-        value = value, digits = 4, nsmall = 4
-    )
-    if (!is.null(x)) {
-        return(x)
-    }
-    pValues <- .formatPValues(value)
-    pValues[value > 0.4999] <- ">0.5"
-    return(pValues)
+    return(.formatPValues(value, repeated = TRUE))
 }
 
 #
@@ -358,14 +366,20 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 # Digits = 4, nsmall = 4
 #
 .formatProbabilities <- function(value) {
-    x <- .getOptionBasedFormattedValue("rpact.output.format.probability",
-        value = value, digits = 4, nsmall = 4
-    )
-    if (!is.null(x)) {
-        return(x)
+    digits <- 4
+    nsmall <- 4
+    outputFormatOptions <- .getOutputFormatOptions("rpact.output.format.probability")
+    if (!is.null(outputFormatOptions) && length(outputFormatOptions) > 0) {
+        if (!is.null(outputFormatOptions[["digits"]])) {
+            digits <- outputFormatOptions[["digits"]]
+        }
+        if (!is.null(outputFormatOptions[["nsmall"]])) {
+            nsmall <- outputFormatOptions[["nsmall"]]
+        }
     }
+    
     value[abs(value) < 1e-08] <- 0
-    return(.getFormattedValue(value, digits = 4, nsmall = 4))
+    return(.getFormattedValue(value, digits = digits, nsmall = nsmall))
 }
 
 #
@@ -380,13 +394,16 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 #
 .formatSampleSizes <- function(value) {
     x <- .getOptionBasedFormattedValue("rpact.output.format.sample.size",
-        value = value, digits = 1, nsmall = 1, trimSingleZeros = TRUE
+        value = value, digits = 1, nsmall = 1, trimSingleZeros = TRUE,
+        trimEndingZerosAfterDecimalPoint = TRUE
     )
     if (!is.null(x)) {
         return(x)
     }
 
-    return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 1, nsmall = 1, trimEndingZerosAfterDecimalPoint = TRUE))
+    return(.getFormattedValue(.getZeroCorrectedValue(value), 
+        digits = 1, nsmall = 1, 
+        trimEndingZerosAfterDecimalPoint = TRUE))
 }
 
 #
@@ -406,7 +423,8 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
     if (!is.null(x)) {
         return(x)
     }
-    return(.getFormattedValue(.getZeroCorrectedValue(value), digits = 1, nsmall = 1, trimEndingZerosAfterDecimalPoint = TRUE))
+    return(.getFormattedValue(.getZeroCorrectedValue(value), 
+        digits = 1, nsmall = 1, trimEndingZerosAfterDecimalPoint = TRUE))
 }
 
 #
@@ -420,15 +438,16 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 # Digits = 4
 #
 .formatConditionalPower <- function(value) {
-    x <- .getOptionBasedFormattedValue("rpact.output.format.conditional.power",
-        value = value, digits = 4
-    )
-    if (!is.null(x)) {
-        return(x)
+    digits <- 4
+    outputFormatOptions <- .getOutputFormatOptions("rpact.output.format.conditional.power")
+    if (!is.null(outputFormatOptions) && length(outputFormatOptions) > 0) {
+        if (!is.null(outputFormatOptions[["digits"]])) {
+            digits <- outputFormatOptions[["digits"]]
+        }
     }
 
-    value <- round(value, digits = 4)
-    conditionalPower <- .getFormattedValue(value, digits = 4)
+    value <- round(value, digits = digits)
+    conditionalPower <- .getFormattedValue(value, digits = digits)
     conditionalPower[value == 0] <- "0"
     return(conditionalPower)
 }
@@ -791,6 +810,8 @@ C_OUTPUT_FORMAT_DEFAULT_VALUES <- pairlist(
 #' @param roundFunction A character value that specifies the R base round function
 #'        to use, default is \code{NA_character_}.
 #'        Allowed values are "ceiling", "floor", "trunc", "round", "signif", and \code{NA_character_}.
+#' @param persist A logical value indicating whether the output format settings 
+#'        should be saved persistently. Default is \code{TRUE}.
 #' @inheritParams param_three_dots
 #'
 #' @details
@@ -824,7 +845,8 @@ setOutputFormat <- function(parameterName = NA_character_, ...,
         futilityProbabilityEnabled = NA,
         file = NA_character_,
         resetToDefault = FALSE,
-        roundFunction = NA_character_) {
+        roundFunction = NA_character_,
+        persist = TRUE) {
     .assertIsCharacter(parameterName, "parameterName", naAllowed = TRUE)
     .assertIsSingleInteger(digits, "digits", naAllowed = TRUE, validateType = FALSE)
     .assertIsInClosedInterval(digits, "digits", lower = 0, upper = 20, naAllowed = TRUE)
@@ -835,7 +857,8 @@ setOutputFormat <- function(parameterName = NA_character_, ...,
     .assertIsSingleCharacter(file, "file", naAllowed = TRUE)
     .assertIsSingleLogical(resetToDefault, "resetToDefault")
     .assertIsSingleCharacter(roundFunction, "roundFunction", naAllowed = TRUE)
-
+    .assertIsSingleLogical(persist, "persist")
+    
     .warnInCaseOfUnknownArguments(functionName = "setOutputFormat", ...)
 
     if (resetToDefault) {
@@ -876,10 +899,8 @@ setOutputFormat <- function(parameterName = NA_character_, ...,
         }
         if (length(args) > 0) {
             base::options(args)
-            cat(length(args), " (of ", counter, " defined) output format", ifelse(length(args) == 1, "", "s"),
-                " successfully set via file\n",
-                sep = ""
-            )
+            message(length(args), " (of ", counter, " defined) output format", ifelse(length(args) == 1, "", "s"),
+                " successfully set via file")
         }
     }
 
@@ -916,21 +937,23 @@ setOutputFormat <- function(parameterName = NA_character_, ...,
             args <- list()
             args[[key]] <- cmd
             base::options(args)
-            cat("Output format successfully ", resetPrefix, 'set: "', key, '" = "', cmd, '"\n', sep = "")
+            message("Output format successfully ", resetPrefix, 'set: "', key, '" = "', cmd, '"')
             fields <- .getOutputFormatParameterNames(key)
             if (!is.null(fields) && length(fields) > 0) {
                 if (length(fields) == 1) {
-                    cat("This output format affects the following parameter:", fields, "\n")
+                    message("This output format affects the following parameter:", fields)
                 } else {
-                    cat("This output format affects ", length(fields),
-                        " parameters: ", .arrayToString(fields), "\n",
-                        sep = ""
-                    )
+                    message("This output format affects ", length(fields),
+                        " parameters: ", .arrayToString(fields))
                 }
             } else {
                 warning("The output format ", key, " affects no parameters", call. = FALSE)
             }
         }
+    }
+    
+    if (persist) {
+        saveOptions()
     }
 }
 
@@ -1233,5 +1256,5 @@ getOutputFormat <- function(parameterName = NA_character_, ...,
 
 .resetAllOutputFormats <- function() {
     base::options(C_OUTPUT_FORMAT_DEFAULT_VALUES)
-    cat(length(C_OUTPUT_FORMAT_DEFAULT_VALUES), "output formats were successfully reset\n")
+    message(length(C_OUTPUT_FORMAT_DEFAULT_VALUES), "output formats were successfully reset")
 }

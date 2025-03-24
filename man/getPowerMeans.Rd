@@ -56,8 +56,10 @@ alternatives, default is \code{seq(0, 1, 0.2)} (power calculations) or \code{seq
 
 \item{stDev}{The standard deviation under which the sample size or power
 calculation is performed, default is \code{1}.
+For two-armed trials, it is allowed to specify the standard deviations separately,
+i.e., as vector with two elements.
 If \code{meanRatio = TRUE} is specified, \code{stDev} defines
-the coefficient of variation \code{sigma / mu2}. Must be a positive numeric of length 1.}
+the coefficient of variation \code{sigma / mu2}.}
 
 \item{directionUpper}{Logical. Specifies the direction of the alternative,
 only applicable for one-sided testing; default is \code{TRUE}
@@ -69,7 +71,7 @@ of necessary follow-up (count data). For two treatment arms, it is the maximum n
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.
 For simulating means and rates for a two treatment groups design, it can be a vector of length \code{kMax}, the number of stages.
-It can be a vector of length kMax, too, for multi-arm and enrichment designs.
+It can be a vector of length \code{kMax}, too, for multi-arm and enrichment designs.
 In these cases, a change of allocating subjects to treatment groups over the stages can be assessed.
 Note that internally \code{allocationRatioPlanned} is treated as a vector of length \code{kMax}, not a scalar.}
 }

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8276 $
-## |  Last changed: $Date: 2024-09-26 13:37:54 +0200 (Do, 26 Sep 2024) $
+## |  File version: $Revision: 8624 $
+## |  Last changed: $Date: 2025-03-21 13:24:59 +0100 (Fr, 21 Mrz 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -59,7 +59,7 @@ NULL
             powerCalculationEnabled = TRUE
         ), "stage"), ...
     )
-
+    
     results <- AnalysisResultsMultiArmInverseNormal$new(design = design, dataInput = dataInput)
 
     results <- .getAnalysisResultsMeansMultiArmAll(
@@ -514,8 +514,8 @@ NULL
             if (isFALSE(directionUpper)) {
                 separatePValues[treatmentArm, k] <- 1 - separatePValues[treatmentArm, k]
                 overallPValues[treatmentArm, k] <- 1 - overallPValues[treatmentArm, k]
-                # testStatistics[treatmentArm, k] <- -testStatistics[treatmentArm, k]
-                # overallTestStatistics[treatmentArm, k] <- -overallTestStatistics[treatmentArm, k]
+#                testStatistics[treatmentArm, k] <- -testStatistics[treatmentArm, k]
+#                overallTestStatistics[treatmentArm, k] <- -overallTestStatistics[treatmentArm, k]
             }
         }
     }
@@ -523,7 +523,7 @@ NULL
     .setWeightsToStageResults(design, stageResults)
 
     # Calculation of single stage adjusted p-Values and overall test statistics
-    # for determination of RCIs
+    # for determination of RCIs for combination tests
     if (calculateSingleStepAdjusted) {
         singleStepAdjustedPValues <- matrix(NA_real_, nrow = gMax, ncol = kMax)
         combInverseNormal <- matrix(NA_real_, nrow = gMax, ncol = kMax)
@@ -811,6 +811,7 @@ NULL
                 thetaUp <- thetaUpLimit
                 iteration <- 30
                 prec <- 1
+                
                 while (prec > tolerance) {
                     theta <- (thetaLow + thetaUp) / 2
                     stageResults <- .getStageResultsMeansMultiArm(
@@ -819,6 +820,7 @@ NULL
                         intersectionTest = intersectionTest, normalApproximation = normalApproximation,
                         varianceOption = varianceOption, calculateSingleStepAdjusted = FALSE
                     )
+
                     conditionalDunnettSingleStepRejected <- .getConditionalDunnettTestForCI(
                         design = design, stageResults = stageResults, treatmentArm = treatmentArm
                     )

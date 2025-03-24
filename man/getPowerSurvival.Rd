@@ -89,7 +89,7 @@ This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lamb
 of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
 For example,
 \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)}
-and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
+and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the same result.}
 
 \item{hazardRatio}{The vector of hazard ratios under consideration.
 If the event or hazard rates in both treatment groups are defined, the hazard ratio needs
@@ -102,7 +102,7 @@ definition of the exponential survival time cumulative distribution function \cr
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.
 For simulating means and rates for a two treatment groups design, it can be a vector of length \code{kMax}, the number of stages.
-It can be a vector of length kMax, too, for multi-arm and enrichment designs.
+It can be a vector of length \code{kMax}, too, for multi-arm and enrichment designs.
 In these cases, a change of allocating subjects to treatment groups over the stages can be assessed.
 Note that internally \code{allocationRatioPlanned} is treated as a vector of length \code{kMax}, not a scalar.}
 

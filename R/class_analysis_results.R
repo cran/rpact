@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8180 $
-## |  Last changed: $Date: 2024-09-06 10:13:14 +0200 (Fr, 06 Sep 2024) $
+## |  File version: $Revision: 8474 $
+## |  Last changed: $Date: 2025-01-14 14:32:53 +0100 (Di, 14 Jan 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -1942,9 +1942,22 @@ plot.AnalysisResults <- function(x, y, ...,
     return(.createPlotResultObject(plotList, grid))
 }
 
-.plotAnalysisResultsRCI <- function(...,
-        x, y, nPlanned, allocationRatioPlanned, main, xlab, ylab,
-        legendTitle, palette, legendPosition, showSource, analysisResultsName, plotSettings = NULL) {
+.plotAnalysisResultsRCI <- function(
+        ...,
+        x, 
+        y, 
+        nPlanned, 
+        allocationRatioPlanned, 
+        main, 
+        xlab, 
+        ylab,
+        legendTitle, 
+        palette, 
+        legendPosition, 
+        showSource, 
+        analysisResultsName, 
+        plotSettings = NULL) {
+        
     .assertIsAnalysisResults(x)
     .warnInCaseOfUnknownArguments(functionName = "plot", ignore = c("treatmentArms", "populations"), ...)
 
@@ -1959,7 +1972,8 @@ plot.AnalysisResults <- function(x, y, ...,
     if (nrow(data) == 0) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "unable to create plot because no RCIs are available in the specified analysis result"
+            "unable to create plot because no RCIs are available in the specified analysis result", 
+            call. = FALSE
         )
     }
 
@@ -2103,13 +2117,29 @@ plot.AnalysisResults <- function(x, y, ...,
     return(result)
 }
 
-.plotAnalysisResults <- function(...,
-        x, y, type, nPlanned, allocationRatioPlanned, main, xlab, ylab,
-        legendTitle, palette, legendPosition, showSource, functionCall,
-        analysisResultsName, plotSettings = NULL) {
+.plotAnalysisResults <- function(
+        ...,
+        x, 
+        y, 
+        type, 
+        nPlanned, 
+        allocationRatioPlanned, 
+        main, 
+        xlab, 
+        ylab,
+        legendTitle, 
+        palette, 
+        legendPosition, 
+        showSource, 
+        functionCall,
+        analysisResultsName, 
+        plotSettings = NULL) {
+        
     .assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
     if (!(type %in% c(1, 2))) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 1 or 2")
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, 
+            "'type' (", type, ") is not allowed; must be 1 or 2", 
+            call. = FALSE)
     }
 
     .assertIsAnalysisResults(x)
@@ -2117,17 +2147,27 @@ plot.AnalysisResults <- function(x, y, ...,
 
     if (type == 2) {
         return(.plotAnalysisResultsRCI(
-            x = x, y = y, nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned,
-            main = main, xlab = xlab, ylab = ylab,
-            legendTitle = legendTitle, palette = palette,
-            legendPosition = legendPosition, showSource = showSource,
+            x = x, 
+            y = y, 
+            nPlanned = nPlanned, 
+            allocationRatioPlanned = allocationRatioPlanned,
+            main = main, 
+            xlab = xlab, 
+            ylab = ylab,
+            legendTitle = legendTitle, 
+            palette = palette,
+            legendPosition = legendPosition, 
+            showSource = showSource,
             analysisResultsName = analysisResultsName,
-            plotSettings = plotSettings, ...
+            plotSettings = plotSettings, 
+            ...
         ))
     }
 
     if (!.isConditionalPowerEnabled(x$nPlanned) && !.isConditionalPowerEnabled(nPlanned)) {
-        stop("'nPlanned' must be defined to create conditional power plot")
+        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT,
+            "'nPlanned' must be defined to create conditional power plot", 
+            call. = FALSE)
     }
 
     .warnInCaseOfUnknownArguments(

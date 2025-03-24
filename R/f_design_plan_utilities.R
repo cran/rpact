@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8225 $
-## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 8603 $
+## |  Last changed: $Date: 2025-03-11 17:40:42 +0100 (Tue, 11 Mar 2025) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 #' @include f_core_utilities.R
@@ -81,7 +81,7 @@ NULL
     } else if (.isTrialDesignPlanCountData(designPlan)) {
         boundaries <- .getEffectScaleBoundaryDataCounts(designPlan)
     }
-    
+
     if (designPlan$.design$sided == 1) {
         designPlan$criticalValuesEffectScale <- boundaries$criticalValuesEffectScaleUpper
         designPlan$.setParameterType("criticalValuesEffectScale", C_PARAM_GENERATED)
@@ -141,6 +141,7 @@ NULL
             beta = designPlan$getBeta(),
             sided = designPlan$getSided(),
             normalApproximation = designPlan$normalApproximation,
+            conservative = designPlan$conservative,
             riskRatio = designPlan$riskRatio,
             thetaH0 = designPlan$thetaH0,
             pi1 = designPlan$pi1,
@@ -243,7 +244,7 @@ NULL
             designPlan$.setParameterType("earlyStop", C_PARAM_GENERATED)
         }
         if (!is.null(sampleSizeSequential$futilityPerStage) &&
-                any(designPlan$.design$futilityBounds != C_FUTILITY_BOUNDS_DEFAULT)) {
+                any(designPlan$.design$futilityBounds != C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) {
             designPlan$futilityPerStage <- matrix(sampleSizeSequential$futilityPerStage,
                 nrow = designPlan$.design$kMax - 1
             )
@@ -440,5 +441,3 @@ NULL
         }
     }
 }
-
-

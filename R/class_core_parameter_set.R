@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8274 $
-## |  Last changed: $Date: 2024-09-26 11:33:59 +0200 (Do, 26 Sep 2024) $
+## |  File version: $Revision: 8616 $
+## |  Last changed: $Date: 2025-03-18 16:07:37 +0100 (Di, 18 Mrz 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -284,6 +284,9 @@ ParameterSet <- R6::R6Class("ParameterSet",
         },
         isUndefinedParameter = function(parameterName) {
             return(self$.getParameterType(parameterName) == C_PARAM_TYPE_UNKNOWN)
+        },
+        isNotApplicableParameter = function(parameterName) {
+            return(self$.getParameterType(parameterName) == C_PARAM_NOT_APPLICABLE)
         },
         .getInputParameters = function() {
             params <- self$.getParametersOfOneGroup(c(C_PARAM_USER_DEFINED, C_PARAM_DEFAULT_VALUE))
@@ -906,6 +909,7 @@ ParameterSet <- R6::R6Class("ParameterSet",
     parameterNames <- parameterNames[!(parameterNames %in% c(
         "accrualTime", 
         "accrualIntensity",
+        "accrualIntensityRelative",
         "plannedSubjects", 
         "plannedEvents",
         "minNumberOfSubjectsPerStage", 
@@ -917,7 +921,9 @@ ParameterSet <- R6::R6Class("ParameterSet",
         "adaptations",
         "adjustedStageWisePValues", 
         "overallAdjustedTestStatistics",
-        "plannedCalendarTime"
+        "plannedCalendarTime",
+        "doseLevels",
+        "stDev"
     ))]
 
     if (!is.null(parameterSet[[".piecewiseSurvivalTime"]]) &&
@@ -997,9 +1003,12 @@ ParameterSet <- R6::R6Class("ParameterSet",
 
         if (length(parameterValues) == numberOfStages &&
                 parameterName %in% c(
-                    "plannedEvents", "plannedSubjects",
-                    "minNumberOfEventsPerStage", "maxNumberOfEventsPerStage",
-                    "minNumberOfSubjectsPerStage", "maxNumberOfSubjectsPerStage",
+                    "plannedEvents", 
+                    "plannedSubjects",
+                    "minNumberOfEventsPerStage", 
+                    "maxNumberOfEventsPerStage",
+                    "minNumberOfSubjectsPerStage", 
+                    "maxNumberOfSubjectsPerStage",
                     "allocationRatioPlanned"
                 )) {
             values <- c()
@@ -1010,11 +1019,16 @@ ParameterSet <- R6::R6Class("ParameterSet",
         }
 
         if (parameterName %in% c(
-                "accrualTime", "accrualIntensity",
-                "plannedEvents", "plannedSubjects",
-                "minNumberOfEventsPerStage", "maxNumberOfEventsPerStage",
-                "minNumberOfSubjectsPerStage", "maxNumberOfSubjectsPerStage",
-                "piecewiseSurvivalTime", "lambda2"
+                "accrualTime", 
+                "accrualIntensity",
+                "plannedEvents", 
+                "plannedSubjects",
+                "minNumberOfEventsPerStage", 
+                "maxNumberOfEventsPerStage",
+                "minNumberOfSubjectsPerStage", 
+                "maxNumberOfSubjectsPerStage",
+                "piecewiseSurvivalTime", 
+                "lambda2"
             )) {
             return(NULL)
         }
@@ -1146,7 +1160,7 @@ ParameterSet <- R6::R6Class("ParameterSet",
     for (parameterName in parameterNames) {
         tryCatch(
             {
-                if (!(parameterName %in% c("stages", "adaptations", "effectList", "plannedCalendarTime")) &&
+                if (!(parameterName %in% c("stages", "adaptations", "effectList", "doseLevels", "plannedCalendarTime", "stDev")) &&
                         !grepl("Function$", parameterName) &&
                         (is.null(variedParameter) || parameterName != variedParameter)) {
                     columnValues <- .getDataFrameColumnValues(
@@ -1314,16 +1328,17 @@ ParameterSet <- R6::R6Class("ParameterSet",
         parametersToIgnore <- intersect(parametersToIgnore, parameterNames)
     }
 
-    if (parameterSet$.getParameterType("hazardRatio") == C_PARAM_GENERATED &&
+    if (parameterSet$isGeneratedParameter("hazardRatio") &&
             !is.null(parameterSet[[".piecewiseSurvivalTime"]]) &&
             isTRUE(parameterSet$.piecewiseSurvivalTime$piecewiseSurvivalEnabled)) {
         parametersToIgnore <- c(parametersToIgnore, "hazardRatio")
     }
 
     if (!inherits(parameterSet, "AccrualTime")) {
-        accrualTime <- parameterSet[["accrualTime"]]
+        accrualTime <- parameterSet[[".accrualTime"]]
         if (!is.null(accrualTime) && length(accrualTime) > 1) {
-            parametersToIgnore <- c(parametersToIgnore, c("accrualTime", "accrualIntensity"))
+            parametersToIgnore <- c(parametersToIgnore, 
+                c("accrualTime", "accrualIntensity", "accrualIntensityRelative"))
         }
     }
 
@@ -1430,13 +1445,7 @@ print.FieldSet <- function(x, ..., markdown = NA) {
             return(knitr::asis_output(result))
         }
         
-        attr(x, "markdown") <- TRUE
-        queue <- attr(x, "queue")
-        if (is.null(queue)) {
-            queue <- list()
-        }
-        queue[[length(queue) + 1]] <- x
-        attr(x, "queue") <- queue
+        .addObjectToPipeOperatorQueue(x)
         return(invisible(x))
     }
     
@@ -1465,8 +1474,13 @@ print.FieldSet <- function(x, ..., markdown = NA) {
 #'
 #' @keywords internal
 #'
-as.data.frame.ParameterSet <- function(x, row.names = NULL,
-        optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {
+as.data.frame.ParameterSet <- function(
+        x, 
+        row.names = NULL,
+        optional = FALSE, 
+        ..., 
+        niceColumnNamesEnabled = FALSE, 
+        includeAllParameters = FALSE) {
     .warnInCaseOfUnknownArguments(functionName = "as.data.frame", ...)
 
     return(.getAsDataFrame(
@@ -1686,24 +1700,35 @@ print.ParameterSet <- function(x, ..., markdown = NA) {
     if (is.na(markdown)) {
         markdown <- .isMarkdownEnabled("print")
     }
-
+    
+    showStatistics <- NULL
+    if (inherits(x, "SimulationResults")) {
+        showStatistics <- .getOptionalArgument("showStatistics", ...)
+        if (!is.null(showStatistics)) {
+            .assertIsSingleLogical(showStatistics, "showStatistics")
+        }
+    }
+    
     if (isTRUE(markdown)) {
         if (.isPrintCall(sysCalls)) {
-            result <- paste0(utils::capture.output(x$.catMarkdownText()), collapse = "\n")
+            if (!is.null(showStatistics)) {
+                result <- paste0(utils::capture.output(
+                    x$.catMarkdownText(showStatistics = showStatistics)), collapse = "\n")
+            } else {
+                result <- paste0(utils::capture.output(x$.catMarkdownText()), collapse = "\n")
+            }
             return(knitr::asis_output(result))
         }
         
-        attr(x, "markdown") <- TRUE
-        queue <- attr(x, "queue")
-        if (is.null(queue)) {
-            queue <- list()
-        }
-        queue[[length(queue) + 1]] <- x
-        attr(x, "queue") <- queue
+        .addObjectToPipeOperatorQueue(x)
         return(invisible(x))
     }
     
-    x$show()
+    if (!is.null(showStatistics)) {
+        x$show(showStatistics = showStatistics)
+    } else {
+        x$show()
+    }
     return(invisible(x))
 }
 
@@ -2090,7 +2115,7 @@ kable.ParameterSet <- function(x, ...) {
     
     lastWarningTime <- getOption("rpact.deprecated.message.time.function.kable")
     if (is.null(lastWarningTime) || difftime(Sys.time(), lastWarningTime, units = "hours") > 8) {
-        options("rpact.deprecated.message.time.function.kable" = Sys.time())
+        base::options("rpact.deprecated.message.time.function.kable" = Sys.time())
         .Deprecated(new = "",  
             msg = paste0("Manual use of kable() for rpact result objects is no longer needed, ",
                 "as the formatting and display will be handled automatically by the rpact package"),

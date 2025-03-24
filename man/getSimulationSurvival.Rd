@@ -99,7 +99,7 @@ This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lamb
 of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
 For example,
 \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)}
-and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the sample result.}
+and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the same result.}
 
 \item{piecewiseSurvivalTime}{A vector that specifies the time intervals for the piecewise
 definition of the exponential survival time cumulative distribution function \cr
@@ -144,7 +144,7 @@ minimum number of events per stage (i.e., not cumulated), the first element
 is not taken into account.}
 
 \item{maxNumberOfEventsPerStage}{When performing a data driven sample size recalculation,
-the numeric vector \code{maxNumberOfEventsPerStage} with length kMax determines the maximum number
+the numeric vector \code{maxNumberOfEventsPerStage} with length \code{kMax} determines the maximum number
 of events per stage (i.e., not cumulated), the first element is not taken into account.}
 
 \item{conditionalPower}{If \code{conditionalPower} together with \code{minNumberOfSubjectsPerStage} and

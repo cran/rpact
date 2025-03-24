@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8274 $
-## |  Last changed: $Date: 2024-09-26 11:33:59 +0200 (Do, 26 Sep 2024) $
+## |  File version: $Revision: 8520 $
+## |  Last changed: $Date: 2025-01-31 14:15:36 +0100 (Fr, 31 Jan 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -347,8 +347,7 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     .assertIsSingleCharacter(typeBetaSpending, "typeBetaSpending")
     .assertIsSingleLogical(twoSidedPower, "twoSidedPower", naAllowed = TRUE)
     .assertIsSingleLogical(betaAdjustment, "betaAdjustment", naAllowed = TRUE)
-    .assertIsSingleNumber(alpha, "alpha", naAllowed = TRUE)
-    .assertIsSingleNumber(beta, "beta", naAllowed = TRUE)
+    .assertIsValidAlphaAndBeta(alpha = alpha, beta = beta, naAllowed = TRUE)
     .assertIsSingleNumber(deltaWT, "deltaWT", naAllowed = TRUE)
     .assertIsSingleNumber(deltaPT1, "deltaPT1", naAllowed = TRUE)
     .assertIsSingleNumber(deltaPT0, "deltaPT0", naAllowed = TRUE)
@@ -384,10 +383,12 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     design$.setParameterType("directionUpper", ifelse(!is.na(directionUpper), 
         C_PARAM_USER_DEFINED, C_PARAM_NOT_APPLICABLE))
 
-    if (design$typeOfDesign != C_TYPE_OF_DESIGN_WT_OPTIMUM && optimizationCriterion != C_OPTIMIZATION_CRITERION_DEFAULT) {
+    if (design$typeOfDesign != C_TYPE_OF_DESIGN_WT_OPTIMUM && 
+            optimizationCriterion != C_OPTIMIZATION_CRITERION_DEFAULT) {
         warning(
             "'optimizationCriterion' (", optimizationCriterion,
-            ") will be ignored because it is only applicable for 'typeOfDesign' = \"", C_TYPE_OF_DESIGN_WT_OPTIMUM, "\"",
+            ") will be ignored because it is only applicable for ",
+            "'typeOfDesign' = \"", C_TYPE_OF_DESIGN_WT_OPTIMUM, "\"",
             call. = FALSE
         )
     }
@@ -398,7 +399,8 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     } else if (constantBoundsHP != C_CONST_BOUND_HP_DEFAULT) {
         warning(
             "'constantBoundsHP' (", constantBoundsHP,
-            ") will be ignored because it is only applicable for 'typeOfDesign' = \"", C_TYPE_OF_DESIGN_HP, "\"",
+            ") will be ignored because it is only applicable for ",
+            "'typeOfDesign' = \"", C_TYPE_OF_DESIGN_HP, "\"",
             call. = FALSE
         )
     }
@@ -416,7 +418,9 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
         } else {
             design$twoSidedPower <- twoSidedPower
             design$.setParameterType("twoSidedPower", ifelse(
-                twoSidedPower == C_TWO_SIDED_POWER_DEFAULT, C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED
+                twoSidedPower == C_TWO_SIDED_POWER_DEFAULT, 
+                C_PARAM_DEFAULT_VALUE, 
+                C_PARAM_USER_DEFINED
             ))
         }
     }
@@ -426,12 +430,14 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
             design$.setParameterType("betaAdjustment", C_PARAM_DEFAULT_VALUE)
         } else {
             design$betaAdjustment <- betaAdjustment
-            design$.setParameterType("betaAdjustment", ifelse(betaAdjustment, C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
+            design$.setParameterType("betaAdjustment", ifelse(
+                betaAdjustment, C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED))
         }
     } else if (!is.na(betaAdjustment)) {
         warning(
             "'betaAdjustment' (", betaAdjustment,
-            ") will be ignored because it is only applicable for two-sided beta-spending designs",
+            ") will be ignored because it is only applicable ",
+            "for two-sided beta-spending designs",
             call. = FALSE
         )
     }
@@ -446,7 +452,8 @@ getGroupSequentialProbabilities <- function(decisionMatrix, informationRates) {
     design$alphaSpent[1] <- design$alpha
     design$.setParameterType("typeOfDesign", C_PARAM_NOT_APPLICABLE)
     if (!identical(design$typeOfDesign, C_DEFAULT_TYPE_OF_DESIGN)) {
-        warning("'typeOfDesign' (", design$typeOfDesign, ") will be ignored because design is fixed", call. = FALSE)
+        warning("'typeOfDesign' (", design$typeOfDesign, ") will be ignored ",
+            "because design is fixed", call. = FALSE)
     }
     return(invisible(design))
 }
@@ -1030,13 +1037,34 @@ getDesignInverseNormal <- function(...,
         sided = 1L, # C_SIDED_DEFAULT
         informationRates = NA_real_,
         futilityBounds = NA_real_,
-        typeOfDesign = c("OF", "P", "WT", "PT", "HP", "WToptimum", "asP", "asOF", "asKD", "asHSD", "asUser", "noEarlyEfficacy"), # C_DEFAULT_TYPE_OF_DESIGN,
+        typeOfDesign = c(
+            "OF", 
+            "P", 
+            "WT", 
+            "PT", 
+            "HP", 
+            "WToptimum", 
+            "asP", 
+            "asOF", 
+            "asKD", 
+            "asHSD", 
+            "asUser", 
+            "noEarlyEfficacy"), # C_DEFAULT_TYPE_OF_DESIGN,
         deltaWT = NA_real_,
         deltaPT1 = NA_real_,
         deltaPT0 = NA_real_,
-        optimizationCriterion = c("ASNH1", "ASNIFH1", "ASNsum"), # C_OPTIMIZATION_CRITERION_DEFAULT
+        optimizationCriterion = c(
+            "ASNH1", 
+            "ASNIFH1", 
+            "ASNsum"), # C_OPTIMIZATION_CRITERION_DEFAULT
         gammaA = NA_real_,
-        typeBetaSpending = c("none", "bsP", "bsOF", "bsKD", "bsHSD", "bsUser"), # C_TYPE_OF_DESIGN_BS_NONE
+        typeBetaSpending = c(
+            "none", 
+            "bsP", 
+            "bsOF", 
+            "bsKD", 
+            "bsHSD", 
+            "bsUser"), # C_TYPE_OF_DESIGN_BS_NONE
         userAlphaSpending = NA_real_,
         userBetaSpending = NA_real_,
         gammaB = NA_real_,
@@ -1288,22 +1316,26 @@ getDesignInverseNormal <- function(...,
             warning("'gammaB' (", gammaB, ") will be ignored", call. = FALSE)
         }
         if (typeBetaSpending != C_TYPE_OF_DESIGN_BS_USER && !all(is.na(userBetaSpending))) {
-            warning("'userBetaSpending' (", .arrayToString(userBetaSpending), ") will be ignored", call. = FALSE)
+            warning("'userBetaSpending' (", .arrayToString(userBetaSpending), ") ",
+                "will be ignored", call. = FALSE)
         }
         if (!(typeOfDesign %in% c(C_TYPE_OF_DESIGN_AS_USER)) &&
                 !all(is.na(userAlphaSpending))) {
-            warning("'userAlphaSpending' (", .arrayToString(userAlphaSpending), ") will be ignored", call. = FALSE)
+            warning("'userAlphaSpending' (", .arrayToString(userAlphaSpending), ") ",
+                "will be ignored", call. = FALSE)
         }
     }
 
     if (design$sided == 2 && design$bindingFutility && design$typeOfDesign != C_TYPE_OF_DESIGN_PT &&
             !.isBetaSpendingDesignType(design$typeBetaSpending)) {
-        warning("'bindingFutility' will be ignored because the test is defined as two-sided", call. = FALSE)
+        warning("'bindingFutility' will be ignored because ",
+            "the test is defined as two-sided", call. = FALSE)
         design$bindingFutility <- FALSE
     }
 
     if (design$sided == 1 && design$twoSidedPower) {
-        warning("'twoSidedPower' will be ignored because the test is defined as one-sided", call. = FALSE)
+        warning("'twoSidedPower' will be ignored because ",
+            "the test is defined as one-sided", call. = FALSE)
         design$twoSidedPower <- FALSE
     }
 
@@ -1375,7 +1407,8 @@ getDesignInverseNormal <- function(...,
                 any(design$futilityBounds > .getCriticalValues(design, 1:(design$kMax - 1)) - 0.01, na.rm = TRUE)) { 
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "'futilityBounds' (", .arrayToString(design$futilityBounds), ") too extreme for this situation"
+                "'futilityBounds' (", .arrayToString(design$futilityBounds), ") ",
+                "too extreme for this situation"
             )
         }
     }
@@ -1700,13 +1733,34 @@ getDesignGroupSequential <- function(
         sided = 1L, # C_SIDED_DEFAULT
         informationRates = NA_real_,
         futilityBounds = NA_real_,
-        typeOfDesign = c("OF", "P", "WT", "PT", "HP", "WToptimum", "asP", "asOF", "asKD", "asHSD", "asUser", "noEarlyEfficacy"), # C_DEFAULT_TYPE_OF_DESIGN,
+        typeOfDesign = c(
+            "OF", 
+            "P", 
+            "WT", 
+            "PT", 
+            "HP", 
+            "WToptimum", 
+            "asP", 
+            "asOF", 
+            "asKD", 
+            "asHSD", 
+            "asUser", 
+            "noEarlyEfficacy"), # C_DEFAULT_TYPE_OF_DESIGN,
         deltaWT = NA_real_,
         deltaPT1 = NA_real_,
         deltaPT0 = NA_real_,
-        optimizationCriterion = c("ASNH1", "ASNIFH1", "ASNsum"), # C_OPTIMIZATION_CRITERION_DEFAULT
+        optimizationCriterion = c(
+            "ASNH1", 
+            "ASNIFH1", 
+            "ASNsum"), # C_OPTIMIZATION_CRITERION_DEFAULT
         gammaA = NA_real_,
-        typeBetaSpending = c("none", "bsP", "bsOF", "bsKD", "bsHSD", "bsUser"), # C_TYPE_OF_DESIGN_BS_NONE
+        typeBetaSpending = c(
+            "none", 
+            "bsP", 
+            "bsOF", 
+            "bsKD", 
+            "bsHSD", 
+            "bsUser"), # C_TYPE_OF_DESIGN_BS_NONE
         userAlphaSpending = NA_real_,
         userBetaSpending = NA_real_,
         gammaB = NA_real_,
@@ -2272,7 +2326,8 @@ getSimulatedRejectionsDelayedResponse <- function(design, ..., delta = 0, iterat
     .assertIsSingleNumber(delta, "delta")
     .assertIsValidIterationsAndSeed(iterations, seed, zeroIterationsAllowed = FALSE)
     if (!design$.isDelayedResponseDesign()) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'design' must be a delayed response design with specified 'delayedInformation'")
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'design' must be a delayed ",
+            "response design with specified 'delayedInformation'")
     }
     startTime <- Sys.time()
     result <- .getSimulatedRejectionsDelayedResponse(

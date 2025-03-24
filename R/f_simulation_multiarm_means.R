@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8225 $
-## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 8464 $
+## |  Last changed: $Date: 2024-12-20 15:27:24 +0100 (Fr, 20 Dez 2024) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 #' @include f_simulation_multiarm.R
@@ -148,7 +148,7 @@ NULL
                 criticalValues <- .getCriticalValues(design)
                 if (.isTrialDesignFisher(design)) {
                     conditionalCriticalValue[k] <- .getOneMinusQNorm(min((criticalValues[k + 1] /
-                        prod(adjustedPValues[1:k]^weights[1:k]))^(1 / weights[k + 1]), 1 - 1e-07))
+                        prod(adjustedPValues[1:k]^weights[1:k]))^(1 / weights[k + 1]), 1 - 1e-12))
                 } else {
                     conditionalCriticalValue[k] <- (criticalValues[k + 1] *
                         sqrt(design$informationRates[k + 1]) -
@@ -263,7 +263,7 @@ NULL
 #' @inheritParams param_stDevSimulation
 #' @inheritParams param_activeArms
 #' @inheritParams param_successCriterion
-#' @inheritParams param_typeOfShape
+#' @inheritParams param_typeOfShapeMeans
 #' @inheritParams param_typeOfSelection
 #' @inheritParams param_design_with_default
 #' @inheritParams param_allocationRatioPlanned
@@ -280,6 +280,7 @@ NULL
 #' @inheritParams param_epsilonValue
 #' @inheritParams param_gED50
 #' @inheritParams param_slope
+#' @inheritParams param_doseLevels
 #' @inheritParams param_seed
 #' @inheritParams param_three_dots
 #' @inheritParams param_showStatistics
@@ -324,6 +325,7 @@ getSimulationMultiArmMeans <- function(design = NULL, ...,
         muMaxVector = seq(0, 1, 0.2), # C_ALTERNATIVE_POWER_SIMULATION_DEFAULT
         gED50 = NA_real_,
         slope = 1,
+        doseLevels = NA_real_,
         intersectionTest = c("Dunnett", "Bonferroni", "Simes", "Sidak", "Hierarchical"), # C_INTERSECTION_TEST_MULTIARMED_DEFAULT
         stDev = 1, # C_STDEV_DEFAULT
         adaptations = NA,
@@ -375,6 +377,7 @@ getSimulationMultiArmMeans <- function(design = NULL, ...,
         muMaxVector                 = muMaxVector, # means only
         gED50                       = gED50,
         slope                       = slope,
+        doseLevels                  = doseLevels,
         intersectionTest            = intersectionTest,
         stDev                       = stDev, # means only
         adaptations                 = adaptations,
@@ -416,7 +419,7 @@ getSimulationMultiArmMeans <- function(design = NULL, ...,
     maxNumberOfSubjectsPerStage <- simulationResults$maxNumberOfSubjectsPerStage
     allocationRatioPlanned <- simulationResults$allocationRatioPlanned
     calcSubjectsFunction <- simulationResults$calcSubjectsFunction
-
+    
     if (length(allocationRatioPlanned) == 1) {
         allocationRatioPlanned <- rep(allocationRatioPlanned, kMax)
     }
@@ -618,7 +621,7 @@ getSimulationMultiArmMeans <- function(design = NULL, ...,
     simulationResults$sampleSizes <- simulatedSubjectsPerStage
     simulationResults$expectedNumberOfSubjects <- expectedNumberOfSubjects
     simulationResults$iterations <- iterations
-
+    
     if (!all(is.na(simulationResults$conditionalPowerAchieved))) {
         simulationResults$.setParameterType("conditionalPowerAchieved", C_PARAM_GENERATED)
     }

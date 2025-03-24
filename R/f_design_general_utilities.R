@@ -13,9 +13,9 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8273 $
-## |  Last changed: $Date: 2024-09-25 17:19:43 +0200 (Mi, 25 Sep 2024) $
-## |  Last changed by: $Author: pahlke $
+## |  File version: $Revision: 8630 $
+## |  Last changed: $Date: 2025-03-24 09:59:32 +0100 (Mo, 24 Mrz 2025) $
+## |  Last changed by: $Author: wassmer $
 ## |
 
 #' @include f_core_assertions.R
@@ -71,19 +71,19 @@ NULL
     }
     if (type %in% c("analysis", "simulation")) {
         design <- getDesignInverseNormal(
-            kMax = 1, 
-            alpha = alpha, 
+            kMax = 1,
+            alpha = alpha,
             beta = beta,
-            sided = sided, 
+            sided = sided,
             twoSidedPower = twoSidedPower,
             directionUpper = directionUpper
         )
     } else {
         design <- getDesignGroupSequential(
-            kMax = 1, 
-            alpha = alpha, 
+            kMax = 1,
+            alpha = alpha,
             beta = beta,
-            sided = sided, 
+            sided = sided,
             twoSidedPower = twoSidedPower,
             directionUpper = directionUpper
         )
@@ -148,7 +148,7 @@ NULL
             )
         }
     }
-    
+
     if (design$sided == 2 && .isDefinedArgument(parameterValues) &&
             (!.isTrialDesignInverseNormalOrGroupSequential(design) ||
                 (design$typeOfDesign != C_TYPE_OF_DESIGN_PT) && !.isBetaSpendingDesignType(design$typeBetaSpending)
@@ -247,7 +247,7 @@ NULL
             ") will be ignored because it will be calculated",
             call. = FALSE
         )
-    } else if (design$.getParameterType(parameterName) == C_PARAM_GENERATED) {
+    } else if (design$isGeneratedParameter(parameterName)) {
         return(FALSE)
     }
 
@@ -397,6 +397,13 @@ NULL
             design$kMax, design$alpha
         ))
     }
+
+    if (design$kMax > 2 && (any(design$userAlphaSpending[2:design$kMax] - design$userAlphaSpending[1:(design$kMax - 1)] < design$tolerance))) {
+        warning("Chosen 'userAlphaSpending' (", .arrayToString(design$userAlphaSpending, vectorLookAndFeelEnabled = FALSE),
+            ") might yield imprecise critical values due to numerical inaccuracy",
+            call. = FALSE
+        )
+    }
 }
 
 .validateUserBetaSpending <- function(design) {
@@ -455,6 +462,13 @@ NULL
             .arrayToString(design$userBetaSpending, vectorLookAndFeelEnabled = TRUE),
             design$kMax, design$beta
         ))
+    }
+
+    if (design$kMax > 2 && (any(design$userBetaSpending[2:design$kMax] - design$userBetaSpending[1:(design$kMax - 1)] < design$tolerance))) {
+        warning("Chosen 'userBetaSpending' (", .arrayToString(design$userBetaSpending, vectorLookAndFeelEnabled = FALSE),
+            ") might yield imprecise futility bounds due to numerical inaccuracy",
+            call. = FALSE
+        )
     }
 }
 
@@ -888,7 +902,7 @@ getLambdaByPi <- function(piValue,
     .assertIsSingleNumber(eventTime, "eventTime")
     .assertIsInOpenInterval(eventTime, "eventTime", lower = 0, upper = NULL)
     for (value in piValue) {
-        if (value > 1 - 1e-16 && value < 1 + 1e-16) {
+        if (!is.na(value) && value > 1 - 1e-16 && value < 1 + 1e-16) {
             stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'pi' must be != 1")
         }
     }
@@ -926,7 +940,7 @@ getPiByLambda <- function(lambda,
     .assertIsSingleNumber(eventTime, "eventTime")
     .assertIsInOpenInterval(eventTime, "eventTime", lower = 0, upper = NULL)
     x <- exp(-(lambda * eventTime)^kappa)
-    if (any(x < 1e-15)) {
+    if (any(x < 1e-15, na.rm = TRUE)) {
         warning("Calculation of pi (1) by lambda (", .arrayToString(round(lambda, 4)),
             ") results in a possible loss of precision because pi = 1 was returned but pi is not exactly 1",
             call. = FALSE

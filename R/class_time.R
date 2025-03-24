@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8127 $
-## |  Last changed: $Date: 2024-08-23 18:00:31 +0200 (Fr, 23 Aug 2024) $
+## |  File version: $Revision: 8624 $
+## |  Last changed: $Date: 2025-03-21 13:24:59 +0100 (Fr, 21 Mrz 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -312,7 +312,8 @@ getPiecewiseSurvivalTime <- function(piecewiseSurvivalTime = NA_real_,
 #'
 #' @export
 #'
-getAccrualTime <- function(accrualTime = NA_real_,
+getAccrualTime <- function(
+        accrualTime = NA_real_,
         ...,
         accrualIntensity = NA_real_,
         accrualIntensityType = c("auto", "absolute", "relative"),
@@ -349,6 +350,21 @@ getAccrualTime <- function(accrualTime = NA_real_,
     .assertIsNumericVector(accrualIntensity, "accrualIntensity", naAllowed = TRUE)
     .assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects, naAllowed = TRUE)
     .assertIsSingleCharacter(accrualIntensityType, "accrualIntensityType")
+    
+    if (!is.null(accrualTime) && is.numeric(accrualTime) && !all(is.na(accrualTime)) &&
+            !all(is.na(accrualIntensity))) {
+        accrualTimeLength <- length(accrualTime)
+        accrualIntensityLength <- length(accrualIntensity)
+        if (!accrualIntensityLength %in% c(accrualTimeLength, accrualTimeLength - 1)) {
+            stop(
+                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                "length of 'accrualIntensity' (", accrualIntensityLength, ") must be ",
+                "equal to the length of 'accrualTime' (", accrualTimeLength, ") or ",
+                "one element shorter"
+            )
+        }
+    }
+    
     absoluteAccrualIntensityEnabled <- NA
     if (accrualIntensityType == "absolute") {
         absoluteAccrualIntensityEnabled <- TRUE
@@ -493,7 +509,7 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                 self$.setParameterType("lambda2", C_PARAM_GENERATED)
             } else {
                 self$.setParameterType("median2", C_PARAM_NOT_APPLICABLE)
-                self$.setParameterType("lambda2", C_PARAM_NOT_APPLICABLE)
+                self$.setParameterType("lambda2", C_PARAM_NOT_APPLICABLE) 
             }
 
             args <- list(...)
@@ -548,7 +564,7 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                     self$.getParameterType("pi2") != C_PARAM_USER_DEFINED &&
                     self$.getParameterType("pi2") != C_PARAM_DEFAULT_VALUE) {
                 if (self$.getParameterType("eventTime") == C_PARAM_USER_DEFINED) {
-                    warning("'eventTime' (", round(self$eventTime, 3), ") will be ignored", call. = FALSE)
+                    warning("'eventTime' (", round(self$eventTime, 3), ") has no influence on simulated results", call. = FALSE)
                 }
                 self$.setParameterType("eventTime", C_PARAM_NOT_APPLICABLE)
                 self$eventTime <- NA_real_
@@ -870,14 +886,24 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
             .logDebug("pwSurvTime %s, %s", ifelse(is.numeric(pwSurvTime),
                 .arrayToString(pwSurvTime), pwSurvTime
             ), .getClassName(pwSurvTime[1]))
-            .logDebug("lambda1 %s, %s", self$lambda1, self$.getParameterType("lambda1"))
-            .logDebug("lambda2 %s, %s", self$lambda2, self$.getParameterType("lambda2"))
-
+            .logDebug("lambda1 %s, %s", .arrayToString(self$lambda1, vectorLookAndFeelEnabled = TRUE), 
+                self$.getParameterType("lambda1"))
+            
+            if (length(self$hazardRatio) > 0 && !any(is.na(self$hazardRatio)) &&
+                    (length(self$lambda2) == 0 || all(is.na(self$lambda2))) &&
+                    length(self$lambda1) > 0 && !any(is.na(self$lambda1)) &&
+                    !self$isGeneratedParameter("lambda1")) {
+                self$lambda2 <- self$lambda1 / self$hazardRatio^(1 / self$kappa)
+                self$.setParameterType("lambda2", C_PARAM_GENERATED)
+            }
+            .logDebug("lambda2 %s, %s", .arrayToString(self$lambda2, vectorLookAndFeelEnabled = TRUE), 
+                self$.getParameterType("lambda2"))
+            
             # case 1: lambda1 and lambda2 = NA or generated
             if (length(pwSurvTime) == 1 && (is.na(pwSurvTime) || is.numeric(pwSurvTime)) &&
-                    (all(is.na(self$lambda1)) || self$.getParameterType("lambda1") == C_PARAM_GENERATED) &&
+                    (all(is.na(self$lambda1)) || self$isGeneratedParameter("lambda1")) &&
                     length(self$lambda2) == 1 && (is.na(self$lambda2) ||
-                    self$.getParameterType("lambda2") == C_PARAM_GENERATED)
+                    self$isGeneratedParameter("lambda2"))
                 ) {
                 .logDebug(".init, case 1: lambda1 and lambda2 = NA")
 
@@ -886,6 +912,10 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                         "'lambda1' and 'lambda2' must be specified"
                     )
+                }
+
+                if (!any(is.na(self$pi1))) {
+                    self$.setParameterType("pi1", C_PARAM_USER_DEFINED)
                 }
 
                 if (!any(is.na(self$hazardRatio))) {
@@ -901,9 +931,23 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                         .logDebug(".init: set pi2 to 'not applicable'")
                         self$.setParameterType("pi2", C_PARAM_NOT_APPLICABLE)
                     } else {
-                        .logDebug(".init: set pi2 to default")
-                        self$pi2 <- C_PI_2_DEFAULT
-                        self$.setParameterType("pi2", C_PARAM_DEFAULT_VALUE)
+                        if (length(self$pi1) > 0 && !any(is.na(self$pi1)) && 
+                                length(self$hazardRatio) > 0 && !any(is.na(self$hazardRatio))) {
+                            .logDebug(".init: calculate pi2 via pi1 and hazard ratio")
+                            self$lambda1 <- getLambdaByPi(pi = self$pi1, eventTime = self$eventTime, kappa = self$kappa)
+                            self$.setParameterType("lambda1", C_PARAM_GENERATED)
+                            self$lambda2 <- self$lambda1 / self$hazardRatio^(1 / self$kappa)
+                            self$.setParameterType("lambda2", C_PARAM_GENERATED)
+                            self$pi2 <- getPiByLambda(self$lambda2, eventTime = self$eventTime, kappa = self$kappa)
+                            self$.setParameterType("pi2", C_PARAM_GENERATED)
+                            self$median2 <- getMedianByLambda(self$lambda2, self$kappa)
+                            self$.setParameterType("median2", C_PARAM_GENERATED)
+                        } else {
+                            .logDebug(".init: set pi2 to default")
+                            self$median2 <- getMedianByPi(pi = self$pi2, eventTime = self$eventTime, kappa = self$kappa)
+                            self$pi2 <- C_PI_2_DEFAULT
+                            self$.setParameterType("pi2", C_PARAM_DEFAULT_VALUE)
+                        }
                     }
                 } else {
                     .assertIsSingleNumber(self$pi2, "pi2")
@@ -915,8 +959,11 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                         self$median2 <- NA_real_
                     }
                 }
-
-                hazardRatioCalculationEnabled <- TRUE
+                
+                hazardRatioCalculationEnabled <- !self$isUserDefinedParameter("hazardRatio")
+                if (self$isUserDefinedParameter("pi1") && self$isUserDefinedParameter("pi2")) {
+                    hazardRatioCalculationEnabled <- TRUE
+                }
                 if (all(is.na(self$pi1))) {
                     if ((all(is.na(self$median1)) || all(is.na(self$median2))) &&
                             length(self$hazardRatio) > 0 && !all(is.na(self$hazardRatio))) {
@@ -1028,7 +1075,7 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                     if (identical(self$pi1, pi1Default)) {
                         self$.setParameterType("pi1", C_PARAM_DEFAULT_VALUE)
                     } else if (hazardRatioCalculationEnabled &&
-                            self$.getParameterType("pi1") != C_PARAM_GENERATED) {
+                            !self$isGeneratedParameter("pi1")) {
                         self$.setParameterType("pi1", C_PARAM_USER_DEFINED)
                     }
                 }
@@ -1064,17 +1111,19 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
             if (length(pwSurvTime) == 1 && is.na(pwSurvTime)) {
                 pwSurvTime <- NA_real_
             }
-
+            
             if (is.list(pwSurvTime)) {
                 .assertIsValidHazardRatioVector(self$hazardRatio)
                 self$.initFromList(pwSurvTime)
-                self$.initHazardRatio()
+                self$.initHazardRatio(1)
                 if (!self$piecewiseSurvivalEnabled) {
                     self$.initPi()
                     self$.initMedian()
                 }
-            } else if (self$delayedResponseAllowed && length(self$lambda2) == 1 &&
-                    !is.na(self$lambda2) && length(self$hazardRatio) > 0 &&
+            } else if (self$delayedResponseAllowed && 
+                    (length(self$lambda2) == 1 && !is.na(self$lambda2) || 
+                        (length(self$lambda1) > 0 && !any(is.na(self$lambda1)))) && 
+                    length(self$hazardRatio) > 0 &&
                     (all(is.na(pwSurvTime)) || identical(pwSurvTime, 0))) {
                 .logDebug(".init, case 2: delayedResponseAllowed")
 
@@ -1084,9 +1133,19 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                     warning("'piecewiseSurvivalTime' (", .arrayToString(pwSurvTime), ") will be ignored")
                 }
                 self$piecewiseSurvivalTime <- 0
+                
+                hazardRatioCalculationEnabled <- TRUE
+                if ((length(self$lambda2) == 0 || all(is.na(self$lambda2))) &&
+                        length(self$lambda1) > 0 && !any(is.na(self$lambda1))) {
+                    self$lambda2 <- self$lambda1 / self$hazardRatio^(1 / self$kappa)
+                    self$.setParameterType("lambda2", C_PARAM_GENERATED)
+                    hazardRatioCalculationEnabled <- FALSE
+                }
 
                 self$.initPi()
-                self$.initHazardRatio()
+                if (hazardRatioCalculationEnabled) {
+                    self$.initHazardRatio(2)
+                }
                 self$.initMedian()
             } else if (!is.numeric(pwSurvTime)) {
                 stop(
@@ -1096,7 +1155,7 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
             } else {
                 self$piecewiseSurvivalTime <- pwSurvTime
                 if ((all(is.na(self$piecewiseSurvivalTime)) || identical(self$piecewiseSurvivalTime, 0)) &&
-                        length(self$lambda2) == 1 && !is.na(self$lambda2)) {
+                        (length(self$lambda2) == 1 && !is.na(self$lambda2))) {
                     .logDebug(".init, case 3: piecewise survival is disabled")
                     if (!all(is.na(self$piecewiseSurvivalTime)) &&
                             !identical(self$piecewiseSurvivalTime, 0)) {
@@ -1105,14 +1164,16 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                             .arrayToString(self$piecewiseSurvivalTime), ") will be ignored"
                         )
                     }
+                    
                     self$piecewiseSurvivalTime <- 0
                     self$.setParameterType("piecewiseSurvivalTime", C_PARAM_DEFAULT_VALUE)
                     self$piecewiseSurvivalEnabled <- FALSE
-                    self$.initHazardRatio()
+                    self$.initHazardRatio(3)
                     self$.initPi()
                     self$.initMedian()
                 } else {
-                    .logDebug(".init, case 3: piecewise survival is enabled")
+                    .logDebug(".init, case 3: piecewise survival is enabled (%s)", 
+                        .arrayToString(self$piecewiseSurvivalTime))
                     if (all(is.na(self$piecewiseSurvivalTime))) {
                         if (self$.getParameterType("median1") == C_PARAM_USER_DEFINED) {
                             stop(
@@ -1141,7 +1202,7 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                     }
                     self$.setParameterType("piecewiseSurvivalTime", C_PARAM_USER_DEFINED)
                     self$piecewiseSurvivalEnabled <- TRUE
-                    self$.initHazardRatio()
+                    self$.initHazardRatio(4)
                     self$.initPi()
                 }
             }
@@ -1233,7 +1294,9 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                 )
             }
 
-            self$.setParameterType("lambda2", C_PARAM_USER_DEFINED)
+            if (self$isUndefinedParameter("lambda2") || self$isNotApplicableParameter("lambda2")) {
+                self$.setParameterType("lambda2", C_PARAM_USER_DEFINED)
+            }
 
             if (self$piecewiseSurvivalEnabled && length(self$hazardRatio) > 1) {
                 return(invisible())
@@ -1251,14 +1314,24 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
                 }
             }
         },
-        .initHazardRatio = function() {
-            .logDebug(".initHazardRatio")
+        .initHazardRatio = function(number = -1) {
+            .logDebug(".initHazardRatio(#%s)", number)
 
             if (!is.null(self$hazardRatio) && length(self$hazardRatio) > 0 && !all(is.na(self$hazardRatio))) {
                 if ((length(self$lambda1) == 1 && is.na(self$lambda1)) ||
-                        (self$.getParameterType("lambda1") == C_PARAM_GENERATED &&
-                            (self$.getParameterType("median1") != C_PARAM_USER_DEFINED ||
-                                self$.getParameterType("median2") != C_PARAM_USER_DEFINED))) {
+                        (self$isGeneratedParameter("lambda1") &&
+                            (
+                                self$.getParameterType("median1") != C_PARAM_USER_DEFINED ||
+                                self$.getParameterType("median2") != C_PARAM_USER_DEFINED
+                            )
+                        ) ||
+                        (self$isGeneratedParameter("lambda2") &&
+                            (
+                            self$.getParameterType("median1") != C_PARAM_USER_DEFINED ||
+                            self$.getParameterType("median2") != C_PARAM_USER_DEFINED
+                            )
+                        )
+                    ) {
                     self$.setParameterType("hazardRatio", C_PARAM_USER_DEFINED)
                     return(invisible())
                 }
@@ -1293,29 +1366,35 @@ PiecewiseSurvivalTime <- R6::R6Class("PiecewiseSurvivalTime",
             self$.setParameterType("lambda1", C_PARAM_USER_DEFINED)
 
             hr <- unique(round(self$lambda1 / self$lambda2, 8)^self$kappa)
-            if (length(hr) != 1) {
-                if (length(self$lambda2) == 1 && length(self$lambda1) > 1) {
-                    self$hazardRatio <- (self$lambda1 / self$lambda2)^self$kappa
-                    self$.setParameterType("hazardRatio", C_PARAM_GENERATED)
-                    return(invisible())
-                } else if (self$delayedResponseAllowed) {
-                    self$hazardRatio <- (self$lambda1 / self$lambda2)^self$kappa
-                    self$.setParameterType("hazardRatio", C_PARAM_GENERATED)
-                    self$delayedResponseEnabled <- TRUE
-                    return(invisible())
-                } else {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                        "'hazardRatio' can only be calculated if 'unique(lambda1 / lambda2)' ",
-                        "result in a single value; current result = ",
-                        .arrayToString(round(hr, 4), vectorLookAndFeelEnabled = TRUE),
-                        " (e.g., delayed response is not allowed)"
-                    )
-                }
+            if (length(hr) == 1) {
+                .logDebug(".init: calculate hazardRatio by lambda1 and lambda2 (one hazard ratio)")
+                self$hazardRatio <- ((self$lambda1 / self$lambda2)^self$kappa)[1]
+                self$.setParameterType("hazardRatio", C_PARAM_GENERATED)
+                return(invisible())
             }
-
-            self$hazardRatio <- ((self$lambda1 / self$lambda2)^self$kappa)[1]
-            self$.setParameterType("hazardRatio", C_PARAM_GENERATED)
+            
+            if (length(self$lambda2) == 1 && length(self$lambda1) > 1) {
+                .logDebug(".init: calculate hazardRatio by lambda1 and lambda2 (multiple lambda2 values)")
+                self$hazardRatio <- (self$lambda1 / self$lambda2)^self$kappa
+                self$.setParameterType("hazardRatio", C_PARAM_GENERATED)
+                return(invisible())
+            }
+            
+            if (self$delayedResponseAllowed) {
+                .logDebug(".init: calculate hazardRatio by lambda1 and lambda2 (delayed response allowed)")
+                self$hazardRatio <- (self$lambda1 / self$lambda2)^self$kappa
+                self$.setParameterType("hazardRatio", C_PARAM_GENERATED)
+                self$delayedResponseEnabled <- TRUE
+                return(invisible())
+            } 
+            
+            stop(
+                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                "'hazardRatio' can only be calculated if 'unique(lambda1 / lambda2)' ",
+                "result in a single value; current result = ",
+                .arrayToString(round(hr, 4), vectorLookAndFeelEnabled = TRUE),
+                " (e.g., delayed response is not allowed)"
+            )
         },
         .validateInitialization = function() {
             if (length(self$piecewiseSurvivalTime) == 0) {
@@ -1455,6 +1534,7 @@ AccrualTime <- R6::R6Class("AccrualTime",
         maxNumberOfSubjectsCanBeCalculatedDirectly = NULL,
         absoluteAccrualIntensityEnabled = NULL,
         accrualTime = NULL,
+        accrualTimeOriginal = NULL,
         accrualIntensity = NULL,
         accrualIntensityRelative = NULL,
         maxNumberOfSubjects = NULL,
@@ -1488,6 +1568,8 @@ AccrualTime <- R6::R6Class("AccrualTime",
                 )
             )
 
+            self$accrualTimeOriginal <- NA_real_
+            self$.setParameterType("accrualTimeOriginal", C_PARAM_NOT_APPLICABLE)
             self$accrualIntensityRelative <- NA_real_
             self$.setParameterType("accrualIntensityRelative", C_PARAM_NOT_APPLICABLE)
             self$remainingTime <- NA_real_
@@ -2381,6 +2463,15 @@ AccrualTime <- R6::R6Class("AccrualTime",
                 )
             )
             if (length(self$accrualTime) == length(self$accrualIntensity)) {
+                if (self$.getParameterType("remainingTime") == C_PARAM_GENERATED) {
+                    self$accrualTimeOriginal <- self$accrualTime
+                    if (identical(self$accrualTime, c(0, 12)) || identical(self$accrualTime, C_ACCRUAL_TIME_DEFAULT)) {
+                        self$.setParameterType("accrualTimeOriginal", C_PARAM_DEFAULT_VALUE) 
+                    } else {
+                        self$.setParameterType("accrualTimeOriginal", C_PARAM_USER_DEFINED)
+                    }
+                    self$.setParameterType("accrualTime", C_PARAM_GENERATED)
+                }
                 self$accrualTime <- c(self$accrualTime, self$accrualTime[length(self$accrualTime)] + self$remainingTime)
             }
             if (any(self$accrualTime < 0)) {

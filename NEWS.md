@@ -1,9 +1,43 @@
+# rpact 4.2.0
+
+## New features
+
+* For the functions `getSimulationMultiArmMeans()`, `getSimulationMultiArmRates()`, and `getSimulationMultiArmSurvival()` it is now possible to specify a parameter `doseLevels` to define the dose levels for a `linear` or `sigmoidEmax` dose-response relationship (see feature request [#63](https://github.com/rpact-com/rpact/issues/63))
+* Added support for unequal variances between two groups in `getSampleSizeMeans()`, `getPowerMeans()`, and `getSimulationMeans()` functions, see enhancement [#70](https://github.com/rpact-com/rpact/issues/70)
+* `testPackage()` produces a comprehensive installation qualification report in html and pdf format (see new vignette [Installation Qualification of rpact](https://www.rpact.org/vignettes/utilities/rpact_installation_qualification/))
+* `setupPackageTests()` sets up the package tests by downloading the test files and copying them to the rpact installation directory
+* `saveOptions()` saves the current `rpact` options to a configuration file
+* `resetOptions()` resets the `rpact` options to their default values
+* Argument `conservative` added to `getSampleSizeRates()` function, see enhancement [#39](https://github.com/rpact-com/rpact/issues/39)
+* Enable futility boundaries in *Boundaries p Values Scale plot* plot (type = 3) using `options("rpact.plot.show.futility.on.pvalue.scale" = TRUE)` or argument `showFutilityBounds = TRUE`, see enhancement [#79](https://github.com/rpact-com/rpact/issues/79)
+* Enable beta-spending in *Error Spending* plot (type = 4) using `options("rpact.plot.show.beta.spent" = TRUE)` or argument `showBetaSpent = TRUE`, see enhancement [#80](https://github.com/rpact-com/rpact/issues/80). Furthermore, `options("rpact.plot.show.alpha.spent" = FALSE)` or argument `showAlphaSpent = FALSE` can be used to show only beta-spending in the plot
+
+`showAlphaSpent = TRUE`
+
+## Improvements, issues, and changes
+
+* Issue for calculation of confidence intervals when using the conditional Dunnett test design 
+  (`getDesignConditionalDunnett()`) in analysis tool is fixed.
+* The full set of unit tests for rpact is now stored in a private repository. 
+  Only members of the 'RPACT User Group' have access to the tests.
+  For more information, please visit: [rpact.org/iq](https://www.rpact.org/vignettes/utilities/rpact_installation_qualification/) and [RPACT Connect](https://rpact.shinyapps.io/connect)
+* Usage of `maxInformation` improved (see enhancement [#65](https://github.com/rpact-com/rpact/issues/65))
+* Line breaks in the output of `getObjectRCode()` improved (see [#81](https://github.com/rpact-com/rpact/issues/81))
+* `testPackage()`: additional warning details will be added to the test report if warnings exist* Issue [#61](https://github.com/rpact-com/rpact/issues/61) fixed
+* Issue [#68](https://github.com/rpact-com/rpact/issues/68) fixed
+* Flexibility of function `getPiecewiseSurvivalTime()` improved
+* Simulation allows the case #events = #patients
+* Test coverage improved
+* Plot subtitles improved
+* Warning message added for extreme choice of `informationRates`, `userAlphaSpending`, and `userBetaSpending`  
+* Minor improvements
+
 
 # rpact 4.1.0
 
 ## New features
 
-* The new function `getSimulationCounts()` can be used to perform power simulations for clinical trials with negative binomial distributed count data. The function returns the simulated power, stopping probabilities, conditional power, and expected sample size for testing mean rates for negative binomial distributed event numbers in the two treatment groups testing situation.
+* The new function `getSimulationCounts()` can be used to perform power simulations for clinical trials with negative binomial distributed count data. The function returns the simulated power, stopping probabilities, conditional power, and expected sample size for testing mean rates for negative binomial distributed event numbers in the two treatment groups testing situation
 * The functions `getDesignGroupSequential()`, `getDesignInverseNormal()`, and `getDesignFisher()` now support the argument `directionUpper` to specify the direction of the alternative for one-sided testing early at the design phase, see enhancement [#26](https://github.com/rpact-com/rpact/issues/26)
 * `getSampleSizeCounts()` and `getPowerCounts()` output boundary values also on the treatment effect scale, see enhancement [#40](https://github.com/rpact-com/rpact/issues/40)
 * The `fetch()` and `obtain()` functions can be used to extract multiple parameters from an rpact result object and support various output formats
@@ -24,9 +58,9 @@
 
 ## New features
 
-* All reference classes in the package have been replaced by [R6](https://cran.r-project.org/package=R6) classes. This change brings significant advantages, including improved performance, more flexible and cleaner object-oriented programming, and enhanced encapsulation of methods and properties. The transition to R6 classes allows for more efficient memory management and faster execution, making the package more robust and scalable. Additionally, R6 classes provide a more intuitive and user-friendly interface for developers, facilitating the creation and maintenance of complex data structures and workflows.
+* All reference classes in the package have been replaced by [R6](https://cran.r-project.org/package=R6) classes. This change brings significant advantages, including improved performance, more flexible and cleaner object-oriented programming, and enhanced encapsulation of methods and properties. The transition to R6 classes allows for more efficient memory management and faster execution, making the package more robust and scalable. Additionally, R6 classes provide a more intuitive and user-friendly interface for developers, facilitating the creation and maintenance of complex data structures and workflows
 * Extension of the function `getPerformanceScore()` for sample size recalculation rules to the setting of binary endpoints according to [Bokelmann et al. (2024)](https://doi.org/10.1186/s12874-024-02150-4)
-* The `getSimulationMultiArmMeans()`, `getSimulationMultiArmRates()`, and `getSimulationMultiArmSurvival()` functions now support an enhanced `selectArmsFunction` argument. Previously, only `effectVector` and `stage` were allowed as arguments. Now, users can optionally utilize additional arguments for more powerful custom function implementations, including `conditionalPower`, `conditionalCriticalValue`, `plannedSubjects/plannedEvents`, `allocationRatioPlanned`, `selectedArms`, `thetaH1` (for means and survival), `stDevH1` (for means), `overallEffects`, and for rates additionally: `piTreatmentsH1`, `piControlH1`, `overallRates`, and `overallRatesControl`.
+* The `getSimulationMultiArmMeans()`, `getSimulationMultiArmRates()`, and `getSimulationMultiArmSurvival()` functions now support an enhanced `selectArmsFunction` argument. Previously, only `effectVector` and `stage` were allowed as arguments. Now, users can optionally utilize additional arguments for more powerful custom function implementations, including `conditionalPower`, `conditionalCriticalValue`, `plannedSubjects/plannedEvents`, `allocationRatioPlanned`, `selectedArms`, `thetaH1` (for means and survival), `stDevH1` (for means), `overallEffects`, and for rates additionally: `piTreatmentsH1`, `piControlH1`, `overallRates`, and `overallRatesControl`
 * Same as above for `getSimulationEnrichmentMeans()`, `getSimulationEnrichmentRates()`, and `getSimulationEnrichmentSurvival()`. Specifically, support for population selection with `selectPopulationsFunction` argument based on predictive/posterior probabilities added (see [#32](https://github.com/rpact-com/rpact/issues/32))
 * The `fetch()` and `obtain()` functions can be used to extract a single parameter from an rpact result object, which is useful for writing pipe-operator linked commands
 

@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8277 $
-## |  Last changed: $Date: 2024-09-27 08:16:45 +0200 (Fr, 27 Sep 2024) $
+## |  File version: $Revision: 8474 $
+## |  Last changed: $Date: 2025-01-14 14:32:53 +0100 (Di, 14 Jan 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -140,7 +140,8 @@ SimulationResults <- R6::R6Class("SimulationResults",
                     stop(
                         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                         "'showStatistics' (", .arrayToString(showStatistics),
-                        ") must be a single logical or character"
+                        ") must be a single logical or character", 
+                        call. = FALSE
                     )
                 }
 
@@ -490,7 +491,8 @@ SimulationResults <- R6::R6Class("SimulationResults",
                         "median [range]: ", round(stats::median(paramValue), 3),
                         " [", paste(round(base::range(paramValue), 3), collapse = " - "), "]; ",
                         "mean +/-sd: ", round(base::mean(paramValue), 3),
-                        " +/-", round(stats::sd(paramValue), 3)
+                        " +/-", round(stats::sd(paramValue), 3), "; ",
+                        "n = ", length(paramValue)
                     )
                 } else {
                     paramValueFormatted <- "median [range]: NA [NA - NA]; mean +/sd: NA +/-NA"
@@ -773,6 +775,7 @@ SimulationResultsMultiArmMeans <- R6::R6Class("SimulationResultsMultiArmMeans",
         muMaxVector = NULL,
         gED50 = NULL,
         slope = NULL,
+        doseLevels = NULL,
         intersectionTest = NULL,
         adaptations = NULL,
         typeOfSelection = NULL,
@@ -1017,6 +1020,7 @@ SimulationResultsMultiArmRates <- R6::R6Class("SimulationResultsMultiArmRates",
         piControlH1 = NULL,
         gED50 = NULL,
         slope = NULL,
+        doseLevels = NULL,
         intersectionTest = NULL,
         adaptations = NULL,
         typeOfSelection = NULL,
@@ -1309,6 +1313,7 @@ SimulationResultsMultiArmSurvival <- R6::R6Class("SimulationResultsMultiArmSurvi
         omegaMaxVector = NULL,
         gED50 = NULL,
         slope = NULL,
+        doseLevels = NULL,
         intersectionTest = NULL,
         adaptations = NULL,
         typeOfSelection = NULL,
@@ -1688,7 +1693,7 @@ SimulationResultsEnrichmentSurvival <- R6::R6Class("SimulationResultsEnrichmentS
 #' @include class_core_plot_settings.R
 #' @include class_design.R
 #' @include f_core_constants.R
-#' @include f_simulation_base_count_data.R
+#' @include f_simulation_base_counts.R
 #'
 #' @keywords internal
 #'
@@ -1732,35 +1737,4 @@ SimulationResultsCountData <- R6::R6Class("SimulationResultsCountData",
         }
     )
 )
-
-#'
-#' @title
-#' Print Simulation Results
-#'
-#' @description
-#' \code{print} prints its \code{SimulationResults} argument and
-#' returns it invisibly (via \code{invisible(x)}).
-#'
-#' @param x The \code{\link{SimulationResults}} object to print.
-#' @param markdown If \code{TRUE}, the object \code{x}
-#'        will be printed using markdown syntax;
-#'        normal representation will be used otherwise (default is \code{FALSE})
-#' @inheritParams param_three_dots
-#'
-#' @details
-#' Prints the parameters and results of an \code{SimulationResults} object.
-#'
-#' @export
-#'
-#' @keywords internal
-#'
-print.SimulationResults <- function(x, ..., showStatistics = FALSE, markdown = FALSE) {
-    if (markdown) {
-        x$.catMarkdownText(showStatistics = showStatistics)
-        return(invisible(x))
-    }
-
-    x$show(showStatistics = showStatistics)
-    invisible(x)
-}
 

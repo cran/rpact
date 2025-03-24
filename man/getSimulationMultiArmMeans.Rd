@@ -13,6 +13,7 @@ getSimulationMultiArmMeans(
   muMaxVector = seq(0, 1, 0.2),
   gED50 = NA_real_,
   slope = 1,
+  doseLevels = NA_real_,
   intersectionTest = c("Dunnett", "Bonferroni", "Simes", "Sidak", "Hierarchical"),
   stDev = 1,
   adaptations = NA,
@@ -52,22 +53,25 @@ reflecting the different situations to consider.}
 \item{typeOfShape}{The shape of the dose-response relationship over the treatment groups.
 This can be either \code{"linear"}, \code{"sigmoidEmax"}, or \code{"userDefined"},
 default is \code{"linear"}.\cr
-For \code{"linear"}, \code{"muMaxVector"} specifies the range
+For \code{"linear"}, \code{muMaxVector} specifies the range
 of effect sizes for the treatment group with highest response.
-If \code{"sigmoidEmax"} is selected, \code{"gED50"} and \code{"slope"} has to be entered
+If \code{"sigmoidEmax"} is selected, \code{gED50} and \code{slope} has to be entered
 to specify the ED50 and the slope of the sigmoid Emax model.
-For \code{"sigmoidEmax"}, \code{"muMaxVector"} specifies the range
+For \code{"sigmoidEmax"}, \code{muMaxVector} specifies the range
 of effect sizes for the treatment group with response according to infinite dose.
-If \code{"userDefined"} is selected, \code{"effectMatrix"} has to be entered.}
+If \code{"userDefined"} is selected, \code{effectMatrix} has to be entered.}
 
 \item{muMaxVector}{Range of effect sizes for the treatment group with highest response
 for \code{"linear"} and \code{"sigmoidEmax"} model, default is \code{seq(0, 1, 0.2)}.}
 
-\item{gED50}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"gED50"} has to be entered
+\item{gED50}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{gED50} has to be entered
 to specify the ED50 of the sigmoid Emax model.}
 
-\item{slope}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{"slope"} can be entered
+\item{slope}{If \code{typeOfShape = "sigmoidEmax"} is selected, \code{slope} can be entered
 to specify the slope of the sigmoid Emax model, default is 1.}
+
+\item{doseLevels}{The dose levels for the dose response relationship.
+If not specified, these dose levels are \code{1,...,activeArms}.}
 
 \item{intersectionTest}{Defines the multiple test for the intersection
 hypotheses in the closed system of hypotheses.
@@ -76,8 +80,10 @@ Five options are available in multi-arm designs: \code{"Dunnett"}, \code{"Bonfer
 
 \item{stDev}{The standard deviation under which the data is simulated,
 default is \code{1}.
+For two-armed trials, it is allowed to specify the standard deviations separately,
+i.e., as vector with two elements.
 If \code{meanRatio = TRUE} is specified, \code{stDev} defines
-the coefficient of variation \code{sigma / mu2}. Must be a positive numeric of length 1.}
+the coefficient of variation \code{sigma / mu2}.}
 
 \item{adaptations}{A logical vector of length \code{kMax - 1} indicating whether or not an adaptation takes
 place at interim k, default is \code{rep(TRUE, kMax - 1)}.}
@@ -119,7 +125,7 @@ For multi-arm designs, \code{plannedSubjects} refers to the number of subjects p
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.
 For simulating means and rates for a two treatment groups design, it can be a vector of length \code{kMax}, the number of stages.
-It can be a vector of length kMax, too, for multi-arm and enrichment designs.
+It can be a vector of length \code{kMax}, too, for multi-arm and enrichment designs.
 In these cases, a change of allocating subjects to treatment groups over the stages can be assessed.
 Note that internally \code{allocationRatioPlanned} is treated as a vector of length \code{kMax}, not a scalar.}
 
@@ -150,7 +156,7 @@ the conditional power or sample size recalculation calculation is performed. Mus
 
 \item{stDevH1}{If specified, the value of the standard deviation under which
 the conditional power or sample size recalculation calculation is performed,
-default is the value of \code{stDev}. Must be a positive numeric of length 1.}
+default is the value of \code{stDev}.}
 
 \item{maxNumberOfIterations}{The number of simulation iterations, default is \code{1000}. Must be a positive integer of length 1.}
 
@@ -162,10 +168,10 @@ recalculation. By default, sample size recalculation is performed with condition
 
 \item{selectArmsFunction}{Optionally, a function can be entered that defines the way of how treatment arms
 are selected. This function is allowed to depend on \code{effectVector} with length \code{activeArms},
-\code{stage}, \code{"conditionalPower"}, \code{"conditionalCriticalValue"}, \code{"plannedSubjects/plannedEvents"},
-\code{"allocationRatioPlanned"}, \code{"selectedArms"}, \code{"thetaH1"} (for means and survival), \code{"stDevH1"} (for means),
-\code{"overallEffects"}, and for rates additionally: \code{"piTreatmentsH1"}, \code{"piControlH1"}, \code{"overallRates"}, and
-\code{"overallRatesControl"}.}
+\code{stage}, \code{conditionalPower}, \code{conditionalCriticalValue}, \code{plannedSubjects/plannedEvents},
+\code{allocationRatioPlanned}, \code{selectedArms}, \code{thetaH1} (for means and survival), \code{stDevH1} (for means),
+\code{overallEffects}, and for rates additionally: \code{piTreatmentsH1}, \code{piControlH1}, \code{overallRates}, and
+\code{overallRatesControl} (see examples).}
 
 \item{showStatistics}{Logical. If \code{TRUE}, summary statistics of the simulated data
 are displayed for the \code{print} command, otherwise the output is suppressed, default

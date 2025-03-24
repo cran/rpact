@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8141 $
-## |  Last changed: $Date: 2024-08-28 15:03:46 +0200 (Mi, 28 Aug 2024) $
+## |  File version: $Revision: 8624 $
+## |  Last changed: $Date: 2025-03-21 13:24:59 +0100 (Fr, 21 Mrz 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -189,7 +189,9 @@ NumberOfSubjects <- R6::R6Class("NumberOfSubjects",
         accrualIntensity = NULL,
         maxNumberOfSubjects = NULL,
         numberOfSubjects = NULL,
-        initialize = function(..., accrualSetup = NULL,
+        initialize = function(
+                ..., 
+                accrualSetup = NULL,
                 time = NULL,
                 accrualTime = NULL,
                 accrualIntensity = NULL,
@@ -361,9 +363,10 @@ plot.EventProbabilities <- function(
         maxNumberOfSubjectsToUse <- x$maxNumberOfSubjects
     } else if (!is.na(x$maxNumberOfSubjects) &&
             x$maxNumberOfSubjects != maxNumberOfSubjectsToUse) {
-        stop(
+        stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, 
             "'x' (EventProbabilities) and 'y' (NumberOfSubjects) ",
-            "must have the same 'maxNumberOfSubjects' defined"
+            "must have the same 'maxNumberOfSubjects' defined", 
+            call. = FALSE
         )
     }
 

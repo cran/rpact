@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8225 $
-## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
+## |  File version: $Revision: 8624 $
+## |  Last changed: $Date: 2025-03-21 13:24:59 +0100 (Fr, 21 Mrz 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -54,9 +54,13 @@ NULL
         }
         return(.getAnalysisResultsMeansMultiArm(
             design = design,
-            dataInput = dataInput, intersectionTest = intersectionTest,
-            directionUpper = directionUpper, thetaH0 = thetaH0,
-            nPlanned = nPlanned, stage = stage, ...
+            dataInput = dataInput, 
+            intersectionTest = intersectionTest,
+            directionUpper = directionUpper, 
+            thetaH0 = thetaH0,
+            nPlanned = nPlanned, 
+            stage = stage, 
+            ...
         ))
     }
 
@@ -66,9 +70,13 @@ NULL
         }
         return(.getAnalysisResultsRatesMultiArm(
             design = design,
-            dataInput = dataInput, intersectionTest = intersectionTest,
-            directionUpper = directionUpper, thetaH0 = thetaH0,
-            nPlanned = nPlanned, stage = stage, ...
+            dataInput = dataInput, 
+            intersectionTest = intersectionTest,
+            directionUpper = directionUpper, 
+            thetaH0 = thetaH0,
+            nPlanned = nPlanned, 
+            stage = stage, 
+            ...
         ))
     }
 
@@ -78,9 +86,13 @@ NULL
         }
         return(.getAnalysisResultsSurvivalMultiArm(
             design = design,
-            dataInput = dataInput, intersectionTest = intersectionTest,
-            directionUpper = directionUpper, thetaH0 = thetaH0,
-            nPlanned = nPlanned, stage = stage, ...
+            dataInput = dataInput, 
+            intersectionTest = intersectionTest,
+            directionUpper = directionUpper, 
+            thetaH0 = thetaH0,
+            nPlanned = nPlanned, 
+            stage = stage, 
+            ...
         ))
     }
 
@@ -778,7 +790,7 @@ getClosedConditionalDunnettTestResults <- function(
         if (stage == 2) {
             frac2 <- stageResults$.dataInput$sampleSizes[stageResults$.dataInput$stages == 2 &
                 stageResults$.dataInput$groups <= gMax] /
-                (stageResults$.dataInput$sampleSizes[stageResults$.dataInput$stages == 2 &
+               (stageResults$.dataInput$sampleSizes[stageResults$.dataInput$stages == 2 &
                     stageResults$.dataInput$groups <= gMax] +
                     stageResults$.dataInput$sampleSizes[stageResults$.dataInput$stages == 2 &
                         stageResults$.dataInput$groups == (gMax + 1)])
@@ -954,8 +966,8 @@ getClosedConditionalDunnettTestResults <- function(
         innerProduct <- 1
         for (g in (1:gMax)) {
             innerProduct <- innerProduct * stats::pnorm(((crit -
-                sqrt(informationAtInterim) * signedTestStatistics[g, 1] +
-                sqrt(1 - informationAtInterim) * sqrt(frac1[g]) * x)) /
+              sqrt(informationAtInterim) * signedTestStatistics[treatmentArm, 1] +
+              sqrt(1 - informationAtInterim) * sqrt(frac1[g]) * x)) /
                 sqrt((1 - informationAtInterim) * (1 - frac1[g])))
         }
         return(innerProduct * dnorm(x))
@@ -971,9 +983,9 @@ getClosedConditionalDunnettTestResults <- function(
                     if (!is.na(stageResults$overallTestStatistics[g, 2])) {
                         innerProduct <- innerProduct *
                             stats::pnorm(((maxOverallTestStatistic -
-                                sqrt(informationAtInterim) * signedTestStatistics[g, 1] +
-                                sqrt(1 - informationAtInterim) * sqrt(frac2[g]) * x)) /
-                                sqrt((1 - informationAtInterim) * (1 - frac2[g])))
+                               sqrt(informationAtInterim) * signedTestStatistics[treatmentArm, 1] +
+                               sqrt(1 - informationAtInterim) * sqrt(frac2[g]) * x)) /
+                               sqrt((1 - informationAtInterim) * (1 - frac2[g])))
                     }
                 }
                 return(innerProduct * dnorm(x))
@@ -995,6 +1007,11 @@ getClosedConditionalDunnettTestResults <- function(
         }
     }
 
+    # cat("upper = ", stageResults$directionUpper , ", gMax = ", gMax, 
+    #     ", selected = ", selected, ", treatmentArm = ", treatmentArm, 
+    #     ", conditionalErrorRate = ", conditionalErrorRate,
+    #     ", secondStagePValues = ", secondStagePValues, "\n")
+    
     return(secondStagePValues <= conditionalErrorRate)
 }
 
