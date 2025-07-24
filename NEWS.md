@@ -1,3 +1,19 @@
+# rpact 4.2.1
+
+## New features
+
+* `efficacyStops` and `futilityStops` parameter added  (issue [#88](https://github.com/rpact-com/rpact/issues/88))
+* parameter `stdErrorEstimate` (`"pooled"` or `"unpooled"`) added for calculation of final confidence intervals in two-sample situation for rates
+* `testPackage()` returns an `InstallationQualificationResult` object
+
+## Improvements, issues, and changes
+
+* Issue for conditional power calculation for group sequential designs in analysis tool fixed
+* Recruitment times for count and survival data situation improved (issue [#86](https://github.com/rpact-com/rpact/issues/86))
+* Bug fix for `getSimulationCounts()` (issue [#84](https://github.com/rpact-com/rpact/issues/84))
+* Minor improvements
+
+
 # rpact 4.2.0
 
 ## New features
@@ -11,8 +27,6 @@
 * Argument `conservative` added to `getSampleSizeRates()` function, see enhancement [#39](https://github.com/rpact-com/rpact/issues/39)
 * Enable futility boundaries in *Boundaries p Values Scale plot* plot (type = 3) using `options("rpact.plot.show.futility.on.pvalue.scale" = TRUE)` or argument `showFutilityBounds = TRUE`, see enhancement [#79](https://github.com/rpact-com/rpact/issues/79)
 * Enable beta-spending in *Error Spending* plot (type = 4) using `options("rpact.plot.show.beta.spent" = TRUE)` or argument `showBetaSpent = TRUE`, see enhancement [#80](https://github.com/rpact-com/rpact/issues/80). Furthermore, `options("rpact.plot.show.alpha.spent" = FALSE)` or argument `showAlphaSpent = FALSE` can be used to show only beta-spending in the plot
-
-`showAlphaSpent = TRUE`
 
 ## Improvements, issues, and changes
 

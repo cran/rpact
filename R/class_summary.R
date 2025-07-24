@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8615 $
-## |  Last changed: $Date: 2025-03-17 16:43:46 +0100 (Mo, 17 Mrz 2025) $
+## |  File version: $Revision: 8765 $
+## |  Last changed: $Date: 2025-07-22 08:09:47 +0200 (Di, 22 Jul 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -1962,6 +1962,19 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 paste0(ifelse(design$bindingFutility, "binding", "non-binding"), " futility")
             )
         }
+        
+        if (.isTrialDesignInverseNormalOrGroupSequential(design) &&
+                !all(is.na(design$efficacyStops)) && !all(design$efficacyStops, na.rm = TRUE)) {
+            header <- .concatenateSummaryText(header, 
+                paste0("efficacy stops ", .arrayToString(design$efficacyStops, vectorLookAndFeelEnabled = TRUE)))
+        }
+        
+        if (.isTrialDesignInverseNormalOrGroupSequential(design) &&
+                !all(is.na(design$futilityStops)) && !all(design$futilityStops, na.rm = TRUE)) {
+            header <- .concatenateSummaryText(header, 
+                paste0("futility stops ", .arrayToString(design$futilityStops, vectorLookAndFeelEnabled = TRUE)))
+        }
+
         header <- .addAlphaAndBetaToHeader(header, design, designPlan)
         header <- .concatenateSummaryText(header, "undefined endpoint")
 
@@ -2479,8 +2492,11 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
                 )
             ))
         }
-        if (settings$survivalEnabled && !is.null(designPlan[["dropoutTime"]])) {
-            if (designPlan$dropoutRate1 > 0 || designPlan$dropoutRate2 > 0) {
+        if (settings$survivalEnabled && 
+                !is.null(designPlan[["dropoutTime"]]) && 
+                !is.na(designPlan$dropoutTime)) {
+            if ((!is.na(designPlan$dropoutRate1) && designPlan$dropoutRate1 > 0) || 
+                    (!is.na(designPlan$dropoutRate2) && designPlan$dropoutRate2 > 0)) {
                 header <- .concatenateSummaryText(header, paste0(
                     "dropout rate(1) = ",
                     .arrayToString(designPlan$dropoutRate1,
@@ -3244,7 +3260,7 @@ SummaryFactory <- R6::R6Class("SummaryFactory",
             )
         }
     }
-
+    
     summaryFactory$addParameter(design,
         parameterName = "stageLevels",
         twoSided = design$sided == 2,

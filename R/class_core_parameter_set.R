@@ -13,8 +13,8 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8616 $
-## |  Last changed: $Date: 2025-03-18 16:07:37 +0100 (Di, 18 Mrz 2025) $
+## |  File version: $Revision: 8765 $
+## |  Last changed: $Date: 2025-07-22 08:09:47 +0200 (Di, 22 Jul 2025) $
 ## |  Last changed by: $Author: pahlke $
 ## |
 
@@ -338,6 +338,7 @@ ParameterSet <- R6::R6Class("ParameterSet",
             } else {
                 parameterNames <- names(self$.parameterTypes[which(self$.parameterTypes %in% parameterType)])
             }
+            
             parametersToShow <- self$.getParametersToShow()
             if (is.null(parametersToShow) || length(parametersToShow) == 0) {
                 return(parameterNames)
@@ -985,7 +986,7 @@ ParameterSet <- R6::R6Class("ParameterSet",
     if (parameterName %in% c("adjustedStageWisePValues", "overallAdjustedTestStatistics")) {
         return(NULL)
     }
-
+    
     if (!is.matrix(parameterValues)) {
         if (length(parameterValues) == 1) {
             return(rep(parameterValues, numberOfVariants * numberOfStages))
@@ -1028,9 +1029,15 @@ ParameterSet <- R6::R6Class("ParameterSet",
                 "minNumberOfSubjectsPerStage", 
                 "maxNumberOfSubjectsPerStage",
                 "piecewiseSurvivalTime", 
-                "lambda2"
-            )) {
-            return(NULL)
+                "lambda2",
+                "stDev"
+                )) {
+
+            if (parameterName == "stDev" && length(unique(parameterValues)) == 1) {
+                return(parameterValues[1])
+            }
+            
+            return(paste(parameterValues, collapse = ", "))
         }
 
         stop(
@@ -1160,7 +1167,8 @@ ParameterSet <- R6::R6Class("ParameterSet",
     for (parameterName in parameterNames) {
         tryCatch(
             {
-                if (!(parameterName %in% c("stages", "adaptations", "effectList", "doseLevels", "plannedCalendarTime", "stDev")) &&
+                if (!(parameterName %in% c("stages", "adaptations", "effectList", 
+                            "doseLevels", "plannedCalendarTime")) && 
                         !grepl("Function$", parameterName) &&
                         (is.null(variedParameter) || parameterName != variedParameter)) {
                     columnValues <- .getDataFrameColumnValues(
@@ -1168,10 +1176,16 @@ ParameterSet <- R6::R6Class("ParameterSet",
                         numberOfVariants, numberOfStages,
                         includeAllParameters, mandatoryParameterNames
                     )
+                    
                     if (!is.null(columnValues)) {
                         columnCaption <- parameterSet$.getDataFrameColumnCaption(
                             parameterName, niceColumnNamesEnabled
                         )
+                        
+                        if (parameterName == "stDev" && length(columnValues) == 2) {
+                            columnValues <- paste(columnValues, collapse = ", ")
+                        }
+                        
                         dataFrame[[columnCaption]] <- columnValues
                         if (returnParametersAsCharacter) {
                             parameterSet$.formatDataFrameParametersAsCharacter(

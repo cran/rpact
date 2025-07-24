@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 4.2.0
-Date: 2025-03-24
+Version: 4.2.1
+Date: 2025-07-23
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -100,13 +100,16 @@ Collate: 'RcppExports.R' 'f_logger.R' 'class_dictionary.R'
         'f_simulation_performance_score.R' 'f_simulation_plot.R'
         'parameter_descriptions.R' 'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2025-03-24 16:53:34 UTC; fried
-Author: Gernot Wassmer [aut] (<https://orcid.org/0000-0001-9397-1794>),
-  Friedrich Pahlke [aut, cre] (<https://orcid.org/0000-0003-2105-2582>),
+Packaged: 2025-07-24 10:47:17 UTC; fried
+Author: Gernot Wassmer [aut] (ORCID: <https://orcid.org/0000-0001-9397-1794>),
+  Friedrich Pahlke [aut, cre] (ORCID:
+    <https://orcid.org/0000-0003-2105-2582>),
   Till Jensen [ctb],
-  Daniel Sabanes Bove [ctb] (<https://orcid.org/0000-0002-0176-9239>),
-  Stephen Schueuerhuis [ctb] (<https://orcid.org/0009-0006-3124-6056>),
-  Tobias Muetze [ctb] (<https://orcid.org/0000-0002-4111-1941>)
+  Daniel Sabanes Bove [ctb] (ORCID:
+    <https://orcid.org/0000-0002-0176-9239>),
+  Stephen Schueuerhuis [ctb] (ORCID:
+    <https://orcid.org/0009-0006-3124-6056>),
+  Tobias Muetze [ctb] (ORCID: <https://orcid.org/0000-0002-4111-1941>)
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2025-03-24 17:20:02 UTC
+Date/Publication: 2025-07-24 11:10:02 UTC

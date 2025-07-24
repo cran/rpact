@@ -20,9 +20,9 @@ Type 'q()' to quit R.
 > 
 > library(testthat)
 > library(rpact)
-rpact developer version 4.1.1.9276 loaded
+rpact developer version 4.2.1.9287 loaded
 > 
-> test_check("rpact", reporter = MarkdownReporter$new(outputFile = file.path("D:/R/workspace/rpact/tests", "rpact_test_result_report.md"), outputSize = "compact", openHtmlReport = TRUE, keepSourceFiles = FALSE, testInstalledBasicPackages = TRUE, author = "RPACT", scope = "basic"))
+> test_check("rpact", reporter = MarkdownReporter$new(outputFile = file.path("D:/R/workspace/rpact/tests", "rpact_test_result_report.md"), outputSize = "compact", openHtmlReport = FALSE, keepSourceFiles = FALSE, testInstalledBasicPackages = TRUE, author = "RPACT", scope = "basic"))
 
 #### Running Strict Specific Tests
 
@@ -73,33 +73,7 @@ rpact developer version 4.1.1.9276 loaded
 - comparing 'reg-tests-2.Rout' to 'reg-tests-2.Rout.save' ... OK
 - running code in 'reg-tests-1d.R'
 - running code in 'reg-tests-1e.R'
-- running code in 'reg-examples1.R'
-- running code in 'reg-examples2.R'
-- running code in 'reg-packages.R'
-- running code in 'reg-S4-examples.R'
-- running code in 'classes-methods.R'
-- running code in 'datetime3.R'
-- running code in 'p-qbeta-strict-tst.R'
-- running code in 'reg-IO.R'
-- comparing 'reg-IO.Rout' to 'reg-IO.Rout.save' ... OK
-- running code in 'reg-IO2.R'
-- comparing 'reg-IO2.Rout' to 'reg-IO2.Rout.save' ... OK
-- running code in 'reg-plot.R'
-- comparing 'reg-plot.pdf' to 'reg-plot.pdf.save' ...OK
-- running code in 'reg-S4.R'
-- comparing 'reg-S4.Rout' to 'reg-S4.Rout.save' ... OK
-- running code in 'reg-BLAS.R'
-- running code in 'reg-translation.R'
-- running code in 'reg-tests-3.R'
-- comparing 'reg-tests-3.Rout' to 'reg-tests-3.Rout.save' ... OK
-- running code in 'reg-examples3.R'
-- comparing 'reg-examples3.Rout' to 'reg-examples3.Rout.save' ... OK
-
-#### Running Tests of Plotting Latin-1
-
-- expect failure or some differences if not in a Latin or UTF-8 locale
-- running code in 'reg-plot-latin1.R'
-- comparing 'reg-plot-latin1.pdf' to 'reg-plot-latin1.pdf.save' ...OK
+FAILED
 
 
             RRRRRRR    PPPPPPP    AAAAAAA   CCCCCCC   TTTTTTTT
@@ -113,10 +87,10 @@ NOTE: The full set of unit tests for rpact is now stored in a private repository
 Only members of the 'RPACT User Group' have access to the tests.
 For more information, please visit: www.rpact.org/iq
 Test results saved to 'D:/R/workspace/rpact/tests/rpact_test_result_report.md'
-"C:/PROGRA~1/Pandoc/pandoc" +RTS -K512m -RTS rpact_test_result_report.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output rpact_test_result_report.html --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\latex-div.lua" --self-contained --variable bs3=TRUE --section-divs --table-of-contents --toc-depth 3 --template "C:\R\R-4.4.2\library\rmarkdown\rmd\h\default.html" --no-highlight --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\fried\AppData\Local\Temp\RtmpSe2SUA\rmarkdown-str160fc1f315fd2.html" 
+"C:/PROGRA~1/Pandoc/pandoc" +RTS -K512m -RTS rpact_test_result_report.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output rpact_test_result_report.html --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\latex-div.lua" --self-contained --variable bs3=TRUE --section-divs --table-of-contents --toc-depth 3 --template "C:\R\R-4.4.2\library\rmarkdown\rmd\h\default.html" --no-highlight --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\fried\AppData\Local\Temp\RtmpkbOLCL\rmarkdown-str13e6035791a03.html" 
 
 Output created: rpact_test_result_report.html
-"C:/PROGRA~1/Pandoc/pandoc" +RTS -K512m -RTS rpact_test_result_report_tex.md --to latex --from markdown+autolink_bare_uris+tex_math_single_backslash --output rpact_test_result_report_tex.pdf --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\latex-div.lua" --self-contained --highlight-style tango --pdf-engine pdflatex --variable graphics --include-in-header "C:\Users\fried\AppData\Local\Temp\RtmpSe2SUA\rmarkdown-str160fc570671d5.html" --variable "geometry:margin=1in" 
+"C:/PROGRA~1/Pandoc/pandoc" +RTS -K512m -RTS rpact_test_result_report_tex.md --to latex --from markdown+autolink_bare_uris+tex_math_single_backslash --output rpact_test_result_report_tex.pdf --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\R\R-4.4.2\library\rmarkdown\rmarkdown\lua\latex-div.lua" --self-contained --highlight-style tango --pdf-engine pdflatex --variable graphics --include-in-header "C:\Users\fried\AppData\Local\Temp\RtmpkbOLCL\rmarkdown-str13e6073757520.html" --variable "geometry:margin=1in" 
 
 Output created: rpact_test_result_report_tex.pdf
 > 
