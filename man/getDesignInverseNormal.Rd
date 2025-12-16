@@ -26,6 +26,8 @@ getDesignInverseNormal(
   futilityStops = NA,
   gammaB = NA_real_,
   bindingFutility = NA,
+  futilityBoundsScale = c("zValue", "pValue", "reverseCondPower", "condPowerAtObserved",
+    "predictivePower"),
   directionUpper = NA,
   betaAdjustment = NA,
   constantBoundsHP = 3,
@@ -56,7 +58,7 @@ default is \code{(1:kMax) / kMax}. For the weighted inverse normal design, the w
 through w_1 = sqrt(t_1), and w_k = sqrt(t_k - t_(k-1)). For the weighted Fisher's combination test, the
 weights (scales) are w_k = sqrt((t_k - t_(k-1)) / t_1) (see the documentation).}
 
-\item{futilityBounds}{The futility bounds, defined on the test statistic z scale
+\item{futilityBounds}{The futility bounds, defined on the scale defined by \code{futilityBoundsScale}.
 (numeric vector of length \code{kMax - 1}).}
 
 \item{typeOfDesign}{The type of design. Type of design is one of the following:
@@ -102,6 +104,11 @@ beta-spending up to each interim stage.}
 \item{bindingFutility}{Logical. If \code{bindingFutility = TRUE} is specified the calculation of
 the critical values is affected by the futility bounds and the futility threshold is binding in the
 sense that the study must be stopped if the futility condition was reached (default is \code{FALSE}).}
+
+\item{futilityBoundsScale}{Character. The scale of the futility bounds.
+Must be one of \code{"zValue"}, \code{"pValue"}, \code{"reverseCondPower"},
+\code{"condPowerAtObserved"}, or \code{"predictivePower"}.
+Default is \code{"zValue"}.}
 
 \item{directionUpper}{Logical. Specifies the direction of the alternative,
 only applicable for one-sided testing; default is \code{TRUE}

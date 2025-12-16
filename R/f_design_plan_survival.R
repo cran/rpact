@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8624 $
-## |  Last changed: $Date: 2025-03-21 13:24:59 +0100 (Fr, 21 Mrz 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_core_utilities.R
 NULL
@@ -1521,6 +1517,7 @@ NULL
         designPlan$.setParameterType("futilityStop", C_PARAM_GENERATED)
 
         designPlan$earlyStop <- designPlan$earlyStop + sum(designPlan$futilityPerStage)
+        designPlan$.setParameterType("earlyStop", C_PARAM_GENERATED)
     }
 
     designPlan$informationRates <- matrix(informationRates, ncol = 1)
@@ -2557,7 +2554,8 @@ getPowerSurvival <- function(design = NULL, ...,
     )
 
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
 
     if (designPlan$typeOfComputation == "Schoenfeld") {
         theta <- sqrt(allocationRatioPlanned) / (1 + allocationRatioPlanned) *
@@ -2725,6 +2723,9 @@ getPowerSurvival <- function(design = NULL, ...,
         designPlan$.setParameterType("futilityStop", C_PARAM_NOT_APPLICABLE)
         designPlan$.setParameterType("earlyStop", C_PARAM_NOT_APPLICABLE)
         designPlan$.setParameterType("rejectPerStage", C_PARAM_NOT_APPLICABLE)
+    } else {
+        designPlan$.setParameterType("futilityStop", C_PARAM_GENERATED)
+        designPlan$.setParameterType("earlyStop", C_PARAM_GENERATED)
     }
 
     if (!any(is.na(designPlan$analysisTime)) && !any(is.na(designPlan$accrualTime))) {

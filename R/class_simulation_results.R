@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8765 $
-## |  Last changed: $Date: 2025-07-22 08:09:47 +0200 (Di, 22 Jul 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_core_utilities.R
 NULL
@@ -626,7 +622,7 @@ SimulationResults <- R6::R6Class(
                 "rejectedArmsPerStage",
                 "rejectedPopulationsPerStage"
             )
-            if (self$.design$kMax > 2) {
+            if (self$.design$kMax > 1) {
                 y <- c(y, "futilityStop")
             }
             y <- c(
@@ -683,11 +679,10 @@ SimulationResultsBaseMeans <- R6::R6Class(
                 "sampleSizes",
                 "overallReject",
                 "rejectPerStage",
-                "futilityPerStage",
-                "earlyStop"
+                "futilityPerStage"
             )
-            if (design$kMax > 2) {
-                generatedParams <- c(generatedParams, "futilityStop")
+            if (design$kMax > 1) {
+                generatedParams <- c(generatedParams, c("earlyStop", "futilityStop"))
             }
             for (generatedParam in generatedParams) {
                 self$.setParameterType(generatedParam, C_PARAM_GENERATED)
@@ -772,6 +767,7 @@ SimulationResultsMeans <- R6::R6Class(
         thetaH0 = NULL,
         initialize = function(design, ...) {
             super$initialize(design = design, ...)
+            self$.setParameterType("earlyStop", C_PARAM_NOT_APPLICABLE)
         }
     )
 )
@@ -868,7 +864,7 @@ SimulationResultsMultiArmMeans <- R6::R6Class(
         typeOfShape = NULL,
         initialize = function(design, ...) {
             super$initialize(design = design, ...)
-
+            self$.setParameterType("earlyStop", C_PARAM_NOT_APPLICABLE)
             for (generatedParam in c(
                 "rejectAtLeastOne",
                 "selectedArms",
@@ -900,12 +896,12 @@ SimulationResultsBaseRates <- R6::R6Class(
                 "sampleSizes",
                 "overallReject",
                 "rejectPerStage",
-                "futilityPerStage",
-                "earlyStop"
+                "futilityPerStage"
             )
-            if (design$kMax > 2) {
-                generatedParams <- c(generatedParams, "futilityStop")
+            if (design$kMax > 1) {
+                generatedParams <- c(generatedParams, c("earlyStop", "futilityStop"))
             }
+            
             for (generatedParam in generatedParams) {
                 self$.setParameterType(generatedParam, C_PARAM_GENERATED)
             }
@@ -976,7 +972,6 @@ SimulationResultsRates <- R6::R6Class(
     "SimulationResultsRates",
     inherit = SimulationResultsBaseRates,
     public = list(
-        # directionUpper = NULL,
         conditionalPowerAchieved = matrix(),
         earlyStop = NULL,
         effect = NULL,
@@ -994,6 +989,7 @@ SimulationResultsRates <- R6::R6Class(
         thetaH0 = NULL,
         initialize = function(design, ...) {
             super$initialize(design = design, ...)
+            self$.setParameterType("earlyStop", C_PARAM_NOT_APPLICABLE)
             generatedParams <- c(
                 "effect",
                 "iterations",
@@ -1001,11 +997,10 @@ SimulationResultsRates <- R6::R6Class(
                 "expectedNumberOfSubjects",
                 "overallReject",
                 "rejectPerStage",
-                "futilityPerStage",
-                "earlyStop"
+                "futilityPerStage"
             )
-            if (design$kMax > 2) {
-                generatedParams <- c(generatedParams, "futilityStop")
+            if (design$kMax > 1) {
+                generatedParams <- c(generatedParams, c("earlyStop", "futilityStop"))
             }
             for (generatedParam in generatedParams) {
                 self$.setParameterType(generatedParam, C_PARAM_GENERATED)
@@ -1111,7 +1106,7 @@ SimulationResultsMultiArmRates <- R6::R6Class(
         typeOfShape = NULL,
         initialize = function(design, ...) {
             super$initialize(design = design, ...)
-
+            self$.setParameterType("earlyStop", C_PARAM_NOT_APPLICABLE)
             for (generatedParam in c(
                 "rejectAtLeastOne",
                 "selectedArms",
@@ -1276,6 +1271,18 @@ SimulationResultsSurvival <- R6::R6Class(
         thetaH0 = NULL,
         initialize = function(design, ...) {
             super$initialize(design = design, ...)
+            for (notApplicableParam in c(
+                "earlyStop", 
+                "futilityStop",
+                "numberOfSubjects1",
+                "numberOfSubjects2",
+                "median1",
+                "median2",
+                "eventsPerStage",
+                "overallEventsPerStage"
+            )) {
+                self$.setParameterType(notApplicableParam, C_PARAM_NOT_APPLICABLE)
+            }
             generatedParams <- c(
                 "hazardRatio",
                 "iterations",
@@ -1286,7 +1293,6 @@ SimulationResultsSurvival <- R6::R6Class(
                 "overallReject",
                 "rejectPerStage",
                 "futilityPerStage",
-                "earlyStop",
                 "analysisTime",
                 "studyDuration",
                 "allocationRatioPlanned"
@@ -1304,27 +1310,14 @@ SimulationResultsSurvival <- R6::R6Class(
                     "populationEventsPerStage"
                 )
             }
-            if (design$kMax > 2) {
-                generatedParams <- c(
-                    generatedParams,
-                    "futilityStop"
-                )
+            if (design$kMax > 1) {
+                generatedParams <- c(generatedParams, c("earlyStop", "futilityStop"))
             }
             for (generatedParam in generatedParams) {
                 self$.setParameterType(
                     generatedParam,
                     C_PARAM_GENERATED
                 )
-            }
-            for (notApplicableParam in c(
-                    "numberOfSubjects1",
-                    "numberOfSubjects2",
-                    "median1",
-                    "median2",
-                    "eventsPerStage",
-                    "overallEventsPerStage"
-                )) {
-                    self$.setParameterType(notApplicableParam, C_PARAM_NOT_APPLICABLE)
             }
         }
     )

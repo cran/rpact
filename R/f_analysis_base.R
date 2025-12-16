@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8705 $
-## |  Last changed: $Date: 2025-05-07 10:58:11 +0200 (Mi, 07 Mai 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_core_utilities.R
 #' @include f_logger.R
@@ -243,35 +239,21 @@ getAnalysisResults <- function(
 
         fun <- NULL
         if (dataInput$isDatasetMeans()) {
-            if (is.na(thetaH0)) {
-                thetaH0 <- C_THETA_H0_MEANS_DEFAULT
-            }
             fun <- .getAnalysisResultsMeans
         } else if (dataInput$isDatasetRates()) {
-            if (is.na(thetaH0)) {
-                thetaH0 <- C_THETA_H0_RATES_DEFAULT
-            }
             fun <- .getAnalysisResultsRates
         } else if (dataInput$isDatasetSurvival()) {
-            if (is.na(thetaH0)) {
-                thetaH0 <- C_THETA_H0_SURVIVAL_DEFAULT
-            }
             fun <- .getAnalysisResultsSurvival
         } else {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-                "'", .getClassName(dataInput), "' is not supported"
-            )
+            .fireDataInputNotSupportedException(dataInput)
         }
+        thetaH0 <- .getDefaultThetaH0(dataInput, thetaH0)
 
         args$thetaH0 <- thetaH0
         result <- do.call(fun, args)
 
         if (is.null(result)) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-                "'", .getClassName(dataInput), "' is not implemented yet"
-            )
+            .fireDataInputNotSupportedException(dataInput)
         }
 
         if (isTRUE(recalculationResult$informationRatesRecalculated)) {
@@ -376,7 +358,8 @@ getAnalysisResults <- function(
 #'
 #' @export
 #'
-getStageResults <- function(design,
+getStageResults <- function(
+        design,
         dataInput,
         ...,
         stage = NA_integer_,
@@ -446,10 +429,7 @@ getStageResults <- function(design,
         }
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-        "'", .getClassName(dataInput), "' is not supported"
-    )
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 .getStageFromOptionalArguments <- function(..., dataInput, design, showWarnings = FALSE) {
@@ -746,7 +726,7 @@ getRepeatedConfidenceIntervals <- function(design,
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 .getStageResultsObject <- function(stageResults, ..., functionName) {
@@ -919,16 +899,17 @@ getConditionalPower <- function(stageResults,
         )
 
         return(conditionalPower)
-    } else {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-            .getClassName(stageResults$.dataInput), "' is not implemented yet"
-        )
     }
+    
+    .fireDataInputNotSupportedException(stageResults$getDataInput())
 }
 
-.getConditionalPowerPlot <- function(...,
-        stageResults, nPlanned, allocationRatioPlanned = NA_real_) {
+.getConditionalPowerPlot <- function(
+        ...,
+        stageResults, 
+        nPlanned, 
+        allocationRatioPlanned = NA_real_) {
+        
     if (.isMultiArmStageResults(stageResults)) {
         return(.getConditionalPowerPlotMultiArm(
             stageResults = stageResults,
@@ -959,28 +940,34 @@ getConditionalPower <- function(stageResults,
     if (stageResults$isDatasetMeans()) {
         return(.getConditionalPowerPlotMeans(
             stageResults = stageResults,
-            stage = stage, nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...
+            stage = stage, 
+            nPlanned = nPlanned, 
+            allocationRatioPlanned = allocationRatioPlanned, 
+            ...
         ))
     }
 
     if (stageResults$isDatasetRates()) {
         return(.getConditionalPowerPlotRates(
             stageResults = stageResults,
-            stage = stage, nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...
+            stage = stage, 
+            nPlanned = nPlanned, 
+            allocationRatioPlanned = allocationRatioPlanned, 
+            ...
         ))
     }
 
     if (stageResults$isDatasetSurvival()) {
         return(.getConditionalPowerPlotSurvival(
             stageResults = stageResults,
-            stage = stage, nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...
+            stage = stage, 
+            nPlanned = nPlanned, 
+            allocationRatioPlanned = allocationRatioPlanned, 
+            ...
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        .getClassName(stageResults$.dataInput), "' is not implemented yet"
-    )
+    .fireDataInputNotSupportedException(stageResults$getDataInput())
 }
 
 #'
@@ -1622,7 +1609,7 @@ getFinalConfidenceInterval <- function(
     }
 
     if (is.null(finalConfidenceInterval)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
+        .fireDataInputNotSupportedException(dataInput)
     }
 
     if (design$kMax > 1 && is.na(finalConfidenceInterval$finalStage) &&

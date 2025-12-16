@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8731 $
-## |  Last changed: $Date: 2025-05-23 12:09:53 +0200 (Fr, 23 Mai 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_simulation_multiarm.R
 NULL
@@ -616,6 +612,7 @@ getSimulationMultiArmMeans <- function(design = NULL, ...,
     if (kMax > 1) {
         simulationResults$earlyStop <- simulationResults$futilityPerStage +
             simulationResults$successPerStage[1:(kMax - 1), ]
+        simulationResults$.setParameterType("earlyStop", C_PARAM_GENERATED)
         simulationResults$conditionalPowerAchieved <- simulatedConditionalPower
     }
     simulationResults$sampleSizes <- simulatedSubjectsPerStage

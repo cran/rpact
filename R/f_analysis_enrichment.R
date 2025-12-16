@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8225 $
-## |  Last changed: $Date: 2024-09-18 09:38:40 +0200 (Mi, 18 Sep 2024) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_core_utilities.R
 NULL
@@ -84,8 +80,7 @@ NULL
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-        "'", .getClassName(dataInput), "' is not implemented yet")
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 #'
@@ -96,10 +91,12 @@ NULL
 #'
 #' @noRd
 #'
-.getStageResultsEnrichment <- function(design,
+.getStageResultsEnrichment <- function(
+        design,
         dataInput,
         ...,
         directionUpper = C_DIRECTION_UPPER_DEFAULT) {
+        
     .assertIsTrialDesignInverseNormalOrFisher(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
     .assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
@@ -135,10 +132,7 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-        "'", .getClassName(dataInput), "' is not supported"
-    )
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 #'
@@ -182,10 +176,7 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-        "'", .getClassName(dataInput), "' is not implemented yet"
-    )
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 #'
@@ -209,28 +200,31 @@ NULL
 
         return(.getConditionalPowerMeansEnrichment(
             stageResults = stageResults,
-            nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...
+            nPlanned = nPlanned, 
+            allocationRatioPlanned = allocationRatioPlanned, 
+            ...
         ))
     }
 
     if (stageResults$isDatasetRates()) {
         return(.getConditionalPowerRatesEnrichment(
             stageResults = stageResults,
-            nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...
+            nPlanned = nPlanned, 
+            allocationRatioPlanned = allocationRatioPlanned, 
+            ...
         ))
     }
 
     if (stageResults$isDatasetSurvival()) {
         return(.getConditionalPowerSurvivalEnrichment(
             stageResults = stageResults,
-            nPlanned = nPlanned, allocationRatioPlanned = allocationRatioPlanned, ...
+            nPlanned = nPlanned, 
+            allocationRatioPlanned = allocationRatioPlanned, 
+            ...
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        .getClassName(stageResults$.dataInput), "' is not implemented yet"
-    )
+    .fireDataInputNotSupportedException(stageResults$getDataInput())
 }
 
 #'
@@ -442,7 +436,8 @@ NULL
 
     .assertIsValidNPlanned(nPlanned = nPlanned, kMax = kMax, stage = stage)
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
 
     if (stageResults$isDatasetMeans()) {
         .warnInCaseOfUnusedArgument(piTreatmentRange, "piTreatmentRange", NA_real_, "plot")
@@ -472,8 +467,5 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        .getClassName(stageResults$.dataInput), "' is not implemented yet"
-    )
+    .fireDataInputNotSupportedException(stageResults$getDataInput())
 }

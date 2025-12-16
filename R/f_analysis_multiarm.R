@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8730 $
-## |  Last changed: $Date: 2025-05-23 12:07:33 +0200 (Fr, 23 Mai 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_core_utilities.R
 NULL
@@ -96,10 +92,7 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-        "'", .getClassName(dataInput), "' is not implemented yet"
-    )
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 #'
@@ -108,7 +101,8 @@ NULL
 #'
 #' @noRd
 #'
-.getStageResultsMultiArm <- function(design,
+.getStageResultsMultiArm <- function(
+        design,
         dataInput,
         ...,
         directionUpper = NA) {
@@ -147,10 +141,7 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type ",
-        "'", .getClassName(dataInput), "' is not supported"
-    )
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 #'
@@ -192,7 +183,7 @@ NULL
         ))
     }
 
-    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '", .getClassName(dataInput), "' is not implemented yet")
+    .fireDataInputNotSupportedException(dataInput)
 }
 
 #'
@@ -241,10 +232,7 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        .getClassName(stageResults$.dataInput), "' is not implemented yet"
-    )
+    .fireDataInputNotSupportedException(stageResults$getDataInput())
 }
 
 .getIndicesOfClosedHypothesesSystem <- function(gMax) {
@@ -722,7 +710,7 @@ getClosedCombinationTestResults <- function(stageResults) {
 #' @details
 #' For performing the conditional Dunnett test the design must be defined through the function
 #' \code{\link[=getDesignConditionalDunnett]{getDesignConditionalDunnett()}}.\cr
-#' See Koenig et al. (2008) and Wassmer & Brannath (2016), chapter 11 for details of the test procedure.
+#' See Koenig et al. (2008) and Wassmer & Brannath (2025), chapter 11 for details of the test procedure.
 #'
 #' @template return_object_closed_combination_test_results
 #' @template how_to_get_help_for_generics
@@ -1261,7 +1249,8 @@ getClosedConditionalDunnettTestResults <- function(stageResults,
 
     .assertIsValidNPlanned(nPlanned = nPlanned, kMax = kMax, stage = stage)
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
 
     if (stageResults$isDatasetMeans()) {
         .warnInCaseOfUnusedArgument(piTreatmentRange, "piTreatmentRange", NA_real_, "plot")
@@ -1304,8 +1293,5 @@ getClosedConditionalDunnettTestResults <- function(stageResults,
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dataInput' type '",
-        .getClassName(stageResults$.dataInput), "' is not implemented yet"
-    )
+    .fireDataInputNotSupportedException(stageResults$getDataInput())
 }

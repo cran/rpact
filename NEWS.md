@@ -1,3 +1,25 @@
+# rpact 4.3.0
+
+## New features
+
+* The new function `getFutilityBounds()` converts futility bounds between different 
+  scales such as z-value, p-value, conditional power, predictive power, reverse conditional
+  power, and effect estimate.
+* The new argument `futilityBoundsScale` in `getDesignInverseNormal()` and
+  `getDesignGroupSequential()` allows specifying futility bounds directly
+  on alternative scales (e.g. p-value), which are internally converted as needed.
+* The new argument `alpha0Scale` in `getDesignFisher()` allows specifying alpha0 bounds directly
+  on alternative scales, which are internally converted as needed.
+
+## Improvements, issues, and changes
+
+* Documentation for `maxNumberOfRawDatasetsPerStage` in survival clarified
+* Issue [#94](https://github.com/rpact-com/rpact/issues/94) fixed
+* Issue [#99](https://github.com/rpact-com/rpact/issues/99) fixed
+* Testing improved, e.g., new helper function `getTestLabel()` introduced
+* Several minor improvements
+
+
 # rpact 4.2.1
 
 ## New features
@@ -27,6 +49,7 @@
 * Argument `conservative` added to `getSampleSizeRates()` function, see enhancement [#39](https://github.com/rpact-com/rpact/issues/39)
 * Enable futility boundaries in *Boundaries p Values Scale plot* plot (type = 3) using `options("rpact.plot.show.futility.on.pvalue.scale" = TRUE)` or argument `showFutilityBounds = TRUE`, see enhancement [#79](https://github.com/rpact-com/rpact/issues/79)
 * Enable beta-spending in *Error Spending* plot (type = 4) using `options("rpact.plot.show.beta.spent" = TRUE)` or argument `showBetaSpent = TRUE`, see enhancement [#80](https://github.com/rpact-com/rpact/issues/80). Furthermore, `options("rpact.plot.show.alpha.spent" = FALSE)` or argument `showAlphaSpent = FALSE` can be used to show only beta-spending in the plot
+* `getSampleSizeMeans()`, `getPowerMeans()`, `getSimulationMeans()`: For two-armed trials, it is allowed to specify the standard deviations (`stDev`) separately, i.e., as vector with two elements. 
 
 ## Improvements, issues, and changes
 
@@ -34,7 +57,7 @@
   (`getDesignConditionalDunnett()`) in analysis tool is fixed.
 * The full set of unit tests for rpact is now stored in a private repository. 
   Only members of the 'RPACT User Group' have access to the tests.
-  For more information, please visit: [rpact.org/iq](https://www.rpact.org/vignettes/utilities/rpact_installation_qualification/) and [RPACT Connect](https://rpact.shinyapps.io/connect)
+  For more information, please visit: [rpact.org/iq](https://www.rpact.org/vignettes/utilities/rpact_installation_qualification/) and [RPACT Connect](https://rpact-connect.share.connect.posit.cloud)
 * Usage of `maxInformation` improved (see enhancement [#65](https://github.com/rpact-com/rpact/issues/65))
 * Line breaks in the output of `getObjectRCode()` improved (see [#81](https://github.com/rpact-com/rpact/issues/81))
 * `testPackage()`: additional warning details will be added to the test report if warnings exist* Issue [#61](https://github.com/rpact-com/rpact/issues/61) fixed
@@ -117,7 +140,7 @@
 * R package `mnormt` dependency has been removed 
 * Argument `theta` can be used for plotting of sample size and power results
 * Pipe operator usage improved
-* Shiny app link changed to https://rpact.shinyapps.io/cloud
+* Shiny app link changed to https://rpact-cloud.share.connect.posit.cloud
 * Several minor improvements
 
 

@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8624 $
-## |  Last changed: $Date: 2025-03-21 13:24:59 +0100 (Fr, 21 Mrz 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_logger.R
 NULL
@@ -336,7 +332,7 @@ NULL
 .getStageResultsMeansMultiArm <- function(..., 
         design, 
         dataInput,
-        thetaH0 = C_THETA_H0_MEANS_DEFAULT,
+        thetaH0 = NA_real_,
         directionUpper = C_DIRECTION_UPPER_DEFAULT,
         normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT,
         varianceOption = C_VARIANCE_OPTION_MULTIARMED_DEFAULT,
@@ -346,6 +342,7 @@ NULL
     .assertIsTrialDesign(design)
     .assertIsDatasetMeans(dataInput)
     .assertIsValidThetaH0DataInput(thetaH0, dataInput)
+    thetaH0 <- .getDefaultThetaH0(dataInput, thetaH0)
     .assertIsSingleLogical(normalApproximation, "normalApproximation")
     .assertIsValidVarianceOptionMultiArmed(design, varianceOption)
     .warnInCaseOfUnknownArguments(
@@ -1148,7 +1145,8 @@ NULL
 
     .assertIsValidNPlanned(nPlanned, kMax, stage)
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
     .setValueAndParameterType(results, "allocationRatioPlanned", allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT)
     assumedStDevs <- .assertIsValidAssumedStDevForMultiHypotheses(
         assumedStDevs, stageResults, stage,
@@ -1493,7 +1491,8 @@ NULL
         seed = NA_real_) {
     .associatedArgumentsAreDefined(nPlanned = nPlanned, thetaRange = thetaRange)
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
 
     design <- stageResults$.design
     kMax <- design$kMax

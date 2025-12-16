@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 4.2.1
-Date: 2025-07-23
+Version: 4.3.0
+Date: 2025-12-16
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -44,13 +44,12 @@ Authors@R: c(
     	comment = c(ORCID = "0000-0002-4111-1941"), 
     	role = c("ctb")
 	))
-Description: Design and analysis of confirmatory adaptive clinical trials with continuous, binary, and survival endpoints according to the methods described in the monograph by Wassmer and Brannath (2016) <doi:10.1007/978-3-319-32562-0>. This includes classical group sequential as well as multi-stage adaptive hypotheses tests that are based on the combination testing principle.
+Description: Design and analysis of confirmatory adaptive clinical trials with continuous, binary, and survival endpoints according to the methods described in the monograph by Wassmer and Brannath (2025) <doi:10.1007/978-3-031-89669-9>. This includes classical group sequential as well as multi-stage adaptive hypotheses tests that are based on the combination testing principle.
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true
 URL: https://www.rpact.org, https://www.rpact.com,
-        https://github.com/rpact-com/rpact,
-        https://rpact-com.github.io/rpact/,
+        https://docs.rpact.org, https://github.com/rpact-com/rpact,
         https://rpact.shinyapps.io/connect
 BugReports: https://github.com/rpact-com/rpact/issues
 Language: en-US
@@ -61,7 +60,7 @@ LinkingTo: Rcpp
 Suggests: ggplot2 (>= 3.5.0), testthat (>= 3.0.0), rmarkdown (>= 1.10),
         rappdirs (>= 0.3.3)
 VignetteBuilder: knitr, rmarkdown
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/testthat/start-first: *analysis*
@@ -86,11 +85,12 @@ Collate: 'RcppExports.R' 'f_logger.R' 'class_dictionary.R'
         'f_analysis_multiarm_means.R' 'f_analysis_multiarm_rates.R'
         'f_analysis_multiarm_survival.R' 'f_as251.R'
         'f_core_output_formats.R' 'f_design_fisher_combination_test.R'
-        'f_design_group_sequential.R' 'f_design_plan_counts.R'
-        'f_design_plan_means.R' 'f_design_plan_plot.R'
-        'f_design_plan_rates.R' 'f_design_plan_survival.R'
-        'f_design_plan_utilities.R' 'f_quality_assurance.R'
-        'f_simulation_base_means.R' 'f_simulation_base_rates.R'
+        'f_design_futility_bounds.R' 'f_design_group_sequential.R'
+        'f_design_plan_counts.R' 'f_design_plan_means.R'
+        'f_design_plan_plot.R' 'f_design_plan_rates.R'
+        'f_design_plan_survival.R' 'f_design_plan_utilities.R'
+        'f_quality_assurance.R' 'f_simulation_base_means.R'
+        'f_simulation_base_rates.R'
         'f_simulation_calc_subjects_function.R'
         'f_simulation_enrichment.R' 'f_simulation_enrichment_means.R'
         'f_simulation_enrichment_rates.R'
@@ -100,7 +100,7 @@ Collate: 'RcppExports.R' 'f_logger.R' 'class_dictionary.R'
         'f_simulation_performance_score.R' 'f_simulation_plot.R'
         'parameter_descriptions.R' 'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2025-07-24 10:47:17 UTC; fried
+Packaged: 2025-12-16 11:21:07 UTC; fried
 Author: Gernot Wassmer [aut] (ORCID: <https://orcid.org/0000-0001-9397-1794>),
   Friedrich Pahlke [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-2105-2582>),
@@ -112,4 +112,4 @@ Author: Gernot Wassmer [aut] (ORCID: <https://orcid.org/0000-0001-9397-1794>),
   Tobias Muetze [ctb] (ORCID: <https://orcid.org/0000-0002-4111-1941>)
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2025-07-24 11:10:02 UTC
+Date/Publication: 2025-12-16 12:00:02 UTC

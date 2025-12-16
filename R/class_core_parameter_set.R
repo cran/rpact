@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8765 $
-## |  Last changed: $Date: 2025-07-22 08:09:47 +0200 (Di, 22 Jul 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include class_dictionary.R
 #' @include f_core_constants.R
@@ -379,7 +375,8 @@ ParameterSet <- R6::R6Class("ParameterSet",
             if (!is.null(showType) && showType == 2) {
                 self$.cat("Technical developer summary of the ", self$.toString(), " object (",
                     methods::classLabel(class(self)), "):\n\n",
-                    sep = "", heading = 1,
+                    sep = "", 
+                    heading = 1,
                     consoleOutputEnabled = consoleOutputEnabled
                 )
                 self$.showAllParameters(consoleOutputEnabled = consoleOutputEnabled)
@@ -475,8 +472,10 @@ ParameterSet <- R6::R6Class("ParameterSet",
                 }
             ) 
         },
-        .showParameterSingle = function(param,
-                parameterName, ...,
+        .showParameterSingle = function(
+                param,
+                parameterName, 
+                ...,
                 category = NULL,
                 showParameterType = FALSE,
                 consoleOutputEnabled = TRUE) {
@@ -570,7 +569,6 @@ ParameterSet <- R6::R6Class("ParameterSet",
                 parameterName <- substr(parameterName, index + 1, nchar(parameterName))
                 obj <- base::get(objectName, envir = self)
                 paramValue <- base::get(parameterName, envir = obj)
-                #paramValue <- self[[objectName]][[parameterName]]
             
                 if (objectName == ".closedTestResults" && parameterName == "rejected") {
                     paramValueLogical <- as.logical(paramValue)

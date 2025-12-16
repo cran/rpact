@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8765 $
-## |  Last changed: $Date: 2025-07-22 08:09:47 +0200 (Di, 22 Jul 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_core_constants.R
 #' @include f_logger.R
@@ -159,7 +155,8 @@ NULL
 #'
 .getOptionalArgument <- function(optionalArgumentName, ..., optionalArgumentDefaultValue = NULL) {
     args <- list(...)
-    if (optionalArgumentName %in% names(args)) {
+    .assertIsSingleCharacter(optionalArgumentName, "optionalArgumentName")
+    if (length(args) > 0 && !is.null(names(args)) && optionalArgumentName %in% names(args)) {
         return(args[[optionalArgumentName]])
     }
 
@@ -244,6 +241,28 @@ NULL
     return(FALSE)
 }
 
+#'
+#' @examples
+#' \dontrun{
+#' .getConcatenatedValues(1)
+#' .getConcatenatedValues(1:2)
+#' .getConcatenatedValues(1:3)
+#' .getConcatenatedValues(1, mode = "vector")
+#' .getConcatenatedValues(1:2, mode = "vector")
+#' .getConcatenatedValues(1:3, mode = "vector")
+#' .getConcatenatedValues(1, mode = "and")
+#' .getConcatenatedValues(1:2, mode = "and")
+#' .getConcatenatedValues(1:3, mode = "and")
+#' .getConcatenatedValues(1, mode = "or")
+#' .getConcatenatedValues(1:2, mode = "or")
+#' .getConcatenatedValues(1:3, mode = "or")
+#' .getConcatenatedValues(1, mode = "or", separator = ";")
+#' .getConcatenatedValues(1:2, mode = "or", separator = ";")
+#' .getConcatenatedValues(1:3, mode = "or", separator = ";")
+#' }
+#'
+#' @noRd
+#'
 .getConcatenatedValues <- function(x, separator = ", ", mode = c("csv", "vector", "and", "or")) {
     if (is.null(x) || length(x) <= 1) {
         return(x)
@@ -269,27 +288,53 @@ NULL
 }
 
 #'
+#' Get Test Label
+#'
+#' @description
+#' Returns a string representation of the input value for use as a test label.
+#' Handles various types, including NULL, NA, vectors, and custom objects.
+#'
+#' @param x The value to be converted into a test label.
+#'
+#' @return A character string representing the input value.
+#'
 #' @examples
 #' \dontrun{
-#' .getConcatenatedValues(1)
-#' .getConcatenatedValues(1:2)
-#' .getConcatenatedValues(1:3)
-#' .getConcatenatedValues(1, mode = "vector")
-#' .getConcatenatedValues(1:2, mode = "vector")
-#' .getConcatenatedValues(1:3, mode = "vector")
-#' .getConcatenatedValues(1, mode = "and")
-#' .getConcatenatedValues(1:2, mode = "and")
-#' .getConcatenatedValues(1:3, mode = "and")
-#' .getConcatenatedValues(1, mode = "or")
-#' .getConcatenatedValues(1:2, mode = "or")
-#' .getConcatenatedValues(1:3, mode = "or")
-#' .getConcatenatedValues(1, mode = "or", separator = ";")
-#' .getConcatenatedValues(1:2, mode = "or", separator = ";")
-#' .getConcatenatedValues(1:3, mode = "or", separator = ";")
+#' getTestLabel(NULL)
+#' getTestLabel(NA)
+#' getTestLabel(1:3)
+#' getTestLabel(6)
+#' getTestLabel(getDesignFisher())
 #' }
 #'
-#' @noRd
+#' @keywords internal
 #'
+#' @export
+#'
+getTestLabel <- function(x) {
+    if (is.null(x)) {
+        return("NULL")
+    }
+
+    if (!is.vector(x) && !is.numeric(x) && !is.character(x) && !is.logical(x) && !is.integer(x)) {
+        return(.getClassName(x))
+    }
+
+    if (length(x) == 0) {
+        return(paste0(.getClassName(x), "(0)"))
+    }
+
+    if (all(is.na(x))) {
+        return("NA")
+    }
+
+    if (is.character(x)) {
+        x <- paste0('"', x, '"')
+    }
+
+    return(.arrayToString(x, mode = "vector", digits = 4, maxLength = 10L, maxCharacters = 40L))
+}
+
 .arrayToString <- function(x, ..., separator = ", ",
         vectorLookAndFeelEnabled = FALSE,
         encapsulate = FALSE,
@@ -948,7 +993,7 @@ printCitation <- function(inclusiveR = TRUE, language = "en", markdown = NA) {
             Sys.setenv(LANGUAGE = language)
 
             if (inclusiveR) {
-                citR <- utils::capture.output(print(citation("base"), bibtex = FALSE))
+                citR <- utils::capture.output(print(utils::citation("base"), bibtex = FALSE))
                 indices <- which(citR == "")
                 indices <- indices[indices != 1 & indices != length(citR)]
                 if (length(indices) > 1) {
@@ -958,7 +1003,7 @@ printCitation <- function(inclusiveR = TRUE, language = "en", markdown = NA) {
                 cat("\n", trimws(paste(citR, collapse = "\n")), "\n\n", sep = "")
             }
 
-            print(citation("rpact"), bibtex = FALSE)
+            print(utils::citation("rpact"), bibtex = FALSE)
         },
         finally = {
             Sys.setenv(LANGUAGE = currentLanguage)
@@ -1603,7 +1648,7 @@ getParameterName <- function(obj, parameterCaption) {
             "'", .getClassName(parameterSet), "' does not contain a field with name '", fieldName, "'"
         )
     }
-    
+
     parameterSet[[fieldName]] <- fieldValues
     parameterSet$.setParameterType(fieldName, C_PARAM_NOT_APPLICABLE)
     parameterSet$.deprecatedFieldNames <- unique(c(parameterSet$.deprecatedFieldNames, fieldName))
@@ -1959,5 +2004,3 @@ resetOptions <- function(persist = TRUE) {
         }
     )
 }
-
-

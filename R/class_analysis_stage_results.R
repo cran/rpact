@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8474 $
-## |  Last changed: $Date: 2025-01-14 14:32:53 +0100 (Di, 14 Jan 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #'
 #' @name StageResults
@@ -1652,8 +1648,10 @@ plot.StageResults <- function(
     }
 
     plotData <- .getConditionalPowerPlot(
-        stageResults = x, nPlanned = nPlanned,
-        allocationRatioPlanned = allocationRatioPlanned, ...
+        stageResults = x, 
+        nPlanned = nPlanned,
+        allocationRatioPlanned = allocationRatioPlanned, 
+        ...
     )
 
     yParameterName1 <- "Conditional power"

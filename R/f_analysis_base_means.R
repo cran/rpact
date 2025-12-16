@@ -13,10 +13,6 @@
 ## |
 ## |  Contact us for information about our services: info@rpact.com
 ## |
-## |  File version: $Revision: 8765 $
-## |  Last changed: $Date: 2025-07-22 08:09:47 +0200 (Di, 22 Jul 2025) $
-## |  Last changed by: $Author: pahlke $
-## |
 
 #' @include f_logger.R
 NULL
@@ -412,7 +408,7 @@ NULL
         ...,
         design,
         dataInput,
-        thetaH0 = C_THETA_H0_MEANS_DEFAULT,
+        thetaH0 = NA_real_,
         directionUpper = NA,
         normalApproximation = C_NORMAL_APPROXIMATION_MEANS_DEFAULT,
         equalVariances = C_EQUAL_VARIANCES_DEFAULT,
@@ -420,6 +416,7 @@ NULL
         userFunctionCallEnabled = FALSE) {
     .assertIsDatasetMeans(dataInput = dataInput)
     .assertIsValidThetaH0DataInput(thetaH0, dataInput)
+    thetaH0 <- .getDefaultThetaH0(dataInput, thetaH0)
     .assertIsSingleLogical(normalApproximation, "normalApproximation")
     .assertIsSingleLogical(equalVariances, "equalVariances")
     .warnInCaseOfUnknownArguments(
@@ -1155,7 +1152,8 @@ NULL
 
     if (stageResults$isTwoSampleDataset()) {
         .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-        .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+        .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
+            lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
         nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
     }
 
@@ -1294,7 +1292,8 @@ NULL
 
     if (stageResults$isTwoSampleDataset()) {
         .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-        .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 0, C_ALLOCATION_RATIO_MAXIMUM)
+        .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
+            lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
         nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
     }
 
@@ -1419,8 +1418,8 @@ NULL
         .assertIsInOpenInterval(
             allocationRatioPlanned,
             "allocationRatioPlanned",
-            0,
-            C_ALLOCATION_RATIO_MAXIMUM
+            lower = 0,
+            upper = C_ALLOCATION_RATIO_MAXIMUM
         )
         nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
     }
