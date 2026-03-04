@@ -263,7 +263,8 @@ NULL
                     stop(
                         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                         "'calcEventsFunction' returned an illegal or undefined result (", newEvents, "); ",
-                        "the output must be a single numeric value"
+                        "the output must be a single numeric value",
+                        call. = FALSE
                     )
                 }
 
@@ -472,15 +473,16 @@ getSimulationMultiArmSurvival <- function(design = NULL,
         endpoint                    = "survival"
     )
     for (notApplicableParam in c(
-            "accrualIntensity",
-            "accrualTime",
-            "dropoutRate1",
-            "dropoutRate2",
-            "dropoutTime",
-            "eventTime",
-            "kappa",
-            "piControl")
-            ) {
+        "accrualIntensity",
+        "accrualTime",
+        "dropoutRate1",
+        "dropoutRate2",
+        "dropoutTime",
+        "eventTime",
+        "kappa",
+        "piControl"
+    )
+    ) {
         simulationResults$.setParameterType(notApplicableParam, C_PARAM_NOT_APPLICABLE)
     }
 
@@ -616,12 +618,12 @@ getSimulationMultiArmSurvival <- function(design = NULL,
 
                 simulatedNumberOfActiveArms[k, i] <- simulatedNumberOfActiveArms[k, i] + sum(closedTest$selectedArms[, k])
 
-                if (!any(is.na(closedTest$successStop))) {
+                if (!anyNA(closedTest$successStop)) {
                     simulatedSuccessStopping[k, i] <- simulatedSuccessStopping[k, i] + closedTest$successStop[k]
                 }
 
                 if ((kMax > 1) && (k < kMax)) {
-                    if (!any(is.na(closedTest$futilityStop))) {
+                    if (!anyNA(closedTest$futilityStop)) {
                         simulatedFutilityStopping[k, i] <- simulatedFutilityStopping[k, i] +
                             (closedTest$futilityStop[k] && !closedTest$successStop[k])
                     }

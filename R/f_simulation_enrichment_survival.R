@@ -18,19 +18,19 @@
 NULL
 
 .getSimulationSurvivalEnrichmentStageEvents <- function(
-    ...,
-    stage,
-    directionUpper,
-    conditionalPower,
-    conditionalCriticalValue,
-    plannedEvents,
-    allocationRatioPlanned,
-    selectedPopulations,
-    thetaH1,
-    overallEffects,
-    minNumberOfEventsPerStage,
-    maxNumberOfEventsPerStage
-) {
+        ...,
+        stage,
+        directionUpper,
+        conditionalPower,
+        conditionalCriticalValue,
+        plannedEvents,
+        allocationRatioPlanned,
+        selectedPopulations,
+        thetaH1,
+        overallEffects,
+        minNumberOfEventsPerStage,
+        maxNumberOfEventsPerStage
+        ) {
     stage <- stage - 1 # to be consistent with non-enrichment situation
     gMax <- nrow(overallEffects)
 
@@ -93,31 +93,29 @@ NULL
     return(newEvents)
 }
 
-.getSimulatedStageSurvivalEnrichment <- function(
-    ...,
-    design,
-    subsets,
-    prevalences,
-    piControls,
-    hazardRatios,
-    directionUpper,
-    stratifiedAnalysis,
-    plannedEvents,
-    typeOfSelection,
-    effectMeasure,
-    adaptations,
-    epsilonValue,
-    rValue,
-    threshold,
-    allocationRatioPlanned,
-    minNumberOfEventsPerStage,
-    maxNumberOfEventsPerStage,
-    conditionalPower,
-    thetaH1,
-    calcEventsFunction,
-    calcEventsFunctionIsUserDefined,
-    selectPopulationsFunction
-) {
+.getSimulatedStageSurvivalEnrichment <- function(...,
+        design,
+        subsets,
+        prevalences,
+        piControls,
+        hazardRatios,
+        directionUpper,
+        stratifiedAnalysis,
+        plannedEvents,
+        typeOfSelection,
+        effectMeasure,
+        adaptations,
+        epsilonValue,
+        rValue,
+        threshold,
+        allocationRatioPlanned,
+        minNumberOfEventsPerStage,
+        maxNumberOfEventsPerStage,
+        conditionalPower,
+        thetaH1,
+        calcEventsFunction,
+        calcEventsFunctionIsUserDefined,
+        selectPopulationsFunction) {
     kMax <- length(plannedEvents)
     pMax <- length(hazardRatios)
     gMax <- log(length(hazardRatios), 2) + 1
@@ -464,7 +462,8 @@ NULL
                         "'calcEventsFunction' returned an illegal or undefined result (",
                         newEvents,
                         "); ",
-                        "the output must be a single numeric value"
+                        "the output must be a single numeric value",
+                        call. = FALSE
                     )
                 }
 
@@ -579,32 +578,30 @@ NULL
 #'
 #' @export
 #'
-getSimulationEnrichmentSurvival <- function(
-    design = NULL,
-    ...,
-    effectList = NULL,
-    intersectionTest = c("Simes", "SpiessensDebois", "Bonferroni", "Sidak"), # C_INTERSECTION_TEST_ENRICHMENT_DEFAULT
-    stratifiedAnalysis = TRUE, # C_STRATIFIED_ANALYSIS_DEFAULT
-    directionUpper = NA, # C_DIRECTION_UPPER_DEFAULT
-    adaptations = NA,
-    typeOfSelection = c("best", "rBest", "epsilon", "all", "userDefined"), # C_TYPE_OF_SELECTION_DEFAULT
-    effectMeasure = c("effectEstimate", "testStatistic"), # C_EFFECT_MEASURE_DEFAULT
-    successCriterion = c("all", "atLeastOne"), # C_SUCCESS_CRITERION_DEFAULT
-    epsilonValue = NA_real_,
-    rValue = NA_real_,
-    threshold = -Inf,
-    plannedEvents = NA_real_,
-    allocationRatioPlanned = NA_real_,
-    minNumberOfEventsPerStage = NA_real_,
-    maxNumberOfEventsPerStage = NA_real_,
-    conditionalPower = NA_real_,
-    thetaH1 = NA_real_,
-    maxNumberOfIterations = 1000L, # C_MAX_SIMULATION_ITERATIONS_DEFAULT
-    seed = NA_real_,
-    calcEventsFunction = NULL,
-    selectPopulationsFunction = NULL,
-    showStatistics = FALSE
-) {
+getSimulationEnrichmentSurvival <- function(design = NULL,
+        ...,
+        effectList = NULL,
+        intersectionTest = c("Simes", "SpiessensDebois", "Bonferroni", "Sidak"), # C_INTERSECTION_TEST_ENRICHMENT_DEFAULT
+        stratifiedAnalysis = TRUE, # C_STRATIFIED_ANALYSIS_DEFAULT
+        directionUpper = NA, # C_DIRECTION_UPPER_DEFAULT
+        adaptations = NA,
+        typeOfSelection = c("best", "rBest", "epsilon", "all", "userDefined"), # C_TYPE_OF_SELECTION_DEFAULT
+        effectMeasure = c("effectEstimate", "testStatistic"), # C_EFFECT_MEASURE_DEFAULT
+        successCriterion = c("all", "atLeastOne"), # C_SUCCESS_CRITERION_DEFAULT
+        epsilonValue = NA_real_,
+        rValue = NA_real_,
+        threshold = -Inf,
+        plannedEvents = NA_real_,
+        allocationRatioPlanned = NA_real_,
+        minNumberOfEventsPerStage = NA_real_,
+        maxNumberOfEventsPerStage = NA_real_,
+        conditionalPower = NA_real_,
+        thetaH1 = NA_real_,
+        maxNumberOfIterations = 1000L, # C_MAX_SIMULATION_ITERATIONS_DEFAULT
+        seed = NA_real_,
+        calcEventsFunction = NULL,
+        selectPopulationsFunction = NULL,
+        showStatistics = FALSE) {
     if (is.null(design)) {
         design <- .getDefaultDesign(..., type = "simulation")
         .warnInCaseOfUnknownArguments(
@@ -771,12 +768,12 @@ getSimulationEnrichmentSurvival <- function(
                 simulatedNumberOfPopulations[k, i] <- simulatedNumberOfPopulations[k, i] +
                     sum(closedTest$selectedPopulations[, k])
 
-                if (!any(is.na(closedTest$successStop))) {
+                if (!anyNA(closedTest$successStop)) {
                     simulatedSuccessStopping[k, i] <- simulatedSuccessStopping[k, i] + closedTest$successStop[k]
                 }
 
                 if ((kMax > 1) && (k < kMax)) {
-                    if (!any(is.na(closedTest$futilityStop))) {
+                    if (!anyNA(closedTest$futilityStop)) {
                         simulatedFutilityStopping[k, i] <- simulatedFutilityStopping[k, i] +
                             (closedTest$futilityStop[k] && !closedTest$successStop[k])
                     }
@@ -824,7 +821,7 @@ getSimulationEnrichmentSurvival <- function(
                                 closedTest$selectedPopulations[1:gMax, k] |
                                 rejectedPopulationsBefore
                         )
-                ) {
+                    ) {
                     simulatedRejectAtLeastOne[i] <- simulatedRejectAtLeastOne[i] + 1
                     rejectAtSomeStage <- TRUE
                 }
@@ -865,7 +862,7 @@ getSimulationEnrichmentSurvival <- function(
 
             expectedNumberOfEvents[i] <- simulatedOverallEventsPerStage[1, i] +
                 t(1 - stopping) %*%
-                    simulatedOverallEventsPerStage[2:kMax, i]
+                simulatedOverallEventsPerStage[2:kMax, i]
         } else {
             expectedNumberOfEvents[i] <- simulatedOverallEventsPerStage[1, i]
         }

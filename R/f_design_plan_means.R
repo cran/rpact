@@ -41,7 +41,7 @@ NULL
         # outside validated range
         criticalValues[criticalValues > 50] <- NA_real_
         if (design$typeOfDesign == "noEarlyEfficacy") {
-            if ((is.matrix(criticalValues) && any(is.na(criticalValues[design$kMax, ]))) ||
+            if ((is.matrix(criticalValues) && anyNA(criticalValues[design$kMax, ])) ||
                     (is.vector(criticalValues) && is.na(criticalValues[design$kMax]))) {
                 warning("The computation of last stage efficacy boundary on treatment ",
                     "effect scale not performed presumably ",
@@ -70,7 +70,7 @@ NULL
 
             # outside validated range
             futilityBounds[abs(futilityBounds) > 50] <- NA_real_
-            if (any(is.na(futilityBounds))) {
+            if (anyNA(futilityBounds)) {
                 warning("The computation of futility boundaries on ",
                     "treatment effect scale not performed presumably ",
                     "due to too small degrees of freedom",
@@ -591,8 +591,9 @@ NULL
         if (identical(alternative, C_ALTERNATIVE_POWER_SIMULATION_DEFAULT)) {
             alternative <- C_ALTERNATIVE_POWER_SIMULATION_MEAN_RATIO_DEFAULT
         }
-        .assertIsInOpenInterval(alternative, "alternative", 
-            lower = 0, upper = NULL, naAllowed = TRUE)
+        .assertIsInOpenInterval(alternative, "alternative",
+            lower = 0, upper = NULL, naAllowed = TRUE
+        )
     }
 
     directionUpper <- .assertIsValidDirectionUpper(directionUpper,
@@ -600,12 +601,13 @@ NULL
         objectType = objectType, userFunctionCallEnabled = TRUE
     )
 
-    if (objectType == "sampleSize" && !any(is.na(alternative))) {
+    if (objectType == "sampleSize" && !anyNA(alternative)) {
         if (design$sided == 1 && any(alternative - thetaH0 <= 0)) {
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "any 'alternative' (", .arrayToString(alternative),
-                ") must be > 'thetaH0' (", thetaH0, ")"
+                ") must be > 'thetaH0' (", thetaH0, ")",
+                call. = FALSE
             )
         }
 
@@ -613,7 +615,8 @@ NULL
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "any 'alternative' (", .arrayToString(alternative),
-                ") must be != 'thetaH0' (", thetaH0, ")"
+                ") must be != 'thetaH0' (", thetaH0, ")",
+                call. = FALSE
             )
         }
     }
@@ -638,7 +641,8 @@ NULL
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "two-sided case is implemented only for superiority testing ",
-                "(i.e., thetaH0 = ", ifelse(meanRatio, 1, 0), ")"
+                "(i.e., thetaH0 = ", ifelse(meanRatio, 1, 0), ")",
+                call. = FALSE
             )
         }
 
@@ -649,7 +653,8 @@ NULL
         if (allocationRatioPlanned < 0) {
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "'allocationRatioPlanned' (", allocationRatioPlanned, ") must be >= 0"
+                "'allocationRatioPlanned' (", allocationRatioPlanned, ") must be >= 0",
+                call. = FALSE
             )
         }
 
@@ -662,7 +667,8 @@ NULL
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "null hypothesis mean ratio is not allowed be negative or zero, ",
-                "i.e., 'thetaH0' must be > 0 if 'meanRatio' = TRUE"
+                "i.e., 'thetaH0' must be > 0 if 'meanRatio' = TRUE",
+                call. = FALSE
             )
         }
     }
@@ -717,7 +723,7 @@ NULL
     return(designPlan)
 }
 
-#' 
+#'
 #' @title
 #' Get Sample Size Means
 #'
@@ -755,8 +761,7 @@ NULL
 #'
 #' @export
 #'
-getSampleSizeMeans <- function(
-        design = NULL, 
+getSampleSizeMeans <- function(design = NULL,
         ...,
         groups = 2L,
         normalApproximation = FALSE,
@@ -798,7 +803,7 @@ getSampleSizeMeans <- function(
     return(.calculateSampleSizeMeansAndRates(designPlan))
 }
 
-#' 
+#'
 #' @title
 #' Get Power Means
 #'
@@ -854,7 +859,7 @@ getPowerMeans <- function(design = NULL, ...,
         allocationRatioPlanned = NA_real_ # C_ALLOCATION_RATIO_DEFAULT
         ) {
     .assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects)
-    
+
     if ((length(stDev) == 1) && (groups == 2)) {
         stDev <- rep(stDev, 2)
     }

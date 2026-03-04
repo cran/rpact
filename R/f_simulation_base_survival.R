@@ -48,14 +48,16 @@ NULL
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "if 'kappa' != 1 then 'lambda1' (",
-                .arrayToString(pwsTimeObject$lambda1), ") must be a single numeric value"
+                .arrayToString(pwsTimeObject$lambda1), ") must be a single numeric value",
+                call. = FALSE
             )
         }
         if (length(pwsTimeObject$lambda2) != 1) {
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "if 'kappa' != 1 then 'lambda2' (",
-                .arrayToString(pwsTimeObject$lambda2), ") must be a single numeric value"
+                .arrayToString(pwsTimeObject$lambda2), ") must be a single numeric value",
+                call. = FALSE
             )
         }
 
@@ -220,25 +222,25 @@ NULL
 #' \code{\link[=getRawData]{getRawData()}} can be used to get the simulated raw data from the
 #' object as \code{\link[base]{data.frame}}. Note that \code{getSimulationSurvival()}
 #' must called before with \code{maxNumberOfRawDatasetsPerStage} > 0.
-#' 
+#'
 #' **What `maxNumberOfRawDatasetsPerStage` does**
-#' 
-#' When `maxNumberOfRawDatasetsPerStage = 0` (the default), simulations run as usual but *no* 
+#'
+#' When `maxNumberOfRawDatasetsPerStage = 0` (the default), simulations run as usual but *no*
 #' patient-level ("raw") data are kept - only summary results.
-#' 
-#' If you set `maxNumberOfRawDatasetsPerStage > 0`, rpact will **save up to that many 
-#' full patient-level datasets *per stage*** (i.e., per interim/final look). 
-#' Each saved dataset corresponds to one simulated iteration and contains all 
-#' subject-wise records accrued up to the stage at which that iteration stopped. 
+#'
+#' If you set `maxNumberOfRawDatasetsPerStage > 0`, rpact will **save up to that many
+#' full patient-level datasets *per stage*** (i.e., per interim/final look).
+#' Each saved dataset corresponds to one simulated iteration and contains all
+#' subject-wise records accrued up to the stage at which that iteration stopped.
 #' You can later retrieve these datasets with \code{\link[=getRawData]{getRawData()}}.
-#' 
+#'
 #' **Why "max" and not `numberOfRawDatasetsPerStage`?**
-#' 
+#'
 #' The value is an *upper bound per stage*, not a fixed count. The actual number of datasets stored can be smaller because:
-#' 
+#'
 #' - Some iterations stop early (e.g., at stage 1), so later stages receive fewer datasets.
 #' - The simulation might finish before reaching the cap due to other stopping or iteration limits.
-#' 
+#'
 #' As a result, the number specified is the **maximum possible** datasets saved *per stage*, not the exact number.
 #'
 #' @template return_object_simulation_results
@@ -311,8 +313,9 @@ getSimulationSurvival <- function(design = NULL, ...,
     .assertIsNumericVector(minNumberOfEventsPerStage, "minNumberOfEventsPerStage", naAllowed = TRUE)
     .assertIsNumericVector(maxNumberOfEventsPerStage, "maxNumberOfEventsPerStage", naAllowed = TRUE)
     .assertIsSingleNumber(conditionalPower, "conditionalPower", naAllowed = TRUE)
-    .assertIsInOpenInterval(conditionalPower, "conditionalPower", 
-        lower = 0, upper = 1, naAllowed = TRUE)
+    .assertIsInOpenInterval(conditionalPower, "conditionalPower",
+        lower = 0, upper = 1, naAllowed = TRUE
+    )
     .assertIsSingleNumber(thetaH1, "thetaH1", naAllowed = TRUE)
     .assertIsInOpenInterval(thetaH1, "thetaH1", lower = 0, upper = NULL, naAllowed = TRUE)
     .assertIsSinglePositiveInteger(maxNumberOfIterations, "maxNumberOfIterations", validateType = FALSE)
@@ -337,26 +340,30 @@ getSimulationSurvival <- function(design = NULL, ...,
     if (dropoutRate1 < 0 || dropoutRate1 >= 1) {
         stop(
             C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-            "'dropoutRate1' (", dropoutRate1, ") is out of bounds [0; 1)"
+            "'dropoutRate1' (", dropoutRate1, ") is out of bounds [0; 1)",
+            call. = FALSE
         )
     }
     if (dropoutRate2 < 0 || dropoutRate2 >= 1) {
         stop(
             C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-            "'dropoutRate2' (", dropoutRate2, ") is out of bounds [0; 1)"
+            "'dropoutRate2' (", dropoutRate2, ") is out of bounds [0; 1)",
+            call. = FALSE
         )
     }
     if (design$sided == 2) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "Only one-sided case is implemented for the survival simulation design"
+            "Only one-sided case is implemented for the survival simulation design",
+            call. = FALSE
         )
     }
     if (!all(is.na(lambda2)) && !all(is.na(lambda1)) &&
             length(lambda2) != length(lambda1) && length(lambda2) > 1) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "length of 'lambda2' (", length(lambda2),
-            ") must be equal to length of 'lambda1' (", length(lambda1), ")"
+            ") must be equal to length of 'lambda1' (", length(lambda1), ")",
+            call. = FALSE
         )
     }
     if (all(is.na(lambda2)) && !all(is.na(lambda1))) {
@@ -370,7 +377,8 @@ getSimulationSurvival <- function(design = NULL, ...,
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "'piecewiseSurvivalTime' needs to be a numeric vector and not a list ",
-            "because 'lambda2' (", .arrayToString(lambda2), ") is defined separately"
+            "because 'lambda2' (", .arrayToString(lambda2), ") is defined separately",
+            call. = FALSE
         )
     }
     thetaH1 <- .ignoreParameterIfNotUsed(
@@ -410,7 +418,8 @@ getSimulationSurvival <- function(design = NULL, ...,
                     C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfEventsPerStage' (",
                     .arrayToString(maxNumberOfEventsPerStage),
                     ") must be not smaller than minNumberOfEventsPerStage' (",
-                    .arrayToString(minNumberOfEventsPerStage), ")"
+                    .arrayToString(minNumberOfEventsPerStage), ")",
+                    call. = FALSE
                 )
             }
             .setValueAndParameterType(
@@ -445,12 +454,14 @@ getSimulationSurvival <- function(design = NULL, ...,
         if (identical(accrualIntensity, 1L)) {
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "choose a 'accrualIntensity' > 1 or define 'maxNumberOfSubjects'"
+                "choose a 'accrualIntensity' > 1 or define 'maxNumberOfSubjects'",
+                call. = FALSE
             )
         }
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'maxNumberOfSubjects' must be defined"
+            "'maxNumberOfSubjects' must be defined",
+            call. = FALSE
         )
     }
 
@@ -512,7 +523,7 @@ getSimulationSurvival <- function(design = NULL, ...,
         simulationResults$lambda1 <- pwsTimeObject$lambda1
         simulationResults$.setParameterType("lambda1", pwsTimeObject$.getParameterType("lambda1"))
 
-        if (any(is.na(pwsTimeObject$lambda1))) {
+        if (anyNA(pwsTimeObject$lambda1)) {
             .assertIsValidHazardRatioVector(pwsTimeObject$hazardRatio)
             .setValueAndParameterType(
                 simulationResults, "hazardRatio",
@@ -592,7 +603,8 @@ getSimulationSurvival <- function(design = NULL, ...,
                 "and the defined number of single simulation steps (", numberOfSimStepsTotal,
                 ") is larger than the threshold ", maxNumberOfSimStepsTotal, ". ",
                 "Set 'longTimeSimulationAllowed = TRUE' to enable simulations ",
-                "that take a long time (> 30 sec)"
+                "that take a long time (> 30 sec)",
+                call. = FALSE
             )
         }
 

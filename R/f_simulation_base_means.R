@@ -193,28 +193,33 @@ getSimulationMeans <- function(design = NULL, ...,
     )
     .assertIsSingleNumber(thetaH0, "thetaH0")
     if (meanRatio) {
-        .assertIsInOpenInterval(thetaH0, "thetaH0", 
-            lower = 0, upper = NULL, naAllowed = TRUE)
-        .assertIsInOpenInterval(thetaH1, "thetaH1", 
-            lower = 0, upper = NULL, naAllowed = TRUE)
+        .assertIsInOpenInterval(thetaH0, "thetaH0",
+            lower = 0, upper = NULL, naAllowed = TRUE
+        )
+        .assertIsInOpenInterval(thetaH1, "thetaH1",
+            lower = 0, upper = NULL, naAllowed = TRUE
+        )
         if (identical(alternative, C_ALTERNATIVE_POWER_SIMULATION_DEFAULT)) {
             alternative <- C_ALTERNATIVE_POWER_SIMULATION_MEAN_RATIO_DEFAULT
         }
-        .assertIsInOpenInterval(alternative, "alternative", 
-            lower = 0, upper = NULL, naAllowed = TRUE)
+        .assertIsInOpenInterval(alternative, "alternative",
+            lower = 0, upper = NULL, naAllowed = TRUE
+        )
     }
     .assertIsValidGroupsParameter(groups)
     .assertIsNumericVector(alternative, "alternative", naAllowed = FALSE)
     .assertIsNumericVector(minNumberOfSubjectsPerStage, "minNumberOfSubjectsPerStage", naAllowed = TRUE)
     .assertIsNumericVector(maxNumberOfSubjectsPerStage, "maxNumberOfSubjectsPerStage", naAllowed = TRUE)
     .assertIsSingleNumber(conditionalPower, "conditionalPower", naAllowed = TRUE)
-    .assertIsInOpenInterval(conditionalPower, "conditionalPower", 
-        lower = 0, upper = 1, naAllowed = TRUE)
+    .assertIsInOpenInterval(conditionalPower, "conditionalPower",
+        lower = 0, upper = 1, naAllowed = TRUE
+    )
     .assertIsSingleNumber(thetaH1, "thetaH1", naAllowed = TRUE)
     .assertIsValidStandardDeviation(stDevH1, groups = groups, name = "stDevH1", naAllowed = TRUE)
     .assertIsNumericVector(allocationRatioPlanned, "allocationRatioPlanned", naAllowed = TRUE)
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
-        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM, naAllowed = TRUE)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned",
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM, naAllowed = TRUE
+    )
     .assertIsSinglePositiveInteger(maxNumberOfIterations, "maxNumberOfIterations", validateType = FALSE)
     .assertIsSingleNumber(seed, "seed", naAllowed = TRUE)
     .assertIsValidStandardDeviation(stDev, groups = groups)
@@ -227,7 +232,8 @@ getSimulationMeans <- function(design = NULL, ...,
     if (design$sided == 2) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "only one-sided case is implemented for the simulation design"
+            "only one-sided case is implemented for the simulation design",
+            call. = FALSE
         )
     }
 
@@ -247,7 +253,7 @@ getSimulationMeans <- function(design = NULL, ...,
         }
         simulationResults$.setParameterType("allocationRatioPlanned", C_PARAM_NOT_APPLICABLE)
     } else {
-        if (any(is.na(allocationRatioPlanned))) {
+        if (anyNA(allocationRatioPlanned)) {
             allocationRatioPlanned <- C_ALLOCATION_RATIO_DEFAULT
         }
 
@@ -257,7 +263,8 @@ getSimulationMeans <- function(design = NULL, ...,
             stop(
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
                 "'allocationRatioPlanned' (", .arrayToString(allocationRatioPlanned), ") ",
-                "must have length 1 or ", design$kMax, " (kMax)"
+                "must have length 1 or ", design$kMax, " (kMax)",
+                call. = FALSE
             )
         }
 
@@ -317,7 +324,8 @@ getSimulationMeans <- function(design = NULL, ...,
             if (!all(is.na(minNumberOfSubjectsPerStage)) && (any(minNumberOfSubjectsPerStage < groups * 2))) {
                 stop(
                     C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "minNumberOfSubjectsPerStage not correctly specified"
+                    "minNumberOfSubjectsPerStage not correctly specified",
+                    call. = FALSE
                 )
             }
         }
@@ -327,7 +335,8 @@ getSimulationMeans <- function(design = NULL, ...,
                 C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'maxNumberOfSubjectsPerStage' (",
                 .arrayToString(maxNumberOfSubjectsPerStage),
                 ") must be not smaller than minNumberOfSubjectsPerStage' (",
-                .arrayToString(minNumberOfSubjectsPerStage), ")"
+                .arrayToString(minNumberOfSubjectsPerStage), ")",
+                call. = FALSE
             )
         }
         .setValueAndParameterType(

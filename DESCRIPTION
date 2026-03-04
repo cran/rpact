@@ -1,7 +1,7 @@
 Package: rpact
 Title: Confirmatory Adaptive Clinical Trial Design and Analysis
-Version: 4.3.0
-Date: 2025-12-16
+Version: 4.4.0
+Date: 2026-03-04
 Authors@R: c(
 	person(
 		given = "Gernot", 
@@ -43,14 +43,19 @@ Authors@R: c(
     	email = "tobias.muetze@novartis.com",
     	comment = c(ORCID = "0000-0002-4111-1941"), 
     	role = c("ctb")
-	))
+	),
+    person(
+        "RPACT GmbH", 
+        role = c("cph", "fnd"), 
+        email = "info@rpact.com"
+    ))
 Description: Design and analysis of confirmatory adaptive clinical trials with continuous, binary, and survival endpoints according to the methods described in the monograph by Wassmer and Brannath (2025) <doi:10.1007/978-3-031-89669-9>. This includes classical group sequential as well as multi-stage adaptive hypotheses tests that are based on the combination testing principle.
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true
 URL: https://www.rpact.org, https://www.rpact.com,
         https://docs.rpact.org, https://github.com/rpact-com/rpact,
-        https://rpact.shinyapps.io/connect
+        https://rpact-cloud.share.connect.posit.cloud
 BugReports: https://github.com/rpact-com/rpact/issues
 Language: en-US
 Depends: R (>= 3.6.0)
@@ -89,8 +94,8 @@ Collate: 'RcppExports.R' 'f_logger.R' 'class_dictionary.R'
         'f_design_plan_counts.R' 'f_design_plan_means.R'
         'f_design_plan_plot.R' 'f_design_plan_rates.R'
         'f_design_plan_survival.R' 'f_design_plan_utilities.R'
-        'f_quality_assurance.R' 'f_simulation_base_means.R'
-        'f_simulation_base_rates.R'
+        'f_io_utilities.R' 'f_quality_assurance.R'
+        'f_simulation_base_means.R' 'f_simulation_base_rates.R'
         'f_simulation_calc_subjects_function.R'
         'f_simulation_enrichment.R' 'f_simulation_enrichment_means.R'
         'f_simulation_enrichment_rates.R'
@@ -100,7 +105,7 @@ Collate: 'RcppExports.R' 'f_logger.R' 'class_dictionary.R'
         'f_simulation_performance_score.R' 'f_simulation_plot.R'
         'parameter_descriptions.R' 'pkgname.R'
 NeedsCompilation: yes
-Packaged: 2025-12-16 11:21:07 UTC; fried
+Packaged: 2026-03-04 10:01:59 UTC; fried
 Author: Gernot Wassmer [aut] (ORCID: <https://orcid.org/0000-0001-9397-1794>),
   Friedrich Pahlke [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-2105-2582>),
@@ -109,7 +114,8 @@ Author: Gernot Wassmer [aut] (ORCID: <https://orcid.org/0000-0001-9397-1794>),
     <https://orcid.org/0000-0002-0176-9239>),
   Stephen Schueuerhuis [ctb] (ORCID:
     <https://orcid.org/0009-0006-3124-6056>),
-  Tobias Muetze [ctb] (ORCID: <https://orcid.org/0000-0002-4111-1941>)
+  Tobias Muetze [ctb] (ORCID: <https://orcid.org/0000-0002-4111-1941>),
+  RPACT GmbH [cph, fnd]
 Maintainer: Friedrich Pahlke <friedrich.pahlke@rpact.com>
 Repository: CRAN
-Date/Publication: 2025-12-16 12:00:02 UTC
+Date/Publication: 2026-03-04 17:00:02 UTC

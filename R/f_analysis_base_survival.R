@@ -45,8 +45,7 @@ NULL
     .stopWithWrongDesignMessage(design, inclusiveConditionalDunnett = FALSE)
 }
 
-.getAnalysisResultsSurvivalInverseNormal <- function(
-        ...,
+.getAnalysisResultsSurvivalInverseNormal <- function(...,
         design,
         dataInput,
         directionUpper = NA,
@@ -87,8 +86,7 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsSurvivalGroupSequential <- function(
-        ...,
+.getAnalysisResultsSurvivalGroupSequential <- function(...,
         design,
         dataInput,
         directionUpper = NA,
@@ -129,8 +127,7 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsSurvivalFisher <- function(
-        ...,
+.getAnalysisResultsSurvivalFisher <- function(...,
         design,
         dataInput,
         directionUpper = NA,
@@ -184,8 +181,7 @@ NULL
 #'
 #' @noRd
 #'
-.getAnalysisResultsSurvivalAll <- function(
-        ...,
+.getAnalysisResultsSurvivalAll <- function(...,
         results,
         design,
         dataInput,
@@ -368,8 +364,7 @@ NULL
 #'
 #' @noRd
 #'
-.getStageResultsSurvival <- function(
-        ...,
+.getStageResultsSurvival <- function(...,
         design,
         dataInput,
         thetaH0 = NA_real_,
@@ -487,8 +482,7 @@ NULL
     .stopWithWrongDesignMessage(design, inclusiveConditionalDunnett = FALSE)
 }
 
-.getRootThetaSurvival <- function(
-        ...,
+.getRootThetaSurvival <- function(...,
         design,
         dataInput,
         stage,
@@ -525,8 +519,7 @@ NULL
     return(result)
 }
 
-.getUpperLowerThetaSurvival <- function(
-        ...,
+.getUpperLowerThetaSurvival <- function(...,
         design,
         dataInput,
         theta,
@@ -580,8 +573,7 @@ NULL
                     secondValue,
                     firstValue,
                     theta
-                ),
-                call. = FALSE
+                )
             )
         }
     }
@@ -589,8 +581,7 @@ NULL
     return(theta)
 }
 
-.getRepeatedConfidenceIntervalsSurvivalAll <- function(
-        ...,
+.getRepeatedConfidenceIntervalsSurvivalAll <- function(...,
         design,
         dataInput,
         directionUpper = NA,
@@ -712,8 +703,7 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsSurvivalGroupSequential <- function(
-        ...,
+.getRepeatedConfidenceIntervalsSurvivalGroupSequential <- function(...,
         design,
         dataInput,
         directionUpper = NA,
@@ -739,8 +729,7 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsSurvivalInverseNormal <- function(
-        ...,
+.getRepeatedConfidenceIntervalsSurvivalInverseNormal <- function(...,
         design,
         dataInput,
         directionUpper = NA,
@@ -766,8 +755,7 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsSurvivalFisher <- function(
-        ...,
+.getRepeatedConfidenceIntervalsSurvivalFisher <- function(...,
         design,
         dataInput,
         directionUpper = NA,
@@ -793,8 +781,7 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerSurvivalGroupSequential <- function(
-        ...,
+.getConditionalPowerSurvivalGroupSequential <- function(...,
         stageResults,
         stage = stageResults$stage,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
@@ -934,8 +921,7 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerSurvivalInverseNormal <- function(
-        ...,
+.getConditionalPowerSurvivalInverseNormal <- function(...,
         stageResults,
         stage = stageResults$stage,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
@@ -1072,8 +1058,7 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerSurvivalFisher <- function(
-        ...,
+.getConditionalPowerSurvivalFisher <- function(...,
         stageResults,
         stage = stageResults$stage,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
@@ -1099,8 +1084,9 @@ NULL
     nPlanned <- c(rep(NA, stageResults$stage), nPlanned)
 
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
-        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned",
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM
+    )
     nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 
     if (stageResults$direction == "upper") {
@@ -1157,8 +1143,7 @@ NULL
     ))
 }
 
-.getConditionalPowerSurvival <- function(
-        ...,
+.getConditionalPowerSurvival <- function(...,
         stageResults,
         nPlanned = NA_real_,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
@@ -1171,7 +1156,7 @@ NULL
         thetaH1 = thetaH1
     )
 
-    if (any(is.na(nPlanned))) {
+    if (anyNA(nPlanned)) {
         return(results)
     }
 
@@ -1228,8 +1213,7 @@ NULL
     return(results)
 }
 
-.getConditionalPowerPlotSurvival <- function(
-        ...,
+.getConditionalPowerPlotSurvival <- function(...,
         stageResults,
         stage,
         nPlanned,
@@ -1335,8 +1319,7 @@ NULL
     ))
 }
 
-.getFinalConfidenceIntervalSurvivalValues <- function(
-        design,
+.getFinalConfidenceIntervalSurvivalValues <- function(design,
         dataInput,
         stageResults,
         directionUpper,
@@ -1477,10 +1460,10 @@ NULL
         }
     }
 
-    if (!any(is.na(finalConfidenceIntervalGeneral))) {
+    if (!anyNA(finalConfidenceIntervalGeneral)) {
         finalConfidenceIntervalGeneral <- sort(finalConfidenceIntervalGeneral)
     }
-    if (!any(is.na(finalConfidenceInterval))) {
+    if (!anyNA(finalConfidenceInterval)) {
         finalConfidenceInterval <- sort(finalConfidenceInterval)
     }
 
@@ -1499,8 +1482,7 @@ NULL
 #'
 #' @noRd
 #'
-.getFinalConfidenceIntervalSurvivalGroupSequential <- function(
-        ...,
+.getFinalConfidenceIntervalSurvivalGroupSequential <- function(...,
         design,
         dataInput,
         stage,
@@ -1544,8 +1526,7 @@ NULL
 #'
 #' @noRd
 #'
-.getFinalConfidenceIntervalSurvivalInverseNormal <- function(
-        ...,
+.getFinalConfidenceIntervalSurvivalInverseNormal <- function(...,
         design,
         dataInput,
         stage,
@@ -1589,8 +1570,7 @@ NULL
 #'
 #' @noRd
 #'
-.getFinalConfidenceIntervalSurvivalFisher <- function(
-        ...,
+.getFinalConfidenceIntervalSurvivalFisher <- function(...,
         design,
         dataInput,
         stage,
@@ -1631,8 +1611,7 @@ NULL
     ))
 }
 
-.getFinalConfidenceIntervalSurvival <- function(
-        ...,
+.getFinalConfidenceIntervalSurvival <- function(...,
         design,
         dataInput,
         thetaH0 = NA_real_,

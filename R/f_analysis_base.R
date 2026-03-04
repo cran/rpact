@@ -21,7 +21,7 @@ NULL
 
 .getDesignAndDataInput <- function(..., design, dataInput) {
     if (missing(design) && missing(dataInput)) {
-        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, sQuote("dataInput"), " must be specified")
+        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, sQuote("dataInput"), " must be specified", call. = FALSE)
     }
 
     if (missing(dataInput) && !missing(design) && inherits(design, "Dataset")) {
@@ -166,8 +166,7 @@ NULL
 #'
 #' @export
 #'
-getAnalysisResults <- function(
-        design,
+getAnalysisResults <- function(design,
         dataInput,
         ...,
         directionUpper = NA, # C_DIRECTION_UPPER_DEFAULT
@@ -358,8 +357,7 @@ getAnalysisResults <- function(
 #'
 #' @export
 #'
-getStageResults <- function(
-        design,
+getStageResults <- function(design,
         dataInput,
         ...,
         stage = NA_integer_,
@@ -731,7 +729,7 @@ getRepeatedConfidenceIntervals <- function(design,
 
 .getStageResultsObject <- function(stageResults, ..., functionName) {
     if (missing(stageResults)) {
-        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'stageResults' must be defined")
+        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'stageResults' must be defined", call. = FALSE)
     }
 
     .stopInCaseOfIllegalStageDefinition(stageResults, ...)
@@ -739,7 +737,7 @@ getRepeatedConfidenceIntervals <- function(design,
     args <- list(...)
     if (.isTrialDesign(stageResults)) {
         if (length(args) == 0) {
-            stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'stageResults' must be defined")
+            stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'stageResults' must be defined", call. = FALSE)
         }
 
         stageResults <- args[[1]]
@@ -759,7 +757,7 @@ getRepeatedConfidenceIntervals <- function(design,
                 return(arg)
             }
         }
-        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'stageResults' must be defined")
+        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'stageResults' must be defined", call. = FALSE)
     }
 
     return(stageResults)
@@ -900,16 +898,14 @@ getConditionalPower <- function(stageResults,
 
         return(conditionalPower)
     }
-    
+
     .fireDataInputNotSupportedException(stageResults$getDataInput())
 }
 
-.getConditionalPowerPlot <- function(
-        ...,
-        stageResults, 
-        nPlanned, 
+.getConditionalPowerPlot <- function(...,
+        stageResults,
+        nPlanned,
         allocationRatioPlanned = NA_real_) {
-        
     if (.isMultiArmStageResults(stageResults)) {
         return(.getConditionalPowerPlotMultiArm(
             stageResults = stageResults,
@@ -940,9 +936,9 @@ getConditionalPower <- function(stageResults,
     if (stageResults$isDatasetMeans()) {
         return(.getConditionalPowerPlotMeans(
             stageResults = stageResults,
-            stage = stage, 
-            nPlanned = nPlanned, 
-            allocationRatioPlanned = allocationRatioPlanned, 
+            stage = stage,
+            nPlanned = nPlanned,
+            allocationRatioPlanned = allocationRatioPlanned,
             ...
         ))
     }
@@ -950,9 +946,9 @@ getConditionalPower <- function(stageResults,
     if (stageResults$isDatasetRates()) {
         return(.getConditionalPowerPlotRates(
             stageResults = stageResults,
-            stage = stage, 
-            nPlanned = nPlanned, 
-            allocationRatioPlanned = allocationRatioPlanned, 
+            stage = stage,
+            nPlanned = nPlanned,
+            allocationRatioPlanned = allocationRatioPlanned,
             ...
         ))
     }
@@ -960,9 +956,9 @@ getConditionalPower <- function(stageResults,
     if (stageResults$isDatasetSurvival()) {
         return(.getConditionalPowerPlotSurvival(
             stageResults = stageResults,
-            stage = stage, 
-            nPlanned = nPlanned, 
-            allocationRatioPlanned = allocationRatioPlanned, 
+            stage = stage,
+            nPlanned = nPlanned,
+            allocationRatioPlanned = allocationRatioPlanned,
             ...
         ))
     }
@@ -1137,41 +1133,41 @@ getRepeatedPValues <- function(stageResults, ...,
                 informationRates = design$informationRates[1:finalStage]
             )
             pFinal <- sum(probs[3, ] - probs[2, ])
+        }
 
-            if (design$sided == 2) {
-                if (stageInverseNormalOrGroupSequential == 1) {
-                    pFinalOtherDirection <- 1 - stageResults$pValues[1]
-                } else {
-                    if (.isTrialDesignInverseNormal(design)) {
-                        decisionMatrix <- matrix(
-                            c(
-                                rep(C_FUTILITY_BOUNDS_DEFAULT, finalStage),
-                                c(criticalValues[1:(finalStage - 1)], -stageResults$combInverseNormal[finalStage])
-                            ),
-                            nrow = 2, byrow = TRUE
-                        )
-                    } else {
-                        decisionMatrix <- matrix(
-                            c(
-                                rep(C_FUTILITY_BOUNDS_DEFAULT, finalStage),
-                                c(
-                                    criticalValues[1:(finalStage - 1)],
-                                    -.getOneMinusQNorm(stageResults$overallPValues[finalStage])
-                                )
-                            ),
-                            nrow = 2, byrow = TRUE
-                        )
-                    }
-                    probs <- .getGroupSequentialProbabilities(
-                        decisionMatrix = decisionMatrix,
-                        informationRates = design$informationRates[1:finalStage]
+        if (design$sided == 2) {
+            if (stageInverseNormalOrGroupSequential == 1) {
+                pFinalOtherDirection <- 1 - stageResults$pValues[1]
+            } else {
+                if (.isTrialDesignInverseNormal(design)) {
+                    decisionMatrix <- matrix(
+                        c(
+                            rep(C_FUTILITY_BOUNDS_DEFAULT, finalStage),
+                            c(criticalValues[1:(finalStage - 1)], -stageResults$combInverseNormal[finalStage])
+                        ),
+                        nrow = 2, byrow = TRUE
                     )
-
-                    pFinalOtherDirection <- sum(probs[3, ] - probs[2, ])
+                } else {
+                    decisionMatrix <- matrix(
+                        c(
+                            rep(C_FUTILITY_BOUNDS_DEFAULT, finalStage),
+                            c(
+                                criticalValues[1:(finalStage - 1)],
+                                -.getOneMinusQNorm(stageResults$overallPValues[finalStage])
+                            )
+                        ),
+                        nrow = 2, byrow = TRUE
+                    )
                 }
+                probs <- .getGroupSequentialProbabilities(
+                    decisionMatrix = decisionMatrix,
+                    informationRates = design$informationRates[1:finalStage]
+                )
 
-                pFinal <- 2 * min(pFinal, pFinalOtherDirection)
+                pFinalOtherDirection <- sum(probs[3, ] - probs[2, ])
             }
+
+            pFinal <- 2 * min(pFinal, pFinalOtherDirection)
         }
 
         return(list(finalStage = finalStage, pFinal = pFinal))
@@ -1531,8 +1527,7 @@ getFinalPValue <- function(stageResults, ...) {
 #'
 #' @export
 #'
-getFinalConfidenceInterval <- function(
-        design,
+getFinalConfidenceInterval <- function(design,
         dataInput,
         ...,
         directionUpper = NA, # C_DIRECTION_UPPER_DEFAULT

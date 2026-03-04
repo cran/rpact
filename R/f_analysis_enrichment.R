@@ -86,17 +86,15 @@ NULL
 #'
 #' Get Stage Results
 #'
-#' Returns summary statistics and p-values for a 
+#' Returns summary statistics and p-values for a
 #' given data set and a given enrichment design.
 #'
 #' @noRd
 #'
-.getStageResultsEnrichment <- function(
-        design,
+.getStageResultsEnrichment <- function(design,
         dataInput,
         ...,
         directionUpper = C_DIRECTION_UPPER_DEFAULT) {
-        
     .assertIsTrialDesignInverseNormalOrFisher(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
     .assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
@@ -138,14 +136,13 @@ NULL
 #'
 #' Get Repeated Confidence Intervals for enrichment case
 #'
-#' Calculates and returns the lower and upper limit of the repeated 
+#' Calculates and returns the lower and upper limit of the repeated
 #' confidence intervals of the trial for enrichment designs.
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsEnrichment <- function(
-        design, 
-        dataInput, 
+.getRepeatedConfidenceIntervalsEnrichment <- function(design,
+        dataInput,
         ...) {
     .assertIsTrialDesignInverseNormalOrFisher(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
@@ -154,24 +151,24 @@ NULL
 
     if (dataInput$isDatasetMeans()) {
         return(.getRepeatedConfidenceIntervalsMeansEnrichment(
-            design = design, 
-            dataInput = dataInput, 
+            design = design,
+            dataInput = dataInput,
             ...
         ))
     }
 
     if (dataInput$isDatasetRates()) {
         return(.getRepeatedConfidenceIntervalsRatesEnrichment(
-            design = design, 
-            dataInput = dataInput, 
+            design = design,
+            dataInput = dataInput,
             ...
         ))
     }
 
     if (dataInput$isDatasetSurvival()) {
         return(.getRepeatedConfidenceIntervalsSurvivalEnrichment(
-            design = design, 
-            dataInput = dataInput, 
+            design = design,
+            dataInput = dataInput,
             ...
         ))
     }
@@ -200,8 +197,8 @@ NULL
 
         return(.getConditionalPowerMeansEnrichment(
             stageResults = stageResults,
-            nPlanned = nPlanned, 
-            allocationRatioPlanned = allocationRatioPlanned, 
+            nPlanned = nPlanned,
+            allocationRatioPlanned = allocationRatioPlanned,
             ...
         ))
     }
@@ -209,8 +206,8 @@ NULL
     if (stageResults$isDatasetRates()) {
         return(.getConditionalPowerRatesEnrichment(
             stageResults = stageResults,
-            nPlanned = nPlanned, 
-            allocationRatioPlanned = allocationRatioPlanned, 
+            nPlanned = nPlanned,
+            allocationRatioPlanned = allocationRatioPlanned,
             ...
         ))
     }
@@ -218,8 +215,8 @@ NULL
     if (stageResults$isDatasetSurvival()) {
         return(.getConditionalPowerSurvivalEnrichment(
             stageResults = stageResults,
-            nPlanned = nPlanned, 
-            allocationRatioPlanned = allocationRatioPlanned, 
+            nPlanned = nPlanned,
+            allocationRatioPlanned = allocationRatioPlanned,
             ...
         ))
     }
@@ -260,7 +257,8 @@ NULL
 
     stop(
         C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-        "'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher"
+        "'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher",
+        call. = FALSE
     )
 }
 
@@ -316,7 +314,7 @@ NULL
                     (1 - informationRates[stageIndex])
 
                 decisionMatrix <- matrix(c(
-                    shiftedFutilityBounds, 
+                    shiftedFutilityBounds,
                     C_FUTILITY_BOUNDS_DEFAULT,
                     shiftedDecisionRegionUpper
                 ), nrow = 2, byrow = TRUE)
@@ -424,20 +422,22 @@ NULL
         stage <- kMax - 1
     }
     if (stage < 1 || kMax == 1) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "cannot plot conditional power of a fixed design")
+        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "cannot plot conditional power of a fixed design", call. = FALSE)
     }
     if (stage >= kMax) {
         stop(
             C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
             "the conditional power plot is only available for subsequent stages. ",
-            "Please specify a 'stage' (", stage, ") < 'kMax' (", kMax, ")"
+            "Please specify a 'stage' (", stage, ") < 'kMax' (", kMax, ")",
+            call. = FALSE
         )
     }
 
     .assertIsValidNPlanned(nPlanned = nPlanned, kMax = kMax, stage = stage)
     .assertIsSingleNumber(allocationRatioPlanned, "allocationRatioPlanned")
-    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned", 
-        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM)
+    .assertIsInOpenInterval(allocationRatioPlanned, "allocationRatioPlanned",
+        lower = 0, upper = C_ALLOCATION_RATIO_MAXIMUM
+    )
 
     if (stageResults$isDatasetMeans()) {
         .warnInCaseOfUnusedArgument(piTreatmentRange, "piTreatmentRange", NA_real_, "plot")
