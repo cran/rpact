@@ -1,18 +1,23 @@
 ## |
-## |  *Simulation of count data*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, Tobias Muetze, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
+
+## Original authors: Gernot Wassmer, PhD, Tobias Muetze, PhD, and Friedrich Pahlke, PhD
 
 #'
 #' Calculate Information for Count Data
@@ -24,8 +29,8 @@
 #' @param lambda1 A numeric vector representing the event rates for group 1.
 #' @param lambda2 A numeric vector representing the event rates for group 2.
 #' @param overdispersion A numeric value representing the overdispersion parameter.
-#' @param recruit1 A numeric vector representing the recruitment times for group 1.
-#' @param recruit2 A numeric vector representing the recruitment times for group 2.
+#' @param exposure1 A numeric vector representing the exposure times for group 1.
+#' @param exposure2 A numeric vector representing the exposure times for group 2.
 #'
 #' @details
 #' The function computes the Fisher information for two groups by summing the contributions
@@ -39,9 +44,9 @@
 #' lambda1 <- c(0.1, 0.2, 0.3)
 #' lambda2 <- c(0.15, 0.25, 0.35)
 #' overdispersion <- 0.1
-#' recruit1 <- c(1, 2, 3)
-#' recruit2 <- c(2, 3, 4)
-#' info <- .getInformationCountData(lambda1, lambda2, overdispersion, recruit1, recruit2)
+#' exposure1 <- c(1, 2, 3)
+#' exposure2 <- c(2, 3, 4)
+#' info <- .getInformationCountData(lambda1, lambda2, overdispersion, exposure1, exposure2)
 #' print(info)
 #' }
 #'
@@ -49,15 +54,16 @@
 #'
 #' @noRd
 #'
-.getInformationCountData <- function(lambda1,
+.getInformationCountData <- function(
+        lambda1,
         lambda2,
         overdispersion,
-        recruit1,
-        recruit2) {
-    sumLambda1 <- sum(recruit1 * lambda1 /
-        (1 + overdispersion * recruit1 * lambda1))
-    sumLambda2 <- sum(recruit2 * lambda2 /
-        (1 + overdispersion * recruit2 * lambda2))
+        exposure1,
+        exposure2) {
+    sumLambda1 <- sum(exposure1 * lambda1 /
+        (1 + overdispersion * exposure1 * lambda1))
+    sumLambda2 <- sum(exposure2 * lambda2 /
+        (1 + overdispersion * exposure2 * lambda2))
     return(1 / (1 / sumLambda1 + 1 / sumLambda2))
 }
 
@@ -110,7 +116,8 @@
 #'
 #' @noRd
 #'
-.getGeneratedEventTimesCountData <- function(recruit1,
+.getGeneratedEventTimesCountData <- function(
+        recruit1,
         recruit2,
         accrualTime,
         followUpTime,
@@ -237,7 +244,8 @@
 #'
 #' @export
 #'
-getSimulationCounts <- function(design = NULL,
+getSimulationCounts <- function(
+        design = NULL,
         ...,
         plannedCalendarTime = NA_real_,
         maxNumberOfSubjects = NA_real_,
@@ -253,11 +261,11 @@ getSimulationCounts <- function(design = NULL,
         accrualIntensity = NA_real_,
         followUpTime = NA_real_,
         allocationRatioPlanned = NA_real_,
-        maxNumberOfIterations = 1000L, # C_MAX_SIMULATION_ITERATIONS_DEFAULT
+        maxNumberOfIterations = NA_integer_, # C_MAX_SIMULATION_ITERATIONS_DEFAULT
         seed = NA_real_,
         showStatistics = FALSE) {
     if (is.null(design)) {
-        design <- .getDefaultDesign(..., type = "simulationCounts")
+        design <- .getDefaultDesign(directionUpper = directionUpper, type = "simulationCounts", ...)
         .warnInCaseOfUnknownArguments(
             functionName = "getSimulationCounts",
             ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
@@ -266,7 +274,7 @@ getSimulationCounts <- function(design = NULL,
             )
         )
     } else {
-        .assertIsTrialDesignGroupSequential(design)
+        .assertIsTrialDesignGroupSequentialOrFixed(design)
         .warnInCaseOfUnknownArguments(
             functionName = "getSimulationCounts",
             ignore = c("showStatistics"), ...
@@ -274,11 +282,6 @@ getSimulationCounts <- function(design = NULL,
         .warnInCaseOfTwoSidedPowerArgument(...)
         .warnInCaseOfTwoSidedPowerIsDisabled(design)
     }
-
-    directionUpper <- .assertIsValidDirectionUpper(directionUpper,
-        design,
-        objectType = "power", userFunctionCallEnabled = TRUE
-    )
 
     if (!anyNA(theta)) {
         totalCases <- length(theta)
@@ -322,31 +325,53 @@ getSimulationCounts <- function(design = NULL,
         .assertAreValidCalendarTimes(plannedCalendarTime, kMax)
         if (!is.na(followUpTime)) {
             if (abs(plannedCalendarTime[kMax] - max(accrualTime) - followUpTime) > 1e-04) {
-                stop(sprintf(
-                    paste0(
-                        "Last 'plannedCalendarTime' (%s) ",
-                        "must be equal to %s (accrualTime + followUpTime)"
+                stopConflictingArguments(
+                    sprintf(
+                        paste0(
+                            "Last 'plannedCalendarTime' (%s) ",
+                            "must be equal to %s (accrualTime + followUpTime)"
+                        ),
+                        plannedCalendarTime[kMax], max(accrualTime) + followUpTime
                     ),
-                    plannedCalendarTime[kMax], max(accrualTime) + followUpTime
-                ))
+                    parameter = "plannedCalendarTime", value = plannedCalendarTime[kMax],
+                    constraint = "last plannedCalendarTime must equal max(accrualTime) + followUpTime",
+                    relatedParameter = c(
+                        "accrualTime",
+                        "followUpTime"
+                    ),
+                    relatedValue = list(accrualTime = accrualTime, followUpTime = followUpTime),
+                    functionName = "getSimulationCounts",
+                    diagnosticId = "counts.final_calendar_time_mismatch"
+                )
             }
         }
     } else if (!all(is.na(plannedCalendarTime))) {
-        warning("'plannedCalendarTime' (", .arrayToString(plannedCalendarTime), ") ",
+        warnArgumentIgnored("'plannedCalendarTime' (", .arrayToString(plannedCalendarTime), ") ",
             "has no influence on simulation",
-            call. = FALSE
+            parameter = "plannedCalendarTime",
+            value = plannedCalendarTime,
+            diagnosticId = "simulation.fixed_calendar_time_ignored"
         )
     }
 
     simulationResults <- SimulationResultsCountData$new(design = design)
+    
+    directionUpper <- .setDirectionUpper(
+        simulationResults,
+        design,
+        directionUpper,
+        objectType = "power",
+        endpoint = "counts",
+        userFunctionCallEnabled = TRUE)
 
     if (length(accrualTime) > 1 && accrualTime[1] == 0) {
         accrualTime <- accrualTime[-1]
     }
 
-    .assertIsSinglePositiveInteger(maxNumberOfIterations, "maxNumberOfIterations", validateType = FALSE)
-    .assertIsSingleNumber(seed, "seed", naAllowed = TRUE)
     .assertIsSingleLogical(showStatistics, "showStatistics", naAllowed = FALSE)
+
+    maxNumberOfIterations <- .setMaxNumberOfIterations(simulationResults, maxNumberOfIterations)
+    .validateAndSetSeed(simulationResults, seed)
 
     .setValueAndParameterType(
         simulationResults, "plannedCalendarTime",
@@ -400,18 +425,9 @@ getSimulationCounts <- function(design = NULL,
         notApplicableIfNA = TRUE
     )
     .setValueAndParameterType(
-        simulationResults, "maxNumberOfIterations",
-        as.integer(maxNumberOfIterations), C_MAX_SIMULATION_ITERATIONS_DEFAULT
-    )
-    .setValueAndParameterType(
         simulationResults, "allocationRatioPlanned",
         allocationRatioPlanned, C_ALLOCATION_RATIO_DEFAULT
     )
-
-    simulationResults$.setParameterType("seed", ifelse(is.na(seed),
-        C_PARAM_DEFAULT_VALUE, C_PARAM_USER_DEFINED
-    ))
-    simulationResults$seed <- .setSeed(seed)
 
     if (!is.na(lambda2) && !anyNA(theta)) {
         lambda1 <- lambda2 * theta
@@ -534,8 +550,8 @@ getSimulationCounts <- function(design = NULL,
                     lambda1 = nb[1],
                     lambda2 = nb[2],
                     overdispersion = nb[3],
-                    recruit1 = timeUnderObservation1,
-                    recruit2 = timeUnderObservation2
+                    exposure1 = timeUnderObservation1,
+                    exposure2 = timeUnderObservation2
                 )
                 zValue <- (2 * directionUpper - 1) *
                     (log(nb[1]) - log(nb[2]) - log(thetaH0)) * sqrt(infoAnalysis)
@@ -633,8 +649,8 @@ getSimulationCounts <- function(design = NULL,
                         lambda1 = nb[1], # negative binomial estimate 1
                         lambda2 = nb[2], # negative binomial estimate 2
                         overdispersion = nb[3], # negative binomial overdispersion
-                        recruit1 = timeUnderObservation1,
-                        recruit2 = timeUnderObservation2
+                        exposure1 = timeUnderObservation1,
+                        exposure2 = timeUnderObservation2
                     )
                     zValue <- (2 * directionUpper - 1) *
                         (log(nb[1]) - log(nb[2]) - log(thetaH0)) * sqrt(infoAnalysis)
@@ -668,7 +684,7 @@ getSimulationCounts <- function(design = NULL,
                             index <- index + 1
                             break
                         }
-                        if (zValue < design$futilityBounds[k] && k < kMax) {
+                        if (zValue < .getFutilityBounds(design, k) && k < kMax) {
                             futility[k] <- futility[k] + 1
                             dataTrialStop[index] <- TRUE
                             dataFutility[index] <- 1
@@ -796,9 +812,9 @@ getSimulationCounts <- function(design = NULL,
     data <- data[!is.na(data$iterationNumber), ]
     simulationResults$.data <- data
 
-    warning("The simulation count data feature is experimental and ",
+    warnNotValidated("The simulation count data feature is experimental and ",
         "hence not fully validated (see www.rpact.com/experimental)",
-        call. = FALSE
+        diagnosticId = "validation.experimental_feature"
     )
 
     return(simulationResults)

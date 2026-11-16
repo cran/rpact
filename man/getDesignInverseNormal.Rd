@@ -70,17 +70,20 @@ Kim & DeMets alpha spending (\code{"asKD"}), Hwang, Shi & DeCani alpha spending 
 user defined alpha spending (\code{"asUser"}), no early efficacy stop (\code{"noEarlyEfficacy"}),
 default is \code{"OF"}.}
 
-\item{deltaWT}{Delta for Wang & Tsiatis Delta class.}
+\item{deltaWT}{Delta for Wang & Tsiatis Delta class. Required for \code{typeOfDesign = "WT"}.}
 
-\item{deltaPT1}{Delta1 for Pampallona & Tsiatis class rejecting H0 boundaries.}
+\item{deltaPT1}{Delta1 for Pampallona & Tsiatis class rejecting H0 boundaries.
+Required (together with \code{deltaPT0}) for \code{typeOfDesign = "PT"}.}
 
-\item{deltaPT0}{Delta0 for Pampallona & Tsiatis class rejecting H1 boundaries.}
+\item{deltaPT0}{Delta0 for Pampallona & Tsiatis class rejecting H1 boundaries.
+Required (together with \code{deltaPT1}) for \code{typeOfDesign = "PT"}.}
 
 \item{optimizationCriterion}{Optimization criterion for optimum design within
 Wang & Tsiatis class (\code{"ASNH1"}, \code{"ASNIFH1"},
 \code{"ASNsum"}), default is \code{"ASNH1"}, see details.}
 
-\item{gammaA}{Parameter for alpha spending function.}
+\item{gammaA}{Parameter for alpha spending function. Required for \code{typeOfDesign = "asKD"}
+(validated range \code{[0.4, 8]}) and \code{typeOfDesign = "asHSD"}.}
 
 \item{typeBetaSpending}{Type of beta spending. Type of of beta spending is one of the following:
 O'Brien & Fleming type beta spending, Pocock type beta spending,
@@ -99,7 +102,8 @@ beta-spending up to each interim stage.}
 
 \item{futilityStops}{Logical vector of length \code{kMax - 1} indicating futility stops. Default is \code{NA}.}
 
-\item{gammaB}{Parameter for beta spending function.}
+\item{gammaB}{Parameter for beta spending function. Required for \code{typeBetaSpending = "bsKD"}
+(validated range \code{[0.4, 8]}) and \code{typeBetaSpending = "bsHSD"}.}
 
 \item{bindingFutility}{Logical. If \code{bindingFutility = TRUE} is specified the calculation of
 the critical values is affected by the futility bounds and the futility threshold is binding in the
@@ -111,8 +115,12 @@ Must be one of \code{"zValue"}, \code{"pValue"}, \code{"reverseCondPower"},
 Default is \code{"zValue"}.}
 
 \item{directionUpper}{Logical. Specifies the direction of the alternative,
-only applicable for one-sided testing; default is \code{TRUE}
-which means that larger values of the test statistics yield smaller p-values.}
+only applicable for one-sided testing; \code{TRUE}
+means that larger values of the test statistics yield smaller p-values.
+The default is \code{TRUE} for means, rates, and count data, and \code{FALSE} for survival data
+(power calculations, simulations, and analyses).
+In sample size calculations, the direction is derived from the specified alternative;
+a specified \code{directionUpper} must agree with it.}
 
 \item{betaAdjustment}{For two-sided beta spending designs, if \code{betaAdjustement = TRUE} a linear
 adjustment of the beta spending values is performed if an overlapping of decision regions for futility
@@ -124,7 +132,7 @@ Haybittle & Peto design (default is \code{3}).}
 \item{twoSidedPower}{For two-sided testing, if \code{twoSidedPower = TRUE} is specified
 the sample size calculation is performed by considering both tails of the distribution.
 Default is \code{FALSE}, i.e., it is assumed that one tail probability is equal to 0 or the power
-should be directed to one part.}
+should be directed to one part.#'}
 
 \item{tolerance}{The numerical tolerance, default is \code{1e-08}.}
 }
@@ -191,12 +199,13 @@ getDesignInverseNormal(kMax = 3, informationRates = c(0.3, 0.75, 1),
 \seealso{
 \code{\link[=getDesignSet]{getDesignSet()}} for creating a set of designs to compare different designs.
 
-Other design functions: 
-\code{\link{getDesignCharacteristics}()},
-\code{\link{getDesignConditionalDunnett}()},
-\code{\link{getDesignFisher}()},
-\code{\link{getDesignGroupSequential}()},
-\code{\link{getGroupSequentialProbabilities}()},
-\code{\link{getPowerAndAverageSampleNumber}()}
+Other design functions:
+\code{\link[=getDesignCharacteristics]{getDesignCharacteristics()}},
+\code{\link[=getDesignConditionalDunnett]{getDesignConditionalDunnett()}},
+\code{\link[=getDesignFisher]{getDesignFisher()}},
+\code{\link[=getDesignFixed]{getDesignFixed()}},
+\code{\link[=getDesignGroupSequential]{getDesignGroupSequential()}},
+\code{\link[=getGroupSequentialProbabilities]{getGroupSequentialProbabilities()}},
+\code{\link[=getPowerAndAverageSampleNumber]{getPowerAndAverageSampleNumber()}}
 }
 \concept{design functions}

@@ -1,17 +1,20 @@
 ## |
-## |  *Event probabilities classes*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #'
@@ -75,7 +78,9 @@ EventProbabilities <- R6::R6Class("EventProbabilities",
         cumulativeEventProbabilities = NULL,
         eventProbabilities1 = NULL,
         eventProbabilities2 = NULL,
-        initialize = function(..., .piecewiseSurvivalTime = NULL,
+        initialize = function(
+                ...,
+                .piecewiseSurvivalTime = NULL,
                 .accrualTime = NULL,
                 time = NULL,
                 accrualTime = NULL,
@@ -185,7 +190,8 @@ NumberOfSubjects <- R6::R6Class("NumberOfSubjects",
         accrualIntensity = NULL,
         maxNumberOfSubjects = NULL,
         numberOfSubjects = NULL,
-        initialize = function(...,
+        initialize = function(
+                ...,
                 accrualSetup = NULL,
                 time = NULL,
                 accrualTime = NULL,
@@ -270,7 +276,8 @@ NumberOfSubjects <- R6::R6Class("NumberOfSubjects",
 #'
 #' @export
 #'
-plot.EventProbabilities <- function(x,
+plot.EventProbabilities <- function(
+        x,
         y,
         ...,
         allocationRatioPlanned = x$allocationRatioPlanned,
@@ -281,7 +288,7 @@ plot.EventProbabilities <- function(x,
         legendTitle = NA_character_,
         palette = "Set1",
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         plotSettings = NULL) {
     markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
@@ -315,7 +322,8 @@ plot.EventProbabilities <- function(x,
     return(do.call(.plot.EventProbabilities, args))
 }
 
-.plot.EventProbabilities <- function(x,
+.plot.EventProbabilities <- function(
+        x,
         y,
         ...,
         allocationRatioPlanned = x$allocationRatioPlanned,
@@ -326,7 +334,7 @@ plot.EventProbabilities <- function(x,
         legendTitle = NA_character_,
         palette = "Set1",
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         plotSettings = NULL) {
     fCall <- match.call(expand.dots = FALSE)
@@ -356,10 +364,12 @@ plot.EventProbabilities <- function(x,
         maxNumberOfSubjectsToUse <- x$maxNumberOfSubjects
     } else if (!is.na(x$maxNumberOfSubjects) &&
             x$maxNumberOfSubjects != maxNumberOfSubjectsToUse) {
-        stop(C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
-            "'x' (EventProbabilities) and 'y' (NumberOfSubjects) ",
+        stopConflictingArguments("'x' (EventProbabilities) and 'y' (NumberOfSubjects) ",
             "must have the same 'maxNumberOfSubjects' defined",
-            call. = FALSE
+            functionName = ".plot.EventProbabilities",
+            parameter = "x",
+            relatedParameter = "y",
+            value = x
         )
     }
 
@@ -506,7 +516,8 @@ plot.EventProbabilities <- function(x,
 #'
 #' @export
 #'
-plot.NumberOfSubjects <- function(x,
+plot.NumberOfSubjects <- function(
+        x,
         y,
         ...,
         allocationRatioPlanned = NA_real_,
@@ -517,7 +528,7 @@ plot.NumberOfSubjects <- function(x,
         legendTitle = NA_character_,
         palette = "Set1",
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         plotSettings = NULL) {
     markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
@@ -551,11 +562,20 @@ plot.NumberOfSubjects <- function(x,
     return(do.call(.plot.NumberOfSubjects, args))
 }
 
-.plot.NumberOfSubjects <- function(x, y, ...,
+.plot.NumberOfSubjects <- function(
+        x,
+        y,
+        ...,
         allocationRatioPlanned = NA_real_,
-        main = NA_character_, xlab = NA_character_, ylab = NA_character_, type = 1L,
-        legendTitle = NA_character_, palette = "Set1",
-        plotPointsEnabled = NA, legendPosition = NA_integer_, showSource = FALSE,
+        main = NA_character_,
+        xlab = NA_character_,
+        ylab = NA_character_,
+        type = 1L,
+        legendTitle = NA_character_,
+        palette = "Set1",
+        plotPointsEnabled = NA,
+        legendPosition = "auto",
+        showSource = FALSE,
         plotSettings = NULL) {
     fCall <- match.call(expand.dots = FALSE)
     objectName <- deparse(fCall$x)
@@ -574,10 +594,12 @@ plot.NumberOfSubjects <- function(x,
     }
 
     if (!is.na(allocationRatioPlanned)) {
-        warning("'allocationRatioPlanned' (", allocationRatioPlanned,
+        warnArgumentIgnored("'allocationRatioPlanned' (", allocationRatioPlanned,
             ") will be ignored because 'y' is undefined ",
             "(for more information see ?plot.NumberOfSubjects)",
-            call. = FALSE
+            parameter = "allocationRatioPlanned",
+            value = allocationRatioPlanned,
+            diagnosticId = "plot.allocation_requires_y"
         )
     }
 

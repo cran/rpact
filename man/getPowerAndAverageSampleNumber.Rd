@@ -4,10 +4,18 @@
 \alias{getPowerAndAverageSampleNumber}
 \title{Get Power And Average Sample Number}
 \usage{
-getPowerAndAverageSampleNumber(design, theta = seq(-1, 1, 0.02), nMax = 100)
+getPowerAndAverageSampleNumber(
+  design = NULL,
+  ...,
+  theta = seq(-1, 1, 0.02),
+  nMax = 100
+)
 }
 \arguments{
 \item{design}{The trial design.}
+
+\item{...}{Ensures that all arguments (starting from the "...") are to be named and
+that a warning will be displayed if unknown arguments are passed.}
 
 \item{theta}{A vector of standardized effect sizes (theta values), default is a sequence from -1 to 1.}
 
@@ -58,12 +66,13 @@ getPowerAndAverageSampleNumber(
 
 }
 \seealso{
-Other design functions: 
-\code{\link{getDesignCharacteristics}()},
-\code{\link{getDesignConditionalDunnett}()},
-\code{\link{getDesignFisher}()},
-\code{\link{getDesignGroupSequential}()},
-\code{\link{getDesignInverseNormal}()},
-\code{\link{getGroupSequentialProbabilities}()}
+Other design functions:
+\code{\link[=getDesignCharacteristics]{getDesignCharacteristics()}},
+\code{\link[=getDesignConditionalDunnett]{getDesignConditionalDunnett()}},
+\code{\link[=getDesignFisher]{getDesignFisher()}},
+\code{\link[=getDesignFixed]{getDesignFixed()}},
+\code{\link[=getDesignGroupSequential]{getDesignGroupSequential()}},
+\code{\link[=getDesignInverseNormal]{getDesignInverseNormal()}},
+\code{\link[=getGroupSequentialProbabilities]{getGroupSequentialProbabilities()}}
 }
 \concept{design functions}

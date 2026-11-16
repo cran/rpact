@@ -1,17 +1,20 @@
 ## |
-## |  *Power and average sample number result classes*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 
@@ -68,7 +71,7 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
             self$theta <- theta
             self$nMax <- nMax
 
-            self$theta <- .assertIsValidThetaRange(thetaRange = theta, thetaAutoSeqEnabled = FALSE)
+            self$theta <- .assertIsValidThetaRange(theta = theta, thetaAutoSeqEnabled = FALSE)
             self$.initPowerAndAverageSampleNumber()
         },
         show = function(showType = 1, digits = NA_integer_) {
@@ -115,9 +118,9 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
             .assertIsValidSidedParameter(self$.design$sided)
 
             if (self$nMax <= 0) {
-                stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "'nMax' must be an integer > 0",
-                    call. = FALSE
+                stopIllegalArgument("'nMax' must be an integer > 0",
+                    functionName = ".initPowerAndAverageSampleNumber",
+                    parameter = "nMax"
                 )
             }
 
@@ -179,7 +182,7 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
         },
         .getPowerAndAverageSampleNumber = function(theta) {
             kMax <- self$.design$kMax
-            futilityBounds <- self$.design$futilityBounds
+            futilityBounds <- .getFutilityBounds(self$.design)
             informationRates <- self$.design$informationRates
             criticalValues <- .getCriticalValues(self$.design)
             sided <- self$.design$sided
@@ -188,7 +191,7 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
             .earlyStop <- rep(NA_real_, kMax)
             .futilityPerStage <- rep(NA_real_, kMax)
 
-            if (!anyNA(delayedInformation)) {
+            if (!is.null(delayedInformation) && !anyNA(delayedInformation)) {
                 contRegionLower <- futilityBounds
                 contRegionUpper <- criticalValues
                 decisionCriticalValues <- self$.design$decisionCriticalValues
@@ -209,7 +212,7 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
                 .futilityPerStage <- probs$futilityProbabilities
             } else {
                 if (sided == 2) {
-                    if (self$.design$typeOfDesign == C_TYPE_OF_DESIGN_PT ||
+                    if (self$.design$kMax > 1 && self$.design$typeOfDesign == C_TYPE_OF_DESIGN_PT ||
                             !is.null(self$.design$typeBetaSpending) && self$.design$typeBetaSpending != "none") {
                         futilityBounds[is.na(futilityBounds)] <- 0
                         decisionMatrix <- matrix(c(
@@ -323,8 +326,13 @@ PowerAndAverageSampleNumberResult <- R6::R6Class("PowerAndAverageSampleNumberRes
 #'
 #' @keywords internal
 #'
-as.data.frame.PowerAndAverageSampleNumberResult <- function(x, row.names = NULL,
-        optional = FALSE, niceColumnNamesEnabled = FALSE, includeAllParameters = FALSE, ...) {
+as.data.frame.PowerAndAverageSampleNumberResult <- function(
+        x,
+        row.names = NULL,
+        optional = FALSE,
+        niceColumnNamesEnabled = FALSE,
+        includeAllParameters = FALSE,
+        ...) {
     parameterNames <- x$.getVisibleFieldNames()
     parameterNames <- parameterNames[parameterNames != "nMax"]
     dataFrame <- .getAsDataFrame(

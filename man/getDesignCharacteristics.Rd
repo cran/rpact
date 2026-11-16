@@ -7,7 +7,8 @@
 getDesignCharacteristics(design = NULL, ...)
 }
 \arguments{
-\item{design}{The trial design.}
+\item{design}{A design object. If omitted,
+a default design is created.}
 
 \item{...}{Ensures that all arguments (starting from the "...") are to be named and
 that a warning will be displayed if unknown arguments are passed.}
@@ -20,7 +21,8 @@ The following generics (R generic functions) are available for this result objec
 \item \code{\link[=print.FieldSet]{print()}} to print the object,
 \item \code{\link[=summary.ParameterSet]{summary()}} to display a summary of the object,
 \item \code{\link[=plot.ParameterSet]{plot()}} to plot the object,
-\item \code{\link[=as.data.frame.TrialDesignCharacteristics]{as.data.frame()}} to coerce the object to a \code{\link[base]{data.frame}},
+\item \code{\link[=as.data.frame.TrialDesignCharacteristics]{as.data.frame()}}
+to coerce the object to a \code{\link[base]{data.frame}},
 \item \code{\link[=as.matrix.FieldSet]{as.matrix()}} to coerce the object to a \code{\link[base]{matrix}}.
 }
 }
@@ -32,6 +34,10 @@ Calculates the inflation factor (IF),
 the expected reduction in sample size under H1, under H0, and under a value in between H0 and H1.
 Furthermore, absolute information values are calculated
 under the prototype case testing H0: mu = 0 against H1: mu = 1.
+
+For an optimal conditional error design, supply \code{theta} through \code{...} as a
+finite numeric vector of treatment effects on the mean difference scale.
+The design is evaluated at those effects without recalibration.
 }
 \section{How to get help for generic functions}{
 
@@ -53,13 +59,21 @@ getDesignCharacteristics(getDesignGroupSequential(beta = 0.1, typeOfDesign = "P"
 }
 
 }
+\references{
+Brannath, W. & Bauer, P. (2004). Optimal conditional error functions for the control of conditional power. Biometrics, 60(3), 715-723. \doi{10.1111/j.0006-341X.2004.00221.x}
+
+Brannath, W., zur Verth, J., Dreher, M. & Scharpenberg, M. (2024; revised 2026). Optimal monotone conditional error functions. \doi{10.48550/arXiv.2402.00814}
+
+The related R package \href{https://CRAN.R-project.org/package=optconerrf}{optconerrf: Optimal Monotone Conditional Error Functions} provides a standalone implementation of this methodology. The rpact implementation uses rpact design objects and interfaces; optconerrf is not required to run these functions.
+}
 \seealso{
-Other design functions: 
-\code{\link{getDesignConditionalDunnett}()},
-\code{\link{getDesignFisher}()},
-\code{\link{getDesignGroupSequential}()},
-\code{\link{getDesignInverseNormal}()},
-\code{\link{getGroupSequentialProbabilities}()},
-\code{\link{getPowerAndAverageSampleNumber}()}
+Other design functions:
+\code{\link[=getDesignConditionalDunnett]{getDesignConditionalDunnett()}},
+\code{\link[=getDesignFisher]{getDesignFisher()}},
+\code{\link[=getDesignFixed]{getDesignFixed()}},
+\code{\link[=getDesignGroupSequential]{getDesignGroupSequential()}},
+\code{\link[=getDesignInverseNormal]{getDesignInverseNormal()}},
+\code{\link[=getGroupSequentialProbabilities]{getGroupSequentialProbabilities()}},
+\code{\link[=getPowerAndAverageSampleNumber]{getPowerAndAverageSampleNumber()}}
 }
 \concept{design functions}

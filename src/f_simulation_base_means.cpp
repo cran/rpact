@@ -1,20 +1,21 @@
-/**
- *
- * -- Simulation of means with group sequential and combination test --
- *
- * This file is part of the R package rpact:
- * Confirmatory Adaptive Clinical Trial Design and Analysis
- *
- * Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
- * Licensed under "GNU Lesser General Public License" version 3
- * License text can be found here: https://www.r-project.org/Licenses/LGPL-3
- *
- * RPACT company website: https://www.rpact.com
- * rpact package website: https://www.rpact.org
- *
- * Contact us for information about our services: info@rpact.com
- *
- */
+// |
+// |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+// |  This file is part of the rpact R package.
+// |
+// |  RPACT — Statistical Tools for Drug Development
+// |
+// |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+// |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+// |  SPDX-License-Identifier: LGPL-3.0-only
+// |
+// |  Licensed under the GNU Lesser General Public License, version 3.
+// |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
+// |
+// |  Package documentation: https://www.rpact.org
+// |  Resources and customer portal: https://connect.rpact.app
+// |  Consulting and services: https://www.rpact.com
+// |  Contact: info@rpact.com
+// |
 
 #include <Rcpp.h>
 
@@ -39,6 +40,11 @@ NumericVector getTestStatisticsMeans(
 	NumericVector pValuesSeparate = NumericVector(testStatisticsPerStage.size(), NA_REAL);
 	double value = 1;
 	int stage = sampleSizesPerStage.length();
+	// basic input validation to avoid out-of-bounds access and unclear crashes
+	if (stage <= 0) {
+		Rcpp::stop("Internal error: 'sampleSizesPerStage' must have positive length");
+	}
+
 	double overallTestStatistic = vectorProduct(sqrt(sampleSizesPerStage), testStatisticsPerStage) /
 			sqrt(sum(sampleSizesPerStage));
 	if (normalApproximation) {
@@ -49,13 +55,13 @@ NumericVector getTestStatisticsMeans(
 			pValuesSeparate[i] = 1.0 - R::pt((double) testStatisticsPerStage[i], df, true, false);
 		}
 	}
-	if (designNumber == 1L) {
+	if (designNumber <= 1L) { // fixed or group sequential design
 		if (normalApproximation) {
 			value = overallTestStatistic;
 		} else {
 			value = getQNorm(R::pt(overallTestStatistic, sum(sampleSizesPerStage) - groups, true, false));
 		}
-	} else if (designNumber == 2L) {
+	} else if (designNumber == 2L) { // inverse normal design
 		if (stage == 1) {
 			if (normalApproximation) {
 				value = testStatisticsPerStage[0];
@@ -85,7 +91,7 @@ NumericVector getTestStatisticsMeans(
 										sqrt((double) informationRates[stage - 1]);
 			}
 		}
-	} else if (designNumber == 3L) {
+	} else if (designNumber == 3L) { // Fisher's design
 		NumericVector weightsFisher = rep(NA_REAL, stage);
 		weightsFisher[0] = 1;
 		if (stage > 1) {
@@ -220,6 +226,17 @@ List getSimulationStepMeans(
 	simulatedConditionalPower = 0;
 	if (k > 1) {
 
+		// validate vectors needed for multi-stage calculations
+		if (criticalValues.length() < k) {
+			Rcpp::stop("Internal error: 'criticalValues' must have length >= k for k>1");
+		}
+		if (designNumber != 3L && informationRates.length() < k) {
+			Rcpp::stop("Internal error: 'informationRates' must have length >= k for k>1 and non-Fisher designs");
+		}
+		if (groups > 1 && allocationRatioPlanned.length() < k) {
+			Rcpp::stop("Internal error: 'allocationRatioPlanned' must have length >= k when groups > 1");
+		}
+
 		testStatisticValue = testStatistic[0]; // value
 
 		// used effect size is either estimated from test statistic or pre-fixed
@@ -249,7 +266,7 @@ List getSimulationStepMeans(
 		}
 
 		// conditional critical value to reject the null hypotheses at the next stage of the trial
-		if (designNumber == 3L) {
+		if (designNumber == 3L) { // Fisher's design
 			conditionalCriticalValue = getOneMinusQNorm(pow(criticalValue /
 					testStatisticValue,
 					1.0 / sqrt((double) (informationRates[k - 1] -
@@ -352,7 +369,7 @@ List getSimulationStepMeans(
 	if (k == kMax) {
 		trialStop = true;
 	}
-	if (designNumber == 3L) {
+	if (designNumber == 3L) { // Fisher's design
 		if (!R_IsNA(testStatisticValue) && !R_IsNA(criticalValue) && testStatisticValue <= criticalValue) {
 			simulatedRejections = 1;
 			trialStop = true;
@@ -566,7 +583,7 @@ List getSimulationMeansLoopCpp(
 				dataTrialStop[index - 1] = trialStop;
 				dataConditionalPowerAchieved[index - 1] = simulatedConditionalPowerStep;
 				dataEffectEstimate[index - 1] = effectEstimate;
-				if (designNumber == 3L) {
+				if (designNumber == 3L) { // Fisher's design
 					dataPValuesSeparate[index - 1] = testStatistic[3 + k - 1]; // pValuesSeparate
 				}
 				index++;

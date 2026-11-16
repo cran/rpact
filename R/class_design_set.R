@@ -1,17 +1,20 @@
 ## |
-## |  *Trial design set classes*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_core_plot.R
@@ -33,6 +36,9 @@ NULL
 #'
 #' @details
 #' Specify a master design and one or more design parameters or a list of designs.
+#' 
+#' @section Deprecated:
+#' Use [getComparison()] instead.
 #'
 #' @return Returns a \code{\link{TrialDesignSet}} object.
 #' The following generics (R generic functions) are available for this result object:
@@ -85,10 +91,11 @@ NULL
 #' )
 #' if (require(ggplot2)) plot(designSet, type = 8, nMax = 20)
 #' }
-#'
+#' 
 #' @export
 #'
 getDesignSet <- function(...) {
+    .Deprecated("getComparison")
     return(TrialDesignSet$new(...))
 }
 
@@ -120,10 +127,8 @@ summary.TrialDesignSet <- function(object, ..., type = 1, digits = NA_integer_) 
 
     .assertIsTrialDesignSet(object)
     if (object$isEmpty()) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "cannot create summary because the design set is empty",
-            call. = FALSE
+        stopIllegalArgument("cannot create summary because the design set is empty",
+            functionName = "summary.TrialDesignSet"
         )
     }
 
@@ -305,18 +310,28 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
         },
         getDesignMaster = function() {
             if (length(self$designs) == 0) {
-                stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "no design master defined")
+                stopRuntimeIssue("no design master defined",
+                    functionName = "getDesignMaster"
+                )
             }
 
             return(self$designs[[1]])
         },
         .validateDesignsArgument = function(designsToAdd, args) {
             if (!is.list(designsToAdd)) {
-                stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'designsToAdd' must be a list", call. = FALSE)
+                stopIllegalArgument("'designsToAdd' must be a list",
+                    functionName = ".validateDesignsArgument",
+                    parameter = "designsToAdd",
+                    value = designsToAdd
+                )
             }
 
             if (length(designsToAdd) == 0) {
-                stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'designsToAdd' must be not empty", call. = FALSE)
+                stopIllegalArgument("'designsToAdd' must be not empty",
+                    functionName = ".validateDesignsArgument",
+                    parameter = "designsToAdd",
+                    value = designsToAdd
+                )
             }
 
             designsToAddValidated <- list()
@@ -326,16 +341,15 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
                 } else {
                     parentDesign <- d[[".design"]]
                     if (is.null(parentDesign)) {
-                        stop(
-                            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                            "'designsToAdd' must be a list of trial designs (found '", .getClassName(d), "')",
-                            call. = FALSE
+                        stopIllegalArgument("'designsToAdd' must be a list of trial designs (found ", .getClassName(d, quote = TRUE), ")",
+                            functionName = ".validateDesignsArgument",
+                            parameter = "designsToAdd", value = designsToAdd
                         )
                     }
 
-                    warning("Only the parent design of ", .getClassName(d),
+                    warnArgumentAdjusted("Only the parent design of ", .getClassName(d),
                         " was added to trial design set",
-                        call. = FALSE
+                        diagnosticId = "design_set.delayed_design_replaced"
                     )
                     designsToAddValidated <- c(designsToAddValidated, parentDesign)
                 }
@@ -348,10 +362,10 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
 
             args <- args[!(names(args) %in% c("designs", "variedParameters"))]
             if (length(args) > 0) {
-                warning("Argument", ifelse(length(args) > 1, "s", ""), " ",
+                warnArgumentIgnored("Argument", ifelse(length(args) > 1, "s", ""), " ",
                     .arrayToString(args, encapsulate = TRUE), " will be ignored ",
                     "because for 'designs' only argument 'variedParameters' will be respected",
-                    call. = FALSE
+                    diagnosticId = "design_set.variant_parameters_ignored"
                 )
             }
 
@@ -359,7 +373,11 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
         },
         addVariedParameters = function(varPar) {
             if (is.null(varPar) || !is.character(varPar)) {
-                stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'varPar' must be a valid character vector", call. = FALSE)
+                stopIllegalArgument("'varPar' must be a valid character vector",
+                    functionName = "addVariedParameters",
+                    parameter = "varPar",
+                    value = varPar
+                )
             }
 
             self$variedParameters <- c(self$variedParameters, varPar)
@@ -375,11 +393,10 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             design <- .getOptionalArgument(optionalArgumentName = "design", ...)
             optionalArgumentsDefined <- (length(args) > 0)
             if (is.null(design) && !optionalArgumentsDefined) {
-                stop(
-                    C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "please specify a 'design' to add and/or a design parameter, ",
+                stopIllegalArgument("please specify a 'design' to add and/or a design parameter, ",
                     "e.g., deltaWT = c(0.1, 0.3, 0.4)",
-                    call. = FALSE
+                    functionName = ".validateOptionalArguments",
+                    parameter = "design"
                 )
             }
 
@@ -390,11 +407,10 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             }
 
             if (is.null(design) && optionalArgumentsDefined && length(self$designs) == 0) {
-                stop(
-                    C_EXCEPTION_TYPE_INCOMPLETE_ARGUMENTS,
-                    "at least one design (master) must be defined in this ",
+                stopIncompleteArguments("at least one design (master) must be defined in this ",
                     "design set to respect any design parameters",
-                    call. = FALSE
+                    functionName = ".validateOptionalArguments",
+                    diagnosticId = "design_set.master_missing"
                 )
             }
 
@@ -405,10 +421,11 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             }
 
             if (!.isTrialDesign(design)) {
-                stop(
-                    C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "'design' (", .getClassName(design), ") must be an instance of class 'TrialDesign'",
-                    call. = FALSE
+                stopIllegalArgument("'design' (", .getClassName(design), ") ",
+                    "must be an instance of class 'TrialDesign'",
+                    functionName = ".validateOptionalArguments",
+                    parameter = "design",
+                    value = .getClassName(design)
                 )
             }
 
@@ -428,7 +445,9 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
 
             argumentNames <- names(args)
             if (length(argumentNames) == 0) {
-                warning("No argument names available for ", paste(args, collapse = ", "), call. = FALSE)
+                warnInvalidInput("No argument names available for ", paste(args, collapse = ", "),
+                    diagnosticId = "design_set.invalid_variant_parameters"
+                )
                 return(character())
             }
 
@@ -438,10 +457,18 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             visibleFieldNames <- validatedDesign$.getVisibleFieldNames()
             for (arg in argumentNames) {
                 if (!(arg %in% visibleFieldNames)) {
-                    stop(sprintf(paste0(
-                        C_EXCEPTION_TYPE_RUNTIME_ISSUE,
-                        "'%s' does not contain a field with name '%s'"
-                    ), .getClassName(validatedDesign), arg))
+                    stopRuntimeIssue(
+                        sprintf(
+                            "'%s' does not contain a field with name '%s'",
+                            .getClassName(validatedDesign),
+                            arg
+                        ),
+                        parameter = arg,
+                        constraint = "visible design field name",
+                        relatedParameter = "validatedDesign",
+                        relatedValue = .getClassName(validatedDesign),
+                        functionName = ".getArgumentNames"
+                    )
                 }
             }
 
@@ -470,11 +497,11 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             sided <- self$getDesignMaster()$sided
             for (design in self$designs) {
                 if (sided != design$sided) {
-                    stop(
-                        C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
+                    stopConflictingArguments(
                         "designs have different directions of alternative (design master is ",
                         ifelse(sided == 1, "one", "two"), " sided)",
-                        call. = FALSE
+                        functionName = "assertHaveEqualSidedValues",
+                        diagnosticId = "design_set.sidedness_mismatch"
                     )
                 }
             }
@@ -484,7 +511,9 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             argumentNames <- self$.getArgumentNames(validatedDesign = validatedDesign, ...)
 
             if (length(argumentNames) == 0) {
-                warning("Creation of design variants stopped: no valid design parameters found", call. = FALSE)
+                warnInvalidInput("Creation of design variants stopped: no valid design parameters found",
+                    diagnosticId = "design_set.invalid_variant_parameters"
+                )
                 return(list())
             }
 
@@ -493,11 +522,12 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             }
 
             if (length(argumentNames) > 2) {
-                stop(
-                    C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "too many arguments (", .arrayToString(argumentNames, encapsulate = TRUE),
-                    "): up to 2 design parameters are allowed",
-                    call. = FALSE
+                stopIllegalArgument("too many arguments (",
+                    .arrayToString(argumentNames, encapsulate = TRUE), "): ",
+                    "up to 2 design parameters are allowed",
+                    functionName = ".createDesignVariants",
+                    parameter = "argumentNames",
+                    value = argumentNames
                 )
             }
 
@@ -508,8 +538,12 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
 
             return(designVariants)
         },
-        .designSettingExists = function(parameterName, parameterValue, numberOfArguments = 1,
-                parameterNameBefore = NULL, parameterValueBefore = NULL) {
+        .designSettingExists = function(
+                parameterName,
+                parameterValue,
+                numberOfArguments = 1,
+                parameterNameBefore = NULL,
+                parameterValueBefore = NULL) {
             if (length(self$designs) == 0) {
                 return(FALSE)
             }
@@ -528,8 +562,13 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
             }
             return(FALSE)
         },
-        .createDesignVariantsRecursive = function(designMaster, args, argumentIndex, argumentNames,
-                parameterNameBefore = NULL, parameterValueBefore = NULL) {
+        .createDesignVariantsRecursive = function(
+                designMaster,
+                args,
+                argumentIndex,
+                argumentNames,
+                parameterNameBefore = NULL,
+                parameterValueBefore = NULL) {
             if (argumentIndex > length(argumentNames)) {
                 return(list())
             }
@@ -545,15 +584,23 @@ TrialDesignSet <- R6::R6Class("TrialDesignSet",
                         parameterNameBefore, parameterValueBefore
                     )) {
                     if (!is.null(parameterNameBefore) && !is.null(parameterValueBefore)) {
-                        warning(sprintf(
+                        warnArgumentIgnored(sprintf(
                             "Argument ignored: there exists already a design with %s = %s (%s = %s)",
                             argumentName, argumentValue, parameterNameBefore, parameterValueBefore
-                        ), call. = FALSE)
+                        ),
+                            parameter = argumentName,
+                            value = argumentValue,
+                            diagnosticId = "design_set.duplicate_design"
+                        )
                     } else {
-                        warning(sprintf(
+                        warnArgumentIgnored(sprintf(
                             "Argument ignored: there exists already a design with %s = %s",
                             argumentName, argumentValue
-                        ), call. = FALSE)
+                        ),
+                            parameter = argumentName,
+                            value = argumentValue,
+                            diagnosticId = "design_set.duplicate_design"
+                        )
                     }
                 } else {
                     designMaster2 <- self$.createDesignVariant(
@@ -715,10 +762,14 @@ length.TrialDesignSet <- function(x) {
     colNames1 <- colnames(df1)
     colNames2 <- colnames(df2)
     if (length(colNames1) != length(colNames2)) {
-        stop(
-            C_EXCEPTION_TYPE_RUNTIME_ISSUE,
-            "cannot harmonize column names of two data frames if number of columns is unequal (",
-            length(colNames1), " != ", length(colNames2), ")"
+        stopRuntimeIssue("cannot harmonize column names of two ",
+            "data frames if number of columns is unequal (",
+            length(colNames1), " != ", length(colNames2), ")",
+            functionName = ".getHarmonizedColumnNames",
+            parameter = "colNames1",
+            value = length(colNames1),
+            relatedParameter = "colNames2",
+            relatedValue = length(colNames2)
         )
     }
 
@@ -806,21 +857,25 @@ length.TrialDesignSet <- function(x) {
 #'
 #' @keywords internal
 #'
-as.data.frame.TrialDesignSet <- function(x,
+as.data.frame.TrialDesignSet <- function(
+        x,
         row.names = NULL,
         optional = FALSE,
         niceColumnNamesEnabled = FALSE,
         includeAllParameters = FALSE,
         addPowerAndAverageSampleNumber = FALSE,
         theta = seq(-1, 1, 0.02),
-        nMax = NA_integer_, ...) {
+        nMax = NA_integer_,
+        ...) {
     .assertIsTrialDesignSet(x)
     if (x$isEmpty()) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "cannot create data.frame because the design set is empty", call. = FALSE)
+        stopIllegalArgument("cannot create data.frame because the design set is empty",
+            functionName = "as.data.frame.TrialDesignSet"
+        )
     }
 
     fCall <- match.call(expand.dots = FALSE)
-    theta <- .assertIsValidThetaRange(thetaRange = theta, thetaAutoSeqEnabled = (as.character(fCall$theta)[1] != "seq"))
+    theta <- .assertIsValidThetaRange(theta = theta, thetaAutoSeqEnabled = (as.character(fCall$theta)[1] != "seq"))
 
     if (addPowerAndAverageSampleNumber) {
         .assertAssociatedArgumentsAreDefined(
@@ -833,10 +888,14 @@ as.data.frame.TrialDesignSet <- function(x,
     dataFrame <- NULL
     for (design in x$designs) {
         if (fisherDesignEnabled != .isTrialDesignFisher(design)) {
-            stop(
-                C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS, "all trial designs must be from the same type ",
-                "('", .getClassName(x$designs[[1]]), "' != '", .getClassName(design), ")'",
-                call. = FALSE
+            stopConflictingArguments("all trial designs must be from the same type ",
+                "(", .getClassName(x$designs[[1]], quote = TRUE), " != ",
+                .getClassName(design, quote = TRUE), ")",
+                functionName = "as.data.frame.TrialDesignSet",
+                parameter = "design",
+                value = design,
+                relatedParameter = "designs",
+                relatedValue = .getClassName(x$designs[[1]])
             )
         }
 
@@ -958,10 +1017,11 @@ as.data.frame.TrialDesignSet <- function(x,
 #'
 #' @export
 #'
-plot.TrialDesignSet <- function(x,
+plot.TrialDesignSet <- function(
+        x,
         y,
         ...,
-        type = 1L,
+        type = NA_integer_,
         main = NA_character_,
         xlab = NA_character_,
         ylab = NA_character_,
@@ -969,12 +1029,14 @@ plot.TrialDesignSet <- function(x,
         theta = seq(-1, 1, 0.02),
         nMax = NA_integer_,
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         grid = 1,
         plotSettings = NULL) {
-    .assertIsValidPlotType(type, naAllowed = FALSE)
+    .assertIsValidPlotType(type, naAllowed = TRUE)
     .assertIsSingleInteger(grid, "grid", naAllowed = FALSE, validateType = FALSE)
+    type <- .assertIsAvailablePlotType(x, type, 
+        functionName = "plot.TrialDesignSet")
     markdown <- .getOptionalArgument("markdown", ..., optionalArgumentDefaultValue = NA)
     if (is.na(markdown)) {
         markdown <- .isMarkdownEnabled("plot")
@@ -989,6 +1051,7 @@ plot.TrialDesignSet <- function(x,
         ylab = ylab,
         palette = palette,
         theta = theta,
+        nMax = nMax,
         plotPointsEnabled = plotPointsEnabled,
         legendPosition = legendPosition,
         showSource = showSource,
@@ -1014,7 +1077,8 @@ plot.TrialDesignSet <- function(x,
     return(do.call(.plot.TrialDesignSet, args))
 }
 
-.plot.TrialDesignSet <- function(x,
+.plot.TrialDesignSet <- function(
+        x,
         y,
         ...,
         type = 1L,
@@ -1025,7 +1089,7 @@ plot.TrialDesignSet <- function(x,
         theta = seq(-1, 1, 0.02),
         nMax = NA_integer_,
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         grid = 1,
         plotSettings = NULL) {
@@ -1083,7 +1147,8 @@ plot.TrialDesignSet <- function(x,
     return(main)
 }
 
-.plotTrialDesignSet <- function(...,
+.plotTrialDesignSet <- function(
+        ...,
         x,
         y,
         type = 1L,
@@ -1094,7 +1159,7 @@ plot.TrialDesignSet <- function(x,
         theta = seq(-1, 1, 0.02),
         nMax = NA_integer_,
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         designSetName = NA_character_,
         plotSettings = NULL) {
@@ -1105,13 +1170,15 @@ plot.TrialDesignSet <- function(x,
     .assertIsSingleCharacter(xlab, "xlab", naAllowed = TRUE)
     .assertIsSingleCharacter(ylab, "ylab", naAllowed = TRUE)
     .assertIsSingleCharacter(palette, "palette", naAllowed = TRUE)
-    theta <- .assertIsValidThetaRange(thetaRange = theta)
+    theta <- .assertIsValidThetaRange(theta = theta)
     .assertIsSingleNumber(nMax, "nMax", naAllowed = TRUE)
-    .assertIsInClosedInterval(nMax, "nMax", lower = 1L, upper = 1e10)
+    .assertIsInClosedInterval(nMax, "nMax", lower = 1L, upper = 1e10, naAllowed = TRUE)
     .assertIsSingleLogical(plotPointsEnabled, "plotPointsEnabled", naAllowed = TRUE)
     .assertIsValidLegendPosition(legendPosition)
     .assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
-
+    type <- .assertIsAvailablePlotType(x, type, availablePlotTypes = c(1:9), 
+        functionName = ".plotTrialDesignSet")
+    
     parameterSet <- x
     designMaster <- parameterSet$getDesignMaster()
     .assertIsTrialDesign(designMaster)
@@ -1120,8 +1187,10 @@ plot.TrialDesignSet <- function(x,
         main <- .getMainTitle(main, title = "Boundaries", nMax = nMax)
         xParameterName <- "informationRates"
         yParameterNames <- "criticalValues"
-        if (designMaster$sided == 1 || (.isTrialDesignInverseNormalOrGroupSequential(designMaster) &&
-                (designMaster$typeOfDesign == C_TYPE_OF_DESIGN_PT || grepl("^bs", designMaster$typeBetaSpending)))) {
+        if (designMaster$sided == 1 || (designMaster$kMax > 1 &&
+                .isTrialDesignInverseNormalOrGroupSequential(designMaster) &&
+                (identical(designMaster$typeOfDesign, C_TYPE_OF_DESIGN_PT) ||
+                    grepl("^bs", designMaster$typeBetaSpending)))) {
             if (.isTrialDesignWithValidFutilityBounds(designMaster)) {
                 yParameterNames <- c("futilityBounds", yParameterNames)
             }
@@ -1130,7 +1199,9 @@ plot.TrialDesignSet <- function(x,
             }
         }
     } else if (type == 2) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "designs with undefined endpoint do not support plot type 2", call. = FALSE)
+        stopIllegalArgument("designs with undefined endpoint do not support plot type 2",
+            functionName = ".plotTrialDesignSet"
+        )
     } else if (type == 3) {
         main <- .getMainTitle(main, title = "Stage Levels", nMax = nMax)
         xParameterName <- "informationRates"
@@ -1161,9 +1232,9 @@ plot.TrialDesignSet <- function(x,
         xParameterName <- "theta"
         yParameterNames <- "averageSampleNumber"
     } else {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 1, 2, ..., 9", call. = FALSE)
+        .showPlotTypeNotImplementedError(type, ".plotTrialDesignSet", x)
     }
-
+    
     if (type >= 5 && type <= 9) {
         designSetName <- paste0(
             "getPowerAndAverageSampleNumber(", designSetName,
@@ -1212,11 +1283,12 @@ plot.TrialDesignSet <- function(x,
         type = type, nMax = nMax
     )
 
-    return(p)
+    return(.finalizePlotLegend(p, legendPosition, plotSettings))
 }
 
 .addDecisionCriticalValuesToPlot <- function(p, designMaster, type, nMax = NA_integer_) {
-    if (type != 1 || !.isTrialDesignInverseNormalOrGroupSequential(designMaster)) {
+    if (type != 1 || .isTrialDesignFixed(designMaster) ||
+            !.isTrialDesignInverseNormalOrGroupSequential(designMaster)) {
         return(p)
     }
 
@@ -1233,10 +1305,14 @@ plot.TrialDesignSet <- function(x,
         data$delayedInformationRates <- data$delayedInformationRates * nMax
         tryCatch(
             {
-                data$delayedInformationRates <- as.numeric(.formatSampleSizes(data$delayedInformationRates))
+                data$delayedInformationRates <- as.numeric(
+                    .formatSampleSizes(data$delayedInformationRates)
+                )
             },
             error = function(e) {
-                warning("Failed to format delayed information rates on x-axis: ", e$message)
+                warnRuntimeIssue("Failed to format delayed information rates on x-axis: ", e$message,
+                    diagnosticId = "plot.axis_formatting_failed"
+                )
             }
         )
     }
@@ -1254,15 +1330,18 @@ plot.TrialDesignSet <- function(x,
         stroke = 1.25,
         show.legend = TRUE
     )
+    colourScale <- ggplot2::ggplot_build(p)$plot$scales$get_scales("colour")
+    legendShapes <- rep(NA_integer_, length(colourScale$get_breaks()))
+    legendShapes[colourScale$get_breaks() == "Decision critical value"] <- 4L
     p <- p + ggplot2::guides(
         colour = ggplot2::guide_legend(
             override.aes = list(
-                shape = c(NA, NA, 4)
+                shape = legendShapes
             )
         )
     )
 
-    for (i in 1:nrow(data)) {
+    for (i in seq_len(nrow(data))) {
         label <- paste0("(", round(data[i, 1], 3), ", ", round(data[i, 2], 3), ")")
         p <- p + ggplot2::annotate("text",
             x = data[i, 1],
@@ -1273,6 +1352,5 @@ plot.TrialDesignSet <- function(x,
         )
     }
 
-    try(suppressWarnings(suppressMessages(p <- p + ggplot2::scale_color_manual(values = c("#4daf4a", "#377eb8", "#e41a1c")))))
     return(p)
 }

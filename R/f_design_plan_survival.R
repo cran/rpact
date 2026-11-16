@@ -1,24 +1,27 @@
 ## |
-## |  *Sample size and power survival*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_core_utilities.R
 NULL
 
 .addStudyDurationToDesignPlan <- function(designPlan) {
-    if (!designPlan$accountForObservationTimes) {
+    if (isFALSE(designPlan$accountForObservationTimes)) {
         return(invisible())
     }
 
@@ -33,24 +36,258 @@ NULL
     }
 }
 
-.getLambda <- function(..., groupNumber, lambda2, lambda1, hazardRatio) {
+.getLambda <- function(..., groupNumber, lambda2, lambda1, hazardRatio, kappa = 1) {
     if (groupNumber == 2) {
         return(lambda2)
     }
 
     if (anyNA(lambda1)) {
-        lambda1 <- getLambda1ByLambda2AndHazardRatio(lambda2, hazardRatio)
+        lambda1 <- getLambda1ByLambda2AndHazardRatio(lambda2, hazardRatio, kappa = kappa)
     }
 
     return(lambda1)
 }
 
+#'
+#' @title
+#' Calculate Competing-Risk Dropout Incidence
+#'
+#' @description
+#' Calculates the probability of dropout before an event by a follow-up time,
+#' for exponential dropout and exponential or piecewise exponential event times.
+#'
+#' @param time Vector of follow-up times since enrollment. Negative times give
+#'   zero incidence; missing times remain missing.
+#' @param piecewiseLambda Normalized nonnegative event hazards, one per interval.
+#' @param piecewiseSurvivalTime Normalized interval start times, starting at zero.
+#'   Ignored when there is a single event hazard.
+#' @param phi Nonnegative exponential dropout hazard.
+#'
+#' @return A numeric vector of dropout incidences, with one entry per time.
+#'
+#' @details
+#' Integrates the dropout hazard times joint event-free and dropout-free
+#' survival analytically over the event-hazard intervals. Inputs are normalized
+#' by the survival model before this internal helper is called.
+#'
+#' @keywords internal
+#'
+.getDropoutIncidence <- function(time, piecewiseLambda, piecewiseSurvivalTime, phi) {
+    # Inputs are normalized by PiecewiseSurvivalTime; times are follow-up times.
+    result <- rep(NA_real_, length(time))
+    available <- !is.na(time)
+    result[available] <- 0
+    if (phi == 0 || !any(available)) {
+        return(result)
+    }
+
+    if (length(piecewiseLambda) == 1L) {
+        totalHazard <- phi + piecewiseLambda
+        result[available] <- phi / totalHazard * (-expm1(-totalHazard * pmax(0, time[available])))
+        return(result)
+    }
+
+    starts <- piecewiseSurvivalTime
+    ends <- c(starts[-1], Inf)
+    cumulativeHazard <- 0
+    for (j in seq_along(piecewiseLambda)) {
+        duration <- pmax(0, pmin(time[available], ends[j]) - starts[j])
+        totalHazard <- phi + piecewiseLambda[j]
+        result[available] <- result[available] +
+            phi / totalHazard * exp(-phi * starts[j] - cumulativeHazard) *
+            (-expm1(-totalHazard * duration))
+        if (j < length(piecewiseLambda)) {
+            cumulativeHazard <- cumulativeHazard + piecewiseLambda[j] * (ends[j] - starts[j])
+        }
+    }
+    return(result)
+}
+
+#'
+#' @title
+#' Average Dropout Incidence over Accrued Subjects
+#'
+#' @description
+#' Calculates group-specific expected dropout proportions among subjects
+#' enrolled by a calendar-time horizon, using piecewise constant accrual.
+#'
+#' @param time Single finite calendar time since recruitment began.
+#' @param accrualTimeVector Accrual interval boundaries; a leading zero is
+#'   inserted if absent.
+#' @param accrualIntensity Accrual rates, recycled across accrual intervals.
+#' @param lambda1,lambda2 Normalized event hazards for the two groups.
+#' @param piecewiseSurvivalTime Normalized event-hazard interval start times.
+#'   Ignored for a group with a single event hazard.
+#' @param phi Vector of exponential dropout hazards for the two groups.
+#' @param allocationRatioPlanned Constant planned treatment-to-control ratio.
+#'
+#' @return A numeric vector of length two. Unavailable horizons, empty accrued
+#'   denominators, and groups without allocation yield missing proportions.
+#'
+#' @details
+#' Averages competing-risk dropout incidence over entry times, dividing by
+#' accrued enrollment rather than total planned enrollment. Constant allocation
+#' cancels within each group. Follow-up intervals are split at event-hazard
+#' changes and integrated analytically. On an interval from v to w,
+#' let h be the total hazard and J(v) the joint survival at its start.
+#' With z = h * (w - v), the mean incidence is
+#' F_D(v) + phi * J(v) / h * B(z).
+#' The factor B(z) equals G_1(z) - G_2(z) / z,
+#' where G_k is the gamma CDF with shape k and rate one. The second term is
+#' evaluated using its log probability to avoid underflow before division.
+#' The factor is zero at z = 0 by continuity.
+#' This implements the validation specification's expected dropout proportion
+#' and analytic dropout accrual integral formulas without numerical quadrature.
+#' The survival dropout integration appendix derives these formulas and maps
+#' their mathematical quantities to the implementation variables.
+#'
+#' @keywords internal
+#'
+.getDropoutProportionsGroupwise <- function(time, accrualTimeVector, accrualIntensity,
+        lambda1, lambda2, piecewiseSurvivalTime, phi, allocationRatioPlanned = 1) {
+    result <- rep(NA_real_, 2)
+    if (length(time) != 1L || !is.finite(time)) {
+        return(result)
+    }
+    if (accrualTimeVector[1] != 0) {
+        accrualTimeVector <- c(0, accrualTimeVector)
+    }
+    starts <- utils::head(accrualTimeVector, -1)
+    ends <- pmin(time, tail(accrualTimeVector, -1))
+    widths <- pmax(0, ends - starts)
+    counts <- rep(accrualIntensity, length.out = length(widths)) * widths
+    if (sum(counts) == 0) {
+        return(result)
+    }
+    weights <- counts / sum(counts)
+    allocation <- c(allocationRatioPlanned, 1) / (1 + allocationRatioPlanned)
+    lambdas <- list(lambda1, lambda2)
+    for (g in 1:2) {
+        if (!is.finite(allocation[g]) || allocation[g] == 0) {
+            next
+        }
+        if (phi[g] == 0) {
+            result[g] <- 0
+            next
+        }
+        result[g] <- 0
+        for (j in which(counts > 0)) {
+            lower <- time - ends[j]
+            upper <- time - starts[j]
+            # Use the limiting incidence if subtraction rounds away the interval.
+            if (lower == upper) {
+                result[g] <- result[g] + weights[j] *
+                    .getDropoutIncidence(lower, lambdas[[g]], piecewiseSurvivalTime, phi[g])
+                next
+            }
+            breaks <- sort(unique(c(lower, upper,
+                piecewiseSurvivalTime[piecewiseSurvivalTime > lower & piecewiseSurvivalTime < upper])))
+            integral <- 0
+            for (m in seq_len(length(breaks) - 1L)) {
+                intervalStart <- breaks[m]
+                intervalWidth <- breaks[m + 1L] - intervalStart
+                if (length(lambdas[[g]]) == 1L) {
+                    eventHazard <- lambdas[[g]]
+                    cumulativeEventHazard <- eventHazard * intervalStart
+                } else {
+                    interval <- findInterval(intervalStart, piecewiseSurvivalTime)
+                    eventHazard <- lambdas[[g]][interval]
+                    durations <- pmax(0, pmin(intervalStart,
+                        c(piecewiseSurvivalTime[-1], Inf)) - piecewiseSurvivalTime)
+                    cumulativeEventHazard <- sum(lambdas[[g]] * durations)
+                }
+                totalHazard <- eventHazard + phi[g]
+                scaledWidth <- totalHazard * intervalWidth
+                if (scaledWidth == 0) {
+                    meanIncrement <- 0
+                } else {
+                    # FS formula fs:survival:dropoutGammaFactor. Use log(G_2(z)) - log(z)
+                    # so G_2(z) does not underflow before division by z.
+                    meanIncrement <- stats::pgamma(scaledWidth, shape = 1, rate = 1) -
+                        exp(stats::pgamma(scaledWidth, shape = 2, rate = 1, log.p = TRUE) -
+                            log(scaledWidth))
+                }
+                jointSurvival <- exp(-phi[g] * intervalStart - cumulativeEventHazard)
+                incidence <- .getDropoutIncidence(intervalStart, lambdas[[g]],
+                    piecewiseSurvivalTime, phi[g])
+                integral <- integral + intervalWidth *
+                    (incidence + phi[g] / totalHazard * jointSurvival * meanIncrement)
+            }
+            # Normalize on the same follow-up scale to avoid cancellation when
+            # a short accrual interval is subtracted from a large horizon.
+            result[g] <- result[g] + weights[j] * integral / (upper - lower)
+        }
+    }
+    return(result)
+}
+
+#'
+#' @title
+#' Add Expected Dropout Proportions to a Survival Design Plan
+#'
+#' @description
+#' Populates derived group-specific dropout proportions at each stage's
+#' planned analysis time in each scenario, including analyses before recruitment ends.
+#'
+#' @param designPlan Survival sample-size or power design plan, modified by
+#'   reference. Its survival and accrual inputs must already be normalized.
+#'
+#' @return Invisibly returns the assigned derived parameter type; the design
+#'   plan is updated by reference.
+#'
+#' @details
+#' Converts input dropout probabilities to exponential hazards and averages
+#' competing-risk dropout incidence over accrued subjects. Stores matrices with
+#' stage rows and alternative-scenario columns. Values remain missing when
+#' observation times are not accounted for or the horizon is unavailable.
+#'
+#' @keywords internal
+#'
+.addExpectedDropoutProportions <- function(designPlan) {
+    numberOfResults <- length(designPlan$hazardRatio)
+    kMax <- designPlan$.design$kMax
+    result <- array(NA_real_, dim = c(kMax, numberOfResults, 2))
+    if (isTRUE(designPlan$accountForObservationTimes) && length(designPlan$analysisTime) > 0) {
+        horizons <- matrix(rep(designPlan$analysisTime, length.out = kMax * numberOfResults),
+            nrow = kMax)
+        phi <- -log1p(-c(designPlan$dropoutRate1, designPlan$dropoutRate2)) / designPlan$dropoutTime
+        for (i in seq_len(numberOfResults)) {
+            lambda1 <- designPlan$lambda1[i]
+            if (designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled) {
+                lambda1 <- NA_real_
+            }
+            lambda1 <- .getLambda(groupNumber = 1, lambda1 = lambda1,
+                lambda2 = designPlan$lambda2, hazardRatio = designPlan$hazardRatio[i], kappa = designPlan$kappa)
+            for (k in seq_len(kMax)) {
+                result[k, i, ] <- .getDropoutProportionsGroupwise(
+                    time = horizons[k, i], accrualTimeVector = designPlan$accrualTime,
+                    accrualIntensity = designPlan$accrualIntensity,
+                    lambda1 = lambda1, lambda2 = designPlan$lambda2,
+                    piecewiseSurvivalTime = designPlan$piecewiseSurvivalTime, phi = phi,
+                    allocationRatioPlanned = rep(designPlan$allocationRatioPlanned, length.out = numberOfResults)[i]
+                )
+            }
+        }
+    }
+    designPlan$expectedDropoutProportion1 <- matrix(result[, , 1], nrow = kMax)
+    designPlan$expectedDropoutProportion2 <- matrix(result[, , 2], nrow = kMax)
+    rates <- c(designPlan$dropoutRate1, designPlan$dropoutRate2)
+    proportionType <- if (length(rates) > 0L && all(!is.na(rates) & rates == 0)) {
+        C_PARAM_NOT_APPLICABLE
+    } else {
+        C_PARAM_DERIVED
+    }
+    designPlan$.setParameterType("expectedDropoutProportion1", proportionType)
+    designPlan$.setParameterType("expectedDropoutProportion2", proportionType)
+}
+
 .getEventProbabilityFunction <- function(..., time, piecewiseLambda, piecewiseSurvivalTime, phi, kappa) {
     if (length(piecewiseLambda) == 1) {
         if (kappa != 1 && phi > 0) {
-            stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "Weibull distribution cannot ",
+            stopIllegalArgument("Weibull distribution cannot ",
                 "be used together with specified dropout rate (use simulation instead)",
-                call. = FALSE
+                functionName = ".getEventProbabilityFunction",
+                diagnosticId = "survival.weibull_dropout_analytical_unsupported"
             )
         }
 
@@ -59,20 +296,24 @@ NULL
     }
 
     if (length(piecewiseSurvivalTime) != length(piecewiseLambda)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+        stopIllegalArgument(
             "length of 'piecewiseSurvivalTime' (", .arrayToString(piecewiseSurvivalTime),
-            ") must be equal to length of 'piecewiseLambda' (", .arrayToString(piecewiseLambda), ")",
-            call. = FALSE
+            ") must be equal to length of 'piecewiseLambda' (",
+            .arrayToString(piecewiseLambda), ")",
+            functionName = ".getEventProbabilityFunction",
+            parameter = "piecewiseSurvivalTime",
+            value = piecewiseSurvivalTime,
+            relatedParameter = "piecewiseLambda",
+            relatedValue = piecewiseLambda
         )
     }
 
     piecewiseSurvivalTime <- .getPiecewiseExpStartTimesWithoutLeadingZero(piecewiseSurvivalTime)
 
     if (kappa != 1) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "Weibull distribution cannot be used for piecewise survival definition",
-            call. = FALSE
+        stopIllegalArgument("Weibull distribution cannot be used for piecewise survival definition",
+            functionName = ".getEventProbabilityFunction",
+            diagnosticId = "survival.weibull_piecewise_incompatible"
         )
     }
     len <- length(piecewiseSurvivalTime)
@@ -163,8 +404,18 @@ NULL
     return(result)
 }
 
-.getEventProbabilitiesGroupwise <- function(..., time, accrualTimeVector, accrualIntensity, lambda2,
-        lambda1, piecewiseSurvivalTime, phi, kappa, allocationRatioPlanned, hazardRatio) {
+.getEventProbabilitiesGroupwise <- function(
+        ...,
+        time,
+        accrualTimeVector,
+        accrualIntensity,
+        lambda2,
+        lambda1,
+        piecewiseSurvivalTime,
+        phi,
+        kappa,
+        allocationRatioPlanned,
+        hazardRatio) {
     .assertIsSingleNumber(time, "time")
 
     if (length(accrualTimeVector) > 1 && accrualTimeVector[1] == 0) {
@@ -181,10 +432,12 @@ NULL
 
     if (length(densityIntervals) > 1 && length(accrualIntensity) > 1 &&
             length(densityIntervals) != length(accrualIntensity)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'densityIntervals' (", .arrayToString(densityIntervals),
-            ") and 'accrualIntensity' (", .arrayToString(accrualIntensity), ") must have same length",
-            call. = FALSE
+        stopIllegalArgument("'densityIntervals' (", .arrayToString(densityIntervals), ") and 'accrualIntensity' (",
+            .arrayToString(accrualIntensity), ") must have same length",
+            functionName = ".getEventProbabilitiesGroupwise",
+            parameter = "densityIntervals", value = densityIntervals,
+            relatedParameter = "accrualIntensity",
+            relatedValue = accrualIntensity
         )
     }
 
@@ -200,7 +453,8 @@ NULL
                     groupNumber           = groupNumber,
                     lambda2               = lambda2,
                     lambda1               = lambda1,
-                    hazardRatio           = hazardRatio
+                    hazardRatio           = hazardRatio,
+                    kappa                 = kappa
                 )
 
                 inner <- function(x) {
@@ -240,7 +494,8 @@ NULL
             groupNumber           = groupNumber,
             lambda2               = lambda2,
             lambda1               = lambda1,
-            hazardRatio           = hazardRatio
+            hazardRatio           = hazardRatio,
+            kappa                 = kappa
         )
 
         inner <- function(x) {
@@ -272,7 +527,7 @@ NULL
 
 .isUserDefinedMaxNumberOfSubjects <- function(designPlan) {
     if (!is.null(designPlan) && length(designPlan$.getParameterType("maxNumberOfSubjects")) > 0) {
-        if (designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_USER_DEFINED) {
+        if (designPlan$isUserDefinedParameter("maxNumberOfSubjects")) {
             return(TRUE)
         }
     }
@@ -281,8 +536,16 @@ NULL
         !is.na(designPlan$maxNumberOfSubjects) && designPlan$maxNumberOfSubjects > 0)
 }
 
-.getEventsFixed <- function(..., typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
-        twoSidedPower, alpha, beta, sided, hazardRatio, thetaH0, allocationRatioPlanned) {
+.getEventsFixed <- function(
+        ...,
+        typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
+        twoSidedPower,
+        alpha,
+        beta,
+        sided,
+        hazardRatio,
+        thetaH0,
+        allocationRatioPlanned) {
     typeOfComputation <- match.arg(typeOfComputation)
 
     if (typeOfComputation == "Schoenfeld") {
@@ -352,8 +615,18 @@ NULL
     }
 }
 
-.getEventProbabilities <- function(..., time, accrualTimeVector, accrualIntensity, lambda2,
-        lambda1, piecewiseSurvivalTime, phi, kappa, allocationRatioPlanned, hazardRatio) {
+.getEventProbabilities <- function(
+        ...,
+        time,
+        accrualTimeVector,
+        accrualIntensity,
+        lambda2,
+        lambda1,
+        piecewiseSurvivalTime,
+        phi,
+        kappa,
+        allocationRatioPlanned,
+        hazardRatio) {
     eventProbs <- .getEventProbabilitiesGroupwise(
         time = time, accrualTimeVector = accrualTimeVector,
         accrualIntensity = accrualIntensity, lambda2 = lambda2,
@@ -362,69 +635,6 @@ NULL
     )
 
     return(.getEventProbabilitiesOverall(eventProbs, allocationRatioPlanned))
-}
-
-.getEffectScaleBoundaryDataSurvival <- function(designPlan) {
-    design <- designPlan$.design
-    thetaH0 <- designPlan$thetaH0
-    cumulativeEventsPerStage <- designPlan$cumulativeEventsPerStage
-    allocationRatioPlanned <- designPlan$allocationRatioPlanned
-    directionUpper <- designPlan$directionUpper
-
-    if (design$kMax == 1) {
-        nParameters <- length(cumulativeEventsPerStage)
-    } else {
-        nParameters <- ncol(cumulativeEventsPerStage)
-    }
-
-    directionUpper[is.na(directionUpper)] <- TRUE
-
-    if (length(allocationRatioPlanned) == 1) {
-        allocationRatioPlanned <- rep(allocationRatioPlanned, nParameters)
-    }
-
-    futilityBounds <- design$futilityBounds
-    futilityBounds[!is.na(futilityBounds) & futilityBounds <= C_FUTILITY_BOUNDS_DEFAULT] <- NA_real_
-
-    criticalValuesEffectScaleUpper <- matrix(, nrow = design$kMax, ncol = nParameters)
-    criticalValuesEffectScaleLower <- matrix(, nrow = design$kMax, ncol = nParameters)
-    futilityBoundsEffectScaleUpper <- matrix(, nrow = design$kMax - 1, ncol = nParameters)
-    futilityBoundsEffectScaleLower <- matrix(, nrow = design$kMax - 1, ncol = nParameters)
-
-    criticalValues <- .getCriticalValues(design)
-    for (j in (1:nParameters)) {
-        if (design$sided == 1) {
-            criticalValuesEffectScaleUpper[, j] <- thetaH0 * (exp((2 * directionUpper[j] - 1) * criticalValues *
-                (1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] *
-                    cumulativeEventsPerStage[, j])))
-        } else {
-            criticalValuesEffectScaleUpper[, j] <- thetaH0 * (exp((2 * directionUpper[j] - 1) * criticalValues *
-                (1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] *
-                    cumulativeEventsPerStage[, j])))
-            criticalValuesEffectScaleLower[, j] <- thetaH0 * (exp(-(2 * directionUpper[j] - 1) * criticalValues *
-                (1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] *
-                    cumulativeEventsPerStage[, j])))
-        }
-
-        if (!.isTrialDesignFisher(design) && !all(is.na(futilityBounds))) {
-            futilityBoundsEffectScaleUpper[, j] <- thetaH0 * (exp((2 * directionUpper[j] - 1) * futilityBounds *
-                (1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] *
-                    cumulativeEventsPerStage[1:(design$kMax - 1), j])))
-        }
-        if (!.isTrialDesignFisher(design) && design$sided == 2 && design$kMax > 1 &&
-                (design$typeOfDesign == C_TYPE_OF_DESIGN_PT || !is.null(design$typeBetaSpending) && design$typeBetaSpending != "none")) {
-            futilityBoundsEffectScaleLower[, j] <- thetaH0 * (exp(-(2 * directionUpper[j] - 1) * futilityBounds *
-                (1 + allocationRatioPlanned[j]) / sqrt(allocationRatioPlanned[j] *
-                    cumulativeEventsPerStage[1:(design$kMax - 1), j])))
-        }
-    }
-
-    return(list(
-        criticalValuesEffectScaleUpper = matrix(criticalValuesEffectScaleUpper, nrow = design$kMax),
-        criticalValuesEffectScaleLower = matrix(criticalValuesEffectScaleLower, nrow = design$kMax),
-        futilityBoundsEffectScaleUpper = matrix(futilityBoundsEffectScaleUpper, nrow = design$kMax - 1),
-        futilityBoundsEffectScaleLower = matrix(futilityBoundsEffectScaleLower, nrow = design$kMax - 1)
-    ))
 }
 
 .calculateSampleSizeSurvival <- function(designPlan) {
@@ -444,7 +654,10 @@ NULL
 
     .addEffectScaleBoundaryDataToDesignPlan(designPlan)
     designPlan$singleEventsPerStage <- .getSingleEventsPerStage(designPlan$cumulativeEventsPerStage)
-    .addDeprecatedFieldValues(designPlan, "eventsPerStage", designPlan$cumulativeEventsPerStage)
+    .addDeprecatedFieldValues(
+        designPlan, "eventsPerStage",
+        designPlan$cumulativeEventsPerStage, "2024-06-10"
+    )
 
     paramName <- ifelse(designPlan$.design$kMax == 1, "nFixed", "maxNumberOfSubjects")
     if (designPlan$isGeneratedParameter(paramName) &&
@@ -458,11 +671,10 @@ NULL
         }
 
         if (any(designPlan$accrualIntensity < 0)) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "'accrualIntensityRelative' (",
+            stopIllegalArgument("'accrualIntensityRelative' (",
                 .arrayToString(designPlan$accrualIntensity), ") must be >= 0",
-                call. = FALSE
+                functionName = ".calculateSampleSizeSurvival",
+                parameter = "accrualIntensityRelative"
             )
         }
 
@@ -491,27 +703,23 @@ NULL
 
         if (numberOfDefinedAccrualIntensities > 1) {
             paramName <- NULL
-            if (designPlan$.getParameterType("pi1") == C_PARAM_USER_DEFINED ||
-                    designPlan$.getParameterType("pi1") == C_PARAM_DEFAULT_VALUE ||
-                    designPlan$.getParameterType("pi2") == C_PARAM_USER_DEFINED) {
+            if (designPlan$isUserDefinedParameter("pi1") ||
+                    designPlan$isDefaultParameter("pi1") ||
+                    designPlan$isUserDefinedParameter("pi2")) {
                 paramName <- "pi1"
-            } else if (designPlan$.getParameterType("median1") == C_PARAM_USER_DEFINED ||
-                    designPlan$.getParameterType("median2") == C_PARAM_USER_DEFINED) {
+            } else if (designPlan$isUserDefinedParameter("median1") ||
+                    designPlan$isUserDefinedParameter("median2")) {
                 paramName <- "median1"
             }
             if (!is.null(paramName)) {
                 paramValue <- designPlan[[paramName]]
                 if (!is.null(paramValue) && length(paramValue) > 1) {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                        "the definition of relative accrual intensities ",
+                    stopIllegalArgument("the definition of relative accrual intensities ",
                         "(all 'accrualIntensity' values < 1) ",
-                        "is only available for a single value ",
-                        "(", paramName, " = ", .arrayToString(
-                            paramValue,
-                            vectorLookAndFeelEnabled = TRUE
-                        ), ")",
-                        call. = FALSE
+                        "is only available for a single value ", "(", paramName, " = ",
+                        .arrayToString(paramValue, vectorLookAndFeelEnabled = TRUE), ")",
+                        functionName = ".calculateSampleSizeSurvival",
+                        parameter = "accrualIntensity"
                     )
                 }
             }
@@ -521,27 +729,21 @@ NULL
     designPlan$maxNumberOfEvents <- designPlan$cumulativeEventsPerStage[designPlan$.design$kMax, ]
     designPlan$.setParameterType("maxNumberOfEvents", C_PARAM_GENERATED)
 
-    if (!anyNA(designPlan$followUpTime)) {
-        if (any(designPlan$followUpTime < -1e-02)) {
-            warning("Accrual duration longer than maximal study ",
-                "duration (time to maximal number of events); followUpTime = ",
-                .arrayToString(designPlan$followUpTime),
-                call. = FALSE
-            )
-        }
-    } else {
-        warning("Follow-up time could not be calculated for hazardRatio = ",
+    if (anyNA(designPlan$followUpTime)) {
+        warnNumericalIssue("Follow-up time could not be calculated for hazardRatio = ",
             .arrayToString(designPlan$hazardRatio),
-            call. = FALSE
+            diagnosticId = "survival.event_target_calculation_failed"
         )
     }
 
-    if (designPlan$.getParameterType("accountForObservationTimes") != C_PARAM_USER_DEFINED) {
+    if (!designPlan$isUserDefinedParameter("accountForObservationTimes")) {
         designPlan$.setParameterType("accountForObservationTimes", C_PARAM_NOT_APPLICABLE)
     }
     designPlan$.setParameterType("chi", C_PARAM_NOT_APPLICABLE)
 
     .addStudyDurationToDesignPlan(designPlan)
+    .setDirectionUpperDesignPlan(designPlan)
+    .addExpectedDropoutProportions(designPlan)
 
     return(designPlan)
 }
@@ -555,10 +757,12 @@ NULL
 # \code{accountForObservationTimes} can be selected as \code{FALSE}. In this case,
 # the number of subjects is calculated from the event probabilities only.
 # This kind of computation does not account for the specific accrual pattern and survival distribution.
-.getSampleSizeSurvival <- function(...,
+.getSampleSizeSurvival <- function(
+        ...,
         design = NULL,
         typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
         thetaH0 = 1,
+        directionUpper = NA,
         pi2 = NA_real_,
         pi1 = NA_real_,
         allocationRatioPlanned = NA_real_,
@@ -599,6 +803,7 @@ NULL
         lambda1 = lambda1,
         median1 = median1,
         median2 = median2,
+        directionUpper = directionUpper,
         followUpTime = followUpTime,
         maxNumberOfSubjects = maxNumberOfSubjects,
         dropoutRate1 = dropoutRate1,
@@ -610,7 +815,9 @@ NULL
     return(.calculateSampleSizeSurvival(designPlan))
 }
 
-.createDesignPlanSurvival <- function(..., objectType = c("sampleSize", "power"),
+.createDesignPlanSurvival <- function(
+        ...,
+        objectType = c("sampleSize", "power"),
         design,
         typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
         thetaH0,
@@ -641,16 +848,12 @@ NULL
     typeOfComputation <- .matchArgument(typeOfComputation, "Schoenfeld")
 
     if (userFunctionCallEnabled) {
-        .assertIsTrialDesignInverseNormalOrGroupSequential(design)
+        .assertIsTrialDesignInverseNormalOrGroupSequentialOrFixed(design)
         .assertIsValidAlphaAndBeta(design$alpha, design$beta)
         .assertIsValidSidedParameter(design$sided)
         .assertIsSingleLogical(accountForObservationTimes, "accountForObservationTimes", naAllowed = TRUE)
         .assertIsValidThetaH0(thetaH0, endpoint = "survival", groups = 2)
         .assertIsValidKappa(kappa)
-        directionUpper <- .assertIsValidDirectionUpper(directionUpper,
-            design,
-            objectType = objectType, userFunctionCallEnabled = TRUE
-        )
 
         if (objectType == "power") {
             .assertIsSingleNumber(maxNumberOfEvents, "maxNumberOfEvents")
@@ -659,52 +862,36 @@ NULL
             )
         }
 
-        if (!anyNA(pi1) && (any(pi1 <= 0) || any(pi1 >= 1))) {
-            stop(
-                C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                "event rate 'pi1' (", .arrayToString(pi1), ") is out of bounds (0; 1)",
-                call. = FALSE
-            )
-        }
-
-        if (!anyNA(pi2) && (any(pi2 <= 0) || any(pi2 >= 1))) {
-            stop(
-                C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                "event rate 'pi2' (", .arrayToString(pi2), ") is out of bounds (0; 1)",
-                call. = FALSE
-            )
-        }
+        .assertIsInOpenInterval(pi1, "pi1", lower = 0, upper = 1, naAllowed = TRUE)
+        .assertIsInOpenInterval(pi2, "pi2", lower = 0, upper = 1, naAllowed = TRUE)
 
         if (design$sided == 2 && thetaH0 != 1) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "two-sided case is implemented for superiority testing only (i.e., thetaH0 = 1)",
-                call. = FALSE
+            stopIllegalArgument("two-sided case is implemented for superiority testing only (i.e., thetaH0 = 1)",
+                functionName = ".createDesignPlanSurvival",
+                diagnosticId = "planning.two_sided_requires_superiority"
             )
         }
 
         if (thetaH0 <= 0) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "null hypothesis hazard ratio is not allowed be negative or zero",
-                call. = FALSE
+            stopIllegalArgument("null hypothesis hazard ratio is not allowed be negative or zero",
+                functionName = ".createDesignPlanSurvival"
             )
         }
 
         if (!(typeOfComputation %in% c("Schoenfeld", "Freedman", "HsiehFreedman"))) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "computation type ('", typeOfComputation, "') must be one of the following: ",
+            stopIllegalArgument("computation type (", .vQuote(typeOfComputation), ") ",
+                "must be one of the following: ",
                 "'Schoenfeld', 'Freedman', or 'HsiehFreedman' ",
-                call. = FALSE
+                functionName = ".createDesignPlanSurvival",
+                parameter = "Schoenfeld",
+                relatedParameter = "Freedman"
             )
         }
 
         if (typeOfComputation != "Schoenfeld" && thetaH0 != 1) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "Freedman test calculation is possible only for superiority testing (thetaH0 != 1)",
-                call. = FALSE
+            stopIllegalArgument("Freedman test calculation is possible only for superiority testing (thetaH0 != 1)",
+                functionName = ".createDesignPlanSurvival",
+                diagnosticId = "survival.freedman_requires_superiority"
             )
         }
     }
@@ -729,7 +916,8 @@ NULL
     }
 
     if (userFunctionCallEnabled) {
-        .assertIsValidAllocationRatioPlannedSampleSize(allocationRatioPlanned, maxNumberOfSubjects)
+        allocationRatioPlanned <- .assertIsValidAllocationRatioPlannedSampleSize(
+            allocationRatioPlanned, maxNumberOfSubjects)
     }
 
     designPlan <- TrialDesignPlanSurvival$new(
@@ -747,8 +935,17 @@ NULL
         dropoutRate1 = dropoutRate1,
         dropoutRate2 = dropoutRate2,
         dropoutTime = dropoutTime,
-        hazardRatio = hazardRatio
+        hazardRatio = hazardRatio,
+        objectType = objectType
     )
+    
+    directionUpper <- .setDirectionUpper(
+        designPlan,
+        design,
+        directionUpper,
+        objectType = objectType,
+        endpoint = "survival",
+        userFunctionCallEnabled = userFunctionCallEnabled)
 
     .setValueAndParameterType(
         designPlan, "allocationRatioPlanned",
@@ -759,8 +956,6 @@ NULL
     .setValueAndParameterType(designPlan, "dropoutTime", dropoutTime, C_DROP_OUT_TIME_DEFAULT)
     .setValueAndParameterType(designPlan, "kappa", kappa, 1)
 
-    designPlan$.setObjectType(objectType)
-
     designPlan$criticalValuesPValueScale <- matrix(design$stageLevels, ncol = 1)
     if (design$sided == 2) {
         designPlan$criticalValuesPValueScale <- designPlan$criticalValuesPValueScale * 2
@@ -768,18 +963,14 @@ NULL
     designPlan$.setParameterType("criticalValuesPValueScale", C_PARAM_NOT_APPLICABLE)
 
     if (.hasApplicableFutilityBounds(design)) {
-        designPlan$futilityBoundsPValueScale <- matrix(1 - stats::pnorm(design$futilityBounds), ncol = 1)
+        designPlan$futilityBoundsPValueScale <- matrix(1 - stats::pnorm(.getFutilityBounds(design)), ncol = 1)
         designPlan$.setParameterType("futilityBoundsPValueScale", C_PARAM_GENERATED)
     }
 
     designPlan$.accrualTime <- accrualSetup
 
     designPlan$totalAccrualTime <- accrualSetup$accrualTime[length(accrualSetup$accrualTime)]
-    if (length(accrualSetup$accrualTime) > 2) {
-        designPlan$.setParameterType("totalAccrualTime", C_PARAM_GENERATED)
-    } else {
-        designPlan$.setParameterType("totalAccrualTime", C_PARAM_NOT_APPLICABLE)
-    }
+    designPlan$.setParameterType("totalAccrualTime", C_PARAM_NOT_APPLICABLE)
 
     if (is.na(maxNumberOfSubjects)) {
         if (!is.na(accrualSetup$maxNumberOfSubjects)) {
@@ -795,15 +986,14 @@ NULL
         designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_USER_DEFINED)
     }
 
-    if (isTRUE(all.equal(accrualSetup$accrualTime, C_ACCRUAL_TIME_DEFAULT)) ||
-            isTRUE(all.equal(
-                as.integer(c(0L, accrualSetup$.getAccrualTimeWithoutLeadingZero())),
-                C_ACCRUAL_TIME_DEFAULT
-            ))
-        ) {
+    if (equals(accrualSetup$accrualTime, C_ACCRUAL_TIME_DEFAULT) ||
+            equals(c(0L, accrualSetup$.getAccrualTimeWithoutLeadingZero()), C_ACCRUAL_TIME_DEFAULT)) {
         designPlan$.setParameterType("accrualTime", C_PARAM_DEFAULT_VALUE)
     } else {
-        designPlan$.setParameterType("accrualTime", accrualSetup$.getParameterType("accrualTime"))
+        designPlan$.setParameterType(
+            "accrualTime",
+            accrualSetup$.getParameterType("accrualTime")
+        )
     }
 
     if (length(designPlan$accrualIntensity) == 1 &&
@@ -826,27 +1016,30 @@ NULL
     .assertIsSingleNumber(designPlan$dropoutRate2, "dropoutRate2")
     .assertIsSingleNumber(designPlan$dropoutTime, "dropoutTime")
 
-    if (objectType == "power") {
-        pi1Default <- C_PI_1_DEFAULT
-    } else {
-        pi1Default <- C_PI_1_SAMPLE_SIZE_DEFAULT
-    }
     designPlan$.piecewiseSurvivalTime <- getPiecewiseSurvivalTime(
-        piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
-        median1 = median1, median2 = median2,
-        hazardRatio = hazardRatio, pi1 = pi1, pi2 = pi2, eventTime = eventTime, kappa = kappa,
-        .pi1Default = pi1Default
+        piecewiseSurvivalTime = piecewiseSurvivalTime,
+        lambda2 = lambda2,
+        lambda1 = lambda1,
+        median1 = median1,
+        median2 = median2,
+        hazardRatio = hazardRatio,
+        pi1 = pi1,
+        pi2 = pi2,
+        eventTime = eventTime,
+        kappa = kappa,
+        .pi1Default = .getPi1Default(type = objectType, endpoint = "survival"),
+        .silent = TRUE
     )
     designPlan$.setParameterType("kappa", designPlan$.piecewiseSurvivalTime$.getParameterType("kappa"))
 
-    if (designPlan$.piecewiseSurvivalTime$.getParameterType("pi1") == C_PARAM_DEFAULT_VALUE &&
+    if (designPlan$.piecewiseSurvivalTime$isDefaultParameter("pi1") &&
             length(designPlan$.piecewiseSurvivalTime$pi1) > 1 &&
             length(accrualSetup$accrualIntensity) > 1 && all(accrualSetup$accrualIntensity < 1)) {
         designPlan$.piecewiseSurvivalTime$pi1 <- designPlan$.piecewiseSurvivalTime$pi1[1]
-        warning("Only the first default 'pi1' (", designPlan$.piecewiseSurvivalTime$pi1, ") was used ",
+        warnArgumentAdjusted("Only the first default 'pi1' (", designPlan$.piecewiseSurvivalTime$pi1, ") was used ",
             "because the accrual intensities (", .arrayToString(accrualSetup$accrualIntensity), ") ",
             "were defined relative (all accrual intensities are < 1)",
-            call. = FALSE
+            diagnosticId = "survival.relative_accrual_scenario_selected"
         )
     }
 
@@ -857,29 +1050,15 @@ NULL
         .assertIsSingleNumber(dropoutRate1, "dropoutRate1")
         .assertIsSingleNumber(dropoutRate2, "dropoutRate2")
         .assertIsSingleNumber(dropoutTime, "dropoutTime")
-
-        if (!is.na(dropoutTime) && dropoutTime <= 0) {
-            stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dropoutTime' (", dropoutTime, ") must be > 0", call. = FALSE)
-        }
-
-        if (dropoutRate1 < 0 || dropoutRate1 >= 1) {
-            stop(
-                C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                "'dropoutRate1' (", dropoutRate1, ") is out of bounds [0; 1)",
-                call. = FALSE
-            )
-        }
-
-        if (dropoutRate2 < 0 || dropoutRate2 >= 1) {
-            stop(
-                C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-                "'dropoutRate2' (", dropoutRate2, ") is out of bounds [0; 1)",
-                call. = FALSE
-            )
-        }
+        .assertIsInOpenInterval(dropoutTime, "dropoutTime", lower = 0, upper = NA, naAllowed = TRUE)
+        .assertIsInInterval(dropoutRate1, "dropoutRate1", lower = 0, upper = 1, lowerIncluded = TRUE, upperIncluded = FALSE)
+        .assertIsInInterval(dropoutRate2, "dropoutRate2", lower = 0, upper = 1, lowerIncluded = TRUE, upperIncluded = FALSE)
 
         if (!is.na(eventTime) && eventTime <= 0) {
-            stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'eventTime' (", eventTime, ") must be > 0", call. = FALSE)
+            stopIllegalArgument("'eventTime' (", eventTime, ") must be > 0",
+                functionName = ".createDesignPlanSurvival",
+                parameter = "eventTime", value = eventTime
+            )
         }
 
         .assertIsValidAccrualTime(accrualSetup$accrualTime)
@@ -889,9 +1068,9 @@ NULL
 
         if (.isUserDefinedMaxNumberOfSubjects(designPlan) && !is.null(followUpTime) &&
                 length(followUpTime) == 1 && !is.na(followUpTime)) {
-            warning("Follow-up time will be calculated, value entered (",
+            warnArgumentIgnored("Follow-up time will be calculated, value entered (",
                 followUpTime, ") is not taken into account",
-                call. = FALSE
+                diagnosticId = "survival.follow_up_derived_from_subject_cap"
             )
         } else if (is.na(followUpTime)) {
             designPlan$followUpTime <- C_FOLLOW_UP_TIME_DEFAULT
@@ -910,8 +1089,8 @@ NULL
         )) {
             designPlan$.setParameterType(p, C_PARAM_NOT_APPLICABLE)
         }
-        if (designPlan$.getParameterType("accrualTime") == C_PARAM_USER_DEFINED ||
-                !isTRUE(all.equal(accrualTime, C_ACCRUAL_TIME_DEFAULT))) {
+        if (designPlan$isUserDefinedParameter("accrualTime") ||
+                !equals(accrualTime, C_ACCRUAL_TIME_DEFAULT)) {
             designPlan$.warnInCaseArgumentExists(accrualSetup$accrualTime, "accrualTime")
         }
         designPlan$.warnInCaseArgumentExists(dropoutRate1, "dropoutRate1")
@@ -925,7 +1104,6 @@ NULL
         }
     }
 
-    .setValueAndParameterType(designPlan, "directionUpper", directionUpper, TRUE)
     if (objectType == "power") {
         .setValueAndParameterType(designPlan, "maxNumberOfEvents", maxNumberOfEvents, NA_real_)
         designPlan$.setParameterType("accountForObservationTimes", C_PARAM_NOT_APPLICABLE)
@@ -987,9 +1165,10 @@ NULL
 
         if (!designPlan$accountForObservationTimes) {
             designPlan$accountForObservationTimes <- TRUE
-            warning("'accountForObservationTimes' was set to TRUE ",
+            warnArgumentAdjusted("'accountForObservationTimes' was set to TRUE ",
                 "because piecewise exponential survival function is enabled",
-                call. = FALSE
+                parameter = "accountForObservationTimes",
+                diagnosticId = "survival.observation_times_enabled"
             )
         }
     } else {
@@ -997,10 +1176,11 @@ NULL
             if (length(designPlan$accountForObservationTimes) != 0 &&
                     !is.na(designPlan$accountForObservationTimes) &&
                     !designPlan$accountForObservationTimes) {
-                stop(
-                    C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "'accountForObservationTimes' must be TRUE because 'maxNumberOfSubjects' is > 0",
-                    call. = FALSE
+                stopIllegalArgument("'accountForObservationTimes' must be TRUE because 'maxNumberOfSubjects' is > 0",
+                    functionName = ".initDesignPlanSurvival",
+                    parameter = "accountForObservationTimes",
+                    relatedParameter = "maxNumberOfSubjects",
+                    diagnosticId = "survival.subject_cap_requires_observation_times"
                 )
             }
 
@@ -1025,7 +1205,6 @@ NULL
     designPlan$.setParameterType("chi", C_PARAM_NOT_APPLICABLE)
 
     if (designPlan$.isSampleSizeObject()) {
-        designPlan$.setParameterType("directionUpper", C_PARAM_NOT_APPLICABLE)
         designPlan$.setParameterType("maxNumberOfEvents", C_PARAM_NOT_APPLICABLE)
     }
 
@@ -1048,8 +1227,7 @@ NULL
     piecewiseSurvivalTime <- designPlan$piecewiseSurvivalTime
     maxNumberOfSubjects <- designPlan$maxNumberOfSubjects
     hazardRatio <- designPlan$hazardRatio
-
-    .assertIsValidHazardRatio(hazardRatio, thetaH0)
+    hazardRatio <- .assertIsValidHazardRatio(hazardRatio, thetaH0)
 
     if (designPlan$.piecewiseSurvivalTime$.isLambdaBased()) {
         numberOfResults <- length(hazardRatio)
@@ -1071,11 +1249,13 @@ NULL
 
     userDefinedMaxNumberOfSubjects <- .isUserDefinedMaxNumberOfSubjects(designPlan)
     if (userDefinedMaxNumberOfSubjects && allocationRatioPlanned == 0) {
-        stop(
-            C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
-            "determination of optimum allocation ('allocationRatioPlanned' = 0) not possible ",
+        stopConflictingArguments("determination of optimum allocation ('allocationRatioPlanned' = 0) not possible ",
             "for given 'maxNumberOfSubjects' (", designPlan$maxNumberOfSubjects, ")",
-            call. = FALSE
+            functionName = ".getSampleSizeFixedSurvival",
+            parameter = "allocationRatioPlanned",
+            relatedParameter = "maxNumberOfSubjects",
+            relatedValue = designPlan$maxNumberOfSubjects,
+            diagnosticId = "planning.allocation_optimization_with_fixed_total"
         )
     }
 
@@ -1149,11 +1329,10 @@ NULL
             designPlan$nFixed[i] <- designPlan$eventsFixed[i] / designPlan$chi[i]
         } else {
             if (length(maxNumberOfSubjects) > 1) {
-                stop(
-                    C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "length of user defined 'maxNumberOfSubjects' (",
-                    .arrayToString(maxNumberOfSubjects), ") must be 1",
-                    call. = FALSE
+                stopIllegalArgument("length of user defined 'maxNumberOfSubjects' (", .arrayToString(maxNumberOfSubjects),
+                    ") must be 1",
+                    functionName = ".getSampleSizeFixedSurvival",
+                    parameter = "maxNumberOfSubjects", value = maxNumberOfSubjects
                 )
             }
 
@@ -1168,26 +1347,31 @@ NULL
             designPlan$nFixed[i] <- maxNumberOfSubjects
             if (designPlan$eventsFixed[i] > maxNumberOfSubjects) {
                 if (length(hazardRatio) > 1) {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                    stopIllegalArgument(
                         sprintf(
                             paste0(
                                 "'maxNumberOfSubjects' (%s) is smaller than the number ",
                                 "of events (%.3f) at index %s (hazard ratio = %.3f)"
                             ),
                             maxNumberOfSubjects, designPlan$eventsFixed[i], i, hazardRatio[i]
-                        )
+                        ),
+                        functionName = ".getSampleSizeFixedSurvival",
+                        parameter = "maxNumberOfSubjects", value = maxNumberOfSubjects,
+                        diagnosticId = "survival.events_exceed_subject_cap"
                     )
                 } else {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                    stopIllegalArgument(
                         sprintf(
                             paste0(
                                 "'maxNumberOfSubjects' (%s) is smaller than the number ",
                                 "of events (%.3f)"
                             ),
                             maxNumberOfSubjects, designPlan$eventsFixed[i]
-                        )
+                        ),
+                        functionName = ".getSampleSizeFixedSurvival",
+                        parameter = "maxNumberOfSubjects",
+                        value = maxNumberOfSubjects,
+                        diagnosticId = "survival.events_exceed_subject_cap"
                     )
                 }
             }
@@ -1204,11 +1388,11 @@ NULL
                 up <- 2 * up
                 iterate <- iterate + 1
                 if (iterate > 50) {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                    stopIllegalArgument(
                         "the number of subjects is too small to reach maximum number of events ",
                         "(presumably due to drop-out rates), search algorithm failed",
-                        call. = FALSE
+                        functionName = ".getSampleSizeFixedSurvival",
+                        diagnosticId = "survival.event_target_unreachable"
                     )
                 }
             }
@@ -1334,16 +1518,16 @@ NULL
 
             if (designPlan$.calculateFollowUpTime) {
                 if (designPlan$cumulativeEventsPerStage[kMax, i] > designPlan$maxNumberOfSubjects[i]) {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                    stopIllegalArgument(
                         sprintf(
                             paste0(
                                 "the number of subjects (%s) is smaller than the number ",
                                 "of events (%s) at stage %s"
                             ),
-                            designPlan$maxNumberOfSubjects[i],
-                            designPlan$cumulativeEventsPerStage[kMax, i], i
-                        )
+                            designPlan$maxNumberOfSubjects[i], designPlan$cumulativeEventsPerStage[kMax, i], i
+                        ),
+                        functionName = ".getSampleSizeSequentialSurvival",
+                        diagnosticId = "survival.events_exceed_subject_cap"
                     )
                 }
 
@@ -1363,11 +1547,11 @@ NULL
                     up <- 2 * up
                     iterate <- iterate + 1
                     if (iterate > 50) {
-                        stop(
-                            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                        stopIllegalArgument(
                             "the number of subjects is too small to reach maximum number of events ",
                             "(presumably due to drop-out rates)",
-                            call. = FALSE
+                            functionName = ".getSampleSizeSequentialSurvival",
+                            diagnosticId = "survival.event_target_unreachable"
                         )
                     }
                 }
@@ -1415,7 +1599,7 @@ NULL
                 designPlan$followUpTime[i] <- totalTime -
                     designPlan$accrualTime[length(designPlan$accrualTime)]
 
-                numberOfSubjects[, i] <- .getNumberOfSubjects(
+                numberOfSubjects[, i] <- .getNumberOfSubjectsSurvival(
                     time = analysisTime[, i],
                     accrualTime = designPlan$accrualTime,
                     accrualIntensity = designPlan$accrualIntensity,
@@ -1429,10 +1613,11 @@ NULL
                 }
 
                 if (is.na(designPlan$followUpTime)) {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                        "'followUpTime' must be defined because 'designPlan$.calculateFollowUpTime' = FALSE",
-                        call. = FALSE
+                    stopIllegalArgument("'followUpTime' must be defined because 'designPlan$.calculateFollowUpTime' = FALSE",
+                        functionName = ".getSampleSizeSequentialSurvival",
+                        parameter = "followUpTime",
+                        relatedParameter = "designPlan$.calculateFollowUpTime",
+                        relatedValue = designPlan$.calculateFollowUpTime
                     )
                 }
 
@@ -1474,7 +1659,7 @@ NULL
                 analysisTime[kMax, i] <- designPlan$accrualTime[length(designPlan$accrualTime)] +
                     designPlan$followUpTime
 
-                numberOfSubjects[, i] <- .getNumberOfSubjects(
+                numberOfSubjects[, i] <- .getNumberOfSubjectsSurvival(
                     time = analysisTime[, i],
                     accrualTime = designPlan$accrualTime, accrualIntensity = designPlan$accrualIntensity,
                     maxNumberOfSubjects = numberOfSubjects[kMax, i]
@@ -1485,10 +1670,10 @@ NULL
                 c(designCharacteristics$futilityProbabilities, 0)
 
             if (all(is.na(designCharacteristics$futilityProbabilities))) {
-                warning("Expected number of subjects H1 and study duration H1 ",
+                warnResultUnavailable("Expected number of subjects H1 and study duration H1 ",
                     "cannot be calculated because the futility probabilities ",
                     "are not applicable for the specified design",
-                    call. = FALSE
+                    diagnosticId = "survival.expected_h1_results_unavailable"
                 )
             }
 
@@ -1527,7 +1712,7 @@ NULL
     }
 
     if (!is.null(designCharacteristics$futilityProbabilities) &&
-            any(designPlan$.design$futilityBounds != C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) {
+            any(.getFutilityBounds(designPlan$.design) != C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) {
         designPlan$futilityPerStage <- matrix(designCharacteristics$futilityProbabilities,
             nrow = designPlan$.design$kMax - 1
         )
@@ -1548,7 +1733,7 @@ NULL
     }
 
     designPlan$maxNumberOfSubjects <- designPlan$numberOfSubjects[kMax, ]
-    if (designPlan$.getParameterType("maxNumberOfSubjects") == C_PARAM_NOT_APPLICABLE ||
+    if (designPlan$isNotApplicableParameter("maxNumberOfSubjects") ||
             length(designPlan$maxNumberOfSubjects) > 1) {
         designPlan$.setParameterType("maxNumberOfSubjects", C_PARAM_GENERATED)
     }
@@ -1562,12 +1747,7 @@ NULL
     designPlan$.setParameterType("maxNumberOfSubjects1", C_PARAM_GENERATED)
     designPlan$.setParameterType("maxNumberOfSubjects2", C_PARAM_GENERATED)
 
-    if (ncol(designPlan$informationRates) == 1 &&
-            identical(designPlan$informationRates[, 1], designPlan$.design$informationRates)) {
-        designPlan$.setParameterType("informationRates", C_PARAM_NOT_APPLICABLE)
-    } else {
-        designPlan$.setParameterType("informationRates", C_PARAM_GENERATED)
-    }
+    designPlan$.setParameterType("informationRates", C_PARAM_NOT_APPLICABLE)
     designPlan$.setParameterType("numberOfSubjects", C_PARAM_GENERATED)
     designPlan$.setParameterType("cumulativeEventsPerStage", C_PARAM_GENERATED)
 
@@ -1575,7 +1755,6 @@ NULL
         designPlan$analysisTime <- analysisTime
         designPlan$expectedNumberOfSubjectsH1 <- expectedNumberOfSubjectsH1
         designPlan$studyDuration <- studyDuration
-        designPlan$studyDurationH1 <- studyDuration # deprecated
 
         designPlan$.setParameterType("analysisTime", C_PARAM_GENERATED)
         designPlan$.setParameterType("expectedNumberOfSubjectsH1", C_PARAM_GENERATED)
@@ -1597,7 +1776,47 @@ NULL
     return(designPlan)
 }
 
-.getNumberOfSubjects <- function(..., time, accrualTime, accrualIntensity, maxNumberOfSubjects) {
+.getNumberOfSubjectsSurvivalSingleTimeValue <- function(
+        ...,
+        timeValue,
+        accrualTime,
+        accrualIntensity,
+        maxNumberOfSubjects) {
+    .assertIsSingleNumber(timeValue, "timeValue")
+    if (length(accrualTime) != length(accrualIntensity)) {
+        stopIllegalArgument("length of 'accrualTime' (", length(accrualTime), ") ",
+            "must be equal to length of 'accrualIntensity' (",
+            length(accrualIntensity), ")",
+            functionName = ".getNumberOfSubjectsSurvivalSingleTimeValue",
+            parameter = "accrualTime",
+            relatedParameter = "accrualIntensity",
+            relatedValue = length(accrualIntensity), value = accrualTime
+        )
+    }
+
+    densityIntervals <- accrualTime
+    if (length(accrualTime) > 1) {
+        densityIntervals[2:length(accrualTime)] <- accrualTime[2:length(accrualTime)] -
+            accrualTime[1:(length(accrualTime) - 1)]
+    }
+    densityVector <- accrualIntensity / sum(densityIntervals * accrualIntensity)
+    for (l in seq_len(length(densityVector))) {
+        if (timeValue <= accrualTime[l]) {
+            if (l == 1) {
+                return(timeValue * densityVector[l] * maxNumberOfSubjects)
+            } else {
+                return(
+                    (sum(densityVector[1:(l - 1)] * densityIntervals[1:(l - 1)]) +
+                        (timeValue - accrualTime[l - 1]) * densityVector[l]) *
+                        maxNumberOfSubjects
+                )
+            }
+        }
+    }
+    return(maxNumberOfSubjects)
+}
+
+.getNumberOfSubjectsSurvival <- function(..., time, accrualTime, accrualIntensity, maxNumberOfSubjects) {
     subjectNumbers <- c()
     for (timeValue in time) {
         if (is.na(timeValue)) {
@@ -1606,9 +1825,11 @@ NULL
 
         subjectNumbers <- c(
             subjectNumbers,
-            .getNumberOfSubjectsInner(
-                timeValue = timeValue, accrualTime = accrualTime,
-                accrualIntensity = accrualIntensity, maxNumberOfSubjects = maxNumberOfSubjects
+            .getNumberOfSubjectsSurvivalSingleTimeValue(
+                timeValue = timeValue,
+                accrualTime = accrualTime,
+                accrualIntensity = accrualIntensity,
+                maxNumberOfSubjects = maxNumberOfSubjects
             )
         )
     }
@@ -1660,10 +1881,11 @@ NULL
 #'
 #' @export
 #'
-getEventProbabilities <- function(time,
+getEventProbabilities <- function(
+        time,
         ...,
-        accrualTime = c(0, 12), # C_ACCRUAL_TIME_DEFAULT
-        accrualIntensity = 0.1, # C_ACCRUAL_INTENSITY_DEFAULT
+        accrualTime = c(0, 12),
+        accrualIntensity = 0.1,
         accrualIntensityType = c("auto", "absolute", "relative"),
         kappa = 1,
         piecewiseSurvivalTime = NA_real_,
@@ -1671,37 +1893,20 @@ getEventProbabilities <- function(time,
         lambda1 = NA_real_,
         allocationRatioPlanned = 1,
         hazardRatio = NA_real_,
-        dropoutRate1 = 0, # C_DROP_OUT_RATE_1_DEFAULT
-        dropoutRate2 = 0, # C_DROP_OUT_RATE_2_DEFAULT
-        dropoutTime = 12, # C_DROP_OUT_TIME_DEFAULT
+        dropoutRate1 = 0,
+        dropoutRate2 = 0,
+        dropoutTime = 12,
         maxNumberOfSubjects = NA_real_) {
     .warnInCaseOfUnknownArguments(functionName = "getEventProbabilities", ...)
 
-    .assertIsNumericVector(time, "time")
+    time <- .assertIsNumericVector(time, "time")
     .assertIsValidMaxNumberOfSubjects(maxNumberOfSubjects, naAllowed = TRUE)
-    .assertIsValidAllocationRatioPlannedSampleSize(allocationRatioPlanned, maxNumberOfSubjects)
+    allocationRatioPlanned <- .assertIsValidAllocationRatioPlannedSampleSize(allocationRatioPlanned, maxNumberOfSubjects)
     .assertIsValidKappa(kappa)
     .assertIsSingleNumber(hazardRatio, "hazardRatio", naAllowed = TRUE)
-
-    if (!is.na(dropoutTime) && dropoutTime <= 0) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'dropoutTime' (", dropoutTime, ") must be > 0", call. = FALSE)
-    }
-
-    if (dropoutRate1 < 0 || dropoutRate1 >= 1) {
-        stop(
-            C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-            "'dropoutRate1' (", dropoutRate1, ") is out of bounds [0; 1)",
-            call. = FALSE
-        )
-    }
-
-    if (dropoutRate2 < 0 || dropoutRate2 >= 1) {
-        stop(
-            C_EXCEPTION_TYPE_ARGUMENT_OUT_OF_BOUNDS,
-            "'dropoutRate2' (", dropoutRate2, ") is out of bounds [0; 1)",
-            call. = FALSE
-        )
-    }
+    .assertIsInOpenInterval(dropoutTime, "dropoutTime", lower = 0, upper = NA, naAllowed = TRUE)
+    .assertIsInInterval(dropoutRate1, "dropoutRate1", lower = 0, upper = 1, lowerIncluded = TRUE, upperIncluded = FALSE)
+    .assertIsInInterval(dropoutRate2, "dropoutRate2", lower = 0, upper = 1, lowerIncluded = TRUE, upperIncluded = FALSE)
 
     accrualSetup <- getAccrualTime(
         accrualTime = accrualTime,
@@ -1715,19 +1920,20 @@ getEventProbabilities <- function(time,
 
     setting <- getPiecewiseSurvivalTime(
         piecewiseSurvivalTime = piecewiseSurvivalTime,
-        lambda2 = lambda2,
-        lambda1 = lambda1,
+        lambda2 = lambda2, 
+        lambda1 = lambda1, 
         hazardRatio = hazardRatio,
         kappa = kappa,
         delayedResponseAllowed = TRUE,
-        .lambdaBased = TRUE
+        .lambdaBased = TRUE,
+        .silent = TRUE
     )
 
     if (!setting$delayedResponseEnabled && length(setting$lambda1) > 1 &&
-            setting$.getParameterType("lambda1") == C_PARAM_USER_DEFINED) {
-        warning("Only the first 'lambda1' (", lambda1[1], ") ",
+            setting$isUserDefinedParameter("lambda1")) {
+        warnArgumentAdjusted("Only the first 'lambda1' (", lambda1[1], ") ",
             "was used to calculate event probabilities",
-            call. = FALSE
+            diagnosticId = "survival.event_probability_scenario_selected"
         )
         setting <- getPiecewiseSurvivalTime(
             piecewiseSurvivalTime = piecewiseSurvivalTime,
@@ -1736,7 +1942,8 @@ getEventProbabilities <- function(time,
             hazardRatio = hazardRatio,
             kappa = kappa,
             delayedResponseAllowed = TRUE,
-            .lambdaBased = TRUE
+            .lambdaBased = TRUE,
+            .silent = TRUE
         )
     }
 
@@ -1748,36 +1955,49 @@ getEventProbabilities <- function(time,
     phi <- -log(1 - c(dropoutRate1, dropoutRate2)) / dropoutTime
 
     if (length(accrualTime) != length(accrualIntensity)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "length of 'accrualTime' (", (length(accrualTime) + 1),
-            ") must be equal to length of 'accrualIntensity' (", length(accrualIntensity), ")"
+        stopIllegalArgument("length of 'accrualTime' (", (length(accrualTime) + 1), ") must be equal to length of 'accrualIntensity' (",
+            length(accrualIntensity), ")",
+            functionName = "getEventProbabilities",
+            parameter = "accrualTime",
+            relatedParameter = "accrualIntensity",
+            relatedValue = length(accrualIntensity), value = length(accrualTime)
         )
     }
 
     if (any(accrualIntensity <= 0)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all values of 'accrualIntensity' must be > 0", call. = FALSE)
+        stopIllegalArgument("all values of 'accrualIntensity' must be > 0",
+            functionName = "getEventProbabilities",
+            parameter = "accrualIntensity",
+            value = accrualIntensity
+        )
     }
 
     if (any(accrualTime <= 0)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all values of 'accrualTime' must be > 0", call. = FALSE)
+        stopIllegalArgument("all values of 'accrualTime' must be > 0",
+            functionName = "getEventProbabilities",
+            parameter = "accrualTime",
+            value = accrualTime
+        )
     }
 
     if (kappa != 1 && any(phi > 0)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "for Weibull distribution (kappa != 1) drop-out rates (phi) cannot be specified",
-            call. = FALSE
+        stopIllegalArgument("for Weibull distribution (kappa != 1) drop-out rates (phi) cannot be specified",
+            functionName = "getEventProbabilities",
+            diagnosticId = "survival.weibull_dropout_analytical_unsupported"
         )
     }
 
     if (any(phi < 0)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all drop-out rates (phi) must be >= 0", call. = FALSE)
+        stopIllegalArgument("all drop-out rates (phi) must be >= 0",
+            functionName = "getEventProbabilities"
+        )
     }
 
-    .assertIsNumericVector(lambda2, "lambda2")
+    lambda2 <- .assertIsNumericVector(lambda2, "lambda2")
     if (any(lambda2 <= 0)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all rates (lambda2) must be > 0", call. = FALSE)
+        stopIllegalArgument("all rates (lambda2) must be > 0",
+            functionName = "getEventProbabilities"
+        )
     }
 
     eventProbabilities <- EventProbabilities$new(
@@ -1902,15 +2122,16 @@ getEventProbabilities <- function(time,
 #'
 #' @export
 #'
-getNumberOfSubjects <- function(time, ...,
-        accrualTime = c(0, 12), # C_ACCRUAL_TIME_DEFAULT
-        accrualIntensity = 0.1, # C_ACCRUAL_INTENSITY_DEFAULT
+getNumberOfSubjects <- function(
+        time,
+        ...,
+        accrualTime = c(0, 12),
+        accrualIntensity = 0.1,
         accrualIntensityType = c("auto", "absolute", "relative"),
         maxNumberOfSubjects = NA_real_) {
     .warnInCaseOfUnknownArguments(functionName = "getNumberOfSubjects", ...)
 
-    .assertIsNumericVector(time, "time")
-
+    time <- .assertIsNumericVector(time, "time")
     accrualSetup <- getAccrualTime(
         accrualTime = accrualTime,
         accrualIntensity = accrualIntensity,
@@ -1922,27 +2143,40 @@ getNumberOfSubjects <- function(time, ...,
     maxNumberOfSubjects <- accrualSetup$maxNumberOfSubjects
 
     if (length(accrualTime) != length(accrualIntensity)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "length of 'accrualTime' (", length(accrualTime),
-            ") must be equal to length of 'accrualIntensity' (", length(accrualIntensity), ")",
-            call. = FALSE
+        stopIllegalArgument("length of 'accrualTime' (", length(accrualTime), ") must be equal to length of 'accrualIntensity' (",
+            length(accrualIntensity), ")",
+            functionName = "getNumberOfSubjects",
+            parameter = "accrualTime", value = length(accrualTime),
+            relatedParameter = "accrualIntensity",
+            relatedValue = length(accrualIntensity)
         )
     }
 
     if (any(accrualIntensity < 0)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all values of 'accrualIntensity' must be >= 0", call. = FALSE)
+        stopIllegalArgument("all values of 'accrualIntensity' must be >= 0",
+            functionName = "getNumberOfSubjects",
+            parameter = "accrualIntensity",
+            value = accrualIntensity
+        )
     }
 
     if (all(accrualIntensity < 1)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "at least one value of 'accrualIntensity' must be >= 1", call. = FALSE)
+        stopIllegalArgument("at least one value of 'accrualIntensity' must be >= 1",
+            functionName = "getNumberOfSubjects",
+            parameter = "accrualIntensity",
+            value = accrualIntensity
+        )
     }
 
     if (any(accrualTime <= 0)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "all values of 'accrualTime' must be > 0", call. = FALSE)
+        stopIllegalArgument("all values of 'accrualTime' must be > 0",
+            functionName = "getNumberOfSubjects",
+            parameter = "accrualTime",
+            value = accrualTime
+        )
     }
 
-    numberOfSubjects <- .getNumberOfSubjects(
+    numberOfSubjects <- .getNumberOfSubjectsSurvival(
         time = time, accrualTime = accrualTime,
         accrualIntensity = accrualIntensity, maxNumberOfSubjects = maxNumberOfSubjects
     )
@@ -1975,6 +2209,7 @@ getNumberOfSubjects <- function(time, ...,
 #' @inheritParams param_typeOfComputation
 #' @inheritParams param_allocationRatioPlanned_sampleSize
 #' @inheritParams param_thetaH0
+#' @inheritParams param_directionUpper
 #' @inheritParams param_lambda1
 #' @inheritParams param_lambda2
 #' @inheritParams param_pi1_survival
@@ -2021,6 +2256,8 @@ getNumberOfSubjects <- function(time, ...,
 #'
 #' @template details_piecewise_accrual
 #'
+#' @template details_expected_survival_dropout
+#'
 #' @template return_object_trial_design_plan
 #' @template how_to_get_help_for_generics
 #'
@@ -2030,9 +2267,12 @@ getNumberOfSubjects <- function(time, ...,
 #'
 #' @export
 #'
-getSampleSizeSurvival <- function(design = NULL, ...,
+getSampleSizeSurvival <- function(
+        design = NULL,
+        ...,
         typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
-        thetaH0 = 1, # C_THETA_H0_SURVIVAL_DEFAULT
+        thetaH0 = 1,
+        directionUpper = NA,
         pi1 = NA_real_,
         pi2 = NA_real_,
         lambda1 = NA_real_,
@@ -2042,19 +2282,21 @@ getSampleSizeSurvival <- function(design = NULL, ...,
         kappa = 1,
         hazardRatio = NA_real_,
         piecewiseSurvivalTime = NA_real_,
-        allocationRatioPlanned = NA_real_, # C_ALLOCATION_RATIO_DEFAULT
-        eventTime = 12, # C_EVENT_TIME_DEFAULT
-        accrualTime = c(0, 12), # C_ACCRUAL_TIME_DEFAULT
-        accrualIntensity = 0.1, # C_ACCRUAL_INTENSITY_DEFAULT
+        allocationRatioPlanned = NA_real_,
+        eventTime = 12,
+        accrualTime = c(0, 12),
+        accrualIntensity = 0.1,
         accrualIntensityType = c("auto", "absolute", "relative"),
         followUpTime = NA_real_,
         maxNumberOfSubjects = NA_real_,
-        dropoutRate1 = 0, # C_DROP_OUT_RATE_1_DEFAULT
-        dropoutRate2 = 0, # C_DROP_OUT_RATE_2_DEFAULT
-        dropoutTime = 12 # C_DROP_OUT_TIME_DEFAULT
-        ) {
+        dropoutRate1 = 0,
+        dropoutRate2 = 0,
+        dropoutTime = 12) {
     if (is.null(design)) {
-        design <- .getDefaultDesign(..., type = "sampleSize", ignore = c("accountForObservationTimes"))
+        design <- .getDefaultDesign(
+            directionUpper = directionUpper, type = "sampleSize", ...,
+            ignore = c("accountForObservationTimes")
+        )
         .warnInCaseOfUnknownArguments(
             functionName = "getSampleSizeSurvival",
             ignore = c(.getDesignArgumentsToIgnoreAtUnknownArgumentCheck(
@@ -2096,24 +2338,27 @@ getSampleSizeSurvival <- function(design = NULL, ...,
         if (is.na(followUpTime)) {
             if (accrualSetup$piecewiseAccrualEnabled && !accrualSetup$endOfAccrualIsUserDefined) {
                 if (length(accrualIntensity) + 1 < length(accrualTime)) {
-                    stop(
-                        C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
+                    stopConflictingArguments(
                         "length of 'accrualTime' (", length(accrualTime), ") must be greater ",
                         "than length of 'accrualIntensity' (", length(accrualIntensity), ") + 1",
-                        call. = FALSE
+                        functionName = "getSampleSizeSurvival",
+                        parameter = "accrualTime",
+                        value = accrualTime,
+                        relatedParameter = "accrualIntensity",
+                        relatedValue = accrualIntensity
                     )
                 }
-                stop(
-                    C_EXCEPTION_TYPE_MISSING_ARGUMENT,
-                    "'followUpTime', 'maxNumberOfSubjects' or end of accrual must be defined",
-                    call. = FALSE
+                stopMissingArgument("'followUpTime', 'maxNumberOfSubjects' or end of accrual must be defined",
+                    functionName = "getSampleSizeSurvival",
+                    parameter = "followUpTime",
+                    relatedParameter = "maxNumberOfSubjects", value = followUpTime
                 )
             }
 
-            stop(
-                C_EXCEPTION_TYPE_MISSING_ARGUMENT,
-                "'followUpTime' or 'maxNumberOfSubjects' must be defined",
-                call. = FALSE
+            stopMissingArgument("'followUpTime' or 'maxNumberOfSubjects' must be defined",
+                functionName = "getSampleSizeSurvival",
+                parameter = "followUpTime",
+                relatedParameter = "maxNumberOfSubjects", value = followUpTime
             )
         }
 
@@ -2122,7 +2367,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
         }
 
         if (!anyNA(hazardRatio) && !is.na(thetaH0)) {
-            .assertIsValidHazardRatio(hazardRatio, thetaH0)
+            hazardRatio <- .assertIsValidHazardRatio(hazardRatio, thetaH0)
         }
 
         pwst <- getPiecewiseSurvivalTime(
@@ -2140,34 +2385,31 @@ getSampleSizeSurvival <- function(design = NULL, ...,
         )
         paramName <- NULL
         if (!pwst$piecewiseSurvivalEnabled) {
-            if (pwst$.getParameterType("pi1") == C_PARAM_USER_DEFINED ||
-                    pwst$.getParameterType("pi1") == C_PARAM_DEFAULT_VALUE ||
-                    pwst$.getParameterType("pi2") == C_PARAM_USER_DEFINED) {
+            if (pwst$isUserDefinedParameter("pi1") ||
+                    pwst$isDefaultParameter("pi1") ||
+                    pwst$isUserDefinedParameter("pi2")) {
                 paramName <- "pi1"
-            } else if (pwst$.getParameterType("lambda1") == C_PARAM_USER_DEFINED ||
-                    pwst$.getParameterType("lambda2") == C_PARAM_USER_DEFINED) {
+            } else if (pwst$isUserDefinedParameter("lambda1") ||
+                    pwst$isUserDefinedParameter("lambda2")) {
                 paramName <- "lambda1"
-            } else if (pwst$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
+            } else if (pwst$isUserDefinedParameter("hazardRatio")) {
                 paramName <- "hazardRatio"
-            } else if (pwst$.getParameterType("median1") == C_PARAM_USER_DEFINED ||
-                    pwst$.getParameterType("median2") == C_PARAM_USER_DEFINED) {
+            } else if (pwst$isUserDefinedParameter("median1") ||
+                    pwst$isUserDefinedParameter("median2")) {
                 paramName <- "median1"
             }
-        } else if (pwst$.getParameterType("hazardRatio") == C_PARAM_USER_DEFINED) {
+        } else if (pwst$isUserDefinedParameter("hazardRatio")) {
             paramName <- "hazardRatio"
         }
         if (!is.null(paramName)) {
             paramValue <- pwst[[paramName]]
             if (!is.null(paramValue) && length(paramValue) > 1) {
-                stop(
-                    C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "the calculation of 'maxNumberOfSubjects' for given 'followUpTime' ",
-                    "is only available for a single '", paramName, "'; ",
-                    paramName, " = ", .arrayToString(
-                        paramValue,
-                        vectorLookAndFeelEnabled = TRUE
-                    ),
-                    call. = FALSE
+                stopIllegalArgument("the calculation of 'maxNumberOfSubjects' for given 'followUpTime' ",
+                    "is only available for a single ", .pQuote(paramName), "; ",
+                    paramName, " = ", .arrayToString(paramValue, vectorLookAndFeelEnabled = TRUE),
+                    functionName = "getSampleSizeSurvival",
+                    parameter = paramName, value = paramValue,
+                    relatedParameter = "followUpTime"
                 )
             }
         }
@@ -2177,7 +2419,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
             hr <- pwst$hazardRatio
         }
         if (all(is.na(hazardRatio))) {
-            .assertIsValidHazardRatio(hr, thetaH0)
+            hazardRatio <- .assertIsValidHazardRatio(hr, thetaH0)
         }
 
         maxNumberOfSubjectsTarget <- NA_real_
@@ -2214,6 +2456,7 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                                 design = design,
                                 typeOfComputation = typeOfComputation,
                                 thetaH0 = thetaH0,
+                                directionUpper = directionUpper,
                                 pi2 = pi2,
                                 pi1 = pi1,
                                 allocationRatioPlanned = allocationRatioPlanned,
@@ -2245,11 +2488,17 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 
                 if (is.null(sampleSize) || is.na(sampleSize$followUpTime)) {
                     if (!is.na(expectionMessage) && grepl("'allocationRatioPlanned' > 0", expectionMessage)) {
-                        stop(expectionMessage, call. = FALSE)
+                        stopIllegalArgument(expectionMessage,
+                            parameter = "allocationRatioPlanned", constraint = "must be > 0",
+                            functionName = "getSampleSizeSurvival",
+                            value = allocationRatioPlanned
+                        )
                     }
-                    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE,
+                    stopRuntimeIssue(
                         "'additionalAccrual' could not be found in ", steps,
-                        " search iterations, change accrual time specification"
+                        " search iterations, change accrual time specification",
+                        functionName = "getSampleSizeSurvival",
+                        parameter = "additionalAccrual"
                     )
                 }
 
@@ -2259,9 +2508,10 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                     as.vector(sampleSize$cumulativeEventsPerStage)
                 ))))
                 if (is.na(maxNumberOfSubjectsLower)) {
-                    stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+                    stopIllegalArgument(
                         "'maxNumberOfSubjectsLower' could not be found",
-                        call. = FALSE
+                        functionName = "getSampleSizeSurvival",
+                        parameter = "maxNumberOfSubjectsLower"
                     )
                 }
 
@@ -2276,8 +2526,9 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                     fut <- 2 * abs(fut)
                     iterations <- iterations + 1
                     if (iterations > 50) {
-                        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE,
-                            "search algorithm failed to end"
+                        stopRuntimeIssue(
+                            "search algorithm failed to end",
+                            functionName = "getSampleSizeSurvival"
                         )
                     }
                 }
@@ -2291,23 +2542,36 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                     fut <- .getSampleSizeSurvival(
                         design = design,
                         typeOfComputation = typeOfComputation,
-                        thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1,
+                        thetaH0 = thetaH0,
+                        directionUpper = directionUpper,
+                        pi2 = pi2,
+                        pi1 = pi1,
                         allocationRatioPlanned = allocationRatioPlanned,
                         accountForObservationTimes = accountForObservationTimes,
                         eventTime = eventTime, accrualTime = accrualSetup$accrualTime,
                         accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa,
                         piecewiseSurvivalTime = piecewiseSurvivalTime,
-                        lambda2 = lambda2, lambda1 = lambda1, median1 = median1, median2 = median2,
-                        followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsUpper,
-                        dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2, dropoutTime = dropoutTime,
+                        lambda2 = lambda2,
+                        lambda1 = lambda1,
+                        median1 = median1,
+                        median2 = median2,
+                        followUpTime = NA_real_,
+                        maxNumberOfSubjects = maxNumberOfSubjectsUpper,
+                        dropoutRate1 = dropoutRate1,
+                        dropoutRate2 = dropoutRate2,
+                        dropoutTime = dropoutTime,
                         hazardRatio = hazardRatio
                     )$followUpTime
                     maxSearchIterations <- maxSearchIterations - 1
                 }
                 if (is.na(maxNumberOfSubjectsUpper)) {
-                    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE,
+                    stopRuntimeIssue(
                         "'maxNumberOfSubjectsUpper' could not be found ",
-                        "(fut = ", fut, ", followUpTime = ", followUpTime, ")"
+                        "(fut = ", fut, ", followUpTime = ", followUpTime, ")",
+                        functionName = "getSampleSizeSurvival",
+                        parameter = "maxNumberOfSubjectsUpper",
+                        relatedParameter = "followUpTime",
+                        relatedValue = followUpTime
                     )
                 }
 
@@ -2331,7 +2595,10 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                         fut <- .getSampleSizeSurvival(
                             design = design,
                             typeOfComputation = typeOfComputation,
-                            thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1,
+                            thetaH0 = thetaH0,
+                            directionUpper = directionUpper,
+                            pi2 = pi2,
+                            pi1 = pi1,
                             allocationRatioPlanned = allocationRatioPlanned,
                             accountForObservationTimes = accountForObservationTimes,
                             eventTime = eventTime, accrualTime = accrualSetup$accrualTime,
@@ -2358,7 +2625,10 @@ getSampleSizeSurvival <- function(design = NULL, ...,
                             fut <- .getSampleSizeSurvival(
                                 design = design,
                                 typeOfComputation = typeOfComputation,
-                                thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1,
+                                thetaH0 = thetaH0,
+                                directionUpper = directionUpper,
+                                pi2 = pi2,
+                                pi1 = pi1,
                                 allocationRatioPlanned = allocationRatioPlanned,
                                 accountForObservationTimes = accountForObservationTimes,
                                 eventTime = eventTime, accrualTime = accrualSetup$accrualTime,
@@ -2391,25 +2661,38 @@ getSampleSizeSurvival <- function(design = NULL, ...,
         )
 
         if (is.na(maxNumberOfSubjectsTarget)) {
-            stop(
-                C_EXCEPTION_TYPE_RUNTIME_ISSUE,
+            stopRuntimeIssue(
                 "failed to calculate 'maxNumberOfSubjects' by given 'followUpTime' ",
-                "(lower = ", maxNumberOfSubjectsLower, ", upper = ", maxNumberOfSubjectsUpper, ")"
+                "(lower = ", maxNumberOfSubjectsLower,
+                ", upper = ", maxNumberOfSubjectsUpper, ")",
+                functionName = "getSampleSizeSurvival",
+                parameter = "maxNumberOfSubjects",
+                relatedParameter = "followUpTime", value = maxNumberOfSubjects
             )
         }
 
         sampleSizeSurvival <- .getSampleSizeSurvival(
             design = design,
             typeOfComputation = typeOfComputation,
-            thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1,
+            thetaH0 = thetaH0,
+            directionUpper = directionUpper,
+            pi2 = pi2,
+            pi1 = pi1,
             allocationRatioPlanned = allocationRatioPlanned,
             accountForObservationTimes = accountForObservationTimes,
-            eventTime = eventTime, accrualTime = accrualSetup$accrualTime,
-            accrualIntensity = accrualSetup$accrualIntensity, kappa = kappa,
-            piecewiseSurvivalTime = piecewiseSurvivalTime, lambda2 = lambda2, lambda1 = lambda1,
-            median1 = median1, median2 = median2,
-            followUpTime = NA_real_, maxNumberOfSubjects = maxNumberOfSubjectsTarget,
-            dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2,
+            eventTime = eventTime,
+            accrualTime = accrualSetup$accrualTime,
+            accrualIntensity = accrualSetup$accrualIntensity,
+            kappa = kappa,
+            piecewiseSurvivalTime = piecewiseSurvivalTime,
+            lambda2 = lambda2,
+            lambda1 = lambda1,
+            median1 = median1,
+            median2 = median2,
+            followUpTime = NA_real_,
+            maxNumberOfSubjects = maxNumberOfSubjectsTarget,
+            dropoutRate1 = dropoutRate1,
+            dropoutRate2 = dropoutRate2,
             dropoutTime = dropoutTime,
             hazardRatio = hazardRatio,
             userFunctionCallEnabled = FALSE
@@ -2429,9 +2712,9 @@ getSampleSizeSurvival <- function(design = NULL, ...,
             if (sampleSizeSurvival$followUpTime < followUpTime - 1e-02 ||
                     sampleSizeSurvival$followUpTime > followUpTime + 1e-02) {
                 sampleSizeSurvival$.setParameterType("followUpTime", C_PARAM_GENERATED)
-                warning("User defined 'followUpTime' (", followUpTime, ") ignored because ",
+                warnArgumentIgnored("User defined 'followUpTime' (", followUpTime, ") ignored because ",
                     "follow-up time is ", round(sampleSizeSurvival$followUpTime, 4),
-                    call. = FALSE
+                    diagnosticId = "survival.follow_up_argument_ignored"
                 )
             }
         }
@@ -2445,16 +2728,26 @@ getSampleSizeSurvival <- function(design = NULL, ...,
     return(.getSampleSizeSurvival(
         design = design,
         typeOfComputation = typeOfComputation,
-        thetaH0 = thetaH0, pi2 = pi2, pi1 = pi1,
+        thetaH0 = thetaH0,
+        directionUpper = directionUpper,
+        pi2 = pi2,
+        pi1 = pi1,
         allocationRatioPlanned = allocationRatioPlanned,
         accountForObservationTimes = accountForObservationTimes,
-        eventTime = eventTime, accrualTime = accrualTime,
-        accrualIntensity = accrualIntensity, accrualIntensityType = accrualIntensityType,
-        kappa = kappa, piecewiseSurvivalTime = piecewiseSurvivalTime,
-        lambda2 = lambda2, lambda1 = lambda1,
-        median1 = median1, median2 = median2,
-        followUpTime = followUpTime, maxNumberOfSubjects = maxNumberOfSubjects,
-        dropoutRate1 = dropoutRate1, dropoutRate2 = dropoutRate2,
+        eventTime = eventTime,
+        accrualTime = accrualTime,
+        accrualIntensity = accrualIntensity,
+        accrualIntensityType = accrualIntensityType,
+        kappa = kappa,
+        piecewiseSurvivalTime = piecewiseSurvivalTime,
+        lambda2 = lambda2,
+        lambda1 = lambda1,
+        median1 = median1,
+        median2 = median2,
+        followUpTime = followUpTime,
+        maxNumberOfSubjects = maxNumberOfSubjects,
+        dropoutRate1 = dropoutRate1,
+        dropoutRate2 = dropoutRate2,
         dropoutTime = dropoutTime,
         hazardRatio = hazardRatio
     ))
@@ -2511,6 +2804,8 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 #'
 #' @template details_piecewise_accrual
 #'
+#' @template details_expected_survival_dropout
+#'
 #' @template return_object_trial_design_plan
 #' @template how_to_get_help_for_generics
 #'
@@ -2520,9 +2815,11 @@ getSampleSizeSurvival <- function(design = NULL, ...,
 #'
 #' @export
 #'
-getPowerSurvival <- function(design = NULL, ...,
+getPowerSurvival <- function(
+        design = NULL,
+        ...,
         typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
-        thetaH0 = 1, # C_THETA_H0_SURVIVAL_DEFAULT
+        thetaH0 = 1,
         directionUpper = NA,
         pi1 = NA_real_,
         pi2 = NA_real_,
@@ -2533,19 +2830,18 @@ getPowerSurvival <- function(design = NULL, ...,
         kappa = 1,
         hazardRatio = NA_real_,
         piecewiseSurvivalTime = NA_real_,
-        allocationRatioPlanned = 1, # C_ALLOCATION_RATIO_DEFAULT
-        eventTime = 12, # C_EVENT_TIME_DEFAULT
-        accrualTime = c(0, 12), # C_ACCRUAL_TIME_DEFAULT
-        accrualIntensity = 0.1, # C_ACCRUAL_INTENSITY_DEFAULT
+        allocationRatioPlanned = 1,
+        eventTime = 12,
+        accrualTime = c(0, 12),
+        accrualIntensity = 0.1,
         accrualIntensityType = c("auto", "absolute", "relative"),
         maxNumberOfSubjects = NA_real_,
         maxNumberOfEvents = NA_real_,
-        dropoutRate1 = 0, # C_DROP_OUT_RATE_1_DEFAULT
-        dropoutRate2 = 0, # C_DROP_OUT_RATE_2_DEFAULT
-        dropoutTime = 12 # C_DROP_OUT_TIME_DEFAULT
-        ) {
+        dropoutRate1 = 0,
+        dropoutRate2 = 0,
+        dropoutTime = 12) {
     if (is.null(design)) {
-        design <- .getDefaultDesign(..., type = "power")
+        design <- .getDefaultDesign(directionUpper = directionUpper, type = "power", ...)
         .warnInCaseOfUnknownArguments(
             functionName = "getPowerSurvival",
             ignore = .getDesignArgumentsToIgnoreAtUnknownArgumentCheck(design, powerCalculationEnabled = TRUE), ...
@@ -2602,9 +2898,9 @@ getPowerSurvival <- function(design = NULL, ...,
             (designPlan$hazardRatio - 1) / (designPlan$hazardRatio + 1)
     }
 
-    if (!is.na(designPlan$directionUpper) && !designPlan$directionUpper) {
-        theta <- -theta
-    }
+    theta <- .applyDirectionOfAlternative(theta, designPlan$directionUpper,
+        type = "negateIfLower", phase = "planning"
+    )
 
     powerAndAverageSampleNumber <- getPowerAndAverageSampleNumber(
         design = design, theta = theta, nMax = maxNumberOfEvents
@@ -2657,12 +2953,13 @@ getPowerSurvival <- function(design = NULL, ...,
             up <- 2 * up
             iterate <- iterate + 1
             if (iterate > 50) {
-                stop(
-                    C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                    "'maxNumberOfSubjects' (", designPlan$maxNumberOfSubjects, ") ",
+                stopIllegalArgument("'maxNumberOfSubjects' (", designPlan$maxNumberOfSubjects, ") ",
                     "is too small to reach maximum number of events ",
                     "(presumably due to drop-out rates)",
-                    call. = FALSE
+                    functionName = "getPowerSurvival",
+                    parameter = "maxNumberOfSubjects",
+                    value = designPlan$maxNumberOfSubjects,
+                    diagnosticId = "survival.event_target_unreachable"
                 )
             }
         }
@@ -2685,15 +2982,17 @@ getPowerSurvival <- function(design = NULL, ...,
                 callingFunctionInformation = "getPowerSurvival"
             )
             if (is.na(designPlan$analysisTime[j, i])) {
-                warning("Cannot calculate analysis time at stage ", j, ": ",
+                warnResultUnavailable("Cannot calculate analysis time at stage ", j, ": ",
                     "'maxNumberOfSubjects' (", designPlan$maxNumberOfSubjects, ") is too ",
                     "small to reach maximum number of events",
-                    call. = FALSE
+                    parameter = "maxNumberOfSubjects",
+                    value = designPlan$maxNumberOfSubjects,
+                    diagnosticId = "survival.subject_cap_insufficient"
                 )
             }
         }
         if (kMax > 1) {
-            designPlan$numberOfSubjects[, i] <- .getNumberOfSubjects(
+            designPlan$numberOfSubjects[, i] <- .getNumberOfSubjectsSurvival(
                 time = designPlan$analysisTime[, i],
                 accrualTime = designPlan$accrualTime,
                 accrualIntensity = designPlan$accrualIntensity,
@@ -2716,7 +3015,7 @@ getPowerSurvival <- function(design = NULL, ...,
     }
 
     if (kMax == 1) {
-        designPlan$expectedNumberOfSubjects <- .getNumberOfSubjects(
+        designPlan$expectedNumberOfSubjects <- .getNumberOfSubjectsSurvival(
             time = designPlan$analysisTime[1, ],
             accrualTime = designPlan$accrualTime,
             accrualIntensity = designPlan$accrualIntensity,
@@ -2728,7 +3027,10 @@ getPowerSurvival <- function(design = NULL, ...,
 
     designPlan$cumulativeEventsPerStage <- matrix(cumulativeEventsPerStage, ncol = 1)
     designPlan$.setParameterType("cumulativeEventsPerStage", C_PARAM_GENERATED)
-    .addDeprecatedFieldValues(designPlan, "eventsPerStage", designPlan$cumulativeEventsPerStage)
+    .addDeprecatedFieldValues(
+        designPlan, "eventsPerStage",
+        designPlan$cumulativeEventsPerStage, "2024-06-10"
+    )
 
     designPlan$expectedNumberOfEvents <- powerAndAverageSampleNumber$averageSampleNumber
     designPlan$overallReject <- powerAndAverageSampleNumber$overallReject
@@ -2766,7 +3068,7 @@ getPowerSurvival <- function(design = NULL, ...,
     if (!anyNA(designPlan$analysisTime) && !anyNA(designPlan$accrualTime)) {
         designPlan$followUpTime <- designPlan$analysisTime[kMax, ] -
             designPlan$accrualTime[length(designPlan$accrualTime)]
-        designPlan$.setParameterType("followUpTime", C_PARAM_GENERATED)
+        designPlan$.setParameterType("followUpTime", C_PARAM_NOT_APPLICABLE)
     }
 
     designPlan$singleEventsPerStage <- .getSingleEventsPerStage(designPlan$cumulativeEventsPerStage)
@@ -2774,6 +3076,8 @@ getPowerSurvival <- function(design = NULL, ...,
     .addEffectScaleBoundaryDataToDesignPlan(designPlan)
     .addStudyDurationToDesignPlan(designPlan)
     .hideFutilityStopsIfNotApplicable(designPlan)
+
+    .addExpectedDropoutProportions(designPlan)
 
     return(designPlan)
 }

@@ -1,17 +1,20 @@
 ## |
-## |  *Simulation of enrichment design with binary data*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_simulation_enrichment.R
@@ -31,8 +34,7 @@ NULL
         overallRatesTreatment,
         overallRatesControl,
         minNumberOfSubjectsPerStage,
-        maxNumberOfSubjectsPerStage
-        ) {
+        maxNumberOfSubjectsPerStage) {
     stage <- stage - 1 # to be consistent with non-enrichment situation
     gMax <- nrow(overallRatesTreatment)
 
@@ -80,7 +82,8 @@ NULL
     return(newSubjects)
 }
 
-.getSimulatedStageRatesEnrichment <- function(...,
+.getSimulatedStageRatesEnrichment <- function(
+        ...,
         design,
         subsets,
         prevalences,
@@ -128,7 +131,7 @@ NULL
 
     if (.isTrialDesignFisher(design)) {
         weights <- .getWeightsFisher(design)
-    } else if (.isTrialDesignInverseNormal(design)) {
+    } else {
         weights <- .getWeightsInverseNormal(design)
     }
 
@@ -155,11 +158,10 @@ NULL
             any(round(subjectsPerStage[selsubs, k] * const / (1 + const)) < 1) ||
                 any(round(subjectsPerStage[selsubs, k] / (1 + const)) < 1)
             ) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                "at least one sample size specification too small to create simulation results, ",
+            stopIllegalArgument("at least one sample size specification too small to create simulation results, ",
                 "e.g., due to small prevalences of subsets",
-                call. = FALSE
+                functionName = ".getSimulatedStageRatesEnrichment",
+                diagnosticId = "simulation.subset_sample_size_insufficient"
             )
         }
 
@@ -851,14 +853,13 @@ NULL
                 if (
                     is.null(newSubjects) || length(newSubjects) != 1 || !is.numeric(newSubjects) || is.na(newSubjects)
                     ) {
-                    stop(
-                        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-                        "'calcSubjectsFunction' returned an illegal or ",
-                        "undefined result (",
-                        newSubjects,
-                        "); ",
+                    stopIllegalArgument(
+                        "'calcSubjectsFunction' returned an illegal or ", "undefined result (", newSubjects, "); ",
                         "the output must be a single numeric value",
-                        call. = FALSE
+                        functionName = ".getSimulatedStageRatesEnrichment",
+                        parameter = "calcSubjectsFunction",
+                        value = calcSubjectsFunction,
+                        diagnosticId = "simulation.subject_callback_result_invalid"
                     )
                 }
 
@@ -956,7 +957,7 @@ NULL
 #' @inheritParams param_effectList
 #' @inheritParams param_successCriterion
 #' @inheritParams param_typeOfSelection
-#' @inheritParams param_design_with_default
+#' @inheritParams param_design_enrichment
 #' @inheritParams param_directionUpper
 #' @inheritParams param_allocationRatioPlanned
 #' @inheritParams param_plannedSubjects
@@ -1003,6 +1004,7 @@ NULL
 #' \code{piControlH1}.
 #' The function has to contain the three-dots argument '...' (see examples).
 #'
+#' @template details_type_of_selection
 #' @template return_object_simulation_results
 #' @template how_to_get_help_for_generics
 #'
@@ -1010,7 +1012,8 @@ NULL
 #'
 #' @export
 #'
-getSimulationEnrichmentRates <- function(design = NULL,
+getSimulationEnrichmentRates <- function(
+        design = NULL,
         ...,
         effectList = NULL,
         intersectionTest = c("Simes", "SpiessensDebois", "Bonferroni", "Sidak"), # C_INTERSECTION_TEST_ENRICHMENT_DEFAULT
@@ -1030,13 +1033,13 @@ getSimulationEnrichmentRates <- function(design = NULL,
         conditionalPower = NA_real_,
         piTreatmentH1 = NA_real_,
         piControlH1 = NA_real_,
-        maxNumberOfIterations = 1000L, # C_MAX_SIMULATION_ITERATIONS_DEFAULT
+        maxNumberOfIterations = NA_integer_, # C_MAX_SIMULATION_ITERATIONS_DEFAULT
         seed = NA_real_,
         calcSubjectsFunction = NULL,
         selectPopulationsFunction = NULL,
         showStatistics = FALSE) {
     if (is.null(design)) {
-        design <- .getDefaultDesign(..., type = "simulation")
+        design <- .getDefaultDesign(directionUpper = directionUpper, type = "simulation", ...)
         .warnInCaseOfUnknownArguments(
             functionName = "getSimulationEnrichmentRates",
             ignore = c(
@@ -1049,7 +1052,7 @@ getSimulationEnrichmentRates <- function(design = NULL,
             ...
         )
     } else {
-        .assertIsTrialDesignInverseNormalOrFisher(design)
+        .assertIsTrialDesignInverseNormalOrFisherOrFixed(design)
         .warnInCaseOfUnknownArguments(
             functionName = "getSimulationEnrichmentRates",
             ignore = "showStatistics",
@@ -1061,13 +1064,6 @@ getSimulationEnrichmentRates <- function(design = NULL,
     .assertIsOneSidedDesign(design, designType = "enrichment", engineType = "simulation")
 
     calcSubjectsFunctionIsUserDefined <- !is.null(calcSubjectsFunction)
-
-    directionUpper <- .assertIsValidDirectionUpper(
-        directionUpper,
-        design,
-        objectType = "power",
-        userFunctionCallEnabled = TRUE
-    )
 
     simulationResults <- .createSimulationResultsEnrichmentObject(
         design = design,
@@ -1094,7 +1090,8 @@ getSimulationEnrichmentRates <- function(design = NULL,
         calcSubjectsFunction = calcSubjectsFunction, # means + rates only
         selectPopulationsFunction = selectPopulationsFunction,
         showStatistics = showStatistics,
-        endpoint = "rates"
+        endpoint = "rates",
+        simulationType = "testStatisticBased"
     )
 
     design <- simulationResults$.design
@@ -1113,6 +1110,8 @@ getSimulationEnrichmentRates <- function(design = NULL,
     maxNumberOfSubjectsPerStage <- simulationResults$maxNumberOfSubjectsPerStage
     allocationRatioPlanned <- simulationResults$allocationRatioPlanned
     calcSubjectsFunction <- simulationResults$calcSubjectsFunction
+    maxNumberOfIterations <- simulationResults$maxNumberOfIterations
+    directionUpper <- simulationResults$directionUpper
 
     if (length(allocationRatioPlanned) == 1) {
         allocationRatioPlanned <- rep(allocationRatioPlanned, kMax)
@@ -1312,6 +1311,9 @@ getSimulationEnrichmentRates <- function(design = NULL,
     simulationResults$selectedPopulations <- simulatedSelections / maxNumberOfIterations
     simulationResults$rejectedPopulationsPerStage <- simulatedRejections / maxNumberOfIterations
     simulationResults$successPerStage <- simulatedSuccessStopping / maxNumberOfIterations
+    if (gMax == 1) {
+        simulationResults$.setParameterType("successPerStage", C_PARAM_NOT_APPLICABLE)
+    }
     simulationResults$futilityPerStage <- simulatedFutilityStopping / maxNumberOfIterations
     simulationResults$futilityStop <- base::colSums(simulatedFutilityStopping / maxNumberOfIterations)
     if (kMax > 1) {
@@ -1329,7 +1331,10 @@ getSimulationEnrichmentRates <- function(design = NULL,
     }
 
     if (any(simulationResults$rejectedPopulationsPerStage < 0)) {
-        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "internal error, simulation not possible due to numerical overflow")
+        stopRuntimeIssue(
+            "internal error, simulation not possible due to numerical overflow",
+            functionName = "getSimulationEnrichmentRates"
+        )
     }
 
     data <- data.frame(

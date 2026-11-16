@@ -1,20 +1,21 @@
-/**
- *
- * -- Simulation of survival data with group sequential and combination test --
- *
- * This file is part of the R package rpact:
- * Confirmatory Adaptive Clinical Trial Design and Analysis
- *
- * Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
- * Licensed under "GNU Lesser General Public License" version 3
- * License text can be found here: https://www.r-project.org/Licenses/LGPL-3
- *
- * RPACT company website: https://www.rpact.com
- * rpact package website: https://www.rpact.org
- *
- * Contact us for information about our services: info@rpact.com
- *
- */
+// |
+// |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+// |  This file is part of the rpact R package.
+// |
+// |  RPACT — Statistical Tools for Drug Development
+// |
+// |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+// |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+// |  SPDX-License-Identifier: LGPL-3.0-only
+// |
+// |  Licensed under the GNU Lesser General Public License, version 3.
+// |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
+// |
+// |  Package documentation: https://www.rpact.org
+// |  Resources and customer portal: https://connect.rpact.app
+// |  Consulting and services: https://www.rpact.com
+// |  Contact: info@rpact.com
+// |
 
 #include <Rcpp.h>
 
@@ -24,6 +25,7 @@
 
 using namespace Rcpp;
 
+// [[Rcpp::export(name = ".findObservationTimeCpp")]]
 double findObservationTime(
 		NumericVector accrualTime,
 		NumericVector survivalTime,
@@ -169,6 +171,19 @@ bool isPiecewiseExponentialSurvivalEnabled(NumericVector lambdaVec2) {
 
 double getLambdaByPi(double pi, double eventTime, double kappa) {
 	return pow(-log(1 - pi), 1 / kappa) / eventTime;
+}
+
+NumericVector getLambdasByPis(
+		NumericVector pis,
+		double eventTime,
+		double kappa) {
+
+	int n = pis.size();
+	NumericVector lambdas(n);
+	for (int i = 0; i < n; i++) {
+		lambdas[i] = getLambdaByPi(pis[i], eventTime, kappa);
+	}
+	return lambdas;
 }
 
 double getPiByLambda(double lambda, double eventTime, double kappa) {

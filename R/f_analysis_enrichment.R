@@ -1,17 +1,20 @@
 ## |
-## |  *Analysis of enrichment designs with adaptive test*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_core_utilities.R
@@ -26,14 +29,15 @@ NULL
 #'
 #' @noRd
 #'
-.getAnalysisResultsEnrichment <- function(design,
+.getAnalysisResultsEnrichment <- function(
+        design,
         dataInput,
         ...,
         intersectionTest = C_INTERSECTION_TEST_ENRICHMENT_DEFAULT,
         directionUpper = NA,
         thetaH0 = NA_real_,
         nPlanned = NA_real_) {
-    .assertIsTrialDesignInverseNormalOrFisher(design)
+    .assertIsTrialDesignInverseNormalOrFisherOrFixed(design)
     .assertIsValidIntersectionTestEnrichment(design, intersectionTest)
     .assertIsOneSidedDesign(design, designType = "enrichment", engineType = "analysis")
 
@@ -91,11 +95,12 @@ NULL
 #'
 #' @noRd
 #'
-.getStageResultsEnrichment <- function(design,
+.getStageResultsEnrichment <- function(
+        design,
         dataInput,
         ...,
-        directionUpper = C_DIRECTION_UPPER_DEFAULT) {
-    .assertIsTrialDesignInverseNormalOrFisher(design)
+        directionUpper) {
+    .assertIsTrialDesignInverseNormalOrFisherOrFixed(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
     .assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
     on.exit(dataInput$.trim())
@@ -141,10 +146,11 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsEnrichment <- function(design,
+.getRepeatedConfidenceIntervalsEnrichment <- function(
+        design,
         dataInput,
         ...) {
-    .assertIsTrialDesignInverseNormalOrFisher(design)
+    .assertIsTrialDesignInverseNormalOrFisherOrFixed(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
     .assertIsValidDataInput(dataInput = dataInput, design = design, stage = stage)
     on.exit(dataInput$.trim())
@@ -183,15 +189,18 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerEnrichment <- function(..., stageResults, nPlanned,
+.getConditionalPowerEnrichment <- function(
+        ...,
+        stageResults,
+        nPlanned,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT) {
     .assertIsStageResults(stageResults)
 
     if (stageResults$isDatasetMeans()) {
         if ("assumedStDev" %in% names(list(...))) {
-            warning("For enrichment analysis the argument for assumed standard deviation ",
+            warnInvalidInput("For enrichment analysis the argument for assumed standard deviation ",
                 "is named 'assumedStDevs' and not 'assumedStDev'",
-                call. = FALSE
+                diagnosticId = "analysis.assumed_standard_deviations_argument_name"
             )
         }
 
@@ -240,8 +249,12 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalRejectionProbabilitiesEnrichment <- function(stageResults, ...,
-        stage = stageResults$stage, iterations = C_ITERATIONS_DEFAULT, seed = NA_real_) {
+.getConditionalRejectionProbabilitiesEnrichment <- function(
+        stageResults,
+        ...,
+        stage = stageResults$stage,
+        iterations = C_ITERATIONS_DEFAULT,
+        seed = NA_real_) {
     .assertIsValidStage(stage, stageResults$.design$kMax)
     gMax <- stageResults$getGMax()
 
@@ -255,10 +268,10 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-        "'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher",
-        call. = FALSE
+    stopIllegalArgument("'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher",
+        functionName = ".getConditionalRejectionProbabilitiesEnrichment",
+        parameter = "design",
+        diagnosticId = "validation.design_class_incompatible"
     )
 }
 
@@ -301,7 +314,7 @@ NULL
                 if (stageIndex == kMax - 1) {
                     shiftedFutilityBounds <- c()
                 } else {
-                    shiftedFutilityBounds <- design$futilityBounds[(stageIndex + 1):(kMax - 1)] *
+                    shiftedFutilityBounds <- .getFutilityBounds(design, (stageIndex + 1):(kMax - 1)) *
                         sqrt(sum(weights[1:stageIndex]^2) + cumsum(weights[(stageIndex + 1):(kMax - 1)]^2)) /
                         sqrt(cumsum(weights[(stageIndex + 1):(kMax - 1)]^2)) -
                         min(ctr$overallAdjustedTestStatistics[ctr$indices[, g] == 1, stageIndex], na.rm = TRUE) *
@@ -409,11 +422,18 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerPlotEnrichment <- function(stageResults, ...,
-        nPlanned, allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
-        thetaRange = NA_real_, assumedStDevs = NA_real_,
-        piTreatmentRange = NA_real_, piControls = NA_real_,
-        iterations = C_ITERATIONS_DEFAULT, seed = NA_real_, showArms = NA_real_) {
+.getConditionalPowerPlotEnrichment <- function(
+        stageResults,
+        ...,
+        nPlanned,
+        allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
+        thetaRange = NA_real_,
+        assumedStDevs = NA_real_,
+        piTreatmentRange = NA_real_,
+        piControls = NA_real_,
+        iterations = C_ITERATIONS_DEFAULT,
+        seed = NA_real_,
+        showArms = NA_real_) {
     .stopInCaseOfIllegalStageDefinition2(...)
 
     kMax <- stageResults$.design$kMax
@@ -422,14 +442,19 @@ NULL
         stage <- kMax - 1
     }
     if (stage < 1 || kMax == 1) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "cannot plot conditional power of a fixed design", call. = FALSE)
+        stopIllegalArgument("cannot plot conditional power of a fixed design",
+            functionName = ".getConditionalPowerPlotEnrichment",
+            diagnosticId = "plot.fixed_design_has_no_interims"
+        )
     }
     if (stage >= kMax) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "the conditional power plot is only available for subsequent stages. ",
+        stopIllegalArgument("the conditional power plot is only available for subsequent stages. ",
             "Please specify a 'stage' (", stage, ") < 'kMax' (", kMax, ")",
-            call. = FALSE
+            functionName = ".getConditionalPowerPlotEnrichment",
+            parameter = "stage",
+            value = stage,
+            relatedParameter = "kMax",
+            relatedValue = kMax
         )
     }
 

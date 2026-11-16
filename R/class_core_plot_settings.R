@@ -1,17 +1,20 @@
 ## |
-## |  *Plot setting classes*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 PlotSubTitleItem <- R6::R6Class("PlotSubTitleItem",
@@ -269,7 +272,8 @@ PlotSubTitleItems <- R6::R6Class("PlotSubTitleItems",
 #'
 #' @keywords internal
 #'
-getPlotSettings <- function(lineSize = 0.8,
+getPlotSettings <- function(
+        lineSize = 0.8,
         pointSize = 3,
         pointColor = NA_character_,
         mainTitleFontSize = 14,
@@ -330,7 +334,8 @@ PlotSettings <- R6::R6Class("PlotSettings",
         axesTextFontSize = NULL,
         legendFontSize = NULL,
         scalingFactor = NULL,
-        initialize = function(lineSize = 0.8,
+        initialize = function(
+                lineSize = 0.8,
                 pointSize = 3,
                 pointColor = NA_character_,
                 mainTitleFontSize = 14,
@@ -427,14 +432,25 @@ PlotSettings <- R6::R6Class("PlotSettings",
         },
 
         # Sets the axes labels
-        setAxesLabels = function(p, xAxisLabel = NULL, yAxisLabel1 = NULL, yAxisLabel2 = NULL,
-                xlab = NA_character_, ylab = NA_character_,
-                scalingFactor1 = 1, scalingFactor2 = 1) {
-            if (is.null(xAxisLabel) && !is.na(xlab)) {
+        setAxesLabels = function(
+                p,
+                xAxisLabel = NULL,
+                yAxisLabel1 = NULL,
+                yAxisLabel2 = NULL,
+                xlab = NA_character_,
+                ylab = NA_character_,
+                scalingFactor1 = 1,
+                scalingFactor2 = 1) {
+            if (!is.na(xlab)) {  
                 xAxisLabel <- xlab
             }
 
-            plotLabsType <- getOption("rpact.plot.labs.type", "quote")
+            plotLabsType <- .getEnvironmentVariable(
+                "RPACT_PLOT_LABS_TYPE",
+                "rpact.plot.labs.type",
+                default = "quote",
+                type = "character"
+            )
             if (plotLabsType == "quote" && !is.null(xAxisLabel)) {
                 if (xAxisLabel == "Theta") {
                     xAxisLabel <- bquote(bold("Theta" ~ Theta))
@@ -446,7 +462,7 @@ PlotSettings <- R6::R6Class("PlotSettings",
                     xAxisLabel <- bquote(bold("Theta" ~ Theta))
                 }
             }
-
+            
             p <- p + ggplot2::xlab(xAxisLabel)
             if (sum(is.na(ylab)) == 0) {
                 yAxisLabel1 <- ylab[1]
@@ -456,7 +472,8 @@ PlotSettings <- R6::R6Class("PlotSettings",
             }
             p <- p + ggplot2::ylab(yAxisLabel1)
 
-            p <- self$setSecondYAxisOnRightSide(p, yAxisLabel1, yAxisLabel2, scalingFactor1, scalingFactor2)
+            p <- self$setSecondYAxisOnRightSide(
+                p, yAxisLabel1, yAxisLabel2, scalingFactor1, scalingFactor2)
 
             return(p)
         },
@@ -508,10 +525,17 @@ PlotSettings <- R6::R6Class("PlotSettings",
                 legend.justification = justification
             ))
         },
-        setLegendPosition = function(p, legendPosition) {
+        setLegendPosition = function(p, legendPosition, finalize = TRUE) {
             .assertIsValidLegendPosition(legendPosition)
 
             legendPosition <- as.character(legendPosition)
+            if (identical(legendPosition, "auto")) {
+                p <- p + ggplot2::theme(legend.position = "right")
+                if (!finalize) {
+                    return(p)
+                }
+                return(.positionPlotLegend(.preparePlotLegend(p), self))
+            }
 
             if (legendPosition %in% c("none", "left", "right", "bottom", "top")) {
                 p <- p + ggplot2::theme(legend.position = legendPosition)
@@ -598,7 +622,12 @@ PlotSettings <- R6::R6Class("PlotSettings",
             caption <- NA_character_
             self$.htmlTitle <- NA_character_
             if (!is.null(mainTitle) && inherits(mainTitle, "PlotSubTitleItems")) {
-                plotLabsType <- getOption("rpact.plot.labs.type", "quote")
+                plotLabsType <- .getEnvironmentVariable(
+                    "RPACT_PLOT_LABS_TYPE",
+                    "rpact.plot.labs.type",
+                    default = "quote",
+                    type = "character"
+                )
                 if (plotLabsType == "quote") {
                     mainTitle <- mainTitle$toQuote()
                 } else {
@@ -613,8 +642,11 @@ PlotSettings <- R6::R6Class("PlotSettings",
                     }
                     s <- items$toString()
                     if (length(s) == 1 && !is.na(s) && nchar(s) > 0) {
-                        plotLabsCaptionEnabled <- as.logical(getOption(
-                            "rpact.plot.labs.caption.enabled", "true"
+                        plotLabsCaptionEnabled <- as.logical(.getEnvironmentVariable(
+                            "RPACT_PLOT_LABS_CAPTION_ENABLED",
+                            "rpact.plot.labs.caption.enabled",
+                            default = "true",
+                            type = "logical"
                         ))
                         if (isTRUE(plotLabsCaptionEnabled)) {
                             caption <- s
@@ -679,9 +711,11 @@ PlotSettings <- R6::R6Class("PlotSettings",
                 margin <- base::rep(margin, 4)
             }
             if (!(length(margin) %in% c(1, 4))) {
-                stop(
-                    C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'margin' (", .arrayToString(margin),
-                    ") must be a numeric vector with length 1 or 4"
+                stopRuntimeIssue("'margin' (", .arrayToString(margin), ") ",
+                    "must be a numeric vector with length 1 or 4",
+                    functionName = "setMarginAroundPlot",
+                    parameter = "margin",
+                    value = margin
                 )
             }
             p <- p + ggplot2::theme(plot.margin = ggplot2::unit(margin, "cm"))
@@ -746,8 +780,12 @@ PlotSettings <- R6::R6Class("PlotSettings",
             }
             return(p)
         },
-        plotValues = function(p, ..., plotLineEnabled = TRUE,
-                plotPointsEnabled = TRUE, pointBorder = 4) {
+        plotValues = function(
+                p,
+                ...,
+                plotLineEnabled = TRUE,
+                plotPointsEnabled = TRUE,
+                pointBorder = 4) {
             if (plotLineEnabled) {
                 if (packageVersion("ggplot2") >= "3.4.0") {
                     p <- p + ggplot2::geom_line(linewidth = self$scaleSize(self$lineSize))
@@ -760,8 +798,12 @@ PlotSettings <- R6::R6Class("PlotSettings",
             }
             return(p)
         },
-        mirrorYValues = function(p, yValues, plotLineEnabled = TRUE,
-                plotPointsEnabled = TRUE, pointBorder = 4) {
+        mirrorYValues = function(
+                p,
+                yValues,
+                plotLineEnabled = TRUE,
+                plotPointsEnabled = TRUE,
+                pointBorder = 4) {
             if (plotLineEnabled) {
                 if (packageVersion("ggplot2") >= "3.4.0") {
                     p <- p + ggplot2::geom_line(ggplot2::aes(y = -yValues),

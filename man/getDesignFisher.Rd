@@ -58,8 +58,12 @@ Must be a positive integer of length 1.}
 the critical values is affected by the futility bounds (default is \code{TRUE}).}
 
 \item{directionUpper}{Logical. Specifies the direction of the alternative,
-only applicable for one-sided testing; default is \code{TRUE}
-which means that larger values of the test statistics yield smaller p-values.}
+only applicable for one-sided testing; \code{TRUE}
+means that larger values of the test statistics yield smaller p-values.
+The default is \code{TRUE} for means, rates, and count data, and \code{FALSE} for survival data
+(power calculations, simulations, and analyses).
+In sample size calculations, the direction is derived from the specified alternative;
+a specified \code{directionUpper} must agree with it.}
 
 \item{tolerance}{The numerical tolerance, default is \code{1e-14}.}
 
@@ -110,19 +114,20 @@ getDesignFisher(kMax = 2, method = "fullAlpha", alpha = 0.05, alpha0Vec = 0.50)
 
 }
 \seealso{
-\code{\link[=getDesignSet]{getDesignSet()}} for creating a set of designs to compare.
+\code{\link[=getComparison]{getComparison()}} to compare different design situations.
 
 \code{\link[=getFutilityBounds]{getFutilityBounds()}} for the
 specification of futility bounds on scales other than the p-value scale.
 
 \href{https://www.rpact.org/vignettes/planning/rpact_futility_bounds/}{Vignette: Enhanced Futility Bounds Specification}
 
-Other design functions: 
-\code{\link{getDesignCharacteristics}()},
-\code{\link{getDesignConditionalDunnett}()},
-\code{\link{getDesignGroupSequential}()},
-\code{\link{getDesignInverseNormal}()},
-\code{\link{getGroupSequentialProbabilities}()},
-\code{\link{getPowerAndAverageSampleNumber}()}
+Other design functions:
+\code{\link[=getDesignCharacteristics]{getDesignCharacteristics()}},
+\code{\link[=getDesignConditionalDunnett]{getDesignConditionalDunnett()}},
+\code{\link[=getDesignFixed]{getDesignFixed()}},
+\code{\link[=getDesignGroupSequential]{getDesignGroupSequential()}},
+\code{\link[=getDesignInverseNormal]{getDesignInverseNormal()}},
+\code{\link[=getGroupSequentialProbabilities]{getGroupSequentialProbabilities()}},
+\code{\link[=getPowerAndAverageSampleNumber]{getPowerAndAverageSampleNumber()}}
 }
 \concept{design functions}

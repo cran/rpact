@@ -26,8 +26,12 @@ conditional adjusted p-values are calculated, default is \code{secondStageCondit
 (for details, see Koenig et al., 2008).}
 
 \item{directionUpper}{Logical. Specifies the direction of the alternative,
-only applicable for one-sided testing; default is \code{TRUE}
-which means that larger values of the test statistics yield smaller p-values.}
+only applicable for one-sided testing; \code{TRUE}
+means that larger values of the test statistics yield smaller p-values.
+The default is \code{TRUE} for means, rates, and count data, and \code{FALSE} for survival data
+(power calculations, simulations, and analyses).
+In sample size calculations, the direction is derived from the specified alternative;
+a specified \code{directionUpper} must agree with it.}
 }
 \value{
 Returns a \code{\link{TrialDesign}} object.
@@ -64,12 +68,13 @@ obtain the specific help documentation linked above by typing \code{?plot.Analys
 }
 
 \seealso{
-Other design functions: 
-\code{\link{getDesignCharacteristics}()},
-\code{\link{getDesignFisher}()},
-\code{\link{getDesignGroupSequential}()},
-\code{\link{getDesignInverseNormal}()},
-\code{\link{getGroupSequentialProbabilities}()},
-\code{\link{getPowerAndAverageSampleNumber}()}
+Other design functions:
+\code{\link[=getDesignCharacteristics]{getDesignCharacteristics()}},
+\code{\link[=getDesignFisher]{getDesignFisher()}},
+\code{\link[=getDesignFixed]{getDesignFixed()}},
+\code{\link[=getDesignGroupSequential]{getDesignGroupSequential()}},
+\code{\link[=getDesignInverseNormal]{getDesignInverseNormal()}},
+\code{\link[=getGroupSequentialProbabilities]{getGroupSequentialProbabilities()}},
+\code{\link[=getPowerAndAverageSampleNumber]{getPowerAndAverageSampleNumber()}}
 }
 \concept{design functions}

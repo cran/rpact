@@ -1,17 +1,20 @@
 ## |
-## |  *Parameter set utilities*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_core_utilities.R
@@ -80,6 +83,14 @@ NULL
     ))
 }
 
+.getParameterValueFormattedByFormatFunctionName <- function(formatFunctionName, paramValue, parameterSet) {
+    if (identical(formatFunctionName, ".formatCriticalValues") && .isTrialDesign(parameterSet)) {
+        return(.formatCriticalValues(paramValue, design = parameterSet))
+    }
+
+    return(eval(call(formatFunctionName, paramValue)))
+}
+
 .getParameterValueFormatted <- function(obj, parameterName) {
     tryCatch(
         {
@@ -92,8 +103,7 @@ NULL
             }
 
             if (is.function(paramValue)) {
-                valueStr <- ifelse(obj$.getParameterType(parameterName) ==
-                    C_PARAM_USER_DEFINED, "user defined", "default")
+                valueStr <- ifelse(obj$isUserDefinedParameter(parameterName), "user defined", "default")
                 return(list(
                     paramName = parameterName,
                     paramValue = valueStr,
@@ -143,12 +153,12 @@ NULL
                 if (!is.null(formatFunctionName) && !is.null(paramValueFormatted)) {
                     tryCatch(
                         {
-                            paramValueFormatted <- eval(call(formatFunctionName, paramValueFormatted))
+                            paramValueFormatted <- .getParameterValueFormattedByFormatFunctionName(formatFunctionName, paramValueFormatted, obj)
                         },
                         error = function(e) {
-                            warning("Failed to format value ", sQuote(parameterName), " with function ",
+                            warnRuntimeIssue("Failed to format value ", sQuote(parameterName), " with function ",
                                 formatFunctionName, "(): ", e$message,
-                                call. = FALSE
+                                diagnosticId = "output.parameter_formatting_failed"
                             )
                         }
                     )
@@ -205,4 +215,138 @@ NULL
     )
 
     return(NULL)
+}
+
+.getParameterSetParameterCaptionPerCategory <- function(parameterSet, paramName, paramCaption, category, matrixRow, numberOfCategories) {
+    if (inherits(parameterSet, "SimulationResultsMultiArmSurvival") &&
+            paramName == "observedDropoutProportion1") {
+        paramCaption <- paste0(sub(" \\(1\\)$", "", paramCaption), " (arm ", category, ")")
+    } else if (.isMultiArmSimulationResults(parameterSet) &&
+            paramName %in% c("singleEventsPerArmAndStage")) {
+        if (!inherits(parameterSet, "SimulationResultsEnrichmentSurvival") &&
+                !is.na(numberOfCategories) && 
+                numberOfCategories > 2 &&
+                numberOfCategories == category &&
+                paramName == "singleEventsPerArmAndStage") { # Single number of events
+            category <- "control"
+        }
+        paramCaption <- paste0(paramCaption, " (", category, ")")
+    } else if (paramName == "effectList") {
+        paramCaption <- paste0(paramCaption, " [", category, "]")
+    } else if (.isEnrichmentSimulationResults(parameterSet)) {
+        categoryCaption <- .getCategoryCaptionEnrichment(parameterSet, paramName, category)
+        paramCaption <- paste0(paramCaption, " (", categoryCaption, ")")
+    } else if (paramName %in% c("rejectedArmsPerStage", "selectedArms")) {
+        paramCaption <- paste0(paramCaption, " {", category, "}")
+    } else {
+        paramCaption <- paste0(paramCaption, " (", category, ")")
+    }
+
+    if (!is.na(matrixRow)) {
+        if (paramName == "effectList") {
+            paramCaption <- paste0(paramCaption, " (", matrixRow, ")")
+        } else {
+            paramCaption <- paste0(paramCaption, " [", matrixRow, "]")
+        }
+    }
+    return(paramCaption)
+}
+
+.getParameterSetParameterCaptionPerRow <- function(parameterSet, paramName, paramCaption, matrixRow) {
+    if (.isMultiArmAnalysisResults(parameterSet)) {
+        return(paste0(paramCaption, " (", matrixRow, ")"))
+    }
+
+    if (grepl("StageResultsMultiArm", .getClassName(parameterSet))) {
+        return(paste0(paramCaption, " (", matrixRow, ")"))
+    }
+
+    if (inherits(parameterSet, "SimulationResults") && paramName == "effectMatrix") {
+        return(paste0(paramCaption, " (", matrixRow, ")"))
+    }
+
+    if (inherits(parameterSet, "ClosedCombinationTestResults") && paramName %in% c("rejected", "separatePValues")) {
+        return(paste0(paramCaption, " (", matrixRow, ")"))
+    }
+
+    if (.isMultiArmSimulationResults(parameterSet) && paramName %in% c("lambdaTreatment", "medianTreatment")) {
+        return(paste0(paramCaption, " (", matrixRow, ")"))
+    }
+
+    return(paste0(paramCaption, " [", matrixRow, "]"))
+}
+
+.getParameterSetParameterCaption <- function(
+        parameterSet,
+        ...,
+        paramName,
+        category = NULL,
+        matrixRow = NA_integer_,
+        paramNameRaw = NA_character_,
+        numberOfCategories = NA_integer_) {
+    paramCaption <- NULL
+    if (!is.na(paramNameRaw)) {
+        paramCaption <- .getParameterCaption(paramNameRaw, parameterSet)
+    }
+    if (is.null(paramCaption)) {
+        paramCaption <- .getParameterCaption(paramName, parameterSet)
+    }
+    if (is.null(paramCaption)) {
+        paramCaption <- paste0("%", paramName, "%")
+    }
+
+    if ((is.null(category) || is.na(category)) && is.na(matrixRow)) {
+        return(paramCaption)
+    }
+
+    if (!is.null(category) && !is.na(category)) {
+        return(.getParameterSetParameterCaptionPerCategory(
+            parameterSet, paramName, paramCaption, category, matrixRow, numberOfCategories))
+    }
+
+    if (.isMultiArmAnalysisResults(parameterSet) && paramName %in%
+            c(
+                "conditionalErrorRate", "secondStagePValues",
+                "adjustedStageWisePValues", "overallAdjustedTestStatistics"
+            )) {
+        treatments <- parameterSet$.closedTestResults$.getHypothesisTreatmentArmVariants()[matrixRow]
+        paramCaption <- paste0(
+            "Treatment", ifelse(grepl(",", treatments), "s", ""), " ",
+            treatments, " vs. control"
+        )
+
+        return(paramCaption)
+    }
+
+    if (.isEnrichmentAnalysisResults(parameterSet) || .isEnrichmentStageResults(parameterSet) ||
+            (inherits(parameterSet, "ClosedCombinationTestResults") && isTRUE(parameterSet$.enrichment))) {
+        if (paramName %in% c(
+                "indices", "conditionalErrorRate", "secondStagePValues",
+                "adjustedStageWisePValues", "overallAdjustedTestStatistics", "rejectedIntersections"
+            )) {
+            if (.isEnrichmentAnalysisResults(parameterSet)) {
+                populations <- parameterSet$.closedTestResults$.getHypothesisPopulationVariants()[matrixRow]
+            } else if (inherits(parameterSet, "ClosedCombinationTestResults")) {
+                populations <- parameterSet$.getHypothesisPopulationVariants()[matrixRow]
+            } else {
+                stopRuntimeIssue("only ClosedCombinationTestResults ",
+                    "supports function .getHypothesisPopulationVariants() (object is ",
+                    .getClassName(parameterSet), ")",
+                    functionName = ".showParameterFormatted",
+                    parameter = "parameterSet", value = parameterSet
+                )
+            }
+            paramCaption <- paste0(paramCaption, " ", populations)
+        } else {
+            if (!is.na(numberOfCategories) && numberOfCategories == matrixRow) {
+                paramCaption <- paste0(paramCaption, " F")
+            } else {
+                paramCaption <- paste0(paramCaption, " S", matrixRow)
+            }
+        }
+
+        return(paramCaption)
+    }
+
+    return(.getParameterSetParameterCaptionPerRow(parameterSet, paramName, paramCaption, matrixRow))
 }

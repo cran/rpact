@@ -1,17 +1,20 @@
 ## |
-## |  *Analysis of rates with group sequential and combination test*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_logger.R
@@ -40,7 +43,7 @@ NULL
         ))
     }
 
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getAnalysisResultsRatesInverseNormal(
             design = design,
             dataInput = dataInput,
@@ -59,7 +62,8 @@ NULL
     .stopWithWrongDesignMessage(design, inclusiveConditionalDunnett = FALSE)
 }
 
-.getAnalysisResultsRatesInverseNormal <- function(...,
+.getAnalysisResultsRatesInverseNormal <- function(
+        ...,
         design,
         dataInput,
         directionUpper = NA,
@@ -71,7 +75,7 @@ NULL
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
         stdErrorEstimate = NA_character_,
         tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
-    .assertIsTrialDesignInverseNormal(design)
+    .assertIsTrialDesignInverseNormalOrFixed(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsRatesInverseNormal",
@@ -106,7 +110,8 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsRatesGroupSequential <- function(...,
+.getAnalysisResultsRatesGroupSequential <- function(
+        ...,
         design,
         dataInput,
         directionUpper = NA,
@@ -153,7 +158,8 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsRatesFisher <- function(...,
+.getAnalysisResultsRatesFisher <- function(
+        ...,
         design,
         dataInput,
         directionUpper = NA,
@@ -212,7 +218,8 @@ NULL
 #'
 #' @noRd
 #'
-.getAnalysisResultsRatesAll <- function(...,
+.getAnalysisResultsRatesAll <- function(
+        ...,
         results,
         design,
         dataInput,
@@ -237,6 +244,7 @@ NULL
         directionUpper = directionUpper,
         normalApproximation = normalApproximation
     )
+    
     results$.setStageResults(stageResults)
     .logProgress("Stage results calculated", startTime = startTime)
 
@@ -262,12 +270,14 @@ NULL
         }
     } else {
         if (!all(is.na(pi2))) {
-            warning(
+            warnArgumentIgnored(
                 "'pi2' (",
                 .arrayToString(pi2),
                 ") will be ignored ",
                 "because the specified data has only one group",
-                call. = FALSE
+                parameter = "pi2",
+                value = pi2,
+                diagnosticId = "analysis.two_group_argument_ignored"
             )
         }
         results$pi2 <- NA_real_
@@ -450,7 +460,8 @@ NULL
 #'
 #' @noRd
 #'
-.getStageResultsRates <- function(...,
+.getStageResultsRates <- function(
+        ...,
         design,
         dataInput,
         thetaH0 = NA_real_,
@@ -459,7 +470,7 @@ NULL
         stage = NA_integer_,
         userFunctionCallEnabled = FALSE) {
     .assertIsDatasetRates(dataInput)
-    .assertIsValidThetaH0DataInput(thetaH0, dataInput)
+    .assertIsValidThetaH0DataInput(thetaH0, dataInput, naAllowed = dataInput$getNumberOfGroups() > 1)
     thetaH0 <- .getDefaultThetaH0(dataInput, thetaH0)
     .assertIsSingleLogical(normalApproximation, "normalApproximation")
     .warnInCaseOfUnknownArguments(
@@ -469,15 +480,37 @@ NULL
     )
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design, stage = stage)
 
-    effectSizes <- rep(NA_real_, design$kMax)
+    if (dataInput$getNumberOfGroups() == 1 && is.na(thetaH0)) {
+        stopMissingArgument("'thetaH0' must be defined",
+            functionName = ".getStageResultsRates",
+            parameter = "thetaH0", value = thetaH0
+        )
+    } else if (dataInput$getNumberOfGroups() == 2 && is.na(thetaH0)) {
+        thetaH0 <- C_THETA_H0_RATES_DEFAULT
+    }
+
+    stageResults <- StageResultsRates$new(
+        design = design,
+        dataInput = dataInput,
+        stage = as.integer(stage),
+        thetaH0 = thetaH0,
+        normalApproximation = normalApproximation
+    )
+    
+    directionUpper <- .setDirectionUpper(
+        stageResults,
+        design,
+        directionUpper,
+        objectType = "analysis",
+        endpoint = "rates",
+        userFunctionCallEnabled = userFunctionCallEnabled
+    )
+
+    stageResults$effectSizes <- rep(NA_real_, design$kMax)
 
     if (dataInput$getNumberOfGroups() == 1) {
-        if (is.na(thetaH0)) {
-            stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'thetaH0' must be defined", call. = FALSE)
-        }
-
         if (normalApproximation) {
-            overallTestStatistics <- c(
+            stageResults$overallTestStatistics <- c(
                 (dataInput$getOverallEventsUpTo(stage) /
                     dataInput$getOverallSampleSizesUpTo(stage) -
                     thetaH0) /
@@ -485,15 +518,15 @@ NULL
                     sqrt(dataInput$getOverallSampleSizesUpTo(stage)),
                 rep(NA_real_, design$kMax - stage)
             )
-            overallPValues <- .applyDirectionOfAlternative(
-                stats::pnorm(overallTestStatistics),
+            stageResults$overallPValues <- .applyDirectionOfAlternative(
+                stats::pnorm(stageResults$overallTestStatistics),
                 directionUpper,
                 type = "oneMinusValue",
                 phase = "analysis"
             )
         } else {
-            overallTestStatistics <- rep(NA_real_, design$kMax)
-            overallPValues <- stats::pbinom(
+            stageResults$overallTestStatistics <- rep(NA_real_, design$kMax)
+            stageResults$overallPValues <- stats::pbinom(
                 .applyDirectionOfAlternative(
                     dataInput$getOverallEventsUpTo(stage),
                     directionUpper,
@@ -509,22 +542,18 @@ NULL
                     phase = "analysis"
                 )
             )
-            overallTestStatistics <- .getOneMinusQNorm(overallPValues)
+            stageResults$overallTestStatistics <- .getOneMinusQNorm(stageResults$overallPValues)
         }
-        effectSizes[1:stage] <- dataInput$getOverallEventsUpTo(stage) /
+        stageResults$effectSizes[1:stage] <- dataInput$getOverallEventsUpTo(stage) /
             dataInput$getOverallSampleSizesUpTo(stage)
     }
 
     if (dataInput$getNumberOfGroups() == 2) {
-        if (is.na(thetaH0)) {
-            thetaH0 <- C_THETA_H0_RATES_DEFAULT
-        }
-
         overallEvents1 <- dataInput$getOverallEvents(group = 1)
         overallEvents2 <- dataInput$getOverallEvents(group = 2)
 
-        overallTestStatistics <- rep(NA_real_, design$kMax)
-        overallPValues <- rep(NA_real_, design$kMax)
+        stageResults$overallTestStatistics <- rep(NA_real_, design$kMax)
+        stageResults$overallPValues <- rep(NA_real_, design$kMax)
 
         for (k in 1:stage) {
             if (normalApproximation) {
@@ -535,11 +564,11 @@ NULL
                                 sum(dataInput$getSampleSizesUpTo(k, 1)) +
                                     sum(dataInput$getSampleSizesUpTo(k, 2)))
                         ) {
-                        overallTestStatistics[k] <- 0
+                        stageResults$overallTestStatistics[k] <- 0
                     } else {
                         overallRateH0 <- (overallEvents1[k] + overallEvents2[k]) /
                             (sum(dataInput$getSampleSizesUpTo(k, 1)) + sum(dataInput$getSampleSizesUpTo(k, 2)))
-                        overallTestStatistics[k] <-
+                        stageResults$overallTestStatistics[k] <-
                             (overallEvents1[k] /
                                 sum(dataInput$getSampleSizesUpTo(k, 1)) -
                                 overallEvents2[k] / sum(dataInput$getSampleSizesUpTo(k, 2)) -
@@ -561,7 +590,7 @@ NULL
                             sum(dataInput$getSampleSizesUpTo(k, 2)),
                         "diff"
                     )
-                    overallTestStatistics[k] <-
+                    stageResults$overallTestStatistics[k] <-
                         (overallEvents1[k] /
                             sum(dataInput$getSampleSizesUpTo(k, 1)) -
                             overallEvents2[k] / sum(dataInput$getSampleSizesUpTo(k, 2)) -
@@ -573,22 +602,21 @@ NULL
                                     y$ml2 * (1 - y$ml2) / sum(dataInput$getSampleSizesUpTo(k, 2))
                             )
                 }
-                overallPValues[k] <- .applyDirectionOfAlternative(
-                    stats::pnorm(overallTestStatistics[k]),
+                stageResults$overallPValues[k] <- .applyDirectionOfAlternative(
+                    stats::pnorm(stageResults$overallTestStatistics[k]),
                     directionUpper,
                     type = "oneMinusValue",
                     phase = "analysis"
                 )
             } else {
                 if (thetaH0 != 0) {
-                    stop(
-                        C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
-                        "thetaH0 must be equal 0 for performing Fisher's exact test",
-                        call. = FALSE
+                    stopConflictingArguments("thetaH0 must be equal 0 for performing Fisher's exact test",
+                        functionName = ".getStageResultsRates",
+                        diagnosticId = "analysis.exact_test_requires_equality_null"
                     )
                 }
 
-                overallPValues[k] <- stats::phyper(
+                stageResults$overallPValues[k] <- stats::phyper(
                     .applyDirectionOfAlternative(
                         overallEvents1[k],
                         directionUpper,
@@ -608,37 +636,44 @@ NULL
                         phase = "analysis"
                     )
                 )
-                overallTestStatistics <- .getOneMinusQNorm(overallPValues)
+                stageResults$overallTestStatistics <-
+                    .getOneMinusQNorm(stageResults$overallPValues)
             }
         }
-        effectSizes[1:stage] <- overallEvents1[1:stage] /
+        stageResults$effectSizes[1:stage] <- overallEvents1[1:stage] /
             cumsum(dataInput$getSampleSizesUpTo(stage, 1)) -
             overallEvents2[1:stage] / cumsum(dataInput$getSampleSizesUpTo(stage, 2))
     }
 
+    stageResults$overallTestStatistics <- .fillWithNAs(
+        stageResults$overallTestStatistics, design$kMax
+    )
+    stageResults$overallPValues <- .fillWithNAs(stageResults$overallPValues, design$kMax)
+
     # calculation of stage-wise test statistics and combination tests
-    testStatistics <- rep(NA_real_, design$kMax)
-    pValues <- rep(NA_real_, design$kMax)
-    combInverseNormal <- rep(NA_real_, design$kMax)
-    combFisher <- rep(NA_real_, design$kMax)
-    weightsInverseNormal <- .getWeightsInverseNormal(design)
-    weightsFisher <- .getWeightsFisher(design)
+    stageResults$testStatistics <- rep(NA_real_, design$kMax)
+    stageResults$pValues <- rep(NA_real_, design$kMax)
+    stageResults$combInverseNormal <- rep(NA_real_, design$kMax)
+    stageResults$combFisher <- rep(NA_real_, design$kMax)
+    stageResults$weightsInverseNormal <- .getWeightsInverseNormal(design)
+    stageResults$weightsFisher <- .getWeightsFisher(design)
     for (k in 1:stage) {
         if (dataInput$getNumberOfGroups() == 1) {
             if (normalApproximation) {
                 # stage-wise test statistics
-                testStatistics[k] <- (dataInput$getEvent(k) / dataInput$getSampleSize(k) - thetaH0) /
+                stageResults$testStatistics[k] <-
+                    (dataInput$getEvent(k) / dataInput$getSampleSize(k) - thetaH0) /
                     sqrt(thetaH0 * (1 - thetaH0)) *
                     sqrt(dataInput$getSampleSize(k))
-                pValues[k] <- .applyDirectionOfAlternative(
-                    stats::pnorm(testStatistics[k]),
+                stageResults$pValues[k] <- .applyDirectionOfAlternative(
+                    stats::pnorm(stageResults$testStatistics[k]),
                     directionUpper,
                     type = "oneMinusValue",
                     phase = "analysis"
                 )
             } else {
-                testStatistics[k] <- NA_real_
-                pValues[k] <- stats::pbinom(
+                stageResults$testStatistics[k] <- NA_real_
+                stageResults$pValues[k] <- stats::pbinom(
                     .applyDirectionOfAlternative(
                         dataInput$getEvent(k),
                         directionUpper,
@@ -664,11 +699,11 @@ NULL
                             (dataInput$getEvent(k, 1) + dataInput$getEvent(k, 2) ==
                                 dataInput$getSampleSize(k, 1) + dataInput$getSampleSize(k, 2))
                         ) {
-                        testStatistics[k] <- 0
+                        stageResults$testStatistics[k] <- 0
                     } else {
                         rateH0 <- (dataInput$getEvent(k, 1) + dataInput$getEvent(k, 2)) /
                             (dataInput$getSampleSize(k, 1) + dataInput$getSampleSize(k, 2))
-                        testStatistics[k] <-
+                        stageResults$testStatistics[k] <-
                             (dataInput$getEvent(k, 1) /
                                 dataInput$getSampleSize(k, 1) -
                                 dataInput$getEvent(k, 2) / dataInput$getSampleSize(k, 2) -
@@ -688,7 +723,7 @@ NULL
                         method = "diff"
                     )
 
-                    testStatistics[k] <- (dataInput$getEvent(k, 1) /
+                    stageResults$testStatistics[k] <- (dataInput$getEvent(k, 1) /
                         dataInput$getSampleSize(k, 1) -
                         dataInput$getEvent(k, 2) / dataInput$getSampleSize(k, 2) -
                         thetaH0) /
@@ -699,16 +734,16 @@ NULL
                                 y$ml2 * (1 - y$ml2) / dataInput$getSampleSize(k, 2)
                         )
                 }
-                pValues[k] <- .applyDirectionOfAlternative(
-                    stats::pnorm(testStatistics[k]),
+                stageResults$pValues[k] <- .applyDirectionOfAlternative(
+                    stats::pnorm(stageResults$testStatistics[k]),
                     directionUpper,
                     type = "oneMinusValue",
                     phase = "analysis"
                 )
             } else {
-                testStatistics[k] <- NA_real_
+                stageResults$testStatistics[k] <- NA_real_
 
-                pValues[k] <- stats::phyper(
+                stageResults$pValues[k] <- stats::phyper(
                     .applyDirectionOfAlternative(
                         dataInput$getEvent(k, 1),
                         directionUpper,
@@ -732,35 +767,15 @@ NULL
         }
 
         # inverse normal test
-        combInverseNormal[k] <- (weightsInverseNormal[1:k] %*% .getOneMinusQNorm(pValues[1:k])) /
-            sqrt(sum(weightsInverseNormal[1:k]^2))
+        stageResults$combInverseNormal[k] <-
+            (stageResults$weightsInverseNormal[1:k] %*%
+                .getOneMinusQNorm(stageResults$pValues[1:k])) /
+            sqrt(sum(stageResults$weightsInverseNormal[1:k]^2))
 
         # Fisher combination test
-        combFisher[k] <- prod(pValues[1:k]^weightsFisher[1:k])
+        stageResults$combFisher[k] <-
+            prod(stageResults$pValues[1:k]^stageResults$weightsFisher[1:k])
     }
-
-    direction <- ifelse(!isFALSE(directionUpper), C_DIRECTION_UPPER, C_DIRECTION_LOWER)
-
-    stageResults <- StageResultsRates$new(
-        # R6$new
-        design = design,
-        dataInput = dataInput,
-        stage = as.integer(stage),
-        overallTestStatistics = .fillWithNAs(overallTestStatistics, design$kMax),
-        overallPValues = .fillWithNAs(overallPValues, design$kMax),
-        effectSizes = effectSizes,
-        overallEvents = .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax),
-        overallSampleSizes = .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax),
-        testStatistics = testStatistics,
-        pValues = pValues,
-        combInverseNormal = combInverseNormal,
-        combFisher = combFisher,
-        weightsInverseNormal = weightsInverseNormal,
-        weightsFisher = weightsFisher,
-        thetaH0 = thetaH0,
-        direction = ifelse(!isFALSE(directionUpper), C_DIRECTION_UPPER, C_DIRECTION_LOWER),
-        normalApproximation = normalApproximation
-    )
 
     if (dataInput$getNumberOfGroups() == 1) {
         stageResults$overallEvents <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax)
@@ -768,8 +783,8 @@ NULL
         stageResults$overallPi1 <- stageResults$overallEvents / stageResults$overallSampleSizes
         stageResults$.setParameterType("overallPi1", C_PARAM_GENERATED)
     } else if (dataInput$getNumberOfGroups() == 2) {
-        stageResults$overallEvents1 <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group <- 1), design$kMax)
-        stageResults$overallEvents2 <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group <- 2), design$kMax)
+        stageResults$overallEvents1 <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 1), design$kMax)
+        stageResults$overallEvents2 <- .fillWithNAs(dataInput$getOverallEventsUpTo(stage, group = 2), design$kMax)
         stageResults$overallSampleSizes1 <- .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 1), design$kMax)
         stageResults$overallSampleSizes2 <- .fillWithNAs(dataInput$getOverallSampleSizesUpTo(stage, 2), design$kMax)
         stageResults$overallPi1 <- stageResults$overallEvents1 / stageResults$overallSampleSizes1
@@ -781,7 +796,7 @@ NULL
     if (.isTrialDesignFisher(design)) {
         stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
         stageResults$.setParameterType("weightsFisher", C_PARAM_GENERATED)
-    } else if (.isTrialDesignInverseNormal(design)) {
+    } else if (.isTrialDesignInverseNormalOrFixed(design)) {
         stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
         stageResults$.setParameterType("weightsInverseNormal", C_PARAM_GENERATED)
     }
@@ -799,7 +814,7 @@ NULL
         return(.getRepeatedConfidenceIntervalsRatesGroupSequential(design = design, ...))
     }
 
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getRepeatedConfidenceIntervalsRatesInverseNormal(design = design, ...))
     }
 
@@ -810,7 +825,8 @@ NULL
     .stopWithWrongDesignMessage(design, inclusiveConditionalDunnett = FALSE)
 }
 
-.getRootThetaRates <- function(...,
+.getRootThetaRates <- function(
+        ...,
         design,
         dataInput,
         stage,
@@ -858,7 +874,8 @@ NULL
     return(result)
 }
 
-.getRepeatedConfidenceIntervalsRatesAll <- function(...,
+.getRepeatedConfidenceIntervalsRatesAll <- function(
+        ...,
         design,
         dataInput,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
@@ -883,7 +900,7 @@ NULL
     } else {
         criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
         criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
-        bounds <- design$futilityBounds
+        bounds <- .getFutilityBounds(design)
         border <- C_FUTILITY_BOUNDS_DEFAULT
         conditionFunction <- .isFirstValueGreaterThanSecondValue
     }
@@ -998,7 +1015,8 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsRatesGroupSequential <- function(...,
+.getRepeatedConfidenceIntervalsRatesGroupSequential <- function(
+        ...,
         design,
         dataInput,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
@@ -1032,7 +1050,8 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsRatesInverseNormal <- function(...,
+.getRepeatedConfidenceIntervalsRatesInverseNormal <- function(
+        ...,
         design,
         dataInput,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
@@ -1066,7 +1085,8 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsRatesFisher <- function(...,
+.getRepeatedConfidenceIntervalsRatesFisher <- function(
+        ...,
         design,
         dataInput,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
@@ -1100,8 +1120,9 @@ NULL
     # Inverse normal method
     condError <- getConditionalRejectionProbabilities(stageResults = stageResults)[stage]
     if (is.na(condError)) {
-        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE,
-            "conditional error could not be calculated at stage ", stage
+        stopRuntimeIssue("conditional error could not be calculated at stage ", stage,
+            functionName = ".calculateThetaH1",
+            parameter = "stage", value = stage
         )
     }
 
@@ -1116,10 +1137,10 @@ NULL
                 sqrt(sum(nPlanned[(stage + 1):kMax]))
         }
 
-        if (stageResults$direction == "upper") {
-            thetaH1 <- (pi1 - stageResults$thetaH0) / sqrt(pi1 * (1 - pi1)) + adjustment
-        } else {
+        if (isFALSE(stageResults$directionUpper)) {
             thetaH1 <- -(pi1 - stageResults$thetaH0) / sqrt(pi1 * (1 - pi1)) + adjustment
+        } else {
+            thetaH1 <- (pi1 - stageResults$thetaH0) / sqrt(pi1 * (1 - pi1)) + adjustment
         }
 
         return(list(thetaH1 = thetaH1, nPlanned = nPlanned))
@@ -1154,13 +1175,13 @@ NULL
             )
     }
 
-    if (stageResults$direction == "upper") {
-        thetaH1 <- (pi1 - pi2 - stageResults$thetaH0) /
+    if (isFALSE(stageResults$directionUpper)) {
+        thetaH1 <- -(pi1 - pi2 - stageResults$thetaH0) /
             sqrt(pi1 * (1 - pi1) + allocationRatioPlanned * pi2 * (1 - pi2)) *
             sqrt(1 + allocationRatioPlanned) +
             adjustment
     } else {
-        thetaH1 <- -(pi1 - pi2 - stageResults$thetaH0) /
+        thetaH1 <- (pi1 - pi2 - stageResults$thetaH0) /
             sqrt(pi1 * (1 - pi1) + allocationRatioPlanned * pi2 * (1 - pi2)) *
             sqrt(1 + allocationRatioPlanned) +
             adjustment
@@ -1175,7 +1196,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerRatesGroupSequential <- function(...,
+.getConditionalPowerRatesGroupSequential <- function(
+        ...,
         stageResults,
         stage = stageResults$stage,
         nPlanned,
@@ -1241,7 +1263,7 @@ NULL
     if (stage == kMax - 1) {
         shiftedFutilityBounds <- c()
     } else {
-        shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] *
+        shiftedFutilityBounds <- .getFutilityBounds(design, (stage + 1):(kMax - 1)) *
             sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):(kMax - 1)]^2)) /
             sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) -
             .getOneMinusQNorm(stageResults$overallPValues[stage]) *
@@ -1302,7 +1324,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerRatesInverseNormal <- function(...,
+.getConditionalPowerRatesInverseNormal <- function(
+        ...,
         stageResults,
         stage = stageResults$stage,
         nPlanned,
@@ -1366,7 +1389,7 @@ NULL
     if (stage == kMax - 1) {
         shiftedFutilityBounds <- c()
     } else {
-        shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] *
+        shiftedFutilityBounds <- .getFutilityBounds(design, (stage + 1):(kMax - 1)) *
             sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):(kMax - 1)]^2)) /
             sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) -
             c(weights[1:stage] %*% .getOneMinusQNorm(stageResults$pValues[1:stage])) /
@@ -1427,7 +1450,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerRatesFisher <- function(...,
+.getConditionalPowerRatesFisher <- function(
+        ...,
         stageResults,
         stage = stageResults$stage,
         nPlanned,
@@ -1486,7 +1510,9 @@ NULL
         divisor <- prod(pValues[1:(kMax - 1)]^weightsFisher[1:(kMax - 1)])
         result <- 1 - (criticalValues[kMax] / divisor)^(1 / weightsFisher[kMax])
         if (result <= 0 || result >= 1) {
-            warning("Calculation not possible: could not calculate conditional power for stage ", kMax, call. = FALSE)
+            warnNumericalIssue("Calculation not possible: could not calculate conditional power for stage ", kMax,
+                diagnosticId = "analysis.conditional_power_calculation_failed"
+            )
             conditionalPower[kMax] <- NA_real_
         } else {
             conditionalPower[kMax] <- 1 - stats::pnorm(.getQNorm(result) - thetaH1 * sqrt(nPlanned[kMax]))
@@ -1506,7 +1532,8 @@ NULL
     ))
 }
 
-.getConditionalPowerRates <- function(...,
+.getConditionalPowerRates <- function(
+        ...,
         stageResults,
         nPlanned,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
@@ -1515,7 +1542,10 @@ NULL
     pi1H1 <- .getOptionalArgument("pi1H1", ...)
     if (!is.null(pi1H1) && !is.na(pi1H1)) {
         if (!is.na(pi1)) {
-            warning(sQuote("pi1"), " will be ignored because ", sQuote("pi1H1"), " is defined", call. = FALSE)
+            warnArgumentIgnored(sQuote("pi1"), " will be ignored because ", sQuote("pi1H1"), " is defined",
+                parameter = "pi1",
+                diagnosticId = "analysis.treatment_probability_overridden"
+            )
         }
         pi1 <- pi1H1
     }
@@ -1523,7 +1553,10 @@ NULL
     pi2H1 <- .getOptionalArgument("pi2H1", ...)
     if (!is.null(pi2H1) && !is.na(pi2H1)) {
         if (!is.na(pi2)) {
-            warning(sQuote("pi2"), " will be ignored because ", sQuote("pi2H1"), " is defined", call. = FALSE)
+            warnArgumentIgnored(sQuote("pi2"), " will be ignored because ", sQuote("pi2H1"), " is defined",
+                parameter = "pi2",
+                diagnosticId = "analysis.control_probability_overridden"
+            )
         }
         pi2 <- pi2H1
     }
@@ -1536,7 +1569,6 @@ NULL
     }
 
     results <- ConditionalPowerResultsRates$new(
-        # R6$new
         .stageResults = stageResults,
         .design = stageResults$.design,
         nPlanned = nPlanned,
@@ -1602,7 +1634,8 @@ NULL
     return(results)
 }
 
-.getConditionalPowerPlotRates <- function(...,
+.getConditionalPowerPlotRates <- function(
+        ...,
         stageResults,
         stage,
         nPlanned,
@@ -1660,7 +1693,7 @@ NULL
                         pi1 = piTreatmentRange[i],
                         pi2 = pi2
                     )$conditionalPower[design$kMax]
-                } else if (.isTrialDesignInverseNormal(design)) {
+                } else if (.isTrialDesignInverseNormalOrFixed(design)) {
                     condPowerValues[i] <- .getConditionalPowerRatesInverseNormal(
                         stageResults = stageResults,
                         nPlanned = nPlanned,
@@ -1711,7 +1744,7 @@ NULL
                         pi1 = piTreatmentRange[i],
                         pi2 = pi2
                     )$conditionalPower[design$kMax]
-                } else if (.isTrialDesignInverseNormal(design)) {
+                } else if (.isTrialDesignInverseNormalOrFixed(design)) {
                     condPowerValues[i] <- .getConditionalPowerRatesInverseNormal(
                         stageResults = stageResults,
                         nPlanned = nPlanned,
@@ -1746,7 +1779,9 @@ NULL
 
     if (length(warningMessages) > 0) {
         for (m in warningMessages) {
-            warning(m, call. = FALSE)
+            warnNumericalIssue(m,
+                diagnosticId = "plot.conditional_power_calculation_warning"
+            )
         }
     }
 
@@ -1777,7 +1812,8 @@ NULL
 }
 
 
-.getFinalConfidenceIntervalRatesValues <- function(design,
+.getFinalConfidenceIntervalRatesValues <- function(
+        design,
         dataInput,
         stageResults,
         directionUpper,
@@ -1851,7 +1887,7 @@ NULL
                     )
             }
         } else {
-            if (.isTrialDesignInverseNormal(design) && design$kMax > 2 && !.isNoEarlyEfficacy(design)) {
+            if (.isTrialDesignInverseNormalOrFixed(design) && design$kMax > 2 && !.isNoEarlyEfficacy(design)) {
                 message(
                     "Calculation of final confidence interval performed for kMax = ",
                     design$kMax,
@@ -2040,7 +2076,8 @@ NULL
 #'
 #' @noRd
 #'
-.getFinalConfidenceIntervalRatesGroupSequential <- function(...,
+.getFinalConfidenceIntervalRatesGroupSequential <- function(
+        ...,
         design,
         dataInput,
         stage,
@@ -2092,7 +2129,8 @@ NULL
 #'
 #' @noRd
 #'
-.getFinalConfidenceIntervalRatesInverseNormal <- function(...,
+.getFinalConfidenceIntervalRatesInverseNormal <- function(
+        ...,
         design,
         dataInput,
         stage,
@@ -2144,7 +2182,8 @@ NULL
 #'
 #' @noRd
 #'
-.getFinalConfidenceIntervalRatesFisher <- function(...,
+.getFinalConfidenceIntervalRatesFisher <- function(
+        ...,
         design,
         dataInput,
         stage,
@@ -2172,7 +2211,7 @@ NULL
 
     message(
         "Calculation of final confidence interval for Fisher's ",
-        "design not implemented yet"
+        "design not yet implemented"
     )
 
     return(list(
@@ -2190,7 +2229,8 @@ NULL
     ))
 }
 
-.getFinalConfidenceIntervalRates <- function(...,
+.getFinalConfidenceIntervalRates <- function(
+        ...,
         design,
         dataInput,
         thetaH0 = NA_real_,
@@ -2234,7 +2274,7 @@ NULL
         ))
     }
 
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getFinalConfidenceIntervalRatesInverseNormal(
             design = design,
             dataInput = dataInput,

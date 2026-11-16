@@ -9,6 +9,7 @@ getSampleSizeSurvival(
   ...,
   typeOfComputation = c("Schoenfeld", "Freedman", "HsiehFreedman"),
   thetaH0 = 1,
+  directionUpper = NA,
   pi1 = NA_real_,
   pi2 = NA_real_,
   lambda1 = NA_real_,
@@ -43,11 +44,12 @@ the default is \code{"Schoenfeld"}. For details, see Hsieh (Statistics in Medici
 For non-inferiority testing (i.e., \code{thetaH0 != 1}), only Schoenfeld's formula can be used.}
 
 \item{thetaH0}{The null hypothesis value,
-default is \code{0} for the normal and the binary case (testing means and rates, respectively),
+default is \code{0} for general estimates, the normal case, and the binary case,
 it is \code{1} for the survival case (testing the hazard ratio).\cr\cr
 For non-inferiority designs, \code{thetaH0} is the non-inferiority bound.
 That is, in case of (one-sided) testing of
 \itemize{
+\item \emph{general estimates}: a value on the scale of the supplied estimates can be specified.
 \item \emph{means}: a value \code{!= 0}
 (or a value \code{!= 1} for testing the mean ratio) can be specified.
 \item \emph{rates}: a value \code{!= 0}
@@ -58,17 +60,30 @@ That is, in case of (one-sided) testing of
 For testing a rate in one sample, a value \code{thetaH0} in (0, 1) has to be specified for
 defining the null hypothesis H0: \code{pi = thetaH0}.}
 
+\item{directionUpper}{Logical. Specifies the direction of the alternative,
+only applicable for one-sided testing; \code{TRUE}
+means that larger values of the test statistics yield smaller p-values.
+The default is \code{TRUE} for means, rates, and count data, and \code{FALSE} for survival data
+(power calculations, simulations, and analyses).
+In sample size calculations, the direction is derived from the specified alternative;
+a specified \code{directionUpper} must agree with it.}
+
 \item{pi1}{A numeric value or vector that represents the assumed event rate in the treatment group,
 default is \code{seq(0.2, 0.5, 0.1)} (power calculations and simulations) or
-\code{seq(0.4, 0.6, 0.1)} (sample size calculations).}
+\code{c(0.1, 0.2, 0.3)} (sample size calculations).}
 
-\item{pi2}{A numeric value that represents the assumed event rate in the control group, default is \code{0.2}.}
+\item{pi2}{A numeric value that represents the assumed event rate in the control group, default is \code{0.5}.}
 
 \item{lambda1}{The assumed hazard rate in the treatment group, there is no default.
-\code{lambda1} can also be used to define piecewise exponentially distributed survival times (see details). Must be a positive numeric of length 1.}
+\code{lambda1} can also be used to define piecewise exponentially distributed survival times (see details).
+Must be a positive numeric value or vector: without \code{piecewiseSurvivalTime}, a vector defines
+alternative hazard rates to be considered; with \code{piecewiseSurvivalTime}, it contains one hazard rate
+per time interval. \code{getEventProbabilities()} uses only the first value of a non-piecewise vector.}
 
 \item{lambda2}{The assumed hazard rate in the reference group, there is no default.
-\code{lambda2} can also be used to define piecewise exponentially distributed survival times (see details). Must be a positive numeric of length 1.}
+\code{lambda2} can also be used to define piecewise exponentially distributed survival times (see details).
+Must be a positive numeric of length 1, or a vector with one hazard rate per time interval
+if \code{piecewiseSurvivalTime} is specified.}
 
 \item{median1}{The assumed median survival time in the treatment group, there is no default.}
 
@@ -80,15 +95,16 @@ Default is \code{1}, i.e., the exponential survival distribution is used instead
 Note that the Weibull distribution cannot be used for the piecewise definition of
 the survival time distribution, i.e., only \code{piecewiselambda} (as a single value) and \code{kappa}
 can be specified.
-This function is equivalent to \code{pweibull(t, shape = kappa, scale = 1 / lambda)}
-of the \code{stats} package, i.e., the scale parameter is \code{1 / 'hazard rate'}.\cr
+This function is equivalent to \code{pweibull(q = time, shape = kappa, scale = 1 / lambda)}
+of the \code{stats} package.\cr
 For example,
 \code{getPiecewiseExponentialDistribution(time = 130, piecewiseLambda = 0.01, kappa = 4.2)}
 and \code{pweibull(q = 130, shape = 4.2, scale = 1 / 0.01)} provide the same result.}
 
 \item{hazardRatio}{The vector of hazard ratios under consideration.
 If the event or hazard rates in both treatment groups are defined, the hazard ratio needs
-not to be specified as it is calculated, there is no default. Must be a positive numeric of length 1.}
+not to be specified as it is calculated, there is no default. Must be a positive numeric value or vector;
+\code{getEventProbabilities()} accepts a single value only.}
 
 \item{piecewiseSurvivalTime}{A vector that specifies the time intervals for the piecewise
 definition of the exponential survival time cumulative distribution function \cr
@@ -116,7 +132,9 @@ The total study duration is \code{accrualTime + followUpTime}.}
 \item{maxNumberOfSubjects}{If \code{maxNumberOfSubjects > 0} is specified,
 the follow-up time for the required number of events is determined.}
 
-\item{dropoutRate1}{The assumed drop-out rate in the treatment group, default is \code{0}.}
+\item{dropoutRate1}{The assumed drop-out rate in the treatment group, default is \code{0}.
+For multi-arm simulations, this can be a vector of length equal to the number of active arms,
+specifying different drop-out rates for each active arm.}
 
 \item{dropoutRate2}{The assumed drop-out rate in the control group, default is \code{0}.}
 
@@ -137,6 +155,17 @@ The following generics (R generic functions) are available for this result objec
 }
 \description{
 Returns the sample size for testing the hazard ratio in a two treatment groups survival design.
+
+Planning conditions on deterministic piecewise constant accrual and planned
+allocation, retaining fractional accrued counts without rounding. Within each
+accrual interval the individual competing-risk dropout incidence is averaged
+over enrollment dates and weighted by planned enrollment by the horizon.
+The denominator includes only subjects accrued by that time. The horizon is
+the corresponding stage's planned analysis, without early-stopping weighting.
+An unavailable horizon (including calculations without observation times) or no accrued
+subjects gives NA; otherwise zero dropout gives zero. Exponential and piecewise
+exponential event times are supported. The existing restriction against
+Weibull event times with nonzero dropout remains in place.
 }
 \details{
 At given design the function calculates the number of events and an estimate for the
@@ -157,6 +186,10 @@ to piecewise survival times and non-constant piecewise accrual over time.\cr
 
 Optional argument \code{accountForObservationTimes}: if \code{accountForObservationTimes = FALSE},
 only the event rates are used for the calculation of the maximum number of subjects.
+
+Accrual averages use analytic integration, split at event-hazard boundaries.
+When both input dropout rates are zero, the proportions are retained in the
+result object but omitted from print and summary output.
 }
 \section{Piecewise survival time}{
 
@@ -314,9 +347,9 @@ getSampleSizeSurvival(accrualTime = c(0, 18), accrualIntensity = c(20, 30),
 
 }
 \seealso{
-Other sample size functions: 
-\code{\link{getSampleSizeCounts}()},
-\code{\link{getSampleSizeMeans}()},
-\code{\link{getSampleSizeRates}()}
+Other sample size functions:
+\code{\link[=getSampleSizeCounts]{getSampleSizeCounts()}},
+\code{\link[=getSampleSizeMeans]{getSampleSizeMeans()}},
+\code{\link[=getSampleSizeRates]{getSampleSizeRates()}}
 }
 \concept{sample size functions}

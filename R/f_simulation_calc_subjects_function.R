@@ -1,17 +1,20 @@
 ## |
-## |  *User defined calc subjects function for simulation*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 C_SIMULATION_CALC_SUBJECTS_FUNCTION_BASE_MEANS_ARGUMENTS <- list(
@@ -206,12 +209,15 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
     language <- match.arg(language)
     x1 <- regexpr(pattern, cmd)
     if (x1 == -1) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
+        stopIllegalArgument(
             ifelse(language == "cpp",
                 "the function definition must match 'double myFunctionName(myArgs) { myCode; }'",
                 "the function definition must match 'myFunctionName <- (myArgs) { myCode }'"
-            )
+            ),
+            functionName = ".regexprCalcSubjectsFunction",
+            parameter = "cmd", value = cmd,
+            relatedParameter = "language",
+            relatedValue = language
         )
     }
     len <- attr(x1, "match.length")
@@ -241,11 +247,16 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
     args <- args[args != "..."]
     if (!all(args %in% validArgs)) {
         invalidArgs <- args[!(args %in% validArgs)]
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "the argument", ifelse(length(invalidArgs) == 1, "", "s"),
-            " ", .arrayToString(invalidArgs, encapsulate = TRUE), " ",
+        stopIllegalArgument(
+            "the argument", ifelse(length(invalidArgs) == 1, "", "s"), " ",
+            .arrayToString(invalidArgs, encapsulate = TRUE), " ",
             ifelse(length(invalidArgs) == 1, "is", "are"), " invalid (the ", length(validArgs),
-            " valid arguments can be found in the reference manual)"
+            " valid arguments can be found in the reference manual)",
+            functionName = ".getCalcSubjectsFunctionRCode",
+            parameter = "invalidArgs",
+            value = invalidArgs,
+            relatedParameter = "validArgs",
+            relatedValue = length(validArgs)
         )
     }
 
@@ -266,7 +277,12 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
 
     cppCodeBody <- paste0(cppCodeBody, collapse = "\n")
     if (!grepl("#include <Rcpp.h>", cppCodeBody)) {
-        stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "'cppCodeBody' must contain '#include <Rcpp.h>'")
+        stopRuntimeIssue(
+            "'cppCodeBody' must contain '#include <Rcpp.h>'",
+            functionName = ".getCalcSubjectsFunctionCppCode",
+            parameter = "cppCodeBody",
+            relatedParameter = "#include <Rcpp.h>"
+        )
     }
 
     cmd <- paste0(cmd, collapse = "\n")
@@ -285,11 +301,14 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
 
     if (!all(args %in% validArgs)) {
         invalidArgs <- args[!(args %in% validArgs)]
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "the argument", ifelse(length(invalidArgs) == 1, "", "s"),
-            " ", .arrayToString(invalidArgs, encapsulate = TRUE), " ",
-            ifelse(length(invalidArgs) == 1, "is", "are"), " invalid (the ", length(validArgs),
-            " valid arguments can be found in the reference manual)"
+        stopIllegalArgument("the argument", ifelse(length(invalidArgs) == 1, "", "s"), " ", .arrayToString(invalidArgs,
+            encapsulate = TRUE
+        ), " ", ifelse(length(invalidArgs) == 1, "is", "are"), " invalid (the ", length(validArgs),
+        " valid arguments can be found in the reference manual)",
+        functionName = ".getCalcSubjectsFunctionCppCode",
+        parameter = "invalidArgs", value = invalidArgs,
+        relatedParameter = "validArgs",
+        relatedValue = length(validArgs)
         )
     }
 
@@ -307,7 +326,8 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
     return(calcSubjectsFunctionCode)
 }
 
-.getCalcSubjectsFunction <- function(...,
+.getCalcSubjectsFunction <- function(
+        ...,
         design,
         simulationResults,
         calcFunction,
@@ -328,9 +348,10 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
         cppCodeBodyType <- C_SIMULATION_CALC_SUBJECTS_FUNCTION_BASE_SURVIVAL
     }
     if (is.na(cppCodeBodyType)) {
-        stop(
-            C_EXCEPTION_TYPE_RUNTIME_ISSUE, ".getCalcSubjectsFunction() is not implemented for object ",
-            class(simulationResults)[1]
+        stopRuntimeIssue(
+            ".getCalcSubjectsFunction() is not implemented for object ",
+            .getClassName(simulationResults),
+            functionName = ".getCalcSubjectsFunction"
         )
     }
 
@@ -340,7 +361,7 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
 
     if (design$kMax == 1) {
         if (!is.null(calcFunction)) {
-            warning("'", functionFieldName, "' will be ignored for fixed sample design", call. = FALSE)
+            warnArgumentIgnoredFixedDesign(functionFieldName)
         }
         simulationResults$.setParameterType(functionFieldName, C_PARAM_NOT_APPLICABLE)
         return(list(
@@ -383,11 +404,10 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
     }
 
     if (!is.character(calcFunction)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "'", functionFieldName, "' must be a function or a character ",
+        stopIllegalArgument(.pQuote(functionFieldName), " must be a function or a character ",
             "string specifying a function written in R/C++/Rcpp",
-            call. = FALSE
+            functionName = ".getCalcSubjectsFunction",
+            parameter = functionFieldName
         )
     }
 
@@ -396,9 +416,17 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
             {
                 if (.isPackageInstalled("pkgbuild") &&
                         !isTRUE(eval(parse(text = "pkgbuild::has_build_tools(debug = FALSE)")))) {
-                    stop("no C++ compiler found", ifelse(.Platform$OS.type == "windows",
-                        " (install RTools to solve the issue)", ""
-                    ))
+                    stopRuntimeIssue(
+                        "no C++ compiler found", ifelse(.Platform$OS.type == "windows",
+                            " (install RTools to solve the issue)",
+                            ""
+                        ),
+                        parameter = "calcFunction",
+                        value = calcFunction,
+                        constraint = "available C++ compiler",
+                        functionName = ".getCalcSubjectsFunction",
+                        diagnosticId = "simulation.cpp_toolchain_missing"
+                    )
                 }
 
                 survivalEnabled <- inherits(simulationResults, "SimulationResultsSurvival")
@@ -412,18 +440,27 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
                 ))
                 functionName <- result$functions
                 if (length(functionName) == 0) {
-                    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, "C++ compilation returned an unexpected value")
+                    stopRuntimeIssue("C++ compilation returned an unexpected value",
+                        functionName = ".getCalcSubjectsFunction"
+                    )
                 }
                 if (functionName != expectedFunctionName) {
-                    stop(
-                        C_EXCEPTION_TYPE_RUNTIME_ISSUE, "C++ compilation returned an unexpected ",
-                        "function name (", sQuote(functionName), " instead of ", sQuote(expectedFunctionName), ")"
+                    stopRuntimeIssue(
+                        "C++ compilation returned an unexpected ",
+                        "function name (", sQuote(functionName),
+                        " instead of ", sQuote(expectedFunctionName), ")",
+                        functionName = ".getCalcSubjectsFunction",
+                        parameter = functionName,
+                        relatedParameter = expectedFunctionName
                     )
                 }
 
                 simulationResults[[functionFieldName]] <- calcFunction
                 if (!exists(functionName)) {
-                    stop(C_EXCEPTION_TYPE_RUNTIME_ISSUE, sQuote(functionName), " is missing")
+                    stopRuntimeIssue(sQuote(functionName), " is missing",
+                        functionName = ".getCalcSubjectsFunction",
+                        parameter = functionName
+                    )
                 }
                 if (survivalEnabled) {
                     return(list(
@@ -449,7 +486,14 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
                     ),
                     verbose = FALSE, showOutput = TRUE
                 )
-                stop("Failed to compile '", functionFieldName, "': ", e$message, call. = FALSE)
+                stopRuntimeIssue(
+                    "Failed to compile ", .pQuote(functionFieldName), ": ", e$message,
+                    parameter = functionFieldName,
+                    value = calcFunction,
+                    constraint = "valid compilable C++ code",
+                    functionName = ".getCalcSubjectsFunction",
+                    diagnosticId = "simulation.callback_compilation_failed"
+                )
             }
         )
     }
@@ -465,7 +509,14 @@ C_SIMULATION_CALC_SUBJECTS_FUNCTION_ARGUMENTS[[C_SIMULATION_CALC_SUBJECTS_FUNCTI
             ))
         },
         error = function(e) {
-            stop("Failed to evaluate and parse '", functionFieldName, "': ", e$message, call. = FALSE)
+            stopRuntimeIssue(
+                "Failed to evaluate and parse ", .pQuote(functionFieldName), ": ", e$message,
+                parameter = functionFieldName,
+                value = calcFunction,
+                constraint = "valid R function code",
+                functionName = ".getCalcSubjectsFunction",
+                diagnosticId = "simulation.callback_parse_failed"
+            )
         }
     )
 

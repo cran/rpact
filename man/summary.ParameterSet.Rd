@@ -26,7 +26,8 @@ that a warning will be displayed if unknown arguments are passed.}
 
 \item{printObject}{Show also the print output after the summary, default is \code{FALSE}.}
 
-\item{sep}{The separator line between the summary and the optional print output, default is \code{"\n\n-----\n\n"}.}
+\item{sep}{The separator line between the summary and the
+optional print output, default is \code{"\n\n-----\n\n"}.}
 }
 \value{
 Returns a \code{\link{SummaryFactory}} object.
@@ -49,7 +50,7 @@ The following options can be set globally:
 \item \code{rpact.summary.output.size}: one of \code{c("small", "medium", "large")};
 defines how many details will be included into the summary;
 default is \code{"large"}, i.e., all available details are displayed.
-\item \code{rpact.summary.justify}: one of \code{c("right", "left", "centre")};
+\item \code{rpact.summary.justify}: one of \code{c("right", "left", "center")};
 shall the values be right-justified (the default), left-justified or centered.
 \item \code{rpact.summary.width}: defines the maximum number of characters to be used per line (default is \code{83}).
 \item \code{rpact.summary.intervalFormat}: defines how intervals will be displayed in the summary,

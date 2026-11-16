@@ -36,7 +36,7 @@ The argument must be a vector with length equal to the number of remaining stage
 the combined sample size from both treatment groups if two groups are considered. For survival outcomes,
 it should contain the planned number of additional events.
 For multi-arm designs, it is the per-comparison (combined) sample size.
-For enrichment designs, it is the (combined) sample size for the considered sub-population.}
+For enrichment designs, it is the (combined) sample size for the considered subpopulation.}
 
 \item{allocationRatioPlanned}{The planned allocation ratio \code{n1 / n2} for a two treatment groups
 design, default is \code{1}. For multi-arm designs, it is the allocation ratio relating the active arm(s) to the control.
@@ -108,16 +108,16 @@ getConditionalPower(stageResults, thetaH1 = -0.4,
 \code{\link[=plot.StageResults]{plot.StageResults()}} or \code{\link[=plot.AnalysisResults]{plot.AnalysisResults()}}
 for plotting the conditional power.
 
-Other analysis functions: 
-\code{\link{getAnalysisResults}()},
-\code{\link{getClosedCombinationTestResults}()},
-\code{\link{getClosedConditionalDunnettTestResults}()},
-\code{\link{getConditionalRejectionProbabilities}()},
-\code{\link{getFinalConfidenceInterval}()},
-\code{\link{getFinalPValue}()},
-\code{\link{getRepeatedConfidenceIntervals}()},
-\code{\link{getRepeatedPValues}()},
-\code{\link{getStageResults}()},
-\code{\link{getTestActions}()}
+Other analysis functions:
+\code{\link[=getAnalysisResults]{getAnalysisResults()}},
+\code{\link[=getClosedCombinationTestResults]{getClosedCombinationTestResults()}},
+\code{\link[=getClosedConditionalDunnettTestResults]{getClosedConditionalDunnettTestResults()}},
+\code{\link[=getConditionalRejectionProbabilities]{getConditionalRejectionProbabilities()}},
+\code{\link[=getFinalConfidenceInterval]{getFinalConfidenceInterval()}},
+\code{\link[=getFinalPValue]{getFinalPValue()}},
+\code{\link[=getRepeatedConfidenceIntervals]{getRepeatedConfidenceIntervals()}},
+\code{\link[=getRepeatedPValues]{getRepeatedPValues()}},
+\code{\link[=getStageResults]{getStageResults()}},
+\code{\link[=getTestActions]{getTestActions()}}
 }
 \concept{analysis functions}

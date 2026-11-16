@@ -1,17 +1,20 @@
 ## |
-## |  *Analysis of survival in enrichment designs with adaptive test*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_logger.R
@@ -32,7 +35,8 @@ NULL
 #'
 #' @noRd
 #'
-.calcSurvivalTestStatistics <- function(dataInput,
+.calcSurvivalTestStatistics <- function(
+        dataInput,
         subset,
         stage,
         thetaH0,
@@ -120,11 +124,12 @@ NULL
     ))
 }
 
-.getStageResultsSurvivalEnrichment <- function(...,
+.getStageResultsSurvivalEnrichment <- function(
+        ...,
         design,
         dataInput,
         thetaH0 = NA_real_,
-        directionUpper = C_DIRECTION_UPPER_DEFAULT,
+        directionUpper = NA,
         stratifiedAnalysis = C_STRATIFIED_ANALYSIS_DEFAULT,
         intersectionTest = C_INTERSECTION_TEST_ENRICHMENT_DEFAULT,
         calculateSingleStepAdjusted = FALSE,
@@ -154,26 +159,24 @@ NULL
     .assertIsValidIntersectionTestEnrichment(design, intersectionTest)
 
     if (gMax > 2 && intersectionTest == "SpiessensDebois") {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "gMax (", gMax,
-            ") > 2: Spiessens & Debois intersection test test can only be used for one subset",
-            call. = FALSE
+        stopIllegalArgument("gMax (", gMax, ") > 2: Spiessens & Debois intersection test test can only be used for one subset",
+            functionName = ".getStageResultsSurvivalEnrichment",
+            parameter = "gMax", value = gMax,
+            diagnosticId = "enrichment.spiessens_debois_population_limit"
         )
     }
 
     if (!stratifiedAnalysis) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "only stratified analysis can be performed for enrichment survival designs",
-            call. = FALSE
+        stopIllegalArgument("only stratified analysis can be performed for enrichment survival designs",
+            functionName = ".getStageResultsSurvivalEnrichment",
+            diagnosticId = "enrichment.stratification_required"
         )
     }
 
     if (dataInput$isStratified() && gMax > 4) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "gMax (", gMax,
-            ") > 4: Stratified analysis not implemented",
-            call. = FALSE
+        stopIllegalArgument("gMax (", gMax, ") > 4: Stratified analysis not implemented",
+            functionName = ".getStageResultsSurvivalEnrichment",
+            parameter = "gMax", value = gMax
         )
     }
 
@@ -182,11 +185,17 @@ NULL
         dataInput = dataInput,
         intersectionTest = intersectionTest,
         thetaH0 = thetaH0,
-        direction = ifelse(!isFALSE(directionUpper), C_DIRECTION_UPPER, C_DIRECTION_LOWER),
-        directionUpper = directionUpper,
         stratifiedAnalysis = stratifiedAnalysis,
         stage = stage
     )
+    
+    directionUpper <- .setDirectionUpper(
+        stageResults,
+        design,
+        directionUpper,
+        objectType = "analysis",
+        endpoint = "survival",
+        userFunctionCallEnabled = userFunctionCallEnabled)
 
     .setValueAndParameterType(
         stageResults, "stratifiedAnalysis",
@@ -234,10 +243,14 @@ NULL
         combInverseNormal <- matrix(NA_real_, nrow = gMax, ncol = kMax)
         combFisher <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 
+        weightsInverseNormal <- NULL
+        weightsFisher <- NULL
         if (.isTrialDesignInverseNormal(design)) {
             weightsInverseNormal <- stageResults$weightsInverseNormal
         } else if (.isTrialDesignFisher(design)) {
             weightsFisher <- stageResults$weightsFisher
+        } else if (.isTrialDesignFixed(design)) {
+            weightsInverseNormal <- 1
         }
 
         for (k in 1:stage) {
@@ -271,7 +284,7 @@ NULL
                         )
                     }
                 }
-                if (.isTrialDesignInverseNormal(design)) {
+                if (.isTrialDesignInverseNormalOrFixed(design)) {
                     combInverseNormal[population, k] <- (weightsInverseNormal[1:k] %*%
                         .getOneMinusQNorm(singleStepAdjustedPValues[population, 1:k])) /
                         sqrt(sum(weightsInverseNormal[1:k]^2))
@@ -291,7 +304,7 @@ NULL
         if (.isTrialDesignFisher(design)) {
             stageResults$combFisher <- combFisher
             stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
-        } else if (.isTrialDesignInverseNormal(design)) {
+        } else if (.isTrialDesignInverseNormalOrFixed(design)) {
             stageResults$combInverseNormal <- combInverseNormal
             stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
         }
@@ -307,7 +320,7 @@ NULL
 }
 
 .getAnalysisResultsSurvivalEnrichment <- function(..., design, dataInput) {
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getAnalysisResultsSurvivalInverseNormalEnrichment(
             design = design, dataInput = dataInput, ...
         ))
@@ -322,8 +335,10 @@ NULL
     .stopWithWrongDesignMessageEnrichment(design)
 }
 
-.getAnalysisResultsSurvivalInverseNormalEnrichment <- function(...,
-        design, dataInput,
+.getAnalysisResultsSurvivalInverseNormalEnrichment <- function(
+        ...,
+        design,
+        dataInput,
         intersectionTest = C_INTERSECTION_TEST_ENRICHMENT_DEFAULT,
         directionUpper = NA,
         stratifiedAnalysis = C_STRATIFIED_ANALYSIS_DEFAULT,
@@ -332,7 +347,7 @@ NULL
         nPlanned = NA_real_,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
         tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
-    .assertIsTrialDesignInverseNormal(design)
+    .assertIsTrialDesignInverseNormalOrFixed(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsSurvivalInverseNormalEnrichment",
@@ -362,7 +377,8 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsSurvivalFisherEnrichment <- function(...,
+.getAnalysisResultsSurvivalFisherEnrichment <- function(
+        ...,
         design,
         dataInput,
         intersectionTest = C_INTERSECTION_TEST_ENRICHMENT_DEFAULT,
@@ -412,7 +428,8 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsSurvivalEnrichmentAll <- function(...,
+.getAnalysisResultsSurvivalEnrichmentAll <- function(
+        ...,
         results,
         design,
         dataInput,
@@ -445,7 +462,7 @@ NULL
     thetaH1 <- .assertIsValidThetaH1ForEnrichment(thetaH1, stageResults, stage, results = results)
 
     .setValueAndParameterType(results, "intersectionTest", intersectionTest, C_INTERSECTION_TEST_ENRICHMENT_DEFAULT)
-    .setValueAndParameterType(results, "directionUpper", directionUpper, C_DIRECTION_UPPER_DEFAULT)
+    .setValueAndParameterType(results, "directionUpper", directionUpper, C_DIRECTION_UPPER_SURVIVAL_DEFAULT)
     .setValueAndParameterType(results, "stratifiedAnalysis", stratifiedAnalysis, C_STRATIFIED_ANALYSIS_DEFAULT)
     .setValueAndParameterType(results, "thetaH0", thetaH0, C_THETA_H0_MEANS_DEFAULT)
     .setConditionalPowerArguments(results, dataInput, nPlanned, allocationRatioPlanned)
@@ -531,7 +548,8 @@ NULL
     return(results)
 }
 
-.getRootThetaSurvivalEnrichment <- function(...,
+.getRootThetaSurvivalEnrichment <- function(
+        ...,
         design,
         dataInput,
         treatmentArm,
@@ -565,7 +583,8 @@ NULL
     return(result)
 }
 
-.getUpperLowerThetaSurvivalEnrichment <- function(...,
+.getUpperLowerThetaSurvivalEnrichment <- function(
+        ...,
         design,
         dataInput,
         theta,
@@ -607,16 +626,15 @@ NULL
         firstValue <- stageResults[[firstParameterName]][treatmentArm, stage]
         maxSearchIterations <- maxSearchIterations - 1
         if (maxSearchIterations < 0) {
-            stop(
-                C_EXCEPTION_TYPE_RUNTIME_ISSUE,
+            stopRuntimeIssue(
                 sprintf(
                     paste0(
                         "failed to find theta (k = %s, firstValue = %s, ",
                         "secondValue = %s, levels(firstValue) = %s, theta = %s)"
                     ),
-                    stage, stageResults[[firstParameterName]][treatmentArm, stage], secondValue,
-                    firstValue, theta
-                )
+                    stage, stageResults[[firstParameterName]][treatmentArm, stage], secondValue, firstValue, theta
+                ),
+                functionName = ".getUpperLowerThetaSurvivalEnrichment"
             )
         }
     }
@@ -624,7 +642,8 @@ NULL
     return(theta)
 }
 
-.getRepeatedConfidenceIntervalsSurvivalEnrichmentAll <- function(...,
+.getRepeatedConfidenceIntervalsSurvivalEnrichmentAll <- function(
+        ...,
         design,
         dataInput,
         directionUpper = NA,
@@ -655,8 +674,8 @@ NULL
         bounds <- design$alpha0Vec
         border <- C_ALPHA_0_VEC_DEFAULT
         conditionFunction <- .isFirstValueSmallerThanSecondValue
-    } else if (.isTrialDesignInverseNormal(design)) {
-        bounds <- design$futilityBounds
+    } else if (.isTrialDesignInverseNormalOrFixed(design)) {
+        bounds <- .getFutilityBounds(design)
         border <- C_FUTILITY_BOUNDS_DEFAULT
         criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
         criticalValues[is.infinite(criticalValues) & criticalValues < 0] <- C_QNORM_MINIMUM
@@ -664,8 +683,10 @@ NULL
     }
 
     if (anyNA(criticalValues[1:stage])) {
-        warning("Repeated confidence intervals not because ", sum(is.na(criticalValues)),
-            " critical values are NA (", .arrayToString(criticalValues), ")"
+        warnResultUnavailable(
+            "Repeated confidence intervals not because ", sum(is.na(criticalValues)),
+            " critical values are NA (", .arrayToString(criticalValues), ")",
+            diagnosticId = "analysis.repeated_intervals_missing_critical_values"
         )
         return(repeatedConfidenceIntervals)
     }
@@ -809,7 +830,8 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsSurvivalEnrichmentInverseNormal <- function(...,
+.getRepeatedConfidenceIntervalsSurvivalEnrichmentInverseNormal <- function(
+        ...,
         design,
         dataInput,
         directionUpper = NA,
@@ -842,7 +864,8 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsSurvivalEnrichmentFisher <- function(...,
+.getRepeatedConfidenceIntervalsSurvivalEnrichmentFisher <- function(
+        ...,
         design,
         dataInput,
         directionUpper = NA,
@@ -876,7 +899,7 @@ NULL
 #' @noRd
 #'
 .getRepeatedConfidenceIntervalsSurvivalEnrichment <- function(..., design) {
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getRepeatedConfidenceIntervalsSurvivalEnrichmentInverseNormal(design = design, ...))
     }
 
@@ -892,7 +915,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerSurvivalEnrichment <- function(...,
+.getConditionalPowerSurvivalEnrichment <- function(
+        ...,
         stageResults,
         stage = stageResults$stage,
         nPlanned,
@@ -943,19 +967,29 @@ NULL
     thetaH1 <- .assertIsValidThetaH1ForEnrichment(thetaH1, stageResults, stage, results = results)
 
     if (any(thetaH1 <= 0, na.rm = TRUE)) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'thetaH1' (", thetaH1, ") must be > 0", call. = FALSE)
+        stopIllegalArgument("'thetaH1' (", thetaH1, ") must be > 0",
+            functionName = ".getConditionalPowerSurvivalEnrichment",
+            parameter = "thetaH1", value = thetaH1
+        )
     }
     if ((length(thetaH1) != 1) && (length(thetaH1) != gMax)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            sprintf(paste0(
-                "length of 'thetaH1' (%s) must be ",
-                "equal to 'gMax' (%s) or 1"
-            ), .arrayToString(thetaH1), gMax)
+        stopIllegalArgument(
+            sprintf(
+                paste0(
+                    "length of 'thetaH1' (%s) must be ",
+                    "equal to 'gMax' (%s) or 1"
+                ),
+                .arrayToString(thetaH1), gMax
+            ),
+            functionName = ".getConditionalPowerSurvivalEnrichment",
+            parameter = "thetaH1",
+            value = thetaH1,
+            relatedParameter = "gMax",
+            relatedValue = gMax
         )
     }
 
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getConditionalPowerSurvivalEnrichmentInverseNormal(
             results = results,
             design = design,
@@ -980,10 +1014,10 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-        "'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher",
-        call. = FALSE
+    stopIllegalArgument("'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher",
+        functionName = ".getConditionalPowerSurvivalEnrichment",
+        parameter = "design",
+        diagnosticId = "validation.design_class_incompatible"
     )
 }
 
@@ -992,7 +1026,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerSurvivalEnrichmentInverseNormal <- function(...,
+.getConditionalPowerSurvivalEnrichmentInverseNormal <- function(
+        ...,
         results,
         design,
         stageResults,
@@ -1021,11 +1056,11 @@ NULL
         results$.setParameterType("thetaH1", C_PARAM_DEFAULT_VALUE)
     }
 
-    if (stageResults$directionUpper) {
-        standardizedEffect <- log(thetaH1 / stageResults$thetaH0)
-    } else {
-        standardizedEffect <- -log(thetaH1 / stageResults$thetaH0)
+    standardizedEffect <- log(thetaH1 / stageResults$thetaH0)
+    if (isFALSE(stageResults$directionUpper)) {
+        standardizedEffect <- -standardizedEffect
     }
+    
     ctr <- .performClosedCombinationTest(stageResults = stageResults)
     criticalValues <- .getCriticalValues(design)
     for (population in 1:gMax) {
@@ -1043,7 +1078,7 @@ NULL
             if (stage == kMax - 1) {
                 shiftedFutilityBounds <- c()
             } else {
-                shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] *
+                shiftedFutilityBounds <- .getFutilityBounds(design, (stage + 1):(kMax - 1)) *
                     sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):(kMax - 1)]^2)) /
                     sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) -
                     min(ctr$overallAdjustedTestStatistics[ctr$indices[, population] == 1, stage], na.rm = TRUE) *
@@ -1086,7 +1121,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerSurvivalEnrichmentFisher <- function(...,
+.getConditionalPowerSurvivalEnrichmentFisher <- function(
+        ...,
         results,
         design,
         stageResults,
@@ -1119,11 +1155,11 @@ NULL
         results$.setParameterType("thetaH1", C_PARAM_DEFAULT_VALUE)
     }
 
-    if (stageResults$directionUpper) {
-        standardizedEffect <- log(thetaH1 / stageResults$thetaH0)
-    } else {
-        standardizedEffect <- -log(thetaH1 / stageResults$thetaH0)
+    standardizedEffect <- log(thetaH1 / stageResults$thetaH0)
+    if (isFALSE(stageResults$directionUpper)) {
+        standardizedEffect <- -standardizedEffect
     }
+    
     nPlanned <- c(rep(NA_real_, stage), nPlanned)
     nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
     ctr <- .performClosedCombinationTest(stageResults = stageResults)
@@ -1161,7 +1197,9 @@ NULL
                 result <- 1 - (criticalValues[kMax] / divisor)^(1 / weightsFisher[kMax])
 
                 if (result <= 0 || result >= 1) {
-                    warning("Calculation not possible: could not calculate conditional power for stage ", kMax, call. = FALSE)
+                    warnNumericalIssue("Calculation not possible: could not calculate conditional power for stage ", kMax,
+                        diagnosticId = "analysis.conditional_power_calculation_failed"
+                    )
                     results$conditionalPower[population, kMax] <- NA_real_
                 } else {
                     results$conditionalPower[population, kMax] <- 1 - stats::pnorm(.getQNorm(result) -
@@ -1185,7 +1223,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerLikelihoodSurvivalEnrichment <- function(...,
+.getConditionalPowerLikelihoodSurvivalEnrichment <- function(
+        ...,
         stageResults,
         stage,
         nPlanned,
@@ -1207,10 +1246,9 @@ NULL
     thetaRange <- .assertIsValidThetaH1ForEnrichment(thetaH1 = thetaRange)
 
     if (length(thetaRange) == 1) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "length of 'thetaRange' (", .arrayToString(thetaRange), ") must be at least 2",
-            call. = FALSE
+        stopIllegalArgument("length of 'thetaRange' (", .arrayToString(thetaRange), ") must be at least 2",
+            functionName = ".getConditionalPowerLikelihoodSurvivalEnrichment",
+            parameter = "thetaRange", value = thetaRange
         )
     }
 
@@ -1234,7 +1272,7 @@ NULL
             populations[j] <- population
             effectValues[j] <- thetaRange[i]
 
-            if (.isTrialDesignInverseNormal(design)) {
+            if (.isTrialDesignInverseNormalOrFixed(design)) {
                 condPowerValues[j] <- .getConditionalPowerSurvivalEnrichmentInverseNormal(
                     results = results,
                     design = design,

@@ -1,20 +1,21 @@
-/**
- *
- * -- Simulation of rates with group sequential and combination test --
- *
- * This file is part of the R package rpact:
- * Confirmatory Adaptive Clinical Trial Design and Analysis
- *
- * Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
- * Licensed under "GNU Lesser General Public License" version 3
- * License text can be found here: https://www.r-project.org/Licenses/LGPL-3
- *
- * RPACT company website: https://www.rpact.com
- * rpact package website: https://www.rpact.org
- *
- * Contact us for information about our services: info@rpact.com
- *
- */
+// |
+// |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+// |  This file is part of the rpact R package.
+// |
+// |  RPACT — Statistical Tools for Drug Development
+// |
+// |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+// |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+// |  SPDX-License-Identifier: LGPL-3.0-only
+// |
+// |  Licensed under the GNU Lesser General Public License, version 3.
+// |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
+// |
+// |  Package documentation: https://www.rpact.org
+// |  Resources and customer portal: https://connect.rpact.app
+// |  Consulting and services: https://www.rpact.com
+// |  Contact: info@rpact.com
+// |
 
 #include <Rcpp.h>
 
@@ -116,7 +117,7 @@ List getTestStatisticsRatesCpp(int designNumber, NumericVector informationRates,
 		}
 	}
 
-	if (designNumber == 1L) {
+	if (designNumber <= 1L) { // fixed or group sequential design
 		double n1 = sum(sampleSizesPerStage(0, _));
 		double e1 = sum(eventsPerStage(0, _));
 		double r1 = e1 / n1;
@@ -264,7 +265,7 @@ List getTestStatisticsRatesCpp(int designNumber, NumericVector informationRates,
 			}
 		}
 
-		if (designNumber == 2L) {
+		if (designNumber == 2L) { // inverse normal design
 			if (stage == 1) {
 				value = testStatisticsPerStage[0];
 			} else {
@@ -274,7 +275,7 @@ List getTestStatisticsRatesCpp(int designNumber, NumericVector informationRates,
 						rangeVector(testStatisticsPerStage, 1, stage - 1)))
 					/ sqrt((double) informationRates[stage - 1]);
 			}
-		} else if (designNumber == 3L) {
+		} else if (designNumber == 3L) { // Fisher's design
 			if (stage == 1) {
 				value = getOneMinusPNorm((double) testStatisticsPerStage[0]);
 			} else {
@@ -428,7 +429,7 @@ List getSimulationStepRatesCpp(int k, int kMax, int designNumber, NumericVector 
 		}
 
 		// conditional critical value to reject the null hypotheses at the next stage of the trial
-		if (designNumber == 3L) {
+		if (designNumber == 3L) { // Fisher's design
 			conditionalCriticalValue = getConditionalCriticalValueFisher(
 					criticalValues,
 					testStatistic,
@@ -569,7 +570,7 @@ List getSimulationStepRatesCpp(int k, int kMax, int designNumber, NumericVector 
 		criticalValue = criticalValues[k - 1];
 	}
 
-	if (designNumber == 3L) {
+	if (designNumber == 3L) { // Fisher's design
 		if (!R_IsNA(testStatisticValue) && !R_IsNA(criticalValue)
 				&& testStatisticValue <= criticalValue) {
 			simulatedRejections = 1;
@@ -699,7 +700,7 @@ List getSimulationRatesCpp(
 	NumericVector dataConditionalPowerAchieved = rep(NA_REAL, dataLen);
 	NumericVector dataPValuesSeparate;
 
-	if (designNumber != 1L) {
+	if (designNumber > 1L) { // only for inverse normal combination test and Fisher's combination test
 		dataPValuesSeparate = rep(NA_REAL, dataLen);
 	}
 
@@ -800,7 +801,7 @@ List getSimulationRatesCpp(
 					}
 					dataTrialStop[index - 1] = trialStop;
 					dataConditionalPowerAchieved[index - 1] = simulatedConditionalPowerStep;
-					if (designNumber != 1L) {
+					if (designNumber > 1L) { // only for inverse normal combination test and Fisher's combination test
 						dataPValuesSeparate[index - 1] = as<NumericVector>(testStatistic["pValuesSeparate"])[k - 1];
 					}
 					index++;
@@ -867,7 +868,7 @@ List getSimulationRatesCpp(
 		_["trialStop"] = dataTrialStop,
 		_["conditionalPowerAchieved"] = round(dataConditionalPowerAchieved, 6));
 
-	if (designNumber != 1L) {
+	if (designNumber > 1L) { // only for inverse normal combination test and Fisher's combination test
 		data["pValue"] = dataPValuesSeparate;
 		data = Rcpp::DataFrame(data);
 	}

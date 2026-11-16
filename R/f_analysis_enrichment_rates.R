@@ -1,23 +1,47 @@
 ## |
-## |  *Analysis of rates in enrichment designs with adaptive test*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 #' @include f_logger.R
 NULL
 
-.calcRatesTestStatistics <- function(dataInput,
+.getStandardizedEffectRatesEnrichment <- function(
+        piTreatments,
+        piControls,
+        thetaH0,
+        allocationRatioPlanned,
+        directionUpper,
+        adjustment = 0) {
+    standardizedEffect <- (piTreatments - piControls - thetaH0) /
+        sqrt(
+            piTreatments * (1 - piTreatments) +
+                allocationRatioPlanned * piControls * (1 - piControls)
+        ) * sqrt(1 + allocationRatioPlanned)
+
+    if (isFALSE(directionUpper)) {
+        standardizedEffect <- -standardizedEffect
+    }
+
+    return(standardizedEffect + adjustment)
+}
+
+.calcRatesTestStatistics <- function(
+        dataInput,
         subset,
         stage,
         thetaH0,
@@ -122,10 +146,10 @@ NULL
                 )
             } else {
                 if (thetaH0 != 0) {
-                    stop(
-                        C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
-                        "'thetaH0' (", thetaH0, ") must be 0 to perform Fisher's exact test",
-                        call. = FALSE
+                    stopConflictingArguments("'thetaH0' (", thetaH0, ") must be 0 to perform Fisher's exact test",
+                        functionName = ".calcRatesTestStatistics",
+                        parameter = "thetaH0", value = thetaH0,
+                        diagnosticId = "analysis.exact_test_requires_equality_null"
                     )
                 }
 
@@ -175,11 +199,12 @@ NULL
     ))
 }
 
-.getStageResultsRatesEnrichment <- function(...,
+.getStageResultsRatesEnrichment <- function(
+        ...,
         design,
         dataInput,
         thetaH0 = NA_real_,
-        directionUpper = C_DIRECTION_UPPER_DEFAULT,
+        directionUpper = NA,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
         stratifiedAnalysis = C_STRATIFIED_ANALYSIS_DEFAULT,
         intersectionTest = C_INTERSECTION_TEST_ENRICHMENT_DEFAULT,
@@ -211,42 +236,39 @@ NULL
     .assertIsValidIntersectionTestEnrichment(design, intersectionTest)
 
     if ((gMax > 2) && intersectionTest == "SpiessensDebois") {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "gMax (", gMax,
-            ") > 2: Spiessens & Debois intersection test test can only be used for one subset",
-            call. = FALSE
+        stopIllegalArgument("gMax (", gMax, ") > 2: Spiessens & Debois intersection test test can only be used for one subset",
+            functionName = ".getStageResultsRatesEnrichment",
+            parameter = "gMax", value = gMax,
+            diagnosticId = "enrichment.spiessens_debois_population_limit"
         )
     }
 
     if (intersectionTest == "SpiessensDebois" && !normalApproximation) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "Spiessens & Debois test cannot be used with Fisher's ",
+        stopIllegalArgument("Spiessens & Debois test cannot be used with Fisher's ",
             "exact test (normalApproximation = FALSE)",
-            call. = FALSE
+            functionName = ".getStageResultsRatesEnrichment",
+            diagnosticId = "analysis.intersection_test_exact_unsupported"
         )
     }
 
     if (stratifiedAnalysis && !normalApproximation) {
-        stop(
-            C_EXCEPTION_TYPE_CONFLICTING_ARGUMENTS,
-            "stratified version is not available for Fisher's exact test",
-            call. = FALSE
+        stopConflictingArguments("stratified version is not available for Fisher's exact test",
+            functionName = ".getStageResultsRatesEnrichment",
+            diagnosticId = "analysis.stratified_exact_unsupported"
         )
     }
 
     if (stratifiedAnalysis && !dataInput$isStratified()) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            "stratified analysis is only possible for stratified data input",
-            call. = FALSE
+        stopIllegalArgument("stratified analysis is only possible for stratified data input",
+            functionName = ".getStageResultsRatesEnrichment",
+            diagnosticId = "analysis.stratified_data_required"
         )
     }
 
     if (dataInput$isStratified() && (gMax > 4)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "gMax (", gMax,
-            ") > 4: stratified analysis not implemented",
-            call. = FALSE
+        stopIllegalArgument("gMax (", gMax, ") > 4: stratified analysis not implemented",
+            functionName = ".getStageResultsRatesEnrichment",
+            parameter = "gMax", value = gMax
         )
     }
 
@@ -254,12 +276,18 @@ NULL
         design = design,
         dataInput = dataInput,
         thetaH0 = thetaH0,
-        direction = ifelse(!isFALSE(directionUpper), C_DIRECTION_UPPER, C_DIRECTION_LOWER),
         normalApproximation = normalApproximation,
-        directionUpper = directionUpper,
         stratifiedAnalysis = stratifiedAnalysis,
         stage = stage
     )
+    
+    directionUpper <- .setDirectionUpper(
+        stageResults,
+        design,
+        directionUpper,
+        objectType = "analysis",
+        endpoint = "rates",
+        userFunctionCallEnabled = userFunctionCallEnabled)
 
     .setValueAndParameterType(
         stageResults, "stratifiedAnalysis",
@@ -322,10 +350,14 @@ NULL
     combInverseNormal <- matrix(NA_real_, nrow = gMax, ncol = kMax)
     combFisher <- matrix(NA_real_, nrow = gMax, ncol = kMax)
 
+    weightsInverseNormal <- NULL
+    weightsFisher <- NULL
     if (.isTrialDesignInverseNormal(design)) {
         weightsInverseNormal <- stageResults$weightsInverseNormal
     } else if (.isTrialDesignFisher(design)) {
         weightsFisher <- stageResults$weightsFisher
+    } else if (.isTrialDesignFixed(design)) {
+        weightsInverseNormal <- 1
     }
 
     for (k in 1:stage) {
@@ -359,7 +391,7 @@ NULL
                     )
                 }
             }
-            if (.isTrialDesignInverseNormal(design)) {
+            if (.isTrialDesignInverseNormalOrFixed(design)) {
                 combInverseNormal[population, k] <- (weightsInverseNormal[1:k] %*%
                     .getOneMinusQNorm(singleStepAdjustedPValues[population, 1:k])) /
                     sqrt(sum(weightsInverseNormal[1:k]^2))
@@ -375,7 +407,7 @@ NULL
     if (.isTrialDesignFisher(design)) {
         stageResults$combFisher <- combFisher
         stageResults$.setParameterType("combFisher", C_PARAM_GENERATED)
-    } else if (.isTrialDesignInverseNormal(design)) {
+    } else if (.isTrialDesignInverseNormalOrFixed(design)) {
         stageResults$combInverseNormal <- combInverseNormal
         stageResults$.setParameterType("combInverseNormal", C_PARAM_GENERATED)
     }
@@ -385,7 +417,7 @@ NULL
 
 
 .getAnalysisResultsRatesEnrichment <- function(..., design, dataInput) {
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getAnalysisResultsRatesInverseNormalEnrichment(design = design, dataInput = dataInput, ...))
     }
 
@@ -396,7 +428,8 @@ NULL
     .stopWithWrongDesignMessageEnrichment(design)
 }
 
-.getAnalysisResultsRatesInverseNormalEnrichment <- function(...,
+.getAnalysisResultsRatesInverseNormalEnrichment <- function(
+        ...,
         design,
         dataInput,
         intersectionTest = C_INTERSECTION_TEST_ENRICHMENT_DEFAULT,
@@ -409,7 +442,7 @@ NULL
         nPlanned = NA_real_,
         allocationRatioPlanned = C_ALLOCATION_RATIO_DEFAULT,
         tolerance = C_ANALYSIS_TOLERANCE_DEFAULT) {
-    .assertIsTrialDesignInverseNormal(design)
+    .assertIsTrialDesignInverseNormalOrFixed(design)
     stage <- .getStageFromOptionalArguments(..., dataInput = dataInput, design = design)
     .warnInCaseOfUnknownArguments(
         functionName = ".getAnalysisResultsRatesInverseNormalEnrichment",
@@ -441,7 +474,8 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsRatesFisherEnrichment <- function(...,
+.getAnalysisResultsRatesFisherEnrichment <- function(
+        ...,
         design,
         dataInput,
         intersectionTest = C_INTERSECTION_TEST_ENRICHMENT_DEFAULT,
@@ -493,7 +527,8 @@ NULL
     return(results)
 }
 
-.getAnalysisResultsRatesEnrichmentAll <- function(...,
+.getAnalysisResultsRatesEnrichmentAll <- function(
+        ...,
         results,
         design,
         dataInput,
@@ -652,7 +687,8 @@ NULL
     return(results)
 }
 
-.getRootThetaRatesEnrichment <- function(...,
+.getRootThetaRatesEnrichment <- function(
+        ...,
         design,
         dataInput,
         population,
@@ -691,8 +727,10 @@ NULL
     return(result)
 }
 
-.getRepeatedConfidenceIntervalsRatesEnrichmentAll <- function(...,
-        design, dataInput,
+.getRepeatedConfidenceIntervalsRatesEnrichmentAll <- function(
+        ...,
+        design,
+        dataInput,
         directionUpper = NA,
         stratifiedAnalysis = C_STRATIFIED_ANALYSIS_DEFAULT,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
@@ -723,8 +761,8 @@ NULL
         border <- C_ALPHA_0_VEC_DEFAULT
         criticalValues <- .getCriticalValues(design)
         conditionFunction <- .isFirstValueSmallerThanSecondValue
-    } else if (.isTrialDesignInverseNormal(design)) {
-        bounds <- design$futilityBounds
+    } else if (.isTrialDesignInverseNormalOrFixed(design)) {
+        bounds <- .getFutilityBounds(design)
         border <- C_FUTILITY_BOUNDS_DEFAULT
         criticalValues <- .getCriticalValues(design)
         criticalValues[is.infinite(criticalValues) & criticalValues > 0] <- C_QNORM_MAXIMUM
@@ -826,7 +864,8 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsRatesEnrichmentInverseNormal <- function(...,
+.getRepeatedConfidenceIntervalsRatesEnrichmentInverseNormal <- function(
+        ...,
         design,
         dataInput,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
@@ -866,7 +905,8 @@ NULL
 #'
 #' @noRd
 #'
-.getRepeatedConfidenceIntervalsRatesEnrichmentFisher <- function(...,
+.getRepeatedConfidenceIntervalsRatesEnrichmentFisher <- function(
+        ...,
         design,
         dataInput,
         normalApproximation = C_NORMAL_APPROXIMATION_RATES_DEFAULT,
@@ -907,7 +947,7 @@ NULL
 #' @noRd
 #'
 .getRepeatedConfidenceIntervalsRatesEnrichment <- function(..., design) {
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getRepeatedConfidenceIntervalsRatesEnrichmentInverseNormal(design = design, ...))
     }
 
@@ -923,7 +963,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerRatesEnrichment <- function(...,
+.getConditionalPowerRatesEnrichment <- function(
+        ...,
         stageResults,
         stage = stageResults$stage,
         nPlanned,
@@ -940,9 +981,10 @@ NULL
     piTreatmentsH1 <- .getOptionalArgument("piTreatmentsH1", ...)
     if (!is.null(piTreatmentsH1) && !is.na(piTreatmentsH1)) {
         if (!is.na(piTreatments)) {
-            warning(sQuote("piTreatments"), " will be ignored because ",
+            warnArgumentIgnored(sQuote("piTreatments"), " will be ignored because ",
                 sQuote("piTreatmentsH1"), " is defined",
-                call. = FALSE
+                parameter = "piTreatments",
+                diagnosticId = "analysis.treatment_probabilities_overridden"
             )
         }
         piTreatments <- piTreatmentsH1
@@ -955,9 +997,10 @@ NULL
     piControlH1 <- .getOptionalArgument("piControlH1", ...)
     if (!is.null(piControlH1) && !is.na(piControlH1)) {
         if (!is.na(piControl)) {
-            warning(sQuote("piControl"), " will be ignored because ",
+            warnArgumentIgnored(sQuote("piControl"), " will be ignored because ",
                 sQuote("piControlH1"), " is defined",
-                call. = FALSE
+                parameter = "piControl",
+                diagnosticId = "analysis.control_alternative_probability_overridden"
             )
         }
         piControl <- piControlH1
@@ -1014,26 +1057,40 @@ NULL
     )
 
     if ((length(piTreatments) != 1) && (length(piTreatments) != gMax)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            sprintf(paste0(
-                "length of 'piTreatments' (%s) ",
-                "must be equal to 'gMax' (%s) or 1"
-            ), .arrayToString(piTreatments), gMax)
+        stopIllegalArgument(
+            sprintf(
+                paste0(
+                    "length of 'piTreatments' (%s) ",
+                    "must be equal to 'gMax' (%s) or 1"
+                ),
+                .arrayToString(piTreatments), gMax
+            ),
+            functionName = ".getConditionalPowerRatesEnrichment",
+            parameter = "piTreatments",
+            value = piTreatments,
+            relatedParameter = "gMax",
+            relatedValue = gMax
         )
     }
 
     if ((length(piControls) != 1) && (length(piControls) != gMax)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-            sprintf(paste0(
-                "length of 'piControls' (%s) ",
-                "must be equal to 'gMax' (%s) or 1"
-            ), .arrayToString(piControls), gMax)
+        stopIllegalArgument(
+            sprintf(
+                paste0(
+                    "length of 'piControls' (%s) ",
+                    "must be equal to 'gMax' (%s) or 1"
+                ),
+                .arrayToString(piControls), gMax
+            ),
+            functionName = ".getConditionalPowerRatesEnrichment",
+            parameter = "piControls",
+            value = piControls,
+            relatedParameter = "gMax",
+            relatedValue = gMax
         )
     }
 
-    if (.isTrialDesignInverseNormal(design)) {
+    if (.isTrialDesignInverseNormalOrFixed(design)) {
         return(.getConditionalPowerRatesEnrichmentInverseNormal(
             results = results,
             design = design,
@@ -1062,10 +1119,10 @@ NULL
         ))
     }
 
-    stop(
-        C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT,
-        "'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher",
-        call. = FALSE
+    stopIllegalArgument("'design' must be an instance of TrialDesignInverseNormal or TrialDesignFisher",
+        functionName = ".getConditionalPowerRatesEnrichment",
+        parameter = "design",
+        diagnosticId = "validation.design_class_incompatible"
     )
 }
 
@@ -1074,7 +1131,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerRatesEnrichmentInverseNormal <- function(...,
+.getConditionalPowerRatesEnrichmentInverseNormal <- function(
+        ...,
         results,
         design,
         stageResults,
@@ -1115,14 +1173,15 @@ NULL
         results$.setParameterType("piTreatments", C_PARAM_DEFAULT_VALUE)
     }
 
-    if (stageResults$directionUpper) {
-        standardizedEffect <- (piTreatments - piControls - stageResults$thetaH0) / sqrt(piTreatments * (1 - piTreatments) +
-            allocationRatioPlanned * piControls * (1 - piControls)) * sqrt(1 + allocationRatioPlanned) + adjustment
-    } else {
-        standardizedEffect <- -(piTreatments - piControls - stageResults$thetaH0) / sqrt(piTreatments * (1 - piTreatments) +
-            allocationRatioPlanned * piControls * (1 - piControls)) * sqrt(1 + allocationRatioPlanned) + adjustment
-    }
-
+    standardizedEffect <- .getStandardizedEffectRatesEnrichment(
+        piTreatments = piTreatments,
+        piControls = piControls,
+        thetaH0 = stageResults$thetaH0,
+        allocationRatioPlanned = allocationRatioPlanned,
+        directionUpper = stageResults$directionUpper,
+        adjustment = adjustment
+    )
+    
     nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 
     ctr <- .performClosedCombinationTest(stageResults = stageResults)
@@ -1143,7 +1202,7 @@ NULL
             if (stage == kMax - 1) {
                 shiftedFutilityBounds <- c()
             } else {
-                shiftedFutilityBounds <- design$futilityBounds[(stage + 1):(kMax - 1)] *
+                shiftedFutilityBounds <- .getFutilityBounds(design, (stage + 1):(kMax - 1)) *
                     sqrt(sum(weights[1:stage]^2) + cumsum(weights[(stage + 1):(kMax - 1)]^2)) /
                     sqrt(cumsum(weights[(stage + 1):(kMax - 1)]^2)) -
                     min(ctr$overallAdjustedTestStatistics[ctr$indices[, population] == 1, stage], na.rm = TRUE) *
@@ -1186,7 +1245,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerRatesEnrichmentFisher <- function(...,
+.getConditionalPowerRatesEnrichmentFisher <- function(
+        ...,
         results,
         design,
         stageResults,
@@ -1241,14 +1301,15 @@ NULL
     } else {
         results$.setParameterType("piTreatments", C_PARAM_DEFAULT_VALUE)
     }
-
-    if (stageResults$directionUpper) {
-        standardizedEffect <- (piTreatments - piControls) / sqrt(piTreatments * (1 - piTreatments) +
-            allocationRatioPlanned * piControls * (1 - piControls)) * sqrt(1 + allocationRatioPlanned) + adjustment
-    } else {
-        standardizedEffect <- -(piTreatments - piControls - stageResults$thetaH0) / sqrt(piTreatments * (1 - piTreatments) +
-            allocationRatioPlanned * piControls * (1 - piControls)) * sqrt(1 + allocationRatioPlanned) + adjustment
-    }
+    
+    standardizedEffect <- .getStandardizedEffectRatesEnrichment(
+        piTreatments = piTreatments,
+        piControls = piControls,
+        thetaH0 = stageResults$thetaH0,
+        allocationRatioPlanned = allocationRatioPlanned,
+        directionUpper = stageResults$directionUpper,
+        adjustment = adjustment
+    )
 
     nPlanned <- allocationRatioPlanned / (1 + allocationRatioPlanned)^2 * nPlanned
 
@@ -1287,9 +1348,9 @@ NULL
                 result <- 1 - (criticalValues[kMax] / divisor)^(1 / weightsFisher[kMax])
 
                 if (result <= 0 || result >= 1) {
-                    warning("Calculation not possible: could not calculate conditional power for stage ",
+                    warnNumericalIssue("Calculation not possible: could not calculate conditional power for stage ",
                         kMax,
-                        call. = FALSE
+                        diagnosticId = "analysis.conditional_power_calculation_failed"
                     )
                     results$conditionalPower[population, kMax] <- NA_real_
                 } else {
@@ -1316,7 +1377,8 @@ NULL
 #'
 #' @noRd
 #'
-.getConditionalPowerLikelihoodRatesEnrichment <- function(...,
+.getConditionalPowerLikelihoodRatesEnrichment <- function(
+        ...,
         stageResults,
         stage,
         nPlanned,
@@ -1366,7 +1428,7 @@ NULL
             populations[j] <- population
             effectValues[j] <- piTreatmentRange[i]
 
-            if (.isTrialDesignInverseNormal(design)) {
+            if (.isTrialDesignInverseNormalOrFixed(design)) {
                 condPowerValues[j] <- .getConditionalPowerRatesEnrichmentInverseNormal(
                     results = results,
                     design = design,

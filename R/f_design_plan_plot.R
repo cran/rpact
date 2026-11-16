@@ -1,17 +1,20 @@
 ## |
-## |  *Trial design plan plot*
+## |  rpact: Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  This file is part of the rpact R package.
 ## |
-## |  This file is part of the R package rpact:
-## |  Confirmatory Adaptive Clinical Trial Design and Analysis
+## |  RPACT — Statistical Tools for Drug Development
 ## |
-## |  Author: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
-## |  Licensed under "GNU Lesser General Public License" version 3
-## |  License text can be found here: https://www.r-project.org/Licenses/LGPL-3
+## |  Authors: Gernot Wassmer, PhD, and Friedrich Pahlke, PhD
+## |  SPDX-FileCopyrightText: RPACT GmbH, Germany <info@rpact.com>
+## |  SPDX-License-Identifier: LGPL-3.0-only
 ## |
-## |  RPACT company website: https://www.rpact.com
-## |  rpact package website: https://www.rpact.org
+## |  Licensed under the GNU Lesser General Public License, version 3.
+## |  License text: https://www.gnu.org/licenses/lgpl-3.0.html
 ## |
-## |  Contact us for information about our services: info@rpact.com
+## |  Package documentation: https://www.rpact.org
+## |  Resources and customer portal: https://connect.rpact.app
+## |  Consulting and services: https://www.rpact.com
+## |  Contact: info@rpact.com
 ## |
 
 
@@ -131,28 +134,28 @@
     if (.isTrialDesignPlanMeans(designPlan)) {
         if (is.null(designPlan$alternative) || anyNA(designPlan$alternative) ||
                 length(designPlan$alternative) <= 1) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType,
-                " is only available if 'alternative' with length > 1 is defined",
-                call. = FALSE
+            stopIllegalArgument("plot type ", plotType, " is only available if 'alternative' with length > 1 is defined",
+                functionName = ".assertIsValidVariedParameterVectorForPlotting",
+                parameter = "alternative",
+                diagnosticId = "plot.multiple_effect_scenarios_required"
             )
         }
     } else if (.isTrialDesignPlanRates(designPlan)) {
         if (is.null(designPlan$pi1) || anyNA(designPlan$pi1) ||
                 length(designPlan$pi1) <= 1) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType,
-                " is only available if 'pi1' with length > 1 is defined",
-                call. = FALSE
+            stopIllegalArgument("plot type ", plotType, " is only available if 'pi1' with length > 1 is defined",
+                functionName = ".assertIsValidVariedParameterVectorForPlotting",
+                parameter = "pi1",
+                diagnosticId = "plot.multiple_effect_scenarios_required"
             )
         }
     } else if (.isTrialDesignPlanSurvival(designPlan)) {
         if (is.null(designPlan$hazardRatio) || anyNA(designPlan$hazardRatio) ||
                 length(designPlan$hazardRatio) <= 1) {
-            stop(
-                C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "plot type ", plotType,
-                " is only available if 'hazardRatio' with length > 1 is defined",
-                call. = FALSE
+            stopIllegalArgument("plot type ", plotType, " is only available if 'hazardRatio' with length > 1 is defined",
+                functionName = ".assertIsValidVariedParameterVectorForPlotting",
+                parameter = "hazardRatio",
+                diagnosticId = "plot.multiple_effect_scenarios_required"
             )
         }
     }
@@ -193,43 +196,67 @@
         return("alphaSpent")
     }
 
-    alphaSpentEnabled <- .getOptionalArgument("showAlphaSpent", ..., optionalArgumentDefaultValue = NA)
-    if (is.na(alphaSpentEnabled)) {
-        alphaSpentEnabled <- isTRUE(as.logical(getOption("rpact.plot.show.alpha.spent", TRUE)))
+    showAlphaSpent <- .getOptionalArgument("showAlphaSpent", ..., optionalArgumentDefaultValue = NA)
+    if (is.na(showAlphaSpent)) {
+        showAlphaSpent <- .getEnvironmentVariable(
+            "RPACT_PLOT_SHOW_ALPHA_SPENT",
+            "rpact.plot.show.alpha.spent",
+            default = TRUE,
+            type = "logical"
+        )
     }
 
-    betaSpentEnabled <- .getOptionalArgument("showBetaSpent", ..., optionalArgumentDefaultValue = NA)
-    if (is.na(betaSpentEnabled)) {
-        betaSpentEnabled <- isTRUE(as.logical(getOption("rpact.plot.show.beta.spent", FALSE)))
+    showBetaSpent <- .getOptionalArgument("showBetaSpent", ..., optionalArgumentDefaultValue = NA)
+    if (is.na(showBetaSpent)) {
+        showBetaSpent <- .getEnvironmentVariable(
+            "RPACT_PLOT_SHOW_BETA_SPENT",
+            "rpact.plot.show.beta.spent",
+            default = FALSE,
+            type = "logical"
+        )
     }
 
     yParameterNames <- character()
-    if (alphaSpentEnabled) {
+    if (showAlphaSpent) {
         yParameterNames <- c(yParameterNames, "alphaSpent")
     }
-    if (betaSpentEnabled) {
+    if (showBetaSpent) {
         yParameterNames <- c(yParameterNames, "betaSpent")
     }
+
     if (length(yParameterNames) == 0) {
         yParameterNames <- "alphaSpent"
-        if (isFALSE(as.logical(getOption("rpact.plot.show.alpha.spent", TRUE))) &&
-                isFALSE(as.logical(getOption("rpact.plot.show.beta.spent", TRUE)))) {
-            warning("Options 'rpact.plot.show.alpha.spent' and ",
+        if (isFALSE(.getEnvironmentVariable(
+                "RPACT_PLOT_SHOW_ALPHA_SPENT",
+                "rpact.plot.show.alpha.spent",
+                default = TRUE,
+                type = "logical"
+            )) &&
+                isFALSE(.getEnvironmentVariable(
+                    "RPACT_PLOT_SHOW_BETA_SPENT",
+                    "rpact.plot.show.beta.spent",
+                    default = FALSE,
+                    type = "logical"
+                ))) {
+            warnArgumentAdjusted("Options 'rpact.plot.show.alpha.spent' and ",
                 "'rpact.plot.show.beta.spent' are both FALSE; ",
                 "'alphaSpent' will be shown",
-                call. = FALSE
+                parameter = "rpact.plot.show.beta.spent",
+                diagnosticId = "plot.spending_curve_selected"
             )
         } else {
-            warning("'showAlphaSpent' and 'showBetaSpent' are both FALSE; ",
+            warnArgumentAdjusted("'showAlphaSpent' and 'showBetaSpent' are both FALSE; ",
                 "'alphaSpent' will be shown",
-                call. = FALSE
+                parameter = "showAlphaSpent",
+                diagnosticId = "plot.spending_curve_selected"
             )
         }
     }
     return(yParameterNames)
 }
 
-.plotTrialDesignPlan <- function(designPlan,
+.plotTrialDesignPlan <- function(
+        designPlan,
         type = 1L,
         main = NA_character_,
         xlab = NA_character_,
@@ -237,7 +264,7 @@
         palette = "Set1",
         theta = NA_real_,
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         designPlanName = NA_character_,
         plotSettings = NULL,
@@ -246,16 +273,8 @@
     .assertIsTrialDesignPlan(designPlan)
     .assertIsValidLegendPosition(legendPosition)
     .assertIsSingleInteger(type, "type", naAllowed = FALSE, validateType = FALSE)
-
-    availablePlotTypes <- getAvailablePlotTypes(designPlan, output = "numeric", numberInCaptionEnabled = FALSE)
-    if (!(type %in% availablePlotTypes)) {
-        stop(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type,
-            ") is not available; 'type' can ", ifelse(length(availablePlotTypes) == 1, "only ", ""),
-            "be ", .arrayToString(availablePlotTypes, mode = "or")
-        )
-    }
-
+    type <- .assertIsAvailablePlotType(designPlan, type, functionName = ".plotTrialDesignPlan")
+    
     survivalDesignPlanEnabled <- .isTrialDesignPlanSurvival(designPlan)
 
     nMax <- NA_integer_
@@ -296,6 +315,16 @@
         }
     }
 
+    showBetaSpent <- .getOptionalArgument("showBetaSpent", ..., optionalArgumentDefaultValue = NA)
+    if (is.na(showBetaSpent)) {
+        showBetaSpent <- .getEnvironmentVariable(
+            "RPACT_PLOT_SHOW_BETA_SPENT",
+            "rpact.plot.show.beta.spent",
+            default = FALSE,
+            type = "logical"
+        )
+    }
+
     srcCmd <- NULL
     if (type == 1) { # Boundaries Z Scale
         if (survivalDesignPlanEnabled) {
@@ -308,7 +337,10 @@
                 designPlan <- data.frame(
                     cumulativeEventsPerStage = designPlan$cumulativeEventsPerStage[, 1],
                     criticalValues = designMaster$criticalValues,
-                    futilityBounds = c(designMaster$futilityBounds, designMaster$criticalValues[designMaster$kMax])
+                    futilityBounds = c(
+                        designMaster$futilityBounds,
+                        designMaster$criticalValues[designMaster$kMax]
+                    )
                 )
             } else {
                 designPlan <- data.frame(
@@ -328,7 +360,10 @@
                 yParameterNamesSrc <- yParameterNames
             } else {
                 yParameterNames <- c("criticalValues", "criticalValuesMirrored")
-                yParameterNamesSrc <- c("criticalValues", paste0("-", designPlanName, "$.design$criticalValues"))
+                yParameterNamesSrc <- c(
+                    "criticalValues",
+                    paste0("-", designPlanName, "$.design$criticalValues")
+                )
             }
 
             if (is.na(legendPosition)) {
@@ -410,7 +445,8 @@
                 yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScale[, 1]")
                 yParameterNamesSrc <- c(yParameterNamesSrc, paste0(
                     "c(", designPlanName, "$futilityBoundsEffectScale[, 1], ",
-                    designPlanName, "$criticalValuesEffectScale[nrow(", designPlanName, "$criticalValuesEffectScale), 1])"
+                    designPlanName, "$criticalValuesEffectScale[nrow(",
+                    designPlanName, "$criticalValuesEffectScale), 1])"
                 ))
             } else {
                 data <- data.frame(
@@ -435,11 +471,13 @@
             yParameterNamesSrc <- c(yParameterNamesSrc, "criticalValuesEffectScaleLower[, 1]")
             yParameterNamesSrc <- c(yParameterNamesSrc, paste0(
                 "c(", designPlanName, "$futilityBoundsEffectScaleUpper[, 1], ",
-                designPlanName, "$criticalValuesEffectScaleUpper[nrow(", designPlanName, "$criticalValuesEffectScaleUpper), 1])"
+                designPlanName, "$criticalValuesEffectScaleUpper[nrow(",
+                designPlanName, "$criticalValuesEffectScaleUpper), 1])"
             ))
             yParameterNamesSrc <- c(yParameterNamesSrc, paste0(
                 "c(", designPlanName, "$futilityBoundsEffectScaleLower[, 1], ",
-                designPlanName, "$criticalValuesEffectScaleLower[nrow(", designPlanName, "$criticalValuesEffectScaleLower), 1])"
+                designPlanName, "$criticalValuesEffectScaleLower[nrow(",
+                designPlanName, "$criticalValuesEffectScaleLower), 1])"
             ))
             groupedPlotEnabled <- TRUE
         } else {
@@ -529,13 +567,13 @@
         }
 
         yParameterNames <- "criticalValuesPValueScale"
-        futilityBoundsPValueScaleEnabled <- isTRUE(as.logical(
-            getOption("rpact.plot.show.futility.on.pvalue.scale", FALSE)
-        )) ||
-            isTRUE(.getOptionalArgument("showFutilityBounds", ..., optionalArgumentDefaultValue = FALSE))
-        if (futilityBoundsPValueScaleEnabled &&
-                !all(is.na(designMaster$futilityBounds)) &&
-                any(designMaster$futilityBounds > C_FUTILITY_BOUNDS_DEFAULT, na.rm = TRUE)) {
+        futilityBoundsPValueScaleEnabled <- .getEnvironmentVariable(
+            "RPACT_PLOT_SHOW_FUTILITY_ON_PVALUE_SCALE",
+            "rpact.plot.show.futility.on.pvalue.scale",
+            default = FALSE,
+            type = "logical"
+        ) || isTRUE(.getOptionalArgument("showFutilityBounds", ..., optionalArgumentDefaultValue = FALSE))
+        if (futilityBoundsPValueScaleEnabled && .isTrialDesignWithValidFutilityBounds(designMaster)) {
             yParameterNames <- c(yParameterNames, "futilityBoundsPValueScale")
             df$futilityBoundsPValueScale <- c(
                 designPlan$futilityBoundsPValueScale,
@@ -572,6 +610,9 @@
                 cumulativeEventsPerStage = designPlan$cumulativeEventsPerStage[, 1],
                 alphaSpent = designMaster$alphaSpent
             )
+            if (isTRUE(showBetaSpent)) {
+                designPlan$betaSpent <- designMaster$betaSpent
+            }
             xParameterNameSrc <- "cumulativeEventsPerStage[, 1]"
             yParameterNamesSrc <- ".design$alphaSpent"
         } else {
@@ -610,7 +651,10 @@
                 xParameterName <- "alternative"
                 yParameterNames <- c("nFixed")
                 if (designMaster$kMax > 1) {
-                    yParameterNames <- c(yParameterNames, "maxNumberOfSubjects", "expectedNumberOfSubjectsH1")
+                    yParameterNames <- c(
+                        yParameterNames,
+                        "maxNumberOfSubjects", "expectedNumberOfSubjectsH1"
+                    )
                 }
                 if (is.na(ylab)) {
                     ylab <- "Sample Size"
@@ -624,7 +668,10 @@
                 xParameterName <- "pi1"
                 yParameterNames <- c("nFixed")
                 if (designMaster$kMax > 1) {
-                    yParameterNames <- c(yParameterNames, "maxNumberOfSubjects", "expectedNumberOfSubjectsH1")
+                    yParameterNames <- c(
+                        yParameterNames,
+                        "maxNumberOfSubjects", "expectedNumberOfSubjectsH1"
+                    )
                 }
                 if (is.na(ylab)) {
                     ylab <- "Sample Size"
@@ -644,7 +691,10 @@
                 xParameterName <- "hazardRatio"
                 yParameterNames <- c("eventsFixed")
                 if (designMaster$kMax > 1) {
-                    yParameterNames <- c(yParameterNames, "maxNumberOfEvents", "expectedEventsH1")
+                    yParameterNames <- c(
+                        yParameterNames,
+                        "maxNumberOfEvents", "expectedEventsH1"
+                    )
                 }
                 if (is.na(ylab)) {
                     ylab <- "# Events"
@@ -661,7 +711,11 @@
                 xParameterName <- "theta" # "lambda1"
                 yParameterNames <- c("nFixed")
                 if (designMaster$kMax > 1) {
-                    yParameterNames <- c("maxNumberOfSubjects", "maxNumberOfSubjects", "expectedNumberOfSubjectsH1")
+                    yParameterNames <- c(
+                        "maxNumberOfSubjects",
+                        "maxNumberOfSubjects",
+                        "expectedNumberOfSubjectsH1"
+                    )
                 }
                 if (is.na(ylab)) {
                     ylab <- "Sample Size"
@@ -672,7 +726,13 @@
                 }
                 yParameterNamesSrc <- yParameterNames
             } else {
-                stop("Plot type 5 is not implemented for class ", sQuote(.getClassName(designPlan)))
+                stopRuntimeIssue("Plot type 5 is not implemented for class ", sQuote(.getClassName(designPlan)),
+                    parameter = "type",
+                    value = 5L,
+                    relatedParameter = "designPlan",
+                    relatedValue = .getClassName(designPlan),
+                    functionName = ".plotTrialDesignPlan"
+                )
             }
 
             srcCmd <- .showPlotSourceInformation(
@@ -823,13 +883,7 @@
             .addPlotSubTitleItems(designPlan, designMaster, main, type)
         }
 
-        if (survivalDesignPlanEnabled) {
-            xParameterName <- "hazardRatio"
-        } else if (.isTrialDesignPlanCountData(designPlan)) {
-            xParameterName <- "theta"
-        } else {
-            xParameterName <- "effect"
-        }
+        xParameterName <- .getEndpointDependentEffectParameterName(designPlan)
         yParameterNames <- "overallReject"
         if (is.na(legendPosition)) {
             legendPosition <- C_POSITION_RIGHT_CENTER
@@ -891,10 +945,14 @@
             }
         } else if (.isTrialDesignPlanCountData(designPlan)) {
             if (!designPlan$isGeneratedParameter("expectedNumberOfSubjectsH1")) {
-                stop(
-                    "Plot type 9 is only available for count data endpoint ",
+                stopIllegalArgument("Plot type 9 is only available for count data endpoint ",
                     "if 'expectedNumberOfSubjectsH1' was not calculated",
-                    call. = FALSE
+                    parameter = "type",
+                    value = 9L,
+                    constraint = "expectedNumberOfSubjectsH1 must be generated for count data endpoint plots",
+                    relatedParameter = "expectedNumberOfSubjectsH1",
+                    relatedValue = designPlan$isGeneratedParameter("expectedNumberOfSubjectsH1"),
+                    functionName = ".plotTrialDesignPlan"
                 )
             }
 
@@ -1013,10 +1071,10 @@
                 ...
             ))
         } else {
-            stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 1, 2, ..., 14", call. = FALSE)
+            .showPlotTypeNotImplementedError(type, ".plotTrialDesignPlan", designPlan)
         }
     } else {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' (", type, ") is not allowed; must be 1, 2, ..., 9", call. = FALSE)
+        .showPlotTypeNotImplementedError(type, ".plotTrialDesignPlan", designPlan)
     }
 
     if (!is.null(srcCmd)) {
@@ -1045,11 +1103,12 @@
         plotSettings = plotSettings
     )
 
-    showBetaSpent <- .getOptionalArgument("showBetaSpent", ..., optionalArgumentDefaultValue = NA)
     if (!is.na(showBetaSpent)) {
         args$showBetaSpent <- showBetaSpent
     }
-    showFutilityBound <- .getOptionalArgument("showFutilityBound", ..., optionalArgumentDefaultValue = NA)
+    showFutilityBound <- .getOptionalArgument("showFutilityBound", ...,
+        optionalArgumentDefaultValue = NA
+    )
     if (!is.na(showFutilityBound)) {
         args$showFutilityBound <- showFutilityBound
     }
@@ -1059,11 +1118,17 @@
     if (type == 1 && survivalDesignPlanEnabled) {
         p <- .addDecisionCriticalValuesToPlot(p = p, designMaster = designMaster, type = type, nMax = nMax)
     }
-    return(p)
+    return(.finalizePlotLegend(p, legendPosition, plotSettings))
 }
 
-.getSurvivalFunctionPlotCommand <- function(functionType = c("pwExpDist", "lambdaStep"), timeValues, lambda,
-        designPlan, type, piecewiseSurvivalEnabled, multiplyByHazardRatio = FALSE) {
+.getSurvivalFunctionPlotCommand <- function(
+        functionType = c("pwExpDist", "lambdaStep"),
+        timeValues,
+        lambda,
+        designPlan,
+        type,
+        piecewiseSurvivalEnabled,
+        multiplyByHazardRatio = FALSE) {
     functionType <- match.arg(functionType)
     signPrefix <- ifelse(type == 13, "", "-")
     if (functionType == "pwExpDist") {
@@ -1093,33 +1158,57 @@
 }
 
 # Cumulative Distribution Function / Survival function
-.plotSurvivalFunction <- function(designPlan, ..., designMaster, type = c(13, 14), main = NA_character_,
-        xlab = NA_character_, ylab = NA_character_, palette = "Set1",
-        legendPosition = NA_integer_, showSource = FALSE,
-        designPlanName = NA_character_, plotSettings = NULL) {
+.plotSurvivalFunction <- function(
+        designPlan,
+        ...,
+        designMaster,
+        type = c(13, 14),
+        main = NA_character_,
+        xlab = NA_character_,
+        ylab = NA_character_,
+        palette = "Set1",
+        legendPosition = "auto",
+        showSource = FALSE,
+        designPlanName = NA_character_,
+        plotSettings = NULL) {
     startTime <- Sys.time()
     if (is.null(designPlan$piecewiseSurvivalTime) ||
             length(designPlan$piecewiseSurvivalTime) == 0) {
-        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'piecewiseSurvivalTime' must be specified", call. = FALSE)
+        stopMissingArgument("'piecewiseSurvivalTime' must be specified",
+            functionName = ".plotSurvivalFunction",
+            parameter = "piecewiseSurvivalTime"
+        )
     }
 
     type <- type[1]
     if (!(type %in% c(13, 14))) {
-        stop(C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'type' must be 13 or 14", call. = FALSE)
+        stopIllegalArgument("'type' must be 13 or 14",
+            functionName = ".plotSurvivalFunction",
+            parameter = "type", value = type
+        )
     }
 
     lambda1 <- designPlan[["lambda1"]]
     lambda2 <- designPlan[["lambda2"]]
     if (is.null(lambda2) || length(lambda2) == 0) {
-        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'lambda2' must be specified", call. = FALSE)
+        stopMissingArgument("'lambda2' must be specified",
+            functionName = ".plotSurvivalFunction",
+            parameter = "lambda2"
+        )
     }
 
     if (is.null(designPlan$kappa) || length(designPlan$kappa) == 0) {
-        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'kappa' must be specified", call. = FALSE)
+        stopMissingArgument("'kappa' must be specified",
+            functionName = ".plotSurvivalFunction",
+            parameter = "kappa"
+        )
     }
 
     if (is.null(designPlan$hazardRatio) || length(designPlan$hazardRatio) == 0) {
-        stop(C_EXCEPTION_TYPE_MISSING_ARGUMENT, "'hazardRatio' must be specified", call. = FALSE)
+        stopMissingArgument("'hazardRatio' must be specified",
+            functionName = ".plotSurvivalFunction",
+            parameter = "hazardRatio"
+        )
     }
 
     piecewiseSurvivalEnabled <- designPlan$.piecewiseSurvivalTime$piecewiseSurvivalEnabled
@@ -1235,9 +1324,9 @@
         if (designPlan$.piecewiseSurvivalTime$.isLambdaBased(minNumberOfLambdas = 1)) {
             if (length(designPlan$lambda1) > 1) {
                 lambda1 <- designPlan$lambda1[1]
-                warning("Only the first 'lambda1' (", round(lambda1, 4),
+                warnArgumentAdjusted("Only the first 'lambda1' (", round(lambda1, 4),
                     ") was used for plotting",
-                    call. = FALSE
+                    diagnosticId = "plot.single_scenario_selected"
                 )
             }
         } else {
@@ -1391,9 +1480,9 @@
 
 .warnInCaseOfUnusedValuesForPlottingMeans <- function(alternative) {
     if (length(alternative) > 1) {
-        warning("Only the first 'alternative' (", round(alternative[1], 3),
+        warnArgumentAdjusted("Only the first 'alternative' (", round(alternative[1], 3),
             ") was used for plotting",
-            call. = FALSE
+            diagnosticId = "plot.single_scenario_selected"
         )
         return(list(title = "alternative", value = alternative[1], subscript = NA_character_))
     }
@@ -1402,9 +1491,9 @@
 
 .warnInCaseOfUnusedValuesForPlottingRates <- function(pi1) {
     if (length(pi1) > 1) {
-        warning("Only the first 'pi1' (", round(pi1[1], 3),
+        warnArgumentAdjusted("Only the first 'pi1' (", round(pi1[1], 3),
             ") was used for plotting",
-            call. = FALSE
+            diagnosticId = "plot.single_scenario_selected"
         )
         return(list(title = "pi", value = pi1[1], subscript = "1"))
     }
@@ -1413,9 +1502,9 @@
 
 .warnInCaseOfUnusedValuesForPlottingSurvival <- function(hazardRatio) {
     if (length(hazardRatio) > 1) {
-        warning("Only the first 'hazardRatio' (", round(hazardRatio[1], 3),
+        warnArgumentAdjusted("Only the first 'hazardRatio' (", round(hazardRatio[1], 3),
             ") was used for plotting",
-            call. = FALSE
+            diagnosticId = "plot.single_scenario_selected"
         )
         return(list(title = "hazardRatio", value = hazardRatio[1], subscript = NA_character_))
     }
@@ -1516,8 +1605,10 @@
 #'
 #' @export
 #'
-plot.TrialDesignPlan <- function(x,
-        y, ...,
+plot.TrialDesignPlan <- function(
+        x,
+        y,
+        ...,
         main = NA_character_,
         xlab = NA_character_,
         ylab = NA_character_,
@@ -1525,7 +1616,7 @@ plot.TrialDesignPlan <- function(x,
         palette = "Set1",
         theta = NA_real_,
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         grid = 1,
         plotSettings = NULL) {
@@ -1582,7 +1673,8 @@ plot.TrialDesignPlan <- function(x,
     return(do.call(.plot.TrialDesignPlan, args))
 }
 
-.plot.TrialDesignPlan <- function(x,
+.plot.TrialDesignPlan <- function(
+        x,
         y,
         ...,
         main = NA_character_,
@@ -1592,7 +1684,7 @@ plot.TrialDesignPlan <- function(x,
         palette = "Set1",
         theta = NA_real_,
         plotPointsEnabled = NA,
-        legendPosition = NA_integer_,
+        legendPosition = "auto",
         showSource = FALSE,
         grid = 1,
         plotSettings = NULL) {
@@ -1604,21 +1696,20 @@ plot.TrialDesignPlan <- function(x,
 
     nMax <- list(...)[["nMax"]]
     if (!is.null(nMax)) {
-        warning(
-            C_EXCEPTION_TYPE_ILLEGAL_ARGUMENT, "'nMax' (", nMax,
-            ") will be ignored because it will be taken from design plan",
-            call. = FALSE
+        warnArgumentIgnored("'nMax' (", nMax, ") will be ignored because it will be taken from design plan",
+            parameter = "nMax",
+            value = nMax,
+            diagnosticId = "plot.n_max_ignored"
         )
     }
 
     if (all(is.na(type))) {
         availablePlotTypes <- getAvailablePlotTypes(x)
         if (length(availablePlotTypes) == 0) {
-            stop(
-                "No plot available for this ",
-                .formatCamelCaseSingleWord(x$.objectType), " ", x$.toString(),
+            stopRuntimeIssue("No plot available for this ", .formatCamelCaseSingleWord(x$.objectType), " ", x$.toString(),
                 " result object",
-                call. = FALSE
+                parameter = "x", value = .getClassName(x),
+                functionName = ".plot.TrialDesignPlan"
             )
         }
 
